@@ -127,24 +127,21 @@ namespace xs::script::internal
 
 using namespace xs::script::internal;
 
-xs::result xs::script::initialize(const char* main)
+void xs::script::initialize(const char* main)
 {
 	initialized = false;
 	error = false;
 
-	if (main == nullptr)
-	{
-		log::error("Wren script file not provided!");
-		return result::fail;
-	}
+	if (main != nullptr)
+		internal::main = main;
 
-	if (!fileio::exists(string(main)))
+	if (!fileio::exists(internal::main))
 	{
-		log::error("Wren script file {} not found!", main);
-		return result::fail;
+		log::error("Wren script file {} not found!", internal::main);
+		log::error("Please restart with a valid script file!", internal::main);
+		return;
 	}
-
-	internal::main = main;	
+	
 	log::info("Wren script set to {}", internal::main);
 	bind_api();
 
@@ -176,24 +173,30 @@ xs::result xs::script::initialize(const char* main)
 	case WREN_RESULT_SUCCESS:
 		{
 			initialized = true;
-			log::info("Script compile success");
+			static int idx = 0;
+			static array<string, 10> praise =
+			{
+				"Great!", "Amazing!", "Super!", "You rock!", "You rule!",
+				"Nice!", "Sweet!", "Wow!", "You got this!", "Keep it up!"
+			};			
+			string pr = praise[idx];
+			idx = (idx + 1) % praise.size();
+			log::info(string("Script compile success. ") + pr);
 		} break;
 	}
 
 	if (initialized && !error)
 	{
 		wrenEnsureSlots(vm, 1);										// Make sure there at least one slot
-		wrenGetVariable(vm, "main", "Game", 0);				// Grab a handle to the Game class
+		wrenGetVariable(vm, "main", "Game", 0);						// Grab a handle to the Game class
 		game_class = wrenGetSlotHandle(vm, 0);
-		wrenSetSlotHandle(vm, 0, game_class);							// Put Game class in slot 0
+		wrenSetSlotHandle(vm, 0, game_class);						// Put Game class in slot 0
 		init_method = wrenMakeCallHandle(vm, "init()");
 		update_method = wrenMakeCallHandle(vm, "update(_)");
 
 		call_init();
 		wrenCall(vm, init_method);
 	}
-
-	return result::success;
 }
 
 void xs::script::shutdown()
@@ -216,6 +219,7 @@ void xs::script::shutdown()
 			update_method = nullptr;
 		}
 		wrenFreeVM(vm);
+		vm = nullptr;
 	}
 
 	foreign_methods.clear();
