@@ -52,3 +52,4 @@ Thumbs.db
 xs.vcxproj.user
 executable/
 intermediate/
+build/
