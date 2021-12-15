@@ -127,11 +127,24 @@ namespace xs::script::internal
 
 using namespace xs::script::internal;
 
-void xs::script::initialize(const char* main)
+xs::result xs::script::initialize(const char* main)
 {
-	if(main != nullptr)
-		internal::main = main;
-	
+	initialized = false;
+	error = false;
+
+	if (main == nullptr)
+	{
+		log::error("Wren script file not provided!");
+		return result::fail;
+	}
+
+	if (!fileio::exists(string(main)))
+	{
+		log::error("Wren script file {} not found!", main);
+		return result::fail;
+	}
+
+	internal::main = main;	
 	log::info("Wren script set to {}", internal::main);
 	bind_api();
 
@@ -147,9 +160,7 @@ void xs::script::initialize(const char* main)
 	const auto module = "main";
 	const std::string script_file = fileio::read_text_file(internal::main);
 	const WrenInterpretResult result = wrenInterpret(vm, module, script_file.c_str());
-
-	initialized = false;
-	error = false;
+	
 	switch (result)
 	{
 	case WREN_RESULT_COMPILE_ERROR:
@@ -181,6 +192,8 @@ void xs::script::initialize(const char* main)
 		call_init();
 		wrenCall(vm, init_method);
 	}
+
+	return result::success;
 }
 
 void xs::script::shutdown()
