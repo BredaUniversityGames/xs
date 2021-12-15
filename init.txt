@@ -1,1 +1,1 @@
-games/lecture/hello.wren
+games/lecture/game_end.wren
