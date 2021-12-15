@@ -1,1 +1,1 @@
-games/lecture/game_end.wren
+games/lecture/game_classes.wren

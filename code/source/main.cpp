@@ -68,7 +68,7 @@ int xs::main(int argc, char* argv[])
     {
         log::info("Please provide a game script to run. Example:");
         log::info("xs.exe [games]/awesome_game/main.wren");
-        log::info("Or provide an ini file");
+        log::info("Or provide an init.txt file with the relative path to the script.");
         return -1;
     }
     
