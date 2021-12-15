@@ -132,8 +132,9 @@ void xs::script::initialize(const char* main)
 	if(main != nullptr)
 		internal::main = main;
 	
+	log::info("Wren script set to {}", internal::main);
 	bind_api();
-	
+
     WrenConfiguration config;
     wrenInitConfiguration(&config);
     config.writeFn = &writeFn;
@@ -168,23 +169,41 @@ void xs::script::initialize(const char* main)
 		} break;
 	}
 
-	wrenEnsureSlots(vm, 1);										// Make sure there at least one slot
-	wrenGetVariable(vm, "main", "Game", 0);				// Grab a handle to the Game class
-	game_class = wrenGetSlotHandle(vm, 0);							
-	wrenSetSlotHandle(vm, 0, game_class);							// Put Game class in slot 0
-	init_method = wrenMakeCallHandle(vm, "init()");
-	update_method = wrenMakeCallHandle(vm, "update(_)");
+	if (initialized && !error)
+	{
+		wrenEnsureSlots(vm, 1);										// Make sure there at least one slot
+		wrenGetVariable(vm, "main", "Game", 0);				// Grab a handle to the Game class
+		game_class = wrenGetSlotHandle(vm, 0);
+		wrenSetSlotHandle(vm, 0, game_class);							// Put Game class in slot 0
+		init_method = wrenMakeCallHandle(vm, "init()");
+		update_method = wrenMakeCallHandle(vm, "update(_)");
 
-	call_init();
-	wrenCall(vm, init_method);
+		call_init();
+		wrenCall(vm, init_method);
+	}
 }
 
 void xs::script::shutdown()
 {
-	wrenReleaseHandle(vm, game_class);
-	wrenReleaseHandle(vm, init_method);
-	wrenReleaseHandle(vm, update_method);
-	wrenFreeVM(vm);
+	if (vm)
+	{
+		if (game_class)
+		{
+			wrenReleaseHandle(vm, game_class);
+			game_class = nullptr;
+		}
+		if (init_method)
+		{
+			wrenReleaseHandle(vm, init_method);
+			init_method = nullptr;
+		}
+		if (update_method)
+		{
+			wrenReleaseHandle(vm, update_method);
+			update_method = nullptr;
+		}
+		wrenFreeVM(vm);
+	}
 
 	foreign_methods.clear();
 	modules.clear();
