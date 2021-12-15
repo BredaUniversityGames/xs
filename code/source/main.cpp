@@ -75,7 +75,11 @@ int xs::main(int argc, char* argv[])
     
     account::initialize();
     fileio::initialize();    
-    script::initialize(main_script.c_str());
+    if (script::initialize(main_script.c_str()) != xs::result::success)
+    {
+        account::shutdown();
+        return -1;
+    }
     device::initialize();
     render::initialize();
     input::initialize();
