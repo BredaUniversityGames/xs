@@ -71,15 +71,10 @@ int xs::main(int argc, char* argv[])
         log::info("Or provide an ini file");
         return -1;
     }
-
     
     account::initialize();
     fileio::initialize();    
-    if (script::initialize(main_script.c_str()) != xs::result::success)
-    {
-        account::shutdown();
-        return -1;
-    }
+    script::initialize(main_script.c_str());    
     device::initialize();
     render::initialize();
     input::initialize();
