@@ -48,21 +48,34 @@ int xs::main(int argc, char* argv[])
     log::info("  __ __ _____ ");
     log::info(" |  |  |   __|");
     log::info(" |-   -|__   |");
-    log::info(" |__|__|_____| v0.13");
-    log::info("By Bojan Endrovski & Friends");
-    log::info("");	    
+    log::info(" |__|__|_____| v0.14");
+    log::info("By Bojan Endrovski");
+    log::info("");
 
-    if (argc < 2)
+    string main_script;
+    if (argc == 2)
+    {       
+        main_script = string(argv[1]);        
+    }
+    else
+    {
+        log::info("No arguments provided script to run. Trying init.txt");
+        if (fileio::exists("init.txt"))
+            main_script = fileio::read_text_file("init.txt");
+    }
+
+    if(main_script.empty())
     {
         log::info("Please provide a game script to run. Example:");
         log::info("xs.exe [games]/awesome_game/main.wren");
+        log::info("Or provide an ini file");
         return -1;
     }
 
-    const auto main = argv[1];
+    
     account::initialize();
     fileio::initialize();    
-    script::initialize(main);
+    script::initialize(main_script.c_str());
     device::initialize();
     render::initialize();
     input::initialize();
@@ -77,13 +90,13 @@ int xs::main(int argc, char* argv[])
         const auto dt = std::chrono::duration<double>(elapsed).count();
 
         device::poll_events();
-        input::update();
+        input::update();        
         if (!inspector::paused())
         {
             render::clear();
-            script::update(dt);
-            render::render();
+            script::update(dt);            
         }
+        render::render();
         inspector::render();
         device::swap_buffers();
 	}

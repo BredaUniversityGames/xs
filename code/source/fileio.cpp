@@ -148,3 +148,9 @@ std::string fileio::get_path(const std::string& filename)
 
 	return full_path;
 }
+
+bool xs::fileio::exists(const std::string& filename)
+{
+	ifstream f(filename.c_str());
+	return f.good();
+}
