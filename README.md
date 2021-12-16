@@ -7,6 +7,13 @@ xs is an experiment into making the smallest game making tool possible. It can a
 - xs has not audio support at current
 - xs is in a very early alpha (but open for contribution from anyone at games@buas)
 
+
+## running an example
+Download the latest [release](https://github.com/BredaUniversityGames/xs/releases) and unzip it. You can run xs from the command line by giving it the game script:
+```
+C:\the\path\to\xs> .\xs.exe .\games\examples\pong.wren 
+```
+
 ## xs script
 The xs main script always has this basic structure
 
@@ -29,12 +36,6 @@ class Game {
         // udptate gets called by our engine every frame
     }
 }
-```
-
-## running an example
-Downloaded the latest [release](https://github.com/BredaUniversityGames/xs/releases) and unzip it. You can run xs from the command line by giving it the game script:
-```
-C:\the\path\to\xs> .\xs.exe .\games\examples\pong.wren 
 ```
 
 ## tools
