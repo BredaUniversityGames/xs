@@ -48,7 +48,7 @@ int xs::main(int argc, char* argv[])
     log::info("  __ __ _____ ");
     log::info(" |  |  |   __|");
     log::info(" |-   -|__   |");
-    log::info(" |__|__|_____| v0.14");
+    log::info(" |__|__|_____| v0.1.4");
     log::info("By Bojan Endrovski");
     log::info("");
 
