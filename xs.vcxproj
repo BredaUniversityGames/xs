@@ -125,6 +125,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="code\include\configuration.h" />
+    <ClInclude Include="code\include\defines.h" />
     <ClInclude Include="code\include\device.h" />
     <ClInclude Include="code\include\device_pc.h" />
     <ClInclude Include="code\include\fileio.h" />
@@ -347,7 +348,7 @@
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
     </Link>
     <ClCompile>
-      <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions);PLATFORM_SWITCH</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PLATFORM_SWITCH;DEBUG;%(PreprocessorDefinitions);PLATFORM_SWITCH</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CPPExceptions>true</CPPExceptions>
       <WarningsAsErrors>true</WarningsAsErrors>
@@ -359,7 +360,7 @@
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
     </Link>
     <ClCompile>
-      <PreprocessorDefinitions>NN_SDK_BUILD_DEVELOP;%(PreprocessorDefinitions);PLATFORM_SWITCH</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PLATFORM_SWITCH;NN_SDK_BUILD_DEVELOP;%(PreprocessorDefinitions);PLATFORM_SWITCH</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CPPExceptions>true</CPPExceptions>
       <WarningsAsErrors>true</WarningsAsErrors>
@@ -372,7 +373,7 @@
       <Profile>true</Profile>
     </Link>
     <ClCompile>
-      <PreprocessorDefinitions>NN_SDK_BUILD_RELEASE;%(PreprocessorDefinitions);PLATFORM_SWITCH</PreprocessorDefinitions>
+      <PreprocessorDefinitions>PLATFORM_SWITCH;NN_SDK_BUILD_RELEASE;%(PreprocessorDefinitions);PLATFORM_SWITCH</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CPPExceptions>true</CPPExceptions>
       <WarningsAsErrors>true</WarningsAsErrors>

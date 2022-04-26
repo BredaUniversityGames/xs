@@ -216,6 +216,9 @@
     <ClInclude Include="code\include\account.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="code\include\defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="external\wren\optional\wren_opt_meta.wren" />

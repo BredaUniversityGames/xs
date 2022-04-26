@@ -86,6 +86,10 @@ class Game {
     static init() {
         __hexes = HexGrid.new(16)
         __pos = Vec2.new(0.0, 0.0)
+        Configuration.width = 1280
+        Configuration.heght = 720
+        Configuration.multiplier = 1
+        Configuration.title = "Hex"
     }    
     
     static update(dt) {        
@@ -108,7 +112,7 @@ class Game {
         for (x in -7..7) {
             for(y in -7..7) {                
                 var tile = HexTile.new(x, y)                
-                if(HexTile.distance(tile, origin) < 7) {
+                if(HexTile.distance(tile, origin) < 5) {
                     var pos = __hexes.getPosiion(tile)
                     Render.polygon(pos.x, pos.y, 14, 6)
                 }
