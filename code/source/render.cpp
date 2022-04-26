@@ -5,11 +5,17 @@
 #include <glm/gtc/type_ptr.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
-#include <stb/stb_easy_font.h>
+#ifdef PLATFORM_SWITCH
+	#pragma clang diagnostic push
+	#pragma clang diagnostic ignored "-Wunused-function"
+	#include <stb/stb_easy_font.h>
+	#pragma clang diagnostic pop
+#else
+	#include <stb/stb_easy_font.h>
+#endif
 #include "opengl.h"
 #include "configuration.h"
 #include "fileio.h"
-
 #include "log.h"
 
 using namespace glm;
@@ -321,8 +327,6 @@ void xs::render::render()
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glBlitFramebuffer(0, 0, width, height, 0, 0, width * mul, height * mul, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	
 }
 
 void xs::render::clear()
