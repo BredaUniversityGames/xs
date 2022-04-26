@@ -1,6 +1,8 @@
 #include <log.h>
-#include <spdlog/cfg/env.h>
 
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+
+#include <spdlog/cfg/env.h>
 
 void xs::log::initialize()
 {
@@ -23,3 +25,10 @@ void xs::log::initialize()
     spdlog::error("ERR!?");
 #endif
 }
+
+#elif defined(PLATFORM_PS5)
+
+void xs::log::initialize() {}
+
+#endif
+

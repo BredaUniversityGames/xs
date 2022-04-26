@@ -8,25 +8,34 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|PC = Debug|PC
+		Debug|Prospero = Debug|Prospero
 		Debug|Switch = Debug|Switch
-		Develop|PC = Develop|PC
-		Develop|Switch = Develop|Switch
 		Release|PC = Release|PC
+		Release|Prospero = Release|Prospero
 		Release|Switch = Release|Switch
+		Test|PC = Test|PC
+		Test|Prospero = Test|Prospero
+		Test|Switch = Test|Switch
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Debug|PC.ActiveCfg = Debug|x64
 		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Debug|PC.Build.0 = Debug|x64
+		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Debug|Prospero.ActiveCfg = Develop|Prospero
+		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Debug|Prospero.Build.0 = Develop|Prospero
 		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Debug|Switch.ActiveCfg = Debug|NX64
 		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Debug|Switch.Build.0 = Debug|NX64
-		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Develop|PC.ActiveCfg = Develop|x64
-		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Develop|PC.Build.0 = Develop|x64
-		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Develop|Switch.ActiveCfg = Develop|NX64
-		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Develop|Switch.Build.0 = Develop|NX64
 		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Release|PC.ActiveCfg = Release|x64
 		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Release|PC.Build.0 = Release|x64
+		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Release|Prospero.ActiveCfg = Release|Prospero
+		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Release|Prospero.Build.0 = Release|Prospero
 		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Release|Switch.ActiveCfg = Release|NX64
 		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Release|Switch.Build.0 = Release|NX64
+		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Test|PC.ActiveCfg = Develop|x64
+		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Test|PC.Build.0 = Develop|x64
+		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Test|Prospero.ActiveCfg = Debug|Prospero
+		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Test|Prospero.Build.0 = Debug|Prospero
+		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Test|Switch.ActiveCfg = Develop|NX64
+		{4F1FCE22-25BA-46E4-A479-385F1667DEF0}.Test|Switch.Build.0 = Develop|NX64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

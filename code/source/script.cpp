@@ -1,9 +1,10 @@
-#include "script.h"
+#include <script.h>
 #include <cassert>
 #include <iomanip>
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <array>
 #include <wren.hpp>
 #include "fileio.h"
 #include "log.h"
@@ -174,7 +175,7 @@ void xs::script::initialize(const char* main)
 		{
 			initialized = true;
 			static int idx = 0;
-			static array<string, 10> praise =
+			static std::array<string, 10> praise =
 			{
 				"Great!", "Amazing!", "Super!", "You rock!", "You rule!",
 				"Nice!", "Sweet!", "Wow!", "You got this!", "Keep it up!"
