@@ -127,6 +127,9 @@
     <ClCompile Include="code\source\ps5\input_ps5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="code\source\ps5\render_ps5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="nintendo\xs.aarch64.nmeta" />
