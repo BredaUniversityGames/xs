@@ -51,13 +51,11 @@ int main()
 
 int xs::main(int argc, char* argv[])
 {	
-    printf("\nHi!\n");
-
 	log::initialize();
     log::info("  __ __ _____ ");
     log::info(" |  |  |   __|");
     log::info(" |-   -|__   |");
-    log::info(" |__|__|_____| v0.1.4");
+    log::info(" |__|__|_____| v0.1.5");
     log::info("By Bojan Endrovski");
     log::info("");
 
