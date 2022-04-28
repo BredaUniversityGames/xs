@@ -39,11 +39,20 @@ int main(int argc, char* argv[])
 {
 	return  xs::main(argc, argv);	
 }
+
+#elif defined(PLATFORM_PS5) 
+int main()
+{
+    return  xs::main(0, 0);
+}
+
 #endif
 
 
 int xs::main(int argc, char* argv[])
 {	
+    printf("\nHi!\n");
+
 	log::initialize();
     log::info("  __ __ _____ ");
     log::info(" |  |  |   __|");

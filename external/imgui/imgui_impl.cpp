@@ -58,4 +58,28 @@ void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
 	ImGui_Impl_Switch_RenderDrawData(ImGui::GetDrawData());
 }
 
+#elif defined(PLATFORM_PS5)
+
+#include "imgui_impl_PS5.h"
+
+bool ImGui_Impl_Init()
+{
+	return ImGui_Impl_PS5_Init();
+}
+
+void ImGui_Impl_Shutdown()
+{
+	ImGui_Impl_PS5_Shutdown();
+}
+
+void ImGui_Impl_NewFrame()
+{
+	ImGui_Impl_PS5_NewFrame();
+}
+
+void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
+{
+	ImGui_Impl_PS5_RenderDrawData(ImGui::GetDrawData());
+}
+
 #endif

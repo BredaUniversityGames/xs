@@ -130,6 +130,9 @@
     <ClCompile Include="code\source\ps5\render_ps5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="external\imgui\imgui_impl_ps5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="nintendo\xs.aarch64.nmeta" />
@@ -229,6 +232,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\include\defines.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui_impl_ps5.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

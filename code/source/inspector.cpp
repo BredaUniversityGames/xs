@@ -2,7 +2,6 @@
 #include <imgui.h>
 #include <imgui_impl.h>
 #include "IconsFontAwesome5.h"
-#include "opengl.h" // TODO: inspector should no know anything about OpenGL
 #include "fileio.h"
 #include "script.h"
 #if defined(PLATFORM_PC)
@@ -74,8 +73,11 @@ void xs::inspector::shutdown()
 
 void xs::inspector::render()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);	// TODO: Only OpenGL call
+	// glBindFramebuffer(GL_FRAMEBUFFER, 0);	// TODO: Only OpenGL call
+
 	ImGui_Impl_NewFrame();
+	// ^^^ Move the bind bind here!
+
 
 	bool true_that = true;
 	ImGui::SetWindowPos({ 0,0 });
