@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#if defined(PLATFORM_PS5) || defined(PLATFORM_SWITCH)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-function"
 #pragma clang diagnostic ignored "-Wunused-but-set-variable"
@@ -11,6 +13,13 @@
 	#include <stb/stb_image.h>
 	#include <stb/stb_easy_font.h>
 #pragma clang diagnostic pop
+#elif defined(PLATFORM_PC)
+	#define STB_IMAGE_IMPLEMENTATION
+	#include <stb/stb_image.h>
+	#include <stb/stb_easy_font.h>
+#endif
+
+
 #include <configuration.h>
 #include <fileio.h>
 #include <log.h>
