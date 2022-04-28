@@ -28,4 +28,5 @@ void device::poll_events()
 
 bool device::should_close()
 {
+	return false;
 }
