@@ -41,9 +41,9 @@ int main(int argc, char* argv[])
 }
 
 #elif defined(PLATFORM_PS5) 
-int main()
+int main(int argc, char* argv[])
 {
-    return  xs::main(0, 0);
+    return  xs::main(argc, argv);
 }
 
 #endif

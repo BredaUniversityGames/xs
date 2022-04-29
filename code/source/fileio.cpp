@@ -80,6 +80,7 @@ void fileio::initialize()
 
 	add_wildcard("[games]", "rom:");
 	add_wildcard("[save]", "save:");
+
 #elif defined(PLATFORM_PC)
 	char* pValue;
 	size_t len;
@@ -93,6 +94,9 @@ void fileio::initialize()
 	
 	add_wildcard("[games]", "./games");
 	add_wildcard("[save]", save_path);
+#elif defined(PLATFORM_PS5)	
+	add_wildcard("[games]", "/app0");
+	// add_wildcard("[save]", save_path);
 #endif
 }
 
