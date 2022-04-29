@@ -37,7 +37,8 @@ namespace xs::script::internal
 		auto t = std::time(nullptr);
 		auto tm = *std::localtime(&t);		
 		const auto time = std::put_time(&tm, "[%Y-%m-%d %T.%e0] ");
-		std::cout << time << "[" << magenta << "script" << reset << "] " << text << endl;
+		//std::cout << time << "[" << magenta << "script" << reset << "] " << text << endl;
+		std::cout << "[" << magenta << "script" << reset << "] " << text << endl;
 	}
 
 	void errorFn(
