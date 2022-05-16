@@ -103,7 +103,7 @@ int xs::main(int argc, char* argv[])
             script::update(dt);            
         }
         render::render();
-        inspector::render();
+        inspector::render(float(dt));
         device::swap_buffers();
 	}
 

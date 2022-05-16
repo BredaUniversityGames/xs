@@ -21,6 +21,7 @@ namespace xs::script::internal
 	WrenHandle* game_class = nullptr;
 	WrenHandle* init_method = nullptr;
 	WrenHandle* update_method = nullptr;
+	WrenHandle* render_method = nullptr;
 	std::unordered_map<size_t, WrenForeignMethodFn> foreign_methods;
 	std::unordered_map<size_t, std::string> modules;
 	bool initialized = false;

@@ -71,7 +71,7 @@ void xs::inspector::shutdown()
 	ImGui::DestroyContext();
 }
 
-void xs::inspector::render()
+void xs::inspector::render(float dt)
 {
 	// glBindFramebuffer(GL_FRAMEBUFFER, 0);	// TODO: Only OpenGL call
 
@@ -111,7 +111,8 @@ void xs::inspector::render()
 		if (ImGui::Button(ICON_FA_PAUSE))
 			internal::paused = true;
 	}
-
+	ImGui::SameLine();
+	ImGui::Text("dt=%f", dt);
 	
 	ImGui::PopStyleVar();
 	

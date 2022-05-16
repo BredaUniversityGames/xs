@@ -2,16 +2,26 @@ import "xs" for Configuration, Input, Render
 import "random" for Random
 import "vector" for Vector, ColorRGBA, Base
 
+class Tag {
+    static None { 0 }
+    static ShipPlayer { 1 }
+    static ShipEnemy { 2 }
+    static BulletPlayer { 3 }
+    static BulletEnemy { 4 }
+}
 
 class GameObject {
     construct new() {
         _deleted = false
+        _tag = 0
         Game.addObject(this)
     }
     update(dt) { }
     render() { }
     deleted { _deleted }
     delete() { _deleted = true }
+    tag { _tag }
+    tag=(t) { _tag = t }
 }
 
 class MovingObject is GameObject {
@@ -34,13 +44,12 @@ class MovingObject is GameObject {
         _position = _position + _velocity * dt
     }
 
-    collide(other) {
-        
+    collide(other) {        
     }
 
     debugRender(color) {
         Render.setColor(color.r, color.g, color.b)
-        Render.rect(_position.x, _position.y, _size.x, _size.y, 0.0)
+        Render.rect(_position.x, _position.y, _size.x, _size.y)
     }
 }
 
@@ -51,7 +60,7 @@ class Ship  is MovingObject {
         var vel = Vector.new(0.0, 0.0)
         var size = Vector.new(35.0, 15.0)
         super(pos, size, vel)
-        _rect = Rect.positionSize(Vector.new(0,0), size, 0.0)
+        _rect = Rect.positionSize(Vector.new(0,0), size)
         _shootTime = 0.0
     }
 
@@ -107,15 +116,15 @@ class Ship  is MovingObject {
         var open = velocity.x * 0.02
         var tilt = velocity.y * 0.02
         Render.setColor("FBAF40FF")
-        Render.disk(position.x, position.y, 8, 24)
+        Render.disk(position.x, position.y, 5, 24)
         Render.setColor("D07D04FF")        
         Render.begin(Render.triangles)
             Render.vertex(position.x, position.y)
-            Render.vertex(position.x + 10, position.y + 10)
-            Render.vertex(position.x - 30, position.y + (20 - open) - tilt)
+            Render.vertex(position.x + 6, position.y + 6)
+            Render.vertex(position.x - 17, position.y + (12 - open) - tilt)
             Render.vertex(position.x, position.y)
-            Render.vertex(position.x + 10, position.y - 10)
-            Render.vertex(position.x - 30, position.y - (20 - open) - tilt)
+            Render.vertex(position.x + 6, position.y - 6)
+            Render.vertex(position.x - 17, position.y - (12 - open) - tilt)
         Render.end()
     }
 }
@@ -128,7 +137,7 @@ class Enemy  is MovingObject {
         var vel = Vector.new(0.0, 0.0)
         var size = Vector.new(35.0, 15.0)
         super(pos, size, vel)
-        _rect = Rect.positionSize(Vector.new(0,0), size, 0.0)
+        _rect = Rect.positionSize(Vector.new(0,0), size)
         _shootTime = 0.0
     }
 
@@ -220,24 +229,18 @@ class Rocket is MovingObject {
 }
 
 class Rect {
-    construct fromTo(from, to, rounding) {
+    construct fromTo(from, to) {
         _from = from
         _to = to
-        _rounding = rounding
     }
 
-    construct positionSize(position, size, rounding) {
+    construct positionSize(position, size) {
         _from = Vector.new(position.x - size.x * 0.5, position.y - size.y * 0.5)
         _to = Vector.new(position.x + size.x * 0.5, position.y + size.y * 0.5)
-        _rounding = rounding
     }
 
-    render(x, y) {
-        if(_rounding == 0.0) {
-            Render.rect(_from.x + x, _from.y + y, _to.x + x, _to.y + y)
-        } else {
-
-        }
+    render(x, y) {        
+        Render.rect(_from.x + x, _from.y + y, _to.x + x, _to.y + y)        
     }
 
 }
@@ -247,6 +250,8 @@ class Building is GameObject {
         __random = Random.new()
         __fromHeight = [0.1, 0.2, 0.4, 0.75]
         __toHeight = [0.15, 0.3, 0.5, 0.85]
+        __fromWidth = [30, 30, 25, 20]
+        __toWidth = [80, 40, 35, 25]
         __colors = ["6C5A9DFF", "4DAAEFFF", "7DC4F7FF", "A9E0FFFF"]
     }
 
@@ -254,6 +259,8 @@ class Building is GameObject {
         super()
         var fromH = __fromHeight[layer] * Configuration.height
         var toH = __toHeight[layer] * Configuration.height
+        var fromW = __fromWidth[layer]
+        var toW = __toWidth[layer]
 
         _width = 120        
         _height = __random.int(fromH, toH)
@@ -261,20 +268,26 @@ class Building is GameObject {
 
         _color = __colors[layer]
         _layer = layer * 0.25        
-        _scrollSpeed = (1.0 - _layer) * 60 + 40    
-        
+        _scrollSpeed = (1.0 - _layer) * 60 + 40            
         _rects = []
+
         var x = -100
-        var dx = 12
-        var h = __random.float(fromH, toH)
-        for(i in 1..5) {
-            var from = Vector.new(x, 0.0)
-            x = x + __random.int(1, 3) * dx            
-            var to = Vector.new(x, h)
-            h = h + __random.float(-6.0, 6.0)
-            var r = Rect.fromTo(from, to, 0.0)
+        var y = 32
+        var dx = __random.float(fromW, toW)
+        var dy = 15 
+        var n = __random.int(3, 3 + layer)
+        for(i in 1..n) {
+            var from = Vector.new(x, y)
+            y = y + __random.float(1, 4) * dy
+            var to = Vector.new(x + dx, y)            
+            var r = Rect.fromTo(from, to)            
             _rects.add(r)
+            y = y + 2
         }
+        var from = Vector.new(x + 2, 30)
+        var to = Vector.new(x + dx - 2, y)
+        var r = Rect.fromTo( from, to)        
+        _rects.add(r)      
     }
 
     update(dt) {
@@ -294,22 +307,86 @@ class Building is GameObject {
     layer { _layer }
 }
 
+class Sprawl is Building {
+
+     static init() {
+        __random = Random.new()
+        __fromHeight = [0.1, 0.2, 0.4, 0.75]
+        __toHeight = [0.15, 0.3, 0.5, 0.85]
+        __fromWidth = [30, 30, 25, 20]
+        __toWidth = [80, 40, 35, 25]
+        __colors = ["6C5A9DFF", "4DAAEFFF", "7DC4F7FF", "A9E0FFFF"]
+    }
+
+    construct new(layer, offset) {        
+        super()
+        var fromH = __fromHeight[layer] * Configuration.height
+        var toH = __toHeight[layer] * Configuration.height
+        var fromW = __fromWidth[layer]
+        var toW = __toWidth[layer]
+
+        _width = 120
+        _height = __random.int(fromH, toH)
+        _scroll = -(Configuration.width * 0.5) + (Configuration.width * offset)
+
+        _color = __colors[layer]
+        _layer = layer * 0.25        
+        _scrollSpeed = (1.0 - _layer) * 60 + 40    
+        
+        _rects = []
+        
+        var x = 0
+        var dx = 6
+        var h = __random.float(30, 50)
+        for(i in 1..107) {
+            var from = Vector.new(x, 30.0)
+            x = x + dx
+            var to = Vector.new(x, h)
+            h = __random.float(40, 55.0) + layer * 10
+            var r = Rect.fromTo(from, to)
+            _rects.add(r)
+        }    
+    }
+
+    update(dt) {
+
+        _scroll = _scroll - _scrollSpeed * dt
+        if(_scroll < Configuration.width * -1.5) {
+            _scroll = _scroll + Configuration.width * 2 
+        }        
+    }
+
+    render() {
+        Render.setColor(_color)
+        for(r in _rects) {
+            r.render(_scroll.round, -Configuration.height * 0.5)
+        }
+    }
+}
+
 
 class Game {
 
     static init() {
         Building.init()
-        Configuration.width = 540
-        Configuration.height = 240
-        Configuration.multiplier = 3
+        Sprawl.init()
+
+        Configuration.width = 640
+        Configuration.height = 360
+        Configuration.multiplier = 1
         Configuration.title = "City"
 
         __objects = []
         __addQueue = []
 
         for(layer in 3..0) {
-            for (x in 0..5) {
-                var b = Building.new(layer)
+            var n = 5 + 3 * layer
+            for (x in 0..n) {
+                if(x < 2) {
+                    var s = Sprawl.new(layer, x)
+                } else {
+                    var b = Building.new(layer)
+                }                
             }
         }
 
@@ -326,6 +403,22 @@ class Game {
         }
         __addQueue.clear()
 
+        /*
+        for (o1 in __objects) {
+            for (o2 in __objects) {
+                if(o1.Rocket) {
+                    System.print("Layer!")
+                }
+                if(o1 != o2) {
+                    var l = o1.layer()
+                    if(l != null) {
+                        System.print("Layer!")
+                    }
+                }
+            }
+        }
+        */
+
         for (o in __objects) {
             o.update(dt)            
         }
@@ -333,6 +426,9 @@ class Game {
         for (o in __objects) {
             o.render()
         }
+
+        Render.setColor("6C5A9DFF")
+        Render.text("SCORE", -200.0, 170.0, 1.0)
 
         var i = 0
         while(i < __objects.count) {

@@ -4,6 +4,6 @@ namespace xs::inspector
 {
 	void initialize();
 	void shutdown();
-	void render();
+	void render(float dt);
 	bool paused();
 }
