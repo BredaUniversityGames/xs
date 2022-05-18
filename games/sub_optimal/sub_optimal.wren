@@ -1,119 +1,8 @@
 import "xs" for Configuration, Input, Render
-import "vector" for Vector, ColorRGBA, Base
 import "Assert" for Assert
-
-///////////////////////////////////////////////////////////////////////////////
-// Entity / Component 
-///////////////////////////////////////////////////////////////////////////////
-
-class Bits {
-    static switchOnBitFlag(flags, bit) { flags | bit }
-    static switchOffBitFlag(flags, bit) { flags & (~bit) }
-    static checkBitFlag(flags, bit) { (flags & bit) == bit }
-    static checkBitFlagOverlap(flag0, flag1) { (flag0 & flag1) != 0 }
-}
-
-class Component {
-    construct new() {
-        _owner = null
-    }
-
-    del() {}
-    update(dt) { }    
-    owner { _owner }
-    owner=(o) { _owner = o }
-}
-
-class Entity {
-    construct new() {
-        _components = {}
-        _deleted = false
-        _name = ""
-        _tag = 0
-        __addQueue.add(this)
-    }    
-
-    addComponent(component) {
-        component.owner = this
-        _components[component.type] = component
-    }
-
-    getComponent(type) {
-        if(_components.containsKey(type)) {
-            return _components[type]
-        }
-        return null
-    }
-
-    components { _components.values }
-
-    deleted { _deleted }
-    delete() { _deleted = true }
-
-    name { _name }
-    name=(n){ _name = n }
-
-    tag { _tag }
-    tag=(t) { _tag = t }
-
-    static init() {
-        __entities = []
-        __addQueue = []
-    }
-
-    static update(dt) {
-        for(a in __addQueue) {
-            __entities.add(a)
-        }
-        __addQueue.clear()
-
-        for (e in __entities) {
-            for(c in e.components) {
-                c.update(dt)
-            }
-        }
-
-        var i = 0
-        while(i < __entities.count) {
-            var e = __entities[i]
-            if(e.deleted) {
-                for(c in e.components) {
-                    c.del()
-                }
-                __entities.removeAt(i)
-            } else {
-                i = i + 1
-            }
-        }
-    }
-
-    static entitiesWithTag(tag) {
-        var found = []
-        for (e in __entities) {
-                if(Bits.checkBitFlag(e.tag, tag)) {
-                found.add(e)
-            }
-        }
-        return found
-    }
-
-    static entities { __entities }
-
-    static print() {
-        System.print("<<<<<<<<<< stats >>>>>>>>>>")
-        System.print("Alive: %(__entities.count)")
-        var i = 0
-        for (e in __entities) {
-            System.print("%(i) { Name: %(e.name) Tag:%(e.tag)")
-            for(c in e.components) {
-                System.print("     %(c.toString)")
-            }
-            System.print("}")
-            i = i + 1
-        }
-        System.print("<<<<<<<<<< end >>>>>>>>>>")
-    }    
-}
+import "xs_ec"for Entity, Component
+import "xs_math"for Math, Bits, Vec2
+import "random" for Random
 
 ///////////////////////////////////////////////////////////////////////////////
 // Components
@@ -178,6 +67,7 @@ class Unit is Component {
 
     update(dt) {
         if(_health <= 0.0) {
+            Game.createExplosion(owner)
             owner.delete()
         }
     }
@@ -217,7 +107,7 @@ class Player is Component {
     update(dt) {
         // Get input
         var b = owner.getComponent(Body)        
-        var vel = Vector.new(Input.getAxis(0), -Input.getAxis(1))
+        var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
         if(vel.magnitude > 0.10) {            
             vel = vel * 500.0
         } else {
@@ -250,23 +140,57 @@ class Player is Component {
 }
 
 class Enemy is Component {
-    construct new() {
-        super()
-        _shootTime = 0.0
+
+    static init() {
+        __idx = 0
+    }
+
+    construct new(idx, pos, tilt) {
+        super()        
+        _position = pos
+        _time = idx * 0.4
+        _shootTime = _time
+        _tilt = tilt
+    }
+
+    del() {
+        Game.addScore(10)
     }
 
     update(dt) {
+        _time = _time + dt * 2.0
+        var pos = Vec2.new(30 * _time.sin, 70 * _time.cos)
+        pos.rotate(_tilt)
+        owner.getComponent(Transform).position = pos + _position
+
+        /*
         var toPos = Game.playerShip.getComponent(Transform).position
         var dir = toPos - owner.getComponent(Transform).position
         dir.x = 0.0
         dir.normalise
         var b = owner.getComponent(Body)
         b.velocity = dir * 1.5
+        */
 
         _shootTime = _shootTime + dt
-        if(_shootTime > 0.3) {
+        if(_shootTime > 1.0) {
             Game.createBullet(owner, -200, 50)
             _shootTime = 0.0
+        }
+    }
+}
+
+class Explosion is Component {
+    construct new(duration) {
+        _time = 0.0
+    }
+
+    update(dt) {
+        _time = _time + dt
+        var b = owner.getComponent(Body)
+        b.size =  _time.pow(0.06) * 15.0
+        if(_time > 1) {
+            owner.delete()
         }
     }
 }
@@ -287,22 +211,26 @@ class Game {
 
     static init() {
         Entity.init()
+        //Enemy.init()
 
         __frame = 0
+        __random = Random.new()
 
         Configuration.width = 640
         Configuration.height = 360
         Configuration.multiplier = 1
         Configuration.title = "SubOptimal"
 
-        __score = 0        
+        __score = 0
+        __waveTimer = 0.0
+        __wave = 1
 
         { // Create ship
             var ship = Entity.new()            
-            var p = Vector.new(0, 0)
+            var p = Vec2.new(0, 0)
             var t = Transform.new(p)
             var sc = Player.new()            
-            var v = Vector.new(0, 0)
+            var v = Vec2.new(0, 0)
             var b = Body.new(6, v)
             var u = Unit.new(Team.player, 1000)
             var c = DebugColor.new("8BEC46FF")
@@ -316,8 +244,7 @@ class Game {
             __ship = ship
         }
 
-
-        createEnemyShip()
+        createEnemyShips()
     }        
     
     static update(dt) {
@@ -351,9 +278,17 @@ class Game {
         Game.collide(playerBullets, computerUnits)
 
         if(computerUnits.count == 0) {
-            createEnemyShip()
-            __score = __score + 10
+            __waveTimer = __waveTimer + dt            
         }
+
+        if(__waveTimer >= 1.5) {
+            for(w in 0..__wave) {
+                createEnemyShips()
+            }
+            __waveTimer= 0.0
+            __wave = __wave + 1
+        }
+
 
         /*
         __frame = __frame + 1
@@ -364,13 +299,23 @@ class Game {
         */
     }
 
-    static createEnemyShip() {
+    static createEnemyShips() {
+        var x = Game.random.float(0.0, 200.0)
+        var y = Game.random.float(-100.0, 100.0)
+        var pos = Vec2.new(x, y)
+        var tilt = Game.random.float(0.0, 5.0)
+        for(i in 0..6) {
+            createEnemyShip(i, pos, tilt)
+        }
+    }
+
+    static createEnemyShip(idx, pos, tilt) {
         var ship = Entity.new()
-        var p = Vector.new(240, 0)
+        var p = Vec2.new(240, 0)
         var t = Transform.new(p)    
-        var v = Vector.new(0, 0)
+        var v = Vec2.new(0, 0)
         var b = Body.new(10, v)
-        var e = Enemy.new()
+        var e = Enemy.new(idx, pos, tilt)
         var u = Unit.new(Team.computer, 200)
         var c = DebugColor.new("EC468BFF")
         ship.addComponent(t)
@@ -408,6 +353,8 @@ class Game {
 
     static playerShip { __ship }
 
+    static random { __random }
+
     static addScore(s) { __score = __score + s }
 
     static createBullet(owner, speed, damage) {
@@ -415,7 +362,7 @@ class Game {
         var owu = owner.getComponent(Unit)
         var bullet = Entity.new()
         var t = Transform.new(owt.position)
-        var v = Vector.new(speed, 0)
+        var v = Vec2.new(speed, 0)
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
         bullet.addComponent(t)
@@ -429,5 +376,18 @@ class Game {
             bullet.tag = Tag.Computer | Tag.Bullet
             bullet.addComponent(DebugColor.new("EC468BFF"))
         }
+    }
+
+    static createExplosion(owner) {
+        var owt = owner.getComponent(Transform)
+        var explosion = Entity.new()
+        var t = Transform.new(owt.position)
+        var b = Body.new(0.001, Vec2.new(0.0, 0.0))
+        var e = Explosion.new(1.0)
+        explosion.addComponent(t)
+        explosion.addComponent(b)
+        explosion.addComponent(e)
+        explosion.addComponent(DebugColor.new("FFFFFFFF"))
+        explosion.name = "Explosion"
     }
 }

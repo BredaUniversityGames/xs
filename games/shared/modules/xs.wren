@@ -59,16 +59,6 @@ class Render {
     }
 }
 
-class Math {
-    static lerp(a, b, t) {
-        return (a * (1.0 - t)) + (b * t) 
-    }
-
-    static damp(a, b, lambda, dt) {
-        return lerp(a, b, 1.0 - (-lambda * dt).exp)
-    }    
-}
-
 class Input {
     foreign static getAxis(axis)
     foreign static getButton(button)
