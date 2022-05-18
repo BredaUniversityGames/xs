@@ -99,11 +99,14 @@ void device::initialize()
 
 
 	//Set application icon
-	GLFWimage image;
+	GLFWimage image[2];
 	std::string path = fileio::get_path("[games]/shared/images/icon.png");
-	image.pixels = stbi_load(path.c_str(), &image.width, &image.height, 0, 4);
-	glfwSetWindowIcon(internal::window, 1, &image);
-	stbi_image_free(image.pixels);
+	image[0].pixels = stbi_load(path.c_str(), &image[0].width, &image[0].height, 0, 4);
+	path = fileio::get_path("[games]/shared/images/icon_tiny.png");
+	image[1].pixels = stbi_load(path.c_str(), &image[1].width, &image[1].height, 0, 4);
+	glfwSetWindowIcon(internal::window, 2, image);
+	stbi_image_free(image[0].pixels);
+	stbi_image_free(image[1].pixels);
 }
 
 void device::shutdown()
