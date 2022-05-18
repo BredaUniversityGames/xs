@@ -162,19 +162,11 @@ class Enemy is Component {
         var pos = Vec2.new(30 * _time.sin, 70 * _time.cos)
         pos.rotate(_tilt)
         owner.getComponent(Transform).position = pos + _position
-
-        /*
-        var toPos = Game.playerShip.getComponent(Transform).position
-        var dir = toPos - owner.getComponent(Transform).position
-        dir.x = 0.0
-        dir.normalise
-        var b = owner.getComponent(Body)
-        b.velocity = dir * 1.5
-        */
-
         _shootTime = _shootTime + dt
         if(_shootTime > 1.0) {
-            Game.createBullet(owner, -200, 50)
+            if(Game.random.float(0.0, 1.0) < 0.3) {
+                Game.createBullet2(owner, 200, 50)
+            }
             _shootTime = 0.0
         }
     }
@@ -207,51 +199,100 @@ class DebugColor is Component {
 // Game
 ///////////////////////////////////////////////////////////////////////////////
 
+class Menu {
+    construct new(items) {
+        _items = items
+        _selected = 0
+        _actions = {}
+    }
+
+    update(dt) {
+
+        if(Input.getButtonOnce(13) == true) {
+            _selected = (_selected + 1) % _items.count
+        } else if (Input.getButtonOnce(11) == true) {
+            _selected = (_selected - 1) % _items.count
+        } else if (Input.getButtonOnce(0) == true) {
+            var item = _items[_selected]
+            var action = _actions[item]
+            if(action != null) {
+                action.call()
+            }
+        } 
+
+        Render.setColor("8BEC46FF")
+        var y = 55
+        var x = -190
+        Render.text("======== SubOptimal v0.1 ========", x, y, 2)
+        var i = 0
+        for(item in _items) {
+            y = y - 20
+            if(_selected == i) {
+                Render.text(">" + item + "<", x, y, 2)
+            } else {
+                Render.text(item, x, y, 2)
+            }            
+            i = i + 1
+        }
+        y = y - 18
+        Render.text("================================", x, y, 2)
+    }
+
+    addAction(name, action) {
+        _actions[name] = action
+    }
+}
+
+class GameState {
+    static Menu     { 1 }
+    static Play     { 2 }
+    static Score    { 3 }
+}
+
 class Game {
-
     static init() {
-        Entity.init()
-        //Enemy.init()
-
-        __frame = 0
-        __random = Random.new()
-
         Configuration.width = 640
         Configuration.height = 360
         Configuration.multiplier = 1
         Configuration.title = "SubOptimal"
 
+        Entity.init()
+        //Enemy.init()
+
+        __frame = 0
+        __random = Random.new()
+        __state = GameState.Menu        
         __score = 0
         __waveTimer = 0.0
-        __wave = 1
-
-        { // Create ship
-            var ship = Entity.new()            
-            var p = Vec2.new(0, 0)
-            var t = Transform.new(p)
-            var sc = Player.new()            
-            var v = Vec2.new(0, 0)
-            var b = Body.new(6, v)
-            var u = Unit.new(Team.player, 1000)
-            var c = DebugColor.new("8BEC46FF")
-            ship.addComponent(t)
-            ship.addComponent(sc)            
-            ship.addComponent(b)
-            ship.addComponent(u)
-            ship.addComponent(c)
-            ship.name = "Player"
-            ship.tag = (Tag.Player | Tag.Unit)
-            __ship = ship
-        }
-
-        createEnemyShips()
+        __wave = 0
+        __menu = Menu.new(["play", "options", "credits", "exit"])
+        __menu.addAction("play", Fn.new { Game.startPlay() } )
     }        
     
     static update(dt) {
         Entity.update(dt)
-
         Render.setColor(0.2, 0.2, 0.2)
         Render.rect(0, 0, Configuration.width, Configuration.height, 0.0)
+
+        if(__state == GameState.Menu) {
+            __menu.update(dt)
+        } else if(__state == GameState.Play) {
+            updatePlay(dt)
+        } else if(__state == GameState.Score) {
+            updateScore(dt)
+        } 
+    }
+
+    static startPlay() {
+        Entity.init()
+        __score = 0
+        __waveTimer = 0.0
+        __wave = 0
+        __state = GameState.Play
+        createPlayerShip()        
+    }
+
+    static updatePlay(dt) {
         Render.setColor("8BEC46FF")
         Render.text("SCORE %(__score)", -296, 140, 2)
 
@@ -289,6 +330,10 @@ class Game {
             __wave = __wave + 1
         }
 
+        if(playerUnits.count == 0) {
+            __state = GameState.Score
+        }
+
 
         /*
         __frame = __frame + 1
@@ -297,6 +342,34 @@ class Game {
             __frame = 0
         }
         */
+    }
+    static updateScore(dt) {
+        Render.setColor("8BEC46FF")
+        Render.text("SCORE %(__score)", -100, 50, 4)
+        Render.text(">menu<", -50, 10, 2)
+
+        if (Input.getButtonOnce(0) == true) {
+            __state = GameState.Menu            
+        } 
+    }
+
+    static createPlayerShip() {
+        var ship = Entity.new()            
+        var p = Vec2.new(0, 0)
+        var t = Transform.new(p)
+        var sc = Player.new()            
+        var v = Vec2.new(0, 0)
+        var b = Body.new(6, v)
+        var u = Unit.new(Team.player, 1)
+        var c = DebugColor.new("8BEC46FF")
+        ship.addComponent(t)
+        ship.addComponent(sc)            
+        ship.addComponent(b)
+        ship.addComponent(u)
+        ship.addComponent(c)
+        ship.name = "Player"
+        ship.tag = (Tag.Player | Tag.Unit)
+        __ship = ship
     }
 
     static createEnemyShips() {
@@ -377,6 +450,25 @@ class Game {
             bullet.addComponent(DebugColor.new("EC468BFF"))
         }
     }
+
+    static createBullet2(owner, speed, damage) {
+        var owt = owner.getComponent(Transform)
+        var owu = owner.getComponent(Unit)
+        var bullet = Entity.new()
+        var t = Transform.new(owt.position)
+        var targetPos = playerShip.getComponent(Transform).position
+        var dir = targetPos - owt.position
+        var v = dir.normalise * speed
+        var bd = Body.new(5, v)
+        var bl = Bullet.new(owu.team, damage)
+        bullet.addComponent(t)
+        bullet.addComponent(bd)
+        bullet.addComponent(bl)
+        bullet.name = "Bullet2"
+        bullet.tag = Tag.Computer | Tag.Bullet
+        bullet.addComponent(DebugColor.new("EC468BFF"))
+    }
+
 
     static createExplosion(owner) {
         var owt = owner.getComponent(Transform)

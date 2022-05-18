@@ -87,7 +87,7 @@ class Entity {
         }
         return found
     }
-
+    
     static entities { __entities }
 
     static print() {
