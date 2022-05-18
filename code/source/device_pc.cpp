@@ -3,7 +3,9 @@
 #include "log.h"
 #include "opengl.h"
 #include "configuration.h"
+#include "fileio.h"
 #include <GLFW/glfw3.h>
+#include <stb/stb_image.h>
 
 namespace xs::device::internal
 {
@@ -94,6 +96,14 @@ void device::initialize()
 
 	logOpenGLVersionInfo();
 	init_debug_messages();
+
+
+	//Set application icon
+	GLFWimage image;
+	std::string path = fileio::get_path("[games]/shared/images/icon.png");
+	image.pixels = stbi_load(path.c_str(), &image.width, &image.height, 0, 4);
+	glfwSetWindowIcon(internal::window, 1, &image);
+	stbi_image_free(image.pixels);
 }
 
 void device::shutdown()

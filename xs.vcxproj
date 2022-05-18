@@ -285,6 +285,7 @@
     <ClInclude Include="external\wren\vm\wren_utils.h" />
     <ClInclude Include="external\wren\vm\wren_value.h" />
     <ClInclude Include="external\wren\vm\wren_vm.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="external\wren\optional\wren_opt_meta.wren" />
@@ -293,6 +294,12 @@
     <None Include="external\wren\optional\wren_opt_random.wren.inc" />
     <None Include="external\wren\vm\wren_core.wren" />
     <None Include="external\wren\vm\wren_core.wren.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="xs.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\xs.ico" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4F1FCE22-25BA-46E4-A479-385F1667DEF0}</ProjectGuid>
