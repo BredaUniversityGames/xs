@@ -57,6 +57,25 @@ class Render {
         }
         Render.end()
     }
+
+    static pie(x, y, r, angle, divs) {
+        Render.begin(Render.triangles)
+        var t = 0.0
+        divs = angle / (Num.pi * 2.0) * divs
+        divs = divs.truncate
+        var dt = angle / divs
+        for(i in 0..divs) {            
+            Render.vertex(x, y)
+            var xr = t.cos * r            
+            var yr = t.sin * r
+            Render.vertex(x + xr, y + yr)
+            t = t + dt
+            xr = t.cos * r
+            yr = t.sin * r
+            Render.vertex(x + xr, y + yr)
+        }
+        Render.end()
+    }
 }
 
 class Input {

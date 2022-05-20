@@ -21,8 +21,9 @@ class Entity {
         _deleted = false
         _name = ""
         _tag = 0
-        __addQueue.add(this)
-    }    
+        _compDeleteQueue = []
+        __addQueue.add(this)        
+    }
 
     addComponent(component) {
         component.owner = this
@@ -34,6 +35,19 @@ class Entity {
             return _components[type]
         }
         return null
+    }
+
+    deleteComponent(type) {        
+        if(_components.containsKey(type)) {            
+            _compDeleteQueue.add(type) 
+        }
+    }
+
+    removeDeletedComponents() {
+        for(c in _compDeleteQueue) {
+            _components.remove(c)
+        }
+        _compDeleteQueue.clear()
     }
 
     components { _components.values }
@@ -76,6 +90,10 @@ class Entity {
                 i = i + 1
             }
         }
+
+        for (e in __entities) {
+            e.removeDeletedComponents()
+        }
     }
 
     static entitiesWithTag(tag) {
@@ -87,7 +105,7 @@ class Entity {
         }
         return found
     }
-    
+
     static entities { __entities }
 
     static print() {

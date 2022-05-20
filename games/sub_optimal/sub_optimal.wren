@@ -102,18 +102,11 @@ class Player is Component {
     construct new() {
         super()
         _shootTime = 0.0
+        _drones = []
     }
 
     update(dt) {
-        // Get input
-        var b = owner.getComponent(Body)        
-        var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
-        if(vel.magnitude > 0.10) {            
-            vel = vel * 500.0
-        } else {
-            vel = vel * 0.0
-        }
-        b.velocity = vel
+        // Get input        
 
         // Keep in bounds
         var t = owner.getComponent(Transform)
@@ -133,24 +126,126 @@ class Player is Component {
         _shootTime = _shootTime + dt
         if(Input.getButton(0) == true && _shootTime > 0.1) {
             Game.createBullet(owner, 1000, 100)
+            for(d in _drones) {
+                if(!d.deleted) {
+                    Game.createBullet(d, 1000, 100)
+                }
+            }
             _shootTime = 0.0
         }
 
+        var speed = 500.0
+        if(Input.getButton(1) == true) {
+            speed = speed * 0.4 
+            var fromX = t.position.x
+            var toX = t.position.x + 200
+            var fromY = t.position.y - 30                
+            var toY = t.position.y + 30
+            Render.setColor("006400FF")
+            Render.rect(fromX, fromY, toX, toY)
+            var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit) //|
+            for(cu in computerUnits) {
+                var pos = cu.getComponent(Transform).position
+                if(pos.x > fromX && pos.x < toX && pos.y > fromY && pos.y < toY) {                                        
+                    var enemy = cu.getComponent(Enemy)
+                    enemy.hack(dt)
+                    if(enemy.hacked) {
+                        cu.deleteComponent(Enemy)
+                        cu.tag = Tag.Player | Tag.Unit //|
+                        cu.addComponent(Drone.new())
+                        cu.getComponent(DebugColor).color = "8BEC46FF"
+                        addDrone2(cu)
+                    }
+                }
+            }
+        }
+
+        var b = owner.getComponent(Body)
+        var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
+        if(vel.magnitude > 0.10) {            
+            vel = vel * speed
+        } else {
+            vel = vel * 0.0
+        }
+        b.velocity = vel
+    }
+
+    addDrone(drone) {
+        var idx = -1
+        for(i in 0..._drones.count) {            
+            if(_drones[i].deleted) {
+                _drones[i] = drone
+                idx = i
+                break
+            }
+        }
+        if(idx == -1) {
+            idx = _drones.count            
+            _drones.add(drone)
+        }        
+        idx = idx + 2
+        var d = drone.getComponent(Drone)
+        var sign = idx % 2 == 0 ? -1 : 1
+        var y = (idx / 2).truncate * sign * 25
+        var x = y * 0.5 * -sign
+        d.offset = Vec2.new(x, y)
+        System.print( "idx=%(idx) sign=%(sign) y=%(y) count=%(_drones.count) ")
+    }
+
+    addDrone2(drone) {
+        _drones.add(drone)
+
+
+        while(true) {
+            var found = false
+            for(i in 0..._drones.count) {            
+                if(_drones[i].deleted) {
+                    _drones.removeAt(i)
+                    found = true
+                    break
+                }
+            }
+            if(found == false) {
+                break
+            }
+        }
+
+        for(i in 0..._drones.count) {
+            var e = _drones[i]
+            var d = e.getComponent(Drone)
+            var ix = i + 2
+            var sign = ix % 2 == 0 ? -1 : 1
+            var y = (ix / 2).truncate * sign * 25
+            var x = y * 0.5 * -sign
+            d.offset = Vec2.new(x, y)
+        }
     }
 }
 
-class Enemy is Component {
-
-    static init() {
-        __idx = 0
+class Drone is Component {
+    construct new() {
+        _offset = Vec2.new(0.0, 0.0)
     }
 
+    update(dt) {
+        var shipPos = Game.playerShip.getComponent(Transform).position
+        var toPos = shipPos + _offset
+        var curPos = owner.getComponent(Transform).position
+        owner.getComponent(Transform).position = Math.damp(curPos, toPos, 10.0, dt)
+    }
+
+    offset { _offset }
+    offset=(v) { _offset = v }
+}
+
+class Enemy is Component {
     construct new(idx, pos, tilt) {
         super()        
         _position = pos
         _time = idx * 0.4
         _shootTime = _time
         _tilt = tilt
+        _hack = 0.0
     }
 
     del() {
@@ -169,7 +264,17 @@ class Enemy is Component {
             }
             _shootTime = 0.0
         }
+
+        if(_hack > 0.0) {
+            _hack = _hack - dt * 0.25
+            Render.setColor("8BEC46FF")
+            var pos = owner.getComponent(Transform).position
+            Render.pie(pos.x, pos.y, 12, 2.0 * _hack * Num.pi / 0.3 ,32)
+        }
     }
+
+    hack(dt) { _hack = _hack + dt }
+    hacked { _hack > 0.3 }
 }
 
 class Explosion is Component {
@@ -193,6 +298,7 @@ class DebugColor is Component {
         _color = color
     }
     color { _color }
+    color=(v) { _color = v}
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -269,10 +375,10 @@ class Game {
         __menu.addAction("play", Fn.new { Game.startPlay() } )
     }        
     
-    static update(dt) {
-        Entity.update(dt)
+    static update(dt) {        
         Render.setColor(0.2, 0.2, 0.2)
         Render.rect(0, 0, Configuration.width, Configuration.height, 0.0)
+        Entity.update(dt)
 
         if(__state == GameState.Menu) {
             __menu.update(dt)
@@ -295,6 +401,7 @@ class Game {
     static updatePlay(dt) {
         Render.setColor("8BEC46FF")
         Render.text("SCORE %(__score)", -296, 140, 2)
+        Render.text("WAVE %(__wave)", -296, 120, 2)
 
         for(e in Entity.entities) {
             var b = e.getComponent(Body)
@@ -330,7 +437,7 @@ class Game {
             __wave = __wave + 1
         }
 
-        if(playerUnits.count == 0) {
+        if(playerShip.getComponent(Unit).health <= 0.0) {
             __state = GameState.Score
         }
 
@@ -389,7 +496,7 @@ class Game {
         var v = Vec2.new(0, 0)
         var b = Body.new(10, v)
         var e = Enemy.new(idx, pos, tilt)
-        var u = Unit.new(Team.computer, 200)
+        var u = Unit.new(Team.computer, 1)
         var c = DebugColor.new("EC468BFF")
         ship.addComponent(t)
         ship.addComponent(b)
@@ -432,23 +539,23 @@ class Game {
 
     static createBullet(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
-        var owu = owner.getComponent(Unit)
+        //var owu = owner.getComponent(Unit)
         var bullet = Entity.new()
         var t = Transform.new(owt.position)
         var v = Vec2.new(speed, 0)
         var bd = Body.new(5, v)
-        var bl = Bullet.new(owu.team, damage)
+        var bl = Bullet.new(Team.player, damage)
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)
         bullet.name = "Bullet"
-        if(owu.team == Team.player) {
+        //if(owu.team == Team.player) {
             bullet.tag = Tag.Player | Tag.Bullet
             bullet.addComponent(DebugColor.new("8BEC46FF"))
-        } else {
-            bullet.tag = Tag.Computer | Tag.Bullet
-            bullet.addComponent(DebugColor.new("EC468BFF"))
-        }
+        //} else {
+        //    bullet.tag = Tag.Computer | Tag.Bullet
+        //    bullet.addComponent(DebugColor.new("EC468BFF"))
+        //}
     }
 
     static createBullet2(owner, speed, damage) {
