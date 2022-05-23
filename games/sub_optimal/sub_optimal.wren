@@ -3,6 +3,8 @@ import "Assert" for Assert
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "random" for Random
+import "globals" for Globals
+import "components" for Transform, Body
 
 ///////////////////////////////////////////////////////////////////////////////
 // Components
@@ -14,39 +16,6 @@ class Tag {
     static Bullet           { 1 << 2 }
     static Player           { 1 << 3 }
     static Computer         { 1 << 4 }
-}
-
-class Transform is Component {
-    construct new(position) {
-         super()
-        _position = position
-    }
-
-    position { _position }
-    position=(p) { _position = p }
-
-    toString { "[Transform position:%(_position)]" }
-}
-
-class Body is Component {    
-    construct new(size, velocity) {
-        super()
-        _size = size
-        _velocity = velocity
-    }
-
-    size { _size }
-    velocity { _velocity }
-
-    size=(s) { _size = s }
-    velocity=(v) { _velocity = v }
-
-    update(dt) {
-        var t = owner.getComponent(Transform)
-        t.position = t.position + _velocity * dt
-    }
-
-    toString { "[Body velocity:%(_velocity) size:%(_size)]" }
 }
 
 class Team {
@@ -124,24 +93,23 @@ class Player is Component {
         }
 
         _shootTime = _shootTime + dt
-        var bspeed = Registry.getNumber("bullet speed")
         if(Input.getButton(0) == true && _shootTime > 0.1) {
-            Game.createBullet(owner, bspeed, 100)
+            Game.createBullet(owner, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
             for(d in _drones) {
                 if(!d.deleted) {
-                    Game.createBullet(d, bspeed, 100)
+                    Game.createBullet(d, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
                 }
             }
             _shootTime = 0.0
         }
 
-        var speed = 500.0
+        var speed = Globals.PlayerSpeed
         if(Input.getButton(1) == true) {
-            speed = speed * 0.4 
+            speed = Globals.PlayerSpeedWhenHacking
             var fromX = t.position.x
-            var toX = t.position.x + 200
-            var fromY = t.position.y - 30                
-            var toY = t.position.y + 30
+            var toX = t.position.x + Globals.PlayerHackWidth
+            var fromY = t.position.y - Globals.PlayerHackHeight * 0.5
+            var toY = t.position.y + Globals.PlayerHackHeight * 0.5
             Render.setColor(0x006400FF)
             Render.rect(fromX, fromY, toX, toY)
             var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit) //|
@@ -154,7 +122,7 @@ class Player is Component {
                         cu.deleteComponent(Enemy)
                         cu.tag = Tag.Player | Tag.Unit //|
                         cu.addComponent(Drone.new())
-                        cu.getComponent(DebugColor).color = 0x8BEC46FF
+                        cu.getComponent(DebugColor).color = Globals.PlayerColor
                         addDrone2(cu)
                     }
                 }
@@ -163,34 +131,12 @@ class Player is Component {
 
         var b = owner.getComponent(Body)
         var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
-        if(vel.magnitude > 0.10) {            
+        if(vel.magnitude > Globals.PlayerInputDeadZone) {            
             vel = vel * speed
         } else {
             vel = vel * 0.0
         }
         b.velocity = vel
-    }
-
-    addDrone(drone) {
-        var idx = -1
-        for(i in 0..._drones.count) {            
-            if(_drones[i].deleted) {
-                _drones[i] = drone
-                idx = i
-                break
-            }
-        }
-        if(idx == -1) {
-            idx = _drones.count            
-            _drones.add(drone)
-        }        
-        idx = idx + 2
-        var d = drone.getComponent(Drone)
-        var sign = idx % 2 == 0 ? -1 : 1
-        var y = (idx / 2).truncate * sign * 25
-        var x = y * 0.5 * -sign
-        d.offset = Vec2.new(x, y)
-        System.print( "idx=%(idx) sign=%(sign) y=%(y) count=%(_drones.count) ")
     }
 
     addDrone2(drone) {
@@ -216,7 +162,7 @@ class Player is Component {
             var d = e.getComponent(Drone)
             var ix = i + 2
             var sign = ix % 2 == 0 ? -1 : 1
-            var y = (ix / 2).truncate * sign * 25
+            var y = (ix / 2).truncate * sign * Globals.DroneSpread
             var x = y * 0.5 * -sign
             d.offset = Vec2.new(x, y)
         }
@@ -261,7 +207,7 @@ class Enemy is Component {
         _shootTime = _shootTime + dt
         if(_shootTime > 1.0) {
             if(Game.random.float(0.0, 1.0) < 0.3) {
-                Game.createBullet2(owner, 200, 50)
+                Game.createBulletEnemy(owner, 200, 50)
             }
             _shootTime = 0.0
         }
@@ -363,6 +309,7 @@ class Game {
         Configuration.multiplier = 2
         Configuration.title = "SubOptimal"
 
+        /*
         var col = Color.new(12, 255, 187, 67)
         System.print(col)
         System.print(col.toNum)
@@ -380,6 +327,7 @@ class Game {
         System.print(col)
         col = Color.fromNum(0xCFFBB00)
         System.print(col)
+        */
 
 
         Entity.init()
@@ -422,9 +370,11 @@ class Game {
     }
 
     static updatePlay(dt) {
+        var pu = playerShip.getComponent(Unit)
         Render.setColor(0x8BEC46FF)
         Render.text("SCORE %(__score)", -296, 140, 2)
         Render.text("WAVE %(__wave)", -296, 120, 2)
+        Render.text("HEALTH %(pu.health)", -296, 100, 2)
 
         for(e in Entity.entities) {
             var b = e.getComponent(Body)
@@ -489,8 +439,8 @@ class Game {
         var t = Transform.new(p)
         var sc = Player.new()            
         var v = Vec2.new(0, 0)
-        var b = Body.new( Registry.getNumber("player_size") , v)
-        var u = Unit.new(Team.player, 1)
+        var b = Body.new( Globals.PlayerSize , v)
+        var u = Unit.new(Team.player, Globals.PlayerHealth)
         var c = DebugColor.new(0x8BEC46FF)
         ship.addComponent(t)
         ship.addComponent(sc)            
@@ -517,10 +467,10 @@ class Game {
         var p = Vec2.new(240, 0)
         var t = Transform.new(p)    
         var v = Vec2.new(0, 0)
-        var b = Body.new(10, v)
+        var b = Body.new(Globals.EnemySize, v)
         var e = Enemy.new(idx, pos, tilt)
         var u = Unit.new(Team.computer, 1)
-        var c = DebugColor.new(0xEC468BFF)
+        var c = DebugColor.new(Globals.EnemyColor)
         ship.addComponent(t)
         ship.addComponent(b)
         ship.addComponent(e)
@@ -543,7 +493,7 @@ class Game {
                 if(dis < (uB.size + bB.size)) {
                     u.getComponent(Unit).damage(b.getComponent(Bullet).damage)
                     b.delete()
-                    Render.disk(uT.position.x, uT.position.y, 2, 24)
+                    // Render.disk(uT.position.x, uT.position.y, 2, 24)
                 }
             }
         }
@@ -562,7 +512,6 @@ class Game {
 
     static createBullet(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
-        //var owu = owner.getComponent(Unit)
         var bullet = Entity.new()
         var t = Transform.new(owt.position)
         var v = Vec2.new(speed, 0)
@@ -572,16 +521,11 @@ class Game {
         bullet.addComponent(bd)
         bullet.addComponent(bl)
         bullet.name = "Bullet"
-        //if(owu.team == Team.player) {
-            bullet.tag = Tag.Player | Tag.Bullet
-            bullet.addComponent(DebugColor.new(0x8BEC46FF))
-        //} else {
-        //    bullet.tag = Tag.Computer | Tag.Bullet
-        //    bullet.addComponent(DebugColor.new("EC468BFF"))
-        //}
+        bullet.tag = Tag.Player | Tag.Bullet
+        bullet.addComponent(DebugColor.new(0x8BEC46FF))
     }
 
-    static createBullet2(owner, speed, damage) {
+    static createBulletEnemy(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
         var owu = owner.getComponent(Unit)
         var bullet = Entity.new()
