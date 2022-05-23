@@ -47,9 +47,6 @@ using namespace xs::registry::internal;
 
 void xs::registry::initialize()
 {
-	//internal::reg["bullet speed"] = make_unique<internal::registry_number>(1000.0);
-	internal::reg["bullet speed"] = make_unique<internal::registry_number>(1000.0);
-	internal::reg["green"] = make_unique<internal::registry_number>(0x00FF00FF);
 }
 
 void xs::registry::shutdown()
