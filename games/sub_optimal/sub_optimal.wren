@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render
+import "xs" for Configuration, Input, Render, Registry, Color
 import "Assert" for Assert
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
@@ -124,11 +124,12 @@ class Player is Component {
         }
 
         _shootTime = _shootTime + dt
+        var bspeed = Registry.getNumber("bullet speed")
         if(Input.getButton(0) == true && _shootTime > 0.1) {
-            Game.createBullet(owner, 1000, 100)
+            Game.createBullet(owner, bspeed, 100)
             for(d in _drones) {
                 if(!d.deleted) {
-                    Game.createBullet(d, 1000, 100)
+                    Game.createBullet(d, bspeed, 100)
                 }
             }
             _shootTime = 0.0
@@ -141,7 +142,7 @@ class Player is Component {
             var toX = t.position.x + 200
             var fromY = t.position.y - 30                
             var toY = t.position.y + 30
-            Render.setColor("006400FF")
+            Render.setColor(0x006400FF)
             Render.rect(fromX, fromY, toX, toY)
             var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit) //|
             for(cu in computerUnits) {
@@ -153,7 +154,7 @@ class Player is Component {
                         cu.deleteComponent(Enemy)
                         cu.tag = Tag.Player | Tag.Unit //|
                         cu.addComponent(Drone.new())
-                        cu.getComponent(DebugColor).color = "8BEC46FF"
+                        cu.getComponent(DebugColor).color = 0x8BEC46FF
                         addDrone2(cu)
                     }
                 }
@@ -267,7 +268,7 @@ class Enemy is Component {
 
         if(_hack > 0.0) {
             _hack = _hack - dt * 0.25
-            Render.setColor("8BEC46FF")
+            Render.setColor(Color.fromNum(0x8BEC46FF))
             var pos = owner.getComponent(Transform).position
             Render.pie(pos.x, pos.y, 12, 2.0 * _hack * Num.pi / 0.3 ,32)
         }
@@ -326,7 +327,7 @@ class Menu {
             }
         } 
 
-        Render.setColor("8BEC46FF")
+        Render.setColor(0x8BEC46FF)
         var y = 55
         var x = -190
         Render.text("======== SubOptimal v0.1 ========", x, y, 2)
@@ -359,8 +360,27 @@ class Game {
     static init() {
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 1
+        Configuration.multiplier = 2
         Configuration.title = "SubOptimal"
+
+        var col = Color.new(12, 255, 187, 67)
+        System.print(col)
+        System.print(col.toNum)
+        col = Color.fromNum(218086211)
+        System.print(col)
+        col = Color.fromNum(0xCFFBB43)
+        System.print(col)
+
+        col = Color.new(12, 255, 187)
+        System.print(col)
+        System.print(col.toNum)
+        col = Color.fromNum(218086399)
+        System.print(col)
+        col = Color.fromNum(0xCFFBBFF)
+        System.print(col)
+        col = Color.fromNum(0xCFFBB00)
+        System.print(col)
+
 
         Entity.init()
         //Enemy.init()
@@ -373,6 +393,9 @@ class Game {
         __wave = 0
         __menu = Menu.new(["play", "options", "credits", "exit"])
         __menu.addAction("play", Fn.new { Game.startPlay() } )
+
+        //var c =  Registry.getColor("some color")
+        //System.print(c)
     }        
     
     static update(dt) {        
@@ -399,7 +422,7 @@ class Game {
     }
 
     static updatePlay(dt) {
-        Render.setColor("8BEC46FF")
+        Render.setColor(0x8BEC46FF)
         Render.text("SCORE %(__score)", -296, 140, 2)
         Render.text("WAVE %(__wave)", -296, 120, 2)
 
@@ -451,7 +474,7 @@ class Game {
         */
     }
     static updateScore(dt) {
-        Render.setColor("8BEC46FF")
+        Render.setColor(0x8BEC46FF)
         Render.text("SCORE %(__score)", -100, 50, 4)
         Render.text(">menu<", -50, 10, 2)
 
@@ -466,9 +489,9 @@ class Game {
         var t = Transform.new(p)
         var sc = Player.new()            
         var v = Vec2.new(0, 0)
-        var b = Body.new(6, v)
+        var b = Body.new( Registry.getNumber("player_size") , v)
         var u = Unit.new(Team.player, 1)
-        var c = DebugColor.new("8BEC46FF")
+        var c = DebugColor.new(0x8BEC46FF)
         ship.addComponent(t)
         ship.addComponent(sc)            
         ship.addComponent(b)
@@ -497,7 +520,7 @@ class Game {
         var b = Body.new(10, v)
         var e = Enemy.new(idx, pos, tilt)
         var u = Unit.new(Team.computer, 1)
-        var c = DebugColor.new("EC468BFF")
+        var c = DebugColor.new(0xEC468BFF)
         ship.addComponent(t)
         ship.addComponent(b)
         ship.addComponent(e)
@@ -551,7 +574,7 @@ class Game {
         bullet.name = "Bullet"
         //if(owu.team == Team.player) {
             bullet.tag = Tag.Player | Tag.Bullet
-            bullet.addComponent(DebugColor.new("8BEC46FF"))
+            bullet.addComponent(DebugColor.new(0x8BEC46FF))
         //} else {
         //    bullet.tag = Tag.Computer | Tag.Bullet
         //    bullet.addComponent(DebugColor.new("EC468BFF"))
@@ -573,7 +596,7 @@ class Game {
         bullet.addComponent(bl)
         bullet.name = "Bullet2"
         bullet.tag = Tag.Computer | Tag.Bullet
-        bullet.addComponent(DebugColor.new("EC468BFF"))
+        bullet.addComponent(DebugColor.new(0xEC468BFF))
     }
 
 
@@ -586,7 +609,7 @@ class Game {
         explosion.addComponent(t)
         explosion.addComponent(b)
         explosion.addComponent(e)
-        explosion.addComponent(DebugColor.new("FFFFFFFF"))
+        explosion.addComponent(DebugColor.new(0xFFFFFFFF))
         explosion.name = "Explosion"
     }
 }

@@ -6,9 +6,9 @@
 #include "render.h"
 #include "script.h"
 #include "account.h"
+#include "registry.h"
 #include <glm/glm.hpp>
 #include <chrono>
-
 #include "inspector.h"
 
 using namespace std;
@@ -79,6 +79,7 @@ int xs::main(int argc, char* argv[])
         return -1;
     }
     
+    registry::initialize();
     account::initialize();
     fileio::initialize();    
     script::initialize(main_script.c_str());    
@@ -113,6 +114,7 @@ int xs::main(int argc, char* argv[])
     device::shutdown();
     script::shutdown();
     account::shutdown();
+    registry::shutdown();
 
 	return 0;
 }

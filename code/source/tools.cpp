@@ -25,7 +25,7 @@ std::tuple<double, double, double, double> tools::parse_color(const std::string&
 {
 	std::string color_str = hex_color;
 	if (color_str.length() == 6)
-		color_str.append("ff");
+		color_str.append("FF");
 
 	std::stringstream ss;
 	unsigned int temp;

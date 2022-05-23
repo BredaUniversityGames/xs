@@ -5,6 +5,7 @@
 #include "log.h"
 #include "script.h"
 #include "configuration.h"
+#include "registry.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Input
@@ -80,7 +81,7 @@ void render_set_color(WrenVM* vm)
 	const auto r = wrenGetSlotDouble(vm, 1);
 	const auto g = wrenGetSlotDouble(vm, 2);
 	const auto b = wrenGetSlotDouble(vm, 3);
-	xs::render::color(r, g, b, 1.0);
+	xs::render::set_color(r, g, b, 1.0);
 }
 
 void render_set_color_hex(WrenVM* vm)
@@ -88,11 +89,21 @@ void render_set_color_hex(WrenVM* vm)
 	wrenEnsureSlots(vm, 2);
 	const auto str = wrenGetSlotString(vm, 1);
 	auto color = xs::tools::parse_color(std::string(str));	
-	xs::render::color(
+	xs::render::set_color(
 		std::get<0>(color),
 		std::get<1>(color),
 		std::get<2>(color),
 		std::get<3>(color));
+}
+
+void render_set_color_uint(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto as_double = wrenGetSlotDouble(vm, 1);
+	uint32_t as_int = static_cast<uint32_t>(as_double);
+	xs::render::color as_color;
+	as_color.integer_value = as_int;
+	xs::render::set_color(as_color);
 }
 
 void render_poly(WrenVM* vm)
@@ -198,6 +209,47 @@ void configuration_set_title(WrenVM* vm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Registry
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace
+{
+	struct d_color
+	{
+		double r;
+		double g;
+		double b;
+		double a;
+	};
+}
+
+void registry_get_number(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 1);
+	const auto name = wrenGetSlotString(vm, 1);
+	auto value = xs::registry::get_number(name);
+	wrenSetSlotDouble(vm, 0, value);
+}
+
+void registry_get_color(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 1);
+	const auto name = wrenGetSlotString(vm, 1);
+
+	// auto value = xs::registry::get_number(name);
+	
+	xs::render::color c = { 0, 255, 0, 255 };
+
+	//d_color color;
+	//color.r = 0.0;
+	//color.g = 1.0;
+	//color.b = 0.0;
+	//color.a = 1.0;
+
+	wrenSetSlotBytes(vm,0, (const char*) &c, sizeof(xs::render::color));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // Bind xs API
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void xs::script::bind_api()
@@ -214,7 +266,7 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "end()", render_end);
 	bind("xs", "Render", true, "vertex(_,_)", render_vertex);
 	bind("xs", "Render", true, "setColor(_,_,_)", render_set_color);
-	bind("xs", "Render", true, "setColor(_)", render_set_color_hex);
+	bind("xs", "Render", true, "setColor0(_)", render_set_color_uint);
 	bind("xs", "Render", true, "text(_,_,_,_)", render_text);
 	bind("xs", "Render", true, "polygon(_,_,_,_)", render_poly);
 	bind("xs", "Render", true, "rect(_,_,_,_,_)", render_rect);
@@ -229,4 +281,8 @@ void xs::script::bind_api()
 	bind("xs", "Configuration", true, "height", configuration_get_height);
 	bind("xs", "Configuration", true, "multiplier=(_)", configuration_set_multiplier);
 	bind("xs", "Configuration", true, "multiplier", configuration_get_multiplier);
+
+	// Registry
+	bind("xs", "Registry", true, "getNumber(_)", registry_get_number);
+	bind("xs", "Registry", true, "getColorNum(_)", registry_get_color);
 }

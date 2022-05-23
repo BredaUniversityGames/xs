@@ -477,12 +477,20 @@ void xs::render::end()
 	}
 }
 
-void xs::render::color(double r, double g, double b, double a)
+void xs::render::set_color(double r, double g, double b, double a)
 {
 	current_color.r = static_cast<float>(r);
 	current_color.g = static_cast<float>(g);
 	current_color.b = static_cast<float>(b);
 	current_color.a = static_cast<float>(a);
+}
+
+void xs::render::set_color(color c)
+{
+	current_color.r = c.r / 255.0f;
+	current_color.g = c.g / 255.0f;
+	current_color.b = c.b / 255.0f;
+	current_color.a = c.a / 255.0f;
 }
 
 void xs::render::line(double x0, double y0, double x1, double y1)
