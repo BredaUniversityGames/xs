@@ -117,7 +117,17 @@ namespace xs::script::internal
 		}
 		else
 		{
-			const auto filename = "[games]/shared/modules/" + string(name) + ".wren";
+			auto filename = "[games]/shared/modules/" + string(name) + ".wren";
+			if (!xs::fileio::exists(filename))
+			{
+				auto mstring = string(main);
+				auto i = mstring.find_last_of('/');
+				filename = mstring.erase(i) + '/' + string(name) + ".wren";
+				if (!xs::fileio::exists(filename))
+				{
+					log::warn("Module '{}' can not be found!", name);
+				}
+			}
 			const auto id = hash<string>{}(filename);
 			modules[id] = xs::fileio::read_text_file(filename);
 			res.source = modules[id].c_str();
@@ -243,6 +253,11 @@ void xs::script::update(double dt)
 bool xs::script::has_error()
 {
 	return error;
+}
+
+void xs::script::clear_error()
+{
+	error = false;
 }
 
 void xs::script::bind(

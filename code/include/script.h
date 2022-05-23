@@ -9,6 +9,7 @@ namespace xs::script
 	void shutdown();
 	void update(double dt);
 	bool has_error();
+	void clear_error();
 	void bind_api();
 	void bind(
 		const char* module,
