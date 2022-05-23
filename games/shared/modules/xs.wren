@@ -1,3 +1,50 @@
+import "Assert" for Assert
+
+class Color {
+    construct new(r, g, b, a) {
+        _r = r
+        _g = g
+        _b = b
+        _a = a
+    }
+    construct new(r, g, b) {
+        _r = r
+        _g = g
+        _b = b
+        _a = 255
+    }
+
+    a { _a }
+    r { _r }
+    g { _g }
+    b { _b }
+    a=(v) { _a = v }
+    r=(v) { _r = v }
+    g=(v) { _g = v }
+    b=(v) { _b = v }
+
+    /*
+    toNum { a << 24 | b << 16 | g << 8 | r }
+    static fromNum(v) {
+        var r = v & 0xFF
+        var g = (v >> 8) & 0xFF
+        var b = (v >> 16) & 0xFF
+        var a = (v >> 24) & 0xFF
+        return Color.new(r, g, b, a)
+    }
+    */
+
+    toNum { r << 24 | g << 16 | b << 8 | a }
+    static fromNum(v) {
+        var a = v & 0xFF
+        var b = (v >> 8) & 0xFF
+        var g = (v >> 16) & 0xFF
+        var r = (v >> 24) & 0xFF
+        return Color.new(r, g, b, a)
+    }
+
+    toString { "[r:%(_r) g:%(_g) b:%(_b) a:%(_a)]" }
+}
 
 class Configuration {
     foreign static title=(value) 
@@ -12,7 +59,17 @@ class Configuration {
 
 class Render {
     foreign static setColor(r, g, b)
-    foreign static setColor(hexString)
+    foreign static setColor0(color)
+    static setColor(color) {
+        var c = null
+        if(color is Num) {
+            c = color
+        } else if( color is Color) {
+            c = color.toNum
+        }
+        setColor0(c)
+    }
+
     foreign static polygon(x, y, radius, sides)
     foreign static rect(x, y, sizeX, sizeY, rotation)
     foreign static line(x0, y0, x1, y1)
@@ -90,5 +147,17 @@ class Input {
     static keyDown  { 264 }
     static keyUp    { 265 }
     static keySpace { 32  }
+}
+
+class Registry {
+    foreign static getNumber(name)
+    foreign static getColorNum(name)
+
+    static getColor(name) {
+        var num = getColorInteger(name)
+        return Color.fromNum(num)
+    }
+
+    // foreign static getString(name)
 }
 

@@ -4,6 +4,7 @@
 #include "IconsFontAwesome5.h"
 #include "fileio.h"
 #include "script.h"
+#include "registry.h"
 #if defined(PLATFORM_PC)
 #include <GLFW/glfw3.h>
 #include "device_pc.h"
@@ -79,6 +80,8 @@ void xs::inspector::render(float dt)
 	// ^^^ Move the bind bind here!
 
 
+	ImGui::ShowDemoWindow();
+
 	bool true_that = true;
 	ImGui::SetWindowPos({ 0,0 });
 	ImGui::Begin("Window", &true_that, 
@@ -86,15 +89,15 @@ void xs::inspector::render(float dt)
 		ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoResize |
 		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoBackground |
-		ImGuiWindowFlags_NoDecoration |
+		// ImGuiWindowFlags_NoBackground |
+		// ImGuiWindowFlags_NoDecoration |
 		ImGuiWindowFlags_NoCollapse |
 		ImGuiWindowFlags_NoSavedSettings |
 		ImGuiWindowFlags_NoScrollWithMouse);
 	ImGui::SetWindowPos({ 0,0 });
 
 	// const ImVec2 btnSize(24.0f, 24.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f * internal::ui_scale);	
+	// ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 6.0f * internal::ui_scale);	
 	if(ImGui::Button(ICON_FA_SYNC_ALT))
 	{
 		script::shutdown();
@@ -114,7 +117,9 @@ void xs::inspector::render(float dt)
 	ImGui::SameLine();
 	ImGui::Text("dt=%f", dt);
 	
-	ImGui::PopStyleVar();
+	// ImGui::PopStyleVar();
+
+	xs::registry::inspect();
 	
 	ImGui::End();		
 

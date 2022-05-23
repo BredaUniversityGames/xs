@@ -181,6 +181,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="code\source\registry.cpp" />
     <ClCompile Include="code\source\render.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
@@ -255,6 +256,7 @@
     <ClInclude Include="code\include\inspector.h" />
     <ClInclude Include="code\include\log.h" />
     <ClInclude Include="code\include\opengl.h" />
+    <ClInclude Include="code\include\registry.h" />
     <ClInclude Include="code\include\render.h" />
     <ClInclude Include="code\include\script.h" />
     <ClInclude Include="code\include\tools.h" />
