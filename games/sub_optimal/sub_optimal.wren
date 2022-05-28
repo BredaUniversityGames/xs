@@ -117,13 +117,15 @@ class Player is Component {
                 var pos = cu.getComponent(Transform).position
                 if(pos.x > fromX && pos.x < toX && pos.y > fromY && pos.y < toY) {                                        
                     var enemy = cu.getComponent(Enemy)
-                    enemy.hack(dt)
-                    if(enemy.hacked) {
-                        cu.deleteComponent(Enemy)
-                        cu.tag = Tag.Player | Tag.Unit //|
-                        cu.addComponent(Drone.new())
-                        cu.getComponent(DebugColor).color = Globals.PlayerColor
-                        addDrone2(cu)
+                    if(enemy != null) {
+                        enemy.hack(dt)
+                        if(enemy.hacked) {
+                            cu.deleteComponent(Enemy)
+                            cu.tag = Tag.Player | Tag.Unit //|
+                            cu.addComponent(Drone.new())
+                            cu.getComponent(DebugColor).color = Globals.PlayerColor
+                            addDrone2(cu)
+                        }
                     }
                 }
             }
@@ -200,9 +202,9 @@ class Drone is Component {
 }
 
 class Enemy is Component {
-    construct new(idx, pos, tilt) {
+    construct new(idx, tilt, parent) {
         super()        
-        _position = pos
+        _parent = parent
         _time = idx * 0.4
         _shootTime = _time
         _tilt = tilt
@@ -217,7 +219,8 @@ class Enemy is Component {
         _time = _time + dt * 2.0
         var pos = Vec2.new(30 * _time.sin, 70 * _time.cos)
         pos.rotate(_tilt)
-        owner.getComponent(Transform).position = pos + _position
+        var position = _parent.getComponent(Transform).position
+        owner.getComponent(Transform).position = pos + position
         _shootTime = _shootTime + dt
         if(_shootTime > 1.0) {
             if(Game.random.float(0.0, 1.0) < 0.3) {
@@ -236,6 +239,39 @@ class Enemy is Component {
 
     hack(dt) { _hack = _hack + dt }
     hacked { _hack > 0.3 }
+}
+
+class EnemyCore is Component {
+    construct new(pos, tilt) {
+        super()        
+        _position = pos
+        _backPos = pos + Vec2.new(200.0, 0.0)
+        _time = 0.0
+        _shootTime = _time
+        _tilt = tilt
+    }
+
+    del() {
+        Game.addScore(100)
+    }
+
+    update(dt) {
+        _time = _time + dt * 0.5
+        if(_time < 1.0) {
+            var pos = Math.lerp(_backPos, _position, _time)
+            owner.getComponent(Transform).position = pos
+        }
+
+        /*
+        _shootTime = _shootTime + dt
+        if(_shootTime > 1.0) {
+            if(Game.random.float(0.0, 1.0) < 0.3) {
+                Game.createBulletEnemy(owner, 200, 50)
+            }
+            _shootTime = 0.0
+        }
+        */
+    }
 }
 
 class Explosion is Component {
@@ -407,6 +443,7 @@ class Game {
         var playerBullets = Entity.entitiesWithTag(Tag.Player | Tag.Bullet)
         var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit)
         var computerBullets = Entity.entitiesWithTag(Tag.Computer | Tag.Bullet)
+        // var computerBullets = Entity.entitiesWithTag(Tag.Computer | Tag.Bullet)
 
         Game.collide(computerBullets, playerUnits)
         Game.collide(playerBullets, computerUnits)
@@ -470,18 +507,41 @@ class Game {
         var y = Game.random.float(-100.0, 100.0)
         var pos = Vec2.new(x, y)
         var tilt = Game.random.float(0.0, 5.0)
+
+        // "S"
+
+        var core = createEnemyCore(pos, tilt)
         for(i in 0..6) {
-            createEnemyShip(i, pos, tilt)
+            createEnemyShip(i, tilt, core)
         }
     }
 
-    static createEnemyShip(idx, pos, tilt) {
+    static createEnemyCore(pos, tilt) {
+        var core = Entity.new()
+        var p = Vec2.new(0, 0)
+        var t = Transform.new(p)    
+        var v = Vec2.new(0, 0)
+        var b = Body.new(Globals.EnemySize, v)
+        var e = EnemyCore.new(pos, tilt)
+        var u = Unit.new(Team.computer, 1)
+        var c = DebugColor.new(Globals.EnemyColor)
+        core.addComponent(t)
+        core.addComponent(b)
+        core.addComponent(e)
+        core.addComponent(u)
+        core.addComponent(c)
+        core.name = "Enemy Core"
+        core.tag = (Tag.Computer | Tag.Unit)
+        return core
+    }
+
+    static createEnemyShip(idx, tilt, core) {
         var ship = Entity.new()
         var p = Vec2.new(240, 0)
         var t = Transform.new(p)    
         var v = Vec2.new(0, 0)
         var b = Body.new(Globals.EnemySize, v)
-        var e = Enemy.new(idx, pos, tilt)
+        var e = Enemy.new(idx, tilt, core)
         var u = Unit.new(Team.computer, 1)
         var c = DebugColor.new(Globals.EnemyColor)
         ship.addComponent(t)
