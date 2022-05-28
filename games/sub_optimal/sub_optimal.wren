@@ -93,7 +93,7 @@ class Player is Component {
         }
 
         _shootTime = _shootTime + dt
-        if(Input.getButton(0) == true && _shootTime > 0.1) {
+        if((Input.getButton(0) || Input.getKeyOnce(Input.keySpace)) && _shootTime > 0.1) {
             Game.createBullet(owner, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
             for(d in _drones) {
                 if(!d.deleted) {
@@ -104,7 +104,7 @@ class Player is Component {
         }
 
         var speed = Globals.PlayerSpeed
-        if(Input.getButton(1) == true) {
+        if(Input.getButton(1)) {
             speed = Globals.PlayerSpeedWhenHacking
             var fromX = t.position.x
             var toX = t.position.x + Globals.PlayerHackWidth
@@ -131,6 +131,21 @@ class Player is Component {
 
         var b = owner.getComponent(Body)
         var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
+        if(Input.getKey(Input.keyUp)) {
+            vel.y = 1.0
+        }
+        if(Input.getKey(Input.keyDown)) {
+            vel.y = -1.0
+        }
+        if(Input.getKey(Input.keyRight)) {
+            vel.x = 1.0
+        }
+        if(Input.getKey(Input.keyLeft)) {
+            vel.x = -1.0
+        }
+
+
+
         if(vel.magnitude > Globals.PlayerInputDeadZone) {            
             vel = vel * speed
         } else {
@@ -141,7 +156,6 @@ class Player is Component {
 
     addDrone2(drone) {
         _drones.add(drone)
-
 
         while(true) {
             var found = false
@@ -260,12 +274,11 @@ class Menu {
     }
 
     update(dt) {
-
-        if(Input.getButtonOnce(13) == true) {
+        if(Input.getButtonOnce(13) == true || Input.getKeyOnce(Input.keyDown)) {
             _selected = (_selected + 1) % _items.count
-        } else if (Input.getButtonOnce(11) == true) {
+        } else if (Input.getButtonOnce(11) == true || Input.getKeyOnce(Input.keyUp)) {
             _selected = (_selected - 1) % _items.count
-        } else if (Input.getButtonOnce(0) == true) {
+        } else if (Input.getButtonOnce(0) == true || Input.getKeyOnce(Input.keySpace)) {
             var item = _items[_selected]
             var action = _actions[item]
             if(action != null) {
@@ -348,7 +361,7 @@ class Game {
     
     static update(dt) {        
         Render.setColor(0.2, 0.2, 0.2)
-        Render.rect(0, 0, Configuration.width, Configuration.height, 0.0)
+        Render.rect(-Configuration.width, -Configuration.height, Configuration.width, Configuration.height)
         Entity.update(dt)
 
         if(__state == GameState.Menu) {
@@ -428,7 +441,7 @@ class Game {
         Render.text("SCORE %(__score)", -100, 50, 4)
         Render.text(">menu<", -50, 10, 2)
 
-        if (Input.getButtonOnce(0) == true) {
+        if (Input.getButtonOnce(0) || Input.getKeyOnce(Input.keySpace)) {
             __state = GameState.Menu            
         } 
     }
