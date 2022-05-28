@@ -115,9 +115,9 @@ class Ship  is MovingObject {
     render() {
         var open = velocity.x * 0.02
         var tilt = velocity.y * 0.02
-        Render.setColor("FBAF40FF")
+        Render.setColor(0xFBAF40FF)
         Render.disk(position.x, position.y, 5, 24)
-        Render.setColor("D07D04FF")        
+        Render.setColor(0xD07D04FF)        
         Render.begin(Render.triangles)
             Render.vertex(position.x, position.y)
             Render.vertex(position.x + 6, position.y + 6)
@@ -159,9 +159,9 @@ class Enemy  is MovingObject {
     render() {
         var open = velocity.x * 0.02
         var tilt = velocity.y * 0.02
-        Render.setColor("C859FFFF")
+        Render.setColor(0xC859FFFF)
         Render.disk(position.x, position.y, 8, 24)
-        Render.setColor("F477FFFF")        
+        Render.setColor(0xF477FFFF)        
         Render.begin(Render.triangles)
             Render.vertex(position.x, position.y)
             Render.vertex(position.x - 10, position.y + 10)
@@ -196,12 +196,12 @@ class Bullet is MovingObject {
 
     render() {
         if(velocity.x > 0) {
-            Render.setColor("FBAF40FF")
+            Render.setColor(0xFBAF40FF)
             var sx = size.x * 0.5
             var sy = size.y * 0.5
             Render.rect(position.x - sx, position.y - sy, position.x + sx, position.y + sy)
         } else {
-            Render.setColor("F477FFFF")
+            Render.setColor(0xF477FFFF)
             Render.disk(position.x, position.y, size.x, 4)
         }
     }
@@ -223,7 +223,7 @@ class Rocket is MovingObject {
     }
 
     render() {
-        Render.setColor("F477FFFF")
+        Render.setColor(0xF477FFFF)
         Render.disk(position.x, position.y, size.x, 4)
     }
 }
@@ -252,7 +252,7 @@ class Building is GameObject {
         __toHeight = [0.15, 0.3, 0.5, 0.85]
         __fromWidth = [30, 30, 25, 20]
         __toWidth = [80, 40, 35, 25]
-        __colors = ["6C5A9DFF", "4DAAEFFF", "7DC4F7FF", "A9E0FFFF"]
+        __colors = [0x6C5A9DFF, 0x4DAAEFFF, 0x7DC4F7FF, 0xA9E0FFFF]
     }
 
     construct new(layer) {        
@@ -315,7 +315,7 @@ class Sprawl is Building {
         __toHeight = [0.15, 0.3, 0.5, 0.85]
         __fromWidth = [30, 30, 25, 20]
         __toWidth = [80, 40, 35, 25]
-        __colors = ["6C5A9DFF", "4DAAEFFF", "7DC4F7FF", "A9E0FFFF"]
+        __colors = [0x6C5A9DFF, 0x4DAAEFFF, 0x7DC4F7FF, 0xA9E0FFFF]
     }
 
     construct new(layer, offset) {        
@@ -396,7 +396,7 @@ class Game {
     
     static update(dt) {
         Render.setColor(1, 1, 1)
-        Render.rect(0, 0, Configuration.width, Configuration.height, 0.0)        
+        Render.rect(-Configuration.width, -Configuration.height, Configuration.width, Configuration.height)        
 
         for(a in __addQueue) {
             __objects.add(a)
@@ -427,7 +427,7 @@ class Game {
             o.render()
         }
 
-        Render.setColor("6C5A9DFF")
+        Render.setColor(0x6C5A9DFF)
         Render.text("SCORE", -200.0, 170.0, 1.0)
 
         var i = 0

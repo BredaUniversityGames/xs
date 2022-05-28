@@ -21,7 +21,10 @@ namespace xs::render
 	void clear();
 
 	int load_image(const std::string& image_file);
-	void image(int image_id, double x, double y);	// Not implemented yet
+	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
+	void render_sprite(int image_id, double x, double y);
+	// void image(int image_id, double x, double y);
+
 
 	enum class primitive { lines, triangles, none };
 	void begin(primitive p);
@@ -31,8 +34,4 @@ namespace xs::render
 	void end();	
 	void line(double x0, double y0, double x1, double y1);
 	void text(const std::string& text, double x, double y, double size);
-
-
-	void rect(double x, double y, double size_x, double size_y, double rotation);	// deprecated, will be removed
-	void poly(double x, double y, double radius, int sides); // deprecated, will be removed
 }

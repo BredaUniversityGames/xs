@@ -106,25 +106,6 @@ void render_set_color_uint(WrenVM* vm)
 	xs::render::set_color(as_color);
 }
 
-void render_poly(WrenVM* vm)
-{
-	const auto x = wrenGetSlotDouble(vm, 1);
-	const auto y = wrenGetSlotDouble(vm, 2);
-	const auto radius = wrenGetSlotDouble(vm, 3);
-	const auto sides = static_cast<int>(round(wrenGetSlotDouble(vm, 4)));
-	xs::render::poly(x, y, radius, sides);
-}
-
-void render_rect(WrenVM* vm)
-{
-	const auto x = wrenGetSlotDouble(vm, 1);
-	const auto y = wrenGetSlotDouble(vm, 2);
-	const auto sx = wrenGetSlotDouble(vm, 3);
-	const auto sy = wrenGetSlotDouble(vm, 4);
-	const auto r = wrenGetSlotDouble(vm, 5);
-	xs::render::rect(x, y, sx, sy, r);
-}
-
 void render_line(WrenVM* vm)
 {
 	const auto x0 = wrenGetSlotDouble(vm, 1);
@@ -142,6 +123,47 @@ void render_text(WrenVM* vm)
 	const auto y = wrenGetSlotDouble(vm, 3);
 	const auto size = wrenGetSlotDouble(vm, 4);
 	xs::render::text(text, x, y, size);
+}
+
+void render_load_image(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto c_str = wrenGetSlotString(vm, 1);
+	const auto str = std::string(c_str);
+	auto img = xs::render::load_image(str);
+	wrenSetSlotDouble(vm, 0, img);
+}
+
+/*
+void render_image(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto img = wrenGetSlotDouble(vm, 1);
+	const auto x = wrenGetSlotDouble(vm, 2);
+	const auto y = wrenGetSlotDouble(vm, 3);
+	xs::render::image((int)img, x, y);
+}
+*/
+
+void render_create_sprite(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 6);
+	const auto id = wrenGetSlotDouble(vm, 1);
+	const auto x0 = wrenGetSlotDouble(vm, 2);
+	const auto y0 = wrenGetSlotDouble(vm, 3);
+	const auto x1 = wrenGetSlotDouble(vm, 4);
+	const auto y1 = wrenGetSlotDouble(vm, 5);
+	auto sp_id = xs::render::create_sprite((int)id, x0, y0, x1, y1);
+	wrenSetSlotDouble(vm, 0, sp_id);
+}
+
+void render_sprite(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto sprite_id = wrenGetSlotDouble(vm, 1);
+	const auto x = wrenGetSlotDouble(vm, 2);
+	const auto y = wrenGetSlotDouble(vm, 3);
+	xs::render::render_sprite((int)sprite_id, x, y);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -268,9 +290,13 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "setColor(_,_,_)", render_set_color);
 	bind("xs", "Render", true, "setColor0(_)", render_set_color_uint);
 	bind("xs", "Render", true, "text(_,_,_,_)", render_text);
-	bind("xs", "Render", true, "polygon(_,_,_,_)", render_poly);
-	bind("xs", "Render", true, "rect(_,_,_,_,_)", render_rect);
+	//bind("xs", "Render", true, "polygon(_,_,_,_)", render_poly);
+	//bind("xs", "Render", true, "rect(_,_,_,_,_)", render_rect);
 	bind("xs", "Render", true, "line(_,_,_,_)", render_line);
+	bind("xs", "Render", true, "loadImage(_)", render_load_image);
+	bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
+	//bind("xs", "Render", true, "image(_,_,_)", render_image);
+	bind("xs", "Render", true, "renderSprite(_,_,_)", render_sprite);
 
 	// Configuration
 	bind("xs", "Configuration", true, "title=(_)", configuration_set_title);

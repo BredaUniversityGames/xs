@@ -30,11 +30,14 @@ namespace xs::render::internal
 		int		channels	= -1;
 	};
 	
-	// TODO: Implement later
-	// void create_frame_buffers();
+	void create_frame_buffers();
 	// void delete_frame_buffers();
+	void compile_draw_shader();
+	void compile_sprite_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
+
+
 
 	int width = -1;
 	int height = -1;
@@ -62,8 +65,9 @@ namespace xs::render::internal
 
 	primitive				current_primitive = primitive::none;
 
-	struct sprite_vtx_format { vec3 position; vec2 texture; vec4 color; };
-	struct sprite_queue_entry { int id; double x; double y; };
+	struct sprite_vtx_format { vec3 position; vec2 texture; vec4 color; };	
+	struct sprite { int image_id; vec2 from; vec2 to; };
+	struct sprite_queue_entry { int sprite_id; double x; double y; };
 	
 	unsigned int			sprite_program = 0;
 	int const				sprite_trigs_max = 21800;
@@ -73,6 +77,7 @@ namespace xs::render::internal
 	unsigned int			sprite_trigs_vbo = 0;
 	std::vector<sprite_queue_entry> sprite_queue;
 	std::vector<image>		images;
+	std::vector<sprite>		sprites;
 }
 
 using namespace xs::render::internal;
@@ -82,77 +87,9 @@ void xs::render::initialize()
 	width = configuration::width;
 	height = configuration::height;
 
-	glCreateFramebuffers(1, &render_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
-	glGenTextures(1, &render_texture);
-	glBindTexture(GL_TEXTURE_2D, render_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, render_texture, 0);
-	unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, attachments);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		assert(false);
-	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-	
-	
-	const auto* const vs_source =
-		"#version 460 core												\n\
-		layout (location = 1) in vec3 a_position;						\n\
-		layout (location = 2) in vec4 a_color;							\n\
-		layout (location = 1) uniform mat4 u_worldviewproj;				\n\
-		out vec4 v_color;												\n\
-																		\n\
-		void main()														\n\
-		{																\n\
-			v_color = a_color;											\n\
-			gl_Position = u_worldviewproj * vec4(a_position, 1.0);		\n\
-		}";
-
-	const auto* const fs_source =
-		"#version 460 core												\n\
-		in vec4 v_color;												\n\
-		out vec4 frag_color;											\n\
-																		\n\
-		void main()														\n\
-		{																\n\
-			frag_color = v_color;										\n\
-		}";
-
-	GLuint vert_shader = 0;
-	GLuint frag_shader = 0;
-
-	shader_program = glCreateProgram();
-
-	GLboolean res = compile_shader(&vert_shader, GL_VERTEX_SHADER, vs_source);
-	if (!res)
-	{
-		log::error("DebugRenderer failed to compile vertex shader");
-		return;
-	}
-
-	res = compile_shader(&frag_shader, GL_FRAGMENT_SHADER, fs_source);
-	if (!res)
-	{
-		log::error("Renderer failed to compile fragment shader");
-		return;
-	}
-
-	glAttachShader(shader_program, vert_shader);
-	glAttachShader(shader_program, frag_shader);
-
-	if (!link_program(shader_program))
-	{
-		glDeleteShader(vert_shader);
-		glDeleteShader(frag_shader);
-		glDeleteProgram(shader_program);
-		log::error("Renderer failed to link shader program");
-		return;
-	}
-
-	glDeleteShader(vert_shader);
-	glDeleteShader(frag_shader);
+	internal::create_frame_buffers();
+	internal::compile_draw_shader();
+	internal::compile_sprite_shader();
 
 	///////// Trigs //////////////////////
 	glCreateVertexArrays(1, &lines_vao);
@@ -224,13 +161,19 @@ void xs::render::initialize()
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(
-		1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_format),
-		reinterpret_cast<void*>(offsetof(vertex_format, position)));
+		1, 3, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
+		reinterpret_cast<void*>(offsetof(sprite_vtx_format, sprite_vtx_format::position)));
 
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(
-		2, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_format),
-		reinterpret_cast<void*>(offsetof(vertex_format, color)));
+		2, 2, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
+		reinterpret_cast<void*>(offsetof(sprite_vtx_format, sprite_vtx_format::texture)));
+
+
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(
+		3, 4, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
+		reinterpret_cast<void*>(offsetof(sprite_vtx_format, sprite_vtx_format::color)));
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 }
@@ -275,17 +218,24 @@ void xs::render::render()
 	}
 
 
-	glUseProgram(shader_program);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glUseProgram(sprite_program);
 	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
 
 	for (const auto& spe : sprite_queue)
 	{
-		const auto& image = images[spe.id];
+		const auto& sprite = sprites[spe.sprite_id];
+		const auto& image = images[sprite.image_id];
 
 		const auto from_x = spe.x;
 		const auto from_y = spe.y;
-		const auto to_x = spe.x + image.width;
-		const auto to_y = spe.y + image.height;
+		const auto to_x = spe.x + image.width * (sprite.to.x - sprite.from.x);
+		const auto to_y = spe.y + image.height * (sprite.to.y - sprite.from.y);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, image.gl_id);
 
 		//if (triangles_count < triangles_max - 1)
 		{	
@@ -296,12 +246,12 @@ void xs::render::render()
 			sprite_trigs_array[4].position = { to_x, from_y, 0.0 };
 			sprite_trigs_array[5].position = { from_x, from_y, 0.0 };
 
-			sprite_trigs_array[0].texture = { 0.0, 0.0 };
-			sprite_trigs_array[1].texture = { 0.0, 1.0};
-			sprite_trigs_array[2].texture = { 1.0, 1.0};
-			sprite_trigs_array[3].texture = { 1.0, 1.0};
-			sprite_trigs_array[4].texture = { 1.0, 0.0};
-			sprite_trigs_array[5].texture = { 0.0, 0.0};
+			sprite_trigs_array[0].texture = { sprite.from.x,	sprite.to.y };
+			sprite_trigs_array[1].texture = { sprite.from.x,	sprite.from.y };
+			sprite_trigs_array[2].texture = { sprite.to.x,		sprite.from.y };
+			sprite_trigs_array[3].texture = { sprite.to.x,		sprite.from.y };
+			sprite_trigs_array[4].texture = { sprite.to.x,		sprite.to.y };
+			sprite_trigs_array[5].texture = { sprite.from.x,	sprite.to.y };
 
 			sprite_trigs_array[0].color = current_color;
 			sprite_trigs_array[1].color = current_color;
@@ -314,10 +264,10 @@ void xs::render::render()
 		glBindVertexArray(sprite_trigs_vao);
 		glBindBuffer(GL_ARRAY_BUFFER, sprite_trigs_vbo);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(sprite_vtx_format) * 6, &sprite_trigs_array[0], GL_DYNAMIC_DRAW);
-		glDrawArrays(GL_LINES, 0, 6);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
-	XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 
+	XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	XS_DEBUG_ONLY(glUseProgram(0));
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
@@ -343,6 +293,8 @@ void xs::render::clear()
 
 int xs::render::load_image(const std::string& image_file)
 {	
+	// find image first
+
 	auto buffer = fileio::read_binary_file(image_file);	
 	internal::image img;
 	GLubyte* data = stbi_load_from_memory(
@@ -370,6 +322,10 @@ int xs::render::load_image(const std::string& image_file)
 			break;
 		case 4:
 			format = GL_RGBA;
+			usage = GL_RGBA;
+			break;
+		case 3:
+			format = GL_RGB;
 			usage = GL_RGBA;
 			break;
 		default:
@@ -401,10 +357,26 @@ int xs::render::load_image(const std::string& image_file)
 	return static_cast<int>(i);
 }
 
-void xs::render::image(int image_id, double x, double y)
+int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
+{
+	const auto i = sprites.size();
+	sprite s = { image_id, { x0, y0 }, { x1, y1 } };
+	sprites.push_back(s);
+	return static_cast<int>(i);
+}
+
+void xs::render::render_sprite(int image_id, double x, double y)
 {
 	sprite_queue.push_back({ image_id, x, y });
 }
+
+/*
+void xs::render::image(int image_id, double x, double y)
+{
+	//sprite_queue.push_back({ image_id, x, y });
+
+}
+*/
 
 void xs::render::begin(primitive p)
 {
@@ -555,51 +527,125 @@ void xs::render::text(const std::string& text, double x, double y, double size)
 	}
 }
 
-void xs::render::poly(double x, double y, double radius, int sides)
+void xs::render::internal::create_frame_buffers()
 {
-	const double dt = two_pi<double>() / static_cast<double>(sides);
-	double t = 0.0;
+	glCreateFramebuffers(1, &render_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
+	glGenTextures(1, &render_texture);
+	glBindTexture(GL_TEXTURE_2D, render_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, render_texture, 0);
+	unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, attachments);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		assert(false);
+	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-	auto x0 = x + radius * cos(t);
-	auto y0 = y + radius * sin(t);
-	for (int i = 0; i < sides; i++)
-	{
-		auto x1 = x + radius * cos(t + dt);
-		auto y1 = y + radius * sin(t + dt);
-		line(x0, y0, x1, y1);
-		x0 = x1;
-		y0 = y1;
-		t += dt;
-	}
 }
 
-void xs::render::rect(double x, double y, double size_x, double size_y, double rotation)
+void xs::render::internal::compile_sprite_shader()
 {
-	const uint idx = triangles_count * 3;
+	auto vs_str = xs::fileio::read_text_file("[games]/shared/shaders/sprite.vert");
+	auto fs_str = xs::fileio::read_text_file("[games]/shared/shaders/sprite.frag");
+	const char* const vs_source = vs_str.c_str();
+	const char* const fs_source = fs_str.c_str();
 
-	const auto from_x = x - size_x * 0.5;
-	const auto from_y = y - size_y * 0.5;
-	const auto to_x = x + size_x * 0.5;
-	const auto to_y = y + size_y * 0.5;
-	
-	if (triangles_count < triangles_max - 1)
+	GLuint vert_shader = 0;
+	GLuint frag_shader = 0;
+
+	sprite_program = glCreateProgram();
+
+	GLboolean res = compile_shader(&vert_shader, GL_VERTEX_SHADER, vs_source);
+	if (!res)
 	{
-		triangles_array[idx + 0].position = { from_x, from_y, 0.0 };
-		triangles_array[idx + 1].position = { from_x, to_y, 0.0 };
-		triangles_array[idx + 2].position = { to_x, to_y, 0.0 };
-		triangles_array[idx + 3].position = { to_x, to_y, 0.0 };
-		triangles_array[idx + 4].position = { to_x, from_y, 0.0 };
-		triangles_array[idx + 5].position = { from_x, from_y, 0.0 };
-
-		triangles_array[idx + 0].color = current_color;
-		triangles_array[idx + 1].color = current_color;
-		triangles_array[idx + 2].color = current_color;
-		triangles_array[idx + 3].color = current_color;
-		triangles_array[idx + 4].color = current_color;
-		triangles_array[idx + 5].color = current_color;
-
-		triangles_count += 2;
+		log::error("Renderer failed to compile sprite vertex shader");
+		return;
 	}
+
+	res = compile_shader(&frag_shader, GL_FRAGMENT_SHADER, fs_source);
+	if (!res)
+	{
+		log::error("Renderer failed to compile sprite fragment shader");
+		return;
+	}
+
+	glAttachShader(sprite_program, vert_shader);
+	glAttachShader(sprite_program, frag_shader);
+
+	if (!link_program(sprite_program))
+	{
+		glDeleteShader(vert_shader);
+		glDeleteShader(frag_shader);
+		glDeleteProgram(sprite_program);
+		log::error("Renderer failed to link sprite shader program");
+		return;
+	}
+
+	glDeleteShader(vert_shader);
+	glDeleteShader(frag_shader);
+}
+
+void xs::render::internal::compile_draw_shader()
+{
+	const auto* const vs_source =
+		"#version 460 core												\n\
+		layout (location = 1) in vec3 a_position;						\n\
+		layout (location = 2) in vec4 a_color;							\n\
+		layout (location = 1) uniform mat4 u_worldviewproj;				\n\
+		out vec4 v_color;												\n\
+																		\n\
+		void main()														\n\
+		{																\n\
+			v_color = a_color;											\n\
+			gl_Position = u_worldviewproj * vec4(a_position, 1.0);		\n\
+		}";
+
+	const auto* const fs_source =
+		"#version 460 core												\n\
+		in vec4 v_color;												\n\
+		out vec4 frag_color;											\n\
+																		\n\
+		void main()														\n\
+		{																\n\
+			frag_color = v_color;										\n\
+		}";
+
+	GLuint vert_shader = 0;
+	GLuint frag_shader = 0;
+
+	shader_program = glCreateProgram();
+
+	GLboolean res = compile_shader(&vert_shader, GL_VERTEX_SHADER, vs_source);
+	if (!res)
+	{
+		log::error("Renderer failed to compile vertex shader");
+		return;
+	}
+
+	res = compile_shader(&frag_shader, GL_FRAGMENT_SHADER, fs_source);
+	if (!res)
+	{
+		log::error("Renderer failed to compile fragment shader");
+		return;
+	}
+
+	glAttachShader(shader_program, vert_shader);
+	glAttachShader(shader_program, frag_shader);
+
+	if (!link_program(shader_program))
+	{
+		glDeleteShader(vert_shader);
+		glDeleteShader(frag_shader);
+		glDeleteProgram(shader_program);
+		log::error("Renderer failed to link shader program");
+		return;
+	}
+
+	glDeleteShader(vert_shader);
+	glDeleteShader(frag_shader);
+
 }
 
 bool xs::render::internal::compile_shader(GLuint* shader, GLenum type, const GLchar* source)

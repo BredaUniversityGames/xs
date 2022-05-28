@@ -9,7 +9,7 @@ namespace
 	void joystick_callback(int joy, int event) {}
 	GLFWgamepadstate gamepad_state;
 	GLFWgamepadstate prev_gamepad_state;
-	char key_once[256 + 1];
+	char key_once[512 + 1];
 	bool gamepad_connected;
 }
 
@@ -66,6 +66,11 @@ bool xs::input::get_key(int key)
 
 bool xs::input::get_key_once(int key)
 {
+	/*
+	auto k = key_once[key];
+	return glfwGetKey(device::get_window(), key) == GLFW_PRESS;
+	*/
+
 	return (glfwGetKey(device::get_window(), key) ?
 		(key_once[key] ? false : (key_once[key] = true)) : \
 		(key_once[key] = false));
