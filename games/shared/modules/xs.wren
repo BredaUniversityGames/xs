@@ -70,8 +70,6 @@ class Render {
         setColor0(c)
     }
 
-    foreign static polygon(x, y, radius, sides)
-    foreign static rect(x, y, sizeX, sizeY, rotation)
     foreign static line(x0, y0, x1, y1)
     foreign static text(text, x, y, size)
 
@@ -133,6 +131,11 @@ class Render {
         }
         Render.end()
     }
+
+    foreign static loadImage(path)
+    // foreign static image(img, x, y)
+    foreign static createSprite(imageId, x0, y0, x1, y1)
+    foreign static renderSprite(spriteId, x, y)
 }
 
 class Input {
