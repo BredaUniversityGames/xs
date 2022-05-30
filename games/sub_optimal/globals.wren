@@ -3,7 +3,7 @@ class Globals {
     static PlayerColor { 0x8BEC46FF }
     static PlayerSize { 6 }    
     static PlayerSpeed { 500 }
-    static PlayerHealth { 90 }
+    static PlayerHealth { 30 }
     static PlayerHackWidth { 200 }
     static PlayerHackHeight { 60 }
     static PlayerSpeedWhenHacking { 250 }
@@ -15,7 +15,7 @@ class Globals {
 
     static EnemyColor { 0xEC468BFF }
     static EnemySize { 10 }
-    static EnemyBulletSpeed { 10 }
+    static EnemyBulletSpeed { 200 }
     static EnemyBulletDamage { 10 }
 
     static ExplosionSize {}
