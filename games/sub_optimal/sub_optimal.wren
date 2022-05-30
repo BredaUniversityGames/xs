@@ -1,10 +1,11 @@
 import "xs" for Configuration, Input, Render, Registry, Color
-import "Assert" for Assert
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
+import "Assert" for Assert
 import "random" for Random
 import "globals" for Globals
 import "components" for Transform, Body
+import "ships" for Orbitor, Shield
 
 ///////////////////////////////////////////////////////////////////////////////
 // Components
@@ -53,10 +54,18 @@ class Bullet is Component {
 
     update(dt) {
         var t = owner.getComponent(Transform)
+
         var w = Configuration.width * 0.5
         if (t.position.x < -w) {
             owner.delete()
         } else if (t.position.x > w) {
+            owner.delete()
+        }
+
+        var h = Configuration.height * 0.5
+        if (t.position.y < -h) {
+            owner.delete()
+        } else if (t.position.y > h) {
             owner.delete()
         }
     }
@@ -125,6 +134,7 @@ class Player is Component {
                             cu.addComponent(Drone.new())
                             cu.getComponent(DebugColor).color = Globals.PlayerColor
                             addDrone2(cu)
+                            enemy.parent.getComponent(Orbitor).nullify(cu)
                         }
                     }
                 }
@@ -145,8 +155,6 @@ class Player is Component {
         if(Input.getKey(Input.keyLeft)) {
             vel.x = -1.0
         }
-
-
 
         if(vel.magnitude > Globals.PlayerInputDeadZone) {            
             vel = vel * speed
@@ -217,14 +225,17 @@ class Enemy is Component {
 
     update(dt) {
         _time = _time + dt * 2.0
-        var pos = Vec2.new(30 * _time.sin, 70 * _time.cos)
-        pos.rotate(_tilt)
-        var position = _parent.getComponent(Transform).position
-        owner.getComponent(Transform).position = pos + position
+        // var pos = Vec2.new(30 * _time.sin, 70 * _time.cos)
+        // pos.rotate(_tilt)
+        // var position = _parent.getComponent(Transform).position
+        // owner.getComponent(Transform).position = pos + position
         _shootTime = _shootTime + dt
         if(_shootTime > 1.0) {
             if(Game.random.float(0.0, 1.0) < 0.3) {
-                Game.createBulletEnemy(owner, 200, 50)
+                Game.createBulletEnemy(
+                    owner,
+                    Globals.EnemyBulletSpeed,
+                    Globals.EnemyBulletDamage)
             }
             _shootTime = 0.0
         }
@@ -236,6 +247,8 @@ class Enemy is Component {
             Render.pie(pos.x, pos.y, 12, 2.0 * _hack * Num.pi / 0.3 ,32)
         }
     }
+
+    parent { _parent }
 
     hack(dt) { _hack = _hack + dt }
     hacked { _hack > 0.3 }
@@ -260,6 +273,9 @@ class EnemyCore is Component {
         if(_time < 1.0) {
             var pos = Math.lerp(_backPos, _position, _time)
             owner.getComponent(Transform).position = pos
+        } else {
+            var pos = (_time - 1).sin * 20.0
+            owner.getComponent(Transform).position.x = _position.x + pos
         }
 
         /*
@@ -511,8 +527,10 @@ class Game {
         // "S"
 
         var core = createEnemyCore(pos, tilt)
+        var orbitor = core.getComponent(Orbitor)
         for(i in 0..6) {
-            createEnemyShip(i, tilt, core)
+            var ship = createEnemyShip(i, tilt, core)
+            orbitor.add(ship)
         }
     }
 
@@ -525,11 +543,13 @@ class Game {
         var e = EnemyCore.new(pos, tilt)
         var u = Unit.new(Team.computer, 1)
         var c = DebugColor.new(Globals.EnemyColor)
+        var o = Orbitor.new(core)
         core.addComponent(t)
         core.addComponent(b)
         core.addComponent(e)
         core.addComponent(u)
         core.addComponent(c)
+        core.addComponent(o)
         core.name = "Enemy Core"
         core.tag = (Tag.Computer | Tag.Unit)
         return core
@@ -551,6 +571,7 @@ class Game {
         ship.addComponent(c)
         ship.name = "Enemy"
         ship.tag = (Tag.Computer | Tag.Unit)
+        return ship
     }
 
     static collide(bullets, units) {
