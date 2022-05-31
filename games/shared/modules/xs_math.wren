@@ -2,6 +2,19 @@
 class Math {
     static lerp(a, b, t) { (a * (1.0 - t)) + (b * t) }
     static damp(a, b, lambda, dt) { lerp(a, b, 1.0 - (-lambda * dt).exp) }    
+    static min(l, r) { l < r ? l : r }
+    static max(l, r) { l > r ? l : r }
+
+    static invLerp(a, b, v) {
+	    var  t = (v - a) / (b - a)
+	    t = max(0.0, min(t, 1.0))
+	    return t
+    }
+
+    static remap(iF, iT, oF, oT, v) {
+	    var t = invLerp(iF, iT, v)
+	    return lerp(oF, oT, t)
+    }
 }
 
 class Bits {
