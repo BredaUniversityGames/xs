@@ -165,6 +165,11 @@ class Player is Component {
     }
 
     addDrone2(drone) {
+        var o = owner.getComponent(Orbitor)
+        o.trim()
+        o.add(drone)
+
+        /*
         _drones.add(drone)
 
         while(true) {
@@ -190,6 +195,7 @@ class Player is Component {
             var x = y * 0.5 * -sign
             d.offset = Vec2.new(x, y)
         }
+        */
     }
 }
 
@@ -338,9 +344,13 @@ class Menu {
             }
         } 
 
-        Render.setColor(0x8BEC46FF)
-        var y = 55
-        var x = -190
+        Render.setColor(0x000000FF)
+        render(-190, 56)        
+        Render.setColor(0xFFFFFFFF)
+        render(-191, 57)                
+    }
+
+    render(x, y) {
         Render.text("======== SubOptimal v0.1 ========", x, y, 2)
         var i = 0
         for(item in _items) {
@@ -367,13 +377,64 @@ class GameState {
     static Score    { 3 }
 }
 
+class Sprite is Component {
+    construct new(image, s0, t0, s1, t1) {
+        if(image is String) {
+            image = Render.loadImage(image)
+        }
+        _sprite = Render.createSprite(image, s0, t0, s1, t1)
+        _layer = 0.0
+        _anchor = Render.anchorBottom
+
+        //_s0 = s0
+        //_t0 = t0
+        //_s1 = s1
+        //_t1 = t1
+    }
+
+    <(other) {
+        layer  < other.layer
+    }
+
+    render() {        
+        var t = owner.getComponent(Transform)
+        Render.renderSprite(_sprite, t.position.x, t.position.y, _anchor)
+    }
+
+    layer{ _layer }
+    layer=(l){ _layer = l }
+
+    anchor { _anchor }
+    anchor=(a) { _anchor = a }
+}
+
+class Parallax is Component {
+    construct new(speed, width, repeat) {
+        _speed = speed
+        _width = width
+        _repeat = repeat
+    }
+
+    update(dt) {        
+        var t = owner.getComponent(Transform)
+        t.position.x = t.position.x - dt * _speed
+
+        if(t.position.x < Configuration.width * -0.5 -_width) {
+            t.position.x = t.position.x + _width * _repeat
+        }
+    }
+
+}
+
 class Game {
-    static init() {
+    static config() {
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 2
+        Configuration.multiplier = 1
         Configuration.title = "SubOptimal"
+    }
 
+    static init() {
         /*
         var col = Color.new(12, 255, 187, 67)
         System.print(col)
@@ -394,9 +455,8 @@ class Game {
         System.print(col)
         */
 
-
         Entity.init()
-        //Enemy.init()
+        createBackground()
 
         __frame = 0
         __random = Random.new()
@@ -409,11 +469,13 @@ class Game {
 
         //var c =  Registry.getColor("some color")
         //System.print(c)
+
+        // create
     }        
     
     static update(dt) {        
-        Render.setColor(0.2, 0.2, 0.2)
-        Render.rect(-Configuration.width, -Configuration.height, Configuration.width, Configuration.height)
+        // Render.setColor(0.2, 0.2, 0.2)
+        // Render.rect(-Configuration.width, -Configuration.height, Configuration.width, Configuration.height)
         Entity.update(dt)
 
         if(__state == GameState.Menu) {
@@ -425,8 +487,26 @@ class Game {
         } 
     }
 
+    static render() {
+        var sprites = []
+        for(e in Entity.entities) {
+            var s = e.getComponent(Sprite)
+            if(s != null) {
+                sprites.add(s)                
+            }
+        }
+
+        sprites.sort{|a, b|  a.layer < b.layer }
+        for(s in sprites) {
+            s.render()
+        }
+    }
+
     static startPlay() {
-        Entity.init()
+        // Entity.init()
+        // __menu.delete()
+        // __menu = null
+
         __score = 0
         __waveTimer = 0.0
         __wave = 0
@@ -436,11 +516,12 @@ class Game {
 
     static updatePlay(dt) {
         var pu = playerShip.getComponent(Unit)
-        Render.setColor(0x8BEC46FF)
-        Render.text("SCORE %(__score)", -296, 140, 2)
-        Render.text("WAVE %(__wave)", -296, 120, 2)
-        Render.text("HEALTH %(pu.health)", -296, 100, 2)
+        Render.setColor(0xFFFFFFFF)
+        Render.text("SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)", -296, 170, 1)
+        //Render.text("WAVE %(__wave)", -296, 120, 2)
+        //Render.text("HEALTH %(pu.health)", -296, 100, 2)
 
+        /*
         for(e in Entity.entities) {
             var b = e.getComponent(Body)
             if(b != null) {
@@ -454,6 +535,7 @@ class Game {
                 Render.disk(t.position.x, t.position.y, b.size, 24)
             }
         }
+        */
 
         var playerUnits = Entity.entitiesWithTag(Tag.Player | Tag.Unit)
         var playerBullets = Entity.entitiesWithTag(Tag.Player | Tag.Bullet)
@@ -499,6 +581,39 @@ class Game {
         } 
     }
 
+    static createBackground() {
+        var layers = [
+            "[games]/sub_optimal/images/backgrounds/sky.png",
+            "[games]/sub_optimal/images/backgrounds/far-buildings.png",
+            "[games]/sub_optimal/images/backgrounds/buildings.png",
+            "[games]/sub_optimal/images/backgrounds/trees.png"
+        ]
+
+        var widths = [
+            368,
+            176,
+            416,
+            208
+        ]
+
+        var speeds = [ 25.0, 40.0, 80.0, 120.0 ]
+
+        var w = Configuration.width * 0.5
+        var h = Configuration.height * 0.5
+
+        for(i in 0...4) {
+            for(j in 0..5) {
+                var parallax = Entity.new()
+                var t = Transform.new( Vec2.new(-w + widths[i] * j, -h))
+                var s = Sprite.new(layers[i], 0.0, 0.0, 1.0, 1.0)
+                var p = Parallax.new(speeds[i], widths[i], 5)
+                parallax.addComponent(t)
+                parallax.addComponent(s)
+                parallax.addComponent(p)
+            }
+        }
+    }
+
     static createPlayerShip() {
         var ship = Entity.new()            
         var p = Vec2.new(0, 0)
@@ -508,11 +623,17 @@ class Game {
         var b = Body.new( Globals.PlayerSize , v)
         var u = Unit.new(Team.player, Globals.PlayerHealth)
         var c = DebugColor.new(0x8BEC46FF)
+        var o = Orbitor.new(ship)
+        var s = Sprite.new("[games]/sub_optimal/images/ships/ship.png", 1.0/3.0, 0.0, 2.0/3.0, 1.0)
+        s.layer = 1.0
+        s.anchor = Render.anchorCenter
         ship.addComponent(t)
         ship.addComponent(sc)            
         ship.addComponent(b)
         ship.addComponent(u)
         ship.addComponent(c)
+        ship.addComponent(o)
+        ship.addComponent(s)
         ship.name = "Player"
         ship.tag = (Tag.Player | Tag.Unit)
         __ship = ship
@@ -539,17 +660,25 @@ class Game {
         var p = Vec2.new(0, 0)
         var t = Transform.new(p)    
         var v = Vec2.new(0, 0)
-        var b = Body.new(Globals.EnemySize, v)
+        var b = Body.new(Globals.EnemyCoreSize, v)
         var e = EnemyCore.new(pos, tilt)
-        var u = Unit.new(Team.computer, 1)
+        var u = Unit.new(Team.computer, Globals.EnemyCoreHealth)
         var c = DebugColor.new(Globals.EnemyColor)
         var o = Orbitor.new(core)
+        var s = Sprite.new("[games]/sub_optimal/images/ships/spaceships.png",
+                                4.0 / 5.0, 
+                                1.0 / 3.0, 
+                                5.0 / 5.0,
+                                2.0 / 3.0)
+        s.layer = 0.9
+        s.anchor = Render.anchorCenter
         core.addComponent(t)
         core.addComponent(b)
         core.addComponent(e)
         core.addComponent(u)
         core.addComponent(c)
         core.addComponent(o)
+        core.addComponent(s)
         core.name = "Enemy Core"
         core.tag = (Tag.Computer | Tag.Unit)
         return core
@@ -562,13 +691,21 @@ class Game {
         var v = Vec2.new(0, 0)
         var b = Body.new(Globals.EnemySize, v)
         var e = Enemy.new(idx, tilt, core)
-        var u = Unit.new(Team.computer, 1)
+        var u = Unit.new(Team.computer, Globals.EnemyHealth)
         var c = DebugColor.new(Globals.EnemyColor)
+        var s = Sprite.new("[games]/sub_optimal/images/ships/spaceships.png",
+                                2.0 / 5.0, 
+                                1.0 / 3.0, 
+                                3.0 / 5.0,
+                                2.0 / 3.0)
+        s.layer = 0.9
+        s.anchor = Render.anchorCenter
         ship.addComponent(t)
         ship.addComponent(b)
         ship.addComponent(e)
         ship.addComponent(u)
         ship.addComponent(c)
+        ship.addComponent(s)
         ship.name = "Enemy"
         ship.tag = (Tag.Computer | Tag.Unit)
         return ship
@@ -593,11 +730,6 @@ class Game {
         }
     }
 
-    /*
-    static render(dt) {  
-    }
-    */
-
     static playerShip { __ship }
 
     static random { __random }
@@ -611,9 +743,14 @@ class Game {
         var v = Vec2.new(speed, 0)
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.player, damage)
+        var s = Sprite.new("[games]/sub_optimal/images/projectiles/spark.png", 1.0/5.0, 0.0, 2.0/5.0, 1.0)
+        s.layer = 0.9
+        s.anchor = Render.anchorCenter
+
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)
+        bullet.addComponent(s)
         bullet.name = "Bullet"
         bullet.tag = Tag.Player | Tag.Bullet
         bullet.addComponent(DebugColor.new(0x8BEC46FF))
@@ -629,9 +766,13 @@ class Game {
         var v = dir.normalise * speed
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
+        var s = Sprite.new("[games]/sub_optimal/images/projectiles/Fx_04.png", 0.0/4.0, 0.0, 1.0/4.0, 1.0)
+        s.layer = 0.9
+        s.anchor = Render.anchorCenter
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)
+        bullet.addComponent(s)
         bullet.name = "Bullet2"
         bullet.tag = Tag.Computer | Tag.Bullet
         bullet.addComponent(DebugColor.new(0xEC468BFF))
@@ -644,9 +785,13 @@ class Game {
         var t = Transform.new(owt.position)
         var b = Body.new(0.001, Vec2.new(0.0, 0.0))
         var e = Explosion.new(1.0)
+        var s = Sprite.new("[games]/sub_optimal/images/vfx/Explosion.png", 3.0/8.0, 0.0, 4.0/8.0, 1.0)
+        s.layer = 1.9
+        s.anchor = Render.anchorCenter
         explosion.addComponent(t)
         explosion.addComponent(b)
         explosion.addComponent(e)
+        explosion.addComponent(s)
         explosion.addComponent(DebugColor.new(0xFFFFFFFF))
         explosion.name = "Explosion"
     }
