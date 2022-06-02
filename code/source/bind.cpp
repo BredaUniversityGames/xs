@@ -159,11 +159,14 @@ void render_create_sprite(WrenVM* vm)
 
 void render_sprite(WrenVM* vm)
 {
-	wrenEnsureSlots(vm, 2);
+	wrenEnsureSlots(vm, 5);
 	const auto sprite_id = wrenGetSlotDouble(vm, 1);
 	const auto x = wrenGetSlotDouble(vm, 2);
 	const auto y = wrenGetSlotDouble(vm, 3);
-	xs::render::render_sprite((int)sprite_id, x, y);
+	const auto a = wrenGetSlotDouble(vm, 4);
+	int a_int = static_cast<int>(a);
+	auto a_sa = static_cast<xs::render::sprite_anchor>(a_int);
+	xs::render::render_sprite((int)sprite_id, x, y, a_sa);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -288,15 +291,12 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "end()", render_end);
 	bind("xs", "Render", true, "vertex(_,_)", render_vertex);
 	bind("xs", "Render", true, "setColor(_,_,_)", render_set_color);
-	bind("xs", "Render", true, "setColor0(_)", render_set_color_uint);
+	bind("xs", "Render", true, "setColor_(_)", render_set_color_uint);
 	bind("xs", "Render", true, "text(_,_,_,_)", render_text);
-	//bind("xs", "Render", true, "polygon(_,_,_,_)", render_poly);
-	//bind("xs", "Render", true, "rect(_,_,_,_,_)", render_rect);
 	bind("xs", "Render", true, "line(_,_,_,_)", render_line);
 	bind("xs", "Render", true, "loadImage(_)", render_load_image);
 	bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
-	//bind("xs", "Render", true, "image(_,_,_)", render_image);
-	bind("xs", "Render", true, "renderSprite(_,_,_)", render_sprite);
+	bind("xs", "Render", true, "renderSprite(_,_,_,_)", render_sprite);
 
 	// Configuration
 	bind("xs", "Configuration", true, "title=(_)", configuration_set_title);

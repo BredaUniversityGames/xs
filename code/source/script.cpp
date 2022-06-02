@@ -19,6 +19,7 @@ namespace xs::script::internal
 {
 	WrenVM* vm = nullptr;
 	WrenHandle* game_class = nullptr;
+	WrenHandle* config_method = nullptr;
 	WrenHandle* init_method = nullptr;
 	WrenHandle* update_method = nullptr;
 	WrenHandle* render_method = nullptr;
@@ -134,13 +135,11 @@ namespace xs::script::internal
 		}
 		return res;
 	}
-	
-	void call_init() {}
 }
 
 using namespace xs::script::internal;
 
-void xs::script::initialize(const char* main)
+void xs::script::configure(const char* main)
 {
 	initialized = false;
 	error = false;
@@ -204,10 +203,21 @@ void xs::script::initialize(const char* main)
 		wrenGetVariable(vm, "main", "Game", 0);						// Grab a handle to the Game class
 		game_class = wrenGetSlotHandle(vm, 0);
 		wrenSetSlotHandle(vm, 0, game_class);						// Put Game class in slot 0
+		config_method = wrenMakeCallHandle(vm, "config()");
 		init_method = wrenMakeCallHandle(vm, "init()");
 		update_method = wrenMakeCallHandle(vm, "update(_)");
+		render_method = wrenMakeCallHandle(vm, "render()");
 
-		call_init();
+		wrenCall(vm, config_method);
+	}
+}
+
+void xs::script::initialize()
+{
+	if (initialized)
+	{
+		wrenEnsureSlots(vm, 1);
+		wrenSetSlotHandle(vm, 0, game_class);
 		wrenCall(vm, init_method);
 	}
 }
@@ -215,11 +225,16 @@ void xs::script::initialize(const char* main)
 void xs::script::shutdown()
 {
 	if (vm)
-	{
+	{		
 		if (game_class)
 		{
 			wrenReleaseHandle(vm, game_class);
 			game_class = nullptr;
+		}
+		if (config_method)
+		{
+			wrenReleaseHandle(vm, config_method);
+			config_method = nullptr;
 		}
 		if (init_method)
 		{
@@ -230,6 +245,11 @@ void xs::script::shutdown()
 		{
 			wrenReleaseHandle(vm, update_method);
 			update_method = nullptr;
+		}
+		if (render_method)
+		{
+			wrenReleaseHandle(vm, render_method);
+			render_method = nullptr;
 		}
 		wrenFreeVM(vm);
 		vm = nullptr;
@@ -247,6 +267,16 @@ void xs::script::update(double dt)
 		wrenSetSlotHandle(vm, 0, game_class);
 		wrenSetSlotDouble(vm, 1, dt);
 		wrenCall(vm, update_method);
+	}
+}
+
+void xs::script::render()
+{
+	if (initialized)
+	{
+		wrenEnsureSlots(vm, 1);
+		wrenSetSlotHandle(vm, 0, game_class);
+		wrenCall(vm, render_method);
 	}
 }
 

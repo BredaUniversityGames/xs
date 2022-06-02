@@ -59,7 +59,7 @@ class Configuration {
 
 class Render {
     foreign static setColor(r, g, b)
-    foreign static setColor0(color)
+    foreign static setColor_(color)
     static setColor(color) {
         var c = null
         if(color is Num) {
@@ -67,7 +67,7 @@ class Render {
         } else if( color is Color) {
             c = color.toNum
         }
-        setColor0(c)
+        setColor_(c)
     }
 
     foreign static line(x0, y0, x1, y1)
@@ -133,9 +133,12 @@ class Render {
     }
 
     foreign static loadImage(path)
-    // foreign static image(img, x, y)
     foreign static createSprite(imageId, x0, y0, x1, y1)
-    foreign static renderSprite(spriteId, x, y)
+    foreign static renderSprite(spriteId, x, y, a)
+
+    static renderSprite(spriteId, x, y) { renderSprite(spriteId, x, y, anchorBottom) }
+    static anchorBottom { 0 }
+    static anchorCenter { 1 }
 }
 
 class Input {

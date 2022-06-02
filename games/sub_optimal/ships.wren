@@ -57,7 +57,23 @@ class Orbitor is Component {
             var s = _ships[i]
             if(s != null && s == ship) {
                 _ships[i] = null
-                System.print("found")
+                // System.print("found")
+            }
+        }
+    }
+
+    trim() {
+        while(true) {
+            var found = false
+            for(i in 0..._ships.count) {            
+                if(_ships[i].deleted) {
+                    _ships.removeAt(i)
+                    found = true
+                    break
+                }
+            }
+            if(found == false) {
+                break
             }
         }
     }

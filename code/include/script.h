@@ -5,9 +5,11 @@ typedef void (*WrenForeignMethodFn)(WrenVM* vm);
 
 namespace xs::script
 {
-	void initialize(const char* main);
+	void configure(const char* main);
+	void initialize();
 	void shutdown();
 	void update(double dt);
+	void render();
 	bool has_error();
 	void clear_error();
 	void bind_api();

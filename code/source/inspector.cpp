@@ -108,7 +108,8 @@ void xs::inspector::render(float dt)
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
 		{
 			script::shutdown();
-			script::initialize(nullptr);
+			script::configure(nullptr);
+			script::initialize();
 		}
 		ImGui::SameLine();
 		if (internal::paused)

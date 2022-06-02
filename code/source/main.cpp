@@ -82,11 +82,12 @@ int xs::main(int argc, char* argv[])
     registry::initialize();
     account::initialize();
     fileio::initialize();    
-    script::initialize(main_script.c_str());    
+    script::configure(main_script.c_str());
     device::initialize();
     render::initialize();
     input::initialize();
     inspector::initialize();
+    script::initialize();
 
     auto prev_time = chrono::high_resolution_clock::now();
     while (!device::should_close())
@@ -101,7 +102,8 @@ int xs::main(int argc, char* argv[])
         if (!inspector::paused())
         {
             render::clear();
-            script::update(dt);            
+            script::update(dt);
+            script::render();
         }
         render::render();
         inspector::render(float(dt));

@@ -3,9 +3,12 @@ System.print("Hello from script")
 
 
 class Game {
+    static config() {
+        
+    }
 
     static init() {        
-        System.print("Init")
+        System.print("init")
         
     }    
     
