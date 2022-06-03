@@ -4,7 +4,7 @@ import "xs_math"for Math, Bits, Vec2
 import "Assert" for Assert
 import "random" for Random
 import "globals" for Globals
-import "components" for Transform, Body
+import "components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite
 import "ships" for Orbitor, Shield
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -377,37 +377,6 @@ class GameState {
     static Score    { 3 }
 }
 
-class Sprite is Component {
-    construct new(image, s0, t0, s1, t1) {
-        if(image is String) {
-            image = Render.loadImage(image)
-        }
-        _sprite = Render.createSprite(image, s0, t0, s1, t1)
-        _layer = 0.0
-        _anchor = Render.anchorBottom
-
-        //_s0 = s0
-        //_t0 = t0
-        //_s1 = s1
-        //_t1 = t1
-    }
-
-    <(other) {
-        layer  < other.layer
-    }
-
-    render() {        
-        var t = owner.getComponent(Transform)
-        Render.renderSprite(_sprite, t.position.x, t.position.y, _anchor)
-    }
-
-    layer{ _layer }
-    layer=(l){ _layer = l }
-
-    anchor { _anchor }
-    anchor=(a) { _anchor = a }
-}
-
 class Parallax is Component {
     construct new(speed, width, repeat) {
         _speed = speed
@@ -488,18 +457,7 @@ class Game {
     }
 
     static render() {
-        var sprites = []
-        for(e in Entity.entities) {
-            var s = e.getComponent(Sprite)
-            if(s != null) {
-                sprites.add(s)                
-            }
-        }
-
-        sprites.sort{|a, b|  a.layer < b.layer }
-        for(s in sprites) {
-            s.render()
-        }
+        Renderable.render()
     }
 
     static startPlay() {
@@ -518,6 +476,7 @@ class Game {
         var pu = playerShip.getComponent(Unit)
         Render.setColor(0xFFFFFFFF)
         Render.text("SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)", -296, 170, 1)
+
         //Render.text("WAVE %(__wave)", -296, 120, 2)
         //Render.text("HEALTH %(pu.health)", -296, 100, 2)
 
@@ -624,9 +583,11 @@ class Game {
         var u = Unit.new(Team.player, Globals.PlayerHealth)
         var c = DebugColor.new(0x8BEC46FF)
         var o = Orbitor.new(ship)
-        var s = Sprite.new("[games]/sub_optimal/images/ships/ship.png", 1.0/3.0, 0.0, 2.0/3.0, 1.0)
+        var s = AnimatedSprite.new("[games]/sub_optimal/images/ships/ship.png", 3, 1, 15)
         s.layer = 1.0
         s.anchor = Render.anchorCenter
+        s.addAnimation("fly", [0,1,2])
+        s.playAnimation("fly")
         ship.addComponent(t)
         ship.addComponent(sc)            
         ship.addComponent(b)
@@ -785,9 +746,12 @@ class Game {
         var t = Transform.new(owt.position)
         var b = Body.new(0.001, Vec2.new(0.0, 0.0))
         var e = Explosion.new(1.0)
-        var s = Sprite.new("[games]/sub_optimal/images/vfx/Explosion.png", 3.0/8.0, 0.0, 4.0/8.0, 1.0)
+        var s = AnimatedSprite.new("[games]/sub_optimal/images/vfx/Explosion.png", 8, 1, 15)
         s.layer = 1.9
         s.anchor = Render.anchorCenter
+        s.addAnimation("explode", [0,1,2, 3, 4, 5, 6, 7])
+        s.playAnimation("explode")
+        s.mode = AnimatedSprite.destroy
         explosion.addComponent(t)
         explosion.addComponent(b)
         explosion.addComponent(e)
