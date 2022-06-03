@@ -19,7 +19,6 @@
 	#include <stb/stb_easy_font.h>
 #endif
 
-
 #include <configuration.h>
 #include <fileio.h>
 #include <log.h>
@@ -65,9 +64,6 @@ int xs::render::load_image(const std::string& image_file)
 	return -1;
 }
 
-void xs::render::image(int image_id, double x, double y)
-{
-}
 
 void xs::render::begin(primitive p)
 {
@@ -85,6 +81,10 @@ void xs::render::set_color(double r, double g, double b, double a)
 {
 }
 
+void xs::render::set_color(color c)
+{
+}
+
 void xs::render::line(double x0, double y0, double x1, double y1)
 {
 }
@@ -93,10 +93,10 @@ void xs::render::text(const std::string& text, double x, double y, double size)
 {
 }
 
-void xs::render::poly(double x, double y, double radius, int sides)
-{
-}
+int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
+{}
 
-void xs::render::rect(double x, double y, double size_x, double size_y, double rotation)
-{
-}
+void xs::render::render_sprite(int image_id, double x, double y, sprite_anchor anchor)
+{}
+
+
