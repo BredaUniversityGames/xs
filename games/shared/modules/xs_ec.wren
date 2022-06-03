@@ -37,6 +37,15 @@ class Entity {
         return null
     }
 
+    getComponentSuper(type) {
+        for(v in _components.values) {
+            if(v is type) {
+                return v    
+            }
+        }
+        return null
+    }
+
     deleteComponent(type) {        
         if(_components.containsKey(type)) {            
             _compDeleteQueue.add(type) 
