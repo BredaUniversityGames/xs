@@ -15,7 +15,7 @@ namespace xs::render
 		};
 	};
 
-	enum sprite_anchor
+	enum class sprite_anchor
 	{
 		bottom = 0,
 		center = 1
@@ -29,7 +29,6 @@ namespace xs::render
 	int load_image(const std::string& image_file);
 	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
 	void render_sprite(int image_id, double x, double y, sprite_anchor anchor);
-
 
 	enum class primitive { lines, triangles, none };
 	void begin(primitive p);
