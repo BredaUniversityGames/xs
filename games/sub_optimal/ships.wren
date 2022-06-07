@@ -1,7 +1,7 @@
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "components" for Transform
-import "sub_optimal" for Game, Vv
+import "sub_optimal" for Game
 
 class Orbitor is Component {
 
@@ -58,7 +58,6 @@ class Orbitor is Component {
             var s = _ships[i]
             if(s != null && s == ship) {
                 _ships[i] = null
-                // System.print("found")
             }
         }
     }
@@ -95,8 +94,6 @@ class EnemyCore is Component {
     }
 
     del() { 
-        System.print(Game)
-        System.print(Vv)
         Game.addScore(100)
     }
 

@@ -27,6 +27,7 @@ namespace xs::script::internal
 	std::unordered_map<size_t, std::string> modules;
 	bool initialized = false;
 	const char* main;
+	std::string main_module;
 	bool error = false;
 	
 	void writeFn(WrenVM* vm, const char* text)
@@ -165,10 +166,15 @@ void xs::script::configure(const char* main)
 	config.bindForeignClassFn = &bindForeignClass;
 	config.loadModuleFn = &loadModule;
 
-	vm = wrenNewVM(&config);	
-	const auto module = "main";
+	vm = wrenNewVM(&config);
+	main_module = string(internal::main);
+	auto l_slash = main_module.find_last_of("/");
+	main_module.erase(0, l_slash + 1);
+	auto l_dot = main_module.find_last_of(".");
+	main_module.erase(l_dot, main_module.length());
+
 	const std::string script_file = fileio::read_text_file(internal::main);
-	const WrenInterpretResult result = wrenInterpret(vm, module, script_file.c_str());
+	const WrenInterpretResult result = wrenInterpret(vm, main_module.c_str(), script_file.c_str());
 	
 	switch (result)
 	{
@@ -200,7 +206,7 @@ void xs::script::configure(const char* main)
 	if (initialized && !error)
 	{
 		wrenEnsureSlots(vm, 1);										// Make sure there at least one slot
-		wrenGetVariable(vm, "main", "Game", 0);						// Grab a handle to the Game class
+		wrenGetVariable(vm, main_module.c_str(), "Game", 0);		// Grab a handle to the Game class
 		game_class = wrenGetSlotHandle(vm, 0);
 		wrenSetSlotHandle(vm, 0, game_class);						// Put Game class in slot 0
 		config_method = wrenMakeCallHandle(vm, "config()");

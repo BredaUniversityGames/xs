@@ -362,7 +362,7 @@ class Game {
     static config() {
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 3
+        Configuration.multiplier = 1
         Configuration.title = "SubOptimal"
     }
 
@@ -659,9 +659,6 @@ class Game {
     static random { __random }
 
     static addScore(s) {
-        System.print(s)
-        System.print(__score)
-        System.print(__ship)
         __score = __score + s
     }
 
@@ -728,7 +725,5 @@ class Game {
         explosion.name = "Explosion"
     }
 }
-
-var Vv = Vec2.new(0,3)
 
 import "ships" for Orbitor, Shield, EnemyCore
