@@ -5,7 +5,6 @@ import "Assert" for Assert
 import "random" for Random
 import "globals" for Globals
 import "components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite
-import "ships" for Orbitor, Shield
 
 ///////////////////////////////////////////////////////////////////////////////
 // Components
@@ -260,42 +259,6 @@ class Enemy is Component {
     hacked { _hack > 0.3 }
 }
 
-class EnemyCore is Component {
-    construct new(pos, tilt) {
-        super()        
-        _position = pos
-        _backPos = pos + Vec2.new(200.0, 0.0)
-        _time = 0.0
-        _shootTime = _time
-        _tilt = tilt
-    }
-
-    del() {
-        Game.addScore(100)
-    }
-
-    update(dt) {
-        _time = _time + dt * 0.5
-        if(_time < 1.0) {
-            var pos = Math.lerp(_backPos, _position, _time)
-            owner.getComponent(Transform).position = pos
-        } else {
-            var pos = (_time - 1).sin * 20.0
-            owner.getComponent(Transform).position.x = _position.x + pos
-        }
-
-        /*
-        _shootTime = _shootTime + dt
-        if(_shootTime > 1.0) {
-            if(Game.random.float(0.0, 1.0) < 0.3) {
-                Game.createBulletEnemy(owner, 200, 50)
-            }
-            _shootTime = 0.0
-        }
-        */
-    }
-}
-
 class Explosion is Component {
     construct new(duration) {
         _time = 0.0
@@ -399,7 +362,7 @@ class Game {
     static config() {
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 1
+        Configuration.multiplier = 3
         Configuration.title = "SubOptimal"
     }
 
@@ -695,7 +658,12 @@ class Game {
 
     static random { __random }
 
-    static addScore(s) { __score = __score + s }
+    static addScore(s) {
+        System.print(s)
+        System.print(__score)
+        System.print(__ship)
+        __score = __score + s
+    }
 
     static createBullet(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
@@ -760,3 +728,7 @@ class Game {
         explosion.name = "Explosion"
     }
 }
+
+var Vv = Vec2.new(0,3)
+
+import "ships" for Orbitor, Shield, EnemyCore
