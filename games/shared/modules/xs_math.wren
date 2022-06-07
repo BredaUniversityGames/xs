@@ -65,5 +65,5 @@ class Vec2 {
     }
     */
 
-	toString { "[ %( this[0] ), %( this[1] ), ]" }		
+	toString { "[%(_x), %(_y)]" }		
 }
