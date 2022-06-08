@@ -259,11 +259,11 @@ void registry_get_number(WrenVM* vm)
 void registry_get_color(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 1);
-	const auto name = wrenGetSlotString(vm, 1);
+	//const auto name = wrenGetSlotString(vm, 1);	
 
 	// auto value = xs::registry::get_number(name);
 	
-	xs::render::color c = { 0, 255, 0, 255 };
+	xs::render::color c; // = { 0, 255, 0, 255 };
 
 	//d_color color;
 	//color.r = 0.0;
