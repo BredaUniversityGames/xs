@@ -298,7 +298,11 @@
     <None Include="external\wren\vm\wren_core.wren.inc" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="xs.rc" />
+    <ResourceCompile Include="xs.rc">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\xs.ico" />

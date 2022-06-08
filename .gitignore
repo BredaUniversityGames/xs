@@ -53,3 +53,4 @@ xs.vcxproj.user
 executable/
 intermediate/
 build/
+rc.command.1.tlog
