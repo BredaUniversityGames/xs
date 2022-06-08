@@ -68,6 +68,15 @@ class Renderable is Component {
 }
 
 class Sprite is Renderable {
+    construct new(image) {
+        super()
+        if(image is String) {
+            image = Render.loadImage(image)
+        }
+        _sprite = Render.createSprite(image, 0, 0, 1, 1)
+        _anchor = Render.anchorBottom
+    }
+
     construct new(image, s0, t0, s1, t1) {
         super()
         if(image is String) {
@@ -112,7 +121,11 @@ class GridSprite is Sprite {
         sprite_ = _sprites[_idx]
     }
 
-    idx=(i) { sprite_ = _sprites[i] }
+    idx=(i) {
+        _idx = i
+        sprite_ = _sprites[_idx]
+    }
+
     idx{ _idx }
 }
 

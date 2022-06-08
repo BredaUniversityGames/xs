@@ -118,11 +118,18 @@ class Player is Component {
             var toX = t.position.x + Globals.PlayerHackWidth
             var fromY = t.position.y - Globals.PlayerHackHeight * 0.5
             var toY = t.position.y + Globals.PlayerHackHeight * 0.5
-            Render.setColor(0x006400FF)
+
+
+            Render.setColor(0xFFFFFFFF)
+            Render.line(fromX, toY, toX, toY)
+            Render.line(fromX, fromY, toX, fromY)
+            Render.setColor(0x00000021)
             Render.rect(fromX, fromY, toX, toY)
+
             var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit) //|
             for(cu in computerUnits) {
                 var pos = cu.getComponent(Transform).position
+                Render.circle(pos.x, pos.y, 10, 32)
                 if(pos.x > fromX && pos.x < toX && pos.y > fromY && pos.y < toY) {                                        
                     var enemy = cu.getComponent(Enemy)
                     if(enemy != null) {
@@ -155,12 +162,25 @@ class Player is Component {
             vel.x = -1.0
         }
 
+        var s = owner.getComponent(GridSprite)
+        if(vel.y > 0.5) {
+            s.idx = 2
+        } else if(vel.y > 0.2) {
+            s.idx = 1
+        } else if(vel.y < -0.5) {
+            s.idx = 4
+        } else if(vel.y < -0.2) {
+            s.idx = 3
+        } else {
+            s.idx = 0
+        }
+        
         if(vel.magnitude > Globals.PlayerInputDeadZone) {            
             vel = vel * speed
         } else {
             vel = vel * 0.0
         }
-        b.velocity = vel
+        b.velocity = vel        
     }
 
     addDrone2(drone) {
@@ -249,7 +269,7 @@ class Enemy is Component {
             _hack = _hack - dt * 0.25
             Render.setColor(Color.fromNum(0x8BEC46FF))
             var pos = owner.getComponent(Transform).position
-            Render.pie(pos.x, pos.y, 12, 2.0 * _hack * Num.pi / 0.3 ,32)
+            //Render.pie(pos.x, pos.y, 12, 2.0 * _hack * Num.pi / 0.3 ,32)
         }
     }
 
@@ -398,11 +418,6 @@ class Game {
         __wave = 0
         __menu = Menu.new(["play", "options", "credits", "exit"])
         __menu.addAction("play", Fn.new { Game.startPlay() } )
-
-        //var c =  Registry.getColor("some color")
-        //System.print(c)
-
-        // create
     }        
     
     static update(dt) {        
@@ -546,11 +561,11 @@ class Game {
         var u = Unit.new(Team.player, Globals.PlayerHealth)
         var c = DebugColor.new(0x8BEC46FF)
         var o = Orbitor.new(ship)
-        var s = AnimatedSprite.new("[games]/sub_optimal/images/ships/ship.png", 3, 1, 15)
+        var s = GridSprite.new("[games]/sub_optimal/images/ships/blue-ship-spritesheet.png", 5, 1)
         s.layer = 1.0
         s.anchor = Render.anchorCenter
-        s.addAnimation("fly", [0,1,2])
-        s.playAnimation("fly")
+        // s.addAnimation("fly", [0,1,2])
+        // s.playAnimation("fly")
         ship.addComponent(t)
         ship.addComponent(sc)            
         ship.addComponent(b)
@@ -582,18 +597,14 @@ class Game {
     static createEnemyCore(pos, tilt) {
         var core = Entity.new()
         var p = Vec2.new(0, 0)
-        var t = Transform.new(p)    
+        var t = Transform.new(p) 
         var v = Vec2.new(0, 0)
         var b = Body.new(Globals.EnemyCoreSize, v)
         var e = EnemyCore.new(pos, tilt)
         var u = Unit.new(Team.computer, Globals.EnemyCoreHealth)
         var c = DebugColor.new(Globals.EnemyColor)
         var o = Orbitor.new(core)
-        var s = Sprite.new("[games]/sub_optimal/images/ships/spaceships.png",
-                                4.0 / 5.0, 
-                                1.0 / 3.0, 
-                                5.0 / 5.0,
-                                2.0 / 3.0)
+        var s = Sprite.new("[games]/sub_optimal/images/ships/Metal-Slug.png")
         s.layer = 0.9
         s.anchor = Render.anchorCenter
         core.addComponent(t)
@@ -617,11 +628,7 @@ class Game {
         var e = Enemy.new(idx, tilt, core)
         var u = Unit.new(Team.computer, Globals.EnemyHealth)
         var c = DebugColor.new(Globals.EnemyColor)
-        var s = Sprite.new("[games]/sub_optimal/images/ships/spaceships.png",
-                                2.0 / 5.0, 
-                                1.0 / 3.0, 
-                                3.0 / 5.0,
-                                2.0 / 3.0)
+        var s = Sprite.new("[games]/sub_optimal/images/ships/observer.png")
         s.layer = 0.9
         s.anchor = Render.anchorCenter
         ship.addComponent(t)

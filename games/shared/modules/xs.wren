@@ -113,6 +113,22 @@ class Render {
         Render.end()
     }
 
+    static circle(x, y, r, divs) {
+        Render.begin(Render.lines)
+        var t = 0.0
+        var dt = (Num.pi * 2.0) / divs
+        for(i in 0..divs) {            
+            var xr = t.cos * r            
+            var yr = t.sin * r
+            Render.vertex(x + xr, y + yr)
+            t = t + dt
+            xr = t.cos * r
+            yr = t.sin * r
+            Render.vertex(x + xr, y + yr)
+        }
+        Render.end()
+    }
+
     static pie(x, y, r, angle, divs) {
         Render.begin(Render.triangles)
         var t = 0.0
