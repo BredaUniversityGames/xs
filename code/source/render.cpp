@@ -162,18 +162,18 @@ void xs::render::initialize()
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(
 		1, 3, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, sprite_vtx_format::position)));
+		reinterpret_cast<void*>(offsetof(sprite_vtx_format, position)));
 
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(
 		2, 2, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, sprite_vtx_format::texture)));
+		reinterpret_cast<void*>(offsetof(sprite_vtx_format, texture)));
 
 
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(
 		3, 4, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, sprite_vtx_format::color)));
+		reinterpret_cast<void*>(offsetof(sprite_vtx_format, color)));
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 }
