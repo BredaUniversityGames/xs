@@ -151,6 +151,7 @@ class Render {
     foreign static loadImage(path)
     foreign static createSprite(imageId, x0, y0, x1, y1)
     foreign static renderSprite(spriteId, x, y, a)
+    foreign static setOffset(x, y)
 
     static renderSprite(spriteId, x, y) { renderSprite(spriteId, x, y, anchorBottom) }
     static anchorBottom { 0 }
@@ -181,5 +182,10 @@ class Registry {
     }
 
     // foreign static getString(name)
-}
 
+    static game     { 262 }
+    static player   { 263 }
+    static assets   { 264 }
+    static keyUp    { 265 }
+    static keySpace { 32  }
+}

@@ -37,10 +37,10 @@ namespace xs::render::internal
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
 
-
-
 	int width = -1;
 	int height = -1;
+	vec2 offset = vec2(0.0f, 0.0f);
+
 	// Create G-buffer
 	unsigned int render_fbo;
 	unsigned int render_texture;
@@ -77,7 +77,7 @@ namespace xs::render::internal
 	unsigned int			sprite_trigs_vbo = 0;
 	std::vector<sprite_queue_entry> sprite_queue;
 	std::vector<image>		images;
-	std::vector<sprite>		sprites;
+	std::vector<sprite>		sprites;	
 }
 
 using namespace xs::render::internal;
@@ -188,12 +188,17 @@ void xs::render::shutdown()
 	// TODO: Delete frame buffer
 }
 
+void xs::render::set_offset(double x, double y)
+{
+	xs::render::internal::offset = vec2((float)x, (float)y);
+}
+
 void xs::render::render()
 {	
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
 	mat4 p = ortho(-w, w, -h, h, -100.0f, 100.0f);
-	mat4 v = lookAt(vec3(0.0f, 0.0f, 100.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	mat4 v = lookAt(vec3(offset.x, offset.y, 100.0f), vec3(offset.x, offset.y, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 vp = p * v;
 
 	glEnable(GL_BLEND);

@@ -282,6 +282,7 @@ class Enemy is Component {
 class Explosion is Component {
     construct new(duration) {
         _time = 0.0
+        Game.addShake()
     }
 
     update(dt) {
@@ -421,6 +422,11 @@ class Game {
         __wave = 0
         __menu = Menu.new(["play", "options", "credits", "exit"])
         __menu.addAction("play", Fn.new { Game.startPlay() } )
+
+        __shakeOffset = Vec2.new(0, 0)
+        __shakeIntesity = 0.0
+
+        startPlay()
     }        
     
     static update(dt) {        
@@ -435,9 +441,15 @@ class Game {
         } else if(__state == GameState.Score) {
             updateScore(dt)
         } 
+
+        
+        __shakeOffset.x = __random.float(-1.0, 1.0)
+        __shakeOffset.y = __random.float(-1.0, 1.0)
+        __shakeIntesity = Math.damp(__shakeIntesity, 0, dt, 10)
     }
 
     static render() {
+        Render.setOffset(__shakeOffset.x * __shakeIntesity, __shakeOffset.y * __shakeIntesity)
         Renderable.render()
     }
 
@@ -511,6 +523,7 @@ class Game {
         }
         */
     }
+
     static updateScore(dt) {
         Render.setColor(0x8BEC46FF)
         Render.text("SCORE %(__score)", -100, 50, 4)
@@ -519,6 +532,10 @@ class Game {
         if (Input.getButtonOnce(0) || Input.getKeyOnce(Input.keySpace)) {
             __state = GameState.Menu            
         } 
+    }
+
+    static addShake() {
+        __shakeIntesity = 4.0
     }
 
     static createBackground() {
