@@ -4,7 +4,7 @@ import "xs_math"for Math, Bits, Vec2
 import "Assert" for Assert
 import "random" for Random
 import "globals" for Globals
-import "components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite
+import "components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 
 ///////////////////////////////////////////////////////////////////////////////
 // Components
@@ -379,14 +379,17 @@ class Parallax is Component {
 }
 
 class Game {
-    static config() {
+    static config() {        
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 1
+        Configuration.multiplier = 2
         Configuration.title = "SubOptimal"
     }
 
     static init() {
+        // Registry.setColor("ShipColor", color, Registry.player)
+        //var c = Registry.getColor("ShipColor")
+
         /*
         var col = Color.new(12, 255, 187, 67)
         System.print(col)
@@ -555,7 +558,7 @@ class Game {
         var ship = Entity.new()            
         var p = Vec2.new(0, 0)
         var t = Transform.new(p)
-        var sc = Player.new()            
+        var sc = Player.new()
         var v = Vec2.new(0, 0)
         var b = Body.new( Globals.PlayerSize , v)
         var u = Unit.new(Team.player, Globals.PlayerHealth)
@@ -576,6 +579,21 @@ class Game {
         ship.name = "Player"
         ship.tag = (Tag.Player | Tag.Unit)
         __ship = ship
+
+        {
+            var thrust = Entity.new()
+            var t = Transform.new(Vec2.new(0, 0))
+            var s = AnimatedSprite.new("[games]/sub_optimal/images/ships/thrusters.png", 4, 2, 15)            
+            s.layer = 0.999
+            s.anchor = Render.anchorCenter
+            s.addAnimation("fly", [1, 3, 5, 7])
+            s.playAnimation("fly")
+            var r = Relation.new(ship)
+            r.offset = Vec2.new(-20, 0)
+            thrust.addComponent(t)
+            thrust.addComponent(s)
+            thrust.addComponent(r)
+        }
     }
 
     static createEnemyShips() {
@@ -676,10 +694,10 @@ class Game {
         var v = Vec2.new(speed, 0)
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.player, damage)
-        var s = Sprite.new("[games]/sub_optimal/images/projectiles/spark.png", 1.0/5.0, 0.0, 2.0/5.0, 1.0)
+        var s = GridSprite.new("[games]/sub_optimal/images/projectiles/projectiles.png", 7, 5)
         s.layer = 0.9
         s.anchor = Render.anchorCenter
-
+        s.idx = 28
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)
@@ -699,9 +717,10 @@ class Game {
         var v = dir.normalise * speed
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
-        var s = Sprite.new("[games]/sub_optimal/images/projectiles/Fx_04.png", 0.0/4.0, 0.0, 1.0/4.0, 1.0)
+        var s = GridSprite.new("[games]/sub_optimal/images/projectiles/projectiles.png", 7, 5)
         s.layer = 0.9
         s.anchor = Render.anchorCenter
+        s.idx = 31
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)
