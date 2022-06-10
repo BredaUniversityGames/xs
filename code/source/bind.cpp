@@ -1,4 +1,5 @@
 #include <wren.hpp>
+#include <cstdint>
 #include "input.h"
 #include "tools.h"
 #include "render.h"
@@ -84,18 +85,6 @@ void render_set_color(WrenVM* vm)
 	xs::render::set_color(r, g, b, 1.0);
 }
 
-void render_set_color_hex(WrenVM* vm)
-{
-	wrenEnsureSlots(vm, 2);
-	const auto str = wrenGetSlotString(vm, 1);
-	auto color = xs::tools::parse_color(std::string(str));	
-	xs::render::set_color(
-		std::get<0>(color),
-		std::get<1>(color),
-		std::get<2>(color),
-		std::get<3>(color));
-}
-
 void render_set_color_uint(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
@@ -134,17 +123,6 @@ void render_load_image(WrenVM* vm)
 	wrenSetSlotDouble(vm, 0, img);
 }
 
-/*
-void render_image(WrenVM* vm)
-{
-	wrenEnsureSlots(vm, 2);
-	const auto img = wrenGetSlotDouble(vm, 1);
-	const auto x = wrenGetSlotDouble(vm, 2);
-	const auto y = wrenGetSlotDouble(vm, 3);
-	xs::render::image((int)img, x, y);
-}
-*/
-
 void render_create_sprite(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 6);
@@ -167,6 +145,29 @@ void render_sprite(WrenVM* vm)
 	int a_int = static_cast<int>(a);
 	auto a_sa = static_cast<xs::render::sprite_anchor>(a_int);
 	xs::render::render_sprite((int)sprite_id, x, y, a_sa);
+}
+
+void render_sprite_ex(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 5);
+	const auto sprite_id = wrenGetSlotDouble(vm, 1);
+	const auto x = wrenGetSlotDouble(vm, 2);
+	const auto y = wrenGetSlotDouble(vm, 3);
+	const auto size = wrenGetSlotDouble(vm, 4);
+	const auto rotation = wrenGetSlotDouble(vm, 5);
+	const auto mul = wrenGetSlotDouble(vm, 6);
+	const auto add = wrenGetSlotDouble(vm, 7);
+	const auto flags = wrenGetSlotDouble(vm, 8);
+
+	xs::render::color mul_c;
+	mul_c.integer_value = static_cast<uint32_t>(mul);
+
+	xs::render::color add_c;
+	add_c.integer_value = static_cast<uint32_t>(add);
+
+	const auto flags_i = static_cast<uint32_t>(flags);
+
+	xs::render::render_sprite_ex((int)sprite_id, x, y, size, rotation, mul_c, add_c, flags_i);
 }
 
 void render_set_offset(WrenVM* vm)
@@ -306,6 +307,7 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
 	bind("xs", "Render", true, "renderSprite(_,_,_,_)", render_sprite);
 	bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
+	bind("xs", "Render", true, "renderSprite(_,_,_,_,_,_,_,_)", render_sprite_ex);
 
 	// Configuration
 	bind("xs", "Configuration", true, "title=(_)", configuration_set_title);

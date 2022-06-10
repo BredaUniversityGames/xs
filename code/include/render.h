@@ -9,7 +9,6 @@ namespace xs::render
 		union
 		{
 			uchar rgba[4];
-			//struct { uchar r, g, b, a; };
 			struct { uchar a, b, g, r; };
 			uint32_t integer_value;
 		};
@@ -21,12 +20,19 @@ namespace xs::render
 		center = 1
 	};
 
+	enum sprite_flags
+	{
+		bottom = 1 << 1,
+		center = 1 << 2,
+		flip_x = 1 << 3,
+		flip_y = 1 << 4,
+	};
+
 	void initialize();
 	void shutdown();	
 	void render();
 	void clear();
 
-	//std::pair<double, double> get_offset();
 	void set_offset(double x, double y);
 
 	int load_image(const std::string& image_file);
@@ -34,7 +40,15 @@ namespace xs::render
 	// int get_image_height(int image_id);
 	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
 	void render_sprite(int image_id, double x, double y, sprite_anchor anchor);
-	//void render_sprite_ex(int image_id, double x, double y, double rotation, double size, ,color mutiply, color add);
+	void render_sprite_ex(
+		int image_id,
+		double x,
+		double y,
+		double rotation,
+		double size,
+		color mutiply,
+		color add,
+		unsigned int flags);
 
 	enum class primitive { lines, triangles, none };
 	void begin(primitive p);

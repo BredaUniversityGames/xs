@@ -28,9 +28,13 @@ class Unit is Component {
         super()
         _team = team
         _health = health
+        _timer = 0.0
     }
 
-    damage(d) { _health = _health - d }
+    damage(d) {
+        _health = _health - d
+        _timer = 0.15
+    }
     team { _team }
     health { _health }
 
@@ -38,6 +42,16 @@ class Unit is Component {
         if(_health <= 0.0) {
             Game.createExplosion(owner)
             owner.delete()
+            return
+        }
+        
+        if(_timer > 0) {
+            _timer = _timer - dt
+            var s = owner.getComponentSuper(Sprite)
+            s.add = 0xE0E0E000
+            if(_timer < 0) {
+                s.add = 0x00000000
+            }
         }
     }
 
@@ -128,9 +142,10 @@ class Player is Component {
 
             var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit) //|
             for(cu in computerUnits) {
-                var pos = cu.getComponent(Transform).position
-                Render.circle(pos.x, pos.y, 10, 32)
+                var pos = cu.getComponent(Transform).position            
                 if(pos.x > fromX && pos.x < toX && pos.y > fromY && pos.y < toY) {                                        
+                    Render.setColor(0xFFFFFFFF)
+                    Render.circle(pos.x, pos.y, 15, 32)
                     var enemy = cu.getComponent(Enemy)
                     if(enemy != null) {
                         enemy.hack(dt)
@@ -269,6 +284,10 @@ class Enemy is Component {
             _hack = _hack - dt * 0.25
             Render.setColor(Color.fromNum(0x8BEC46FF))
             var pos = owner.getComponent(Transform).position
+            Render.setColor(0xFFFFFFFF)
+            Render.arc(pos.x, pos.y, 14, 2.0 * _hack * Num.pi, 16)
+ 
+
             //Render.pie(pos.x, pos.y, 12, 2.0 * _hack * Num.pi / 0.3 ,32)
         }
     }
@@ -470,8 +489,6 @@ class Game {
         Render.setColor(0xFFFFFFFF)
         Render.text("SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)", -296, 170, 1)
 
-        //Render.text("WAVE %(__wave)", -296, 120, 2)
-        //Render.text("HEALTH %(pu.health)", -296, 100, 2)
 
         /*
         for(e in Entity.entities) {
@@ -488,7 +505,7 @@ class Game {
             }
         }
         */
-
+ 
         var playerUnits = Entity.entitiesWithTag(Tag.Player | Tag.Unit)
         var playerBullets = Entity.entitiesWithTag(Tag.Player | Tag.Bullet)
         var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit)
@@ -583,7 +600,7 @@ class Game {
         var o = Orbitor.new(ship)
         var s = GridSprite.new("[games]/sub_optimal/images/ships/blue-ship-spritesheet.png", 5, 1)
         s.layer = 1.0
-        s.anchor = Render.anchorCenter
+        s.flags = Render.spriteCenter
         // s.addAnimation("fly", [0,1,2])
         // s.playAnimation("fly")
         ship.addComponent(t)
@@ -602,7 +619,7 @@ class Game {
             var t = Transform.new(Vec2.new(0, 0))
             var s = AnimatedSprite.new("[games]/sub_optimal/images/ships/thrusters.png", 4, 2, 15)            
             s.layer = 0.999
-            s.anchor = Render.anchorCenter
+            s.flags = Render.spriteCenter
             s.addAnimation("fly", [1, 3, 5, 7])
             s.playAnimation("fly")
             var r = Relation.new(ship)
@@ -641,7 +658,7 @@ class Game {
         var o = Orbitor.new(core)
         var s = Sprite.new("[games]/sub_optimal/images/ships/Metal-Slug.png")
         s.layer = 0.9
-        s.anchor = Render.anchorCenter
+        s.flags = Render.spriteCenter
         core.addComponent(t)
         core.addComponent(b)
         core.addComponent(e)
@@ -665,7 +682,7 @@ class Game {
         var c = DebugColor.new(Globals.EnemyColor)
         var s = Sprite.new("[games]/sub_optimal/images/ships/observer.png")
         s.layer = 0.9
-        s.anchor = Render.anchorCenter
+        s.flags = Render.spriteCenter
         ship.addComponent(t)
         ship.addComponent(b)
         ship.addComponent(e)
@@ -713,7 +730,7 @@ class Game {
         var bl = Bullet.new(Team.player, damage)
         var s = GridSprite.new("[games]/sub_optimal/images/projectiles/projectiles.png", 7, 5)
         s.layer = 0.9
-        s.anchor = Render.anchorCenter
+        s.flags = Render.spriteCenter
         s.idx = 28
         bullet.addComponent(t)
         bullet.addComponent(bd)
@@ -736,7 +753,7 @@ class Game {
         var bl = Bullet.new(owu.team, damage)
         var s = GridSprite.new("[games]/sub_optimal/images/projectiles/projectiles.png", 7, 5)
         s.layer = 0.9
-        s.anchor = Render.anchorCenter
+        s.flags = Render.spriteCenter
         s.idx = 31
         bullet.addComponent(t)
         bullet.addComponent(bd)
@@ -756,7 +773,7 @@ class Game {
         var e = Explosion.new(1.0)
         var s = AnimatedSprite.new("[games]/sub_optimal/images/vfx/Explosion.png", 8, 1, 15)
         s.layer = 1.9
-        s.anchor = Render.anchorCenter
+        s.flags = Render.spriteCenter
         s.addAnimation("explode", [0,1,2, 3, 4, 5, 6, 7])
         s.playAnimation("explode")
         s.mode = AnimatedSprite.destroy

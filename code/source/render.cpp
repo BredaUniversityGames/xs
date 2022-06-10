@@ -17,6 +17,7 @@
 #include "configuration.h"
 #include "fileio.h"
 #include "log.h"
+#include "tools.h"
 
 using namespace glm;
 
@@ -36,6 +37,7 @@ namespace xs::render::internal
 	void compile_sprite_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
+	vec4 to_vec4(color c) { return vec4(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f); }
 
 	int width = -1;
 	int height = -1;
@@ -67,7 +69,16 @@ namespace xs::render::internal
 
 	struct sprite_vtx_format { vec3 position; vec2 texture; vec4 color; };	
 	struct sprite { int image_id; vec2 from; vec2 to; };
-	struct sprite_queue_entry { int sprite_id; double x; double y; sprite_anchor anchor; };
+	struct sprite_queue_entry
+	{
+		int sprite_id;
+		double x;
+		double y;
+		sprite_anchor anchor;
+		unsigned int flags;
+		color mul_color;
+		color add_color;
+	};
 	
 	unsigned int			sprite_program = 0;
 	int const				sprite_trigs_max = 21800;
@@ -80,6 +91,7 @@ namespace xs::render::internal
 	std::vector<sprite>		sprites;	
 }
 
+using namespace xs;
 using namespace xs::render::internal;
 
 void xs::render::initialize()
@@ -207,6 +219,7 @@ void xs::render::render()
 	glUseProgram(sprite_program);
 	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
 
+	/*
 	for (const auto& spe : sprite_queue)
 	{
 		const auto& sprite = sprites[spe.sprite_id];
@@ -219,6 +232,8 @@ void xs::render::render()
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, image.gl_id);
+
+		auto color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 		//if (triangles_count < triangles_max - 1)
 		{
@@ -236,16 +251,73 @@ void xs::render::render()
 			sprite_trigs_array[4].texture = { sprite.to.x,		sprite.to.y };
 			sprite_trigs_array[5].texture = { sprite.from.x,	sprite.to.y };
 
-			sprite_trigs_array[0].color = current_color;
-			sprite_trigs_array[1].color = current_color;
-			sprite_trigs_array[2].color = current_color;
-			sprite_trigs_array[3].color = current_color;
-			sprite_trigs_array[4].color = current_color;
-			sprite_trigs_array[5].color = current_color;
+			sprite_trigs_array[0].color = color;
+			sprite_trigs_array[1].color = color;
+			sprite_trigs_array[2].color = color;
+			sprite_trigs_array[3].color = color;
+			sprite_trigs_array[4].color = color;
+			sprite_trigs_array[5].color = color;
 
 			if (spe.anchor == sprite_anchor::center) {
 				vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
 				for (int i = 0; i < 6; i++) {
+					sprite_trigs_array[i].position -= anchor;
+				}
+			}
+		}
+
+		glBindVertexArray(sprite_trigs_vao);
+		glBindBuffer(GL_ARRAY_BUFFER, sprite_trigs_vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(sprite_vtx_format) * 6, &sprite_trigs_array[0], GL_DYNAMIC_DRAW);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+	}
+	*/
+
+	for (const auto& spe : sprite_queue)
+	{
+		const auto& sprite = sprites[spe.sprite_id];
+		const auto& image = images[sprite.image_id];
+
+		const auto from_x = spe.x;
+		const auto from_y = spe.y;
+		const auto to_x = spe.x + image.width * (sprite.to.x - sprite.from.x);
+		const auto to_y = spe.y + image.height * (sprite.to.y - sprite.from.y);
+		// vec4 mul_color = to_vec4(spe.mul_color);
+		vec4 add_color = to_vec4(spe.add_color);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, image.gl_id);
+
+		// auto color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+		//if (triangles_count < triangles_max - 1)
+		{
+			sprite_trigs_array[0].position = { from_x, from_y, 0.0 };
+			sprite_trigs_array[1].position = { from_x, to_y, 0.0 };
+			sprite_trigs_array[2].position = { to_x, to_y, 0.0 };
+			sprite_trigs_array[3].position = { to_x, to_y, 0.0 };
+			sprite_trigs_array[4].position = { to_x, from_y, 0.0 };
+			sprite_trigs_array[5].position = { from_x, from_y, 0.0 };
+
+			sprite_trigs_array[0].texture = { sprite.from.x,	sprite.to.y };
+			sprite_trigs_array[1].texture = { sprite.from.x,	sprite.from.y };
+			sprite_trigs_array[2].texture = { sprite.to.x,		sprite.from.y };
+			sprite_trigs_array[3].texture = { sprite.to.x,		sprite.from.y };
+			sprite_trigs_array[4].texture = { sprite.to.x,		sprite.to.y };
+			sprite_trigs_array[5].texture = { sprite.from.x,	sprite.to.y };
+
+			sprite_trigs_array[0].color = add_color;
+			sprite_trigs_array[1].color = add_color;
+			sprite_trigs_array[2].color = add_color;
+			sprite_trigs_array[3].color = add_color;
+			sprite_trigs_array[4].color = add_color;
+			sprite_trigs_array[5].color = add_color;
+
+			if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
+			{
+				vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
+				for (int i = 0; i < 6; i++)
+				{
 					sprite_trigs_array[i].position -= anchor;
 				}
 			}
@@ -386,6 +458,27 @@ void xs::render::render_sprite(int image_id, double x, double y, sprite_anchor a
 	sprite_queue.push_back({ image_id, x, y, anchor });
 }
 
+void xs::render::render_sprite_ex(
+	int image_id,
+	double x,
+	double y,
+	double rotation,
+	double size,
+	color mutiply,
+	color add,
+	unsigned int flags)
+{
+	sprite_queue.push_back({
+		image_id,
+		x,
+		y,
+		sprite_anchor::bottom,
+		flags,
+		mutiply,
+		add
+	});
+}
+
 void xs::render::begin(primitive p)
 {
 	if (current_primitive == primitive::none)
@@ -431,7 +524,7 @@ void xs::render::vertex(double x, double y)
 		}
 		else 
 		{
-			assert(lines_begin_count > 1 && lines_count > 1);
+			// assert(lines_begin_count > 1 && lines_count > 1);
 			vertex_array[lines_count * 2].position = vertex_array[lines_count * 2 - 1].position;
 			vertex_array[lines_count * 2].color = vertex_array[lines_count * 2 - 1].color;
 			vertex_array[lines_count * 2 + 1].position = { x, y, 0.0f };

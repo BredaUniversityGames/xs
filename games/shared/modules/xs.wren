@@ -129,6 +129,27 @@ class Render {
         Render.end()
     }
 
+    static arc(x, y, r, angle, divs) {
+        
+        var t = 0.0
+        divs = angle / (Num.pi * 2.0) * divs
+        divs = divs.truncate
+        var dt = angle / divs
+        if(divs > 0) {
+            Render.begin(Render.lines)
+            for(i in 0..divs) {
+                var xr = t.cos * r            
+                var yr = t.sin * r
+                Render.vertex(x + xr, y + yr)
+                t = t + dt
+                xr = t.cos * r
+                yr = t.sin * r
+                Render.vertex(x + xr, y + yr)
+            }
+            Render.end()
+        }
+    }
+
     static pie(x, y, r, angle, divs) {
         Render.begin(Render.triangles)
         var t = 0.0
@@ -151,11 +172,17 @@ class Render {
     foreign static loadImage(path)
     foreign static createSprite(imageId, x0, y0, x1, y1)
     foreign static renderSprite(spriteId, x, y, a)
+    foreign static renderSprite(spriteId, x, y, size, rotation, mul, add, flags)
     foreign static setOffset(x, y)
+    static renderSprite(spriteId, x, y) { renderSprite(spriteId, x, y, anchorBottom) }    
 
-    static renderSprite(spriteId, x, y) { renderSprite(spriteId, x, y, anchorBottom) }
     static anchorBottom { 0 }
     static anchorCenter { 1 }
+
+    // spriteBottom { 1 << 1 }
+	static spriteCenter { 1 << 2 }
+	static spriteFlipX  { 1 << 3 }
+	static spriteFlipY  { 1 << 4 }
 }
 
 class Input {
