@@ -1,0 +1,7 @@
+[[prereqs]]
+name = "vcredist-2019-x64"
+
+[[actions]]
+name = "play"
+path = "xs.exe"
+
