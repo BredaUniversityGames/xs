@@ -7,6 +7,6 @@ out vec4 frag_color;
 
 void main()
 {
-    vec4 color = texture(s_image, v_texture);
+    vec4 color = texture(s_image, v_texture) + v_color;
     frag_color = color;
 }
