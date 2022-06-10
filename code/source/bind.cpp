@@ -169,6 +169,14 @@ void render_sprite(WrenVM* vm)
 	xs::render::render_sprite((int)sprite_id, x, y, a_sa);
 }
 
+void render_set_offset(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 3);
+	const auto x = wrenGetSlotDouble(vm, 1);
+	const auto y = wrenGetSlotDouble(vm, 2);
+	xs::render::set_offset(x, y);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Configuration
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -297,6 +305,7 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "loadImage(_)", render_load_image);
 	bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
 	bind("xs", "Render", true, "renderSprite(_,_,_,_)", render_sprite);
+	bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
 
 	// Configuration
 	bind("xs", "Configuration", true, "title=(_)", configuration_set_title);

@@ -9,8 +9,8 @@ class Component {
         _owner = null
     }
 
-    del() {}
-    update(dt) { }    
+    del() {} // TODO: onDelete
+    update(dt) { } // onUpdate?
     owner { _owner }
     owner=(o) { _owner = o }
 }
@@ -46,6 +46,7 @@ class Entity {
         return null
     }
 
+    // TODO: Comment the behaviour
     deleteComponent(type) {        
         if(_components.containsKey(type)) {            
             _compDeleteQueue.add(type) 

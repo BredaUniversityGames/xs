@@ -26,9 +26,15 @@ namespace xs::render
 	void render();
 	void clear();
 
+	//std::pair<double, double> get_offset();
+	void set_offset(double x, double y);
+
 	int load_image(const std::string& image_file);
+	// int get_image_width(int image_id);
+	// int get_image_height(int image_id);
 	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
 	void render_sprite(int image_id, double x, double y, sprite_anchor anchor);
+	//void render_sprite_ex(int image_id, double x, double y, double rotation, double size, ,color mutiply, color add);
 
 	enum class primitive { lines, triangles, none };
 	void begin(primitive p);
