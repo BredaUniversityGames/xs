@@ -1,6 +1,6 @@
 import "xs" for Render
 import "xs_ec"for Component, Entity
-
+import "xs_math"for Vec2
 
 class Transform is Component {
     construct new(position) {
@@ -188,4 +188,23 @@ class AnimatedSprite is GridSprite {
 
     static loop { 0 } 
     static destroy { 1 }
+}
+
+class Relation is Component {
+    construct new(parent) {
+        _parent = parent
+        _offset = Vec2.new(0, 0)
+    }
+
+    update(dt) {
+        var pt = _parent.getComponent(Transform)
+        owner.getComponent(Transform).position = pt.position + _offset
+
+        if(_parent.deleted) {
+            owner.delete()
+        }
+    }
+
+    offset { _offset }
+    offset=(o) { _offset = o }
 }
