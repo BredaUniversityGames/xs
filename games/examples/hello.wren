@@ -1,10 +1,8 @@
 System.print("Hello from script")
 
-
-
 class Game {
     static config() {
-        
+        System.print("config")
     }
 
     static init() {        

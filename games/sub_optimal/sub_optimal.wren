@@ -531,7 +531,6 @@ class Game {
             __state = GameState.Score
         }
 
-
         /*
         __frame = __frame + 1
         if(__frame == 100) {
@@ -731,9 +730,9 @@ class Game {
             s.layer = 0.999
             s.flags = Render.spriteCenter
             s.addAnimation("straight", [1, 3, 5, 7])            
-            s.addAnimation("diag", [0, 2, 4, 6])
-            s.playAnimation("diag")            
-            //s.playAnimation("straight")
+            //s.addAnimation("diag", [0, 2, 4, 6])
+            //s.playAnimation("diag")            
+            s.playAnimation("straight")
             var r = Relation.new(ship)
             r.offset = Vec2.new(-20, 0)
             thrust.addComponent(t)
