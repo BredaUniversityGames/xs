@@ -37,11 +37,15 @@ namespace xs::script::internal
 
 		static auto magenta = "\033[35m";
 		static auto reset = "\033[0m";
-		// auto t = std::time(nullptr);
-		// auto tm = *std::localtime(&t);		
-		// const auto time = std::put_time(&tm, "[%Y-%m-%d %T.%e0] ");
-		//std::cout << time << "[" << magenta << "script" << reset << "] " << text << endl;
+
+#if defined(PLATFORM_PC)
+		auto t = std::time(nullptr);
+		auto tm = *std::localtime(&t);		
+		const auto time = std::put_time(&tm, "[%Y-%m-%d %T.%e0] ");
+		std::cout << time << "[" << magenta << "script" << reset << "] " << text << endl;
+#elif
 		std::cout << "[" << magenta << "script" << reset << "] " << text << endl;
+#endif
 	}
 
 	void errorFn(
