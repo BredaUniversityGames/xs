@@ -1,12 +1,14 @@
 #include "inspector.h"
 #include <imgui.h>
 #include <imgui_impl.h>
+#include <imgui_internal.h>
 #include "IconsFontAwesome5.h"
 #include "fileio.h"
 #include "script.h"
 #include "registry.h"
 #include "log.h"
 #include "configuration.h"
+#include "version.h"
 #if defined(PLATFORM_PC)
 #include <GLFW/glfw3.h>
 #include "device_pc.h"
@@ -19,7 +21,9 @@ namespace xs::inspector::internal
 {
 	bool paused = false;
 	float ui_scale = 1.0f;
+	bool show_registry = false;
 	void embrace_the_darkness();
+	float ok_timer = 0.0f;
 }
 
 void xs::inspector::initialize()
@@ -77,8 +81,23 @@ void xs::inspector::shutdown()
 	ImGui::DestroyContext();
 }
 
+void Tooltip(const char* tooltip)
+{
+	if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.6f)
+	{
+		ImGui::BeginTooltip();
+		ImGui::SetTooltip(tooltip);
+		ImGui::EndTooltip();
+	}
+}
+
 void xs::inspector::render(float dt)
 {
+#ifdef PLATFORM_PS5
+	return;
+#endif // PLATFORM_PS5
+
+
 	// glBindFramebuffer(GL_FRAMEBUFFER, 0);	// TODO: Only OpenGL call
 	
 	ImGui_Impl_NewFrame();
@@ -86,7 +105,11 @@ void xs::inspector::render(float dt)
 
 	// ImGui::ShowDemoWindow();
 
-	if (xs::script::has_error() || (ImGui::IsMousePosValid() && ImGui::GetMousePos().y < 100.0f))
+	internal::ok_timer -= dt;
+
+	if (xs::script::has_error() ||
+		internal::show_registry ||
+		(ImGui::IsMousePosValid() && ImGui::GetMousePos().y < 100.0f))
 	{
 
 		bool true_that = true;
@@ -110,25 +133,49 @@ void xs::inspector::render(float dt)
 			script::shutdown();
 			script::configure(nullptr);
 			script::initialize();
-		}
+			if(!xs::script::has_error())
+				internal::ok_timer = 4.0f;
+		}		
+		Tooltip("Reload Game");
+
 		ImGui::SameLine();
 		if (internal::paused)
 		{
 			if (ImGui::Button(ICON_FA_PLAY))
 				internal::paused = false;
+			Tooltip("Play");
 		}
 		else
 		{
 			if (ImGui::Button(ICON_FA_PAUSE))
 				internal::paused = true;
+			Tooltip("Pause");
 		}
-		ImGui::SameLine();
 
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_FA_DATABASE))
+		{
+			internal::show_registry = !internal::show_registry;
+		}
+		Tooltip("Registry");
+
+		ImGui::SameLine();
+		if (internal::ok_timer > 0.0f) {
+			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.13f, 0.83f, 0.13f, 0.54f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.5f, 0.2f, 0.54f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.5f, 0.2f, 0.54f));
+			if (ImGui::Button(ICON_FA_THUMBS_UP))
+				internal::ok_timer = 0.0f;
+			ImGui::PopStyleColor(3);
+			Tooltip("Reload Complete");
+		}
+
+		ImGui::SameLine();
 		if (xs::script::has_error())
 		{
 			internal::paused = true;
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.83f, 0.13f, 0.13f, 0.54f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.47f, 0.20f, 0.20f, 0.54f));
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.47f, 0.50f, 0.20f, 0.54f));
 			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.47f, 0.20f, 0.20f, 0.54f));
 
 			if (ImGui::Button(ICON_FA_EXCLAMATION_TRIANGLE))
@@ -137,16 +184,21 @@ void xs::inspector::render(float dt)
 				internal::paused = false;
 			}
 			ImGui::PopStyleColor(3);
-		}
 
-		// dt *= 1000;
+			Tooltip("Script Error!");
+		}
+		
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));		
 		ImGui::SameLine();
-		//xs::registry::inspect();
 		ImGui::Text("| xs %s", xs::version::version_string.c_str());
 		ImGui::PopStyleColor();
 		Tooltip("Engine Version");
 		ImGui::End();
+
+		if (internal::show_registry)
+		{
+			xs::registry::inspect();
+		}
 	}
 
 
