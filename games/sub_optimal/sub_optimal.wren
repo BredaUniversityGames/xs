@@ -402,7 +402,7 @@ class Game {
     static config() {        
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 3
+        Configuration.multiplier = 1
         Configuration.title = "SubOptimal"
     }
 
@@ -724,15 +724,16 @@ class Game {
         ship.name = "Player"
         ship.tag = (Tag.Player | Tag.Unit)
         __ship = ship
-
         {
             var thrust = Entity.new()
             var t = Transform.new(Vec2.new(0, 0))
             var s = AnimatedSprite.new("[games]/sub_optimal/images/ships/thrusters.png", 4, 2, 15)            
             s.layer = 0.999
             s.flags = Render.spriteCenter
-            s.addAnimation("fly", [1, 3, 5, 7])
-            s.playAnimation("fly")
+            s.addAnimation("straight", [1, 3, 5, 7])            
+            s.addAnimation("diag", [0, 2, 4, 6])
+            s.playAnimation("diag")            
+            //s.playAnimation("straight")
             var r = Relation.new(ship)
             r.offset = Vec2.new(-20, 0)
             thrust.addComponent(t)
@@ -803,6 +804,22 @@ class Game {
         ship.addComponent(s)
         ship.name = "Enemy"
         ship.tag = (Tag.Computer | Tag.Unit)
+        {
+            var thrust = Entity.new()
+            var t = Transform.new(Vec2.new(0, 0))
+            var s = AnimatedSprite.new("[games]/sub_optimal/images/ships/thrusters.png", 4, 2, 15)            
+            s.layer = 0.999
+            s.flags = Render.spriteCenter | Render.spriteFlipX // |
+            s.addAnimation("straight", [1, 3, 5, 7])            
+            s.addAnimation("diag", [0, 2, 4, 6])
+            s.playAnimation("diag")
+            s.playAnimation("straight")
+            var r = Relation.new(ship)
+            r.offset = Vec2.new(20, 0)
+            thrust.addComponent(t)
+            thrust.addComponent(s)
+            thrust.addComponent(r)
+        }
         return ship
     }
 
