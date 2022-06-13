@@ -140,11 +140,12 @@ void xs::inspector::render(float dt)
 		}
 
 		// dt *= 1000;
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));		
 		ImGui::SameLine();
-		ImGui::Text("%s", " | xs v0.1.5");
-
 		//xs::registry::inspect();
-
+		ImGui::Text("| xs %s", xs::version::version_string.c_str());
+		ImGui::PopStyleColor();
+		Tooltip("Engine Version");
 		ImGui::End();
 	}
 
