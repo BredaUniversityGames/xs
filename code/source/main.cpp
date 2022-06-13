@@ -7,9 +7,10 @@
 #include "script.h"
 #include "account.h"
 #include "registry.h"
+#include "inspector.h"
+#include "version.h"
 #include <glm/glm.hpp>
 #include <chrono>
-#include "inspector.h"
 
 using namespace std;
 
@@ -27,6 +28,7 @@ extern "C"
 #if defined(PLATFORM_SWITCH)
 
 #include <nn/os.h>
+#include <version.h>
 extern "C" void nnMain()
 {
 	const auto argc = nn::os::GetHostArgc();
@@ -55,7 +57,7 @@ int xs::main(int argc, char* argv[])
     log::info("  __ __ _____ ");
     log::info(" |  |  |   __|");
     log::info(" |-   -|__   |");
-    log::info(" |__|__|_____| v0.1.5");
+    log::info(" |__|__|_____| " + xs::version::version_string);
     log::info("By Bojan Endrovski");
     log::info("");
 
