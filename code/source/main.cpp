@@ -81,10 +81,10 @@ int xs::main(int argc, char* argv[])
         return -1;
     }
     
-    registry::initialize();
     account::initialize();
-    fileio::initialize();    
-    script::configure(main_script.c_str());
+    fileio::initialize(main_script);
+    registry::initialize();
+    script::configure(main_script);
     device::initialize();
     render::initialize();
     input::initialize();

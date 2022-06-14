@@ -1,1 +1,1 @@
-games/seedwave/game.wren
+[games]/seedwave/game.wren
