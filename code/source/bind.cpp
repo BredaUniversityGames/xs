@@ -265,22 +265,58 @@ void registry_get_number(WrenVM* vm)
 	wrenSetSlotDouble(vm, 0, value);
 }
 
+void registry_get_bool(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 1);
+	const auto name = wrenGetSlotString(vm, 1);
+	auto value = xs::registry::get_bool(name);
+	wrenSetSlotBool(vm, 0, value);
+}
+
+
 void registry_get_color(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 1);
-	//const auto name = wrenGetSlotString(vm, 1);	
+	const auto name = wrenGetSlotString(vm, 1);	
+	auto value = xs::registry::get_color(name);
+	wrenSetSlotDouble(vm,0, (double)value);
+}
 
-	// auto value = xs::registry::get_number(name);
-	
-	xs::render::color c; // = { 0, 255, 0, 255 };
+void registry_get_string(WrenVM* vm)
+{
+}
 
-	//d_color color;
-	//color.r = 0.0;
-	//color.g = 1.0;
-	//color.b = 0.0;
-	//color.a = 1.0;
+void registry_set_number(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 4);
+	auto name = wrenGetSlotString(vm, 1);
+	auto val = wrenGetSlotDouble(vm, 2);
+	auto type = wrenGetSlotDouble(vm, 3);
+	xs::registry::set_number(name, val, xs::registry::type((int)type));
+}
 
-	wrenSetSlotBytes(vm,0, (const char*) &c, sizeof(xs::render::color));
+void registry_set_bool(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 4);
+	auto name = wrenGetSlotString(vm, 1);
+	auto val = wrenGetSlotBool(vm, 2);
+	auto type = wrenGetSlotDouble(vm, 3);
+	xs::registry::set_bool(name, val, xs::registry::type((int)type));
+}
+
+void registry_set_color(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 4);
+	auto name = wrenGetSlotString(vm, 1);
+	auto val = wrenGetSlotDouble(vm, 2);
+	auto type = wrenGetSlotDouble(vm, 3);
+	//auto val_uint = (int)
+	xs::registry::set_color(name, static_cast<uint32_t>(val), xs::registry::type((int)type));
+
+}
+
+void registry_set_string(WrenVM* vm)
+{
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -322,4 +358,10 @@ void xs::script::bind_api()
 	// Registry
 	bind("xs", "Registry", true, "getNumber(_)", registry_get_number);
 	bind("xs", "Registry", true, "getColorNum(_)", registry_get_color);
+	bind("xs", "Registry", true, "getBool(_)", registry_get_bool);
+	bind("xs", "Registry", true, "getString(_)", registry_get_string);
+	bind("xs", "Registry", true, "setNumber(_,_,_)", registry_set_number);
+	bind("xs", "Registry", true, "setColorNum(_,_,_)", registry_set_color);
+	bind("xs", "Registry", true, "setBool(_,_,_)", registry_set_bool);
+	bind("xs", "Registry", true, "setString(_,_,_)", registry_set_string);
 }
