@@ -26,7 +26,7 @@ using namespace xs;
 using namespace fileio::internal;
 using namespace std;
 
-void fileio::initialize()
+void fileio::initialize(const std::string& main_script)
 {
 #if defined(PLATFORM_SWITCH)
 	nn::Result result;
@@ -94,10 +94,17 @@ void fileio::initialize()
 	
 	add_wildcard("[games]", "./games");
 	add_wildcard("[save]", save_path);
+
 #elif defined(PLATFORM_PS5)	
 	add_wildcard("[games]", "/app0");
 	// add_wildcard("[save]", save_path);
 #endif
+
+	string cwd = main_script;
+	auto l_slash = cwd.find_last_of("/");
+	cwd.erase(l_slash + 1 , cwd.length());
+	cwd = get_path(cwd);
+	add_wildcard("[cwd]", cwd);
 }
 
 vector<char> fileio::read_binary_file(const std::string& filename)

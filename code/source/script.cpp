@@ -26,7 +26,7 @@ namespace xs::script::internal
 	std::unordered_map<size_t, WrenForeignMethodFn> foreign_methods;
 	std::unordered_map<size_t, std::string> modules;
 	bool initialized = false;
-	const char* main;
+	std::string main;
 	std::string main_module;
 	bool error = false;
 	
@@ -144,12 +144,12 @@ namespace xs::script::internal
 
 using namespace xs::script::internal;
 
-void xs::script::configure(const char* main)
+void xs::script::configure(const std::string& main)
 {
 	initialized = false;
 	error = false;
 
-	if (main != nullptr)
+	if (!main.empty())
 		internal::main = main;
 
 	if (!fileio::exists(internal::main))
