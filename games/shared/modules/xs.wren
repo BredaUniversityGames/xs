@@ -202,17 +202,29 @@ class Input {
 class Registry {
     foreign static getNumber(name)
     foreign static getColorNum(name)
+    foreign static getBool(name)
+
+    foreign static setNumber(name, value, type)
+    foreign static setColorNum(name, value, type)    
+    foreign static setBool(name, value, type)
 
     static getColor(name) {
-        var num = getColorInteger(name)
+        var num = getColorNum(name)
         return Color.fromNum(num)
     }
 
-    // foreign static getString(name)
+    static setColor(name, value, type) {
+        var c = null
+        if(value is Num) {
+            c = value
+        } else if(value is Color) {
+            c = value.toNum
+        }
+        setColorNum(name, c, type)
+    }
 
-    static game     { 262 }
-    static player   { 263 }
-    static assets   { 264 }
-    static keyUp    { 265 }
-    static keySpace { 32  }
+    static system   { 2 }
+	static debug    { 3 }
+    static game     { 4 }
+    static player   { 5 }
 }
