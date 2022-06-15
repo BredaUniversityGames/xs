@@ -94,7 +94,7 @@ void xs::registry::shutdown() {}
 
 void xs::registry::inspect()
 {
-	ImGui::Begin(u8"\U0000F013  Registry");
+	ImGui::Begin(u8"\U0000f1c0  Data");
 
 	static ImGuiTextFilter filter;
 	filter.Draw(ICON_FA_SEARCH);
