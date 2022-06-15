@@ -102,7 +102,7 @@ void fileio::initialize(const std::string& main_script)
 
 	string cwd = main_script;
 	auto l_slash = cwd.find_last_of("/");
-	cwd.erase(l_slash + 1 , cwd.length());
+	cwd.erase(l_slash, cwd.length());
 	cwd = get_path(cwd);
 	add_wildcard("[cwd]", cwd);
 }

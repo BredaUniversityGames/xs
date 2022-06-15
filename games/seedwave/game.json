@@ -1,0 +1,22 @@
+{
+    "a bool": {
+        "type": "bool",
+        "value": false
+    },
+    "a color": {
+        "type": "color",
+        "value": 4278255615
+    },
+    "a number": {
+        "type": "number",
+        "value": 2.4800000190734863
+    },
+    "a number 2": {
+        "type": "number",
+        "value": 2.0
+    },
+    "a number 3": {
+        "type": "number",
+        "value": 2.0
+    }
+}
