@@ -200,13 +200,11 @@ void xs::inspector::render(float dt)
 		}
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));		
-
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
 		{
 		}
 		Tooltip("About");
-
 		ImGui::SameLine();
 		ImGui::Text("| xs %s", xs::version::version_string.c_str());
 		ImGui::PopStyleColor();
