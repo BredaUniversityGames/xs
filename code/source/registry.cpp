@@ -7,6 +7,7 @@
 #include "render.h"
 #include "tools.h"
 #include "imgui/imgui.h"
+#include "imgui/IconsFontAwesome5.h"
 
 using namespace xs;
 using namespace xs::tools;
@@ -28,28 +29,6 @@ namespace xs::registry::internal
 	template<typename T>
 	void set(const std::string& name, const T& reg_value, type type);
 
-	/*
-	ImVec4 ImGui::ColorConvertU32ToFloat4(ImU32 in)
-	{
-		float s = 1.0f / 255.0f;
-		return ImVec4(
-			((in >> IM_COL32_R_SHIFT) & 0xFF) * s,
-			((in >> IM_COL32_G_SHIFT) & 0xFF) * s,
-			((in >> IM_COL32_B_SHIFT) & 0xFF) * s,
-			((in >> IM_COL32_A_SHIFT) & 0xFF) * s);
-	}
-
-	ImU32 ImGui::ColorConvertFloat4ToU32(const ImVec4& in)
-	{
-		ImU32 out;
-		out = ((ImU32)IM_F32_TO_INT8_SAT(in.x)) << IM_COL32_R_SHIFT;
-		out |= ((ImU32)IM_F32_TO_INT8_SAT(in.y)) << IM_COL32_G_SHIFT;
-		out |= ((ImU32)IM_F32_TO_INT8_SAT(in.z)) << IM_COL32_B_SHIFT;
-		out |= ((ImU32)IM_F32_TO_INT8_SAT(in.w)) << IM_COL32_A_SHIFT;
-		return out;
-	}
-	*/
-
 	uint32_t color_convert(ImVec4 color)
 	{
 		ImU32 out;
@@ -70,6 +49,9 @@ namespace xs::registry::internal
 			((color >> 0) & 0xFF) * s);
 	}
 
+	void inspect_entry(std::pair<const std::string, registry_value>& itr);
+
+	void inspect_of_type(const std::string& type_name, ImGuiTextFilter& filter, type type);
 
 }
 
@@ -112,45 +94,66 @@ void xs::registry::shutdown() {}
 
 void xs::registry::inspect()
 {
-	ImGui::Begin("Registry");
+	ImGui::Begin(u8"\U0000F013  Registry");
 
-	for (auto& itr : reg)
-	{
-		try
-		{
-			auto val = std::get<double>(itr.second.value);
-			float flt = (float)val;
-			ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);
-			set(itr.first, flt, itr.second.type);
-			continue;
-		}
-		catch(...) {}
-
-		try
-		{
-			auto val = std::get<bool>(itr.second.value);
-			ImGui::Checkbox(itr.first.c_str(), &val);
-			set(itr.first, val, itr.second.type);
-			continue;
-		}
-		catch (...) {}
-
-		try
-		{
-			auto val = std::get<uint32_t>(itr.second.value);
-			
-			ImVec4 vec = color_convert(val);
-			//ImVec4 vec = ImGui::ColorConvertU32ToFloat4(val);
-			ImGui::ColorEdit4(itr.first.c_str(), &vec.x);
-			//val = ImGui::ColorConvertFloat4ToU32(vec);
-			val = color_convert(vec);
-			set(itr.first, val, itr.second.type);
-			continue;
-		}
-		catch (...) {}
-	}
+	static ImGuiTextFilter filter;
+	filter.Draw(ICON_FA_SEARCH);
+	
+	inspect_of_type(string(ICON_FA_GAMEPAD) + "  Game", filter, type::game);
+	inspect_of_type(string(ICON_FA_USER) + "  Player", filter, type::player);
+	inspect_of_type(string(ICON_FA_BUG) + "  Debug", filter, type::debug);
+	inspect_of_type(string(ICON_FA_COG) + "  System", filter, type::system);
 
 	ImGui::End();
+}
+
+void xs::registry::internal::inspect_of_type(
+	const std::string& type_name,
+	ImGuiTextFilter& filter,
+	xs::registry::type type)
+{
+	if (ImGui::CollapsingHeader(type_name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		for (auto& itr : reg)
+			if (filter.PassFilter(itr.first.c_str()) && itr.second.type == type)
+				inspect_entry(itr);
+	}
+}
+
+void xs::registry::internal::inspect_entry(
+	std::pair<const std::string,
+	xs::registry::internal::registry_value>& itr)
+{
+	try
+	{
+		auto val = std::get<double>(itr.second.value);
+		float flt = (float)val;
+		ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);
+		set(itr.first, flt, itr.second.type);
+		return;
+	}
+	catch (...) {}
+
+	try
+	{
+		auto val = std::get<bool>(itr.second.value);
+		ImGui::Checkbox(itr.first.c_str(), &val);
+		set(itr.first, val, itr.second.type);
+		return;
+	}
+	catch (...) {}
+
+	try
+	{
+		auto val = std::get<uint32_t>(itr.second.value);
+
+		ImVec4 vec = color_convert(val);
+		ImGui::ColorEdit4(itr.first.c_str(), &vec.x);
+		val = color_convert(vec);
+		set(itr.first, val, itr.second.type);
+		return;
+	}
+	catch (...) {}
 }
 
 double xs::registry::get_number(const std::string& name)

@@ -131,7 +131,7 @@ void xs::inspector::render(float dt)
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
 		{
 			script::shutdown();
-			script::configure(nullptr);
+			script::configure({});
 			script::initialize();
 			if(!xs::script::has_error())
 				internal::ok_timer = 4.0f;
@@ -160,13 +160,23 @@ void xs::inspector::render(float dt)
 		Tooltip("Registry");
 
 		ImGui::SameLine();
+		if (ImGui::Button(ICON_FA_CHART_BAR))
+		{
+		}
+		Tooltip("Profiler");
+
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_FA_ADJUST))
+		{
+		}
+		Tooltip("Dark/Light Theme");
+
+		ImGui::SameLine();
 		if (internal::ok_timer > 0.0f) {
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.13f, 0.83f, 0.13f, 0.54f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.5f, 0.2f, 0.54f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.2f, 0.5f, 0.2f, 0.54f));
-			if (ImGui::Button(ICON_FA_THUMBS_UP))
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.1f, 1.0f, 0.1f, 1.0f));
+			if (ImGui::Button(ICON_FA_CHECK_CIRCLE))
 				internal::ok_timer = 0.0f;
-			ImGui::PopStyleColor(3);
+			ImGui::PopStyleColor(1);
 			Tooltip("Reload Complete");
 		}
 
@@ -174,21 +184,24 @@ void xs::inspector::render(float dt)
 		if (xs::script::has_error())
 		{
 			internal::paused = true;
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.83f, 0.13f, 0.13f, 0.54f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.47f, 0.50f, 0.20f, 0.54f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.47f, 0.20f, 0.20f, 0.54f));
-
-			if (ImGui::Button(ICON_FA_EXCLAMATION_TRIANGLE))
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));		
+			if (ImGui::Button(ICON_FA_TIMES_CIRCLE))
 			{	
 				xs::script::clear_error();
 				internal::paused = false;
-			}
-			ImGui::PopStyleColor(3);
-
-			Tooltip("Script Error!");
+			}			
+			Tooltip("Script Error! Check output.");		
+			ImGui::PopStyleColor(1);
 		}
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));		
+
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
+		{
+		}
+		Tooltip("About");
+
 		ImGui::SameLine();
 		ImGui::Text("| xs %s", xs::version::version_string.c_str());
 		ImGui::PopStyleColor();
