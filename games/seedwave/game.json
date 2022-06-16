@@ -1,22 +1,18 @@
 {
-    "a bool": {
-        "type": "bool",
-        "value": false
-    },
-    "a color": {
-        "type": "color",
-        "value": 4278255615
-    },
-    "a number": {
+    "Player Health": {
         "type": "number",
-        "value": 2.4800000190734863
+        "value": 0.8600000143051147
     },
-    "a number 2": {
+    "Player Input Dead Zone": {
         "type": "number",
-        "value": 2.0
+        "value": 0.12999999523162842
     },
-    "a number 3": {
+    "Player Size": {
         "type": "number",
-        "value": 2.0
+        "value": 1.409999966621399
+    },
+    "Player Speed": {
+        "type": "number",
+        "value": 300.260009765625
     }
 }
