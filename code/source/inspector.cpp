@@ -213,7 +213,7 @@ void xs::inspector::render(float dt)
 
 		if (internal::show_registry)
 		{
-			xs::registry::inspect();
+			xs::registry::inspect(internal::show_registry);
 		}
 	}
 

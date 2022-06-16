@@ -10,6 +10,7 @@
 #include "fileio.h"
 #include "json/json.hpp"
 #include "imgui/imgui.h"
+#include "imgui/imgui_internal.h"
 #include "imgui/IconsFontAwesome5.h"
 
 using namespace xs;
@@ -57,6 +58,8 @@ namespace xs::registry::internal
 	void save_of_type(type type);
 	void load_of_type(type type);
 	const string& get_file_path(type type);
+
+	void tooltip(const char* tooltip);
 }
 
 template<class T>
@@ -102,9 +105,21 @@ void xs::registry::initialize()
 
 void xs::registry::shutdown() {}
 
-void xs::registry::inspect()
+void xs::registry::inspect(bool& show)
 {
-	ImGui::Begin(u8"\U0000f1c0  Data");
+	ImGui::Begin(u8"\U0000f1c0  Data", &show, ImGuiWindowFlags_NoCollapse);
+
+	if (ImGui::Button(ICON_FA_UNDO))
+	{
+	}
+	tooltip("Undo not implemented");
+	ImGui::SameLine();
+
+	if (ImGui::Button(ICON_FA_REDO))
+	{
+	}
+	tooltip("Redo not implemented");
+	ImGui::SameLine();
 
 	static ImGuiTextFilter filter;
 	filter.Draw(ICON_FA_SEARCH);
@@ -175,6 +190,7 @@ void xs::registry::internal::inspect_of_type(
 		{
 			if (ImGui::Button("Save"))
 				save_of_type(type);
+			tooltip("Save to a file");
 			ImGui::SameLine();
 
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
@@ -307,4 +323,14 @@ void xs::registry::internal::inspect_entry(
 		return;
 	}
 	catch (...) {}
+}
+
+void xs::registry::internal::tooltip(const char* tooltip)
+{
+	if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.6f)
+	{
+		ImGui::BeginTooltip();
+		ImGui::SetTooltip(tooltip);
+		ImGui::EndTooltip();
+	}
 }
