@@ -1,4 +1,12 @@
 {
+    "Player Bullet Damage": {
+        "type": "number",
+        "value": 0.0
+    },
+    "Player Bullet Speed": {
+        "type": "number",
+        "value": 500.0
+    },
     "Player Health": {
         "type": "number",
         "value": 0.8600000143051147
@@ -6,6 +14,10 @@
     "Player Input Dead Zone": {
         "type": "number",
         "value": 0.12999999523162842
+    },
+    "Player Shoot Time": {
+        "type": "number",
+        "value": 0.15000000596046448
     },
     "Player Size": {
         "type": "number",
