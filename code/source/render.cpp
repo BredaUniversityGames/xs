@@ -465,6 +465,7 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 
 void xs::render::render_sprite(int image_id, double x, double y, sprite_anchor anchor)
 {
+	// Validate sprite
 	sprite_queue.push_back({ image_id, x, y, anchor });
 }
 
@@ -478,6 +479,7 @@ void xs::render::render_sprite_ex(
 	color add,
 	unsigned int flags)
 {
+	// TODO: Validate sprite
 	sprite_queue.push_back({
 		image_id,
 		x,
