@@ -7,12 +7,16 @@ import "xs_math" for Math, Bits
 class Component {
     construct new() {
         _owner = null
+        _initilized = false
     }
 
+    init() {}
     del() {} // TODO: onDelete
-    update(dt) { } // onUpdate?
+    update(dt) { }
     owner { _owner }
     owner=(o) { _owner = o }
+    initilized_ { _initilized }
+    initilized_=(i) { _initilized = i }
 }
 
 class Entity {
@@ -84,6 +88,9 @@ class Entity {
 
         for (e in __entities) {
             for(c in e.components) {
+                if(!c.initilized_) {
+                    c.init()
+                }
                 c.update(dt)
             }
         }
@@ -119,7 +126,7 @@ class Entity {
     static entities { __entities }
 
     static print() {
-        System.print("<<<<<<<<<< stats >>>>>>>>>>")
+        System.print("<<<<<<<<<< ecs stats >>>>>>>>>>")
         System.print("Alive: %(__entities.count)")
         var i = 0
         for (e in __entities) {
@@ -130,6 +137,6 @@ class Entity {
             System.print("}")
             i = i + 1
         }
-        System.print("<<<<<<<<<< end >>>>>>>>>>")
+        System.print("<<<<<<<<<<<<< end >>>>>>>>>>>>>")
     }    
 }

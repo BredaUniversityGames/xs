@@ -18,7 +18,7 @@ class Game {
         // TODO" Move to Registry (or not)
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 2
+        Configuration.multiplier = 1
         Configuration.title = "Seed Wave"
     }    
 

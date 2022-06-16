@@ -129,9 +129,9 @@ class GridSprite is Sprite {
 
         _sprites = []
         var ds = 1 / columns
-        var dt = 1 / rows
-        for(i in 0...columns) {
-            for(j in 0...rows) {
+        var dt = 1 / rows        
+        for(j in 0...rows) {
+            for(i in 0...columns) {
                 var s = i * ds
                 var t = j * dt
                 _sprites.add(Render.createSprite(image, s, t, s + ds, t + dt))
