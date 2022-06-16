@@ -30,18 +30,16 @@ class Player is Component {
             t.position.y = h
         }
 
-        /*
         _shootTime = _shootTime + dt
-        if((Input.getButton(0) || Input.getKeyOnce(Input.keySpace)) && _shootTime > 0.1) {
-            Game.createBullet(owner, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
-            for(d in _drones) {
-                if(!d.deleted) {
-                    Game.createBullet(d, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
-                }
-            }
+        if((Input.getButton(0) ||
+            Input.getKeyOnce(Input.keySpace)) &&
+            _shootTime > Registry.getNumber("Player Shoot Time")) {
+            Create.playerBullet(
+                    owner,
+                    Registry.getNumber("Player Bullet Speed"),
+                    Registry.getNumber("Player Bullet Damage"))
             _shootTime = 0
         }
-        */
 
         var speed = Registry.getNumber("Player Speed")
         if(Input.getButton(1)) {
@@ -92,4 +90,8 @@ class Player is Component {
         }
         b.velocity = vel        
     }
+
+    toString { "[Player]" }
 }
+
+import "create" for Create
