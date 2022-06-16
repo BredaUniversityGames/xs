@@ -134,7 +134,7 @@ class Entity {
             for(c in e.components) {
                 System.print("     %(c.toString)")
             }
-            System.print("}")
+            System.print("  }")
             i = i + 1
         }
         System.print("<<<<<<<<<<<<< end >>>>>>>>>>>>>")

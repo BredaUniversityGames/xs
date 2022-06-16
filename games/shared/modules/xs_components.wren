@@ -65,6 +65,8 @@ class Renderable is Component {
             }
         }
     }
+
+    toString { "[Renderable layer:%(_layer)]" }
 }
 
 class Sprite is Renderable {
@@ -116,6 +118,8 @@ class Sprite is Renderable {
     flags=(f) { _flags = f }
 
     sprite_=(s) { _sprite = s }
+
+    toString { "[Sprite sprite:%(_sprite)] -> " + super.toString }
 }
 
 class GridSprite is Sprite {
@@ -148,6 +152,8 @@ class GridSprite is Sprite {
     }
 
     idx{ _idx }
+
+    toString { "[GridSprite _idx:%(_idx) from:%(_sprites.count) ] -> " + super.toString }
 }
 
 class AnimatedSprite is GridSprite {
@@ -228,4 +234,6 @@ class Relation is Component {
 
     offset { _offset }
     offset=(o) { _offset = o }
+
+    toString { "[Relation parent:%(_parent) offset:%(_offset) ]" }
 }
