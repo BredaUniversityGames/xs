@@ -1,1 +1,1 @@
-[games]/seedwave/game.wren
+[games]/sub_optimal/sub_optimal.wren
