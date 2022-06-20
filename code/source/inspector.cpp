@@ -88,7 +88,7 @@ void Tooltip(const char* tooltip)
 	if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.6f)
 	{
 		ImGui::BeginTooltip();
-		ImGui::SetTooltip(tooltip);
+		ImGui::SetTooltip("%s", tooltip);
 		ImGui::EndTooltip();
 	}
 }

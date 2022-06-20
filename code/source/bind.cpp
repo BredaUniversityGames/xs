@@ -259,26 +259,29 @@ namespace
 
 void registry_get_number(WrenVM* vm)
 {
-	wrenEnsureSlots(vm, 1);
+	wrenEnsureSlots(vm, 2);
 	const auto name = wrenGetSlotString(vm, 1);
-	auto value = xs::registry::get_number(name);
+	const auto type = wrenGetSlotDouble(vm, 2);
+	auto value = xs::registry::get_number(name, xs::registry::type((int)type));
 	wrenSetSlotDouble(vm, 0, value);
 }
 
 void registry_get_bool(WrenVM* vm)
 {
-	wrenEnsureSlots(vm, 1);
+	wrenEnsureSlots(vm, 2);
 	const auto name = wrenGetSlotString(vm, 1);
-	auto value = xs::registry::get_bool(name);
+	const auto type = wrenGetSlotDouble(vm, 2);
+	auto value = xs::registry::get_bool(name, xs::registry::type((int)type));
 	wrenSetSlotBool(vm, 0, value);
 }
 
 
 void registry_get_color(WrenVM* vm)
 {
-	wrenEnsureSlots(vm, 1);
+	wrenEnsureSlots(vm, 2);
 	const auto name = wrenGetSlotString(vm, 1);	
-	auto value = xs::registry::get_color(name);
+	const auto type = wrenGetSlotDouble(vm, 2);
+	auto value = xs::registry::get_color(name, xs::registry::type((int)type));
 	wrenSetSlotDouble(vm,0, (double)value);
 }
 
@@ -356,10 +359,10 @@ void xs::script::bind_api()
 	bind("xs", "Configuration", true, "multiplier", configuration_get_multiplier);
 
 	// Registry
-	bind("xs", "Registry", true, "getNumber(_)", registry_get_number);
-	bind("xs", "Registry", true, "getColorNum(_)", registry_get_color);
-	bind("xs", "Registry", true, "getBool(_)", registry_get_bool);
-	bind("xs", "Registry", true, "getString(_)", registry_get_string);
+	bind("xs", "Registry", true, "getNumber(_,_)", registry_get_number);
+	bind("xs", "Registry", true, "getColorNum(_,_)", registry_get_color);
+	bind("xs", "Registry", true, "getBool(_,_)", registry_get_bool);
+	bind("xs", "Registry", true, "getString(_,_)", registry_get_string);
 	bind("xs", "Registry", true, "setNumber(_,_,_)", registry_set_number);
 	bind("xs", "Registry", true, "setColorNum(_,_,_)", registry_set_color);
 	bind("xs", "Registry", true, "setBool(_,_,_)", registry_set_bool);

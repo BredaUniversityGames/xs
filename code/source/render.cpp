@@ -18,6 +18,7 @@
 #include "fileio.h"
 #include "log.h"
 #include "tools.h"
+#include "device.h"
 
 using namespace glm;
 
@@ -370,10 +371,10 @@ void xs::render::render()
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
 	// Blit render result screen
-	const auto mul = configuration::multiplier;
+	//const auto mul = configuration::multiplier;
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, render_fbo);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBlitFramebuffer(0, 0, width, height, 0, 0, width * mul, height * mul, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBlitFramebuffer(0, 0, width, height, 0, 0, xs::device::get_width(), xs::device::get_height(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

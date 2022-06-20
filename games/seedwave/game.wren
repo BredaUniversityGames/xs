@@ -24,7 +24,7 @@ class Game {
     static init() {
         Entity.init()      
         Create.init()  
-        Registry.setBool("Print Entities", false, Registry.debug)
+        //Registry.setBool("Print Entities", false, Registry.debug)
         //Registry.setBool("Debug Render", false, Registry.debug)
 
         __background = Background.createBackground()
@@ -37,12 +37,12 @@ class Game {
     static update(dt) {
         Entity.update(dt)
     
-        if(Registry.getBool("Print Entities")) {
+        if(Registry.getBool("Print Entities", Registry.debug)) {
             Entity.print()
             Registry.setBool("Print Entities", false, Registry.debug)            
         }
 
-        if(Registry.getBool("Debug Render")) {
+        if(Registry.getBool("Debug Render", Registry.debug)) {
             debugRender()
         }
     }

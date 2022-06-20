@@ -28,7 +28,7 @@ namespace xs::registry::internal
 	std::unordered_map<std::string, registry_value> reg;
 
 	template<typename T>
-	T get(const std::string& name);
+	T get(const std::string& name, type type);
 
 	template<typename T>
 	void set(const std::string& name, const T& reg_value, type type);
@@ -63,7 +63,7 @@ namespace xs::registry::internal
 }
 
 template<class T>
-T xs::registry::internal::get<T>(const std::string& name)
+T xs::registry::internal::get(const std::string& name, type type)
 {
 	auto itr = internal::reg.find(name);
 	if (itr != internal::reg.end())
@@ -82,7 +82,7 @@ T xs::registry::internal::get<T>(const std::string& name)
 	{
 		xs::log::warn("Registry value with name '{}' not found. Adding default to registry.", name);
 		T t = {};
-		internal::reg[name] = { type::game, t };
+		internal::reg[name] = { type, t };
 	}
 	
 	return {};
@@ -132,39 +132,39 @@ void xs::registry::inspect(bool& show)
 	ImGui::End();
 }
 
-double xs::registry::get_number(const std::string& name)
+double xs::registry::get_number(const std::string& name, type type)
 {
-	return get<double>(name);
+	return get<double>(name, type);
 }
 
-uint32_t xs::registry::get_color(const std::string& name)
+uint32_t xs::registry::get_color(const std::string& name, type type)
 {
-	return get<uint32_t>(name);
+	return get<uint32_t>(name, type);
 }
 
-bool xs::registry::get_bool(const std::string& name)
+bool xs::registry::get_bool(const std::string& name, type type)
 {
-	return get<bool>(name);
+	return get<bool>(name, type);
 }
 
-std::string xs::registry::get_string(const std::string& name)
+std::string xs::registry::get_string(const std::string& name, type type)
 {
 	return "";
 }
 
 void xs::registry::set_number(const std::string& name, double value, type tp)
 {
-	set(name, value, tp);
+	set<double>(name, value, tp);
 }
 
 void xs::registry::set_color(const std::string& name, uint32_t value, type tp)
 {
-	set(name, value, tp);
+	set<uint32_t>(name, value, tp);
 }
 
 void xs::registry::set_bool(const std::string& name, bool value, type tp)
 {
-	set(name, value, tp);
+	set<bool>(name, value, tp);
 }
 
 void xs::registry::set_string(const std::string& name, const std::string& value, type tp)
@@ -194,7 +194,7 @@ void xs::registry::internal::inspect_of_type(
 			ImGui::SameLine();
 
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-			ImGui::Text(fileio::get_path(get_file_path(type)).c_str());
+			ImGui::Text("%s", fileio::get_path(get_file_path(type)).c_str());
 			ImGui::PopStyleColor();
 		}
 	}	
@@ -330,7 +330,7 @@ void xs::registry::internal::tooltip(const char* tooltip)
 	if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.6f)
 	{
 		ImGui::BeginTooltip();
-		ImGui::SetTooltip(tooltip);
+		ImGui::SetTooltip("%s", tooltip);
 		ImGui::EndTooltip();
 	}
 }
