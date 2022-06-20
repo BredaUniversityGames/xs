@@ -37,7 +37,7 @@ class Orbitor is Component {
         }
     }
 
-    del() {
+    finalize() {
         for(ship in _ships) {
             if(ship != null) {
                 ship.delete()
@@ -93,7 +93,7 @@ class EnemyCore is Component {
         _tilt = tilt 
     }
 
-    del() { 
+    finalize() { 
         Game.addScore(100)
     }
 
