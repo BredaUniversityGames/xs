@@ -8,7 +8,7 @@ std::string string_replace(
 	const std::string& subject,
 	const std::string& search,
 	const std::string& replace);
-static std::tuple<double, double, double, double> parse_color(const std::string& hex_color);
+std::tuple<double, double, double, double> parse_color(const std::string& hex_color);
 static inline void switch_on_bit_flag(unsigned int& flags, unsigned int bit) { flags |= bit; }
 static inline void switch_off_bit_flag(unsigned int& flags, unsigned int bit) { flags &= (~bit); }
 static inline bool check_bit_flag(unsigned int flags, unsigned int bit) { return (flags & bit) == bit; }

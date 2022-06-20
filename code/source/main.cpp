@@ -100,7 +100,7 @@ int xs::main(int argc, char* argv[])
         const auto dt = std::chrono::duration<double>(elapsed).count();
 
         device::poll_events();
-        input::update();        
+        input::update(dt);        
         if (!inspector::paused())
         {
             render::clear();

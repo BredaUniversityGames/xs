@@ -16,10 +16,10 @@ namespace xs::registry
 	void shutdown();
 	void inspect(bool& show);	
 
-	double get_number(const std::string& name);
-	uint32_t get_color(const std::string& name);
-	bool get_bool(const std::string& name);
-	std::string get_string(const std::string& name);
+	double get_number(const std::string& name, type type);
+	uint32_t get_color(const std::string& name, type type);
+	bool get_bool(const std::string& name, type type);
+	std::string get_string(const std::string& name, type type);
 
 	void set_number(const std::string& name, double value, type tp);
 	void set_color(const std::string& name, uint32_t value, type tp);

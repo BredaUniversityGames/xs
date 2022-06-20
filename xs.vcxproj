@@ -594,7 +594,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
     <Link>
-      <FinalizeMetaSource>$(ProjectDir)Application.aarch64.lp64.nmeta</FinalizeMetaSource>
+      <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
     </Link>
     <ClCompile>
@@ -606,7 +606,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">
     <Link>
-      <FinalizeMetaSource>$(ProjectDir)Application.aarch64.lp64.nmeta</FinalizeMetaSource>
+      <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
       <Profile>true</Profile>
     </Link>

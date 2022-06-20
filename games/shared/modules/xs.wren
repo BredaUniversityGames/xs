@@ -200,9 +200,13 @@ class Input {
 }
 
 class Registry {
-    foreign static getNumber(name)
-    foreign static getColorNum(name)
-    foreign static getBool(name)
+    static getNumber(name) { getNumber(name, game) }
+    static getColorNum(name)  { getColorNum(name, game) }
+    static getBool(name)  { getBool(name, game) }
+
+    foreign static getNumber(name, type)
+    foreign static getColorNum(name, type)
+    foreign static getBool(name, type)
 
     foreign static setNumber(name, value, type)
     foreign static setColorNum(name, value, type)    

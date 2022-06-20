@@ -43,7 +43,7 @@ namespace xs::script::internal
 		auto tm = *std::localtime(&t);		
 		const auto time = std::put_time(&tm, "[%Y-%m-%d %T.%e0] ");
 		std::cout << time << "[" << magenta << "script" << reset << "] " << text << endl;
-#elif
+#else
 		std::cout << "[" << magenta << "script" << reset << "] " << text << endl;
 #endif
 	}
