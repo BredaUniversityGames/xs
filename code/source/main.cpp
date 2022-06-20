@@ -58,7 +58,7 @@ int xs::main(int argc, char* argv[])
     log::info(" |  |  |   __|");
     log::info(" |-   -|__   |");
     log::info(" |__|__|_____| " + xs::version::version_string);
-    log::info("By Bojan Endrovski");
+    log::info("Made with love at Breda University of Applied Sciences");
     log::info("");
 
     string main_script;
