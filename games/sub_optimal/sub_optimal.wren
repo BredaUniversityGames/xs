@@ -259,7 +259,7 @@ class Enemy is Component {
         _hack = 0
     }
 
-    del() {
+    finalize() {
         Game.addScore(10)
     }
 
