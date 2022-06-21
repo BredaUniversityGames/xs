@@ -17,7 +17,7 @@ class Game {
         // TODO" Move to Registry (or not)
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 1
+        Configuration.multiplier = 3
         Configuration.title = "Seed Wave"
     }    
 
@@ -29,7 +29,7 @@ class Game {
 
         __background = Background.createBackground()
         __player = Create.player()
-        __boss = Create.randomBoss(9)
+        __boss = Create.randomBoss(12)
         //  __boss = Create.boss("C1SL2C2M1L1SL2C1L2C1")
         //__boss = Create.boss("C1L2C2M1L1L2M1C1L2C1L2C2M1L1L2M1C1L2")
     }    

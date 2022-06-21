@@ -10,9 +10,13 @@
 namespace xs::device::internal
 {
 	GLFWwindow* window = nullptr;
+	int	width;
+	int	height;
+
 }
 
 using namespace xs;
+using namespace xs::device;
 
 static void errorCallback(int error, const char* description)
 {
@@ -59,12 +63,11 @@ void device::initialize()
 	// TODO: Check build configuration
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-	// TODO: Get settings
-	const auto width = configuration::width * configuration::multiplier;
-	const auto height = configuration::height * configuration::multiplier;
+	internal::width  = configuration::width * configuration::multiplier;
+	internal::height = configuration::height * configuration::multiplier;
 	internal::window = glfwCreateWindow(
-		width,
-		height,
+		internal::width,
+		internal::height,
 		xs::configuration::title.c_str(),
 		nullptr,
 		nullptr);
@@ -132,4 +135,14 @@ bool device::should_close()
 GLFWwindow* device::get_window()
 {
 	return internal::window;
+}
+
+int xs::device::get_width()
+{
+	return internal::width;
+}
+
+int xs::device::get_height()
+{
+	return internal::height;
 }

@@ -182,7 +182,7 @@ int GetDefaultJoystick()
 	return _joyState.begin()->first;
 }
 
-void xs::input::update(float dt)
+void xs::input::update(double dt)
 {
 	// Check if there are any new controllers this frame
 	AddJoystick(nn::hid::NpadId::No1);
