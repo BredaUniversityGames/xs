@@ -16,7 +16,7 @@ namespace
 void xs::input::initialize()
 {
 	glfwSetJoystickCallback(joystick_callback);
-	update();
+	update(0.0f);
 }
 
 void xs::input::shutdown()
@@ -24,7 +24,7 @@ void xs::input::shutdown()
 	glfwSetJoystickCallback(NULL);
 }
 
-void xs::input::update(float dt)
+void xs::input::update(double dt)
 {
 	prev_gamepad_state = gamepad_state;
 	if (glfwJoystickPresent(0) && glfwJoystickIsGamepad(0))
