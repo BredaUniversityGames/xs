@@ -115,6 +115,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="code\source\profiler.cpp" />
     <ClCompile Include="code\source\ps5\account_ps5.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">
       </ExcludedFromBuild>
@@ -221,6 +222,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="external\imgui\implot.cpp" />
+    <ClCompile Include="external\imgui\implot_items.cpp" />
     <ClCompile Include="external\wren\optional\wren_opt_meta.c" />
     <ClCompile Include="external\wren\optional\wren_opt_random.c" />
     <ClCompile Include="external\wren\vm\wren_compiler.c" />
@@ -256,6 +259,7 @@
     <ClInclude Include="code\include\inspector.h" />
     <ClInclude Include="code\include\log.h" />
     <ClInclude Include="code\include\opengl.h" />
+    <ClInclude Include="code\include\profiler.h" />
     <ClInclude Include="code\include\registry.h" />
     <ClInclude Include="code\include\render.h" />
     <ClInclude Include="code\include\script.h" />
