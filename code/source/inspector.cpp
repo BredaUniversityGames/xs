@@ -2,6 +2,7 @@
 #include <imgui.h>
 #include <imgui_impl.h>
 #include <imgui_internal.h>
+#include <implot.h>
 #include "IconsFontAwesome5.h"
 #include "fileio.h"
 #include "script.h"
@@ -9,6 +10,7 @@
 #include "log.h"
 #include "configuration.h"
 #include "version.h"
+#include "profiler.h"
 #if defined(PLATFORM_PC)
 #include <GLFW/glfw3.h>
 #include "device_pc.h"
@@ -22,6 +24,7 @@ namespace xs::inspector::internal
 	bool paused = false;
 	float ui_scale = 1.0f;
 	bool show_registry = false;
+	bool show_profiler = false;
 	void embrace_the_darkness();
 	void follow_the_light();
 	float ok_timer = 0.0f;
@@ -31,6 +34,7 @@ namespace xs::inspector::internal
 void xs::inspector::initialize()
 {
 	ImGui::CreateContext();
+	ImPlot::CreateContext();
 	ImGui_Impl_Init();
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -111,6 +115,7 @@ void xs::inspector::render(float dt)
 
 	if (xs::script::has_error() ||
 		internal::show_registry ||
+		internal::show_profiler ||
 		(ImGui::IsMousePosValid() && ImGui::GetMousePos().y < 100.0f))
 	{
 
@@ -162,6 +167,7 @@ void xs::inspector::render(float dt)
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_CHART_BAR))
 		{
+			internal::show_profiler = !internal::show_profiler;
 		}
 		Tooltip("Profiler");
 
@@ -214,6 +220,11 @@ void xs::inspector::render(float dt)
 		if (internal::show_registry)
 		{
 			xs::registry::inspect(internal::show_registry);
+		}
+
+		if (internal::show_profiler)
+		{
+			xs::profiler::inspect(internal::show_profiler);
 		}
 	}
 
