@@ -19,6 +19,7 @@
 #include "log.h"
 #include "tools.h"
 #include "device.h"
+#include "profiler.h"
 
 using namespace glm;
 
@@ -208,6 +209,7 @@ void xs::render::set_offset(double x, double y)
 
 void xs::render::render()
 {	
+	XS_PROFILE_SECTION("xs::render::render");
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
 	mat4 p = ortho(-w, w, -h, h, -100.0f, 100.0f);
