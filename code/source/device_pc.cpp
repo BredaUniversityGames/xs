@@ -4,6 +4,7 @@
 #include "opengl.h"
 #include "configuration.h"
 #include "fileio.h"
+#include "profiler.h"
 #include <GLFW/glfw3.h>
 #include <stb/stb_image.h>
 
@@ -119,6 +120,7 @@ void device::shutdown()
 
 void device::swap_buffers()
 {
+	XS_PROFILE_FUNCTION();
 	glfwSwapBuffers(internal::window);
 }
 
