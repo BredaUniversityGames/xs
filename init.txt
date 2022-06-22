@@ -1,1 +1,0 @@
-[games]/sub_optimal/sub_optimal.wren
