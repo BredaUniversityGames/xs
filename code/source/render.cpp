@@ -18,6 +18,8 @@
 #include "fileio.h"
 #include "log.h"
 #include "tools.h"
+#include "device.h"
+#include "profiler.h"
 
 using namespace glm;
 
@@ -25,10 +27,11 @@ namespace xs::render::internal
 {
 	struct image
 	{
-		GLuint	gl_id		= 0;
-		int		width		= -1;
-		int		height		= -1;
-		int		channels	= -1;
+		GLuint		gl_id		= 0;
+		int			width		= -1;
+		int			height		= -1;
+		int			channels	= -1;
+		std::size_t	string_id	= -1;
 	};
 	
 	void create_frame_buffers();
@@ -88,6 +91,7 @@ namespace xs::render::internal
 	unsigned int			sprite_trigs_vbo = 0;
 	std::vector<sprite_queue_entry> sprite_queue;
 	std::vector<image>		images;
+	//std::unordered_map<std::string> images
 	std::vector<sprite>		sprites;	
 }
 
@@ -207,6 +211,7 @@ void xs::render::set_offset(double x, double y)
 
 void xs::render::render()
 {	
+	XS_PROFILE_SECTION("xs::render::render");
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
 	mat4 p = ortho(-w, w, -h, h, -100.0f, 100.0f);
@@ -370,10 +375,10 @@ void xs::render::render()
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
 	// Blit render result screen
-	const auto mul = configuration::multiplier;
+	//const auto mul = configuration::multiplier;
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, render_fbo);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBlitFramebuffer(0, 0, width, height, 0, 0, width * mul, height * mul, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBlitFramebuffer(0, 0, width, height, 0, 0, xs::device::get_width(), xs::device::get_height(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -391,10 +396,15 @@ void xs::render::clear()
 
 int xs::render::load_image(const std::string& image_file)
 {	
-	// find image first
+	// Find image first
+	auto id = std::hash<std::string>{}(image_file);
+	for (int i = 0; i < images.size(); i++)
+		if (images[i].string_id == id)
+			return i;
 
 	auto buffer = fileio::read_binary_file(image_file);	
 	internal::image img;
+	img.string_id = id;
 	GLubyte* data = stbi_load_from_memory(
 		reinterpret_cast<unsigned char*>(buffer.data()),
 		static_cast<int>(buffer.size()),
@@ -465,6 +475,7 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 
 void xs::render::render_sprite(int image_id, double x, double y, sprite_anchor anchor)
 {
+	// Validate sprite
 	sprite_queue.push_back({ image_id, x, y, anchor });
 }
 
@@ -478,6 +489,7 @@ void xs::render::render_sprite_ex(
 	color add,
 	unsigned int flags)
 {
+	// TODO: Validate sprite
 	sprite_queue.push_back({
 		image_id,
 		x,

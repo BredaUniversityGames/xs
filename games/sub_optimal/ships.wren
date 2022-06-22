@@ -1,6 +1,6 @@
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
-import "components" for Transform
+import "xs_components" for Transform
 import "sub_optimal" for Game
 
 class Orbitor is Component {
@@ -37,7 +37,7 @@ class Orbitor is Component {
         }
     }
 
-    del() {
+    finalize() {
         for(ship in _ships) {
             if(ship != null) {
                 ship.delete()
@@ -93,7 +93,7 @@ class EnemyCore is Component {
         _tilt = tilt 
     }
 
-    del() { 
+    finalize() { 
         Game.addScore(100)
     }
 

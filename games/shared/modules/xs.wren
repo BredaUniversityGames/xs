@@ -1,4 +1,6 @@
-import "Assert" for Assert
+///////////////////////////////////////////////////////////////////////////////
+// xs API
+///////////////////////////////////////////////////////////////////////////////
 
 class Color {
     construct new(r, g, b, a) {
@@ -22,17 +24,6 @@ class Color {
     r=(v) { _r = v }
     g=(v) { _g = v }
     b=(v) { _b = v }
-
-    /*
-    toNum { a << 24 | b << 16 | g << 8 | r }
-    static fromNum(v) {
-        var r = v & 0xFF
-        var g = (v >> 8) & 0xFF
-        var b = (v >> 16) & 0xFF
-        var a = (v >> 24) & 0xFF
-        return Color.new(r, g, b, a)
-    }
-    */
 
     toNum { r << 24 | g << 16 | b << 8 | a }
     static fromNum(v) {
@@ -174,15 +165,17 @@ class Render {
     foreign static renderSprite(spriteId, x, y, a)
     foreign static renderSprite(spriteId, x, y, size, rotation, mul, add, flags)
     foreign static setOffset(x, y)
-    static renderSprite(spriteId, x, y) { renderSprite(spriteId, x, y, anchorBottom) }    
+    static renderSprite(spriteId, x, y) { renderSprite(spriteId, x, y, spriteBottom) } 
 
-    static anchorBottom { 0 }
-    static anchorCenter { 1 }
-
-    // spriteBottom { 1 << 1 }
+    static spriteBottom { 1 << 1 }
 	static spriteCenter { 1 << 2 }
 	static spriteFlipX  { 1 << 3 }
 	static spriteFlipY  { 1 << 4 }
+}
+
+class File {
+    foreign static read(src)
+    foreign static write(text, dst)
 }
 
 class Input {
@@ -229,6 +222,8 @@ class Input {
     static keyY { 89 }
     static keyZ { 90 }
 
+    // TODO: add more keys
+
     static gamepadButtonSouth      { 0  }
     static gamepadButtonEast       { 1  }
     static gamepadButtonWest       { 2  }
@@ -258,19 +253,35 @@ class Input {
 }
 
 class Registry {
-    foreign static getNumber(name)
-    foreign static getColorNum(name)
+    static getNumber(name) { getNumber(name, game) }
+    static getColorNum(name)  { getColorNum(name, game) }
+    static getBool(name)  { getBool(name, game) }
+
+    foreign static getNumber(name, type)
+    foreign static getColorNum(name, type)
+    foreign static getBool(name, type)
+
+    foreign static setNumber(name, value, type)
+    foreign static setColorNum(name, value, type)    
+    foreign static setBool(name, value, type)
 
     static getColor(name) {
-        var num = getColorInteger(name)
+        var num = getColorNum(name)
         return Color.fromNum(num)
     }
 
-    // foreign static getString(name)
+    static setColor(name, value, type) {
+        var c = null
+        if(value is Num) {
+            c = value
+        } else if(value is Color) {
+            c = value.toNum
+        }
+        setColorNum(name, c, type)
+    }
 
-    static game     { 262 }
-    static player   { 263 }
-    static assets   { 264 }
-    static keyUp    { 265 }
-    static keySpace { 32  }
+    static system   { 2 }
+	static debug    { 3 }
+    static game     { 4 }
+    static player   { 5 }
 }
