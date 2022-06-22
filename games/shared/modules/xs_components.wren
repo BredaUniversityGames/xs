@@ -76,8 +76,6 @@ class Sprite is Renderable {
             image = Render.loadImage(image)
         }
         _sprite = Render.createSprite(image, 0, 0, 1, 1)
-        _anchor = Render.anchorBottom
-
         _rotation = 0.0
         _size = 1.0
         _mul = 0xFFFFFFFF        
@@ -92,8 +90,6 @@ class Sprite is Renderable {
             image = Render.loadImage(image)
         }
         _sprite = Render.createSprite(image, s0, t0, s1, t1)
-        _anchor = Render.anchorBottom
-
         _rotation = 0.0
         _size = 1.0
         _mul = 0xFFFFFFFF        
@@ -103,13 +99,8 @@ class Sprite is Renderable {
 
     render() {        
         var t = owner.getComponent(Transform)
-        //Render.renderSprite(_sprite, t.position.x, t.position.y, _anchor)
         Render.renderSprite(_sprite, t.position.x, t.position.y, _rotation, _size, _mul, _add, _flags)
     }
-
-    anchor { _anchor }
-    anchor=(a) { _anchor = a }
-
 
     add { _add }
     add=(a) { _add = a }

@@ -4,7 +4,6 @@
 
 import "xs_math" for Math, Bits
 
-
 // A base class for components that can be added to the entities.
 class Component {
 

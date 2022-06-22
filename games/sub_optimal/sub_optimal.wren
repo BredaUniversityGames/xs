@@ -1,10 +1,9 @@
 import "xs" for Configuration, Input, Render, Registry, Color
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
-import "Assert" for Assert
+import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 import "random" for Random
 import "globals" for Globals
-import "components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 
 ///////////////////////////////////////////////////////////////////////////////
 // Components
@@ -880,10 +879,12 @@ class Game {
         var v = dir.normalise * speed
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
-        var s = GridSprite.new("[games]/sub_optimal/images/projectiles/projectiles.png", 7, 5)
+        var s = AnimatedSprite.new("[games]/sub_optimal/images/projectiles/projectile-06-02.png", 1, 3, 15)
         s.layer = 0.9
         s.flags = Render.spriteCenter
-        s.idx = 31
+        s.addAnimation("fly", [0,1,2])
+        s.playAnimation("fly")
+        s.idx = 0
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)
