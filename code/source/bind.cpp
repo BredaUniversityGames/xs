@@ -7,6 +7,7 @@
 #include "script.h"
 #include "configuration.h"
 #include "registry.h"
+#include "fileio.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Input
@@ -322,6 +323,28 @@ void registry_set_string(WrenVM* vm)
 {
 }
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// File
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void file_read(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 1);
+	const auto c_src = wrenGetSlotString(vm, 1);
+	const auto text = xs::fileio::read_text_file(c_src);
+	wrenSetSlotString(vm, 0, text.c_str());
+}
+
+void file_write(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 3);
+	const auto c_text = wrenGetSlotString(vm, 1);
+	const auto c_dst = wrenGetSlotString(vm, 2);
+	auto success = xs::fileio::write_text_file(c_text, c_dst);
+	wrenSetSlotBool(vm, 0, success);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Bind xs API
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -369,6 +392,6 @@ void xs::script::bind_api()
 	bind("xs", "Registry", true, "setString(_,_,_)", registry_set_string);
 
 	// File
-	bind("xs", "File", true, "read(_)", registry_get_number);
-	bind("xs", "File", true, "write(_,_)", registry_get_color);
+	bind("xs", "File", true, "read(_)", file_read);
+	bind("xs", "File", true, "write(_,_)", file_write);
 }
