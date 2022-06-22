@@ -27,10 +27,11 @@ namespace xs::render::internal
 {
 	struct image
 	{
-		GLuint	gl_id		= 0;
-		int		width		= -1;
-		int		height		= -1;
-		int		channels	= -1;
+		GLuint		gl_id		= 0;
+		int			width		= -1;
+		int			height		= -1;
+		int			channels	= -1;
+		std::size_t	string_id	= -1;
 	};
 	
 	void create_frame_buffers();
@@ -90,6 +91,7 @@ namespace xs::render::internal
 	unsigned int			sprite_trigs_vbo = 0;
 	std::vector<sprite_queue_entry> sprite_queue;
 	std::vector<image>		images;
+	//std::unordered_map<std::string> images
 	std::vector<sprite>		sprites;	
 }
 
@@ -394,10 +396,15 @@ void xs::render::clear()
 
 int xs::render::load_image(const std::string& image_file)
 {	
-	// find image first
+	// Find image first
+	auto id = std::hash<std::string>{}(image_file);
+	for (int i = 0; i < images.size(); i++)
+		if (images[i].string_id == id)
+			return i;
 
 	auto buffer = fileio::read_binary_file(image_file);	
 	internal::image img;
+	img.string_id = id;
 	GLubyte* data = stbi_load_from_memory(
 		reinterpret_cast<unsigned char*>(buffer.data()),
 		static_cast<int>(buffer.size()),
