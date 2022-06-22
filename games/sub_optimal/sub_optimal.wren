@@ -1,10 +1,9 @@
-import "xs" for Configuration, Input, Render, Registry, Color
+import "xs" for Configuration, Input, Render, Registry, Color, File
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
-import "Assert" for Assert
+import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 import "random" for Random
 import "globals" for Globals
-import "components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 
 ///////////////////////////////////////////////////////////////////////////////
 // Components
@@ -259,7 +258,7 @@ class Enemy is Component {
         _hack = 0
     }
 
-    del() {
+    finalize() {
         Game.addScore(10)
     }
 
@@ -406,30 +405,7 @@ class Game {
         Configuration.title = "SubOptimal"
     }
 
-    static init() {
-        // Registry.setColor("ShipColor", color, Registry.player)
-        //var c = Registry.getColor("ShipColor")
-
-        /*
-        var col = Color.new(12, 255, 187, 67)
-        System.print(col)
-        System.print(col.toNum)
-        col = Color.fromNum(218086211)
-        System.print(col)
-        col = Color.fromNum(0xCFFBB43)
-        System.print(col)
-
-        col = Color.new(12, 255, 187)
-        System.print(col)
-        System.print(col.toNum)
-        col = Color.fromNum(218086399)
-        System.print(col)
-        col = Color.fromNum(0xCFFBBFF)
-        System.print(col)
-        col = Color.fromNum(0xCFFBB00)
-        System.print(col)
-        */
-
+    static init() {        
         Entity.init()
         createBackground()
 
@@ -449,10 +425,7 @@ class Game {
     }        
     
     static update(dt) {        
-        // Render.setColor(0.2, 0.2, 0.2)
-        // Render.rect(-Configuration.width, -Configuration.height, Configuration.width, Configuration.height)
         Entity.update(dt)
-
         if(__state == GameState.Menu) {
             __menu.update(dt)
         } else if(__state == GameState.Play) {
@@ -473,10 +446,6 @@ class Game {
     }
 
     static startPlay() {
-        // Entity.init()
-        // __menu.delete()
-        // __menu = null
-
         __score = 0
         __waveTimer = 0
         __wave = 0
@@ -880,10 +849,12 @@ class Game {
         var v = dir.normalise * speed
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
-        var s = GridSprite.new("[games]/sub_optimal/images/projectiles/projectiles.png", 7, 5)
+        var s = AnimatedSprite.new("[games]/sub_optimal/images/projectiles/projectile-06-02.png", 1, 3, 10)
         s.layer = 0.9
         s.flags = Render.spriteCenter
-        s.idx = 31
+        s.addAnimation("fly", [0,1,2])
+        s.playAnimation("fly")
+        s.idx = 0
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)

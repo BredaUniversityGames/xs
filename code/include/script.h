@@ -1,11 +1,12 @@
 #pragma once
+#include <string>
 
 typedef struct WrenVM WrenVM;
 typedef void (*WrenForeignMethodFn)(WrenVM* vm);
 
 namespace xs::script
 {
-	void configure(const char* main);
+	void configure(const std::string& main);
 	void initialize();
 	void shutdown();
 	void update(double dt);
@@ -13,7 +14,7 @@ namespace xs::script
 	bool has_error();
 	void clear_error();
 	void bind_api();
-	void bind(
+	void bind(	// TODO: use std::string
 		const char* module,
 		const char* class_name,
 		bool is_static,

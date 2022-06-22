@@ -4,15 +4,20 @@
 #include "opengl.h"
 #include "configuration.h"
 #include "fileio.h"
+#include "profiler.h"
 #include <GLFW/glfw3.h>
 #include <stb/stb_image.h>
 
 namespace xs::device::internal
 {
 	GLFWwindow* window = nullptr;
+	int	width;
+	int	height;
+
 }
 
 using namespace xs;
+using namespace xs::device;
 
 static void errorCallback(int error, const char* description)
 {
@@ -59,12 +64,11 @@ void device::initialize()
 	// TODO: Check build configuration
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-	// TODO: Get settings
-	const auto width = configuration::width * configuration::multiplier;
-	const auto height = configuration::height * configuration::multiplier;
+	internal::width  = configuration::width * configuration::multiplier;
+	internal::height = configuration::height * configuration::multiplier;
 	internal::window = glfwCreateWindow(
-		width,
-		height,
+		internal::width,
+		internal::height,
 		xs::configuration::title.c_str(),
 		nullptr,
 		nullptr);
@@ -116,6 +120,7 @@ void device::shutdown()
 
 void device::swap_buffers()
 {
+	XS_PROFILE_FUNCTION();
 	glfwSwapBuffers(internal::window);
 }
 
@@ -132,4 +137,14 @@ bool device::should_close()
 GLFWwindow* device::get_window()
 {
 	return internal::window;
+}
+
+int xs::device::get_width()
+{
+	return internal::width;
+}
+
+int xs::device::get_height()
+{
+	return internal::height;
 }

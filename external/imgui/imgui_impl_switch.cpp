@@ -230,7 +230,7 @@ bool ImGui_ImplGlfwGL3_CreateDeviceObjects()
 IMGUI_API bool ImGui_Impl_Switch_Init()
 {
 	ImGuiIO& io = ImGui::GetIO();
-	io.RenderDrawListsFn = ImGui_Impl_Switch_RenderDrawLists;       // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
+	//io.RenderDrawListsFn = ImGui_Impl_Switch_RenderDrawLists;       // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
 	io.MouseDrawCursor = true;	
 
 	/*	

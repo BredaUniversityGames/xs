@@ -7,7 +7,7 @@ import json
 import shutil
 from shutil import copytree, ignore_patterns
 
-game_dir = "sub_optimal"
+game_dir = "seedwave"
 itch_name = "SubOptimal"
 
 os.system('MSBuild xs.sln /p:Platform=PC /p:Configuration=Release')
@@ -36,10 +36,10 @@ if os.path.exists(source_dir):
     shutil.copytree(asset_dir, output_dir, False, ignore=ignore_patterns('*.obj', ".bnvib", "*.py"))    
     
     shutil.copy(current_dir + "/init.txt", current_dir + "/build/init.txt")
-    shutil.copy(current_dir + "/tools/.itch.toml", current_dir + "/build/.itch.toml")
+    #shutil.copy(current_dir + "/tools/.itch.toml", current_dir + "/build/.itch.toml")
 
-    butler_command = "butler push build bojan/" + itch_name + ":windows-beta"
-    os.system(butler_command)
+    #butler_command = "butler push build bojan/" + itch_name + ":windows-beta"
+    #os.system(butler_command)
 
 else:
     print("Source dir does not exist: " + source_dir)

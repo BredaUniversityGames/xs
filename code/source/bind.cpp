@@ -7,6 +7,7 @@
 #include "script.h"
 #include "configuration.h"
 #include "registry.h"
+#include "fileio.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Input
@@ -275,28 +276,89 @@ namespace
 
 void registry_get_number(WrenVM* vm)
 {
-	wrenEnsureSlots(vm, 1);
+	wrenEnsureSlots(vm, 2);
 	const auto name = wrenGetSlotString(vm, 1);
-	auto value = xs::registry::get_number(name);
+	const auto type = wrenGetSlotDouble(vm, 2);
+	auto value = xs::registry::get_number(name, xs::registry::type((int)type));
 	wrenSetSlotDouble(vm, 0, value);
 }
 
+void registry_get_bool(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto name = wrenGetSlotString(vm, 1);
+	const auto type = wrenGetSlotDouble(vm, 2);
+	auto value = xs::registry::get_bool(name, xs::registry::type((int)type));
+	wrenSetSlotBool(vm, 0, value);
+}
+
+
 void registry_get_color(WrenVM* vm)
 {
+	wrenEnsureSlots(vm, 2);
+	const auto name = wrenGetSlotString(vm, 1);	
+	const auto type = wrenGetSlotDouble(vm, 2);
+	auto value = xs::registry::get_color(name, xs::registry::type((int)type));
+	wrenSetSlotDouble(vm,0, (double)value);
+}
+
+void registry_get_string(WrenVM* vm)
+{
+}
+
+void registry_set_number(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 4);
+	auto name = wrenGetSlotString(vm, 1);
+	auto val = wrenGetSlotDouble(vm, 2);
+	auto type = wrenGetSlotDouble(vm, 3);
+	xs::registry::set_number(name, val, xs::registry::type((int)type));
+}
+
+void registry_set_bool(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 4);
+	auto name = wrenGetSlotString(vm, 1);
+	auto val = wrenGetSlotBool(vm, 2);
+	auto type = wrenGetSlotDouble(vm, 3);
+	xs::registry::set_bool(name, val, xs::registry::type((int)type));
+}
+
+void registry_set_color(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 4);
+	auto name = wrenGetSlotString(vm, 1);
+	auto val = wrenGetSlotDouble(vm, 2);
+	auto type = wrenGetSlotDouble(vm, 3);
+	//auto val_uint = (int)
+	xs::registry::set_color(name, static_cast<uint32_t>(val), xs::registry::type((int)type));
+
+}
+
+void registry_set_string(WrenVM* vm)
+{
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// File
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void file_read(WrenVM* vm)
+{
 	wrenEnsureSlots(vm, 1);
-	//const auto name = wrenGetSlotString(vm, 1);	
+	const auto c_src = wrenGetSlotString(vm, 1);
+	const auto text = xs::fileio::read_text_file(c_src);
+	wrenSetSlotString(vm, 0, text.c_str());
+}
 
-	// auto value = xs::registry::get_number(name);
-	
-	xs::render::color c; // = { 0, 255, 0, 255 };
-
-	//d_color color;
-	//color.r = 0.0;
-	//color.g = 1.0;
-	//color.b = 0.0;
-	//color.a = 1.0;
-
-	wrenSetSlotBytes(vm,0, (const char*) &c, sizeof(xs::render::color));
+void file_write(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 3);
+	const auto c_text = wrenGetSlotString(vm, 1);
+	const auto c_dst = wrenGetSlotString(vm, 2);
+	auto success = xs::fileio::write_text_file(c_text, c_dst);
+	wrenSetSlotBool(vm, 0, success);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -338,6 +400,16 @@ void xs::script::bind_api()
 	bind("xs", "Configuration", true, "multiplier", configuration_get_multiplier);
 
 	// Registry
-	bind("xs", "Registry", true, "getNumber(_)", registry_get_number);
-	bind("xs", "Registry", true, "getColorNum(_)", registry_get_color);
+	bind("xs", "Registry", true, "getNumber(_,_)", registry_get_number);
+	bind("xs", "Registry", true, "getColorNum(_,_)", registry_get_color);
+	bind("xs", "Registry", true, "getBool(_,_)", registry_get_bool);
+	bind("xs", "Registry", true, "getString(_,_)", registry_get_string);
+	bind("xs", "Registry", true, "setNumber(_,_,_)", registry_set_number);
+	bind("xs", "Registry", true, "setColorNum(_,_,_)", registry_set_color);
+	bind("xs", "Registry", true, "setBool(_,_,_)", registry_set_bool);
+	bind("xs", "Registry", true, "setString(_,_,_)", registry_set_string);
+
+	// File
+	bind("xs", "File", true, "read(_)", file_read);
+	bind("xs", "File", true, "write(_,_)", file_write);
 }

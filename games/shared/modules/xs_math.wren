@@ -1,3 +1,6 @@
+///////////////////////////////////////////////////////////////////////////////
+// Math tools
+///////////////////////////////////////////////////////////////////////////////
 
 class Math {
     static lerp(a, b, t) { (a * (1.0 - t)) + (b * t) }
@@ -56,14 +59,17 @@ class Vec2 {
         _y = a.sin * _x + a.cos * _y
     }
 
-    /*
-    distanceTo(other) { Vector.distance(this, other) }
+    toString { "[%(_x), %(_y)]" }
+
     static distance(a, b) {
         var xdiff = a.x - b.x
         var ydiff = a.y - b.y
         return ((xdiff * xdiff) + (ydiff * ydiff) ).sqrt
     }
-    */
 
-	toString { "[%(_x), %(_y)]" }		
+    static distanceSq(a, b) {
+        var xdiff = a.x - b.x
+        var ydiff = a.y - b.y
+        return ((xdiff * xdiff) + (ydiff * ydiff))
+    }		
 }

@@ -8,6 +8,7 @@
 #include <wren.hpp>
 #include "fileio.h"
 #include "log.h"
+#include "profiler.h"
 
 extern "C" {
 #include "wren_opt_random.h"
@@ -26,7 +27,7 @@ namespace xs::script::internal
 	std::unordered_map<size_t, WrenForeignMethodFn> foreign_methods;
 	std::unordered_map<size_t, std::string> modules;
 	bool initialized = false;
-	const char* main;
+	std::string main;
 	std::string main_module;
 	bool error = false;
 	
@@ -43,7 +44,7 @@ namespace xs::script::internal
 		auto tm = *std::localtime(&t);		
 		const auto time = std::put_time(&tm, "[%Y-%m-%d %T.%e0] ");
 		std::cout << time << "[" << magenta << "script" << reset << "] " << text << endl;
-#elif
+#else
 		std::cout << "[" << magenta << "script" << reset << "] " << text << endl;
 #endif
 	}
@@ -144,12 +145,12 @@ namespace xs::script::internal
 
 using namespace xs::script::internal;
 
-void xs::script::configure(const char* main)
+void xs::script::configure(const std::string& main)
 {
 	initialized = false;
 	error = false;
 
-	if (main != nullptr)
+	if (!main.empty())
 		internal::main = main;
 
 	if (!fileio::exists(internal::main))
@@ -169,6 +170,9 @@ void xs::script::configure(const char* main)
 	config.bindForeignMethodFn = &bindForeignMethod;
 	config.bindForeignClassFn = &bindForeignClass;
 	config.loadModuleFn = &loadModule;
+	config.initialHeapSize = 1024 * 1024 * 32;
+	config.minHeapSize = 1024 * 1024 * 16;
+	config.heapGrowthPercent = 80;
 
 	vm = wrenNewVM(&config);
 	main_module = string(internal::main);
@@ -271,6 +275,7 @@ void xs::script::shutdown()
 
 void xs::script::update(double dt)
 {
+	XS_PROFILE_FUNCTION();
 	if (initialized)
 	{
 		wrenEnsureSlots(vm, 2);
@@ -282,6 +287,7 @@ void xs::script::update(double dt)
 
 void xs::script::render()
 {
+	XS_PROFILE_FUNCTION();
 	if (initialized)
 	{
 		wrenEnsureSlots(vm, 1);

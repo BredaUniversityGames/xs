@@ -65,6 +65,8 @@ class Renderable is Component {
             }
         }
     }
+
+    toString { "[Renderable layer:%(_layer)]" }
 }
 
 class Sprite is Renderable {
@@ -74,8 +76,6 @@ class Sprite is Renderable {
             image = Render.loadImage(image)
         }
         _sprite = Render.createSprite(image, 0, 0, 1, 1)
-        _anchor = Render.anchorBottom
-
         _rotation = 0.0
         _size = 1.0
         _mul = 0xFFFFFFFF        
@@ -90,8 +90,6 @@ class Sprite is Renderable {
             image = Render.loadImage(image)
         }
         _sprite = Render.createSprite(image, s0, t0, s1, t1)
-        _anchor = Render.anchorBottom
-
         _rotation = 0.0
         _size = 1.0
         _mul = 0xFFFFFFFF        
@@ -101,13 +99,8 @@ class Sprite is Renderable {
 
     render() {        
         var t = owner.getComponent(Transform)
-        //Render.renderSprite(_sprite, t.position.x, t.position.y, _anchor)
         Render.renderSprite(_sprite, t.position.x, t.position.y, _rotation, _size, _mul, _add, _flags)
     }
-
-    anchor { _anchor }
-    anchor=(a) { _anchor = a }
-
 
     add { _add }
     add=(a) { _add = a }
@@ -116,6 +109,8 @@ class Sprite is Renderable {
     flags=(f) { _flags = f }
 
     sprite_=(s) { _sprite = s }
+
+    toString { "[Sprite sprite:%(_sprite)] -> " + super.toString }
 }
 
 class GridSprite is Sprite {
@@ -129,9 +124,9 @@ class GridSprite is Sprite {
 
         _sprites = []
         var ds = 1 / columns
-        var dt = 1 / rows
-        for(i in 0...columns) {
-            for(j in 0...rows) {
+        var dt = 1 / rows        
+        for(j in 0...rows) {
+            for(i in 0...columns) {
                 var s = i * ds
                 var t = j * dt
                 _sprites.add(Render.createSprite(image, s, t, s + ds, t + dt))
@@ -148,6 +143,8 @@ class GridSprite is Sprite {
     }
 
     idx{ _idx }
+
+    toString { "[GridSprite _idx:%(_idx) from:%(_sprites.count) ] -> " + super.toString }
 }
 
 class AnimatedSprite is GridSprite {
@@ -228,4 +225,6 @@ class Relation is Component {
 
     offset { _offset }
     offset=(o) { _offset = o }
+
+    toString { "[Relation parent:%(_parent) offset:%(_offset) ]" }
 }

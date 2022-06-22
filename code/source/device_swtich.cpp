@@ -9,6 +9,7 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include "log.h"
+#include "profiler.h"
 
 using namespace xs::device;
 
@@ -68,8 +69,10 @@ namespace xs::device::internal
 	EGLSurface					surface;
 	EGLContext					context;
 	nn::vi::NativeWindowHandle  nativeWindowHandle;
-	nn::vi::Display* nnDisplay = nullptr;
-	nn::vi::Layer* layer = nullptr;
+	nn::vi::Display*			nnDisplay = nullptr;
+	nn::vi::Layer*				layer = nullptr;
+	int							width;
+	int							height;
 }
 
 using namespace xs::device::internal;
@@ -94,11 +97,7 @@ void xs::device::initialize()
 	nn::oe::SetOperationModeChangedNotificationEnabled(true);
 
 	// On startup check if device is in console or handheld mode by getting the default resolution
-	// TODO: Store this in settings
-	int PixelWidth;
-	int PixelHeight;
-
-	nn::oe::GetDefaultDisplayResolution(&PixelWidth, &PixelHeight);
+	nn::oe::GetDefaultDisplayResolution(&width, &height);
 
 	// Initialize Video Interface (VI) system to display to the target's screen
 	nn::vi::Initialize();
@@ -106,7 +105,7 @@ void xs::device::initialize()
 	nn::Result result = nn::vi::OpenDefaultDisplay(&nnDisplay);
 	NN_ASSERT(result.IsSuccess());
 
-	result = nn::vi::CreateLayer(&layer, nnDisplay, PixelWidth, PixelHeight);
+	result = nn::vi::CreateLayer(&layer, nnDisplay, width, height);
 	NN_ASSERT(result.IsSuccess());
 
 	result = nn::vi::GetNativeWindow(&nativeWindowHandle, layer);
@@ -129,7 +128,6 @@ void xs::device::initialize()
 		EGL_BLUE_SIZE, 8,
 		EGL_ALPHA_SIZE, 8,
 		EGL_DEPTH_SIZE, 8,
-		EGL_SAMPLES, 4,
 		EGL_NONE
 	};
 	EGLint numConfigs = 0;
@@ -201,6 +199,7 @@ void xs::device::shutdown()
 
 void xs::device::swap_buffers()
 {
+	XS_PROFILE_FUNCTION();
 	::eglSwapBuffers(display, surface);
 	glClearColor(0.0, 0.0, 0.0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -211,4 +210,14 @@ void xs::device::poll_events() {}
 bool xs::device::should_close()
 {
 	return  false;
+}
+
+int xs::device::get_width()
+{
+	return internal::width;
+}
+
+int xs::device::get_height()
+{
+	return internal::height;
 }

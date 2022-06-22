@@ -58,19 +58,22 @@ int xs::main(int argc, char* argv[])
     log::info(" |  |  |   __|");
     log::info(" |-   -|__   |");
     log::info(" |__|__|_____| " + xs::version::version_string);
-    log::info("By Bojan Endrovski");
+    log::info("Made with love at Breda University of Applied Sciences");
     log::info("");
 
+
     string main_script;
+
+    // TODO: This approach fails on consoles
     if (argc == 2)
     {       
         main_script = string(argv[1]);        
     }
     else
     {
-        log::info("No arguments provided script to run. Trying init.txt");
-        if (fileio::exists("init.txt"))
-            main_script = fileio::read_text_file("init.txt");
+        log::info("No arguments provided script to run. Trying games/init.txt");
+        if (fileio::exists("games/init.txt"))
+            main_script = fileio::read_text_file("games/init.txt");
     }
 
     if(main_script.empty())
@@ -81,10 +84,10 @@ int xs::main(int argc, char* argv[])
         return -1;
     }
     
-    registry::initialize();
     account::initialize();
-    fileio::initialize();    
-    script::configure(main_script.c_str());
+    fileio::initialize(main_script);
+    registry::initialize();
+    script::configure(main_script);
     device::initialize();
     render::initialize();
     input::initialize();
@@ -100,7 +103,7 @@ int xs::main(int argc, char* argv[])
         const auto dt = std::chrono::duration<double>(elapsed).count();
 
         device::poll_events();
-        input::update();        
+        input::update(dt);        
         if (!inspector::paused())
         {
             render::clear();
