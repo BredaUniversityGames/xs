@@ -1,6 +1,6 @@
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
-import "components" for Transform
+import "xs_components" for Transform
 import "sub_optimal" for Game
 
 class Orbitor is Component {

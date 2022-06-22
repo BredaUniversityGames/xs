@@ -1,4 +1,6 @@
-import "Assert" for Assert
+///////////////////////////////////////////////////////////////////////////////
+// xs API
+///////////////////////////////////////////////////////////////////////////////
 
 class Color {
     construct new(r, g, b, a) {
@@ -22,17 +24,6 @@ class Color {
     r=(v) { _r = v }
     g=(v) { _g = v }
     b=(v) { _b = v }
-
-    /*
-    toNum { a << 24 | b << 16 | g << 8 | r }
-    static fromNum(v) {
-        var r = v & 0xFF
-        var g = (v >> 8) & 0xFF
-        var b = (v >> 16) & 0xFF
-        var a = (v >> 24) & 0xFF
-        return Color.new(r, g, b, a)
-    }
-    */
 
     toNum { r << 24 | g << 16 | b << 8 | a }
     static fromNum(v) {
@@ -174,12 +165,9 @@ class Render {
     foreign static renderSprite(spriteId, x, y, a)
     foreign static renderSprite(spriteId, x, y, size, rotation, mul, add, flags)
     foreign static setOffset(x, y)
-    static renderSprite(spriteId, x, y) { renderSprite(spriteId, x, y, anchorBottom) }    
+    static renderSprite(spriteId, x, y) { renderSprite(spriteId, x, y, spriteBottom) } 
 
-    static anchorBottom { 0 }
-    static anchorCenter { 1 }
-
-    // spriteBottom { 1 << 1 }
+    static spriteBottom { 1 << 1 }
 	static spriteCenter { 1 << 2 }
 	static spriteFlipX  { 1 << 3 }
 	static spriteFlipY  { 1 << 4 }
@@ -192,6 +180,7 @@ class Input {
     foreign static getKey(key)
     foreign static getKeyOnce(key)
 
+    // TODO: Add all keys
     static keyRight { 262 }
     static keyLeft  { 263 }
     static keyDown  { 264 }
