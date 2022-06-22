@@ -142,6 +142,20 @@ string fileio::read_text_file(const string& filename)
 	return buffer;
 }
 
+bool xs::fileio::write_text_file(const std::string& text, const std::string& filename)
+{
+	auto fullpath = fileio::get_path(filename);
+	std::ofstream ofs;
+	ofs.open(fullpath);
+	if (ofs.is_open())
+	{
+		ofs << text;
+		ofs.close();
+		return true;
+	}
+	return false;
+}
+
 void fileio::add_wildcard(const string& wildcard, const string& value)
 {
 	wildcards[wildcard] = value;
