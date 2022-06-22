@@ -2,12 +2,12 @@
 #include <nn/hid/hid_Keyboard.h>
 #include <nn/hid/hid_KeyboardKey.h>
 #include <nn/hid/hid_Mouse.h>
-#include <Graphics/OpenGL.h>
-#include <Core/Engine.h>
-#include <Core/Device.h>
+#include <opengl.h>
+//#include <Core/Engine.h>
+//#include <Core/Device.h>
 #include <cfloat>
 
-static double       g_Time = 0.0f;
+//static double       g_Time = 0.0f;
 static GLuint       g_FontTexture = 0;
 static int          g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
 static int          g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
@@ -286,10 +286,11 @@ void ImGui_Impl_Switch_NewFrame()
 	io.DisplaySize = ImVec2((float)w, (float)h);
 	io.DisplayFramebufferScale = ImVec2(w > 0 ? ((float)display_w / w) : 0, h > 0 ? ((float)display_h / h) : 0);
 
+	// TODO: Get the actual time Osm::Engine.Device().GetTime();
 	// Setup time step
-	double current_time = Osm::Engine.Device().GetTime();
-	io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f / 60.0f);
-	g_Time = current_time;
+	//float current_time = 0.016f; 
+	//io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f / 60.0f);
+	//g_Time = current_time;
 
 	nn::hid::GetKeyboardState(&g_KeyboardState);
 	nn::hid::GetMouseState(&g_MouseState);
