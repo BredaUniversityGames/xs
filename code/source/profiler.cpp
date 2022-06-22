@@ -9,79 +9,77 @@
 namespace xs::profiler::internal
 {
 
-using TimeT = std::chrono::time_point<std::chrono::steady_clock>;
-using SpanT = std::chrono::nanoseconds;
+using time_t = std::chrono::time_point<std::chrono::steady_clock>;
+using span_t = std::chrono::nanoseconds;
 
-struct Entry
+struct entry
 {
-	TimeT Start{};
-	TimeT End{};
-	SpanT Accum{};
-	float Avg = 0.0f;
-	std::deque<float> History;
+	time_t start{};
+	time_t end{};
+	span_t accum{};
+	float avg = 0.0f;
+	std::deque<float> history;
 };
-std::unordered_map<std::string, Entry> m_times;
+std::unordered_map<std::string, entry> times;
 
 }
 
 using namespace xs::profiler;
 using namespace xs::profiler::internal;
 
-ProfilerSection::ProfilerSection(const std::string& name) : m_name(name)
+profiler_section::profiler_section(const std::string& name) : m_name(name)
 {
-    BeginSection(m_name);
+    begin_section(m_name);
 }
 
-ProfilerSection::~ProfilerSection()
+profiler_section::~profiler_section()
 {
-    EndSection(m_name);
+    end_section(m_name);
 }
 
-void xs::profiler::BeginSection(const std::string& name)
+void xs::profiler::begin_section(const std::string& name)
 {
-    m_times[name].Start = std::chrono::high_resolution_clock::now();
+    times[name].start = std::chrono::high_resolution_clock::now();
 }
 
-void xs::profiler::EndSection(const std::string& name)
+void xs::profiler::end_section(const std::string& name)
 {
-    auto& e = m_times[name];
-    e.End = std::chrono::high_resolution_clock::now();
-    auto elapsed = e.End - e.Start;
-    e.Accum += elapsed;
+    auto& e = times[name];
+    e.end = std::chrono::high_resolution_clock::now();
+    auto elapsed = e.end - e.start;
+    e.accum += elapsed;
 }
 
-void xs::profiler::Inspect(bool& show)
+void xs::profiler::inspect(bool& show)
 {
-    ImGui::Begin("Profiler", nullptr,
-        ImGuiWindowFlags_NoDecoration |
-        ImGuiWindowFlags_NoCollapse);
+    ImGui::Begin("Profiler", &show, ImGuiWindowFlags_NoCollapse);
 
-    for (auto& itr : m_times)
+    for (auto& itr : times)
     {
         auto& e = itr.second;
-        float duration = (float)((double)e.Accum.count() / 1000000.0);
-        if (e.History.size() > 100)
-            e.History.pop_front();
-        e.History.push_back(duration);
+        float duration = (float)((double)e.accum.count() / 1000000.0);
+        if (e.history.size() > 100)
+            e.history.pop_front();
+        e.history.push_back(duration);
 
-        e.Avg = 0.0f;
-        for (float f : e.History)
-            e.Avg += f;
+        e.avg = 0.0f;
+        for (float f : e.history)
+            e.avg += f;
 
-        e.Avg /= (float)e.History.size();
+        e.avg /= (float)e.history.size();
     }
 
-    if (ImPlot::BeginPlot("Profiler"))
+    if (ImPlot::BeginPlot("Profiler", ImVec2(-1, 200)))
     {
         ImPlot::SetupAxes("Sample", "Time");
-        ImPlot::SetupAxesLimits(0, 100, 0, 20);
-        for (auto& itr : m_times)
+        ImPlot::SetupAxesLimits(0, 50, 0, 20);
+        for (auto& itr : times)
         {
             auto& e = itr.second;
 
             std::vector<float> vals(
-                e.History.begin(),
-                e.History.end());
+                e.history.begin(),
+                e.history.end());
 
             ImPlot::PushStyleVar(ImPlotStyleVar_FillAlpha, 0.25f);
             ImPlot::PlotShaded(itr.first.c_str(), vals.data(), (int)vals.size());
@@ -91,13 +89,13 @@ void xs::profiler::Inspect(bool& show)
         ImPlot::EndPlot();
     }
 
-    for (auto& itr : m_times)
-        ImGui::LabelText(itr.first.c_str(), "%f ms", itr.second.Avg);
+    for (auto& itr : times)
+        ImGui::LabelText(itr.first.c_str(), "%f ms", itr.second.avg);
 
     ImGui::End();
 
-    for (auto& itr : m_times)
-        itr.second.Accum = {};
+    for (auto& itr : times)
+        itr.second.accum = {};
 }
 
 

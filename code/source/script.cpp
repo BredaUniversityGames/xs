@@ -8,6 +8,7 @@
 #include <wren.hpp>
 #include "fileio.h"
 #include "log.h"
+#include "profiler.h"
 
 extern "C" {
 #include "wren_opt_random.h"
@@ -274,6 +275,7 @@ void xs::script::shutdown()
 
 void xs::script::update(double dt)
 {
+	XS_PROFILE_FUNCTION();
 	if (initialized)
 	{
 		wrenEnsureSlots(vm, 2);
@@ -285,6 +287,7 @@ void xs::script::update(double dt)
 
 void xs::script::render()
 {
+	XS_PROFILE_FUNCTION();
 	if (initialized)
 	{
 		wrenEnsureSlots(vm, 1);
