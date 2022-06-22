@@ -173,6 +173,11 @@ class Render {
 	static spriteFlipY  { 1 << 4 }
 }
 
+class File {
+    foreign static read(src)
+    foreign static write(text, dst)
+}
+
 class Input {
     foreign static getAxis(axis)
     foreign static getButton(button)

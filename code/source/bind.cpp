@@ -367,4 +367,8 @@ void xs::script::bind_api()
 	bind("xs", "Registry", true, "setColorNum(_,_,_)", registry_set_color);
 	bind("xs", "Registry", true, "setBool(_,_,_)", registry_set_bool);
 	bind("xs", "Registry", true, "setString(_,_,_)", registry_set_string);
+
+	// File
+	bind("xs", "File", true, "read(_)", registry_get_number);
+	bind("xs", "File", true, "write(_,_)", registry_get_color);
 }
