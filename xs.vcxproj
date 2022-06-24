@@ -313,6 +313,14 @@
     <None Include="external\wren\vm\wren_core.wren.inc" />
   </ItemGroup>
   <ItemGroup>
+    <WavePsslc Include="code\source\ps5\pixel_shader_p.pssl">
+      <FileType>Document</FileType>
+    </WavePsslc>
+    <WavePsslc Include="code\source\ps5\vertex_shader_vv.pssl">
+      <FileType>Document</FileType>
+    </WavePsslc>
+  </ItemGroup>
+  <ItemGroup>
     <ResourceCompile Include="xs.rc">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
@@ -504,6 +512,7 @@
       <CppExceptions>true</CppExceptions>
       <CppLanguageStd>Cpp17</CppLanguageStd>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -512,6 +521,12 @@
       <AdditionalDependencies>-lSceAgcDriver_stub_weak;-lSceAgc_stub_weak;-lSceVideoOut_stub_weak;-lSceAgc_debug_nosubmission;-lSceAgcCore_debug_nosubmission;-lSceAgcGpuAddress_debug_nosubmission;%(AdditionalDependencies)</AdditionalDependencies>
       <Addressing>NonAslr</Addressing>
     </Link>
+    <WavePsslc>
+      <SymbolCacheFile>true</SymbolCacheFile>
+    </WavePsslc>
+    <WavePsslc>
+      <Embed>true</Embed>
+    </WavePsslc>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
     <ClCompile>
@@ -541,6 +556,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <CppExceptions>true</CppExceptions>
       <CppLanguageStd>Cpp17</CppLanguageStd>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -548,6 +564,12 @@
       <AdditionalLibraryDirectories>$(ProjectDir)external/GLFW;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <WavePsslc>
+      <SymbolCacheFile>true</SymbolCacheFile>
+    </WavePsslc>
+    <WavePsslc>
+      <Embed>true</Embed>
+    </WavePsslc>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -584,6 +606,7 @@
       <TreatWarningAsError>true</TreatWarningAsError>
       <CppExceptions>true</CppExceptions>
       <CppLanguageStd>Cpp17</CppLanguageStd>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -594,6 +617,12 @@
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
+    <WavePsslc>
+      <SymbolCacheFile>true</SymbolCacheFile>
+    </WavePsslc>
+    <WavePsslc>
+      <Embed>true</Embed>
+    </WavePsslc>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <Link>

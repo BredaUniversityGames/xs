@@ -301,4 +301,8 @@
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <WavePsslc Include="code\source\ps5\pixel_shader_p.pssl" />
+    <WavePsslc Include="code\source\ps5\vertex_shader_vv.pssl" />
+  </ItemGroup>
 </Project>

@@ -22,6 +22,13 @@ class Team {
     static computer { 2 }
 }
 
+class BulletType {
+    static straight     { 1 }
+    static spread       { 2 }
+    static directed     { 3 }
+    static follow       { 4 }
+}
+
 class Unit is Component {
     construct new(team, health) {
         super()
@@ -249,13 +256,14 @@ class Drone is Component {
 }
 
 class Enemy is Component {
-    construct new(idx, tilt, parent) {
+    construct new(idx, tilt, parent, bulletType) {
         super()        
         _parent = parent
         _time = idx * 0.4
         _shootTime = _time
         _tilt = tilt
         _hack = 0
+        _bulletType = bulletType
     }
 
     finalize() {
@@ -264,17 +272,36 @@ class Enemy is Component {
 
     update(dt) {
         _time = _time + dt * 2.0
+
         // var pos = Vec2.new(30 * _time.sin, 70 * _time.cos)
         // pos.rotate(_tilt)
         // var position = _parent.getComponent(Transform).position
         // owner.getComponent(Transform).position = pos + position
+        
         _shootTime = _shootTime + dt
         if(_shootTime > 1.0) {
             if(Game.random.float(0, 1.0) < 0.3) {
-                Game.createBulletEnemy(
-                    owner,
-                    Globals.EnemyBulletSpeed,
-                    Globals.EnemyBulletDamage)
+                if(_bulletType == BulletType.straight) {
+                    Game.createBulletStraightEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                } else if(_bulletType == BulletType.directed) {
+                    Game.createBulletDirectedEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                } else if(_bulletType == BulletType.spread) {
+                    Game.createBulletSpreadEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                } else if(_bulletType == BulletType.follow) {
+                    Game.createBulletDirectedEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                }
             }
             _shootTime = 0
         }
@@ -285,9 +312,6 @@ class Enemy is Component {
             var pos = owner.getComponent(Transform).position
             Render.setColor(0xFFFFFFFF)
             Render.arc(pos.x, pos.y, 14, 2.0 * _hack * Num.pi, 16)
- 
-
-            //Render.pie(pos.x, pos.y, 12, 2.0 * _hack * Num.pi / 0.3 ,32)
         }
     }
 
@@ -401,7 +425,7 @@ class Game {
     static config() {        
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 1
+        Configuration.multiplier = 2
         Configuration.title = "SubOptimal"
     }
 
@@ -716,12 +740,11 @@ class Game {
         var pos = Vec2.new(x, y)
         var tilt = Game.random.float(0, 5.0)
 
-        // "S"
-
+        var bulletType = Game.random.int(1, 4)
         var core = createEnemyCore(pos, tilt)
         var orbitor = core.getComponent(Orbitor)
         for(i in 0..6) {
-            var ship = createEnemyShip(i, tilt, core)
+            var ship = createEnemyShip(i, tilt, core, bulletType)
             orbitor.add(ship)
         }
     }
@@ -752,13 +775,13 @@ class Game {
         return core
     }
 
-    static createEnemyShip(idx, tilt, core) {
+    static createEnemyShip(idx, tilt, core, bulletType) {
         var ship = Entity.new()
         var p = Vec2.new(240, 0)
         var t = Transform.new(p)    
         var v = Vec2.new(0, 0)
         var b = Body.new(Globals.EnemySize, v)
-        var e = Enemy.new(idx, tilt, core)
+        var e = Enemy.new(idx, tilt, core, bulletType)
         var u = Unit.new(Team.computer, Globals.EnemyHealth)
         var c = DebugColor.new(Globals.EnemyColor)
         var s = Sprite.new("[games]/sub_optimal/images/ships/Purple-4.png")
@@ -839,7 +862,7 @@ class Game {
         bullet.addComponent(DebugColor.new(0x8BEC46FF))
     }
 
-    static createBulletEnemy(owner, speed, damage) {
+    static createBulletDirectedEnemy(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
         var owu = owner.getComponent(Unit)
         var bullet = Entity.new()
@@ -847,6 +870,29 @@ class Game {
         var targetPos = playerShip.getComponent(Transform).position
         var dir = targetPos - owt.position
         var v = dir.normalise * speed
+        var bd = Body.new(5, v)
+        var bl = Bullet.new(owu.team, damage)
+        var s = AnimatedSprite.new("[games]/sub_optimal/images/projectiles/projectile-02.png", 2, 1, 10)
+        s.layer = 0.9
+        s.flags = Render.spriteCenter
+        s.addAnimation("fly", [0,1])
+        s.playAnimation("fly")
+        s.idx = 0
+        bullet.addComponent(t)
+        bullet.addComponent(bd)
+        bullet.addComponent(bl)
+        bullet.addComponent(s)
+        bullet.name = "Bullet2"
+        bullet.tag = Tag.Computer | Tag.Bullet
+        bullet.addComponent(DebugColor.new(0xEC468BFF))
+    }
+
+    static createBulletStraightEnemy(owner, speed, damage) {
+        var owt = owner.getComponent(Transform)
+        var owu = owner.getComponent(Unit)
+        var bullet = Entity.new()
+        var t = Transform.new(owt.position)
+        var v = Vec2.new(-speed, 0)
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
         var s = AnimatedSprite.new("[games]/sub_optimal/images/projectiles/projectile-06-02.png", 1, 3, 10)
@@ -862,6 +908,33 @@ class Game {
         bullet.name = "Bullet2"
         bullet.tag = Tag.Computer | Tag.Bullet
         bullet.addComponent(DebugColor.new(0xEC468BFF))
+    }
+
+    static createBulletSpreadEnemy(owner, speed, damage) {
+        var dir = [ 0.0, 0.2, -0.2 ]
+        for(i in 0...3) {
+            var owt = owner.getComponent(Transform)
+            var owu = owner.getComponent(Unit)
+            var bullet = Entity.new()
+            var t = Transform.new(owt.position)
+            var d = -Vec2.new(dir[i].cos, dir[i].sin)
+            var v = d.normalise * speed
+            var bd = Body.new(5, v)
+            var bl = Bullet.new(owu.team, damage)
+            var s = AnimatedSprite.new("[games]/sub_optimal/images/projectiles/projectile-04.png", 2, 1, 10)
+            s.layer = 0.9
+            s.flags = Render.spriteCenter
+            s.addAnimation("fly", [0,1])
+            s.playAnimation("fly")
+            s.idx = 0
+            bullet.addComponent(t)
+            bullet.addComponent(bd)
+            bullet.addComponent(bl)
+            bullet.addComponent(s)
+            bullet.name = "Bullet2"
+            bullet.tag = Tag.Computer | Tag.Bullet // |
+            bullet.addComponent(DebugColor.new(0xEC468BFF))
+        }
     }
 
 
