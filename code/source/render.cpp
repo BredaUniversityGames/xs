@@ -23,7 +23,7 @@
 #include "device.h"
 #include "profiler.h"
 
-#define DEBUG_FONT_ATLAS 1
+#define DEBUG_FONT_ATLAS 0
 
 #if DEBUG_FONT_ATLAS
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -148,7 +148,7 @@ int xs::render::load_font(const std::string& font_file, double size)
 	assert(sucess);
 
 	long lSize;
-	fseek(file, 0, SEEK_END);		// obtain file size:
+	fseek(file, 0, SEEK_END);		// obtain file size
 	lSize = ftell(file);
 	rewind(file);
 
@@ -170,9 +170,9 @@ int xs::render::load_font(const std::string& font_file, double size)
 	img.height = 256;
 	auto bitmap = static_cast<unsigned char*>(malloc(img.width * img.height));	
 
-	stbtt_pack_context pc;
+	stbtt_pack_context pc;	
 	stbtt_PackBegin(&pc, bitmap, img.width, img.height, 0, 2, nullptr);
-
+	
 	int ascent;
 	int descent;
 	int lineGap;
@@ -180,39 +180,25 @@ int xs::render::load_font(const std::string& font_file, double size)
 	font.scale = (size / double(ascent - descent));
 
 	// pack font
-	// const auto num = _packedChars.size();
 	font.packed_chars.resize(96);
 
 	stbtt_PackFontRange(&pc, font.buffer, 0, (float)size, 33, 92, &font.packed_chars[0]);
 
+	// Apply
+	stbtt_PackEnd(&pc);
 
 	auto n = img.width * img.height;
 	auto rgba = new color[n];
-
 	for (int i = 0; i < n; i++) {
 		color c;
-		c.r = 255;
-		c.g = 255;
-		c.b = 255;
-		c.a = bitmap[i];
+		c.rgba[0] = 255;	// Channels are flipped here :D
+		c.rgba[1] = 255;
+		c.rgba[2] = 255;
+		c.rgba[3] = bitmap[i] > 196 ? 255 : 0;
 		rgba[i] = c;
 	}
 
-	/*
-		bitmap[n + i] = bitmap[i];
-	for (int i = 0; i < n; i++)
-		bitmap[2 * n + i] = bitmap[i];
-	for (int i = 0; i < n; i++)
-		bitmap[3 * n + i] = bitmap[i];
-	*/
 
-	// auto n = img.width * img.height;
-	// memcpy(&bitmap[n], &bitmap[0], n);
-	// memcpy(&bitmap[n * 2], &bitmap[0], n);
-	// memcpy(&bitmap[n * 3], &bitmap[0], n);
-
-	// Apply
-	stbtt_PackEnd(&pc);
 	img.channels = 4;
 	img.string_id = id;
 	create_gl_texture_with_data(img, (uchar*)rgba);
@@ -222,7 +208,6 @@ int xs::render::load_font(const std::string& font_file, double size)
 	font.image_id = image_id;
 	font.string_id = id;
 
-	// CreateGLTextureWithData(_bitmap, _bitmapWidth, _bitmapHeight, 1, true);as
 #if DEBUG_FONT_ATLAS
 	stbi_write_png("FontAtlas.png", img.width, img.height, 4, rgba, 0);
 #endif
@@ -244,8 +229,9 @@ void xs::render::render_text(
 	auto& img = images[font.image_id];
 
 	double begin = x;	
+	auto last_idx = sprite_queue.size();
 	for (size_t i = 0; i < text.size(); i++)
-	{		
+	{
 		const int charIndex = text[i] - 33;
 
 		stbtt_aligned_quad quad;
@@ -265,31 +251,40 @@ void xs::render::render_text(
 		// glyph.Advance = static_cast<float>(advance);
 		// glyph.BearingX = static_cast<float>(bearing);
 
+		color add{ 0,0,0,0 };
+		color mul{ 255,255,255,0 };
+
 		// Kerning to next letter
-		float kernning = 0.0f;
+		float kerning = 0.0f;
 		if (i + 1 < text.size())
 		{
 			const auto nextCodepoint = text[i + 1];
 			const auto next = stbtt_FindGlyphIndex(&font.info, nextCodepoint);
 			auto kern = stbtt_GetGlyphKernAdvance(&font.info, glyphIndex, next);
-			kernning = (float)kern * (float)font.scale;
+			kerning = (float)kern * (float)font.scale;
 		}
 
 		auto sprite = create_sprite(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
-		render_sprite_ex(sprite, begin + bearing, y - quad.y1, 0, 1, white, black, 0);
+		render_sprite_ex(sprite, begin + bearing, y - quad.y1, 0, 1, add, add, 0);
 
-		begin += advance; // +kern;
-
-
-		// store vertices
-		/*
-		for (auto& v : verts)
-		{
-			v.Position *= _fontSize;
-			vertices.push_back(v);
-		}
-		*/
+		begin += advance + kerning;		
 	}
+
+	double width = begin - x;
+	for (auto i = last_idx; i < sprite_queue.size(); i++)
+	{
+		auto& s = sprite_queue[i];
+		s.x -= (width * 0.5f);
+	}
+
+	// Move vertices
+	/*
+	for (auto& v : verts)
+	{
+		v.Position *= _fontSize;
+		vertices.push_back(v);
+	}
+	*/
 }
 
 
@@ -387,9 +382,6 @@ void xs::render::initialize()
 		reinterpret_cast<void*>(offsetof(sprite_vtx_format, color)));
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
-
-	//load_font("[games]/sub_optimal/fonts/Awkward.ttf", 46);
-	load_font("games/shared/fonts/DroidSans.ttf", 32);
 }
 
 void xs::render::shutdown()
@@ -409,13 +401,12 @@ void xs::render::set_offset(double x, double y)
 
 void xs::render::render()
 {	
-	render_text(0, "Helly Wgrld. There is more text going up and down", 0, 0, white, black, 0);
-
 	XS_PROFILE_SECTION("xs::render::render");
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
 	mat4 p = ortho(-w, w, -h, h, -100.0f, 100.0f);
-	mat4 v = lookAt(vec3(offset.x, offset.y, 100.0f), vec3(offset.x, offset.y, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	//mat4 v = lookAt(vec3(offset.x, offset.y, 100.0f), vec3(offset.x, offset.y, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	mat4 v = lookAt(vec3(0.0f, 0.0f, 100.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 vp = p * v;
 
 	glEnable(GL_BLEND);
@@ -633,8 +624,13 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 
 void xs::render::render_sprite(int sprite_id, double x, double y, sprite_anchor anchor)
 {
-	// Validate sprite
-	sprite_queue.push_back({ sprite_id, x, y, anchor });
+	// TODO: Validate sprite
+	sprite_queue.push_back({
+		sprite_id,
+		x + offset.x,
+		y + offset.y,
+		anchor
+	});
 }
 
 void xs::render::render_sprite_ex(
@@ -650,8 +646,8 @@ void xs::render::render_sprite_ex(
 	// TODO: Validate sprite
 	sprite_queue.push_back({
 		image_id,
-		x,
-		y,
+		x + offset.x,
+		y + offset.y,
 		sprite_anchor::bottom,
 		flags,
 		mutiply,

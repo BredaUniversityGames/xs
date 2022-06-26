@@ -277,7 +277,7 @@ class Enemy is Component {
         // pos.rotate(_tilt)
         // var position = _parent.getComponent(Transform).position
         // owner.getComponent(Transform).position = pos + position
-        
+
         _shootTime = _shootTime + dt
         if(_shootTime > 1.0) {
             if(Game.random.float(0, 1.0) < 0.3) {
@@ -370,10 +370,12 @@ class Menu {
             }
         } 
 
+        /*
         Render.setColor(0x000000FF)
         render(-190, 56)        
         Render.setColor(0xFFFFFFFF)
         render(-191, 57)                
+        */
     }
 
     render(x, y) {
@@ -432,6 +434,7 @@ class Game {
     static init() {        
         Entity.init()
         createBackground()
+        createTitle()
 
         __frame = 0
         __random = Random.new()
@@ -445,7 +448,9 @@ class Game {
         __shakeOffset = Vec2.new(0, 0)
         __shakeIntesity = 0
 
-        startPlay()
+        __font = Render.loadFont("[games]/sub_optimal/fonts/FutilePro.ttf", 18)
+
+        //startPlay()
     }        
     
     static update(dt) {        
@@ -466,7 +471,15 @@ class Game {
 
     static render() {
         Render.setOffset(__shakeOffset.x * __shakeIntesity, __shakeOffset.y * __shakeIntesity)
-        Renderable.render()
+
+        Renderable.render()        
+
+        if(__state == GameState.Play) {
+            Render.setOffset(0, 0)
+            var pu = playerShip.getComponent(Unit)
+            var text = "SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)"
+            Render.renderText(__font, text, 0, 150, 0xFFFFFFFF, 0xFFFFFFFF, 0)
+        }
     }
 
     static startPlay() {
@@ -479,9 +492,8 @@ class Game {
 
     static updatePlay(dt) {
         var pu = playerShip.getComponent(Unit)
-        Render.setColor(0xFFFFFFFF)
-        Render.text("SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)", -296, 170, 1)
-
+        //Render.setColor(0xFFFFFFFF)
+        //Render.text("SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)", -296, 170, 1)
 
         /*
         for(e in Entity.entities) {
@@ -688,6 +700,33 @@ class Game {
                 parallax.addComponent(s)
                 parallax.addComponent(p)
             }
+        }
+    }
+
+    static createTitle() {
+        { // Text part
+            var e = Entity.new()
+            var t = Transform.new(Vec2.new(0,0))
+            var s = Sprite.new("[games]/sub_optimal/images/backgrounds/title.png", 0, 0, 1, 1)
+            s.layer = 10.0
+            s.flags = Render.spriteCenter            
+            e.name = "Title"
+            //bullet.tag = Tag.Player | Tag.Bullet
+            e.addComponent(t)
+            e.addComponent(s)
+        }
+        { // Core part
+            var e = Entity.new()
+            var t = Transform.new(Vec2.new(75,20))
+            var s = AnimatedSprite.new("[games]/sub_optimal/images/vfx/Electric_Effect_05.png", 4, 4, 15)
+            s.layer = 10.1
+            s.flags = Render.spriteCenter
+            s.addAnimation("play", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+            s.playAnimation("play")
+            e.name = "Core"
+            //bullet.tag = Tag.Player | Tag.Bullet
+            e.addComponent(t)
+            e.addComponent(s)
         }
     }
 
@@ -936,7 +975,6 @@ class Game {
             bullet.addComponent(DebugColor.new(0xEC468BFF))
         }
     }
-
 
     static createExplosion(owner) {
         var owt = owner.getComponent(Transform)
