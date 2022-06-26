@@ -4,6 +4,8 @@ import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 import "random" for Random
 import "globals" for Globals
+import "unit" for Unit
+import "tags" for Team
 
 ///////////////////////////////////////////////////////////////////////////////
 // Components
@@ -17,51 +19,11 @@ class Tag {
     static Computer         { 1 << 4 }
 }
 
-class Team {
-    static player { 1 }
-    static computer { 2 }
-}
-
 class BulletType {
     static straight     { 1 }
     static spread       { 2 }
     static directed     { 3 }
     static follow       { 4 }
-}
-
-class Unit is Component {
-    construct new(team, health) {
-        super()
-        _team = team
-        _health = health
-        _timer = 0
-    }
-
-    damage(d) {
-        _health = _health - d
-        _timer = 0.15
-    }
-    team { _team }
-    health { _health }
-
-    update(dt) {
-        if(_health <= 0) {
-            Game.createExplosion(owner)
-            owner.delete()
-            return
-        }
-        
-        if(_timer > 0) {
-            _timer = _timer - dt
-            var s = owner.getComponentSuper(Sprite)
-            s.add = 0xE0E0E000
-            if(_timer < 0) {
-                s.add = 0x00000000
-            }
-        }
-    }
-
-    toString { "[Unit team:%(_team) health:%(_health)]" }
 }
 
 class Bullet is Component {
@@ -448,7 +410,7 @@ class Game {
         __shakeOffset = Vec2.new(0, 0)
         __shakeIntesity = 0
 
-        __font = Render.loadFont("[games]/sub_optimal/fonts/FutilePro.ttf", 18)
+        __font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
 
         //startPlay()
     }        
@@ -561,28 +523,28 @@ class Game {
 
     static createBackground() {
         var layers = [
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_background.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud01.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud02.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud03.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud04.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud05.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud06.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud07.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud08.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_buildingsback.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_buildingsfront.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building01.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building02.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building03.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building04.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building05.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building06.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building07.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building08.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_train.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_traintracks.png",            
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_trees.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_background.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud01.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud02.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud03.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud04.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud05.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud06.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud07.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud08.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_buildingsback.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_buildingsfront.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building01.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building02.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building03.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building04.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building05.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building06.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building07.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building08.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_train.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_traintracks.png",            
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_trees.png",
         ]
 
         var widths = [
@@ -707,7 +669,7 @@ class Game {
         { // Text part
             var e = Entity.new()
             var t = Transform.new(Vec2.new(0,0))
-            var s = Sprite.new("[games]/sub_optimal/images/backgrounds/title.png", 0, 0, 1, 1)
+            var s = Sprite.new("[games]/jump-core/images/backgrounds/title.png", 0, 0, 1, 1)
             s.layer = 10.0
             s.flags = Render.spriteCenter            
             e.name = "Title"
@@ -718,7 +680,7 @@ class Game {
         { // Core part
             var e = Entity.new()
             var t = Transform.new(Vec2.new(75,20))
-            var s = AnimatedSprite.new("[games]/sub_optimal/images/vfx/Electric_Effect_05.png", 4, 4, 15)
+            var s = AnimatedSprite.new("[games]/jump-core/images/vfx/Electric_Effect_05.png", 4, 4, 15)
             s.layer = 10.1
             s.flags = Render.spriteCenter
             s.addAnimation("play", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
@@ -740,7 +702,7 @@ class Game {
         var u = Unit.new(Team.player, Globals.PlayerHealth)
         var c = DebugColor.new(0x8BEC46FF)
         var o = Orbitor.new(ship)
-        var s = GridSprite.new("[games]/sub_optimal/images/ships/blue-ship-spritesheet.png", 5, 1)
+        var s = GridSprite.new("[games]/jump-core/images/ships/blue-ship-spritesheet.png", 5, 1)
         s.layer = 1.0
         s.flags = Render.spriteCenter
         // s.addAnimation("fly", [0,1,2])
@@ -758,7 +720,7 @@ class Game {
         {
             var thrust = Entity.new()
             var t = Transform.new(Vec2.new(0, 0))
-            var s = AnimatedSprite.new("[games]/sub_optimal/images/ships/thrusters.png", 4, 2, 15)            
+            var s = AnimatedSprite.new("[games]/jump-core/images/ships/thrusters.png", 4, 2, 15)            
             s.layer = 0.999
             s.flags = Render.spriteCenter
             s.addAnimation("straight", [1, 3, 5, 7])            
@@ -798,7 +760,7 @@ class Game {
         var u = Unit.new(Team.computer, Globals.EnemyCoreHealth)
         var c = DebugColor.new(Globals.EnemyColor)
         var o = Orbitor.new(core)
-        var s = GridSprite.new("[games]/sub_optimal/images/ships/purple-ship-spritesheet.png", 5, 1)
+        var s = GridSprite.new("[games]/jump-core/images/ships/purple-ship-spritesheet.png", 5, 1)
         s.layer = 0.9
         s.flags = Render.spriteCenter
         s.idx = 4
@@ -823,7 +785,7 @@ class Game {
         var e = Enemy.new(idx, tilt, core, bulletType)
         var u = Unit.new(Team.computer, Globals.EnemyHealth)
         var c = DebugColor.new(Globals.EnemyColor)
-        var s = Sprite.new("[games]/sub_optimal/images/ships/Purple-4.png")
+        var s = Sprite.new("[games]/jump-core/images/ships/Purple-4.png")
         s.layer = 0.9
         s.flags = Render.spriteCenter
         ship.addComponent(t)
@@ -837,7 +799,7 @@ class Game {
         {
             var thrust = Entity.new()
             var t = Transform.new(Vec2.new(0, 0))
-            var s = AnimatedSprite.new("[games]/sub_optimal/images/ships/thrusters.png", 4, 2, 15)            
+            var s = AnimatedSprite.new("[games]/jump-core/images/ships/thrusters.png", 4, 2, 15)            
             s.layer = 0.999
             s.flags = Render.spriteCenter | Render.spriteFlipX // |
             s.addAnimation("straight", [1, 3, 5, 7])            
@@ -887,7 +849,7 @@ class Game {
         var v = Vec2.new(speed, 0)
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.player, damage)
-        var s = AnimatedSprite.new("[games]/sub_optimal/images/projectiles/spark.png", 5, 1, 30)
+        var s = AnimatedSprite.new("[games]/jump-core/images/projectiles/spark.png", 5, 1, 30)
         s.layer = 1.9
         s.flags = Render.spriteCenter
         s.addAnimation("anim", [0,1,2,3,4])
@@ -911,7 +873,7 @@ class Game {
         var v = dir.normalise * speed
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
-        var s = AnimatedSprite.new("[games]/sub_optimal/images/projectiles/projectile-02.png", 2, 1, 10)
+        var s = AnimatedSprite.new("[games]/jump-core/images/projectiles/projectile-02.png", 2, 1, 10)
         s.layer = 0.9
         s.flags = Render.spriteCenter
         s.addAnimation("fly", [0,1])
@@ -934,7 +896,7 @@ class Game {
         var v = Vec2.new(-speed, 0)
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
-        var s = AnimatedSprite.new("[games]/sub_optimal/images/projectiles/projectile-06-02.png", 1, 3, 10)
+        var s = AnimatedSprite.new("[games]/jump-core/images/projectiles/projectile-06-02.png", 1, 3, 10)
         s.layer = 0.9
         s.flags = Render.spriteCenter
         s.addAnimation("fly", [0,1,2])
@@ -960,7 +922,7 @@ class Game {
             var v = d.normalise * speed
             var bd = Body.new(5, v)
             var bl = Bullet.new(owu.team, damage)
-            var s = AnimatedSprite.new("[games]/sub_optimal/images/projectiles/projectile-04.png", 2, 1, 10)
+            var s = AnimatedSprite.new("[games]/jump-core/images/projectiles/projectile-04.png", 2, 1, 10)
             s.layer = 0.9
             s.flags = Render.spriteCenter
             s.addAnimation("fly", [0,1])
@@ -982,7 +944,7 @@ class Game {
         var t = Transform.new(owt.position)
         var b = Body.new(001, Vec2.new(0, 0))
         var e = Explosion.new(1.0)
-        var s = AnimatedSprite.new("[games]/sub_optimal/images/vfx/Explosion.png", 8, 1, 15)
+        var s = AnimatedSprite.new("[games]/jump-core/images/vfx/Explosion.png", 8, 1, 15)
         s.layer = 1.9
         s.flags = Render.spriteCenter
         s.addAnimation("explode", [0,1,2, 3, 4, 5, 6, 7])
