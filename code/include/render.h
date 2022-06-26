@@ -9,8 +9,8 @@ namespace xs::render
 		union
 		{
 			uchar rgba[4];
-			//struct { uchar a, b, g, r; };
-			struct { uchar r, g, b, a; };
+			struct { uchar a, b, g, r; };
+			//struct { uchar r, g, b, a; };
 			uint32_t integer_value;
 		};
 	};
