@@ -1,7 +1,8 @@
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform
-import "game" for Game
+import "game" for Game, BulletType
+import "globals" for Globals
 
 class Orbitor is Component {
 
@@ -118,3 +119,62 @@ class EnemyCore is Component {
         */
     }
 }
+
+class Enemy is Component {
+    construct new(idx, tilt, parent, bulletType) {
+        super()        
+        _parent = parent
+        _time = idx * 0.4
+        _shootTime = _time
+        _tilt = tilt
+        _hack = 0
+        _bulletType = bulletType
+    }
+
+    finalize() {
+        Game.addScore(10)
+    }
+
+    update(dt) {
+        _time = _time + dt * 2.0
+
+        // var pos = Vec2.new(30 * _time.sin, 70 * _time.cos)
+        // pos.rotate(_tilt)
+        // var position = _parent.getComponent(Transform).position
+        // owner.getComponent(Transform).position = pos + position
+
+        _shootTime = _shootTime + dt
+        if(_shootTime > 1.0) {
+            if(Game.random.float(0, 1.0) < 0.3) {
+                if(_bulletType == BulletType.straight) {
+                    Game.createBulletStraightEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                } else if(_bulletType == BulletType.directed) {
+                    Game.createBulletDirectedEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                } else if(_bulletType == BulletType.spread) {
+                    Game.createBulletSpreadEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                } else if(_bulletType == BulletType.follow) {
+                    Game.createBulletDirectedEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                }
+            }
+            _shootTime = 0
+        }
+    }
+
+    parent { _parent }
+
+    hack(dt) { _hack = _hack + dt }
+    hacked { _hack > 0.3 }
+}
+
