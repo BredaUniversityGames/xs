@@ -5,6 +5,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#define STB_TRUETYPE_IMPLEMENTATION
+#include <stb/stb_truetype.h>
 #ifdef PLATFORM_SWITCH
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wunused-function"
@@ -21,6 +23,14 @@
 #include "device.h"
 #include "profiler.h"
 
+#define DEBUG_FONT_ATLAS 0
+
+#if DEBUG_FONT_ATLAS
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STBI_MSC_SECURE_CRT
+#include <stb/stb_image_write.h>
+#endif
+
 using namespace glm;
 
 namespace xs::render::internal
@@ -31,22 +41,34 @@ namespace xs::render::internal
 		int			width		= -1;
 		int			height		= -1;
 		int			channels	= -1;
-		std::size_t	string_id	= -1;
+		std::size_t	string_id	= 0;
 	};
+
+	struct font_atals
+	{
+		int image_id								= -1;
+		std::size_t	string_id						= 0;
+		std::vector<stbtt_packedchar> packed_chars	= {};
+		stbtt_fontinfo info							= {};
+		unsigned char* buffer						= nullptr;
+		double scale								= 0;
+	};
+
+
 	
 	void create_frame_buffers();
-	// void delete_frame_buffers();
+	//TODO: void delete_frame_buffers();
 	void compile_draw_shader();
 	void compile_sprite_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
+	void create_gl_texture_with_data(image& img, uchar* data);
 	vec4 to_vec4(color c) { return vec4(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f); }
 
 	int width = -1;
 	int height = -1;
 	vec2 offset = vec2(0.0f, 0.0f);
 
-	// Create G-buffer
 	unsigned int render_fbo;
 	unsigned int render_texture;
 	
@@ -74,13 +96,13 @@ namespace xs::render::internal
 	struct sprite { int image_id; vec2 from; vec2 to; };
 	struct sprite_queue_entry
 	{
-		int sprite_id;
-		double x;
-		double y;
-		sprite_anchor anchor;
-		unsigned int flags;
-		color mul_color;
-		color add_color;
+		int sprite_id			=	-1;
+		double x				= 0.0;
+		double y				= 0.0;
+		sprite_anchor anchor	= {};
+		unsigned int flags		= 0;
+		color mul_color			= {};
+		color add_color			= {};
 	};
 	
 	unsigned int			sprite_program = 0;
@@ -89,14 +111,182 @@ namespace xs::render::internal
 	sprite_vtx_format		sprite_trigs_array[sprite_trigs_max * 3];
 	unsigned int			sprite_trigs_vao = 0;
 	unsigned int			sprite_trigs_vbo = 0;
-	std::vector<sprite_queue_entry> sprite_queue;
-	std::vector<image>		images;
-	//std::unordered_map<std::string> images
-	std::vector<sprite>		sprites;	
+	std::vector<sprite_queue_entry> sprite_queue = {};
+	std::vector<image>		images = {};
+	std::vector<sprite>		sprites = {};
+	std::vector<font_atals> fonts = {};
+
+	color white{ 255, 255, 255, 255 };
+	color black{ 255, 0, 0, 0 };
 }
 
 using namespace xs;
 using namespace xs::render::internal;
+
+
+int xs::render::load_font(const std::string& font_file, double size)
+{	
+	// Find image first
+	auto id = std::hash<std::string>{}(font_file + std::to_string(size));
+	for (int i = 0; i < fonts.size(); i++)
+		if (fonts[i].string_id == id)
+			return i;
+
+	int font_id = (int)fonts.size();
+	fonts.push_back(font_atals());
+	auto& font = fonts.back();
+
+
+	const std::string path = fileio::get_path(font_file);
+	FILE* file;
+#ifdef _WIN32 // defined to 32 and 64
+	bool sucess = fopen_s(&file, path.c_str(), "rb") == 0;
+#else 
+	file = fopen(path.c_str(), "rb");
+	bool sucess = file != nullptr;
+#endif
+	assert(sucess);
+
+	long lSize;
+	fseek(file, 0, SEEK_END);		// obtain file size
+	lSize = ftell(file);
+	rewind(file);
+
+	// Allocate memory to contain the whole file
+	font.buffer = static_cast<unsigned char*>(malloc(sizeof(char) * lSize));
+	// read the font into that data
+	const size_t result = fread(reinterpret_cast<void*>(font.buffer), 1, lSize, file);
+
+	if (result)
+		log::info("Number of characters read from font = {}\n", result);
+	fclose(file);
+
+	// Get font info
+	if (!stbtt_InitFont(&font.info, font.buffer, 0))
+		log::info("initializing font has failed\n");
+
+	image img;
+	img.width = 256;
+	img.height = 256;
+	auto bitmap = static_cast<unsigned char*>(malloc(img.width * img.height));	
+
+	stbtt_pack_context pc;	
+	stbtt_PackBegin(&pc, bitmap, img.width, img.height, 0, 2, nullptr);
+	
+	int ascent;
+	int descent;
+	int lineGap;
+	stbtt_GetFontVMetrics(&font.info, &ascent, &descent, &lineGap);
+	font.scale = (size / double(ascent - descent));
+
+	// pack font
+	font.packed_chars.resize(96);
+
+	stbtt_PackFontRange(&pc, font.buffer, 0, (float)size, 33, 92, &font.packed_chars[0]);
+
+	// Apply
+	stbtt_PackEnd(&pc);
+
+	auto n = img.width * img.height;
+	auto rgba = new color[n];
+	for (int i = 0; i < n; i++) {
+		color c;
+		c.rgba[0] = 255;	// Channels are flipped here :D
+		c.rgba[1] = 255;
+		c.rgba[2] = 255;
+		c.rgba[3] = bitmap[i] > 196 ? 255 : 0;
+		rgba[i] = c;
+	}
+
+
+	img.channels = 4;
+	img.string_id = id;
+	create_gl_texture_with_data(img, (uchar*)rgba);
+
+	int image_id = (int)images.size();
+	images.push_back(img);
+	font.image_id = image_id;
+	font.string_id = id;
+
+#if DEBUG_FONT_ATLAS
+	stbi_write_png("FontAtlas.png", img.width, img.height, 4, rgba, 0);
+#endif
+	free(bitmap);
+
+	return font_id;
+}
+
+void xs::render::render_text(
+	int font_id,
+	const std::string& text,
+	double x,
+	double y,
+	color mutiply,
+	color add,
+	unsigned int flags)
+{
+	auto& font = fonts[font_id];
+	auto& img = images[font.image_id];
+
+	double begin = x;	
+	auto last_idx = sprite_queue.size();
+	for (size_t i = 0; i < text.size(); i++)
+	{
+		const int charIndex = text[i] - 33;
+
+		stbtt_aligned_quad quad;
+		float tx = 0;
+		float ty = 0;
+
+		stbtt_GetPackedQuad(&font.packed_chars[0], img.width, img.height, charIndex, &tx, &ty, &quad, 0);
+		const int glyphIndex = stbtt_FindGlyphIndex(&font.info, text[i]);
+
+		int advance_i = 0, bearing_i = 0;
+		stbtt_GetGlyphHMetrics(&font.info, glyphIndex, &advance_i, &bearing_i);
+		double advance = advance_i * font.scale;
+		double bearing = bearing_i * font.scale;
+		tx *= (float)font.scale;
+		ty *= (float)font.scale;
+
+		// glyph.Advance = static_cast<float>(advance);
+		// glyph.BearingX = static_cast<float>(bearing);
+
+		color add{ 0,0,0,0 };
+		color mul{ 255,255,255,0 };
+
+		// Kerning to next letter
+		float kerning = 0.0f;
+		if (i + 1 < text.size())
+		{
+			const auto nextCodepoint = text[i + 1];
+			const auto next = stbtt_FindGlyphIndex(&font.info, nextCodepoint);
+			auto kern = stbtt_GetGlyphKernAdvance(&font.info, glyphIndex, next);
+			kerning = (float)kern * (float)font.scale;
+		}
+
+		auto sprite = create_sprite(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
+		render_sprite_ex(sprite, begin + bearing, y - quad.y1, 0, 1, add, add, 0);
+
+		begin += advance + kerning;		
+	}
+
+	double width = begin - x;
+	for (auto i = last_idx; i < sprite_queue.size(); i++)
+	{
+		auto& s = sprite_queue[i];
+		s.x -= (width * 0.5f);
+	}
+
+	// Move vertices
+	/*
+	for (auto& v : verts)
+	{
+		v.Position *= _fontSize;
+		vertices.push_back(v);
+	}
+	*/
+}
+
 
 void xs::render::initialize()
 {
@@ -215,7 +405,8 @@ void xs::render::render()
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
 	mat4 p = ortho(-w, w, -h, h, -100.0f, 100.0f);
-	mat4 v = lookAt(vec3(offset.x, offset.y, 100.0f), vec3(offset.x, offset.y, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	//mat4 v = lookAt(vec3(offset.x, offset.y, 100.0f), vec3(offset.x, offset.y, 0.0f), vec3(0.0f, 1.0f, 0.0f));
+	mat4 v = lookAt(vec3(0.0f, 0.0f, 100.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 vp = p * v;
 
 	glEnable(GL_BLEND);
@@ -223,60 +414,6 @@ void xs::render::render()
 
 	glUseProgram(sprite_program);
 	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
-
-	/*
-	for (const auto& spe : sprite_queue)
-	{
-		const auto& sprite = sprites[spe.sprite_id];
-		const auto& image = images[sprite.image_id];
-
-		const auto from_x = spe.x;
-		const auto from_y = spe.y;
-		const auto to_x = spe.x + image.width * (sprite.to.x - sprite.from.x);
-		const auto to_y = spe.y + image.height * (sprite.to.y - sprite.from.y);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, image.gl_id);
-
-		auto color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-
-		//if (triangles_count < triangles_max - 1)
-		{
-			sprite_trigs_array[0].position = { from_x, from_y, 0.0 };
-			sprite_trigs_array[1].position = { from_x, to_y, 0.0 };
-			sprite_trigs_array[2].position = { to_x, to_y, 0.0 };
-			sprite_trigs_array[3].position = { to_x, to_y, 0.0 };
-			sprite_trigs_array[4].position = { to_x, from_y, 0.0 };
-			sprite_trigs_array[5].position = { from_x, from_y, 0.0 };
-
-			sprite_trigs_array[0].texture = { sprite.from.x,	sprite.to.y };
-			sprite_trigs_array[1].texture = { sprite.from.x,	sprite.from.y };
-			sprite_trigs_array[2].texture = { sprite.to.x,		sprite.from.y };
-			sprite_trigs_array[3].texture = { sprite.to.x,		sprite.from.y };
-			sprite_trigs_array[4].texture = { sprite.to.x,		sprite.to.y };
-			sprite_trigs_array[5].texture = { sprite.from.x,	sprite.to.y };
-
-			sprite_trigs_array[0].color = color;
-			sprite_trigs_array[1].color = color;
-			sprite_trigs_array[2].color = color;
-			sprite_trigs_array[3].color = color;
-			sprite_trigs_array[4].color = color;
-			sprite_trigs_array[5].color = color;
-
-			if (spe.anchor == sprite_anchor::center) {
-				vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
-				for (int i = 0; i < 6; i++) {
-					sprite_trigs_array[i].position -= anchor;
-				}
-			}
-		}
-
-		glBindVertexArray(sprite_trigs_vao);
-		glBindBuffer(GL_ARRAY_BUFFER, sprite_trigs_vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(sprite_vtx_format) * 6, &sprite_trigs_array[0], GL_DYNAMIC_DRAW);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-	}
-	*/
 
 	for (const auto& spe : sprite_queue)
 	{
@@ -394,6 +531,47 @@ void xs::render::clear()
 	sprite_queue.clear();
 }
 
+void xs::render::internal::create_gl_texture_with_data(xs::render::internal::image& img, uchar* data)
+{
+	GLint format = GL_INVALID_VALUE;
+	GLint usage = GL_INVALID_VALUE;
+	switch (img.channels)
+	{
+	case 1:
+		format = GL_R8;
+		usage = GL_RED;
+		break;
+	case 4:
+		format = GL_RGBA;
+		usage = GL_RGBA;
+		break;
+	case 3:
+		format = GL_RGB;
+		usage = GL_RGBA;
+		break;
+	default:
+		assert(false);
+	}
+
+	glGenTextures(1, &img.gl_id);
+	glBindTexture(GL_TEXTURE_2D, img.gl_id);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	glTexImage2D(
+		GL_TEXTURE_2D,						// What (target)
+		0,									// Mip-map level
+		format,								// Internal format
+		img.width,							// Width
+		img.height,							// Height
+		0,									// Border
+		usage,								// Format (how to use)
+		GL_UNSIGNED_BYTE,					// Type   (how to interpret)
+		data);								// Data
+}
+
 int xs::render::load_image(const std::string& image_file)
 {	
 	// Find image first
@@ -419,46 +597,8 @@ int xs::render::load_image(const std::string& image_file)
 		return -1;
 	}
 	
-	{
-		GLint format = GL_INVALID_VALUE;
-		GLint usage = GL_INVALID_VALUE;
-		switch (img.channels)
-		{
-		case 1:
-			format = GL_R8;
-			usage = GL_RED;
-			break;
-		case 4:
-			format = GL_RGBA;
-			usage = GL_RGBA;
-			break;
-		case 3:
-			format = GL_RGB;
-			usage = GL_RGBA;
-			break;
-		default:
-			assert(false);
-		}
-
-		glGenTextures(1, &img.gl_id);   
-		glBindTexture(GL_TEXTURE_2D, img.gl_id);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-		glTexImage2D(
-			GL_TEXTURE_2D,						// What (target)
-			0,									// Mip-map level
-			format,								// Internal format
-			img.width,							// Width
-			img.height,							// Height
-			0,									// Border
-			usage,								// Format (how to use)
-			GL_UNSIGNED_BYTE,					// Type   (how to interpret)
-			data);								// Data
-		stbi_image_free(data);
-	}
+	create_gl_texture_with_data(img, data);
+	stbi_image_free(data);
 
 	const auto i = images.size();
 	images.push_back(img);
@@ -467,16 +607,30 @@ int xs::render::load_image(const std::string& image_file)
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
 {
+	for(int i = 0; i < sprites.size(); i++)
+	{
+		const auto& s = sprites[i];
+		if (s.image_id == image_id &&
+			s.from.x == x0 && s.from.y == y0 &&
+			s.to.x == x1 && s.to.y == y1)
+			return i;
+	}
+
 	const auto i = sprites.size();
 	sprite s = { image_id, { x0, y0 }, { x1, y1 } };
 	sprites.push_back(s);
 	return static_cast<int>(i);
 }
 
-void xs::render::render_sprite(int image_id, double x, double y, sprite_anchor anchor)
+void xs::render::render_sprite(int sprite_id, double x, double y, sprite_anchor anchor)
 {
-	// Validate sprite
-	sprite_queue.push_back({ image_id, x, y, anchor });
+	// TODO: Validate sprite
+	sprite_queue.push_back({
+		sprite_id,
+		x + offset.x,
+		y + offset.y,
+		anchor
+	});
 }
 
 void xs::render::render_sprite_ex(
@@ -492,8 +646,8 @@ void xs::render::render_sprite_ex(
 	// TODO: Validate sprite
 	sprite_queue.push_back({
 		image_id,
-		x,
-		y,
+		x + offset.x,
+		y + offset.y,
 		sprite_anchor::bottom,
 		flags,
 		mutiply,

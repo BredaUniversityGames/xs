@@ -1,0 +1,120 @@
+
+/* SIE CONFIDENTIAL
+PlayStation(R)5 Programmer Tool Runtime Library Release 5.00.00.33-00.00.00.0.1
+* Copyright (C) 2019 Sony Interactive Entertainment Inc.
+* 
+*/
+
+#pragma argument(reservedusersgpr=1)
+
+struct V2P
+{
+	float4 pos : S_POSITION;
+	uint frame : TEXCOORD0;
+	float2 uv : TEXCOORD1;
+};
+
+[CxxSymbol("Shader::gs")]
+V2P main(uint id : S_VERTEX_ID)
+{
+	uint frame = __read_user_sgpr(0);
+
+	if(frame == 0xffffffff)
+	{
+		float x;
+		float y;
+
+		if ( id == 0 )
+		{
+			x = -1;
+			y = -1;
+		}
+		else if ( id == 1 )
+		{
+			x = 3;
+			y = -1;
+		}
+		else
+		{
+			x = -1;
+			y = 3;
+		}
+
+		auto pos = float4(x,y,0,1);
+		V2P res = {pos, frame};
+		return res;
+	}
+	else
+	{
+
+		float x;
+		float y;
+		float2 uv;
+
+		if ( id == 0 )
+		{
+			x = -0.5;
+			y = -0.4;
+			uv = float2(0,0);
+		}
+		else if ( id == 1 )
+		{
+			x = 0;
+			y = 0.6;
+			uv = float2(0.5,1);
+		}
+		else
+		{
+			x =  0.5;
+			y = -0.4;
+			uv = float2(1,0);
+		}
+
+		auto pos = float4(x,y,0,1);
+
+		float t = (frame % (4 * 60)) / (4 * 60.f);
+		float angle = 3.14159 * 2 * t;
+		float s = sin(angle);
+		float c = cos(angle);
+		float2x2 M = float2x2(c, -s, s, c);
+		float time = frac(frame / 192.0);
+		float pulse_time = smoothstep(0,1, (2 * abs(time - 0.5)));
+		pos.xy = mul(pos.xy,M);
+		pos.xy = pos.xy * 1.5 * pulse_time;
+
+		V2P res = {pos, frame, uv};
+		return res;
+	}
+}
+
+/*
+ConstantBuffer ShaderConstants
+{
+	column_major matrix m_WorldViewProj;
+};
+
+struct VS_INPUT
+{
+	float3 Position		: POSITION0;
+	float3 Color		: COLOR0;
+	float2 UV			: TEXCOORD0;
+};
+
+struct VS_OUTPUT
+{
+	float4 Position		: S_POSITION;
+	float3 Color		: TEXCOORD0;
+	float2 UV			: TEXCOORD1;
+};
+
+VS_OUTPUT main(VS_INPUT Input)
+{
+	VS_OUTPUT Output;
+
+	Output.Position = mul(m_WorldViewProj, float4(Input.Position.xyz, 1));
+	Output.Color = Input.Color;
+	Output.UV = Input.UV;
+
+	return Output;
+}
+*/
