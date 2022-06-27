@@ -270,21 +270,16 @@ void xs::render::render_text(
 		begin += advance + kerning;		
 	}
 
-	double width = begin - x;
-	for (auto i = last_idx; i < sprite_queue.size(); i++)
-	{
-		auto& s = sprite_queue[i];
-		s.x -= (width * 0.5f);
-	}
 
-	// Move vertices
-	/*
-	for (auto& v : verts)
+	if (tools::check_bit_flag_overlap(flags, xs::render::sprite_flags::center))
 	{
-		v.Position *= _fontSize;
-		vertices.push_back(v);
+		double width = begin - x;
+		for (auto i = last_idx; i < sprite_queue.size(); i++)
+		{
+			auto& s = sprite_queue[i];
+			s.x -= (width * 0.5f);
+		}
 	}
-	*/
 }
 
 
