@@ -186,6 +186,12 @@ class Input {
     foreign static getKeyOnce(key)
     foreign static getMouseButton(button)
     foreign static getMouseButtonOnce(button)
+    foreign static getMouseX()
+    foreign static getMouseY()
+
+    static getMousePosition() {
+        return [getMouseX(), getMouseY()]
+    }
 
     static keyRight  { 262 }
     static keyLeft   { 263 }
