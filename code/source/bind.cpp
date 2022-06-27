@@ -69,6 +69,21 @@ void input_get_mousebutton_once(WrenVM* vm)
 	wrenSetSlotBool(vm, 0, output);
 }
 
+void input_get_mouse_x(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 1);
+	const auto output = xs::input::get_mouse_x();
+	wrenSetSlotDouble(vm, 0, output);
+}
+
+void input_get_mouse_y(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 1);
+	const auto output = xs::input::get_mouse_y();
+	wrenSetSlotDouble(vm, 0, output);
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Render
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -374,6 +389,8 @@ void xs::script::bind_api()
 	bind("xs", "Input", true, "getKeyOnce(_)", input_get_key_once);
 	bind("xs", "Input", true, "getMouseButton(_)", input_get_mousebutton);
 	bind("xs", "Input", true, "getMouseButtonOnce(_)", input_get_mousebutton_once);
+	bind("xs", "Input", true, "getMouseX()", input_get_mouse_x);
+	bind("xs", "Input", true, "getMouseY()", input_get_mouse_y);
 
 	// Render
 	bind("xs", "Render", true, "begin(_)", render_begin);

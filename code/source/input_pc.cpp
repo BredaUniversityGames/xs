@@ -6,23 +6,33 @@
 
 namespace 
 {
-	void joystick_callback(int joy, int event) {}
 	GLFWgamepadstate gamepad_state;
 	GLFWgamepadstate prev_gamepad_state;
 	char key_once[512 + 1];
 	char mousebutton_once[8];
+	double mousepos[2];
 	bool gamepad_connected;
+
+	void joystick_callback(int joy, int event) {}
+	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+	{
+		mousepos[0] = xpos;
+		mousepos[1] = ypos;
+	}
+
 }
 
 void xs::input::initialize()
 {
 	glfwSetJoystickCallback(joystick_callback);
+	glfwSetCursorPosCallback(device::get_window(), cursor_position_callback);
 	update(0.0f);
 }
 
 void xs::input::shutdown()
 {
 	glfwSetJoystickCallback(NULL);
+	glfwSetCursorPosCallback(device::get_window(), NULL);
 }
 
 void xs::input::update(double dt)
@@ -87,4 +97,14 @@ bool xs::input::get_mousebutton_once(int button)
 	return (glfwGetMouseButton(device::get_window(), button) ?
 		(mousebutton_once[button] ? false : (mousebutton_once[button] = true)) : \
 		(mousebutton_once[button] = false));
+}
+
+double xs::input::get_mouse_x()
+{
+	return mousepos[0];
+}
+
+double xs::input::get_mouse_y()
+{
+	return mousepos[1];
 }

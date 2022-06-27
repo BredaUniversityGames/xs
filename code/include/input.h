@@ -12,4 +12,6 @@ namespace xs::input
 	bool get_key_once(int key);
 	bool get_mousebutton(int button);
 	bool get_mousebutton_once(int button);
+	double get_mouse_x();
+	double get_mouse_y();
 }
