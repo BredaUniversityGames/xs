@@ -39,15 +39,20 @@ profiler_section::~profiler_section()
 
 void xs::profiler::begin_section(const std::string& name)
 {
-    times[name].start = std::chrono::high_resolution_clock::now();
+    //times[name].start = std::chrono::high_resolution_clock::now();
+    // auto start = std::chrono::high_resolution_clock::now();
 }
 
 void xs::profiler::end_section(const std::string& name)
 {
+    // auto end = std::chrono::high_resolution_clock::now();
+
+    /*
     auto& e = times[name];
     e.end = std::chrono::high_resolution_clock::now();
     auto elapsed = e.end - e.start;
     e.accum += elapsed;
+    */
 }
 
 void xs::profiler::inspect(bool& show)

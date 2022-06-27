@@ -12,7 +12,7 @@ void xs::input::shutdown()
 {
 }
 
-void xs::input::update()
+void xs::input::update(double dt)
 {
 }
 

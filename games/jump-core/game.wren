@@ -4,6 +4,8 @@ import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 import "random" for Random
 import "globals" for Globals
+import "unit" for Unit
+import "tags" for Team
 
 ///////////////////////////////////////////////////////////////////////////////
 // Components
@@ -17,44 +19,11 @@ class Tag {
     static Computer         { 1 << 4 }
 }
 
-class Team {
-    static player { 1 }
-    static computer { 2 }
-}
-
-class Unit is Component {
-    construct new(team, health) {
-        super()
-        _team = team
-        _health = health
-        _timer = 0
-    }
-
-    damage(d) {
-        _health = _health - d
-        _timer = 0.15
-    }
-    team { _team }
-    health { _health }
-
-    update(dt) {
-        if(_health <= 0) {
-            Game.createExplosion(owner)
-            owner.delete()
-            return
-        }
-        
-        if(_timer > 0) {
-            _timer = _timer - dt
-            var s = owner.getComponentSuper(Sprite)
-            s.add = 0xE0E0E000
-            if(_timer < 0) {
-                s.add = 0x00000000
-            }
-        }
-    }
-
-    toString { "[Unit team:%(_team) health:%(_health)]" }
+class BulletType {
+    static straight     { 1 }
+    static spread       { 2 }
+    static directed     { 3 }
+    static follow       { 4 }
 }
 
 class Bullet is Component {
@@ -249,13 +218,14 @@ class Drone is Component {
 }
 
 class Enemy is Component {
-    construct new(idx, tilt, parent) {
+    construct new(idx, tilt, parent, bulletType) {
         super()        
         _parent = parent
         _time = idx * 0.4
         _shootTime = _time
         _tilt = tilt
         _hack = 0
+        _bulletType = bulletType
     }
 
     finalize() {
@@ -264,17 +234,36 @@ class Enemy is Component {
 
     update(dt) {
         _time = _time + dt * 2.0
+
         // var pos = Vec2.new(30 * _time.sin, 70 * _time.cos)
         // pos.rotate(_tilt)
         // var position = _parent.getComponent(Transform).position
         // owner.getComponent(Transform).position = pos + position
+
         _shootTime = _shootTime + dt
         if(_shootTime > 1.0) {
             if(Game.random.float(0, 1.0) < 0.3) {
-                Game.createBulletEnemy(
-                    owner,
-                    Globals.EnemyBulletSpeed,
-                    Globals.EnemyBulletDamage)
+                if(_bulletType == BulletType.straight) {
+                    Game.createBulletStraightEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                } else if(_bulletType == BulletType.directed) {
+                    Game.createBulletDirectedEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                } else if(_bulletType == BulletType.spread) {
+                    Game.createBulletSpreadEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                } else if(_bulletType == BulletType.follow) {
+                    Game.createBulletDirectedEnemy(
+                        owner,
+                        Globals.EnemyBulletSpeed,
+                        Globals.EnemyBulletDamage)
+                }
             }
             _shootTime = 0
         }
@@ -285,9 +274,6 @@ class Enemy is Component {
             var pos = owner.getComponent(Transform).position
             Render.setColor(0xFFFFFFFF)
             Render.arc(pos.x, pos.y, 14, 2.0 * _hack * Num.pi, 16)
- 
-
-            //Render.pie(pos.x, pos.y, 12, 2.0 * _hack * Num.pi / 0.3 ,32)
         }
     }
 
@@ -346,10 +332,12 @@ class Menu {
             }
         } 
 
+        /*
         Render.setColor(0x000000FF)
         render(-190, 56)        
         Render.setColor(0xFFFFFFFF)
         render(-191, 57)                
+        */
     }
 
     render(x, y) {
@@ -401,13 +389,14 @@ class Game {
     static config() {        
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 1
+        Configuration.multiplier = 2
         Configuration.title = "SubOptimal"
     }
 
     static init() {        
         Entity.init()
         createBackground()
+        createTitle()
 
         __frame = 0
         __random = Random.new()
@@ -421,7 +410,9 @@ class Game {
         __shakeOffset = Vec2.new(0, 0)
         __shakeIntesity = 0
 
-        startPlay()
+        __font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
+
+        //startPlay()
     }        
     
     static update(dt) {        
@@ -442,7 +433,15 @@ class Game {
 
     static render() {
         Render.setOffset(__shakeOffset.x * __shakeIntesity, __shakeOffset.y * __shakeIntesity)
-        Renderable.render()
+
+        Renderable.render()        
+
+        if(__state == GameState.Play) {
+            Render.setOffset(0, 0)
+            var pu = playerShip.getComponent(Unit)
+            var text = "SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)"
+            Render.renderText(__font, text, 0, 150, 0xFFFFFFFF, 0xFFFFFFFF, 0)
+        }
     }
 
     static startPlay() {
@@ -455,9 +454,8 @@ class Game {
 
     static updatePlay(dt) {
         var pu = playerShip.getComponent(Unit)
-        Render.setColor(0xFFFFFFFF)
-        Render.text("SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)", -296, 170, 1)
-
+        //Render.setColor(0xFFFFFFFF)
+        //Render.text("SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)", -296, 170, 1)
 
         /*
         for(e in Entity.entities) {
@@ -525,28 +523,28 @@ class Game {
 
     static createBackground() {
         var layers = [
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_background.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud01.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud02.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud03.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud04.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud05.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud06.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud07.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/daytime_cloud08.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_buildingsback.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_buildingsfront.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building01.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building02.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building03.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building04.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building05.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building06.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building07.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_building08.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_train.png",
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_traintracks.png",            
-            "[games]/sub_optimal/images/backgrounds/abandoned/abandoned_trees.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_background.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud01.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud02.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud03.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud04.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud05.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud06.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud07.png",
+            "[games]/jump-core/images/backgrounds/abandoned/daytime_cloud08.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_buildingsback.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_buildingsfront.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building01.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building02.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building03.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building04.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building05.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building06.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building07.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_building08.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_train.png",
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_traintracks.png",            
+            "[games]/jump-core/images/backgrounds/abandoned/abandoned_trees.png",
         ]
 
         var widths = [
@@ -667,6 +665,33 @@ class Game {
         }
     }
 
+    static createTitle() {
+        { // Text part
+            var e = Entity.new()
+            var t = Transform.new(Vec2.new(0,0))
+            var s = Sprite.new("[games]/jump-core/images/backgrounds/title.png", 0, 0, 1, 1)
+            s.layer = 10.0
+            s.flags = Render.spriteCenter            
+            e.name = "Title"
+            //bullet.tag = Tag.Player | Tag.Bullet
+            e.addComponent(t)
+            e.addComponent(s)
+        }
+        { // Core part
+            var e = Entity.new()
+            var t = Transform.new(Vec2.new(75,20))
+            var s = AnimatedSprite.new("[games]/jump-core/images/vfx/Electric_Effect_05.png", 4, 4, 15)
+            s.layer = 10.1
+            s.flags = Render.spriteCenter
+            s.addAnimation("play", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+            s.playAnimation("play")
+            e.name = "Core"
+            //bullet.tag = Tag.Player | Tag.Bullet
+            e.addComponent(t)
+            e.addComponent(s)
+        }
+    }
+
     static createPlayerShip() {
         var ship = Entity.new()            
         var p = Vec2.new(0, 0)
@@ -677,7 +702,7 @@ class Game {
         var u = Unit.new(Team.player, Globals.PlayerHealth)
         var c = DebugColor.new(0x8BEC46FF)
         var o = Orbitor.new(ship)
-        var s = GridSprite.new("[games]/sub_optimal/images/ships/blue-ship-spritesheet.png", 5, 1)
+        var s = GridSprite.new("[games]/jump-core/images/ships/blue-ship-spritesheet.png", 5, 1)
         s.layer = 1.0
         s.flags = Render.spriteCenter
         // s.addAnimation("fly", [0,1,2])
@@ -695,7 +720,7 @@ class Game {
         {
             var thrust = Entity.new()
             var t = Transform.new(Vec2.new(0, 0))
-            var s = AnimatedSprite.new("[games]/sub_optimal/images/ships/thrusters.png", 4, 2, 15)            
+            var s = AnimatedSprite.new("[games]/jump-core/images/ships/thrusters.png", 4, 2, 15)            
             s.layer = 0.999
             s.flags = Render.spriteCenter
             s.addAnimation("straight", [1, 3, 5, 7])            
@@ -716,12 +741,11 @@ class Game {
         var pos = Vec2.new(x, y)
         var tilt = Game.random.float(0, 5.0)
 
-        // "S"
-
+        var bulletType = Game.random.int(1, 4)
         var core = createEnemyCore(pos, tilt)
         var orbitor = core.getComponent(Orbitor)
         for(i in 0..6) {
-            var ship = createEnemyShip(i, tilt, core)
+            var ship = createEnemyShip(i, tilt, core, bulletType)
             orbitor.add(ship)
         }
     }
@@ -736,7 +760,7 @@ class Game {
         var u = Unit.new(Team.computer, Globals.EnemyCoreHealth)
         var c = DebugColor.new(Globals.EnemyColor)
         var o = Orbitor.new(core)
-        var s = GridSprite.new("[games]/sub_optimal/images/ships/purple-ship-spritesheet.png", 5, 1)
+        var s = GridSprite.new("[games]/jump-core/images/ships/purple-ship-spritesheet.png", 5, 1)
         s.layer = 0.9
         s.flags = Render.spriteCenter
         s.idx = 4
@@ -752,16 +776,16 @@ class Game {
         return core
     }
 
-    static createEnemyShip(idx, tilt, core) {
+    static createEnemyShip(idx, tilt, core, bulletType) {
         var ship = Entity.new()
         var p = Vec2.new(240, 0)
         var t = Transform.new(p)    
         var v = Vec2.new(0, 0)
         var b = Body.new(Globals.EnemySize, v)
-        var e = Enemy.new(idx, tilt, core)
+        var e = Enemy.new(idx, tilt, core, bulletType)
         var u = Unit.new(Team.computer, Globals.EnemyHealth)
         var c = DebugColor.new(Globals.EnemyColor)
-        var s = Sprite.new("[games]/sub_optimal/images/ships/Purple-4.png")
+        var s = Sprite.new("[games]/jump-core/images/ships/Purple-4.png")
         s.layer = 0.9
         s.flags = Render.spriteCenter
         ship.addComponent(t)
@@ -775,7 +799,7 @@ class Game {
         {
             var thrust = Entity.new()
             var t = Transform.new(Vec2.new(0, 0))
-            var s = AnimatedSprite.new("[games]/sub_optimal/images/ships/thrusters.png", 4, 2, 15)            
+            var s = AnimatedSprite.new("[games]/jump-core/images/ships/thrusters.png", 4, 2, 15)            
             s.layer = 0.999
             s.flags = Render.spriteCenter | Render.spriteFlipX // |
             s.addAnimation("straight", [1, 3, 5, 7])            
@@ -825,7 +849,7 @@ class Game {
         var v = Vec2.new(speed, 0)
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.player, damage)
-        var s = AnimatedSprite.new("[games]/sub_optimal/images/projectiles/spark.png", 5, 1, 30)
+        var s = AnimatedSprite.new("[games]/jump-core/images/projectiles/spark.png", 5, 1, 30)
         s.layer = 1.9
         s.flags = Render.spriteCenter
         s.addAnimation("anim", [0,1,2,3,4])
@@ -839,7 +863,7 @@ class Game {
         bullet.addComponent(DebugColor.new(0x8BEC46FF))
     }
 
-    static createBulletEnemy(owner, speed, damage) {
+    static createBulletDirectedEnemy(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
         var owu = owner.getComponent(Unit)
         var bullet = Entity.new()
@@ -849,7 +873,30 @@ class Game {
         var v = dir.normalise * speed
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
-        var s = AnimatedSprite.new("[games]/sub_optimal/images/projectiles/projectile-06-02.png", 1, 3, 10)
+        var s = AnimatedSprite.new("[games]/jump-core/images/projectiles/projectile-02.png", 2, 1, 10)
+        s.layer = 0.9
+        s.flags = Render.spriteCenter
+        s.addAnimation("fly", [0,1])
+        s.playAnimation("fly")
+        s.idx = 0
+        bullet.addComponent(t)
+        bullet.addComponent(bd)
+        bullet.addComponent(bl)
+        bullet.addComponent(s)
+        bullet.name = "Bullet2"
+        bullet.tag = Tag.Computer | Tag.Bullet
+        bullet.addComponent(DebugColor.new(0xEC468BFF))
+    }
+
+    static createBulletStraightEnemy(owner, speed, damage) {
+        var owt = owner.getComponent(Transform)
+        var owu = owner.getComponent(Unit)
+        var bullet = Entity.new()
+        var t = Transform.new(owt.position)
+        var v = Vec2.new(-speed, 0)
+        var bd = Body.new(5, v)
+        var bl = Bullet.new(owu.team, damage)
+        var s = AnimatedSprite.new("[games]/jump-core/images/projectiles/projectile-06-02.png", 1, 3, 10)
         s.layer = 0.9
         s.flags = Render.spriteCenter
         s.addAnimation("fly", [0,1,2])
@@ -864,6 +911,32 @@ class Game {
         bullet.addComponent(DebugColor.new(0xEC468BFF))
     }
 
+    static createBulletSpreadEnemy(owner, speed, damage) {
+        var dir = [ 0.0, 0.2, -0.2 ]
+        for(i in 0...3) {
+            var owt = owner.getComponent(Transform)
+            var owu = owner.getComponent(Unit)
+            var bullet = Entity.new()
+            var t = Transform.new(owt.position)
+            var d = -Vec2.new(dir[i].cos, dir[i].sin)
+            var v = d.normalise * speed
+            var bd = Body.new(5, v)
+            var bl = Bullet.new(owu.team, damage)
+            var s = AnimatedSprite.new("[games]/jump-core/images/projectiles/projectile-04.png", 2, 1, 10)
+            s.layer = 0.9
+            s.flags = Render.spriteCenter
+            s.addAnimation("fly", [0,1])
+            s.playAnimation("fly")
+            s.idx = 0
+            bullet.addComponent(t)
+            bullet.addComponent(bd)
+            bullet.addComponent(bl)
+            bullet.addComponent(s)
+            bullet.name = "Bullet2"
+            bullet.tag = Tag.Computer | Tag.Bullet // |
+            bullet.addComponent(DebugColor.new(0xEC468BFF))
+        }
+    }
 
     static createExplosion(owner) {
         var owt = owner.getComponent(Transform)
@@ -871,7 +944,7 @@ class Game {
         var t = Transform.new(owt.position)
         var b = Body.new(001, Vec2.new(0, 0))
         var e = Explosion.new(1.0)
-        var s = AnimatedSprite.new("[games]/sub_optimal/images/vfx/Explosion.png", 8, 1, 15)
+        var s = AnimatedSprite.new("[games]/jump-core/images/vfx/Explosion.png", 8, 1, 15)
         s.layer = 1.9
         s.flags = Render.spriteCenter
         s.addAnimation("explode", [0,1,2, 3, 4, 5, 6, 7])

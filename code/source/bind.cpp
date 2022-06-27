@@ -210,6 +210,40 @@ void render_set_offset(WrenVM* vm)
 	xs::render::set_offset(x, y);
 }
 
+void render_load_font(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 3);
+	const auto c_str = wrenGetSlotString(vm, 1);
+	const auto size = wrenGetSlotDouble(vm, 2);
+	const auto str = std::string(c_str);
+	auto font = xs::render::load_font(str, size);
+	wrenSetSlotDouble(vm, 0, font);
+}
+
+void render_render_text(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 5);
+	const auto font_id = wrenGetSlotDouble(vm, 1);
+	const auto c_text = wrenGetSlotString(vm, 2);
+	const auto x = wrenGetSlotDouble(vm, 3);
+	const auto y = wrenGetSlotDouble(vm, 4);
+	const auto mul = wrenGetSlotDouble(vm, 5);
+	const auto add = wrenGetSlotDouble(vm, 6);
+	const auto flags = wrenGetSlotDouble(vm, 7);
+
+	std::string	text(c_text); 
+
+	xs::render::color mul_c;
+	mul_c.integer_value = static_cast<uint32_t>(mul);
+
+	xs::render::color add_c;
+	add_c.integer_value = static_cast<uint32_t>(add);
+
+	const auto flags_i = static_cast<uint32_t>(flags);
+
+	render_text((int)font_id, c_text, (float)x, (float)y, mul_c, add_c, flags_i);		
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Configuration
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -405,6 +439,8 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "renderSprite(_,_,_,_)", render_sprite);
 	bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
 	bind("xs", "Render", true, "renderSprite(_,_,_,_,_,_,_,_)", render_sprite_ex);
+	bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
+	bind("xs", "Render", true, "renderText(_,_,_,_,_,_,_)", render_render_text);
 
 	// Configuration
 	bind("xs", "Configuration", true, "title=(_)", configuration_set_title);
