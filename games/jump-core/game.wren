@@ -4,20 +4,9 @@ import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 import "random" for Random
 import "globals" for Globals
-import "unit" for Unit
-import "tags" for Team
-
-///////////////////////////////////////////////////////////////////////////////
-// Components
-///////////////////////////////////////////////////////////////////////////////
-
-class Tag {
-    static None             { 0 << 0 }
-    static Unit             { 1 << 1 }
-    static Bullet           { 1 << 2 }
-    static Player           { 1 << 3 }
-    static Computer         { 1 << 4 }
-}
+import "tags" for Team, Tag
+import "debug" for DebugColor
+import "ui" for Menu
 
 class BulletType {
     static straight     { 1 }
@@ -57,232 +46,6 @@ class Bullet is Component {
     toString { "[Bullet team:%(_team) damage:%(_damage)]" }
 }
 
-class Player is Component {
-    construct new() {
-        super()
-        _shootTime = 0
-        _drones = []
-    }
-
-    update(dt) {
-        // Get input        
-
-        // Keep in bounds
-        var t = owner.getComponent(Transform)
-        var h = Configuration.height * 0.5
-        var w = Configuration.width * 0.5
-        if (t.position.x < -w) {
-            t.position.x = -w
-        } else if (t.position.x > w) {
-            t.position.x = w
-        }
-        if (t.position.y < -h) {
-            t.position.y = -h
-        } else if (t.position.y > h) {
-            t.position.y = h
-        }
-
-        _shootTime = _shootTime + dt
-        if((Input.getButton(0) || Input.getKeyOnce(Input.keySpace)) && _shootTime > 0.1) {
-            Game.createBullet(owner, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
-            for(d in _drones) {
-                if(!d.deleted) {
-                    Game.createBullet(d, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
-                }
-            }
-            _shootTime = 0
-        }
-
-        var speed = Globals.PlayerSpeed
-        if(Input.getButton(1)) {
-            speed = Globals.PlayerSpeedWhenHacking
-            var fromX = t.position.x
-            var toX = t.position.x + Globals.PlayerHackWidth
-            var fromY = t.position.y - Globals.PlayerHackHeight * 0.5
-            var toY = t.position.y + Globals.PlayerHackHeight * 0.5
-
-
-            Render.setColor(0xFFFFFFFF)
-            Render.line(fromX, toY, toX, toY)
-            Render.line(fromX, fromY, toX, fromY)
-            Render.setColor(0x00000021)
-            Render.rect(fromX, fromY, toX, toY)
-
-            var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit) //|
-            for(cu in computerUnits) {
-                var pos = cu.getComponent(Transform).position            
-                if(pos.x > fromX && pos.x < toX && pos.y > fromY && pos.y < toY) {                                        
-                    Render.setColor(0xFFFFFFFF)
-                    Render.circle(pos.x, pos.y, 15, 32)
-                    var enemy = cu.getComponent(Enemy)
-                    if(enemy != null) {
-                        enemy.hack(dt)
-                        if(enemy.hacked) {
-                            cu.deleteComponent(Enemy)
-                            cu.tag = Tag.Player | Tag.Unit //|
-                            cu.addComponent(Drone.new())
-                            cu.getComponent(DebugColor).color = Globals.PlayerColor
-                            addDrone2(cu)
-                            enemy.parent.getComponent(Orbitor).nullify(cu)
-                        }
-                    }
-                }
-            }
-        }
-
-        var b = owner.getComponent(Body)
-        var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
-        if(Input.getKey(Input.keyUp)) {
-            vel.y = 1.0
-        }
-        if(Input.getKey(Input.keyDown)) {
-            vel.y = -1.0
-        }
-        if(Input.getKey(Input.keyRight)) {
-            vel.x = 1.0
-        }
-        if(Input.getKey(Input.keyLeft)) {
-            vel.x = -1.0
-        }
-
-        var s = owner.getComponent(GridSprite)
-        if(vel.y > 0.5) {
-            s.idx = 2
-        } else if(vel.y > 0.2) {
-            s.idx = 1
-        } else if(vel.y < -0.5) {
-            s.idx = 4
-        } else if(vel.y < -0.2) {
-            s.idx = 3
-        } else {
-            s.idx = 0
-        }
-        
-        if(vel.magnitude > Globals.PlayerInputDeadZone) {            
-            vel = vel * speed
-        } else {
-            vel = vel * 0
-        }
-        b.velocity = vel        
-    }
-
-    addDrone2(drone) {
-        var o = owner.getComponent(Orbitor)
-        o.trim()
-        o.add(drone)
-
-        /*
-        _drones.add(drone)
-
-        while(true) {
-            var found = false
-            for(i in 0..._drones.count) {            
-                if(_drones[i].deleted) {
-                    _drones.removeAt(i)
-                    found = true
-                    break
-                }
-            }
-            if(found == false) {
-                break
-            }
-        }
-
-        for(i in 0..._drones.count) {
-            var e = _drones[i]
-            var d = e.getComponent(Drone)
-            var ix = i + 2
-            var sign = ix % 2 == 0 ? -1 : 1
-            var y = (ix / 2).truncate * sign * Globals.DroneSpread
-            var x = y * 0.5 * -sign
-            d.offset = Vec2.new(x, y)
-        }
-        */
-    }
-}
-
-class Drone is Component {
-    construct new() {
-        _offset = Vec2.new(0, 0)
-    }
-
-    update(dt) {
-        var shipPos = Game.playerShip.getComponent(Transform).position
-        var toPos = shipPos + _offset
-        var curPos = owner.getComponent(Transform).position
-        owner.getComponent(Transform).position = Math.damp(curPos, toPos, 10, dt)
-    }
-
-    offset { _offset }
-    offset=(v) { _offset = v }
-}
-
-class Enemy is Component {
-    construct new(idx, tilt, parent, bulletType) {
-        super()        
-        _parent = parent
-        _time = idx * 0.4
-        _shootTime = _time
-        _tilt = tilt
-        _hack = 0
-        _bulletType = bulletType
-    }
-
-    finalize() {
-        Game.addScore(10)
-    }
-
-    update(dt) {
-        _time = _time + dt * 2.0
-
-        // var pos = Vec2.new(30 * _time.sin, 70 * _time.cos)
-        // pos.rotate(_tilt)
-        // var position = _parent.getComponent(Transform).position
-        // owner.getComponent(Transform).position = pos + position
-
-        _shootTime = _shootTime + dt
-        if(_shootTime > 1.0) {
-            if(Game.random.float(0, 1.0) < 0.3) {
-                if(_bulletType == BulletType.straight) {
-                    Game.createBulletStraightEnemy(
-                        owner,
-                        Globals.EnemyBulletSpeed,
-                        Globals.EnemyBulletDamage)
-                } else if(_bulletType == BulletType.directed) {
-                    Game.createBulletDirectedEnemy(
-                        owner,
-                        Globals.EnemyBulletSpeed,
-                        Globals.EnemyBulletDamage)
-                } else if(_bulletType == BulletType.spread) {
-                    Game.createBulletSpreadEnemy(
-                        owner,
-                        Globals.EnemyBulletSpeed,
-                        Globals.EnemyBulletDamage)
-                } else if(_bulletType == BulletType.follow) {
-                    Game.createBulletDirectedEnemy(
-                        owner,
-                        Globals.EnemyBulletSpeed,
-                        Globals.EnemyBulletDamage)
-                }
-            }
-            _shootTime = 0
-        }
-
-        if(_hack > 0) {
-            _hack = _hack - dt * 0.25
-            Render.setColor(Color.fromNum(0x8BEC46FF))
-            var pos = owner.getComponent(Transform).position
-            Render.setColor(0xFFFFFFFF)
-            Render.arc(pos.x, pos.y, 14, 2.0 * _hack * Num.pi, 16)
-        }
-    }
-
-    parent { _parent }
-
-    hack(dt) { _hack = _hack + dt }
-    hacked { _hack > 0.3 }
-}
-
 class Explosion is Component {
     construct new(duration) {
         _time = 0
@@ -299,73 +62,9 @@ class Explosion is Component {
     }
 }
 
-class DebugColor is Component {
-    construct new(color) {
-        super()
-        _color = color
-    }
-    color { _color }
-    color=(v) { _color = v}
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // Game
 ///////////////////////////////////////////////////////////////////////////////
-
-class Menu {
-    construct new(items) {
-        _items = items
-        _selected = 0
-        _actions = {}
-    }
-
-    update(dt) {
-        if(Input.getButtonOnce(13) == true || Input.getKeyOnce(Input.keyDown)) {
-            _selected = (_selected + 1) % _items.count
-        } else if (Input.getButtonOnce(11) == true || Input.getKeyOnce(Input.keyUp)) {
-            _selected = (_selected - 1) % _items.count
-        } else if (Input.getButtonOnce(0) == true || Input.getKeyOnce(Input.keySpace)) {
-            var item = _items[_selected]
-            var action = _actions[item]
-            if(action != null) {
-                action.call()
-            }
-        } 
-
-        /*
-        Render.setColor(0x000000FF)
-        render(-190, 56)        
-        Render.setColor(0xFFFFFFFF)
-        render(-191, 57)                
-        */
-    }
-
-    render(x, y) {
-        Render.text("======== SubOptimal v0.1 ========", x, y, 2)
-        var i = 0
-        for(item in _items) {
-            y = y - 20
-            if(_selected == i) {
-                Render.text(">" + item + "<", x, y, 2)
-            } else {
-                Render.text(item, x, y, 2)
-            }            
-            i = i + 1
-        }
-        y = y - 18
-        Render.text("================================", x, y, 2)
-    }
-
-    addAction(name, action) {
-        _actions[name] = action
-    }
-}
-
-class GameState {
-    static Menu     { 1 }
-    static Play     { 2 }
-    static Score    { 3 }
-}
 
 class Parallax is Component {
     construct new(speed, width, repeat) {
@@ -385,6 +84,13 @@ class Parallax is Component {
 
 }
 
+class GameState {
+    static Title    { 0 }
+    static Menu     { 1 }
+    static Play     { 2 }
+    static Score    { 3 }
+}
+
 class Game {
     static config() {        
         Configuration.width = 640
@@ -400,24 +106,23 @@ class Game {
 
         __frame = 0
         __random = Random.new()
-        __state = GameState.Menu        
+        __state = GameState.Title        
         __score = 0
         __waveTimer = 0
         __wave = 0
-        __menu = Menu.new(["play", "options", "credits", "exit"])
-        __menu.addAction("play", Fn.new { Game.startPlay() } )
-
         __shakeOffset = Vec2.new(0, 0)
         __shakeIntesity = 0
 
         __font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
 
-        //startPlay()
+        // startPlay()
     }        
     
     static update(dt) {        
         Entity.update(dt)
-        if(__state == GameState.Menu) {
+        if(__state == GameState.Title) {
+            updateTitle(dt)
+        } else  if(__state == GameState.Menu) {
             __menu.update(dt)
         } else if(__state == GameState.Play) {
             updatePlay(dt)
@@ -440,7 +145,9 @@ class Game {
             Render.setOffset(0, 0)
             var pu = playerShip.getComponent(Unit)
             var text = "SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)"
-            Render.renderText(__font, text, 0, 150, 0xFFFFFFFF, 0xFFFFFFFF, 0)
+            Render.renderText(__font, text, 0, 150, 0xFFFFFFFF, 0xFFFFFFFF, Render.spriteCenter)
+        } else if(__state == GameState.Menu) {
+            __menu.render(100.0, 0.0)
         }
     }
 
@@ -450,6 +157,12 @@ class Game {
         __wave = 0
         __state = GameState.Play
         createPlayerShip()        
+    }
+
+    static updateTitle(dt) {
+        if (Input.getButtonOnce(0) == true || Input.getKeyOnce(Input.keySpace)) {
+            startMenu()
+        }
     }
 
     static updatePlay(dt) {
@@ -473,11 +186,11 @@ class Game {
         }
         */
  
-        var playerUnits = Entity.entitiesWithTag(Tag.Player | Tag.Unit)
-        var playerBullets = Entity.entitiesWithTag(Tag.Player | Tag.Bullet)
-        var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit)
-        var computerBullets = Entity.entitiesWithTag(Tag.Computer | Tag.Bullet)
-        // var computerBullets = Entity.entitiesWithTag(Tag.Computer | Tag.Bullet)
+        var playerUnits = Entity.entitiesWithTag(Tag.player | Tag.unit)
+        var playerBullets = Entity.entitiesWithTag(Tag.player | Tag.bullet)
+        var computerUnits = Entity.entitiesWithTag(Tag.computer | Tag.unit)
+        var computerBullets = Entity.entitiesWithTag(Tag.computer | Tag.bullet)
+        // var computerBullets = Entity.entitiesWithTag(Tag.computer | Tag.bullet)
 
         Game.collide(computerBullets, playerUnits)
         Game.collide(playerBullets, computerUnits)
@@ -505,6 +218,15 @@ class Game {
             __frame = 0
         }
         */
+    }
+
+    static startMenu() {
+        __title.delete()
+        __title = null
+        __state = GameState.Menu
+        __menu = Menu.new(["play", "options", "credits", "exit"])
+        __menu.addAction("play", Fn.new { Game.startPlay() } )
+
     }
 
     static updateScore(dt) {
@@ -666,29 +388,39 @@ class Game {
     }
 
     static createTitle() {
+        __title = Entity.new()
+        {
+            var t = Transform.new(Vec2.new(0,0))
+            __title.addComponent(t)
+        }
         { // Text part
             var e = Entity.new()
             var t = Transform.new(Vec2.new(0,0))
+            var r  = Relation.new(__title)
             var s = Sprite.new("[games]/jump-core/images/backgrounds/title.png", 0, 0, 1, 1)
             s.layer = 10.0
             s.flags = Render.spriteCenter            
             e.name = "Title"
-            //bullet.tag = Tag.Player | Tag.Bullet
+            //bullet.tag = Tag.player | Tag.bullet
             e.addComponent(t)
             e.addComponent(s)
+            e.addComponent(r)
         }
         { // Core part
             var e = Entity.new()
             var t = Transform.new(Vec2.new(75,20))
+            var r = Relation.new(__title)
+            r.offset = Vec2.new(75,20)
             var s = AnimatedSprite.new("[games]/jump-core/images/vfx/Electric_Effect_05.png", 4, 4, 15)
             s.layer = 10.1
             s.flags = Render.spriteCenter
             s.addAnimation("play", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
             s.playAnimation("play")
             e.name = "Core"
-            //bullet.tag = Tag.Player | Tag.Bullet
+            //bullet.tag = Tag.player | Tag.bullet
             e.addComponent(t)
             e.addComponent(s)
+            e.addComponent(r)
         }
     }
 
@@ -715,7 +447,7 @@ class Game {
         ship.addComponent(o)
         ship.addComponent(s)
         ship.name = "Player"
-        ship.tag = (Tag.Player | Tag.Unit)
+        ship.tag = (Tag.player | Tag.unit)
         __ship = ship
         {
             var thrust = Entity.new()
@@ -772,7 +504,7 @@ class Game {
         core.addComponent(o)
         core.addComponent(s)
         core.name = "Enemy Core"
-        core.tag = (Tag.Computer | Tag.Unit)
+        core.tag = (Tag.computer | Tag.unit)
         return core
     }
 
@@ -795,7 +527,7 @@ class Game {
         ship.addComponent(c)
         ship.addComponent(s)
         ship.name = "Enemy"
-        ship.tag = (Tag.Computer | Tag.Unit)
+        ship.tag = (Tag.computer | Tag.unit)
         {
             var thrust = Entity.new()
             var t = Transform.new(Vec2.new(0, 0))
@@ -859,7 +591,7 @@ class Game {
         bullet.addComponent(bl)
         bullet.addComponent(s)
         bullet.name = "Bullet"
-        bullet.tag = Tag.Player | Tag.Bullet
+        bullet.tag = Tag.player | Tag.bullet
         bullet.addComponent(DebugColor.new(0x8BEC46FF))
     }
 
@@ -884,7 +616,7 @@ class Game {
         bullet.addComponent(bl)
         bullet.addComponent(s)
         bullet.name = "Bullet2"
-        bullet.tag = Tag.Computer | Tag.Bullet
+        bullet.tag = Tag.computer | Tag.bullet
         bullet.addComponent(DebugColor.new(0xEC468BFF))
     }
 
@@ -907,7 +639,7 @@ class Game {
         bullet.addComponent(bl)
         bullet.addComponent(s)
         bullet.name = "Bullet2"
-        bullet.tag = Tag.Computer | Tag.Bullet
+        bullet.tag = Tag.computer | Tag.bullet
         bullet.addComponent(DebugColor.new(0xEC468BFF))
     }
 
@@ -933,7 +665,7 @@ class Game {
             bullet.addComponent(bl)
             bullet.addComponent(s)
             bullet.name = "Bullet2"
-            bullet.tag = Tag.Computer | Tag.Bullet // |
+            bullet.tag = Tag.computer | Tag.bullet // |
             bullet.addComponent(DebugColor.new(0xEC468BFF))
         }
     }
@@ -959,4 +691,6 @@ class Game {
     }
 }
 
-import "ships" for Orbitor, Shield, EnemyCore
+import "ships" for Orbitor, Shield, EnemyCore, Enemy
+import "unit" for Unit
+import "player" for Player
