@@ -428,6 +428,16 @@ bool xs::input::get_key_once(int key)
 	return false;
 }
 
+bool xs::input::get_mousebutton(int button)
+{
+	return false;
+}
+
+bool xs::input::get_mousebutton_once(int button)
+{
+	return false;
+}
+
 std::string GetName(JoystickType type)
 {
 	switch (type)
