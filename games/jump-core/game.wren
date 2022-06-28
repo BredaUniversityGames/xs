@@ -156,7 +156,7 @@ class Game {
         __waveTimer = 0
         __wave = 0
         __state = GameState.Play
-        createPlayerShip()        
+        __ship = Player.createShip()
     }
 
     static updateTitle(dt) {
@@ -421,49 +421,6 @@ class Game {
             e.addComponent(t)
             e.addComponent(s)
             e.addComponent(r)
-        }
-    }
-
-    static createPlayerShip() {
-        var ship = Entity.new()            
-        var p = Vec2.new(0, 0)
-        var t = Transform.new(p)
-        var sc = Player.new()
-        var v = Vec2.new(0, 0)
-        var b = Body.new( Globals.PlayerSize , v)
-        var u = Unit.new(Team.player, Globals.PlayerHealth)
-        var c = DebugColor.new(0x8BEC46FF)
-        var o = Orbitor.new(ship)
-        var s = GridSprite.new("[games]/jump-core/images/ships/blue-ship-spritesheet.png", 5, 1)
-        s.layer = 1.0
-        s.flags = Render.spriteCenter
-        // s.addAnimation("fly", [0,1,2])
-        // s.playAnimation("fly")
-        ship.addComponent(t)
-        ship.addComponent(sc)            
-        ship.addComponent(b)
-        ship.addComponent(u)
-        ship.addComponent(c)
-        ship.addComponent(o)
-        ship.addComponent(s)
-        ship.name = "Player"
-        ship.tag = (Tag.player | Tag.unit)
-        __ship = ship
-        {
-            var thrust = Entity.new()
-            var t = Transform.new(Vec2.new(0, 0))
-            var s = AnimatedSprite.new("[games]/jump-core/images/ships/thrusters.png", 4, 2, 15)            
-            s.layer = 0.999
-            s.flags = Render.spriteCenter
-            s.addAnimation("straight", [1, 3, 5, 7])            
-            //s.addAnimation("diag", [0, 2, 4, 6])
-            //s.playAnimation("diag")            
-            s.playAnimation("straight")
-            var r = Relation.new(ship)
-            r.offset = Vec2.new(-20, 0)
-            thrust.addComponent(t)
-            thrust.addComponent(s)
-            thrust.addComponent(r)
         }
     }
 

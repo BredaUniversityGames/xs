@@ -17,14 +17,14 @@ class Transform is Component {
 class Body is Component {    
     construct new(size, velocity) {
         super()
-        _size = size
+        _scale = size
         _velocity = velocity
     }
 
-    size { _size }
+    size { _scale }
     velocity { _velocity }
 
-    size=(s) { _size = s }
+    size=(s) { _scale = s }
     velocity=(v) { _velocity = v }
 
     update(dt) {
@@ -32,7 +32,7 @@ class Body is Component {
         t.position = t.position + _velocity * dt
     }
 
-    toString { "[Body velocity:%(_velocity) size:%(_size)]" }
+    toString { "[Body velocity:%(_velocity) size:%(_scale)]" }
 }
 
 class Renderable is Component {
@@ -77,7 +77,7 @@ class Sprite is Renderable {
         }
         _sprite = Render.createSprite(image, 0, 0, 1, 1)
         _rotation = 0.0
-        _size = 1.0
+        _scale = 1.0
         _mul = 0xFFFFFFFF        
         _add = 0x00000000
         _flags = 0
@@ -91,7 +91,7 @@ class Sprite is Renderable {
         }
         _sprite = Render.createSprite(image, s0, t0, s1, t1)
         _rotation = 0.0
-        _size = 1.0
+        _scale = 1.0
         _mul = 0xFFFFFFFF        
         _add = 0x00000000
         _flags = 0
@@ -99,7 +99,7 @@ class Sprite is Renderable {
 
     render() {        
         var t = owner.getComponent(Transform)
-        Render.renderSprite(_sprite, t.position.x, t.position.y, _rotation, _size, _mul, _add, _flags)
+        Render.renderSprite(_sprite, t.position.x, t.position.y, _rotation, _scale, _mul, _add, _flags)
     }
 
     add { _add }
@@ -107,6 +107,9 @@ class Sprite is Renderable {
 
     flags { _flags }
     flags=(f) { _flags = f }
+
+    scale { _scale }
+    scale=(s) { _scale = s }
 
     sprite_=(s) { _sprite = s }
 
