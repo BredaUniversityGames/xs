@@ -92,17 +92,24 @@ namespace xs::render::internal
 
 	primitive				current_primitive = primitive::none;
 
-	struct sprite_vtx_format { vec3 position; vec2 texture; vec4 color; };	
+	struct sprite_vtx_format
+	{
+		vec3 position;
+		vec2 texture;
+		vec4 add_color;
+		vec4 mul_color;
+	};	
 	struct sprite { int image_id; vec2 from; vec2 to; };
 	struct sprite_queue_entry
 	{
 		int sprite_id			=	-1;
 		double x				= 0.0;
 		double y				= 0.0;
-		sprite_anchor anchor	= {};
-		unsigned int flags		= 0;
+		double scale			= 1.0;
+		// sprite_anchor anchor	= {};	// TODO: Remove	
 		color mul_color			= {};
 		color add_color			= {};
+		unsigned int flags		= 0;
 	};
 	
 	unsigned int			sprite_program = 0;
@@ -374,7 +381,12 @@ void xs::render::initialize()
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(
 		3, 4, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, color)));
+		reinterpret_cast<void*>(offsetof(sprite_vtx_format, mul_color)));
+
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(
+		4, 4, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
+		reinterpret_cast<void*>(offsetof(sprite_vtx_format, add_color)));
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 }
@@ -434,6 +446,7 @@ void xs::render::render()
 
 		// vec4 mul_color = to_vec4(spe.mul_color);
 		vec4 add_color = to_vec4(spe.add_color);
+		vec4 mul_color = to_vec4(spe.mul_color);
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, image.gl_id);
@@ -454,20 +467,18 @@ void xs::render::render()
 			sprite_trigs_array[4].texture = { to_u,		to_v };
 			sprite_trigs_array[5].texture = { from_u,	to_v };
 
-			sprite_trigs_array[0].color = add_color;
-			sprite_trigs_array[1].color = add_color;
-			sprite_trigs_array[2].color = add_color;
-			sprite_trigs_array[3].color = add_color;
-			sprite_trigs_array[4].color = add_color;
-			sprite_trigs_array[5].color = add_color;
-
+			for (int i = 0; i < 6; ++i)
+			{
+				sprite_trigs_array[i].add_color = add_color;
+				sprite_trigs_array[i].mul_color = mul_color;				
+			}
+			
 			vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
 			if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
 			{				
 				for (int i = 0; i < 6; i++)
 					sprite_trigs_array[i].position -= anchor;
 			}
-
 		}
 
 		glBindVertexArray(sprite_trigs_vao);
@@ -617,6 +628,7 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	return static_cast<int>(i);
 }
 
+/*
 void xs::render::render_sprite(int sprite_id, double x, double y, sprite_anchor anchor)
 {
 	// TODO: Validate sprite
@@ -627,26 +639,35 @@ void xs::render::render_sprite(int sprite_id, double x, double y, sprite_anchor 
 		anchor
 	});
 }
+*/
 
 void xs::render::render_sprite_ex(
-	int image_id,
+	int sprite_id,
 	double x,
 	double y,
 	double rotation,
-	double size,
+	double scale,
 	color mutiply,
 	color add,
 	unsigned int flags)
 {
 	// TODO: Validate sprite
+	// int sprite_id = -1;
+	// double x = 0.0;
+	// double y = 0.0;
+	// sprite_anchor anchor = {};
+	// unsigned int flags = 0;
+	// color mul_color = {};
+	// color add_color = {};
+
 	sprite_queue.push_back({
-		image_id,
+		sprite_id,
 		x + offset.x,
 		y + offset.y,
-		sprite_anchor::bottom,
-		flags,
+		scale,
 		mutiply,
-		add
+		add,
+		flags
 	});
 }
 

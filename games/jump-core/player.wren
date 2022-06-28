@@ -3,6 +3,8 @@ import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 import "globals" for Globals
+import "tags" for Team, Tag
+import "debug" for DebugColor
 
 class Player is Component {
     construct new() {
@@ -74,6 +76,52 @@ class Player is Component {
         }
         b.velocity = vel        
     }
+
+    static createShip() {
+        var ship = Entity.new()            
+        var p = Vec2.new(0, 0)
+        var t = Transform.new(p)
+        var sc = Player.new()
+        var v = Vec2.new(0, 0)
+        var b = Body.new( Globals.PlayerSize , v)
+        var u = Unit.new(Team.player, Globals.PlayerHealth)
+        var c = DebugColor.new(0x8BEC46FF)
+        var o = Orbitor.new(ship)
+        var s = GridSprite.new("[games]/jump-core/images/ships/blue-ship-spritesheet.png", 5, 1)
+        s.layer = 1.0
+        s.flags = Render.spriteCenter
+        // s.addAnimation("fly", [0,1,2])
+        // s.playAnimation("fly")
+        ship.addComponent(t)
+        ship.addComponent(sc)            
+        ship.addComponent(b)
+        ship.addComponent(u)
+        ship.addComponent(c)
+        ship.addComponent(o)
+        ship.addComponent(s)
+        ship.name = "Player"
+        ship.tag = (Tag.player | Tag.unit)
+        {
+            var thrust = Entity.new()
+            var t = Transform.new(Vec2.new(0, 0))
+            var s = AnimatedSprite.new("[games]/jump-core/images/ships/thrusters.png", 4, 2, 15)            
+            s.layer = 0.999
+            s.flags = Render.spriteCenter
+            s.addAnimation("straight", [4, 5, 6, 7])            
+            s.playAnimation("straight")
+            s.scale = 2.0
+            var r = Relation.new(ship)
+            r.offset = Vec2.new(-20, 0)
+            thrust.addComponent(t)
+            thrust.addComponent(s)
+            thrust.addComponent(r)
+        }
+
+        return ship
+    }
+
 }
 
 import "game" for Game
+import "ships" for Orbitor, Shield, EnemyCore, Enemy
+import "unit" for Unit

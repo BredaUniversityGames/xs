@@ -138,6 +138,7 @@ void render_create_sprite(WrenVM* vm)
 
 void render_sprite(WrenVM* vm)
 {
+	/*
 	wrenEnsureSlots(vm, 5);
 	const auto sprite_id = wrenGetSlotDouble(vm, 1);
 	const auto x = wrenGetSlotDouble(vm, 2);
@@ -146,6 +147,7 @@ void render_sprite(WrenVM* vm)
 	int a_int = static_cast<int>(a);
 	auto a_sa = static_cast<xs::render::sprite_anchor>(a_int);
 	xs::render::render_sprite((int)sprite_id, x, y, a_sa);
+	*/
 }
 
 void render_sprite_ex(WrenVM* vm)
