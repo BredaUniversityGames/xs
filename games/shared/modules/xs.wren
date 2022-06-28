@@ -186,13 +186,78 @@ class Input {
     foreign static getButtonOnce(button)
     foreign static getKey(key)
     foreign static getKeyOnce(key)
+    foreign static getMouseButton(button)
+    foreign static getMouseButtonOnce(button)
+    foreign static getMouseX()
+    foreign static getMouseY()
 
-    // TODO: Add all keys
-    static keyRight { 262 }
-    static keyLeft  { 263 }
-    static keyDown  { 264 }
-    static keyUp    { 265 }
-    static keySpace { 32  }
+    static getMousePosition() {
+        return [getMouseX(), getMouseY()]
+    }
+
+    static keyRight  { 262 }
+    static keyLeft   { 263 }
+    static keyDown   { 264 }
+    static keyUp     { 265 }
+    static keySpace  { 32  }
+    static keyEscape { 256 }
+    static keyEnter  { 257 }
+
+    static keyA { 65 }
+    static keyB { 66 }
+    static keyC { 67 }
+    static keyD { 68 }
+    static keyE { 69 }
+    static keyF { 70 }
+    static keyG { 71 }
+    static keyH { 72 }
+    static keyI { 73 }
+    static keyJ { 74 }
+    static keyK { 75 }
+    static keyL { 76 }
+    static keyM { 77 }
+    static keyN { 78 }
+    static keyO { 79 }
+    static keyP { 80 }
+    static keyQ { 81 }
+    static keyR { 82 }
+    static keyS { 83 }
+    static keyT { 84 }
+    static keyU { 85 }
+    static keyV { 86 }
+    static keyW { 87 }
+    static keyX { 88 }
+    static keyY { 89 }
+    static keyZ { 90 }
+
+    // TODO: add more keys
+
+    static gamepadButtonSouth      { 0  }
+    static gamepadButtonEast       { 1  }
+    static gamepadButtonWest       { 2  }
+    static gamepadButtonNorth      { 3  }
+    static gamepadShoulderLeft     { 4  }
+    static gamepadShoulderRight    { 5  }
+    static gamepadButtonShare      { 6  }
+    static gamepadButtonMenu       { 7  }
+    
+    static gamepadLeftStickPress   { 9  }
+    static gamepadRightStickPress  { 10 }
+    static gamepadDPadUp           { 11 }
+    static gamepadDPadRight        { 12 }
+    static gamepadDPadDown         { 13 }
+    static gamepadDPadLeft         { 14 }
+
+    static gamepadAxisLeftStickX   { 0  }
+    static gamepadAxisLeftStickY   { 1  }
+    static gamepadAxisRightStickX  { 2  }
+    static gamepadAxisRightStickY  { 3  }
+    static gamepadAxisLeftTrigger  { 4  }
+    static gamepadAxisRightTrigger { 5  }
+
+    static mouseButtonLeft   { 0 }
+    static mouseButtonRight  { 1 }
+    static mouseButtonMiddle { 2 }
 }
 
 class Registry {

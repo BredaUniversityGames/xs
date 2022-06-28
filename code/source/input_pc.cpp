@@ -6,22 +6,33 @@
 
 namespace 
 {
-	void joystick_callback(int joy, int event) {}
 	GLFWgamepadstate gamepad_state;
 	GLFWgamepadstate prev_gamepad_state;
 	char key_once[512 + 1];
+	char mousebutton_once[8];
+	double mousepos[2];
 	bool gamepad_connected;
+
+	void joystick_callback(int joy, int event) {}
+	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+	{
+		mousepos[0] = xpos;
+		mousepos[1] = ypos;
+	}
+
 }
 
 void xs::input::initialize()
 {
 	glfwSetJoystickCallback(joystick_callback);
+	glfwSetCursorPosCallback(device::get_window(), cursor_position_callback);
 	update(0.0f);
 }
 
 void xs::input::shutdown()
 {
 	glfwSetJoystickCallback(NULL);
+	glfwSetCursorPosCallback(device::get_window(), NULL);
 }
 
 void xs::input::update(double dt)
@@ -35,7 +46,7 @@ double xs::input::get_axis(int axis)
 {
 	if (!gamepad_connected) return 0.0;
 	
-	assert(axis >= 0 && axis < GLFW_GAMEPAD_AXIS_LAST);
+	assert(axis >= 0 && axis <= GLFW_GAMEPAD_AXIS_LAST);
 	//return (static_cast<double>(gamepad_state.axes[axis]) + 1.0) * 0.5;
 	return static_cast<double>(gamepad_state.axes[axis]);
 }
@@ -44,7 +55,7 @@ bool xs::input::get_button(int button)
 {
 	if (!gamepad_connected) return false;
 	
-	assert(button >= 0 && button < GLFW_GAMEPAD_BUTTON_LAST);
+	assert(button >= 0 && button <= GLFW_GAMEPAD_BUTTON_LAST);
 	return static_cast<bool>(gamepad_state.buttons[button]);
 }
 
@@ -52,7 +63,7 @@ bool xs::input::get_button_once(int button)
 {
 	if (!gamepad_connected) return false;
 	
-	assert(button >= 0 && button < GLFW_GAMEPAD_BUTTON_LAST);
+	assert(button >= 0 && button <= GLFW_GAMEPAD_BUTTON_LAST);
 	return
 		!static_cast<bool>(prev_gamepad_state.buttons[button]) &&
 		static_cast<bool>(gamepad_state.buttons[button]);
@@ -74,4 +85,26 @@ bool xs::input::get_key_once(int key)
 	return (glfwGetKey(device::get_window(), key) ?
 		(key_once[key] ? false : (key_once[key] = true)) : \
 		(key_once[key] = false));
+}
+
+bool xs::input::get_mousebutton(int button)
+{
+	return glfwGetMouseButton(device::get_window(), button) == GLFW_PRESS;
+}
+
+bool xs::input::get_mousebutton_once(int button)
+{
+	return (glfwGetMouseButton(device::get_window(), button) ?
+		(mousebutton_once[button] ? false : (mousebutton_once[button] = true)) : \
+		(mousebutton_once[button] = false));
+}
+
+double xs::input::get_mouse_x()
+{
+	return mousepos[0];
+}
+
+double xs::input::get_mouse_y()
+{
+	return mousepos[1];
 }
