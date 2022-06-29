@@ -186,9 +186,9 @@ void render_sprite_ex(WrenVM* vm)
 	wrenEnsureSlots(vm, 5);
 	const auto sprite_id = wrenGetSlotDouble(vm, 1);
 	const auto x = wrenGetSlotDouble(vm, 2);
-	const auto y = wrenGetSlotDouble(vm, 3);
-	const auto size = wrenGetSlotDouble(vm, 4);
-	const auto rotation = wrenGetSlotDouble(vm, 5);
+	const auto y = wrenGetSlotDouble(vm, 3);	
+	const auto rotation = wrenGetSlotDouble(vm, 4);
+	const auto size = wrenGetSlotDouble(vm, 5);
 	const auto mul = wrenGetSlotDouble(vm, 6);
 	const auto add = wrenGetSlotDouble(vm, 7);
 	const auto flags = wrenGetSlotDouble(vm, 8);

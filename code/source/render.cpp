@@ -123,8 +123,8 @@ namespace xs::render::internal
 	std::vector<sprite>		sprites = {};
 	std::vector<font_atals> fonts = {};
 
-	color white{ 255, 255, 255, 255 };
-	color black{ 255, 0, 0, 0 };
+	//color white = { 255, 255, 255, 255 };
+	//color black = { 255, 0, 0, 0 };
 }
 
 using namespace xs;
@@ -228,7 +228,7 @@ void xs::render::render_text(
 	const std::string& text,
 	double x,
 	double y,
-	color mutiply,
+	color multiply,
 	color add,
 	unsigned int flags)
 {
@@ -258,9 +258,6 @@ void xs::render::render_text(
 		// glyph.Advance = static_cast<float>(advance);
 		// glyph.BearingX = static_cast<float>(bearing);
 
-		color add{ 0,0,0,0 };
-		color mul{ 255,255,255,0 };
-
 		// Kerning to next letter
 		float kerning = 0.0f;
 		if (i + 1 < text.size())
@@ -272,7 +269,7 @@ void xs::render::render_text(
 		}
 
 		auto sprite = create_sprite(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
-		render_sprite_ex(sprite, begin + bearing, y - quad.y1, 0, 1, add, add, 0);
+		render_sprite_ex(sprite, begin + bearing, y - quad.y1, 0, 1, multiply, add, 0);
 
 		begin += advance + kerning;		
 	}
@@ -429,8 +426,8 @@ void xs::render::render()
 
 		auto from_x = spe.x;
 		auto from_y = spe.y;
-		auto to_x = spe.x + image.width * (sprite.to.x - sprite.from.x);
-		auto to_y = spe.y + image.height * (sprite.to.y - sprite.from.y);
+		auto to_x = spe.x + image.width * (sprite.to.x - sprite.from.x) * spe.scale;
+		auto to_y = spe.y + image.height * (sprite.to.y - sprite.from.y) * spe.scale;
 
 
 		auto from_u = sprite.from.x;
@@ -474,6 +471,7 @@ void xs::render::render()
 			}
 			
 			vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
+			//anchor *= spe.scale;
 			if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
 			{				
 				for (int i = 0; i < 6; i++)
