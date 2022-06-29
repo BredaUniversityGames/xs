@@ -99,7 +99,7 @@ class Sprite is Renderable {
 
     render() {        
         var t = owner.getComponent(Transform)
-        Render.renderSprite(_sprite, t.position.x, t.position.y, _rotation, _scale, _mul, _add, _flags)
+        Render.renderSprite(_sprite, t.position.x, t.position.y, _scale, _rotation, _mul, _add, _flags)
     }
 
     add { _add }
