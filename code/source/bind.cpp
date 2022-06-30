@@ -186,9 +186,9 @@ void render_sprite_ex(WrenVM* vm)
 	wrenEnsureSlots(vm, 5);
 	const auto sprite_id = wrenGetSlotDouble(vm, 1);
 	const auto x = wrenGetSlotDouble(vm, 2);
-	const auto y = wrenGetSlotDouble(vm, 3);	
-	const auto rotation = wrenGetSlotDouble(vm, 4);
-	const auto size = wrenGetSlotDouble(vm, 5);
+	const auto y = wrenGetSlotDouble(vm, 3);		
+	const auto scale = wrenGetSlotDouble(vm, 4);
+	const auto rotation = wrenGetSlotDouble(vm, 5);
 	const auto mul = wrenGetSlotDouble(vm, 6);
 	const auto add = wrenGetSlotDouble(vm, 7);
 	const auto flags = wrenGetSlotDouble(vm, 8);
@@ -201,7 +201,7 @@ void render_sprite_ex(WrenVM* vm)
 
 	const auto flags_i = static_cast<uint32_t>(flags);
 
-	xs::render::render_sprite_ex((int)sprite_id, x, y, size, rotation, mul_c, add_c, flags_i);
+	xs::render::render_sprite((int)sprite_id, x, y, scale, rotation, mul_c, add_c, flags_i);
 }
 
 void render_set_offset(WrenVM* vm)

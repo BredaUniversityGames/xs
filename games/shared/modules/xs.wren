@@ -163,7 +163,7 @@ class Render {
     foreign static loadImage(path)
     foreign static createSprite(imageId, x0, y0, x1, y1)
     foreign static renderSprite(spriteId, x, y, a)
-    foreign static renderSprite(spriteId, x, y, size, rotation, mul, add, flags)
+    foreign static renderSprite(spriteId, x, y, scale, rotation, mul, add, flags)
     foreign static setOffset(x, y)
     static renderSprite(spriteId, x, y) { renderSprite(spriteId, x, y, spriteBottom) }
     foreign static loadFont(font,size)

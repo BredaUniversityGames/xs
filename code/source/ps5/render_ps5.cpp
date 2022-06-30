@@ -562,7 +562,7 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	return -1;
 }
 
-void xs::render::render_sprite_ex(
+void xs::render::render_sprite(
 	int image_id,
 	double x,
 	double y,

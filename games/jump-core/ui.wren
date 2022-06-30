@@ -24,19 +24,19 @@ class Menu {
     }
 
     render(x, y) {
-        Render.renderText(_font, "======== SubOptimal v0.1 ========", x, y, 0, 0, 0)
+        Render.renderText(_font, "======== SubOptimal v0.1 ========", x, y, 0xFFFFFFFF, 0x00000000, 0)
         var i = 0
         for(item in _items) {
             y = y - 20
             if(_selected == i) {
-                Render.renderText(_font, ">" + item + "<", x, y, 0, 0, 0)
+                Render.renderText(_font, ">" + item + "<", x, y, 0xFFFFFFFF, 0x00000000, 0)
             } else {
-                Render.renderText(_font, item, x, y, 0, 0, 0)
+                Render.renderText(_font, item, x, y, 0xFFFFFFFF, 0x00000000, 0)
             }            
             i = i + 1
         }
         y = y - 18
-        Render.renderText(_font, "================================", x, y, 0, 0, 0)
+        Render.renderText(_font, "================================", x, y, 0xFFFFFFFF, 0x00000000, 0)
     }
 
     addAction(name, action) {
