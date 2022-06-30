@@ -18,6 +18,9 @@ class Math {
 	    var t = invLerp(iF, iT, v)
 	    return lerp(oF, oT, t)
     }
+
+    static radians(deg) { deg / 180.0 * 3.14159265359 }
+    static degrees(rad) { rad * 180.0 / 3.14159265359 }
 }
 
 class Bits {

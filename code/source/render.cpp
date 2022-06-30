@@ -106,6 +106,7 @@ namespace xs::render::internal
 		double x				= 0.0;
 		double y				= 0.0;
 		double scale			= 1.0;
+		double rotation			= 0.0;
 		// sprite_anchor anchor	= {};	// TODO: Remove	
 		color mul_color			= {};
 		color add_color			= {};
@@ -125,6 +126,8 @@ namespace xs::render::internal
 
 	//color white = { 255, 255, 255, 255 };
 	//color black = { 255, 0, 0, 0 };
+
+	void rotate_vector3d(vec3& vec, float radians);
 }
 
 using namespace xs;
@@ -269,7 +272,7 @@ void xs::render::render_text(
 		}
 
 		auto sprite = create_sprite(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
-		render_sprite_ex(sprite, begin + bearing, y - quad.y1, 0, 1, multiply, add, 0);
+		render_sprite(sprite, begin + bearing, y - quad.y1, 0, 1, multiply, add, 0);
 
 		begin += advance + kerning;		
 	}
@@ -409,7 +412,6 @@ void xs::render::render()
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
 	mat4 p = ortho(-w, w, -h, h, -100.0f, 100.0f);
-	//mat4 v = lookAt(vec3(offset.x, offset.y, 100.0f), vec3(offset.x, offset.y, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 v = lookAt(vec3(0.0f, 0.0f, 100.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 vp = p * v;
 
@@ -424,11 +426,10 @@ void xs::render::render()
 		const auto& sprite = sprites[spe.sprite_id];
 		const auto& image = images[sprite.image_id];
 
-		auto from_x = spe.x;
-		auto from_y = spe.y;
-		auto to_x = spe.x + image.width * (sprite.to.x - sprite.from.x) * spe.scale;
-		auto to_y = spe.y + image.height * (sprite.to.y - sprite.from.y) * spe.scale;
-
+		auto from_x = 0.0; // spe.x;
+		auto from_y = 0.0; // spe.y;
+		auto to_x = /* spe.x + */ image.width * (sprite.to.x - sprite.from.x) * spe.scale;
+		auto to_y = /* spe.y + */ image.height * (sprite.to.y - sprite.from.y) * spe.scale;
 
 		auto from_u = sprite.from.x;
 		auto from_v = sprite.from.y;
@@ -441,7 +442,6 @@ void xs::render::render()
 		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_y))
 			std::swap(from_v, to_v);
 
-		// vec4 mul_color = to_vec4(spe.mul_color);
 		vec4 add_color = to_vec4(spe.add_color);
 		vec4 mul_color = to_vec4(spe.mul_color);
 
@@ -471,12 +471,25 @@ void xs::render::render()
 			}
 			
 			vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
-			//anchor *= spe.scale;
 			if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
 			{				
 				for (int i = 0; i < 6; i++)
 					sprite_trigs_array[i].position -= anchor;
 			}
+
+			if (spe.rotation != 0.0)
+			{
+				for (int i = 0; i < 6; i++)
+					rotate_vector3d(sprite_trigs_array[i].position, (float)spe.rotation);
+			}
+
+			for (int i = 0; i < 6; i++)
+			{
+				sprite_trigs_array[i].position.x += (float)spe.x;
+				sprite_trigs_array[i].position.y += (float)spe.y;
+			}
+
+			
 		}
 
 		glBindVertexArray(sprite_trigs_vao);
@@ -626,25 +639,12 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	return static_cast<int>(i);
 }
 
-/*
-void xs::render::render_sprite(int sprite_id, double x, double y, sprite_anchor anchor)
-{
-	// TODO: Validate sprite
-	sprite_queue.push_back({
-		sprite_id,
-		x + offset.x,
-		y + offset.y,
-		anchor
-	});
-}
-*/
-
-void xs::render::render_sprite_ex(
+void xs::render::render_sprite(
 	int sprite_id,
 	double x,
-	double y,
-	double rotation,
+	double y,	
 	double scale,
+	double rotation,
 	color mutiply,
 	color add,
 	unsigned int flags)
@@ -663,6 +663,7 @@ void xs::render::render_sprite_ex(
 		x + offset.x,
 		y + offset.y,
 		scale,
+		rotation,
 		mutiply,
 		add,
 		flags
@@ -998,4 +999,12 @@ bool xs::render::internal::link_program(GLuint program)
 
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	return status != 0;
+}
+
+void xs::render::internal::rotate_vector3d(vec3& vec, float radians)
+{
+	const float x = cos(radians) * vec.x - sin(radians) * vec.y;
+	const float y = sin(radians) * vec.x + cos(radians) * vec.y;
+	vec.x = x;
+	vec.y = y;
 }

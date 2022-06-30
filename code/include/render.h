@@ -44,13 +44,12 @@ namespace xs::render
 	// int get_image_height(int image_id);
 	
 	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
-	//void render_sprite(int sprite_id, double x, double y, sprite_anchor anchor);
-	void render_sprite_ex(
+	void render_sprite(
 		int sprite_id,
 		double x,
-		double y,
-		double rotation,
+		double y,		
 		double size,
+		double rotation,
 		color mutiply,
 		color add,
 		unsigned int flags);
