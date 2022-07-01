@@ -1,5 +1,7 @@
 import "xs" for Configuration, Input, Render, Registry, Color, File
 import "xs_ec"for Entity, Component
+import "xs_math"for Math, Bits, Vec2
+import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation, Label
 
 class Menu {
     construct new(items) {
@@ -7,6 +9,19 @@ class Menu {
         _selected = 0
         _actions = {}
         _font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
+        {
+            var e = Entity.new()
+            var t = Transform.new(Vec2.new(0,0))
+            // var r = Relation.new(__title)
+            _s = Sprite.new("games/jump-core/images/backgrounds/grey.png", 0, 0, 1, 1)
+            _s.layer = 10.0
+            _s.scale = 20.0
+            _s.flags = Render.spriteCenter            
+            e.name = "Bar"
+            e.addComponent(t)
+            e.addComponent(_s)
+            // e.addComponent(r)
+        }
     }
 
     update(dt) {
@@ -21,6 +36,9 @@ class Menu {
                 action.call()
             }
         }
+
+        _s.mul = Registry.getColor("Mul Color")
+        _s.add = Registry.getColor("Add Color")
     }
 
     render(x, y) {
