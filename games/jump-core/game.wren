@@ -6,7 +6,6 @@ import "random" for Random
 import "globals" for Globals
 import "tags" for Team, Tag
 import "debug" for DebugColor
-import "ui" for Menu
 
 class BulletType {
     static straight     { 1 }
@@ -116,6 +115,7 @@ class Game {
         __font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
 
         // startPlay()
+        // startMenu()
     }        
     
     static update(dt) {        
@@ -123,7 +123,7 @@ class Game {
         if(__state == GameState.Title) {
             updateTitle(dt)
         } else  if(__state == GameState.Menu) {
-            __menu.update(dt)
+            // __menu.update(dt)
         } else if(__state == GameState.Play) {
             updatePlay(dt)
         } else if(__state == GameState.Score) {
@@ -147,7 +147,7 @@ class Game {
             var text = "SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)"
             Render.renderText(__font, text, 0, 150, 0xFFFFFFFF, 0x00000000, Render.spriteCenter)
         } else if(__state == GameState.Menu) {
-            __menu.render(100.0, 0.0)
+            //__menu.render(100.0, 0.0)
         }
     }
 
@@ -157,6 +157,8 @@ class Game {
         __wave = 0
         __state = GameState.Play
         __ship = Player.createShip()
+        __menu.delete()
+        __menu = null
     }
 
     static updateTitle(dt) {
@@ -213,8 +215,10 @@ class Game {
         __title.delete()
         __title = null
         __state = GameState.Menu
-        __menu = Menu.new(["play", "options", "credits", "exit"])
-        __menu.addAction("play", Fn.new { Game.startPlay() } )
+        //__menu = Menu.new(["play", "options", "credits", "exit"])
+        //__menu.addAction("play", Fn.new { Game.startPlay() } )
+
+        __menu = MainMenu.create()
 
     }
 
@@ -653,3 +657,4 @@ class Game {
 import "ships" for Orbitor, Shield, EnemyCore, Enemy
 import "unit" for Unit
 import "player" for Player
+import "ui" for Menu, MainMenu
