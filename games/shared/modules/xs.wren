@@ -120,8 +120,7 @@ class Render {
         Render.end()
     }
 
-    static arc(x, y, r, angle, divs) {
-        
+    static arc(x, y, r, angle, divs) {        
         var t = 0.0
         divs = angle / (Num.pi * 2.0) * divs
         divs = divs.truncate
@@ -287,6 +286,7 @@ class Registry {
 
     static getColor(name) {
         var num = getColorNum(name)
+        System.print("Num: %(num)")
         return Color.fromNum(num)
     }
 
