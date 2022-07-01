@@ -1,7 +1,7 @@
 import "xs" for Configuration, Input, Render, Registry, Color, File
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
-import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
+import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation, Label
 import "random" for Random
 import "globals" for Globals
 import "tags" for Team, Tag
@@ -96,7 +96,7 @@ class Game {
         Configuration.width = 640
         Configuration.height = 360
         Configuration.multiplier = 2
-        Configuration.title = "SubOptimal"
+        Configuration.title = "JumpCore"
     }
 
     static init() {        
@@ -145,7 +145,7 @@ class Game {
             Render.setOffset(0, 0)
             var pu = playerShip.getComponent(Unit)
             var text = "SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)"
-            Render.renderText(__font, text, 0, 150, 0xFFFFFFFF, 0xFFFFFFFF, Render.spriteCenter)
+            Render.renderText(__font, text, 0, 150, 0xFFFFFFFF, 0x00000000, Render.spriteCenter)
         } else if(__state == GameState.Menu) {
             __menu.render(100.0, 0.0)
         }
@@ -167,9 +167,6 @@ class Game {
 
     static updatePlay(dt) {
         var pu = playerShip.getComponent(Unit)
-        //Render.setColor(0xFFFFFFFF)
-        //Render.text("SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)", -296, 170, 1)
-
         /*
         for(e in Entity.entities) {
             var b = e.getComponent(Body)
@@ -210,14 +207,6 @@ class Game {
         if(playerShip.getComponent(Unit).health <= 0) {
             __state = GameState.Score
         }
-
-        /*
-        __frame = __frame + 1
-        if(__frame == 100) {
-            Entity.print()
-            __frame = 0
-        }
-        */
     }
 
     static startMenu() {
@@ -396,7 +385,7 @@ class Game {
         { // Text part
             var e = Entity.new()
             var t = Transform.new(Vec2.new(0,0))
-            var r  = Relation.new(__title)
+            var r = Relation.new(__title)
             var s = Sprite.new("[games]/jump-core/images/backgrounds/title.png", 0, 0, 1, 1)
             s.layer = 10.0
             s.flags = Render.spriteCenter            
@@ -408,9 +397,9 @@ class Game {
         }
         { // Core part
             var e = Entity.new()
-            var t = Transform.new(Vec2.new(75,20))
+            var t = Transform.new(Vec2.new(65,0))
             var r = Relation.new(__title)
-            r.offset = Vec2.new(75,20)
+            r.offset = Vec2.new(58, 10)
             var s = AnimatedSprite.new("[games]/jump-core/images/vfx/Electric_Effect_05.png", 4, 4, 15)
             s.layer = 10.1
             s.flags = Render.spriteCenter
@@ -420,6 +409,19 @@ class Game {
             //bullet.tag = Tag.player | Tag.bullet
             e.addComponent(t)
             e.addComponent(s)
+            e.addComponent(r)
+        }
+        { // Any button
+            var e = Entity.new()
+            var t = Transform.new(Vec2.new(0,0))
+            var r = Relation.new(__title)
+            r.offset = Vec2.new(0, -29)
+            var l = Label.new("[games]/jump-core/fonts/FutilePro.ttf", "Press any button to start", 18)
+            l.layer = 11.0
+            l.flags = Render.spriteCenter                                    
+            e.name = "Any Button"
+            e.addComponent(t)
+            e.addComponent(l)
             e.addComponent(r)
         }
     }
