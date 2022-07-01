@@ -67,7 +67,7 @@
 #define WREN_DEBUG_TRACE_MEMORY 0
 
 // Set this to true to log garbage collections as they occur.
-#define WREN_DEBUG_TRACE_GC 1
+#define WREN_DEBUG_TRACE_GC 0
 
 // Set this to true to print out the compiled bytecode of each function.
 #define WREN_DEBUG_DUMP_COMPILED_CODE 0
