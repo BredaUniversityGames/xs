@@ -167,28 +167,24 @@ void render_create_sprite(WrenVM* vm)
 	wrenSetSlotDouble(vm, 0, sp_id);
 }
 
-void render_sprite(WrenVM* vm)
-{
-	/*
-	wrenEnsureSlots(vm, 5);
-	const auto sprite_id = wrenGetSlotDouble(vm, 1);
-	const auto x = wrenGetSlotDouble(vm, 2);
-	const auto y = wrenGetSlotDouble(vm, 3);
-	const auto a = wrenGetSlotDouble(vm, 4);
-	int a_int = static_cast<int>(a);
-	auto a_sa = static_cast<xs::render::sprite_anchor>(a_int);
-	xs::render::render_sprite((int)sprite_id, x, y, a_sa);
-	*/
-}
-
 void render_sprite_ex(WrenVM* vm)
 {
-	wrenEnsureSlots(vm, 5);
+	wrenEnsureSlots(vm, 9);
+
+	const auto t1 = wrenGetSlotType(vm, 1);
+	const auto t2 = wrenGetSlotType(vm, 2);
+	const auto t3 = wrenGetSlotType(vm, 3);
+	const auto t4 = wrenGetSlotType(vm, 4);
+	const auto t5 = wrenGetSlotType(vm, 5);
+	const auto t6 = wrenGetSlotType(vm, 6);
+	const auto t7 = wrenGetSlotType(vm, 7);
+	const auto t8 = wrenGetSlotType(vm, 8);
+
 	const auto sprite_id = wrenGetSlotDouble(vm, 1);
 	const auto x = wrenGetSlotDouble(vm, 2);
 	const auto y = wrenGetSlotDouble(vm, 3);		
 	const auto scale = wrenGetSlotDouble(vm, 4);
-	const auto rotation = wrenGetSlotDouble(vm, 5);
+	const auto rotation = wrenGetSlotDouble(vm, 5);	
 	const auto mul = wrenGetSlotDouble(vm, 6);
 	const auto add = wrenGetSlotDouble(vm, 7);
 	const auto flags = wrenGetSlotDouble(vm, 8);
@@ -224,7 +220,7 @@ void render_load_font(WrenVM* vm)
 
 void render_render_text(WrenVM* vm)
 {
-	wrenEnsureSlots(vm, 5);
+	wrenEnsureSlots(vm, 8);
 	const auto font_id = wrenGetSlotDouble(vm, 1);
 	const auto c_text = wrenGetSlotString(vm, 2);
 	const auto x = wrenGetSlotDouble(vm, 3);
@@ -438,9 +434,8 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "line(_,_,_,_)", render_line);
 	bind("xs", "Render", true, "loadImage(_)", render_load_image);
 	bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
-	bind("xs", "Render", true, "renderSprite(_,_,_,_)", render_sprite);
 	bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
-	bind("xs", "Render", true, "renderSprite(_,_,_,_,_,_,_,_)", render_sprite_ex);
+	bind("xs", "Render", true, "renderSprite_(_,_,_,_,_,_,_,_)", render_sprite_ex);
 	bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
 	bind("xs", "Render", true, "renderText(_,_,_,_,_,_,_)", render_render_text);
 

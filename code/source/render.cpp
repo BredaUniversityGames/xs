@@ -55,7 +55,6 @@ namespace xs::render::internal
 	};
 
 
-	
 	void create_frame_buffers();
 	//TODO: void delete_frame_buffers();
 	void compile_draw_shader();
@@ -64,6 +63,7 @@ namespace xs::render::internal
 	bool link_program(GLuint program);
 	void create_gl_texture_with_data(image& img, uchar* data);
 	vec4 to_vec4(color c) { return vec4(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f); }
+	void rotate_vector3d(vec3& vec, float radians);
 
 	int width = -1;
 	int height = -1;
@@ -107,7 +107,6 @@ namespace xs::render::internal
 		double y				= 0.0;
 		double scale			= 1.0;
 		double rotation			= 0.0;
-		// sprite_anchor anchor	= {};	// TODO: Remove	
 		color mul_color			= {};
 		color add_color			= {};
 		unsigned int flags		= 0;
@@ -123,11 +122,6 @@ namespace xs::render::internal
 	std::vector<image>		images = {};
 	std::vector<sprite>		sprites = {};
 	std::vector<font_atals> fonts = {};
-
-	//color white = { 255, 255, 255, 255 };
-	//color black = { 255, 0, 0, 0 };
-
-	void rotate_vector3d(vec3& vec, float radians);
 }
 
 using namespace xs;
@@ -272,7 +266,7 @@ void xs::render::render_text(
 		}
 
 		auto sprite = create_sprite(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
-		render_sprite(sprite, begin + bearing, y - quad.y1, 0, 1, multiply, add, 0);
+		render_sprite(sprite, begin + bearing, y - quad.y1, 1, 0, multiply, add, 0);
 
 		begin += advance + kerning;		
 	}

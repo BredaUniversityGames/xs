@@ -15,14 +15,6 @@ namespace xs::render
 		};
 	};
 
-	/*
-	enum class sprite_anchor
-	{
-		bottom = 0,
-		center = 1
-	};
-	*/
-
 	enum sprite_flags
 	{
 		bottom = 1 << 1,
