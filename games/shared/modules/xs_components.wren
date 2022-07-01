@@ -105,15 +105,46 @@ class Sprite is Renderable {
     add { _add }
     add=(a) { _add = a }
 
+    mul { _mul }
+    mul=(m) { _mul = m }
+
     flags { _flags }
     flags=(f) { _flags = f }
 
     scale { _scale }
     scale=(s) { _scale = s }
 
+    rotation { _rotation }
+    rotation=(r) { _rotation = r }
+
     sprite_=(s) { _sprite = s }
 
     toString { "[Sprite sprite:%(_sprite)] -> " + super.toString }
+}
+
+class Label is Sprite {
+    construct new(font, text, size) {
+        super()
+        if(font is String) {
+            font = Render.loadFont(font, size)
+        }
+        _font = font
+        _text = text
+        sprite_ = null
+        rotation = 0.0
+        scale = 1.0
+        mul = 0xFFFFFFFF        
+        add = 0x00000000
+        flags = 0
+
+    }
+
+    render() {
+        var t = owner.getComponent(Transform)
+        Render.renderText(_font, _text, t.position.x, t.position.y, mul, add, flags)
+    }
+
+    //toString { "[Sprite sprite:%(_sprite)] -> " + super.toString }
 }
 
 class GridSprite is Sprite {

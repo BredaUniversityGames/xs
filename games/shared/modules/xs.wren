@@ -162,12 +162,24 @@ class Render {
 
     foreign static loadImage(path)
     foreign static createSprite(imageId, x0, y0, x1, y1)
-    foreign static renderSprite(spriteId, x, y, a)
-    foreign static renderSprite(spriteId, x, y, scale, rotation, mul, add, flags)
-    foreign static setOffset(x, y)
-    static renderSprite(spriteId, x, y) { renderSprite(spriteId, x, y, spriteBottom) }
+    foreign static renderSprite_(spriteId, x, y, scale, rotation, mul, add, flags)
+    foreign static setOffset(x, y)    
     foreign static loadFont(font,size)
     foreign static renderText(fontId, text, x, y, mul, add, flags)
+
+    static renderSprite(spriteId, x, y) {
+        renderSprite(spriteId, x, y, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
+    }
+
+    static renderSprite(spriteId, x, y, scale, rotation, mul, add, flags) {
+        if(mul is Color) {
+            mul = mul.toNum
+        }
+        if(add is Color) {
+            add = add.toNum
+        }
+        renderSprite_(spriteId, x, y, scale, rotation, mul, add, flags)
+    }
 
     static spriteBottom { 1 << 1 }
 	static spriteCenter { 1 << 2 }
