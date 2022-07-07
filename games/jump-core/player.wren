@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render, Registry, Color
+import "xs" for Configuration, Input, Render, Registry
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
@@ -74,7 +74,7 @@ class Player is Component {
         } else {
             vel = vel * 0
         }
-        b.velocity = vel        
+        b.velocity = vel  
     }
 
     static createShip() {
@@ -111,7 +111,7 @@ class Player is Component {
             s.playAnimation("straight")
             s.scale = 2.0
             var r = Relation.new(ship)
-            r.offset = Vec2.new(-20, 0)
+            r.offset = Vec2.new(-20, 0)            
             thrust.addComponent(t)
             thrust.addComponent(s)
             thrust.addComponent(r)

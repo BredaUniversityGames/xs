@@ -81,7 +81,6 @@ class Sprite is Renderable {
         _mul = 0xFFFFFFFF        
         _add = 0x00000000
         _flags = 0
-
     }
 
     construct new(image, s0, t0, s1, t1) {
@@ -136,7 +135,6 @@ class Label is Sprite {
         mul = 0xFFFFFFFF        
         add = 0x00000000
         flags = 0
-
     }
 
     render() {

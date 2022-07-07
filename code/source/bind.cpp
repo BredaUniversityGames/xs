@@ -429,13 +429,13 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "end()", render_end);
 	bind("xs", "Render", true, "vertex(_,_)", render_vertex);
 	bind("xs", "Render", true, "setColor(_,_,_)", render_set_color);
-	bind("xs", "Render", true, "setColor_(_)", render_set_color_uint);
+	bind("xs", "Render", true, "setColor(_)", render_set_color_uint);
 	bind("xs", "Render", true, "text(_,_,_,_)", render_text);
 	bind("xs", "Render", true, "line(_,_,_,_)", render_line);
 	bind("xs", "Render", true, "loadImage(_)", render_load_image);
 	bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
 	bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
-	bind("xs", "Render", true, "renderSprite_(_,_,_,_,_,_,_,_)", render_sprite_ex);
+	bind("xs", "Render", true, "renderSprite(_,_,_,_,_,_,_,_)", render_sprite_ex);
 	bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
 	bind("xs", "Render", true, "renderText(_,_,_,_,_,_,_)", render_render_text);
 
@@ -451,11 +451,11 @@ void xs::script::bind_api()
 
 	// Registry
 	bind("xs", "Registry", true, "getNumber(_,_)", registry_get_number);
-	bind("xs", "Registry", true, "getColorNum(_,_)", registry_get_color);
+	bind("xs", "Registry", true, "getColor(_,_)", registry_get_color);
 	bind("xs", "Registry", true, "getBool(_,_)", registry_get_bool);
 	bind("xs", "Registry", true, "getString(_,_)", registry_get_string);
 	bind("xs", "Registry", true, "setNumber(_,_,_)", registry_set_number);
-	bind("xs", "Registry", true, "setColorNum(_,_,_)", registry_set_color);
+	bind("xs", "Registry", true, "setColor(_,_,_)", registry_set_color);
 	bind("xs", "Registry", true, "setBool(_,_,_)", registry_set_bool);
 	bind("xs", "Registry", true, "setString(_,_,_)", registry_set_string);
 

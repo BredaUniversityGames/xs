@@ -2,6 +2,7 @@
 // xs API
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
 class Color {
     construct new(r, g, b, a) {
         _r = r
@@ -36,6 +37,7 @@ class Color {
 
     toString { "[r:%(_r) g:%(_g) b:%(_b) a:%(_a)]" }
 }
+*/
 
 class Configuration {
     foreign static title=(value) 
@@ -50,7 +52,9 @@ class Configuration {
 
 class Render {
     foreign static setColor(r, g, b)
-    foreign static setColor_(color)
+    foreign static setColor(color)
+
+    /*
     static setColor(color) {
         var c = null
         if(color is Num) {
@@ -60,6 +64,7 @@ class Render {
         }
         setColor_(c)
     }
+    */
 
     foreign static line(x0, y0, x1, y1)
     foreign static text(text, x, y, size)
@@ -161,7 +166,7 @@ class Render {
 
     foreign static loadImage(path)
     foreign static createSprite(imageId, x0, y0, x1, y1)
-    foreign static renderSprite_(spriteId, x, y, scale, rotation, mul, add, flags)
+    foreign static renderSprite(spriteId, x, y, scale, rotation, mul, add, flags)
     foreign static setOffset(x, y)    
     foreign static loadFont(font,size)
     foreign static renderText(fontId, text, x, y, mul, add, flags)
@@ -170,15 +175,12 @@ class Render {
         renderSprite(spriteId, x, y, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }
 
+
+    /*
     static renderSprite(spriteId, x, y, scale, rotation, mul, add, flags) {
-        if(mul is Color) {
-            mul = mul.toNum
-        }
-        if(add is Color) {
-            add = add.toNum
-        }
         renderSprite_(spriteId, x, y, scale, rotation, mul, add, flags)
     }
+    */
 
     static spriteBottom { 1 << 1 }
 	static spriteCenter { 1 << 2 }
@@ -273,23 +275,26 @@ class Input {
 
 class Registry {
     static getNumber(name) { getNumber(name, game) }
-    static getColorNum(name)  { getColorNum(name, game) }
+    static getColor(name)  { getColor(name, game) }
     static getBool(name)  { getBool(name, game) }
 
     foreign static getNumber(name, type)
-    foreign static getColorNum(name, type)
+    foreign static getColor(name, type)
     foreign static getBool(name, type)
 
     foreign static setNumber(name, value, type)
-    foreign static setColorNum(name, value, type)    
+    foreign static setColor(name, value, type)    
     foreign static setBool(name, value, type)
 
+    /*
     static getColor(name) {
         var num = getColorNum(name)
         System.print("Num: %(num)")
         return Color.fromNum(num)
     }
+    */
 
+    /*
     static setColor(name, value, type) {
         var c = null
         if(value is Num) {
@@ -299,6 +304,7 @@ class Registry {
         }
         setColorNum(name, c, type)
     }
+    */
 
     static system   { 2 }
 	static debug    { 3 }
