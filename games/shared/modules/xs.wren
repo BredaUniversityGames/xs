@@ -2,43 +2,6 @@
 // xs API
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
-class Color {
-    construct new(r, g, b, a) {
-        _r = r
-        _g = g
-        _b = b
-        _a = a
-    }
-    construct new(r, g, b) {
-        _r = r
-        _g = g
-        _b = b
-        _a = 255
-    }
-
-    a { _a }
-    r { _r }
-    g { _g }
-    b { _b }
-    a=(v) { _a = v }
-    r=(v) { _r = v }
-    g=(v) { _g = v }
-    b=(v) { _b = v }
-
-    toNum { r << 24 | g << 16 | b << 8 | a }
-    static fromNum(v) {
-        var a = v & 0xFF
-        var b = (v >> 8) & 0xFF
-        var g = (v >> 16) & 0xFF
-        var r = (v >> 24) & 0xFF
-        return Color.new(r, g, b, a)
-    }
-
-    toString { "[r:%(_r) g:%(_g) b:%(_b) a:%(_a)]" }
-}
-*/
-
 class Configuration {
     foreign static title=(value) 
     foreign static title
@@ -53,19 +16,6 @@ class Configuration {
 class Render {
     foreign static setColor(r, g, b)
     foreign static setColor(color)
-
-    /*
-    static setColor(color) {
-        var c = null
-        if(color is Num) {
-            c = color
-        } else if( color is Color) {
-            c = color.toNum
-        }
-        setColor_(c)
-    }
-    */
-
     foreign static line(x0, y0, x1, y1)
     foreign static text(text, x, y, size)
 
@@ -174,14 +124,6 @@ class Render {
     static renderSprite(spriteId, x, y) {
         renderSprite(spriteId, x, y, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }
-
-
-    /*
-    static renderSprite(spriteId, x, y, scale, rotation, mul, add, flags) {
-        renderSprite_(spriteId, x, y, scale, rotation, mul, add, flags)
-    }
-    */
-
     static spriteBottom { 1 << 1 }
 	static spriteCenter { 1 << 2 }
 	static spriteFlipX  { 1 << 3 }
@@ -285,26 +227,6 @@ class Registry {
     foreign static setNumber(name, value, type)
     foreign static setColor(name, value, type)    
     foreign static setBool(name, value, type)
-
-    /*
-    static getColor(name) {
-        var num = getColorNum(name)
-        System.print("Num: %(num)")
-        return Color.fromNum(num)
-    }
-    */
-
-    /*
-    static setColor(name, value, type) {
-        var c = null
-        if(value is Num) {
-            c = value
-        } else if(value is Color) {
-            c = value.toNum
-        }
-        setColorNum(name, c, type)
-    }
-    */
 
     static system   { 2 }
 	static debug    { 3 }

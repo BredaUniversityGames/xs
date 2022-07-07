@@ -76,3 +76,38 @@ class Vec2 {
         return ((xdiff * xdiff) + (ydiff * ydiff))
     }		
 }
+
+class Color {
+    construct new(r, g, b, a) {
+        _r = r
+        _g = g
+        _b = b
+        _a = a
+    }
+    construct new(r, g, b) {
+        _r = r
+        _g = g
+        _b = b
+        _a = 255
+    }
+
+    a { _a }
+    r { _r }
+    g { _g }
+    b { _b }
+    a=(v) { _a = v }
+    r=(v) { _r = v }
+    g=(v) { _g = v }
+    b=(v) { _b = v }
+
+    toNum { r << 24 | g << 16 | b << 8 | a }
+    static fromNum(v) {
+        var a = v & 0xFF
+        var b = (v >> 8) & 0xFF
+        var g = (v >> 16) & 0xFF
+        var r = (v >> 24) & 0xFF
+        return Color.new(r, g, b, a)
+    }
+
+    toString { "[r:%(_r) g:%(_g) b:%(_b) a:%(_a)]" }
+}
