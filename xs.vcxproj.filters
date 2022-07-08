@@ -154,6 +154,12 @@
     <ClCompile Include="external\imgui\imgui_tables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="code\include\script_lua.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\include\bind_lua.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="code\source\device_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -286,6 +292,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\source\render_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\script_lua.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

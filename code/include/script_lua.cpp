@@ -101,24 +101,24 @@ void xs::script_lua::configure(const std::string& main)
 	const std::string script_file = fileio::read_text_file(internal::main);
 	//TODO use generated path
 	//checkLua(state, luaL_dofile(state, "games/lua/examples/hello.lua"));
-
-	int result = luaL_dofile(state, "games/lua/examples/hello.lua");
+	//TODO: hardcoded lua script
+	int result = luaL_dofile(state, "games/lua/examples/hello_world.lua");
 	// TODO check for different errors and set error and init
 	switch (result)
 	{
 	case LUA_OK:
+	{
+		initialized = true;
+		static int idx = 0;
+		static std::array<string, 10> praise =
 		{
-			initialized = true;
-			static int idx = 0;
-			static std::array<string, 10> praise =
-			{
-				"Great!", "Amazing!", "Super!", "You rock!", "You rule!",
-				"Nice!", "Sweet!", "Wow!", "You got this!", "Keep it up!"
-			};
-			string pr = praise[idx];
-			idx = (idx + 1) % praise.size();
-			log::info(string("Script compile success. ") + pr);
-		} break;
+			"Great!", "Amazing!", "Super!", "You rock!", "You rule!",
+			"Nice!", "Sweet!", "Wow!", "You got this!", "Keep it up!"
+		};
+		string pr = praise[idx];
+		idx = (idx + 1) % praise.size();
+		log::info(string("Script compile success. ") + pr);
+	} break;
 	case LUA_ERRRUN:
 	{
 		log::error("Runtime Error!");
@@ -127,8 +127,6 @@ void xs::script_lua::configure(const std::string& main)
 	default:
 		break;
 	}
-	
-	initialized = true;
 
 	if (initialized && !error)
 	{
