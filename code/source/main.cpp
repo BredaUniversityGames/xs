@@ -4,7 +4,7 @@
 #include "input.h"
 #include "log.h"
 #include "render.h"
-#include "script.h"
+#include "script_lua.h"
 #include "account.h"
 #include "data.h"
 #include "inspector.h"
@@ -86,13 +86,13 @@ int xs::main(int argc, char* argv[])
     
     account::initialize();
     fileio::initialize(main_script);
-    data::initialize();
-    script::configure(main_script);
+    registry::initialize();
+    script_lua::configure(main_script);
     device::initialize();
     render::initialize();
     input::initialize();
     inspector::initialize();
-    script::initialize();
+    script_lua::initialize();
 
     auto prev_time = chrono::high_resolution_clock::now();
     while (!device::should_close())
@@ -107,8 +107,8 @@ int xs::main(int argc, char* argv[])
         if (!inspector::paused())
         {
             render::clear();
-            script::update(dt);
-            script::render();
+            script_lua::update(dt);
+            script_lua::render();
         }
         render::render();
         inspector::render(float(dt));
@@ -119,7 +119,7 @@ int xs::main(int argc, char* argv[])
     input::shutdown();
     render::shutdown();
     device::shutdown();
-    script::shutdown();
+    script_lua::shutdown();
     account::shutdown();
     data::shutdown();
 
