@@ -1,0 +1,2 @@
+
+return xs_configuration
