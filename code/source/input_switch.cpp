@@ -428,6 +428,16 @@ bool xs::input::get_key_once(int key)
 	return false;
 }
 
+double xs::input::get_mouse_x()
+{
+	return 0.0;
+}
+
+double xs::input::get_mouse_y()
+{
+	return 0.0;
+}
+
 bool xs::input::get_mousebutton(int button)
 {
 	return false;
