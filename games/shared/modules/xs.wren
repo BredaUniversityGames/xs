@@ -133,6 +133,7 @@ class Render {
 class File {
     foreign static read(src)
     foreign static write(text, dst)
+    foreign static exists(src)
 }
 
 class Input {

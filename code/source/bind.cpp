@@ -171,6 +171,7 @@ void render_sprite_ex(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 9);
 
+	/*
 	const auto t1 = wrenGetSlotType(vm, 1);
 	const auto t2 = wrenGetSlotType(vm, 2);
 	const auto t3 = wrenGetSlotType(vm, 3);
@@ -179,6 +180,7 @@ void render_sprite_ex(WrenVM* vm)
 	const auto t6 = wrenGetSlotType(vm, 6);
 	const auto t7 = wrenGetSlotType(vm, 7);
 	const auto t8 = wrenGetSlotType(vm, 8);
+	*/
 
 	const auto sprite_id = wrenGetSlotDouble(vm, 1);
 	const auto x = wrenGetSlotDouble(vm, 2);
@@ -393,7 +395,7 @@ void registry_set_string(WrenVM* vm)
 
 void file_read(WrenVM* vm)
 {
-	wrenEnsureSlots(vm, 1);
+	wrenEnsureSlots(vm, 2);
 	const auto c_src = wrenGetSlotString(vm, 1);
 	const auto text = xs::fileio::read_text_file(c_src);
 	wrenSetSlotString(vm, 0, text.c_str());
@@ -405,6 +407,14 @@ void file_write(WrenVM* vm)
 	const auto c_text = wrenGetSlotString(vm, 1);
 	const auto c_dst = wrenGetSlotString(vm, 2);
 	auto success = xs::fileio::write_text_file(c_text, c_dst);
+	wrenSetSlotBool(vm, 0, success);
+}
+
+void file_exists(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto c_text = wrenGetSlotString(vm, 1);
+	auto success = xs::fileio::exists(c_text);
 	wrenSetSlotBool(vm, 0, success);
 }
 
@@ -462,4 +472,5 @@ void xs::script::bind_api()
 	// File
 	bind("xs", "File", true, "read(_)", file_read);
 	bind("xs", "File", true, "write(_,_)", file_write);
+	bind("xs", "File", true, "exists(_)", file_exists);
 }
