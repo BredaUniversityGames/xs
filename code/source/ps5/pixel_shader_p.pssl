@@ -1,40 +1,21 @@
-
-/*
-float4 main() : S_TARGET_OUTPUT
-{
-	return float4(1.0f, 1.0f, 1.0f, 1.0f);
-}
-*/
-
-/* SIE CONFIDENTIAL
-PlayStation(R)5 Programmer Tool Runtime Library Release 5.00.00.33-00.00.00.0.1
-* Copyright (C) 2018 Sony Interactive Entertainment Inc.
-* 
-*/
+#include "Instance.h"
 
 struct V2P
 {
-	float4 pos : S_POSITION;
-	uint frame : TEXCOORD0;
-	float2 uv : TEXCOORD1;
+	float4 pos				: S_POSITION;
+	float3 Color			: COLOR0;
+	float2 Texture		: TEXCOORD0;
 };
+
+SamplerState samp		: s0;
+Texture2D color			: t0;
 
 [CxxSymbol("Shader::ps")]
 float4 main(V2P input) : S_TARGET_OUTPUT0
 {	
-	if(input.frame == 0xffffffff)
-	{
-		return 0.5;
-	}
-	else
-	{
-		float time = frac(input.frame / 255.0);
-		float pulse_time = 2 * abs(time - 0.5);
+	float4 diffuse = color.Sample(samp, input.Texture);
 
-		float2 uv = (input.uv - 0.5) * 2;
-		float wiggle = cos(uv.x * 3.14159 * 20);
-		float modulate = wiggle + cos(2 * 3.14159 * 10 * (time + dot(uv, uv)));
-		auto result = lerp(float4(1-pulse_time,pulse_time,0,1), float4(0,1-pulse_time,pulse_time,1), abs(modulate));
-		return result;
-	}
+	if (diffuse.w < 0.002f) discard;
+	return diffuse;
+	//return float4(input.Texture, 0.f, 1.0) * m_color;
 }
