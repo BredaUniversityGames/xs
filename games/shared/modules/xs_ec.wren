@@ -80,7 +80,7 @@ class Entity {
     // Will mark the component for removal at the end of the update
     deleteComponent(type) {        
         if(_components.containsKey(type)) {
-            _compDeleteQueue.add(type) 
+            _compDeleteQueue.add(type)
         }
     }
 
@@ -178,7 +178,7 @@ class Entity {
     // Private (actually removes the components)
     removeDeletedComponents_() {
         for(c in _compDeleteQueue) {
-            c.finalize()
+            _components[c].finalize()
             _components.remove(c)
         }
         _compDeleteQueue.clear()

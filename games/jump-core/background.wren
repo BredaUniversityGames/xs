@@ -27,7 +27,7 @@ class Parallax is Component {
 
 class Background {
     static create() {
-        __levels = ["daytime", "night", "abandoned"]
+        __levels = ["daytime", "night", "abandoned", "snow-rain", "sunset"]
         __random = Random.new()
         __layers = [
             // file                                                             width   speeds  height  starts
@@ -82,9 +82,11 @@ class Background {
         for(i in 0...22) {
             var fileName = __layers[i][0].replace("[level]", level)
             for(j in 0..3) {
-                if(File.exists(fileName)) {                
+                if(File.exists(fileName)) {                         
                     var s = Sprite.new(fileName, 0, 0, 1.0, 1.0)
                     __stuff[idx].addComponent(s)
+                } else {
+                    __stuff[idx].deleteComponent(Sprite)
                 }
                 idx = idx + 1
             }
@@ -92,7 +94,6 @@ class Background {
     }
 
     static setRandomLevel() {
-        System.print("rand")
         var i = __random.int(0, __levels.count)
         var l = __levels[i]
         Background.setLevel(l)
