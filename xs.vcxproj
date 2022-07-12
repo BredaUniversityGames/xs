@@ -274,6 +274,7 @@
     <ClInclude Include="code\source\ps5\address_sanitizer_utils.h" />
     <ClInclude Include="code\source\ps5\Camera.h" />
     <ClInclude Include="code\source\ps5\Instance.h" />
+    <ClInclude Include="code\source\render_internal.h" />
     <ClInclude Include="external\imgui\imgui_impl_glfw.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>

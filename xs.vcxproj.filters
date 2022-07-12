@@ -282,6 +282,9 @@
     <ClInclude Include="code\source\ps5\Instance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="code\source\render_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="external\wren\optional\wren_opt_meta.wren" />

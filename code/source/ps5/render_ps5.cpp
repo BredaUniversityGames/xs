@@ -51,9 +51,11 @@ namespace xs::render::internal
 {
 	struct image
 	{
+		sce::Agc::Core::Texture texture;
 		int		width = -1;
 		int		height = -1;
 		int		channels = -1;
+		std::size_t	string_id = 0;
 	};
 
 	struct Vert
@@ -66,8 +68,25 @@ namespace xs::render::internal
 	int width = -1;
 	int height = -1;
 
+	int videoHandle = -1;
+	sce::Agc::Label* flipLabels = nullptr;
+	sce::Agc::CxRenderTarget rts[BUFFERING];
+	sce::Agc::Core::BasicContext ctxs[BUFFERING];	// There are other context types
+	sce::Agc::CxRenderTargetMask rtMask;
+	sce::Agc::CxViewport vport;
+	sce::Agc::Core::Texture texture;
+	sce::Agc::Core::Sampler sampler;
+	sce::Agc::Core::Buffer vertBuffer;
+	sce::Agc::Core::Encoder::EncoderValue clearColor;
+	sce::Agc::Shader* gs;	// TODO: Why pointer?
+	sce::Agc::Shader* ps;	// TODO: Why pointer?
+	int frame = 0;
+
+
+	std::vector<image>		images = {};
+
 	uint8_t* alloc_direct_mem(sce::Agc::SizeAlign sizeAlign);
-	int create_scanout_buffers(const sce::Agc::CxRenderTarget* rts, uint32_t count);
+	int create_scanout_buffers(const sce::Agc::CxRenderTarget* rts, uint32_t count);	
 }
 
 using namespace xs::render::internal;
@@ -356,8 +375,7 @@ void xs::render::initialize()
 	SCE_AGC_ASSERT(error == SCE_OK);
 
 	error = sce::Agc::Toolkit::init();
-	SCE_AGC_ASSERT(error == SCE_OK);
-	sce::Agc::Core::Encoder::EncoderValue clearColor;
+	SCE_AGC_ASSERT(error == SCE_OK);	
 
 	// Load png decoder module
 	error = sceSysmoduleLoadModule(SCE_SYSMODULE_PNG_DEC);
@@ -389,19 +407,17 @@ void xs::render::initialize()
 	clearColor = sce::Agc::Core::Encoder::encode(rtSpec.getFormat(), { 0 });
 
 
-	// Now we create a number of render targets from this spec. These are our scanout buffers.
-	sce::Agc::CxRenderTarget rts[BUFFERING];
+	// Now we create a number of render targets from this spec. These are our scanout buffers.	
 	CreateRenderTargets(rts, &rtSpec, BUFFERING);
 
 	// These labels are currently unused, but the intent is to use them for flip tracking.
-	sce::Agc::Label* flipLabels = (sce::Agc::Label*)alloc_direct_mem({ sizeof(sce::Agc::Label) * BUFFERING, sce::Agc::Alignment::kLabel });
+	flipLabels = (sce::Agc::Label*)alloc_direct_mem({ sizeof(sce::Agc::Label) * BUFFERING, sce::Agc::Alignment::kLabel });
 
 	// We need the videoout handle to flip.
-	int videoHandle = create_scanout_buffers(rts, BUFFERING);
+	videoHandle = create_scanout_buffers(rts, BUFFERING);
 
 	// Create a context for each buffered frame.
-	const uint32_t dcb_size = 1024 * 1024;
-	sce::Agc::Core::BasicContext ctxs[BUFFERING];	// There are other context types
+	const uint32_t dcb_size = 1024 * 1024;	
 
 	// Set up to contexts, one for each target
 	for (uint32_t i = 0; i < BUFFERING; ++i)
@@ -431,26 +447,23 @@ void xs::render::initialize()
 
 	// Initialize some state. We don't have to do this every loop through the frame, so we do it here.
 	// Which render target you want to use and which channels
-	sce::Agc::CxRenderTargetMask rtMask = sce::Agc::CxRenderTargetMask().init().setMask(0, 0xf);
+	rtMask = sce::Agc::CxRenderTargetMask().init().setMask(0, 0xf);
 
-	// Set up a viewport using a helper function from Core.
-	sce::Agc::CxViewport vport;
+	// Set up a viewport using a helper function from Core.	
 	sce::Agc::Core::setViewport(&vport, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, -1.0f, 1.0f);
 
 	// We will also pass the frame number into the GS to drive animation.
 	sce::Agc::ShUserDataGs frame_reg;
 	frame_reg.init();
 
-	// First, we load the shaders, since the size of the shader's register blocks is not known.
-	sce::Agc::Shader* gs, * ps;
+	// First, we load the shaders, since the size of the shader's register blocks is not known.	
 	error = sce::Agc::createShader(&gs, Shader::gs_header, Shader::gs_text);
 	SCE_AGC_ASSERT(error == SCE_OK);
 	sce::Agc::Core::registerResource(gs, "Shader::gs");
 	error = sce::Agc::createShader(&ps, Shader::ps_header, Shader::ps_text);
 	SCE_AGC_ASSERT(error == SCE_OK);
 	sce::Agc::Core::registerResource(ps, "Shader::ps");
-
-	sce::Agc::Core::Buffer vertBuffer;
+	
 	Vert* verData = (Vert*)alloc_direct_mem({ sizeof(Vert) * 6, sce::Agc::Alignment::kBuffer });
 	float s = 100.0f;
 	verData[0] = { -s, -s,		1.0f, 0.0f, 0.0f,		0.0f, 0.0f };
@@ -463,10 +476,7 @@ void xs::render::initialize()
 	//sce::Agc::Core::initialize(&vertBuffer, &sce::Agc::Core::BufferSpec().initAsRegularBuffer(verData, sizeof(Vert), 3));
 
 	sce::Agc::Core::initializeRegularBuffer(&vertBuffer, verData, sizeof(Vert), 6);
-	sce::Agc::Core::registerResource(&vertBuffer, "My Vertex Buffer");
-
-	sce::Agc::Core::Texture texture;
-	sce::Agc::Core::Sampler sampler;
+	sce::Agc::Core::registerResource(&vertBuffer, "My Vertex Buffer");	
 
 
 	// Load GNF Texture
@@ -482,185 +492,183 @@ void xs::render::initialize()
 	{
 		printf("failed to load texture %s", fileName);
 	}
-
-	for (uint32_t i = 0; ; ++i)
-	{
-		// First we identify the back buffer.
-		const uint32_t buffer = i % BUFFERING;
-
-		// Check if the command buffer has been fully processed, if so it's safe for us to overwrite it on the CPU.
-		while (flipLabels[buffer].m_value != 1)
-		{
-			sceKernelUsleep(1000);
-		}
-
-		// We can now set the flip label to 0, which the GPU will set back to 1 when it's done.
-		flipLabels[buffer].m_value = 0;
-
-		sce::Agc::Core::BasicContext& ctx = ctxs[buffer];
-		// First we reset the context, since we're writing a completely new DCB.
-		// This is actually quite wasteful, since we could reuse the previous data, but the
-		// point of this code is to demonstrate a Gnm-like approach to writing DCBs.
-		ctx.reset();
-
-		// This will stall the Command Processor (CP) until the buffer is no longer being displayed.
-		// Note that we're actually pulling the DCB out of the context and accessing it
-		// directly here. This is very much how Agc's contexts work. They do not hide away the underlying
-		// components but mostly just try to remove redundant work.
-		ctx.m_dcb.waitUntilSafeForRendering(videoHandle, buffer);
-
-
-		// Clear both color and depth targets by just using toolkit functions.
-		sce::Agc::Toolkit::Result tk0 = sce::Agc::Toolkit::clearRenderTargetCs(&ctx.m_dcb, &rts[buffer], clearColor);
-		ctx.resetToolkitChangesAndSyncToGl2(tk0);
-
-		// The contexts provide their own functions to set shaders, which are there to make sure all
-		// components are properly made aware of shader changes.
-
-		ctx.setShaders(nullptr, gs, ps, sce::Agc::UcPrimitiveType::Type::kTriStrip);
-
-		// Setting state can be done in several ways, such as by directly interacting with the DCB.
-		// For the most part, contexts are designed to use StateBuffers (SBs), which allow the user
-		// to have their indirect state turn into something that behaves a lot like direct state.
-		// The easiest way to pass state into the StateBuffer is with the setState template method. This method
-		// will look for a static const RegisterType member called m_type to determine what type of register
-		// is being set and automatically determines the size of the state from the type being passed in.
-		ctx.m_sb.setState(rtMask);
-		ctx.m_sb.setState(vport);
-		ctx.m_sb.setState(rts[buffer]);
-
-		sce::Agc::Core::VertexAttribute attributes[3] =
-		{
-			{
-				0, // m_vbTableIndex
-				sce::Agc::Core::VertexAttribute::Format::k32_32Float,
-				0, // m_offset
-				sce::Agc::Core::VertexAttribute::Index::kVertexId
-			},
-			{
-				0, // m_vbTableIndex
-				sce::Agc::Core::VertexAttribute::Format::k32_32_32Float,
-				sizeof(float) * 2, // m_offset
-				sce::Agc::Core::VertexAttribute::Index::kVertexId
-			},
-			{
-				0, // m_vbTableIndex
-				sce::Agc::Core::VertexAttribute::Format::k32_32Float,
-				sizeof(float) * 5, // m_offset
-				sce::Agc::Core::VertexAttribute::Index::kVertexId
-			},
-		};
-
-		sampler
-			.init()
-			.setXyFilterMode(sce::Agc::Core::Sampler::FilterMode::kBilinear)
-			.setWrapMode(sce::Agc::Core::Sampler::WrapMode::kClampLastTexel);
-
-
-		for (int i = -1; i < 2; i++) {
-
-			{
-				Camera* camera = (Camera*)ctx.m_dcb.allocateTopDown(sizeof(Camera), sce::Agc::Alignment::kBuffer);
-				camera->x = i * 100.0f;
-				camera->y = 0.0f;
-				camera->res_x = 640.0f;
-				camera->res_y = 360.0f;
-
-				// Setup shader constant
-				void* constantBuffer = ctx.m_dcb.allocateTopDown(sizeof(Instance), 16);
-				sce::Agc::Core::Buffer constBuf;
-				//sce::Agc::Core::BufferSpec constBufSpec;
-				// constBufSpec.initAsConstantBuffer(constantBuffer, sizeof(Constants));
-				sce::Agc::Core::initializeConstantBuffer(&constBuf, constantBuffer, sizeof(Instance));
-				Instance* instance = (Instance*)constantBuffer;
-				instance->m_position = { 0.0f, i * 60.0f };
-
-				ctx.m_bdr.getStage(sce::Agc::ShaderType::kGs)
-					.setVertexBuffers(0, 1, &vertBuffer)
-					.setVertexAttributes(0, 3, attributes)
-					.setConstantBuffers(0, 1, &constBuf)
-					.setUserSrtBuffer(&camera, sizeof(camera));
-			}
-
-			{
-				void* colorData = ctx.m_dcb.allocateTopDown(sizeof(Color), 16);
-				sce::Agc::Core::Buffer colorBuf;
-				sce::Agc::Core::initializeConstantBuffer(&colorBuf, colorData, sizeof(Color));
-				Color* color = (Color*)colorData;
-				color->m_color = { 1.0f, 1.0f, 1.0f, 1.0f };
-				ctx.m_bdr.getStage(sce::Agc::ShaderType::kPs)
-					.setConstantBuffers(1, 1, &colorBuf)
-					.setTextures(0, 1, &texture)
-					.setSamplers(0, 1, &sampler);
-			}
-
-
-
-			// In this example, we're actually drawing two triangles. The state only differs in what is in
-			// frame_reg. Because we're not calling into the Binder or StateBuffer in between these draws, they will 
-			// not write anything to the DCB and thus will incur no GPU cost.
-			// 
-			ctx.drawIndexAuto(6);
-
-			// ctx.drawIndex()
-		}
-
-		// Submit a flip via the GPU.
-		// Note: on PlayStation®5, RenderTargets write into the GL2 cache, but the scan-out
-		// does not snoop any GPU caches. As such, it is necessary to flush these writes to memory before they can
-		// be displayed. This flush is performed internally by setFlip() so we don't need to do it 
-		// on the application side.
-		ctx.m_dcb.setFlip(videoHandle, buffer, SCE_VIDEO_OUT_FLIP_MODE_VSYNC, 0);
-
-		// The last thing we do in the command buffer is write 1 to the flip label to signal that command buffer 
-		// processing has finished. 
-		//
-		// While Agc provides access to the lowest level of GPU synchronization faculties, it also provides
-		// functionality that builds the correct synchronization steps in an easier fashion.
-		// Since synchonization should be relatively rare, spending a few CPU cycles on letting the library
-		// work out what needs to be done is generally a good idea.
-		sce::Agc::Core::gpuSyncEvent(
-			&ctx.m_dcb,
-			// The SyncWaitMode controls how the GPU's Command Processor (CP) handles the synchronization.
-			// By setting this to kAsynchronous, we tell the CP that it doesn't have to wait for this operation
-			// to finish before it can start the next frame. Instead, we could ask it to drain all graphics work
-			// first, but that would be more aggressive than we need to be here.
-			sce::Agc::Core::SyncWaitMode::kAsynchronous,
-			// Since we are making the label write visible to the CPU, it is not necessary to flush any caches 
-			// and we set the cache op to 'kNone'.
-			sce::Agc::Core::SyncCacheOp::kNone,
-			// Write the flip label and make it visible to the CPU.
-			sce::Agc::Core::SyncLabelVisibility::kCpu,
-			&flipLabels[buffer],
-			// We write the value "1" to the flip label.
-			1);
-
-		// Finally, we submit the work to the GPU. Since this is the only work on the GPU, we set its priority to normal.
-		// The only reason to set the priority to kInterruptPriority is to make a submit expel work from the GPU we have previously
-		// submitted. 
-		error = sce::Agc::submitGraphics(
-			sce::Agc::GraphicsQueue::kNormal,
-			ctx.m_dcb.getSubmitPointer(),
-			ctx.m_dcb.getSubmitSize());
-		SCE_AGC_ASSERT(error == SCE_OK);
-
-		// If the application is suspended, it will happen during this call. As a side-effect, this is equivalent to
-		// calling resetQueue(ResetQueueOp::kAllAccessible).
-		error = sce::Agc::suspendPoint();
-		SCE_AGC_ASSERT(error == SCE_OK);
-	}
-
-	//Free allocated memory
-	// sceKernelReleaseDirectMemory(void*,size) for alloc_direct_mem allocations
-
 }
 
 void xs::render::shutdown()
 {
+	//TODO: Free allocated memory!
+	// sceKernelReleaseDirectMemory(void*,size) for alloc_direct_mem allocations
 }
 
 void xs::render::render()
 {
+	SceError error;
+
+	// First we identify the back buffer.
+	const uint32_t buffer = frame++ % BUFFERING;
+
+	// Check if the command buffer has been fully processed, if so it's safe for us to overwrite it on the CPU.
+	while (flipLabels[buffer].m_value != 1)
+	{
+		sceKernelUsleep(1000);
+	}
+
+	// We can now set the flip label to 0, which the GPU will set back to 1 when it's done.
+	flipLabels[buffer].m_value = 0;
+
+	sce::Agc::Core::BasicContext& ctx = ctxs[buffer];
+	// First we reset the context, since we're writing a completely new DCB.
+	// This is actually quite wasteful, since we could reuse the previous data, but the
+	// point of this code is to demonstrate a Gnm-like approach to writing DCBs.
+	ctx.reset();
+
+	// This will stall the Command Processor (CP) until the buffer is no longer being displayed.
+	// Note that we're actually pulling the DCB out of the context and accessing it
+	// directly here. This is very much how Agc's contexts work. They do not hide away the underlying
+	// components but mostly just try to remove redundant work.
+	ctx.m_dcb.waitUntilSafeForRendering(videoHandle, buffer);
+
+
+	// Clear both color and depth targets by just using toolkit functions.
+	sce::Agc::Toolkit::Result tk0 = sce::Agc::Toolkit::clearRenderTargetCs(&ctx.m_dcb, &rts[buffer], clearColor);
+	ctx.resetToolkitChangesAndSyncToGl2(tk0);
+
+	// The contexts provide their own functions to set shaders, which are there to make sure all
+	// components are properly made aware of shader changes.
+
+	ctx.setShaders(nullptr, gs, ps, sce::Agc::UcPrimitiveType::Type::kTriStrip);
+
+	// Setting state can be done in several ways, such as by directly interacting with the DCB.
+	// For the most part, contexts are designed to use StateBuffers (SBs), which allow the user
+	// to have their indirect state turn into something that behaves a lot like direct state.
+	// The easiest way to pass state into the StateBuffer is with the setState template method. This method
+	// will look for a static const RegisterType member called m_type to determine what type of register
+	// is being set and automatically determines the size of the state from the type being passed in.
+	ctx.m_sb.setState(rtMask);
+	ctx.m_sb.setState(vport);
+	ctx.m_sb.setState(rts[buffer]);
+
+	sce::Agc::Core::VertexAttribute attributes[3] =
+	{
+		{
+			0, // m_vbTableIndex
+			sce::Agc::Core::VertexAttribute::Format::k32_32Float,
+			0, // m_offset
+			sce::Agc::Core::VertexAttribute::Index::kVertexId
+		},
+		{
+			0, // m_vbTableIndex
+			sce::Agc::Core::VertexAttribute::Format::k32_32_32Float,
+			sizeof(float) * 2, // m_offset
+			sce::Agc::Core::VertexAttribute::Index::kVertexId
+		},
+		{
+			0, // m_vbTableIndex
+			sce::Agc::Core::VertexAttribute::Format::k32_32Float,
+			sizeof(float) * 5, // m_offset
+			sce::Agc::Core::VertexAttribute::Index::kVertexId
+		},
+	};
+
+	sampler
+		.init()
+		.setXyFilterMode(sce::Agc::Core::Sampler::FilterMode::kBilinear)
+		.setWrapMode(sce::Agc::Core::Sampler::WrapMode::kClampLastTexel);
+
+
+	for (int i = -1; i < 2; i++) {
+
+		{
+			Camera* camera = (Camera*)ctx.m_dcb.allocateTopDown(sizeof(Camera), sce::Agc::Alignment::kBuffer);
+			camera->x = i * 100.0f;
+			camera->y = 0.0f;
+			camera->res_x = 640.0f;
+			camera->res_y = 360.0f;
+
+			// Setup shader constant
+			void* constantBuffer = ctx.m_dcb.allocateTopDown(sizeof(Instance), 16);
+			sce::Agc::Core::Buffer constBuf;
+			//sce::Agc::Core::BufferSpec constBufSpec;
+			// constBufSpec.initAsConstantBuffer(constantBuffer, sizeof(Constants));
+			sce::Agc::Core::initializeConstantBuffer(&constBuf, constantBuffer, sizeof(Instance));
+			Instance* instance = (Instance*)constantBuffer;
+			instance->m_position = { 0.0f, i * 60.0f };
+
+			ctx.m_bdr.getStage(sce::Agc::ShaderType::kGs)
+				.setVertexBuffers(0, 1, &vertBuffer)
+				.setVertexAttributes(0, 3, attributes)
+				.setConstantBuffers(0, 1, &constBuf)
+				.setUserSrtBuffer(&camera, sizeof(camera));
+		}
+
+		{
+			void* colorData = ctx.m_dcb.allocateTopDown(sizeof(Color), 16);
+			sce::Agc::Core::Buffer colorBuf;
+			sce::Agc::Core::initializeConstantBuffer(&colorBuf, colorData, sizeof(Color));
+			Color* color = (Color*)colorData;
+			color->m_color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+			ctx.m_bdr.getStage(sce::Agc::ShaderType::kPs)
+				.setConstantBuffers(1, 1, &colorBuf)
+				.setTextures(0, 1, &texture)
+				.setSamplers(0, 1, &sampler);
+		}
+
+
+
+		// In this example, we're actually drawing two triangles. The state only differs in what is in
+		// frame_reg. Because we're not calling into the Binder or StateBuffer in between these draws, they will 
+		// not write anything to the DCB and thus will incur no GPU cost.
+		// 
+		ctx.drawIndexAuto(6);
+
+		// ctx.drawIndex()
+	}
+
+	// Submit a flip via the GPU.
+	// Note: on PlayStation®5, RenderTargets write into the GL2 cache, but the scan-out
+	// does not snoop any GPU caches. As such, it is necessary to flush these writes to memory before they can
+	// be displayed. This flush is performed internally by setFlip() so we don't need to do it 
+	// on the application side.
+	ctx.m_dcb.setFlip(videoHandle, buffer, SCE_VIDEO_OUT_FLIP_MODE_VSYNC, 0);
+
+	// The last thing we do in the command buffer is write 1 to the flip label to signal that command buffer 
+	// processing has finished. 
+	//
+	// While Agc provides access to the lowest level of GPU synchronization faculties, it also provides
+	// functionality that builds the correct synchronization steps in an easier fashion.
+	// Since synchonization should be relatively rare, spending a few CPU cycles on letting the library
+	// work out what needs to be done is generally a good idea.
+	sce::Agc::Core::gpuSyncEvent(
+		&ctx.m_dcb,
+		// The SyncWaitMode controls how the GPU's Command Processor (CP) handles the synchronization.
+		// By setting this to kAsynchronous, we tell the CP that it doesn't have to wait for this operation
+		// to finish before it can start the next frame. Instead, we could ask it to drain all graphics work
+		// first, but that would be more aggressive than we need to be here.
+		sce::Agc::Core::SyncWaitMode::kAsynchronous,
+		// Since we are making the label write visible to the CPU, it is not necessary to flush any caches 
+		// and we set the cache op to 'kNone'.
+		sce::Agc::Core::SyncCacheOp::kNone,
+		// Write the flip label and make it visible to the CPU.
+		sce::Agc::Core::SyncLabelVisibility::kCpu,
+		&flipLabels[buffer],
+		// We write the value "1" to the flip label.
+		1);
+
+	// Finally, we submit the work to the GPU. Since this is the only work on the GPU, we set its priority to normal.
+	// The only reason to set the priority to kInterruptPriority is to make a submit expel work from the GPU we have previously
+	// submitted. 
+	error = sce::Agc::submitGraphics(
+		sce::Agc::GraphicsQueue::kNormal,
+		ctx.m_dcb.getSubmitPointer(),
+		ctx.m_dcb.getSubmitSize());
+	SCE_AGC_ASSERT(error == SCE_OK);
+
+	// If the application is suspended, it will happen during this call. As a side-effect, this is equivalent to
+	// calling resetQueue(ResetQueueOp::kAllAccessible).
+	error = sce::Agc::suspendPoint();
+	SCE_AGC_ASSERT(error == SCE_OK);
+
 }
 
 void xs::render::clear()
@@ -671,7 +679,42 @@ void xs::render::set_offset(double x, double y) {}
 
 int xs::render::load_image(const std::string& image_file)
 {
+	// Find image first
+	auto id = std::hash<std::string>{}(image_file);
+	for (int i = 0; i < images.size(); i++)
+		if (images[i].string_id == id)
+			return i;
+
+	auto buffer = fileio::read_binary_file(image_file);
+	internal::image img;
+	img.string_id = id;
+
+	auto path = fileio::get_path(image_file);
+	LoadPNGTexture(path.c_str(), img.texture);
+
+	img.width = img.texture.getWidth();
+	img.height = img.texture.getHeight();
+	
+	const auto i = images.size();
+	images.push_back(img);
+	return static_cast<int>(i);
+}
+
+int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
+{
 	return -1;
+}
+
+void xs::render::render_sprite(
+	int image_id,
+	double x,
+	double y,
+	double rotation,
+	double size,
+	xs::render::color mutiply,
+	xs::render::color add,
+	unsigned int flags)
+{
 }
 
 int xs::render::load_font(const std::string& font_file, double size)
@@ -719,20 +762,3 @@ void xs::render::line(double x0, double y0, double x1, double y1)
 void xs::render::text(const std::string& text, double x, double y, double size)
 {
 }
-
-int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
-{
-	return -1;
-}
-
-void xs::render::render_sprite(
-	int image_id,
-	double x,
-	double y,
-	double rotation,
-	double size,
-	xs::render::color mutiply,
-	xs::render::color add,
-	unsigned int flags)
-{}
-
