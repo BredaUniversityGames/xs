@@ -1,4 +1,5 @@
 #include "render.h"
+#include "render_internal.h"
 #include <ios>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -98,18 +99,6 @@ namespace xs::render::internal
 		vec2 texture;
 		vec4 add_color;
 		vec4 mul_color;
-	};	
-	struct sprite { int image_id; vec2 from; vec2 to; };
-	struct sprite_queue_entry
-	{
-		int sprite_id			=	-1;
-		double x				= 0.0;
-		double y				= 0.0;
-		double scale			= 1.0;
-		double rotation			= 0.0;
-		color mul_color			= {};
-		color add_color			= {};
-		unsigned int flags		= 0;
 	};
 	
 	unsigned int			sprite_program = 0;
