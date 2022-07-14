@@ -14,7 +14,7 @@ class Configuration {
 }
 
 class Render {
-    foreign static setColor(r, g, b)
+    foreign static setColor(r, g, b, a)
     foreign static setColor(color)
     foreign static line(x0, y0, x1, y1)
     foreign static text(text, x, y, size)

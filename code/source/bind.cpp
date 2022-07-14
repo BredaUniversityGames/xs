@@ -114,7 +114,8 @@ void render_set_color(WrenVM* vm)
 	const auto r = wrenGetSlotDouble(vm, 1);
 	const auto g = wrenGetSlotDouble(vm, 2);
 	const auto b = wrenGetSlotDouble(vm, 3);
-	xs::render::set_color(r, g, b, 1.0);
+	const auto a = wrenGetSlotDouble(vm, 4);
+	xs::render::set_color(r, g, b, a);
 }
 
 void render_set_color_uint(WrenVM* vm)
@@ -438,7 +439,7 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "begin(_)", render_begin);
 	bind("xs", "Render", true, "end()", render_end);
 	bind("xs", "Render", true, "vertex(_,_)", render_vertex);
-	bind("xs", "Render", true, "setColor(_,_,_)", render_set_color);
+	bind("xs", "Render", true, "setColor(_,_,_,_)", render_set_color);
 	bind("xs", "Render", true, "setColor(_)", render_set_color_uint);
 	bind("xs", "Render", true, "text(_,_,_,_)", render_text);
 	bind("xs", "Render", true, "line(_,_,_,_)", render_line);
