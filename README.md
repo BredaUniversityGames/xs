@@ -10,6 +10,7 @@ xs is an experiment into making the smallest game making tool possible. It can a
 
 ## running an example
 Download the latest [release](https://github.com/BredaUniversityGames/xs/releases) and unzip it. You can run xs from the command line by giving it the game script:
+
 ```
 C:\the\path\to\xs> .\xs.exe .\games\examples\pong.wren 
 ```
@@ -40,6 +41,17 @@ class Game {
 
 ## tools
 A nice code editor can make you more productive. [Visual Studio Code](https://code.visualstudio.com/) has a extension for Wren and built in command line (terminal)
+
+## Generate build files with CMake
+> ⚠️ Currently only tested on Windows
+
+Alongside the `xs.sln` provided in the root folder you can build the project files by opening a terminal in the root folder and running:
+```bash
+mkdir build
+cd build
+cmake ..
+```
+the generated files will populate `/build`, where you can find the generated `xs.sln`. 
 
 ## NDA
 Before browsing the xs source code, please sign the BUas umbrella NDA. This so that you can browse console code freely. 
