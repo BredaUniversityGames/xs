@@ -25,6 +25,8 @@ class Render {
     foreign static end()
     foreign static vertex(x, y)
 
+    static setColor(r, g, b) { Render.setColor(r, g, b, 1.0) }
+
     static rect(fromX, fromY, toX, toY) {
         Render.begin(Render.triangles)
             Render.vertex(fromX, fromY)
