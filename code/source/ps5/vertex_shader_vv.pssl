@@ -1,20 +1,20 @@
 #include "Camera.h"
-#include "Instance.h"
+// #include "Instance.h"
 
 Camera* camera : S_SRT_DATA;
 
 struct VS_INPUT
 {
-	float2 Position		: POSITION0;
-	float3 Color;
+	float2 Position		: POSITION0;	
 	float2 Texture;
+	float3 Color;
 };
 
 struct VS_OUTPUT
 {
-	float4 Position		: S_POSITION;
-	float3 Color			: COLOR0;
+	float4 Position		: S_POSITION;	
 	float2 Texture		: TEXCOORD0;
+	float3 Color			: COLOR0;
 };
 
 [CxxSymbol("Shader::gs")]
@@ -25,7 +25,7 @@ VS_OUTPUT main(VS_INPUT Input)
 	Output.Position = float4(Input.Position.xy, 0, 1);
 	Output.Position.x += camera->x; 
 	Output.Position.y += camera->y;
-	Output.Position.xy += m_position;
+	// Output.Position.xy += m_position;
 	Output.Position.x /= camera->res_x; 
 	Output.Position.y /= camera->res_y;
 	Output.Color = Input.Color;

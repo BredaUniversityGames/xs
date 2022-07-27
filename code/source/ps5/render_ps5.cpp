@@ -1,4 +1,6 @@
 #include <render.h>
+#include <tools.h>
+#include "../render_internal.h"
 #include <ios>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -47,6 +49,8 @@ const uint32_t BUFFERING = 2;
 const uint32_t SCREEN_WIDTH = 1920;
 const uint32_t SCREEN_HEIGHT = 1080;
 
+using namespace glm;
+
 namespace xs::render::internal
 {
 	struct image
@@ -61,8 +65,8 @@ namespace xs::render::internal
 	struct Vert
 	{
 		float x, y;
-		float r, g, b;
 		float s, t;
+		float r, g, b;		
 	};
 
 	int width = -1;
@@ -74,16 +78,15 @@ namespace xs::render::internal
 	sce::Agc::Core::BasicContext ctxs[BUFFERING];	// There are other context types
 	sce::Agc::CxRenderTargetMask rtMask;
 	sce::Agc::CxViewport vport;
-	sce::Agc::Core::Texture texture;
+	//sce::Agc::Core::Texture texture;
 	sce::Agc::Core::Sampler sampler;
-	sce::Agc::Core::Buffer vertBuffer;
+	// sce::Agc::Core::Buffer vertBuffer;
 	sce::Agc::Core::Encoder::EncoderValue clearColor;
 	sce::Agc::Shader* gs;	// TODO: Why pointer?
 	sce::Agc::Shader* ps;	// TODO: Why pointer?
 	int frame = 0;
-
-
 	std::vector<image>		images = {};
+	vec2 offset = vec2(0.0f, 0.0f);
 
 	uint8_t* alloc_direct_mem(sce::Agc::SizeAlign sizeAlign);
 	int create_scanout_buffers(const sce::Agc::CxRenderTarget* rts, uint32_t count);	
@@ -229,7 +232,6 @@ void printImageInfo(ScePngDecImageInfo& imageInfo)
 	printf("bitDepth = %u\n", imageInfo.bitDepth);
 	printf("imageFlag = 0x%x\n", imageInfo.imageFlag);
 }
-
 
 int LoadPNGTexture(const char* inFileName, sce::Agc::Core::Texture& outTexture)
 {
@@ -417,7 +419,7 @@ void xs::render::initialize()
 	videoHandle = create_scanout_buffers(rts, BUFFERING);
 
 	// Create a context for each buffered frame.
-	const uint32_t dcb_size = 1024 * 1024;	
+	const uint32_t dcb_size = 1024 * 1024 * 8; // 8 MB
 
 	// Set up to contexts, one for each target
 	for (uint32_t i = 0; i < BUFFERING; ++i)
@@ -463,35 +465,6 @@ void xs::render::initialize()
 	error = sce::Agc::createShader(&ps, Shader::ps_header, Shader::ps_text);
 	SCE_AGC_ASSERT(error == SCE_OK);
 	sce::Agc::Core::registerResource(ps, "Shader::ps");
-	
-	Vert* verData = (Vert*)alloc_direct_mem({ sizeof(Vert) * 6, sce::Agc::Alignment::kBuffer });
-	float s = 100.0f;
-	verData[0] = { -s, -s,		1.0f, 0.0f, 0.0f,		0.0f, 0.0f };
-	verData[1] = { -s, s,		0.0f, 1.0f, 0.0f,		0.0f, 1.0f };
-	verData[2] = { s, s,		0.0f, 0.0f, 1.0f,		1.0f, 1.0f };
-	verData[3] = { -s, -s,		1.0f, 0.0f, 0.0f,		0.0f, 0.0f };
-	verData[4] = { s, -s,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f };
-	verData[5] = { s, s,		0.0f, 0.0f, 1.0f,		1.0f, 1.0f };
-
-	//sce::Agc::Core::initialize(&vertBuffer, &sce::Agc::Core::BufferSpec().initAsRegularBuffer(verData, sizeof(Vert), 3));
-
-	sce::Agc::Core::initializeRegularBuffer(&vertBuffer, verData, sizeof(Vert), 6);
-	sce::Agc::Core::registerResource(&vertBuffer, "My Vertex Buffer");	
-
-
-	// Load GNF Texture
-	/*const char* fileName = "/app0/Substance_graph_basecolor.gnf";
-	if (LoadGNFTexture(fileName, texture) != 0)
-	{
-		printf("failed to load texture %s", fileName);
-	}*/
-
-	// Load PNG Texture
-	const char* fileName = "/app0/shared/images/icon.png";
-	if (LoadPNGTexture(fileName, texture) != 0)
-	{
-		printf("failed to load texture %s", fileName);
-	}
 }
 
 void xs::render::shutdown()
@@ -555,74 +528,88 @@ void xs::render::render()
 			sce::Agc::Core::VertexAttribute::Format::k32_32Float,
 			0, // m_offset
 			sce::Agc::Core::VertexAttribute::Index::kVertexId
-		},
+		},		
 		{
 			0, // m_vbTableIndex
-			sce::Agc::Core::VertexAttribute::Format::k32_32_32Float,
+			sce::Agc::Core::VertexAttribute::Format::k32_32Float,
 			sizeof(float) * 2, // m_offset
 			sce::Agc::Core::VertexAttribute::Index::kVertexId
 		},
 		{
 			0, // m_vbTableIndex
-			sce::Agc::Core::VertexAttribute::Format::k32_32Float,
-			sizeof(float) * 5, // m_offset
+			sce::Agc::Core::VertexAttribute::Format::k32_32_32Float,
+			sizeof(float) * 4, // m_offset
 			sce::Agc::Core::VertexAttribute::Index::kVertexId
 		},
 	};
 
 	sampler
 		.init()
-		.setXyFilterMode(sce::Agc::Core::Sampler::FilterMode::kBilinear)
+		.setXyFilterMode(sce::Agc::Core::Sampler::FilterMode::kPoint)
 		.setWrapMode(sce::Agc::Core::Sampler::WrapMode::kClampLastTexel);
 
+	std::vector<sce::Agc::Core::Buffer> vertBuffers;
+	for (const auto& spe : sprite_queue)
+	{
+		const auto& sprite = sprites[spe.sprite_id];
+		const auto& image = images[sprite.image_id];
 
-	for (int i = -1; i < 2; i++) {
+		float from_x = 0.0f;
+		float from_y = 0.0f;
+		float to_x = image.width * (sprite.to.x - sprite.from.x) * spe.scale;
+		float to_y = image.height * (sprite.to.y - sprite.from.y) * spe.scale;
 
+		float from_u = sprite.from.x;
+		float from_v = sprite.from.y;
+		float to_u = sprite.to.x;
+		float to_v = sprite.to.y;
+
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_x))
+			std::swap(from_u, to_u);
+
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_y))
+			std::swap(from_v, to_v);
+
+		vec4 add_color = to_vec4(spe.add_color);
+		vec4 mul_color = to_vec4(spe.mul_color);
+
+		// Allocate on the dcb
+		vertBuffers.push_back({});
+		sce::Agc::Core::Buffer& vertBuffer = vertBuffers.back();
+		Vert* verData = (Vert*)ctx.m_dcb.allocateTopDown({ sizeof(Vert) * 4, sce::Agc::Alignment::kBuffer });
+		verData[0] = { from_x, from_y,	from_u, to_v, 	1.0f, 0.0f, 0.0f };
+		verData[1] = { from_x, to_y,	from_u, from_v, 	0.0f, 1.0f, 0.0f };
+		verData[2] = { to_x, from_y,	to_u, to_v, 	0.0f, 1.0f, 0.0f };
+		verData[3] = { to_x, to_y,		to_u, from_v, 	0.0f, 0.0f, 1.0f };
+
+		for (int i = 0; i < 4; i++)
 		{
-			Camera* camera = (Camera*)ctx.m_dcb.allocateTopDown(sizeof(Camera), sce::Agc::Alignment::kBuffer);
-			camera->x = i * 100.0f;
-			camera->y = 0.0f;
-			camera->res_x = 640.0f;
-			camera->res_y = 360.0f;
-
-			// Setup shader constant
-			void* constantBuffer = ctx.m_dcb.allocateTopDown(sizeof(Instance), 16);
-			sce::Agc::Core::Buffer constBuf;
-			//sce::Agc::Core::BufferSpec constBufSpec;
-			// constBufSpec.initAsConstantBuffer(constantBuffer, sizeof(Constants));
-			sce::Agc::Core::initializeConstantBuffer(&constBuf, constantBuffer, sizeof(Instance));
-			Instance* instance = (Instance*)constantBuffer;
-			instance->m_position = { 0.0f, i * 60.0f };
-
-			ctx.m_bdr.getStage(sce::Agc::ShaderType::kGs)
-				.setVertexBuffers(0, 1, &vertBuffer)
-				.setVertexAttributes(0, 3, attributes)
-				.setConstantBuffers(0, 1, &constBuf)
-				.setUserSrtBuffer(&camera, sizeof(camera));
+			verData[i].x += (float)spe.x;
+			verData[i].y += (float)spe.y;
 		}
 
-		{
-			void* colorData = ctx.m_dcb.allocateTopDown(sizeof(Color), 16);
-			sce::Agc::Core::Buffer colorBuf;
-			sce::Agc::Core::initializeConstantBuffer(&colorBuf, colorData, sizeof(Color));
-			Color* color = (Color*)colorData;
-			color->m_color = { 1.0f, 1.0f, 1.0f, 1.0f };
+		sce::Agc::Core::initializeRegularBuffer(&vertBuffer, verData, sizeof(Vert), 4);
 
-			ctx.m_bdr.getStage(sce::Agc::ShaderType::kPs)
-				.setConstantBuffers(1, 1, &colorBuf)
-				.setTextures(0, 1, &texture)
-				.setSamplers(0, 1, &sampler);
-		}
+		Camera* camera = (Camera*)ctx.m_dcb.allocateTopDown(sizeof(Camera), sce::Agc::Alignment::kBuffer);
+		camera->x = 0.0f;
+		camera->y = 0.0f;
+		camera->res_x = 640.0f * 0.5f;
+		camera->res_y = 360.0f * 0.5f;
 
+		ctx.m_bdr.getStage(sce::Agc::ShaderType::kGs)
+			.setVertexBuffers(0, 1, &vertBuffer)
+			.setVertexAttributes(0, 3, attributes)
+			.setUserSrtBuffer(&camera, sizeof(camera));
+
+		ctx.m_bdr.getStage(sce::Agc::ShaderType::kPs)
+			.setTextures(0, 1, &image.texture)
+			.setSamplers(0, 1, &sampler);
 
 
 		// In this example, we're actually drawing two triangles. The state only differs in what is in
 		// frame_reg. Because we're not calling into the Binder or StateBuffer in between these draws, they will 
 		// not write anything to the DCB and thus will incur no GPU cost.
-		// 
-		ctx.drawIndexAuto(6);
-
-		// ctx.drawIndex()
+		ctx.drawIndexAuto(4);
 	}
 
 	// Submit a flip via the GPU.
@@ -668,11 +655,13 @@ void xs::render::render()
 	// calling resetQueue(ResetQueueOp::kAllAccessible).
 	error = sce::Agc::suspendPoint();
 	SCE_AGC_ASSERT(error == SCE_OK);
-
 }
 
 void xs::render::clear()
 {
+	// lines_count = 0;
+	// triangles_count = 0;
+	sprite_queue.clear();
 }
 
 void xs::render::set_offset(double x, double y) {}
@@ -702,19 +691,41 @@ int xs::render::load_image(const std::string& image_file)
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
 {
-	return -1;
+	for (int i = 0; i < sprites.size(); i++)
+	{
+		const auto& s = sprites[i];
+		if (s.image_id == image_id &&
+			s.from.x == x0 && s.from.y == y0 &&
+			s.to.x == x1 && s.to.y == y1)
+			return i;
+	}
+
+	const auto i = sprites.size();
+	sprite s = { image_id, { x0, y0 }, { x1, y1 } };
+	sprites.push_back(s);
+	return static_cast<int>(i);
+
 }
 
 void xs::render::render_sprite(
-	int image_id,
+	int sprite_id,
 	double x,
 	double y,
+	double scale,
 	double rotation,
-	double size,
-	xs::render::color mutiply,
-	xs::render::color add,
+	color mutiply,
+	color add,
 	unsigned int flags)
 {
+	sprite_queue.push_back({
+	sprite_id,
+	x + offset.x,
+	y + offset.y,
+	scale,
+	rotation,
+	mutiply,
+	add,
+	flags });
 }
 
 int xs::render::load_font(const std::string& font_file, double size)
