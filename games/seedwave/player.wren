@@ -1,6 +1,6 @@
-import "xs" for Configuration, Input, Render, Registry, Color
+import "xs" for Configuration, Input, Render, Registry
 import "xs_ec"for Entity, Component
-import "xs_math"for Math, Bits, Vec2
+import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 
 class Player is Component {
