@@ -3,65 +3,6 @@ import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation, Label
 
-class Menu {
-    construct new(items) {
-        _items = items
-        _selected = 0
-        _actions = {}
-        _font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
-        {
-            var e = Entity.new()
-            var t = Transform.new(Vec2.new(0,0))
-            // var r = Relation.new(__title)
-            _s = Sprite.new("games/jump-core/images/backgrounds/grey.png", 0, 0, 1, 1)
-            _s.layer = 10.0
-            _s.scale = 20.0
-            _s.flags = Render.spriteCenter            
-            e.name = "Bar"
-            e.addComponent(t)
-            e.addComponent(_s)
-            // e.addComponent(r)
-        }
-    }
-
-    update(dt) {
-        if(Input.getButtonOnce(13) == true || Input.getKeyOnce(Input.keyDown)) {
-            _selected = (_selected + 1) % _items.count
-        } else if (Input.getButtonOnce(11) == true || Input.getKeyOnce(Input.keyUp)) {
-            _selected = (_selected - 1) % _items.count
-        } else if (Input.getButtonOnce(0) == true || Input.getKeyOnce(Input.keySpace)) {
-            var item = _items[_selected]
-            var action = _actions[item]
-            if(action != null) {
-                action.call()
-            }
-        }
-
-        _s.mul = Registry.getColor("Mul Color")
-        _s.add = Registry.getColor("Add Color")
-    }
-
-    render(x, y) {
-        Render.renderText(_font, "======== SubOptimal v0.1 ========", x, y, 0xFFFFFFFF, 0x00000000, 0)
-        var i = 0
-        for(item in _items) {
-            y = y - 20
-            if(_selected == i) {
-                Render.renderText(_font, ">" + item + "<", x, y, 0xFFFFFFFF, 0x00000000, 0)
-            } else {
-                Render.renderText(_font, item, x, y, 0xFFFFFFFF, 0x00000000, 0)
-            }            
-            i = i + 1
-        }
-        y = y - 18
-        Render.renderText(_font, "================================", x, y, 0xFFFFFFFF, 0x00000000, 0)
-    }
-
-    addAction(name, action) {
-        _actions[name] = action
-    }
-}
-
 class ImGuiRenderItem_ {
     construct new(text, x, y, color) {
         _text = text
@@ -121,8 +62,6 @@ class ImGui is Renderable {
             _x + t.position.x,
             _y + t.position.y,
             mul))
-
-        //Render.renderText(_font, text, _x, _y, mul, 0x00000000, 0)
 
         _count = _count + 1
         _y = _y - _dy
@@ -221,12 +160,77 @@ class MainMenu is Component {
             s.addAnimation("play", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
             s.playAnimation("play")
             e.name = "Core"
-            //bullet.tag = Tag.player | Tag.bullet
             e.addComponent(t)
             e.addComponent(s)
             e.addComponent(r)
         }
         return mainMenu        
+    }
+}
+
+class ScoreMenu is Component {
+    construct new() {
+        super()
+        _imgui = null
+        _state = "score"
+    }
+
+    update(dt) {
+
+        if(_imgui == null) {
+            _imgui = owner.getComponent(ImGui)            
+        }
+
+        _imgui.begin(-55.0, 20.0)
+        if(_state == "score") {
+            if(_imgui.text("Score")) {
+                Game.startPlay()
+            }            
+        } else if(_state == "options") {            
+        }
+        _imgui.end()
+    }
+
+    static create() {
+        var scoreMenu = Entity.new()        
+        { // Main menu
+            var t = Transform.new(Vec2.new(0,0))
+            var sm = ScoreMenu.new()
+            var imgui = ImGui.new("[games]/jump-core/fonts/FutilePro.ttf", 18)
+            imgui.layer = 12.0
+            scoreMenu.name = "Score Menu"
+            scoreMenu.addComponent(t)
+            scoreMenu.addComponent(sm)
+            scoreMenu.addComponent(imgui)
+        }
+        { // Background
+            var e = Entity.new()
+            var t = Transform.new(Vec2.new(0,0))
+            var r = Relation.new(scoreMenu)
+            var s = Sprite.new("[games]/jump-core/images/backgrounds/sCore.png")
+            s.layer = 10.0
+            s.flags = Render.spriteCenter            
+            e.name = "ScoreBg"
+            e.addComponent(t)
+            e.addComponent(s)
+            e.addComponent(r)
+        }
+        { // Core part
+            var e = Entity.new()
+            var t = Transform.new(Vec2.new(0, 0))
+            var r = Relation.new(scoreMenu)
+            r.offset = Vec2.new(1.5, 52)
+            var s = AnimatedSprite.new("[games]/jump-core/images/vfx/Electric_Effect_05_small.png", 4, 4, 15)
+            s.layer = 10.1
+            s.flags = Render.spriteCenter
+            s.addAnimation("play", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
+            s.playAnimation("play")
+            e.name = "Core"
+            e.addComponent(t)
+            e.addComponent(s)
+            e.addComponent(r)
+        }
+        return scoreMenu        
     }
 }
 

@@ -96,9 +96,6 @@ class Game {
         __shakeIntesity = 0
         __time = 0.0
         __font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
-
-        // startPlay()
-        // startMenu()
     }        
     
     static update(dt) {        
@@ -110,9 +107,7 @@ class Game {
         } else if(__state == GameState.Play) {
             updatePlay(dt)
         } else if(__state == GameState.Score) {
-            updateScore(dt)
         } 
-
         
         __shakeOffset.x = __random.float(-1.0, 1.0)
         __shakeOffset.y = __random.float(-1.0, 1.0)
@@ -129,8 +124,6 @@ class Game {
             var pu = playerShip.getComponent(Unit)
             var text = "SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)"
             Render.renderText(__font, text, 0, 150, 0xFFFFFFFF, 0x00000000, Render.spriteCenter)
-        } else if(__state == GameState.Menu) {
-            //__menu.render(100.0, 0.0)
         }
     }
 
@@ -142,6 +135,8 @@ class Game {
         __ship = Player.createShip()
         __menu.delete()
         __menu = null
+
+        Portal.create()
     }
 
     static updateTitle(dt) {
@@ -153,11 +148,6 @@ class Game {
     static updatePlay(dt) {
         var pu = playerShip.getComponent(Unit)
         __time = __time + dt
-
-        if(__time > 2.0) {
-            __time = 0.0
-            Background.setRandomLevel()
-        }
 
         /*
         for(e in Entity.entities) {
@@ -179,7 +169,20 @@ class Game {
         var playerBullets = Entity.entitiesWithTag(Tag.player | Tag.bullet)
         var computerUnits = Entity.entitiesWithTag(Tag.computer | Tag.unit)
         var computerBullets = Entity.entitiesWithTag(Tag.computer | Tag.bullet)
-        // var computerBullets = Entity.entitiesWithTag(Tag.computer | Tag.bullet)
+
+        /*
+        var portals = Entity.entitiesWithTag(Tag.portal)
+        if(portals.count > 0) {
+            if(Game.checkCollision(portals[0], __ship)) {
+                Background.setRandomLevel()
+                var t = portals[0].getComponent(Transform)
+                t.position = Vec2.new(
+                    __random.float() * 250,
+                    __random.float() * 150
+                )
+            } 
+        }
+        */
 
         Game.collide(computerBullets, playerUnits)
         Game.collide(playerBullets, computerUnits)
@@ -197,29 +200,21 @@ class Game {
         }
 
         if(playerShip.getComponent(Unit).health <= 0) {
-            __state = GameState.Score
+            endGame()            
         }
     }
 
     static startMenu() {
         __title.delete()
         __title = null
-        __state = GameState.Menu
-        //__menu = Menu.new(["play", "options", "credits", "exit"])
-        //__menu.addAction("play", Fn.new { Game.startPlay() } )
-
+        __state = GameState.Menu    
         __menu = MainMenu.create()
 
     }
 
-    static updateScore(dt) {
-        Render.setColor(0x8BEC46FF)
-        Render.text("SCORE %(__score)", -100, 50, 4)
-        Render.text(">menu<", -50, 10, 2)
-
-        if (Input.getButtonOnce(0) || Input.getKeyOnce(Input.keySpace)) {
-            __state = GameState.Menu            
-        } 
+    static endGame() {        
+        __state = GameState.Score
+        __score = ScoreMenu.create()
     }
 
     static addShake() {
@@ -375,6 +370,17 @@ class Game {
         }
     }
 
+    static checkCollision(e0, e1) {
+        var t0 = e0.getComponent(Transform)
+        var t1 = e1.getComponent(Transform)
+        var b0 = e0.getComponent(Body)
+        var b1 = e1.getComponent(Body)
+        var dist = t0.position - t1.position
+        dist = dist.magnitude
+        var collision = dist < (b0.size + b1.size)
+        return collision
+    }
+
     static playerShip { __ship }
 
     static random { __random }
@@ -503,4 +509,5 @@ class Game {
 import "ships" for Orbitor, Shield, EnemyCore, Enemy
 import "unit" for Unit
 import "player" for Player
-import "ui" for Menu, MainMenu
+import "portal" for Portal
+import "ui" for MainMenu, ScoreMenu
