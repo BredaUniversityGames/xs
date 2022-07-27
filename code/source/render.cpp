@@ -63,7 +63,7 @@ namespace xs::render::internal
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
 	void create_gl_texture_with_data(image& img, uchar* data);
-	vec4 to_vec4(color c) { return vec4(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f); }
+	//vec4 to_vec4(color c) { return vec4(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f); }
 	void rotate_vector3d(vec3& vec, float radians);
 
 	int width = -1;
@@ -107,9 +107,9 @@ namespace xs::render::internal
 	sprite_vtx_format		sprite_trigs_array[sprite_trigs_max * 3];
 	unsigned int			sprite_trigs_vao = 0;
 	unsigned int			sprite_trigs_vbo = 0;
-	std::vector<sprite_queue_entry> sprite_queue = {};
+	// std::vector<sprite_queue_entry> sprite_queue = {};
 	std::vector<image>		images = {};
-	std::vector<sprite>		sprites = {};
+	// std::vector<sprite>		sprites = {};
 	std::vector<font_atals> fonts = {};
 }
 
@@ -982,12 +982,4 @@ bool xs::render::internal::link_program(GLuint program)
 
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	return status != 0;
-}
-
-void xs::render::internal::rotate_vector3d(vec3& vec, float radians)
-{
-	const float x = cos(radians) * vec.x - sin(radians) * vec.y;
-	const float y = sin(radians) * vec.x + cos(radians) * vec.y;
-	vec.x = x;
-	vec.y = y;
 }

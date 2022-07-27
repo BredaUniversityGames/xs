@@ -3,18 +3,18 @@
 struct V2P
 {
 	float4 pos				: S_POSITION;
-	float3 Color			: COLOR0;
 	float2 Texture		: TEXCOORD0;
+	float3 Color			: COLOR0;	
 };
 
-SamplerState samp		: s0;
-Texture2D color			: t0;
+SamplerState samp : register(s0);
+Texture2D color : register(t0);
 
 [CxxSymbol("Shader::ps")]
 float4 main(V2P input) : S_TARGET_OUTPUT0
 {	
 	float4 diffuse = color.Sample(samp, input.Texture);
-
+	diffuse = pow(diffuse, 2.2);
 	if (diffuse.w < 0.002f) discard;
 	return diffuse;
 	//return float4(input.Texture, 0.f, 1.0) * m_color;
