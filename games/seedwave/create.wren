@@ -1,6 +1,6 @@
-import "xs" for Configuration, Input, Render, Registry, Color
+import "xs" for Configuration, Input, Render, Registry
 import "xs_ec"for Entity, Component
-import "xs_math"for Math, Bits, Vec2
+import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 import "unit" for Unit
 import "tags" for Team, Tag
@@ -68,6 +68,13 @@ class Create {
         __offsets.add(Vec2.new(5, 0))
         __offsets.add(Vec2.new(5, 1))
         __offsets.add(Vec2.new(5, -1))
+        __offsets.add(Vec2.new(6, 0))
+        __offsets.add(Vec2.new(6, 1))
+        __offsets.add(Vec2.new(6, -1))
+        __offsets.add(Vec2.new(7, 0))
+        __offsets.add(Vec2.new(7, 1))
+        __offsets.add(Vec2.new(7, -1))
+
 
     }
 

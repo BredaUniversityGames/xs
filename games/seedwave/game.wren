@@ -1,6 +1,6 @@
-import "xs" for Configuration, Input, Render, Registry, Color
+import "xs" for Configuration, Input, Render, Registry
 import "xs_ec"for Entity, Component
-import "xs_math"for Math, Bits, Vec2
+import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Renderable, Body, Transform
 import "background" for Background
 import "debug" for DebugColor
@@ -29,7 +29,7 @@ class Game {
 
         __background = Background.createBackground()
         __player = Create.player()
-        __boss = Create.randomBoss(12)
+        __boss = Create.randomBoss(20)
         //  __boss = Create.boss("C1SL2C2M1L1SL2C1L2C1")
         //__boss = Create.boss("C1L2C2M1L1L2M1C1L2C1L2C2M1L1L2M1C1L2")
     }    
