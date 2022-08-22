@@ -1,1 +1,1 @@
-[games]/jump-core/game.wren
+[games]/seedwave/game.wren
