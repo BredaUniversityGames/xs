@@ -209,6 +209,19 @@ int xs::render::load_font(const std::string& font_file, double size)
 	return font_id;
 }
 
+int xs::render::get_image_height(int image_id)
+{
+	auto& img = images[image_id];
+	return img.height;
+}
+
+int xs::render::get_image_width(int image_id)
+{
+	auto& img = images[image_id];
+	return img.width;
+}
+
+
 void xs::render::render_text(
 	int font_id,
 	const std::string& text,

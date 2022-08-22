@@ -30,9 +30,8 @@ namespace xs::render
 
 	int load_image(const std::string& image_file);
 	int load_font(const std::string& font_file, double size);
-
-	// int get_image_width(int image_id);
-	// int get_image_height(int image_id);
+	int get_image_width(int image_id);
+	int get_image_height(int image_id);
 	
 	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
 	void render_sprite(
