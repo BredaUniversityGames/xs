@@ -156,6 +156,23 @@ void render_load_image(WrenVM* vm)
 	wrenSetSlotDouble(vm, 0, img);
 }
 
+void render_get_image_width(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	int id = (int)wrenGetSlotDouble(vm, 1);
+	int width = xs::render::get_image_width(id);
+	wrenSetSlotDouble(vm, 0, width);
+}
+
+
+void render_get_image_height(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	int id = (int)wrenGetSlotDouble(vm, 1);
+	int height = xs::render::get_image_height(id);
+	wrenSetSlotDouble(vm, 0, height);
+}
+
 void render_create_sprite(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 6);
@@ -444,6 +461,8 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "text(_,_,_,_)", render_text);
 	bind("xs", "Render", true, "line(_,_,_,_)", render_line);
 	bind("xs", "Render", true, "loadImage(_)", render_load_image);
+	bind("xs", "Render", true, "getImageWidth(_)", render_get_image_width);
+	bind("xs", "Render", true, "getImageHeight(_)", render_get_image_height);
 	bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
 	bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
 	bind("xs", "Render", true, "renderSprite(_,_,_,_,_,_,_,_)", render_sprite_ex);

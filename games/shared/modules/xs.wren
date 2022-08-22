@@ -117,6 +117,8 @@ class Render {
     }
 
     foreign static loadImage(path)
+    foreign static getImageWidth(imageId)
+    foreign static getImageHeight(imageId)
     foreign static createSprite(imageId, x0, y0, x1, y1)
     foreign static renderSprite(spriteId, x, y, scale, rotation, mul, add, flags)
     foreign static setOffset(x, y)    
