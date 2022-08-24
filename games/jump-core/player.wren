@@ -127,7 +127,7 @@ class Player is Component {
             s.flags = Render.spriteCenter
             s.addAnimation("straight", [4, 5, 6, 7])            
             s.playAnimation("straight")
-            s.scale = 2.0
+            s.scale = 1.0
             var r = Relation.new(ship)
             r.offset = Vec2.new(-20, 0)            
             thrust.addComponent(t)

@@ -33,8 +33,7 @@ class Portal is Component {
             if(_time > 1.0) {
                 _time = 0.0
                 _state = Portal.shrink                
-                var l = Background.setRandomLevel()
-                Game.jump(l)
+                Game.jump()
                 moveRand()
             }
         } else if(_state == Portal.shrink) {            

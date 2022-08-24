@@ -88,7 +88,7 @@ class EnemyCore is Component {
     construct new(pos, tilt) {
         super()        
         _position = pos
-        _backPos = pos + Vec2.new(200.0, 0.0)
+        _backPos = pos + Vec2.new(400.0, 0.0)
         _time = 0.0
         _shootTime = _time
         _tilt = tilt 
