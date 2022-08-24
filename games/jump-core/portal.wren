@@ -33,7 +33,8 @@ class Portal is Component {
             if(_time > 1.0) {
                 _time = 0.0
                 _state = Portal.shrink                
-                Background.setRandomLevel()
+                var l = Background.setRandomLevel()
+                Game.jump(l)
                 moveRand()
             }
         } else if(_state == Portal.shrink) {            
@@ -51,7 +52,7 @@ class Portal is Component {
 
     jump() {
         _time = 0.0
-        _state = Portal.expand
+        _state = Portal.expand        
     }
 
     moveRand() {
@@ -72,7 +73,7 @@ class Portal is Component {
         s.layer = 0.9
         s.flags = Render.spriteCenter
         var frames = []
-        frames.addAll(0..41)
+        frames.addAll(0..40)
         s.addAnimation("play", frames)
         s.playAnimation("play")
         portal.addComponent(t)

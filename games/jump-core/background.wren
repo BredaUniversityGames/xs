@@ -74,7 +74,7 @@ class Background {
             }
         }
 
-        setLevel("daytime")
+        setLevel("daytime")        
     }
 
     static setLevel(level) {
@@ -97,5 +97,6 @@ class Background {
         var i = __random.int(0, __levels.count)
         var l = __levels[i]
         Background.setLevel(l)
-    }
+        return l
+    }    
 }
