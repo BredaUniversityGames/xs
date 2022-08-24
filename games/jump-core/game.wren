@@ -95,6 +95,7 @@ class Game {
         __shakeOffset = Vec2.new(0, 0)
         __shakeIntesity = 0
         __time = 0.0
+        __core = 0.0
         __font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
     }        
     
@@ -122,7 +123,7 @@ class Game {
         if(__state == GameState.Play) {
             Render.setOffset(0, 0)
             var pu = playerShip.getComponent(Unit)
-            var text = "SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)"
+            var text = "CORE %(__core)   |    SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)"
             Render.renderText(__font, text, 0, 150, 0xFFFFFFFF, 0x00000000, Render.spriteCenter)
         }
     }
@@ -135,8 +136,14 @@ class Game {
         __ship = Player.createShip()
         __menu.delete()
         __menu = null
+        __core = 0.0
 
         Portal.create()
+    }
+
+    static jump(level) {
+        __core = 0.0
+        __ship.getComponent(Player).setLevel(level)
     }
 
     static updateTitle(dt) {
@@ -149,40 +156,27 @@ class Game {
         var pu = playerShip.getComponent(Unit)
         __time = __time + dt
 
-        /*
-        for(e in Entity.entities) {
-            var b = e.getComponent(Body)
-            if(b != null) {
-                var t = e.getComponent(Transform)
-                var c = e.getComponent(DebugColor)
-                if(c != null) {
-                    Render.setColor(c.color)
-                } else {
-                    Render.setColor(1.0, 1.0, 1.0)
+        __core = __core + dt * 0.1
+
+        if(Registry.getBool("Show Physics", Registry.debug)) {
+            for(e in Entity.entities) {
+                var b = e.getComponent(Body)
+                if(b != null) {
+                    var t = e.getComponent(Transform)
+                    var c = e.getComponent(DebugColor)
+                    Render.setColor(1.0, 0.0, 0.0)
+                    if(c != null) {
+                        Render.setColor(c.color)
+                    }
+                    Render.disk(t.position.x, t.position.y, b.size, 24)
                 }
-                Render.disk(t.position.x, t.position.y, b.size, 24)
             }
         }
-        */
  
         var playerUnits = Entity.entitiesWithTag(Tag.player | Tag.unit)
         var playerBullets = Entity.entitiesWithTag(Tag.player | Tag.bullet)
         var computerUnits = Entity.entitiesWithTag(Tag.computer | Tag.unit)
         var computerBullets = Entity.entitiesWithTag(Tag.computer | Tag.bullet)
-
-        /*
-        var portals = Entity.entitiesWithTag(Tag.portal)
-        if(portals.count > 0) {
-            if(Game.checkCollision(portals[0], __ship)) {
-                Background.setRandomLevel()
-                var t = portals[0].getComponent(Transform)
-                t.position = Vec2.new(
-                    __random.float() * 250,
-                    __random.float() * 150
-                )
-            } 
-        }
-        */
 
         Game.collide(computerBullets, playerUnits)
         Game.collide(playerBullets, computerUnits)

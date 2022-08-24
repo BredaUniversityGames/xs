@@ -77,6 +77,26 @@ class Player is Component {
         b.velocity = vel  
     }
 
+    setLevel(level) {        
+        var sheet = ""
+        if(level == "daytime") {
+            sheet = "[games]/jump-core/images/ships/blue-ship-spritesheet.png"
+        } else if(level == "night") {
+            sheet = "[games]/jump-core/images/ships/green-ship-spritesheet.png"
+        } else if(level == "abandoned") {
+            sheet = "[games]/jump-core/images/ships/emeraldgreen_ship_spritesheet.png"
+        } else if(level == "snow-rain") {
+            sheet = "[games]/jump-core/images/ships/darkgrey-ship-spritesheet.png"
+        } else if(level == "sunset") {
+            sheet = "[games]/jump-core/images/ships/orangered_ship_spritesheet.png"
+        }
+                 
+        var s = GridSprite.new(sheet, 5, 1)
+        s.layer = 1.0
+        s.flags = Render.spriteCenter
+        owner.addComponent(s)
+    }
+
     static createShip() {
         var ship = Entity.new()            
         var p = Vec2.new(0, 0)
@@ -90,8 +110,6 @@ class Player is Component {
         var s = GridSprite.new("[games]/jump-core/images/ships/blue-ship-spritesheet.png", 5, 1)
         s.layer = 1.0
         s.flags = Render.spriteCenter
-        // s.addAnimation("fly", [0,1,2])
-        // s.playAnimation("fly")
         ship.addComponent(t)
         ship.addComponent(sc)            
         ship.addComponent(b)
