@@ -97,6 +97,7 @@ class Game {
         __time = 0.0
         __core = 0.0
         __font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
+        __levels = ["daytime", "night", "abandoned", "snow-rain", "sunset"]
     }        
     
     static update(dt) {        
@@ -117,13 +118,18 @@ class Game {
 
     static render() {
         Render.setOffset(__shakeOffset.x * __shakeIntesity, __shakeOffset.y * __shakeIntesity)
-
         Renderable.render()        
 
         if(__state == GameState.Play) {
             Render.setOffset(0, 0)
             var pu = playerShip.getComponent(Unit)
-            var text = "CORE %(__core)   |    SCORE %(__score)   |  WAVE %(__wave)  |  HEALTH %(pu.health)"
+
+            var bars = "|"
+            for(i in 0...(__core * 10)) {
+                bars = bars + "|"
+            }
+
+            var text = "CORE %(bars)   :    SCORE %(__score)   :  WAVE %(__wave)  :  HEALTH %(pu.health)"
             Render.renderText(__font, text, 0, 150, 0xFFFFFFFF, 0x00000000, Render.spriteCenter)
         }
     }
@@ -141,9 +147,12 @@ class Game {
         Portal.create()
     }
 
-    static jump(level) {
+    static jump() {
         __core = 0.0
+        var i = __random.int(0, __levels.count)
+        var level = __levels[i]
         __ship.getComponent(Player).setLevel(level)
+        Background.setLevel(level)
     }
 
     static updateTitle(dt) {
@@ -315,9 +324,9 @@ class Game {
         var e = Enemy.new(idx, tilt, core, bulletType)
         var u = Unit.new(Team.computer, Globals.EnemyHealth)
         var c = DebugColor.new(Globals.EnemyColor)
-        var s = Sprite.new("[games]/jump-core/images/ships/Purple-4.png")
+        var s = Sprite.new("[games]/jump-core/images/ships/Purple-1.png")
         s.layer = 0.9
-        s.flags = Render.spriteCenter
+        s.flags = Render.spriteCenter | Render.spriteFlipX
         ship.addComponent(t)
         ship.addComponent(b)
         ship.addComponent(e)
@@ -485,10 +494,10 @@ class Game {
         var t = Transform.new(owt.position)
         var b = Body.new(001, Vec2.new(0, 0))
         var e = Explosion.new(1.0)
-        var s = AnimatedSprite.new("[games]/jump-core/images/vfx/Explosion.png", 8, 1, 15)
+        var s = AnimatedSprite.new("[games]/jump-core/images/vfx/explosion-a.png", 8, 1, 15)
         s.layer = 1.9
         s.flags = Render.spriteCenter
-        s.addAnimation("explode", [0,1,2, 3, 4, 5, 6, 7])
+        s.addAnimation("explode", [0, 1, 2, 3, 4, 5, 6, 7])
         s.playAnimation("explode")
         s.mode = AnimatedSprite.destroy
         explosion.addComponent(t)

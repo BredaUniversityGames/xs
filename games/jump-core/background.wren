@@ -27,8 +27,6 @@ class Parallax is Component {
 
 class Background {
     static create() {
-        __levels = ["daytime", "night", "abandoned", "snow-rain", "sunset"]
-        __random = Random.new()
         __layers = [
             // file                                                             width   speeds  height  starts
             // 0                                                                1       2       3       4       
@@ -92,11 +90,4 @@ class Background {
             }
         }
     }
-
-    static setRandomLevel() {
-        var i = __random.int(0, __levels.count)
-        var l = __levels[i]
-        Background.setLevel(l)
-        return l
-    }    
 }
