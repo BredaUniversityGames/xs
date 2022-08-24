@@ -29,6 +29,7 @@ namespace xs::inspector::internal
 	void follow_the_light();
 	float ok_timer = 0.0f;
 	bool theme = false;
+	bool next_frame;
 }
 
 void xs::inspector::initialize()
@@ -148,7 +149,11 @@ void xs::inspector::render(float dt)
 		{
 			if (ImGui::Button(ICON_FA_PLAY))
 				internal::paused = false;
-			Tooltip("Play");
+			Tooltip("Play");			
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_FAST_FORWARD))
+				internal::next_frame = true;
+			Tooltip("Next Frame");			
 		}
 		else
 		{
@@ -241,7 +246,9 @@ void xs::inspector::render(float dt)
 
 bool xs::inspector::paused()
 {
-	return internal::paused;
+	bool t = internal::paused && !internal::next_frame;
+	internal::next_frame = false;
+	return t;
 }
 
 void xs::inspector::internal::embrace_the_darkness()
