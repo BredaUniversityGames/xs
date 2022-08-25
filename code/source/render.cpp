@@ -524,11 +524,23 @@ void xs::render::render()
 	XS_DEBUG_ONLY(glUseProgram(0));
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
+	// Calculate how to fit the buffer onto the screen.
+	// We want to fill the screen as much as possible while perserving the game's aspect ratio.
+	int deviceWidth = xs::device::get_width(), deviceHeight = xs::device::get_height();
+	float multiplier = min((float)deviceWidth / width, (float)deviceHeight / height);
+	// Note: in windowed mode, this will just be configuration::multiplier again. 
+	// In fullscreen mode when the game and screen resolution do not match, we need to compute it here.
+
+	float xmin = (deviceWidth - width * multiplier) / 2;
+	float xmax = deviceWidth - xmin;
+	float ymin = (deviceHeight - height * multiplier) / 2;
+	float ymax = deviceHeight - ymin;
+
 	// Blit render result screen
 	//const auto mul = configuration::multiplier;
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, render_fbo);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBlitFramebuffer(0, 0, width, height, 0, 0, xs::device::get_width(), xs::device::get_height(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBlitFramebuffer(0, 0, width, height, xmin, ymin, xmax, ymax, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
