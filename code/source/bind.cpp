@@ -83,6 +83,37 @@ void input_get_mouse_y(WrenVM* vm)
 	wrenSetSlotDouble(vm, 0, output);
 }
 
+void input_get_nr_touches(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 1);
+	const auto output = xs::input::get_nr_touches();
+	wrenSetSlotDouble(vm, 0, output);
+}
+
+void input_get_touch_id(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const int index = static_cast<int>(wrenGetSlotDouble(vm, 1));
+	const auto output = xs::input::get_touch_id(index);
+	wrenSetSlotDouble(vm, 0, output);
+}
+
+void input_get_touch_x(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const int index = static_cast<int>(wrenGetSlotDouble(vm, 1));
+	const auto output = xs::input::get_touch_x(index);
+	wrenSetSlotDouble(vm, 0, output);
+}
+
+void input_get_touch_y(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const int index = static_cast<int>(wrenGetSlotDouble(vm, 1));
+	const auto output = xs::input::get_touch_y(index);
+	wrenSetSlotDouble(vm, 0, output);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Render
@@ -451,6 +482,10 @@ void xs::script::bind_api()
 	bind("xs", "Input", true, "getMouseButtonOnce(_)", input_get_mousebutton_once);
 	bind("xs", "Input", true, "getMouseX()", input_get_mouse_x);
 	bind("xs", "Input", true, "getMouseY()", input_get_mouse_y);
+	bind("xs", "Input", true, "getNrTouches()", input_get_nr_touches);
+	bind("xs", "Input", true, "getTouchId(_)", input_get_touch_id);
+	bind("xs", "Input", true, "getTouchX(_)", input_get_touch_x);
+	bind("xs", "Input", true, "getTouchY(_)", input_get_touch_y);
 
 	// Render
 	bind("xs", "Render", true, "begin(_)", render_begin);

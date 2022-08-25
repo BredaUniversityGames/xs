@@ -151,6 +151,22 @@ class Input {
     foreign static getMouseX()
     foreign static getMouseY()
 
+    foreign static getNrTouches()
+    foreign static getTouchId(index)
+    foreign static getTouchX(index)
+    foreign static getTouchY(index)
+
+    static getTouchData() {
+        var nrTouches = getNrTouches()
+        var result = []
+        for (i in 0...nrTouches) result.add(getTouchData(i))
+        return result
+    }
+
+    static getTouchData(index) {
+        return [getTouchId(index), getTouchX(index), getTouchY(index)]
+    }
+
     static getMousePosition() {
         return [getMouseX(), getMouseY()]
     }
