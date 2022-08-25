@@ -8,6 +8,7 @@
 #include <nn/hid/hid_NpadJoy.h>
 #include <nn/hid/hid_ControllerSupport.h>
 #include <nn/hid/hid_NpadColor.h>
+#include <nn/hid/hid_TouchScreen.h>
 #include <nn/util/util_Color.h>
 #include <nn/hid/hid_Vibration.h>
 #include <nn/nn_Result.h>
@@ -101,6 +102,7 @@ namespace xs::input::internal
 	//char									_keyOnce[256 + 1];
 	//MouseState								_mouse;
 	//bool									_rumble = true;
+	nn::hid::TouchScreenState<nn::hid::TouchStateCountMax>			_touchScreenState;
 
 	void AddJoystick(int joy);
 }
@@ -167,6 +169,8 @@ void xs::input::initialize()
 		default: _state = P2to4; break;
 		}
 	}
+
+	nn::hid::InitializeTouchScreen();
 
 	//InitializeVibrationThread();
 }
@@ -371,6 +375,9 @@ void xs::input::update(double dt)
 		removeQueue.pop();
 	}
 
+	// Get touchscreen data
+	nn::hid::GetTouchScreenState(&_touchScreenState);
+
 	// Check if there are any new controllers this frame
 	//AddJoystick(nn::hid::NpadId::No1);
 	//AddJoystick(nn::hid::NpadId::No2);
@@ -450,21 +457,27 @@ bool xs::input::get_mousebutton_once(int button)
 
 int xs::input::get_nr_touches()
 {
-	return 0;
+	return _touchScreenState.count;
 }
 
 int xs::input::get_touch_id(int index)
 {
+	if (index >= 0 && index < _touchScreenState.count)
+		return _touchScreenState.touches[index].fingerId;
 	return 0;
 }
 
 double xs::input::get_touch_x(int index)
 {
+	if (index >= 0 && index < _touchScreenState.count)
+		return _touchScreenState.touches[index].x;
 	return 0.0;
 }
 
 double xs::input::get_touch_y(int index)
 {
+	if (index >= 0 && index < _touchScreenState.count)
+		return _touchScreenState.touches[index].y;
 	return 0.0;
 }
 
