@@ -1,6 +1,6 @@
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
-import "xs_components" for Transform
+import "xs_components" for Transform, Body
 import "game" for Game, BulletType
 import "globals" for Globals
 
@@ -99,6 +99,14 @@ class EnemyCore is Component {
     }
 
     update(dt) {
+
+        var p = Game.playerShip
+        var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
+        d = d.normalise
+        var b = owner.getComponent(Body)
+        b.velocity = d * 200.0 
+
+        /*
         _time = _time + dt * 0.5
         if(_time < 1.0) {
             var pos = Math.lerp(_backPos, _position, _time)
@@ -108,7 +116,6 @@ class EnemyCore is Component {
             owner.getComponent(Transform).position.x = _position.x + pos
         }
 
-        /*
         _shootTime = _shootTime + dt
         if(_shootTime > 1.0) {
             if(Game.random.float(0.0, 1.0) < 0.3) {
