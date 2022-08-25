@@ -14,4 +14,8 @@ namespace xs::input
 	bool get_mousebutton_once(int button);
 	double get_mouse_x();
 	double get_mouse_y();
+	int get_nr_touches();
+	int get_touch_id(int index);
+	double get_touch_x(int index);
+	double get_touch_y(int index);
 }

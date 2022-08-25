@@ -448,6 +448,26 @@ bool xs::input::get_mousebutton_once(int button)
 	return false;
 }
 
+int xs::input::get_nr_touches()
+{
+	return 0;
+}
+
+int xs::input::get_touch_id(int index)
+{
+	return 0;
+}
+
+double xs::input::get_touch_x(int index)
+{
+	return 0.0;
+}
+
+double xs::input::get_touch_y(int index)
+{
+	return 0.0;
+}
+
 std::string GetName(JoystickType type)
 {
 	switch (type)
