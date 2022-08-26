@@ -108,7 +108,7 @@ void xs::inspector::render(float dt)
 	// glBindFramebuffer(GL_FRAMEBUFFER, 0);	// TODO: Only OpenGL call
 	
 	ImGui_Impl_NewFrame();
-	// ^^^ Move the bind bind here!
+	// ^^^ Move the bind here!
 
 	//ImGui::ShowDemoWindow();
 
