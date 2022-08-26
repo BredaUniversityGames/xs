@@ -140,6 +140,18 @@ class File {
     foreign static exists(src)
 }
 
+class TouchData {
+    construct new(index, x, y) {
+        _index = index
+        _x = x
+        _y = y
+    }
+
+    index { _index }
+    x { _x }
+    y { _y }
+}
+
 class Input {
     foreign static getAxis(axis)
     foreign static getButton(button)
@@ -164,7 +176,7 @@ class Input {
     }
 
     static getTouchData(index) {
-        return [getTouchId(index), getTouchX(index), getTouchY(index)]
+        return TouchData.new(getTouchId(index), getTouchX(index), getTouchY(index))
     }
 
     static getMousePosition() {
