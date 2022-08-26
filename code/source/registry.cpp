@@ -25,7 +25,8 @@ namespace xs::registry::internal
 		std::variant<double, bool, uint32_t, std::string> value;
 	};
 
-	std::unordered_map<std::string, registry_value> reg;
+	using regsitry_type = std::unordered_map<std::string, registry_value>;
+	regsitry_type reg;
 
 	template<typename T>
 	T get(const std::string& name, type type);
@@ -107,7 +108,7 @@ void xs::registry::shutdown() {}
 
 void xs::registry::inspect(bool& show)
 {
-	ImGui::Begin(u8"\U0000f1c0  Data", &show, ImGuiWindowFlags_NoCollapse);
+	ImGui::Begin(u8"\U0000f1c0  Data", &show);
 
 	if (ImGui::Button(ICON_FA_UNDO))
 	{
@@ -176,15 +177,20 @@ void xs::registry::set_string(const std::string& name, const std::string& value,
 ////									Internal Impl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void xs::registry::internal::inspect_of_type(
-	const std::string& type_name,
+	const string& type_name,
 	ImGuiTextFilter& filter,
 	xs::registry::type type)
 {
 	if (ImGui::CollapsingHeader(type_name.c_str()))
 	{
+		vector<string> sorted;
 		for (auto& itr : reg)
 			if (filter.PassFilter(itr.first.c_str()) && itr.second.type == type)
-				inspect_entry(itr);
+				sorted.push_back(itr.first);
+		sort(sorted.begin(), sorted.end());
+
+		for(const auto& s : sorted)
+			inspect_entry(*reg.find(s));
 
 		if (type == type::system || type == type::game || type == type::player)
 		{
@@ -297,7 +303,7 @@ void xs::registry::internal::inspect_entry(
 	{
 		auto val = std::get<double>(itr.second.value);
 		float flt = (float)val;
-		ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);
+		ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);		
 		set(itr.first, flt, itr.second.type);
 		return;
 	}
@@ -323,6 +329,13 @@ void xs::registry::internal::inspect_entry(
 		return;
 	}
 	catch (...) {}
+
+
+	if (ImGui::IsItemDeactivatedAfterEdit())
+	{
+		ImGui::SameLine();
+		ImGui::Button("!!!");
+	}
 }
 
 void xs::registry::internal::tooltip(const char* tooltip)
