@@ -28,6 +28,9 @@ namespace xs::registry::internal
 	using regsitry_type = std::unordered_map<std::string, registry_value>;
 	regsitry_type reg;
 
+	vector<regsitry_type> history;
+	int history_stack_pointer;
+
 	template<typename T>
 	T get(const std::string& name, type type);
 
@@ -61,6 +64,8 @@ namespace xs::registry::internal
 	const string& get_file_path(type type);
 
 	void tooltip(const char* tooltip);
+	void undo();
+	void redo();
 }
 
 template<class T>
@@ -108,18 +113,30 @@ void xs::registry::shutdown() {}
 
 void xs::registry::inspect(bool& show)
 {
+	if (history.empty())
+	{
+		auto r(reg);
+		history.push_back(r);
+	}
+
 	ImGui::Begin(u8"\U0000f1c0  Data", &show);
 
+	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
 	if (ImGui::Button(ICON_FA_UNDO))
 	{
+		internal::undo();
 	}
-	tooltip("Undo not implemented");
+	tooltip("Undo");
+	ImGui::EndDisabled();
 	ImGui::SameLine();
 
+	ImGui::BeginDisabled(internal::history_stack_pointer == 0);
 	if (ImGui::Button(ICON_FA_REDO))
 	{
-	}
-	tooltip("Redo not implemented");
+		internal::redo();
+	}	
+	tooltip("Redo");
+	ImGui::EndDisabled();
 	ImGui::SameLine();
 
 	static ImGuiTextFilter filter;
@@ -298,14 +315,12 @@ void xs::registry::internal::inspect_entry(
 	std::pair<const std::string,
 	xs::registry::internal::registry_value>& itr)
 {
-	// TODO: Replace with get_if
 	try
 	{
 		auto val = std::get<double>(itr.second.value);
 		float flt = (float)val;
 		ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);		
 		set(itr.first, flt, itr.second.type);
-		return;
 	}
 	catch (...) {}
 
@@ -314,27 +329,30 @@ void xs::registry::internal::inspect_entry(
 		auto val = std::get<bool>(itr.second.value);
 		ImGui::Checkbox(itr.first.c_str(), &val);
 		set(itr.first, val, itr.second.type);
-		return;
 	}
 	catch (...) {}
 
 	try
 	{
 		auto val = std::get<uint32_t>(itr.second.value);
-
 		ImVec4 vec = color_convert(val);
 		ImGui::ColorEdit4(itr.first.c_str(), &vec.x);
 		val = color_convert(vec);
 		set(itr.first, val, itr.second.type);
-		return;
 	}
 	catch (...) {}
 
 
 	if (ImGui::IsItemDeactivatedAfterEdit())
 	{
-		ImGui::SameLine();
-		ImGui::Button("!!!");
+		if (history_stack_pointer > 0)
+		{
+			history.resize(history.size() - history_stack_pointer);
+			history_stack_pointer = 0;
+		}
+
+		regsitry_type r(reg);
+		history.push_back(r);
 	}
 }
 
@@ -345,5 +363,29 @@ void xs::registry::internal::tooltip(const char* tooltip)
 		ImGui::BeginTooltip();
 		ImGui::SetTooltip("%s", tooltip);
 		ImGui::EndTooltip();
+	}
+}
+
+void xs::registry::internal::undo()
+{
+	if(internal::history_stack_pointer < history.size() - 1)
+		internal::history_stack_pointer++;
+
+	size_t idx = history.size() - 1 - history_stack_pointer;
+	if (idx < history.size() && idx >= 0) {
+		regsitry_type& r = history[idx];
+		reg = r;
+	}
+}
+
+void xs::registry::internal::redo()
+{
+	if (internal::history_stack_pointer > 0)
+		internal::history_stack_pointer--;
+
+	size_t idx = history.size() - 1 - history_stack_pointer;
+	if (idx < history.size() && idx >= 0) {
+		regsitry_type& r = history[idx];
+		reg = r;
 	}
 }
