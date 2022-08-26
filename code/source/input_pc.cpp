@@ -88,6 +88,11 @@ bool xs::input::get_key_once(int key)
 		(key_once[key] = false));
 }
 
+bool xs::input::get_mouse()
+{
+	return true;
+}
+
 bool xs::input::get_mousebutton(int button)
 {
 	return glfwGetMouseButton(device::get_window(), button) == GLFW_PRESS;

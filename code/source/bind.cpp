@@ -53,6 +53,13 @@ void input_get_key_once(WrenVM* vm)
 	wrenSetSlotBool(vm, 0, output);
 }
 
+void input_get_mouse(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 1);
+	const auto output = xs::input::get_mouse();
+	wrenSetSlotBool(vm, 0, output);
+}
+
 void input_get_mousebutton(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
@@ -478,6 +485,7 @@ void xs::script::bind_api()
 	bind("xs", "Input", true, "getButtonOnce(_)", input_get_button_once);
 	bind("xs", "Input", true, "getKey(_)", input_get_key);
 	bind("xs", "Input", true, "getKeyOnce(_)", input_get_key_once);
+	bind("xs", "Input", true, "getMouse()", input_get_mouse);
 	bind("xs", "Input", true, "getMouseButton(_)", input_get_mousebutton);
 	bind("xs", "Input", true, "getMouseButtonOnce(_)", input_get_mousebutton_once);
 	bind("xs", "Input", true, "getMouseX()", input_get_mouse_x);
