@@ -14,6 +14,9 @@
 #include <nn/nn_Result.h>
 #include <nn/hid/hid_Result.controllerSupport.h>
 
+#include "configuration.h"
+#include "device.h"
+
 enum JoystickButtons
 {
 	// Default order matching Xbox (360 and One) controller
@@ -102,7 +105,8 @@ namespace xs::input::internal
 	//char									_keyOnce[256 + 1];
 	//MouseState								_mouse;
 	//bool									_rumble = true;
-	nn::hid::TouchScreenState<nn::hid::TouchStateCountMax>			_touchScreenState;
+	nn::hid::TouchScreenState<nn::hid::TouchStateCountMax>	_touchScreenState;
+	std::vector<std::pair<float, float>>	_touches_gameCoordinates;
 
 	void AddJoystick(int joy);
 }
@@ -377,6 +381,10 @@ void xs::input::update(double dt)
 
 	// Get touchscreen data
 	nn::hid::GetTouchScreenState(&_touchScreenState);
+	// Translate screen to game canvas coordinates
+	_touches_gameCoordinates.resize(_touchScreenState.count);
+	for (auto i = 0; i < _touchScreenState.count; ++i)
+		xs::device::screen_to_game(_touchScreenState.touches[i].x, _touchScreenState.touches[i].y, _touches_gameCoordinates[i].first, _touches_gameCoordinates[i].second);
 
 	// Check if there are any new controllers this frame
 	//AddJoystick(nn::hid::NpadId::No1);
@@ -470,14 +478,14 @@ int xs::input::get_touch_id(int index)
 double xs::input::get_touch_x(int index)
 {
 	if (index >= 0 && index < _touchScreenState.count)
-		return _touchScreenState.touches[index].x;
+		return static_cast<double>(_touches_gameCoordinates[index].first);
 	return 0.0;
 }
 
 double xs::input::get_touch_y(int index)
 {
 	if (index >= 0 && index < _touchScreenState.count)
-		return _touchScreenState.touches[index].y;
+		return static_cast<double>(_touches_gameCoordinates[index].second);
 	return 0.0;
 }
 

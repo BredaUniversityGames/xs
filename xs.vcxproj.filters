@@ -79,9 +79,6 @@
     <ClCompile Include="external\wren\optional\wren_opt_random.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\device_swtich.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="code\source\input_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -158,6 +155,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\source\device_switch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\source\device.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
