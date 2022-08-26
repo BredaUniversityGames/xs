@@ -1,4 +1,4 @@
-import "xs" for Registry
+import "xs" for Data
 import "xs_ec" for Component
 import "xs_components" for Transform
 import "xs_math" for Vec2, Math

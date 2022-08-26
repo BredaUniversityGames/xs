@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace xs::registry
+namespace xs::data
 {
 	enum class type
 	{

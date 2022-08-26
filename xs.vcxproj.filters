@@ -79,9 +79,6 @@
     <ClCompile Include="external\wren\optional\wren_opt_random.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\device_swtich.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="code\source\input_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -139,7 +136,7 @@
     <ClCompile Include="code\source\ps5\user_malloc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\registry.cpp">
+    <ClCompile Include="code\source\data.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\source\profiler.cpp">
@@ -270,7 +267,7 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\include\registry.h">
+    <ClInclude Include="code\include\data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\include\version.h">

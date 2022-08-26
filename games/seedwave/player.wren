@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render, Registry
+import "xs" for Configuration, Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
@@ -33,17 +33,17 @@ class Player is Component {
         _shootTime = _shootTime + dt
         if((Input.getButton(0) ||
             Input.getKeyOnce(Input.keySpace)) &&
-            _shootTime > Registry.getNumber("Player Shoot Time")) {
+            _shootTime > Data.getNumber("Player Shoot Time")) {
             Create.playerBullet(
                     owner,
-                    Registry.getNumber("Player Bullet Speed"),
-                    Registry.getNumber("Player Bullet Damage"))
+                    Data.getNumber("Player Bullet Speed"),
+                    Data.getNumber("Player Bullet Damage"))
             _shootTime = 0
         }
 
-        var speed = Registry.getNumber("Player Speed")
+        var speed = Data.getNumber("Player Speed")
         if(Input.getButton(1)) {
-            speed = Registry.getNumber("Player Speed When Aiming")
+            speed = Data.getNumber("Player Speed When Aiming")
         }
 
         var b = owner.getComponent(Body)
@@ -83,7 +83,7 @@ class Player is Component {
         }
         s.idx = s.idx + _animFrame
         
-        if(vel.magnitude > Registry.getNumber("Player Input Dead Zone")) {            
+        if(vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
             vel = vel * speed
         } else {
             vel = vel * 0

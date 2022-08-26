@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render, Registry
+import "xs" for Configuration, Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Renderable, Body, Transform
@@ -14,18 +14,18 @@ class GameState {
 class Game {
 
     static config() {
-        // TODO" Move to Registry (or not)
+        // TODO" Move to Data (or not)
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 3
+        Configuration.multiplier = 1
         Configuration.title = "Seed Wave"
     }    
 
     static init() {
         Entity.init()      
         Create.init()  
-        //Registry.setBool("Print Entities", false, Registry.debug)
-        //Registry.setBool("Debug Render", false, Registry.debug)
+        //Data.setBool("Print Entities", false, Data.debug)
+        //Data.setBool("Debug Render", false, Data.debug)
 
         __background = Background.createBackground()
         __player = Create.player()
@@ -37,12 +37,12 @@ class Game {
     static update(dt) {
         Entity.update(dt)
     
-        if(Registry.getBool("Print Entities", Registry.debug)) {
+        if(Data.getBool("Print Entities", Data.debug)) {
             Entity.print()
-            Registry.setBool("Print Entities", false, Registry.debug)            
+            Data.setBool("Print Entities", false, Data.debug)            
         }
 
-        if(Registry.getBool("Debug Render", Registry.debug)) {
+        if(Data.getBool("Debug Render", Data.debug)) {
             debugRender()
         }
     }

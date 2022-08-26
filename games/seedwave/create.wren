@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render, Registry
+import "xs" for Configuration, Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
@@ -79,12 +79,12 @@ class Create {
     }
 
     static getOffset(orbit, slot, maxOrbit) {
-        var dr = Registry.getNumber("Boss Orbit Radius")
-        var rad = orbit * dr + Registry.getNumber("Boss Core 1 Radius")        
+        var dr = Data.getNumber("Boss Orbit Radius")
+        var rad = orbit * dr + Data.getNumber("Boss Core 1 Radius")        
         if(maxOrbit > rad) {
             rad = maxOrbit
         }
-        var dl = Registry.getNumber("Boss Orbit Angle") / rad
+        var dl = Data.getNumber("Boss Orbit Angle") / rad
         var a = dl * slot        
         var pos = Vec2.new(a.cos * rad, a.sin * rad)
         //System.print(pos)
@@ -97,8 +97,8 @@ class Create {
         var t = Transform.new(p)
         var sc = Player.new()
         var v = Vec2.new(0, 0)
-        var b = Body.new(Registry.getNumber("Player Size"), v)
-        var u = Unit.new(Team.player, Registry.getNumber("Player Health"))
+        var b = Body.new(Data.getNumber("Player Size"), v)
+        var u = Unit.new(Team.player, Data.getNumber("Player Health"))
         var c = DebugColor.new(0x8BEC46FF)
         var s = GridSprite.new("[games]/seedwave/assets/images/ships/planes_05_A.png", 4, 5)
         s.layer = 1.0
@@ -158,14 +158,14 @@ class Create {
 
     static part(boss, type, level, position) {
         var l = __random.float(
-            Registry.getNumber("Part delay lambda from"),
-            Registry.getNumber("Part delay lambda to"))
+            Data.getNumber("Part delay lambda from"),
+            Data.getNumber("Part delay lambda to"))
 
         var part = Entity.new()
-        var rad = Registry.getNumber("Part Size") + level * 5
+        var rad = Data.getNumber("Part Size") + level * 5
         var t = Transform.new(Vec2.new(0, 0))
         var b = Body.new(rad, Vec2.new(0, 0))
-        var u = Unit.new(Team.player, Registry.getNumber("Player Health"))
+        var u = Unit.new(Team.player, Data.getNumber("Player Health"))
         var c = DebugColor.new(0x8BEC46FF)        
         var r = SlowRelation.new(boss, l)
         r.offset = position
@@ -221,8 +221,8 @@ class Create {
         var t = Transform.new(p)
         var bs = Boss.new()
         var v = Vec2.new(0, 0)
-        var b = Body.new(Registry.getNumber("Core Size"), v)
-        var u = Unit.new(Team.player, Registry.getNumber("Player Health"))
+        var b = Body.new(Data.getNumber("Core Size"), v)
+        var u = Unit.new(Team.player, Data.getNumber("Player Health"))
         var c = DebugColor.new(0x8BEC46FF)
         var s = GridSprite.new("[games]/seedwave/assets/images/ships/ship_medium_64x128.png", 3, 1)
         s.layer = 1.0
@@ -240,14 +240,14 @@ class Create {
         var flip = false
         var idx = 0
         var offsets = [Vec2.new(0,0)]
-        var radii = [Registry.getNumber("Core Size")]        
+        var radii = [Data.getNumber("Core Size")]        
         var maxOrbit = 0        
         for(i in dna) {
             var level = Num.fromString(i)
             if(level != null && type != null) {
                 var pos = Vec2.new(__offsets[idx].x, __offsets[idx].y)                
                 pos = getOffset(pos.x, pos.y, maxOrbit)
-                var rad = Registry.getNumber("Part Size") + level * 5
+                var rad = Data.getNumber("Part Size") + level * 5
 
                 var guard = 0
                 while(true) {
