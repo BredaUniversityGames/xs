@@ -156,8 +156,11 @@ class Input {
     foreign static getAxis(axis)
     foreign static getButton(button)
     foreign static getButtonOnce(button)
+
     foreign static getKey(key)
     foreign static getKeyOnce(key)
+
+    foreign static getMouse()
     foreign static getMouseButton(button)
     foreign static getMouseButtonOnce(button)
     foreign static getMouseX()

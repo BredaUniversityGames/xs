@@ -51,6 +51,11 @@ double xs::input::get_mouse_y()
 	return 0.0;
 }
 
+bool xs::input::get_mouse()
+{
+	return false;
+}
+
 bool xs::input::get_mousebutton(int button)
 {
 	return false;

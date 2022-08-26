@@ -443,6 +443,11 @@ bool xs::input::get_key_once(int key)
 	return false;
 }
 
+bool xs::input::get_mouse()
+{
+	return false;
+}
+
 double xs::input::get_mouse_x()
 {
 	return 0.0;
