@@ -74,6 +74,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="code\source\bind.cpp" />
+    <ClCompile Include="code\source\device.cpp" />
     <ClCompile Include="code\source\device_pc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
