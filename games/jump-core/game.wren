@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render, Registry, File
+import "xs" for Configuration, Input, Render, Data, File
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation, Label
@@ -167,7 +167,7 @@ class Game {
 
         __core = __core + dt * 0.1
 
-        if(Registry.getBool("Show Physics", Registry.debug)) {
+        if(Data.getBool("Show Physics", Data.debug)) {
             for(e in Entity.entities) {
                 var b = e.getComponent(Body)
                 if(b != null) {

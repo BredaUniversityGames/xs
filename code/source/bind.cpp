@@ -6,7 +6,7 @@
 #include "log.h"
 #include "script.h"
 #include "configuration.h"
-#include "registry.h"
+#include "data.h"
 #include "fileio.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -327,7 +327,7 @@ void configuration_set_title(WrenVM* vm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Registry
+// Data
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace
@@ -341,68 +341,68 @@ namespace
 	};
 }
 
-void registry_get_number(WrenVM* vm)
+void data_get_number(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
 	const auto name = wrenGetSlotString(vm, 1);
 	const auto type = wrenGetSlotDouble(vm, 2);
-	auto value = xs::registry::get_number(name, xs::registry::type((int)type));
+	auto value = xs::data::get_number(name, xs::data::type((int)type));
 	wrenSetSlotDouble(vm, 0, value);
 }
 
-void registry_get_bool(WrenVM* vm)
+void data_get_bool(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
 	const auto name = wrenGetSlotString(vm, 1);
 	const auto type = wrenGetSlotDouble(vm, 2);
-	auto value = xs::registry::get_bool(name, xs::registry::type((int)type));
+	auto value = xs::data::get_bool(name, xs::data::type((int)type));
 	wrenSetSlotBool(vm, 0, value);
 }
 
 
-void registry_get_color(WrenVM* vm)
+void data_get_color(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
 	const auto name = wrenGetSlotString(vm, 1);	
 	const auto type = wrenGetSlotDouble(vm, 2);
-	auto value = xs::registry::get_color(name, xs::registry::type((int)type));
+	auto value = xs::data::get_color(name, xs::data::type((int)type));
 	wrenSetSlotDouble(vm,0, (double)value);
 }
 
-void registry_get_string(WrenVM* vm)
+void data_get_string(WrenVM* vm)
 {
 }
 
-void registry_set_number(WrenVM* vm)
+void data_set_number(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 4);
 	auto name = wrenGetSlotString(vm, 1);
 	auto val = wrenGetSlotDouble(vm, 2);
 	auto type = wrenGetSlotDouble(vm, 3);
-	xs::registry::set_number(name, val, xs::registry::type((int)type));
+	xs::data::set_number(name, val, xs::data::type((int)type));
 }
 
-void registry_set_bool(WrenVM* vm)
+void data_set_bool(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 4);
 	auto name = wrenGetSlotString(vm, 1);
 	auto val = wrenGetSlotBool(vm, 2);
 	auto type = wrenGetSlotDouble(vm, 3);
-	xs::registry::set_bool(name, val, xs::registry::type((int)type));
+	xs::data::set_bool(name, val, xs::data::type((int)type));
 }
 
-void registry_set_color(WrenVM* vm)
+void data_set_color(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 4);
 	auto name = wrenGetSlotString(vm, 1);
 	auto val = wrenGetSlotDouble(vm, 2);
 	auto type = wrenGetSlotDouble(vm, 3);
 	//auto val_uint = (int)
-	xs::registry::set_color(name, static_cast<uint32_t>(val), xs::registry::type((int)type));
+	xs::data::set_color(name, static_cast<uint32_t>(val), xs::data::type((int)type));
 
 }
 
-void registry_set_string(WrenVM* vm)
+void data_set_string(WrenVM* vm)
 {
 }
 
@@ -479,15 +479,15 @@ void xs::script::bind_api()
 	bind("xs", "Configuration", true, "multiplier=(_)", configuration_set_multiplier);
 	bind("xs", "Configuration", true, "multiplier", configuration_get_multiplier);
 
-	// Registry
-	bind("xs", "Registry", true, "getNumber(_,_)", registry_get_number);
-	bind("xs", "Registry", true, "getColor(_,_)", registry_get_color);
-	bind("xs", "Registry", true, "getBool(_,_)", registry_get_bool);
-	bind("xs", "Registry", true, "getString(_,_)", registry_get_string);
-	bind("xs", "Registry", true, "setNumber(_,_,_)", registry_set_number);
-	bind("xs", "Registry", true, "setColor(_,_,_)", registry_set_color);
-	bind("xs", "Registry", true, "setBool(_,_,_)", registry_set_bool);
-	bind("xs", "Registry", true, "setString(_,_,_)", registry_set_string);
+	// Data
+	bind("xs", "Data", true, "getNumber(_,_)", data_get_number);
+	bind("xs", "Data", true, "getColor(_,_)", data_get_color);
+	bind("xs", "Data", true, "getBool(_,_)", data_get_bool);
+	bind("xs", "Data", true, "getString(_,_)", data_get_string);
+	bind("xs", "Data", true, "setNumber(_,_,_)", data_set_number);
+	bind("xs", "Data", true, "setColor(_,_,_)", data_set_color);
+	bind("xs", "Data", true, "setBool(_,_,_)", data_set_bool);
+	bind("xs", "Data", true, "setString(_,_,_)", data_set_string);
 
 	// File
 	bind("xs", "File", true, "read(_)", file_read);

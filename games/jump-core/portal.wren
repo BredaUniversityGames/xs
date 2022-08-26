@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render, Registry, File
+import "xs" for Configuration, Input, Render, Data, File
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation, Label
@@ -65,8 +65,8 @@ class Portal is Component {
     static create() {
         var portal = Entity.new()
         var t = Transform.new(Vec2.new(0, 0)) 
-        var b = Body.new(Registry.getNumber("Portal Size"), Vec2.new(0, 0))
-        var c = DebugColor.new(Registry.getColor("Portal Debug Color"))
+        var b = Body.new(Data.getNumber("Portal Size"), Vec2.new(0, 0))
+        var c = DebugColor.new(Data.getColor("Portal Debug Color"))
         var s = AnimatedSprite.new("[games]/jump-core/images/vfx/Portal_100x100px.png", 7, 7, 45)
         var p = Portal.new()
         s.layer = 0.9

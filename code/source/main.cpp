@@ -6,7 +6,7 @@
 #include "render.h"
 #include "script.h"
 #include "account.h"
-#include "registry.h"
+#include "data.h"
 #include "inspector.h"
 #include "version.h"
 #include <glm/glm.hpp>
@@ -86,7 +86,7 @@ int xs::main(int argc, char* argv[])
     
     account::initialize();
     fileio::initialize(main_script);
-    registry::initialize();
+    data::initialize();
     script::configure(main_script);
     device::initialize();
     render::initialize();
@@ -121,7 +121,7 @@ int xs::main(int argc, char* argv[])
     device::shutdown();
     script::shutdown();
     account::shutdown();
-    registry::shutdown();
+    data::shutdown();
 
 	return 0;
 }

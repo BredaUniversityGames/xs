@@ -220,7 +220,7 @@ class Input {
     static mouseButtonMiddle { 2 }
 }
 
-class Registry {
+class Data {
     static getNumber(name) { getNumber(name, game) }
     static getColor(name)  { getColor(name, game) }
     static getBool(name)  { getBool(name, game) }

@@ -1,4 +1,4 @@
-#include "registry.h"
+#include "data.h"
 #include <unordered_map>
 #include <memory>
 #include <any>
@@ -17,7 +17,7 @@ using namespace xs;
 using namespace xs::tools;
 using namespace std;
 
-namespace xs::registry::internal
+namespace xs::data::internal
 {
 	struct registry_value
 	{
@@ -69,7 +69,7 @@ namespace xs::registry::internal
 }
 
 template<class T>
-T xs::registry::internal::get(const std::string& name, type type)
+T xs::data::internal::get(const std::string& name, type type)
 {
 	auto itr = internal::reg.find(name);
 	if (itr != internal::reg.end())
@@ -81,12 +81,12 @@ T xs::registry::internal::get(const std::string& name, type type)
 		}
 		catch (...)
 		{			
-			xs::log::warn("Registry value with name '{}' is of different type.", name);
+			xs::log::warn("Data value with name '{}' is of different type.", name);
 		}
 	}
 	else
 	{
-		xs::log::warn("Registry value with name '{}' not found. Adding default to registry.", name);
+		xs::log::warn("Data value with name '{}' not found. Adding default to data.", name);
 		T t = {};
 		internal::reg[name] = { type, t };
 	}
@@ -95,23 +95,23 @@ T xs::registry::internal::get(const std::string& name, type type)
 }
 
 template<typename T>
-void xs::registry::internal::set(const std::string& name, const T& value, type type)
+void xs::data::internal::set(const std::string& name, const T& value, type type)
 {
 	internal::reg[name] = { type, value };
 }
 
-using namespace xs::registry::internal;
+using namespace xs::data::internal;
 
-void xs::registry::initialize()
+void xs::data::initialize()
 {
 	load_of_type(type::game);
 	load_of_type(type::system);
 	load_of_type(type::player);
 }
 
-void xs::registry::shutdown() {}
+void xs::data::shutdown() {}
 
-void xs::registry::inspect(bool& show)
+void xs::data::inspect(bool& show)
 {
 	if (history.empty())
 	{
@@ -150,42 +150,42 @@ void xs::registry::inspect(bool& show)
 	ImGui::End();
 }
 
-double xs::registry::get_number(const std::string& name, type type)
+double xs::data::get_number(const std::string& name, type type)
 {
 	return get<double>(name, type);
 }
 
-uint32_t xs::registry::get_color(const std::string& name, type type)
+uint32_t xs::data::get_color(const std::string& name, type type)
 {
 	return get<uint32_t>(name, type);
 }
 
-bool xs::registry::get_bool(const std::string& name, type type)
+bool xs::data::get_bool(const std::string& name, type type)
 {
 	return get<bool>(name, type);
 }
 
-std::string xs::registry::get_string(const std::string& name, type type)
+std::string xs::data::get_string(const std::string& name, type type)
 {
 	return "";
 }
 
-void xs::registry::set_number(const std::string& name, double value, type tp)
+void xs::data::set_number(const std::string& name, double value, type tp)
 {
 	set<double>(name, value, tp);
 }
 
-void xs::registry::set_color(const std::string& name, uint32_t value, type tp)
+void xs::data::set_color(const std::string& name, uint32_t value, type tp)
 {
 	set<uint32_t>(name, value, tp);
 }
 
-void xs::registry::set_bool(const std::string& name, bool value, type tp)
+void xs::data::set_bool(const std::string& name, bool value, type tp)
 {
 	set<bool>(name, value, tp);
 }
 
-void xs::registry::set_string(const std::string& name, const std::string& value, type tp)
+void xs::data::set_string(const std::string& name, const std::string& value, type tp)
 {
 }
 
@@ -193,10 +193,10 @@ void xs::registry::set_string(const std::string& name, const std::string& value,
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////									Internal Impl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-void xs::registry::internal::inspect_of_type(
+void xs::data::internal::inspect_of_type(
 	const string& type_name,
 	ImGuiTextFilter& filter,
-	xs::registry::type type)
+	xs::data::type type)
 {
 	if (ImGui::CollapsingHeader(type_name.c_str()))
 	{
@@ -223,7 +223,7 @@ void xs::registry::internal::inspect_of_type(
 	}	
 }
 
-void xs::registry::internal::save_of_type(type type)
+void xs::data::internal::save_of_type(type type)
 {
 	nlohmann::json j;
 	for (auto& itr : reg)
@@ -263,7 +263,7 @@ void xs::registry::internal::save_of_type(type type)
 	}
 }
 
-void xs::registry::internal::load_of_type(type type)
+void xs::data::internal::load_of_type(type type)
 {	
 	auto filename = fileio::get_path(get_file_path(type));
 	std::ifstream ifs;
@@ -287,7 +287,7 @@ void xs::registry::internal::load_of_type(type type)
 	}
 }
 
-const string& xs::registry::internal::get_file_path(type type)
+const string& xs::data::internal::get_file_path(type type)
 {
 	static std::string game_path = "[cwd]/game.json";
 	static std::string player_path = "[save]/player.json";
@@ -296,24 +296,24 @@ const string& xs::registry::internal::get_file_path(type type)
 
 	switch (type)
 	{
-	case xs::registry::type::none:
+	case xs::data::type::none:
 		return no_path;
-	case xs::registry::type::system:
+	case xs::data::type::system:
 		return system_path;
-	case xs::registry::type::debug:
+	case xs::data::type::debug:
 		return no_path;
-	case xs::registry::type::game:
+	case xs::data::type::game:
 		return game_path;
-	case xs::registry::type::player:
+	case xs::data::type::player:
 		return player_path;	
 	}
 
 	return no_path;
 }
 
-void xs::registry::internal::inspect_entry(
+void xs::data::internal::inspect_entry(
 	std::pair<const std::string,
-	xs::registry::internal::registry_value>& itr)
+	xs::data::internal::registry_value>& itr)
 {
 	try
 	{
@@ -356,7 +356,7 @@ void xs::registry::internal::inspect_entry(
 	}
 }
 
-void xs::registry::internal::tooltip(const char* tooltip)
+void xs::data::internal::tooltip(const char* tooltip)
 {
 	if (ImGui::IsItemHovered() && GImGui->HoveredIdTimer > 0.6f)
 	{
@@ -366,7 +366,7 @@ void xs::registry::internal::tooltip(const char* tooltip)
 	}
 }
 
-void xs::registry::internal::undo()
+void xs::data::internal::undo()
 {
 	if(internal::history_stack_pointer < history.size() - 1)
 		internal::history_stack_pointer++;
@@ -378,7 +378,7 @@ void xs::registry::internal::undo()
 	}
 }
 
-void xs::registry::internal::redo()
+void xs::data::internal::redo()
 {
 	if (internal::history_stack_pointer > 0)
 		internal::history_stack_pointer--;

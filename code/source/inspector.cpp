@@ -6,7 +6,7 @@
 #include "IconsFontAwesome5.h"
 #include "fileio.h"
 #include "script.h"
-#include "registry.h"
+#include "data.h"
 #include "log.h"
 #include "configuration.h"
 #include "version.h"
@@ -224,7 +224,7 @@ void xs::inspector::render(float dt)
 
 		if (internal::show_registry)
 		{
-			xs::registry::inspect(internal::show_registry);
+			xs::data::inspect(internal::show_registry);
 		}
 
 		if (internal::show_profiler)

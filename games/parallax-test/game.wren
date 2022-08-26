@@ -1,4 +1,4 @@
-import "xs" for Configuration, Render, Registry
+import "xs" for Configuration, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Vec2
 import "xs_components" for Transform, Renderable, Sprite
