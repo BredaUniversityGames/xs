@@ -14,22 +14,19 @@ class GameState {
 class Game {
 
     static config() {
-        // TODO" Move to Data (or not)
         Configuration.width = 640
         Configuration.height = 360
-        Configuration.multiplier = 1
+        Configuration.multiplier = 2
         Configuration.title = "Seed Wave"
     }    
 
     static init() {
         Entity.init()      
-        Create.init()  
-        //Data.setBool("Print Entities", false, Data.debug)
-        //Data.setBool("Debug Render", false, Data.debug)
+        Boss.init()
 
         __background = Background.createBackground()
         __player = Create.player()
-        __boss = Create.randomBoss(20)
+        __boss = Boss.randomBoss(20)
         //  __boss = Create.boss("C1SL2C2M1L1SL2C1L2C1")
         //__boss = Create.boss("C1L2C2M1L1L2M1C1L2C1L2C2M1L1L2M1C1L2")
     }    
@@ -48,7 +45,9 @@ class Game {
     }
 
     static render() {
-        Renderable.render()
+        if(Data.getBool("Renderable Render", Data.debug)) {
+            Renderable.render()
+        }
     }
 
     static player { __player }
@@ -71,3 +70,4 @@ class Game {
 }
 
 import "create" for Create
+import "boss" for Boss

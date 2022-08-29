@@ -11,6 +11,10 @@
         "type": "number",
         "value": 15.0
     },
+    "Core Health": {
+        "type": "number",
+        "value": 30.0
+    },
     "Core Size": {
         "type": "number",
         "value": 20.0
