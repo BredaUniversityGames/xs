@@ -30,3 +30,13 @@ bool device::should_close()
 {
 	return false;
 }
+
+int device::get_width()
+{
+	return 0;
+}
+
+int device::get_height()
+{
+	return 0;
+}

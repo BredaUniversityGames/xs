@@ -82,8 +82,8 @@ namespace xs::render::internal
 	sce::Agc::Core::Sampler sampler;
 	// sce::Agc::Core::Buffer vertBuffer;
 	sce::Agc::Core::Encoder::EncoderValue clearColor;
-	sce::Agc::Shader* gs;	// TODO: Why pointer?
-	sce::Agc::Shader* ps;	// TODO: Why pointer?
+	sce::Agc::Shader* gs = nullptr;	// TODO: Why pointer?
+	sce::Agc::Shader* ps = nullptr;	// TODO: Why pointer?
 	int frame = 0;
 	std::vector<image>		images = {};
 	vec2 offset = vec2(0.0f, 0.0f);
@@ -744,7 +744,17 @@ void xs::render::render_text(
 {
 }
 
+int xs::render::get_image_height(int image_id)
+{
+	auto& img = images[image_id];
+	return img.height;
+}
 
+int xs::render::get_image_width(int image_id)
+{
+	auto& img = images[image_id];
+	return img.width;
+}
 
 void xs::render::begin(primitive p)
 {
