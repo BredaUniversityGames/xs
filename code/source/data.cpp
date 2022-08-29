@@ -107,6 +107,7 @@ void xs::data::initialize()
 	load_of_type(type::game);
 	load_of_type(type::system);
 	load_of_type(type::player);
+	load_of_type(type::debug);
 }
 
 void xs::data::shutdown() {}
@@ -209,17 +210,14 @@ void xs::data::internal::inspect_of_type(
 		for(const auto& s : sorted)
 			inspect_entry(*reg.find(s));
 
-		if (type == type::system || type == type::game || type == type::player)
-		{
-			if (ImGui::Button("Save"))
-				save_of_type(type);
-			tooltip("Save to a file");
-			ImGui::SameLine();
+		if (ImGui::Button("Save"))
+			save_of_type(type);
+		tooltip("Save to a file");
+		ImGui::SameLine();
 
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-			ImGui::Text("%s", fileio::get_path(get_file_path(type)).c_str());
-			ImGui::PopStyleColor();
-		}
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+		ImGui::Text("%s", fileio::get_path(get_file_path(type)).c_str());
+		ImGui::PopStyleColor();
 	}	
 }
 
@@ -292,6 +290,7 @@ const string& xs::data::internal::get_file_path(type type)
 	static std::string game_path = "[cwd]/game.json";
 	static std::string player_path = "[save]/player.json";
 	static std::string system_path = "[cwd]/system.json";
+	static std::string debug_path = "[save]/debug.json";
 	static std::string no_path = "";
 
 	switch (type)
@@ -301,7 +300,7 @@ const string& xs::data::internal::get_file_path(type type)
 	case xs::data::type::system:
 		return system_path;
 	case xs::data::type::debug:
-		return no_path;
+		return debug_path;
 	case xs::data::type::game:
 		return game_path;
 	case xs::data::type::player:
@@ -315,33 +314,38 @@ void xs::data::internal::inspect_entry(
 	std::pair<const std::string,
 	xs::data::internal::registry_value>& itr)
 {
-	try
-	{
-		auto val = std::get<double>(itr.second.value);
-		float flt = (float)val;
-		ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);		
-		set(itr.first, flt, itr.second.type);
-	}
-	catch (...) {}
 
-	try
 	{
-		auto val = std::get<bool>(itr.second.value);
-		ImGui::Checkbox(itr.first.c_str(), &val);
-		set(itr.first, val, itr.second.type);
+		auto val = std::get_if<double>(&itr.second.value);
+		if(val)
+		{
+			auto val = std::get<double>(itr.second.value);
+			float flt = (float)val;
+			ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);
+			set(itr.first, flt, itr.second.type);
+		}
 	}
-	catch (...) {}
 
-	try
 	{
-		auto val = std::get<uint32_t>(itr.second.value);
-		ImVec4 vec = color_convert(val);
-		ImGui::ColorEdit4(itr.first.c_str(), &vec.x);
-		val = color_convert(vec);
-		set(itr.first, val, itr.second.type);
-	}
-	catch (...) {}
 
+		auto val = std::get_if<bool>(&itr.second.value);
+		if (val)
+		{
+			ImGui::Checkbox(itr.first.c_str(), val);
+			set(itr.first, *val, itr.second.type);
+		}
+	}
+
+	{
+		auto val = std::get_if<uint32_t>(&itr.second.value);
+		if (val)
+		{
+			ImVec4 vec = color_convert(*val);
+			ImGui::ColorEdit4(itr.first.c_str(), &vec.x);
+			*val = color_convert(vec);
+			set(itr.first, *val, itr.second.type);
+		}
+	}
 
 	if (ImGui::IsItemDeactivatedAfterEdit())
 	{
