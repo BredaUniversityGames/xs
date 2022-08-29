@@ -157,6 +157,9 @@
     <ClCompile Include="code\source\device_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="code\source\device.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="nintendo\xs.aarch64.nmeta" />

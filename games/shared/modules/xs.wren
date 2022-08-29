@@ -140,16 +140,47 @@ class File {
     foreign static exists(src)
 }
 
+class TouchData {
+    construct new(index, x, y) {
+        _index = index
+        _x = x
+        _y = y
+    }
+
+    index { _index }
+    x { _x }
+    y { _y }
+}
+
 class Input {
     foreign static getAxis(axis)
     foreign static getButton(button)
     foreign static getButtonOnce(button)
+
     foreign static getKey(key)
     foreign static getKeyOnce(key)
+
+    foreign static getMouse()
     foreign static getMouseButton(button)
     foreign static getMouseButtonOnce(button)
     foreign static getMouseX()
     foreign static getMouseY()
+
+    foreign static getNrTouches()
+    foreign static getTouchId(index)
+    foreign static getTouchX(index)
+    foreign static getTouchY(index)
+
+    static getTouchData() {
+        var nrTouches = getNrTouches()
+        var result = []
+        for (i in 0...nrTouches) result.add(getTouchData(i))
+        return result
+    }
+
+    static getTouchData(index) {
+        return TouchData.new(getTouchId(index), getTouchX(index), getTouchY(index))
+    }
 
     static getMousePosition() {
         return [getMouseX(), getMouseY()]

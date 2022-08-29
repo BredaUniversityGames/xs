@@ -525,10 +525,12 @@ void xs::render::render()
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
 	// Blit render result screen
-	//const auto mul = configuration::multiplier;
+	float multiplier; int xmin, ymin, xmax, ymax;
+	xs::device::get_render_scale(multiplier, xmin, ymin, xmax, ymax);
+
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, render_fbo);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBlitFramebuffer(0, 0, width, height, 0, 0, xs::device::get_width(), xs::device::get_height(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBlitFramebuffer(0, 0, width, height, xmin, ymin, xmax, ymax, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
