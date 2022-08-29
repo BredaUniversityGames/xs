@@ -1,18 +1,233 @@
-// import "xs" for Configuration, Input, Render, Data, Color
+ import "xs" for Configuration, Input, Render, Data
 import "xs_ec"for Entity, Component
-// import "xs_math"for Math, Bits, Vec2
+ import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
-//import "unit" for Unit
-//import "tags" for Team, Tag
-//import "bullets" for Bullet
-//import "debug" for DebugColor
+import "unit" for Unit
+import "tags" for Team, Tag
+import "bullets" for Bullet, Missile
+import "debug" for DebugColor
 import "random" for Random
-
+import "components" for SlowRelation
 
 class Boss is Component {
-    static init() {
+        static init() {
         __random = Random.new()
+        __offsets = []
+
+        __offsets.add(Vec2.new(0, 0))
+        __offsets.add(Vec2.new(0, 1))
+        __offsets.add(Vec2.new(0, -1))
+        __offsets.add(Vec2.new(0, 2))
+        __offsets.add(Vec2.new(0, -2))
+
+        __offsets.add(Vec2.new(1, 0))
+        __offsets.add(Vec2.new(1, 1))
+        __offsets.add(Vec2.new(1, -1))
+        __offsets.add(Vec2.new(1, 2))
+        __offsets.add(Vec2.new(1, -2))
+
+        __offsets.add(Vec2.new(2, 0))
+        __offsets.add(Vec2.new(2, 1))
+        __offsets.add(Vec2.new(2, -1))
+        __offsets.add(Vec2.new(2, 2))
+        __offsets.add(Vec2.new(2, -3))
+
+        __offsets.add(Vec2.new(3, 0))
+        __offsets.add(Vec2.new(3, 1))
+        __offsets.add(Vec2.new(3, -1))
+        __offsets.add(Vec2.new(3, 2))
+        __offsets.add(Vec2.new(3, -3))
+
+        __offsets.add(Vec2.new(4, 0))
+        __offsets.add(Vec2.new(4, 1))
+        __offsets.add(Vec2.new(4, -1))
+        __offsets.add(Vec2.new(4, 2))
+        __offsets.add(Vec2.new(4, -2))
+
+        __offsets.add(Vec2.new(5, 0))
+        __offsets.add(Vec2.new(5, 1))
+        __offsets.add(Vec2.new(5, -1))
+        __offsets.add(Vec2.new(5, 2))
+        __offsets.add(Vec2.new(5, -2))
+
+        __offsets.add(Vec2.new(6, 0))
+        __offsets.add(Vec2.new(6, 1))
+        __offsets.add(Vec2.new(6, -1))
+        __offsets.add(Vec2.new(6, 2))
+        __offsets.add(Vec2.new(6, -2))
+
+        __offsets.add(Vec2.new(7, 0))
+        __offsets.add(Vec2.new(7, 1))
+        __offsets.add(Vec2.new(7, -1))
+        __offsets.add(Vec2.new(7, 2))
+        __offsets.add(Vec2.new(7, -2))
     }
+
+    static generateDna(size) {
+        var dna = ""
+        for(i in 0...size) {
+            var r = __random.int(-1, 5)
+            var l = __random.int(0, 3)
+            if(r <= 0) {
+                dna = dna + "S"                 // Skip
+            } else if(r == 1) {
+                dna = dna + "C" + l.toString    // Canons
+            } else if(r == 2) {
+                dna = dna + "L" + l.toString    // Lasers
+            } else if(r == 3) {
+                dna = dna + "M" + l.toString    // Missles
+            } else if(r == 4) {
+                dna = dna + "H" + l.toString    // Shiled
+            }
+        }
+        return dna
+    }
+
+    static part(boss, type, level, position) {
+        var l = __random.float(
+            Data.getNumber("Part delay lambda from"),
+            Data.getNumber("Part delay lambda to"))
+
+        var part = Entity.new()
+        var rad = Data.getNumber("Part Size") + level * 5
+        var t = Transform.new(Vec2.new(0, 0))
+        var b = Body.new(rad, Vec2.new(0, 0))
+        var u = Unit.new(Team.player, Data.getNumber("Player Health"))
+        var c = DebugColor.new(0xFFFFFFFF)
+        var r = SlowRelation.new(boss, l)
+        r.offset = position
+        part.addComponent(t)
+        //part.addComponent(bs)
+        part.addComponent(b)
+        part.addComponent(u)        
+        part.addComponent(r)
+        part.name = "Part"
+        part.tag = (Tag.Computer | Tag.Unit)
+
+        var s = GridSprite.new("[games]/seedwave/assets/images/ships/turret_medium_64x64.png", 3, 4)
+        if(type == "C") {                                 //  Cannon
+            s.idx = 0 + level - 1
+            c = DebugColor.new(0xFFA8D3FF)
+            var w = Cannon.new()
+            part.addComponent(w)
+        } else if (type == "L") {                           // Laser
+            s.idx = 4 + level - 1
+            c = DebugColor.new(0x9896FFFF)
+        } else if(type == "M") {                            // Missiles
+            s.idx = 8 + level - 1
+            c = DebugColor.new(0xFDFFC1FF)
+            var w = Missiles.new()
+            part.addComponent(w)
+        } else if(type == "H") {                            // Shield
+            s.idx = 8 + level - 1
+            c = DebugColor.new(0xFFB599FF)
+        }
+        s.layer = 1.0
+        s.flags = Render.spriteCenter | Render.spriteFlipY // |
+        part.addComponent(c)
+        part.addComponent(s)
+    }
+
+    static create(dna) {
+        System.print(dna)
+        var ship = Entity.new()
+        var p = Vec2.new(0, 0)
+        var t = Transform.new(p)
+        var bs = Boss.new()
+        var v = Vec2.new(0, 0)
+        var b = Body.new(Data.getNumber("Core Size"), v)
+        var u = Unit.new(Team.player, Data.getNumber("Core Health"))
+        var c = DebugColor.new(0x8BEC46FF)
+        var s = GridSprite.new("[games]/seedwave/assets/images/ships/ship_medium_64x128.png", 3, 1)
+        s.layer = 1.0
+        s.flags = Render.spriteCenter
+        ship.addComponent(t)
+        ship.addComponent(bs)
+        ship.addComponent(b)
+        ship.addComponent(u)
+        ship.addComponent(c)
+        ship.addComponent(s)
+        ship.name = "Boss"
+        ship.tag = (Tag.Computer | Tag.Unit)
+
+        var type = null
+        var flip = false
+        var idx = 0
+        var offsets = [Vec2.new(0,0)]
+        var radii = [Data.getNumber("Core Size")]        
+        var maxOrbit = 0        
+        for(i in dna) {
+            var level = Num.fromString(i)
+            if(level != null && type != null) {
+                var pos = Vec2.new(__offsets[idx].x, __offsets[idx].y)                
+                pos = getOffset(pos.x, pos.y, maxOrbit)
+                var rad = Data.getNumber("Part Size") + level * 5
+
+                var guard = 0
+                while(true) {
+                    var overlap = 0
+                    for(j in 0...offsets.count) {
+                        var op = offsets[j]
+                        var or = radii[j]
+                        var to = pos - op
+                        var mg = to.magnitude                
+                        var df = (or + rad) - mg 
+                        if(df > 0) {
+                            var tn = to.normalise
+                            pos = pos + (tn * df)
+                            overlap = df
+                        }
+                    }
+                    if(overlap == 0) {
+                        break
+                    }
+
+                    guard = guard + 1
+                    if(guard >= 1000) {
+                        break
+                    }
+                }
+
+                if(pos.magnitude > maxOrbit) {
+                    maxOrbit = pos.magnitude
+                }
+
+                var posL = Vec2.new(-pos.x, pos.y)
+                var partR = part(ship, type, level, pos)
+                var partL = part(ship, type, level, posL)
+                level = null
+                type = null
+                idx = idx + 1
+                offsets.add(pos)
+                radii.add(rad)                
+            } else if(i == "S") {
+                idx = idx + 1
+            } else {
+                type = i
+            }
+        }
+        return ship        
+    }
+
+    static randomBoss(size) {
+        var dna = generateDna(size)
+        System.print(dna)
+        return create(dna)
+    }
+
+    static getOffset(orbit, slot, maxOrbit) {
+        var dr = Data.getNumber("Boss Orbit Radius")
+        var rad = orbit * dr + Data.getNumber("Boss Core 1 Radius")        
+        if(maxOrbit > rad) {
+            rad = maxOrbit
+        }
+        var dl = Data.getNumber("Boss Orbit Angle") / rad
+        var a = dl * slot        
+        var pos = Vec2.new(a.cos * rad, a.sin * rad)
+        //System.print(pos)
+        return pos
+    }
+
 
     construct new() {
         super()
@@ -21,6 +236,7 @@ class Boss is Component {
     }
 
     initialize() { }
+
 
     update(dt) {
         var ot = owner.getComponent(Transform)
@@ -34,41 +250,22 @@ class Boss is Component {
 
         _sinTime = _sinTime + dt 
         ot.position.y = _sinTime.cos * 20 + 10
-
-        _time = _time + dt
-        if(_time > 1) {
-            Create.bullet(owner, -1000, 100)
-            _time = 0
-        }
-    }
-
-    /*
-    create() {
-
-    } 
-    */   
-
-    generateDna(size) {
-        var dna = ""
-        for(i in 0...size) {
-            var r = __random.int(0, 5)
-            var l = __random.int(1, 2)
-            if(r == 0) {
-                dna = dna + "S"
-            } else if(r == 1) {
-                dna = dna + "C" + l.toString
-            } else if(r == 2) {
-                dna = dna + "L" + l.toString
-            } else if(r == 3) {
-                dna = dna + "M" + l.toString
-            }
-        }
-        return dna
     }
 }
 
 class Cannon is Component {
-    construct new() { super() }
+    construct new() {
+        super()
+        _time = 0        
+    }
+
+    update(dt) {
+        _time = _time + dt
+        if(_time > 1) {
+            Bullet.create(owner, -100, 0)
+            _time = 0
+        }
+    }
     
     shoot() {
     }
@@ -82,9 +279,20 @@ class Laser is Component {
 }
 
 class Missiles is Component {
-    construct new() { super() }
-    shoot() {
+    construct new() {
+        super()
+        _time = 0
+    }
 
+     update(dt) {
+        _time = _time + dt
+        if(_time > 1) {            
+            Missile.create(owner, -100, 100)
+            _time = 0
+        }
+    }
+
+    shoot() {
     }
 }
 
