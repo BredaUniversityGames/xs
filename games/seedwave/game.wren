@@ -4,6 +4,9 @@ import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Renderable, Body, Transform
 import "background" for Background
 import "debug" for DebugColor
+import "tags" for Tag, Team
+import "unit" for Unit
+
 
 class GameState {
     static Menu     { 1 }
@@ -33,6 +36,8 @@ class Game {
     
     static update(dt) {
         Entity.update(dt)
+
+        Game.updateGame(dt)
     
         if(Data.getBool("Print Entities", Data.debug)) {
             Entity.print()
@@ -41,6 +46,37 @@ class Game {
 
         if(Data.getBool("Debug Render", Data.debug)) {
             debugRender()
+        }
+    }
+
+    static updateGame(dt) {
+        var playerUnits = Entity.entitiesWithTag(Tag.Player | Tag.Unit)
+        var playerBullets = Entity.entitiesWithTag(Tag.Player | Tag.Bullet)
+        var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit)
+        var computerBullets = Entity.entitiesWithTag(Tag.Computer | Tag.Bullet)
+
+        Game.collide(computerBullets, playerUnits)
+        // Game.collide(playerBullets, computerUnits)
+    }
+
+    static collide(bullets, units) {
+        for(u in units) {            
+            for(b in bullets) {            
+                System.print("bullets")
+                var uT = u.getComponent(Transform)
+                var bT = b.getComponent(Transform)
+                var uB = u.getComponent(Body)
+                var bB = b.getComponent(Body)
+                var dis = uT.position - bT.position
+                dis = dis.magnitude                
+                if(dis < (uB.size + bB.size)) {                    
+                    var un = u.getComponent(Unit)
+                    var bl = b.getComponentSuper(Bullet)
+                    // un.damage(bl.damage)
+                    b.delete()
+                    // Render.disk(uT.position.x, uT.position.y, 2, 24)
+                }
+            }
         }
     }
 
@@ -71,3 +107,4 @@ class Game {
 
 import "create" for Create
 import "boss" for Boss
+import "bullets" for Bullet
