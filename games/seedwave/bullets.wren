@@ -55,7 +55,7 @@ class Bullet is Component {
         bullet.addComponent(bl)
         bullet.addComponent(s)
         bullet.name = "Bullet"
-        bullet.tag = Tag.Player | Tag.Bullet
+        bullet.tag = Tag.Computer | Tag.Bullet
         bullet.addComponent(DebugColor.new(0xFFA8D3FF))
     }
 }
@@ -95,7 +95,7 @@ class Missile is Bullet {
         bullet.addComponent(bl)
         bullet.addComponent(s)
         bullet.name = "Bullet"
-        bullet.tag = Tag.Player | Tag.Bullet
+        bullet.tag = Tag.Computer | Tag.Bullet
         bullet.addComponent(DebugColor.new(0xFDFFC1FF))
     }
 
