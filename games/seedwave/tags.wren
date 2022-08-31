@@ -4,6 +4,7 @@ class Tag {
     static Bullet           { 1 << 2 }
     static Player           { 1 << 3 }
     static Computer         { 1 << 4 }
+    static Deflect          { 1 << 5 }
 }
 
 class Team {

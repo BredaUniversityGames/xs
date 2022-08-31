@@ -17,8 +17,8 @@ class Boss is Component {
         __offsets.add(Vec2.new(0, 0))
         __offsets.add(Vec2.new(0, 1))
         __offsets.add(Vec2.new(0, -1))
-        __offsets.add(Vec2.new(0, 2))
-        __offsets.add(Vec2.new(0, -2))
+        //__offsets.add(Vec2.new(0, 2))
+        //__offsets.add(Vec2.new(0, -2))
 
         __offsets.add(Vec2.new(1, 0))
         __offsets.add(Vec2.new(1, 1))
@@ -64,11 +64,12 @@ class Boss is Component {
     }
 
     static generateDna(size) {
+        System.print(size)
         var dna = ""
-        var i = 0
-        while(i <= size) {
+        var protein = 0
+        while(protein <= size) {
             var r = __random.int(-1, 5)
-            var l = __random.int(0, 3)
+            var l = __random.int(1, 4)
             if(r <= 0) {
                 dna = dna + "S"                 // Skip
                 continue
@@ -81,7 +82,7 @@ class Boss is Component {
             } else if(r == 4) {
                 dna = dna + "D" + l.toString    // Deflect
             }
-            i = i + 1
+            protein = protein + l
         }
         return dna
     }
@@ -93,12 +94,12 @@ class Boss is Component {
 
         var size = Boss.getPartSize(level)
         var health = 0
-        if(level == 0) {
-            health = Data.getNumber("Part Health 0")
-        } else if (level == 1) {
+        if(level == 1) {
             health = Data.getNumber("Part Health 1")
         } else if (level == 2) {
             health = Data.getNumber("Part Health 2")
+        } else if (level == 3) {
+            health = Data.getNumber("Part Health 3")
         }
 
         var part = Entity.new()
@@ -130,7 +131,8 @@ class Boss is Component {
             c = DebugColor.new(0xFDFFC1FF)
             var w = Missiles.new()
             part.addComponent(w)
-        } else if(type == "D") {                            // // Deflect
+        } else if(type == "D") {                            // Deflect
+            part.tag = (part.tag| Tag.Deflect)
             s.idx = 8 + level - 1
             c = DebugColor.new(0xFFB599FF)
         }
@@ -141,12 +143,12 @@ class Boss is Component {
     }
 
     static getPartSize(level) {
-        if(level == 0) {
-            return Data.getNumber("Part Size 0")
-        } else if (level == 1) {
+        if(level == 1) {
             return Data.getNumber("Part Size 1")
         } else if (level == 2) {
             return Data.getNumber("Part Size 2")
+        } else if (level == 3) {
+            return Data.getNumber("Part Size 3")
         }
         return 0
     }
@@ -171,8 +173,7 @@ class Boss is Component {
         ship.addComponent(c)
         ship.addComponent(s)
         ship.name = "Boss"
-        ship.tag = (Tag.Computer | Tag.Unit)
-
+        ship.tag = (Tag.Computer | Tag.Unit)        // |||
         var type = null
         var flip = false
         var idx = 0
@@ -232,9 +233,15 @@ class Boss is Component {
         return ship        
     }
 
-    static randomBoss(size) {
-        var dna = generateDna(size)
-        System.print(dna)
+    static randomBoss(size) {        
+        var dna = ""
+        if(!Data.getString("DNA", Data.debug).isEmpty) {
+            dna = Data.getString("DNA", Data.debug)
+        } else if(Data.getNumber("Protein", Data.debug) != 0) {
+            dna = generateDna(Data.getNumber("Protein", Data.debug))
+        } else {
+            dna = generateDna(10)
+        }
         return create(dna)
     }
 
@@ -284,8 +291,8 @@ class Cannon is Component {
 
     update(dt) {
         _time = _time + dt
-        if(_time > 1) {
-            Bullet.create(owner, -100, 0)
+        if(_time > Data.getNumber("Cannon Shoot Time")) {
+            Bullet.create(owner, -Data.getNumber("Cannon Round Speed"), 0)
             _time = 0
         }
     }
@@ -309,14 +316,18 @@ class Missiles is Component {
 
      update(dt) {
         _time = _time + dt
-        if(_time > 1) {            
-            Missile.create(owner, -100, 100)
+        if(_time > Data.getNumber("Missle Shoot Time")) {            
+            Missile.create(owner,
+                Data.getNumber("Missle Speed"),
+                Data.getNumber("Missle Damage"))
             _time = 0
         }
     }
 
     shoot() {
     }
+
+    toString { "[Missiles _time:%(_time)] ->" + super.toString() }
 }
 
 import "game" for Game

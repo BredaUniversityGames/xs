@@ -2,6 +2,8 @@
 // Math tools
 ///////////////////////////////////////////////////////////////////////////////
 
+import "random" for Random
+
 class Math {
     static lerp(a, b, t) { (a * (1.0 - t)) + (b * t) }
     static damp(a, b, lambda, dt) { lerp(a, b, 1.0 - (-lambda * dt).exp) }    
@@ -75,6 +77,19 @@ class Vec2 {
         var ydiff = a.y - b.y
         return ((xdiff * xdiff) + (ydiff * ydiff))
     }		
+
+    static randomDirection() {
+        if(__random == null) {
+            __random = Random.new()
+        }
+
+        while(true) {
+            var v = Vec2.new(__random.float(-1, 1), __random.float(-1, 1))
+            if(v.magnitude < 1.0) {
+                return v.normalise
+            }
+        }
+    }
 }
 
 class Color {

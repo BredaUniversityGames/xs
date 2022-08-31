@@ -37,6 +37,29 @@ class Bullet is Component {
     team { _team }
     toString { "[Bullet team:%(_team) damage:%(_damage)]" }
 
+    static createPlayerBullet(owner, speed, damage) {
+        var owt = owner.getComponent(Transform)
+        var bullet = Entity.new()
+        var t = Transform.new(owt.position + Vec2.new(0, 0))
+        var dir =  Vec2.new(Game.random.float(-0.2, 0.2), 1.0)
+        dir = dir.normalise
+        dir = dir * speed
+        var v = dir
+        var bd = Body.new(5, v)
+        var bl = Bullet.new(Team.Player, damage)
+        var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
+        s.layer = 1.9
+        s.flags = Render.spriteCenter
+        s.addAnimation("anim", [0,1,2])
+        s.playAnimation("anim") 
+        bullet.addComponent(t)
+        bullet.addComponent(bd)
+        bullet.addComponent(bl)
+        bullet.addComponent(s)
+        bullet.name = "Bullet"
+        bullet.tag = Tag.Player | Tag.Bullet
+        bullet.addComponent(DebugColor.new(0x8BEC46FF))
+    }
 
     static create(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
@@ -71,18 +94,19 @@ class Missile is Bullet {
     update(dt) {
         var p = Game.player
         var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
-        d = d.normalise
+        d = d.normalise * Data.getNumber("Missle Speed")
         var b = owner.getComponent(Body)
-        b.velocity = d * 200.0 
+        b.velocity = Math.damp(b.velocity, d, 1.0, dt)
         super.update(dt)
     }
-
 
     static create(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
         var bullet = Entity.new()
         var t = Transform.new(owt.position - Vec2.new(0, 0))
-        var v = Vec2.new(0, speed)
+        var v = Vec2.randomDirection()
+        v = v.normalise * speed   
+        System.print(v)
         var bd = Body.new(5, v)
         var bl = Missile.new(Team.Computer)
         var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)

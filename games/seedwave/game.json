@@ -1,15 +1,23 @@
 {
     "Boss Core 1 Radius": {
         "type": "number",
-        "value": 32.0
+        "value": 20.0
     },
     "Boss Orbit Angle": {
         "type": "number",
-        "value": 18.0
+        "value": 12.0
     },
     "Boss Orbit Radius": {
         "type": "number",
-        "value": 15.0
+        "value": 12.0
+    },
+    "Cannon Round Speed": {
+        "type": "number",
+        "value": 200.0
+    },
+    "Cannon Shoot Time": {
+        "type": "number",
+        "value": 0.30000001192092896
     },
     "Core Health": {
         "type": "number",
@@ -19,9 +27,17 @@
         "type": "number",
         "value": 12.0
     },
-    "Part Health 0": {
+    "Missle Damage": {
         "type": "number",
-        "value": 10.0
+        "value": 20.0
+    },
+    "Missle Shoot Time": {
+        "type": "number",
+        "value": 1.0
+    },
+    "Missle Speed": {
+        "type": "number",
+        "value": 200.0
     },
     "Part Health 1": {
         "type": "number",
@@ -31,17 +47,21 @@
         "type": "number",
         "value": 10.0
     },
-    "Part Size 0": {
+    "Part Health 3": {
         "type": "number",
         "value": 10.0
     },
     "Part Size 1": {
         "type": "number",
-        "value": 20.0
+        "value": 8.0
     },
     "Part Size 2": {
         "type": "number",
-        "value": 30.0
+        "value": 16.0
+    },
+    "Part Size 3": {
+        "type": "number",
+        "value": 20.0
     },
     "Part delay lambda from": {
         "type": "number",
@@ -69,7 +89,7 @@
     },
     "Player Shoot Time": {
         "type": "number",
-        "value": 0.15000000596046448
+        "value": 0.05000000074505806
     },
     "Player Size": {
         "type": "number",
