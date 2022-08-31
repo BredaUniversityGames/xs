@@ -121,6 +121,7 @@ void xs::data::inspect(bool& show)
 	}
 
 	ImGui::Begin(u8"\U0000f1c0  Data", &show);
+	ImGui::PushItemWidth(60);
 
 	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
 	if (ImGui::Button(ICON_FA_UNDO))
@@ -148,6 +149,7 @@ void xs::data::inspect(bool& show)
 	inspect_of_type(string(ICON_FA_BUG) + "  Debug", filter, type::debug);
 	inspect_of_type(string(ICON_FA_COG) + "  System", filter, type::system);
 
+	ImGui::PopItemWidth();
 	ImGui::End();
 }
 

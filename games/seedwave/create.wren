@@ -10,36 +10,14 @@ import "components" for SlowRelation
 import "random" for Random
 
 class Create {
-    static player() {
-        var ship = Entity.new()
-        var p = Vec2.new(0, 0)
-        var t = Transform.new(p)
-        var sc = Player.new()
-        var v = Vec2.new(0, 0)
-        var b = Body.new(Data.getNumber("Player Size"), v)
-        var u = Unit.new(Team.player, Data.getNumber("Player Health"))
-        var c = DebugColor.new(0x8BEC46FF)
-        var s = GridSprite.new("[games]/seedwave/assets/images/ships/planes_05_A.png", 4, 5)
-        s.layer = 1.0
-        s.flags = Render.spriteCenter
-        ship.addComponent(t)
-        ship.addComponent(sc)            
-        ship.addComponent(b)
-        ship.addComponent(u)
-        ship.addComponent(c)
-        ship.addComponent(s)
-        ship.name = "Player"
-        ship.tag = (Tag.Player | Tag.Unit)
-        return ship
-    }
-
+    
     static playerBullet(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
         var bullet = Entity.new()
         var t = Transform.new(owt.position + Vec2.new(0, 35))
         var v = Vec2.new(0, speed)
         var bd = Body.new(5, v)
-        var bl = Bullet.new(Team.player, damage)
+        var bl = Bullet.new(Team.Player, damage)
         var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
         s.layer = 1.9
         s.flags = Render.spriteCenter

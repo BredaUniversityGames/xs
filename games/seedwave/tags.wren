@@ -7,6 +7,6 @@ class Tag {
 }
 
 class Team {
-    static player { 1 }
-    static computer { 2 }
+    static Player { 1 }
+    static Computer { 2 }
 }

@@ -17,11 +17,31 @@
     },
     "Core Size": {
         "type": "number",
+        "value": 12.0
+    },
+    "Part Health 0": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Part Health 1": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Part Health 2": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Part Size 0": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Part Size 1": {
+        "type": "number",
         "value": 20.0
     },
-    "Part Size": {
+    "Part Size 2": {
         "type": "number",
-        "value": 12.0
+        "value": 30.0
     },
     "Part delay lambda from": {
         "type": "number",
@@ -53,11 +73,15 @@
     },
     "Player Size": {
         "type": "number",
-        "value": 5.0
+        "value": 4.0
     },
     "Player Speed": {
         "type": "number",
         "value": 300.260009765625
+    },
+    "Player Speed When Aiming": {
+        "type": "number",
+        "value": 120.0
     },
     "Slow Lambda": {
         "type": "number",
