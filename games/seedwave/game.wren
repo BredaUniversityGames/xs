@@ -6,6 +6,7 @@ import "background" for Background
 import "debug" for DebugColor
 import "tags" for Tag, Team
 import "unit" for Unit
+import "random" for Random
 
 
 class GameState {
@@ -20,7 +21,7 @@ class Game {
         Configuration.width = 640
         Configuration.height = 360
         Configuration.multiplier = 2
-        Configuration.title = "Seed Wave"
+        Configuration.title = "Seed Wave"        
     }    
 
     static init() {
@@ -30,6 +31,7 @@ class Game {
         __background = Background.createBackground()
         __player = Player.create()
         __boss = Boss.randomBoss(3)
+        __random = Random.new()
     }    
     
     static update(dt) {
@@ -53,24 +55,29 @@ class Game {
         var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit)
         var computerBullets = Entity.entitiesWithTag(Tag.Computer | Tag.Bullet)
 
-        Game.collide(computerBullets, playerUnits)
-        // Game.collide(playerBullets, computerUnits)
+        //Game.collide(computerBullets, playerUnits)
+        Game.collide(playerBullets, computerUnits)
     }
 
-    static collide(bullets, units) {
-        for(u in units) {            
-            for(b in bullets) {            
+    static collide(bullets, units) {        
+        for(u in units) {                       
+            for(b in bullets) {     
                 var uT = u.getComponent(Transform)
                 var bT = b.getComponent(Transform)
                 var uB = u.getComponent(Body)
                 var bB = b.getComponent(Body)
                 var dis = uT.position - bT.position
-                dis = dis.magnitude                
+                dis = dis.magnitude
                 if(dis < (uB.size + bB.size)) {                    
                     var un = u.getComponent(Unit)
                     var bl = b.getComponentSuper(Bullet)
-                    // un.damage(bl.damage)
-                    b.delete()
+                    un.damage(bl.damage)
+                    if(Bits.checkBitFlag(u.tag, Tag.Deflect)) {
+                        bB.velocity = bB.velocity * -0.6
+                        bT.position = bT.position + (bB.velocity.normalise * dis)
+                    } else {
+                        b.delete()
+                    }                    
                     // Render.disk(uT.position.x, uT.position.y, 2, 24)
                 }
             }
@@ -84,6 +91,7 @@ class Game {
     }
 
     static player { __player }
+    static random { __random }
 
     static debugRender() {
         for(e in Entity.entities) {

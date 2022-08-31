@@ -10,27 +10,6 @@ import "components" for SlowRelation
 import "random" for Random
 
 class Create {
-    
-    static playerBullet(owner, speed, damage) {
-        var owt = owner.getComponent(Transform)
-        var bullet = Entity.new()
-        var t = Transform.new(owt.position + Vec2.new(0, 35))
-        var v = Vec2.new(0, speed)
-        var bd = Body.new(5, v)
-        var bl = Bullet.new(Team.Player, damage)
-        var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
-        s.layer = 1.9
-        s.flags = Render.spriteCenter
-        s.addAnimation("anim", [0,1,2])
-        s.playAnimation("anim") 
-        bullet.addComponent(t)
-        bullet.addComponent(bd)
-        bullet.addComponent(bl)
-        bullet.addComponent(s)
-        bullet.name = "Bullet"
-        bullet.tag = Tag.Player | Tag.Bullet
-        bullet.addComponent(DebugColor.new(0x8BEC46FF))
-    }
 }
 
 import "player" for Player
