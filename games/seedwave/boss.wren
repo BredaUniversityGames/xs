@@ -65,11 +65,13 @@ class Boss is Component {
 
     static generateDna(size) {
         var dna = ""
-        for(i in 0...size) {
+        var i = 0
+        while(i <= size) {
             var r = __random.int(-1, 5)
             var l = __random.int(0, 3)
             if(r <= 0) {
                 dna = dna + "S"                 // Skip
+                continue
             } else if(r == 1) {
                 dna = dna + "C" + l.toString    // Canons
             } else if(r == 2) {
@@ -77,8 +79,9 @@ class Boss is Component {
             } else if(r == 3) {
                 dna = dna + "M" + l.toString    // Missles
             } else if(r == 4) {
-                dna = dna + "H" + l.toString    // Shiled
+                dna = dna + "D" + l.toString    // Deflect
             }
+            i = i + 1
         }
         return dna
     }
@@ -88,11 +91,20 @@ class Boss is Component {
             Data.getNumber("Part delay lambda from"),
             Data.getNumber("Part delay lambda to"))
 
+        var size = Boss.getPartSize(level)
+        var health = 0
+        if(level == 0) {
+            health = Data.getNumber("Part Health 0")
+        } else if (level == 1) {
+            health = Data.getNumber("Part Health 1")
+        } else if (level == 2) {
+            health = Data.getNumber("Part Health 2")
+        }
+
         var part = Entity.new()
-        var rad = Data.getNumber("Part Size") + level * 5
         var t = Transform.new(Vec2.new(0, 0))
-        var b = Body.new(rad, Vec2.new(0, 0))
-        var u = Unit.new(Team.player, Data.getNumber("Player Health"))
+        var b = Body.new(size, Vec2.new(0, 0))
+        var u = Unit.new(Team.Computer, health)
         var c = DebugColor.new(0xFFFFFFFF)
         var r = SlowRelation.new(boss, l)
         r.offset = position
@@ -118,7 +130,7 @@ class Boss is Component {
             c = DebugColor.new(0xFDFFC1FF)
             var w = Missiles.new()
             part.addComponent(w)
-        } else if(type == "H") {                            // Shield
+        } else if(type == "D") {                            // // Deflect
             s.idx = 8 + level - 1
             c = DebugColor.new(0xFFB599FF)
         }
@@ -126,6 +138,17 @@ class Boss is Component {
         s.flags = Render.spriteCenter | Render.spriteFlipY // |
         part.addComponent(c)
         part.addComponent(s)
+    }
+
+    static getPartSize(level) {
+        if(level == 0) {
+            return Data.getNumber("Part Size 0")
+        } else if (level == 1) {
+            return Data.getNumber("Part Size 1")
+        } else if (level == 2) {
+            return Data.getNumber("Part Size 2")
+        }
+        return 0
     }
 
     static create(dna) {
@@ -136,7 +159,7 @@ class Boss is Component {
         var bs = Boss.new()
         var v = Vec2.new(0, 0)
         var b = Body.new(Data.getNumber("Core Size"), v)
-        var u = Unit.new(Team.player, Data.getNumber("Core Health"))
+        var u = Unit.new(Team.Computer, Data.getNumber("Core Health"))
         var c = DebugColor.new(0x8BEC46FF)
         var s = GridSprite.new("[games]/seedwave/assets/images/ships/ship_medium_64x128.png", 3, 1)
         s.layer = 1.0
@@ -161,7 +184,7 @@ class Boss is Component {
             if(level != null && type != null) {
                 var pos = Vec2.new(__offsets[idx].x, __offsets[idx].y)                
                 pos = getOffset(pos.x, pos.y, maxOrbit)
-                var rad = Data.getNumber("Part Size") + level * 5
+                var rad = getPartSize(level)
 
                 var guard = 0
                 while(true) {
@@ -249,7 +272,7 @@ class Boss is Component {
         ob.velocity = dir * 1.5
 
         _sinTime = _sinTime + dt 
-        ot.position.y = _sinTime.cos * 20 + 10
+        ot.position.y = _sinTime.cos * 20 + 60
     }
 }
 

@@ -2,8 +2,37 @@ import "xs" for Configuration, Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
+import "unit" for Unit
+import "tags" for Team, Tag
+import "bullets" for Bullet
+import "debug" for DebugColor
+import "components" for SlowRelation
+import "random" for Random
 
 class Player is Component {
+
+    static create() {
+        var ship = Entity.new()
+        var p = Vec2.new(0, 0)
+        var t = Transform.new(p)
+        var sc = Player.new()
+        var v = Vec2.new(0, 0)
+        var b = Body.new(Data.getNumber("Player Size"), v)
+        var u = Unit.new(Team.Player, Data.getNumber("Player Health"))
+        var c = DebugColor.new(0x8BEC46FF)
+        var s = GridSprite.new("[games]/seedwave/assets/images/ships/planes_05_A.png", 4, 5)
+        s.layer = 1.0
+        s.flags = Render.spriteCenter
+        ship.addComponent(t)
+        ship.addComponent(sc)            
+        ship.addComponent(b)
+        ship.addComponent(u)
+        ship.addComponent(c)
+        ship.addComponent(s)
+        ship.name = "Player"
+        ship.tag = (Tag.Player | Tag.Unit)
+        return ship
+    }
 
     construct new() {
         super()
@@ -42,7 +71,7 @@ class Player is Component {
         }
 
         var speed = Data.getNumber("Player Speed")
-        if(Input.getButton(1)) {
+        if(Input.getButton(Input.gamepadButtonWest)) {
             speed = Data.getNumber("Player Speed When Aiming")
         }
 

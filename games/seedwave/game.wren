@@ -28,10 +28,8 @@ class Game {
         Boss.init()
 
         __background = Background.createBackground()
-        __player = Create.player()
-        __boss = Boss.randomBoss(20)
-        //  __boss = Create.boss("C1SL2C2M1L1SL2C1L2C1")
-        //__boss = Create.boss("C1L2C2M1L1L2M1C1L2C1L2C2M1L1L2M1C1L2")
+        __player = Player.create()
+        __boss = Boss.randomBoss(3)
     }    
     
     static update(dt) {
@@ -62,7 +60,6 @@ class Game {
     static collide(bullets, units) {
         for(u in units) {            
             for(b in bullets) {            
-                System.print("bullets")
                 var uT = u.getComponent(Transform)
                 var bT = b.getComponent(Transform)
                 var uB = u.getComponent(Body)
@@ -108,3 +105,4 @@ class Game {
 import "create" for Create
 import "boss" for Boss
 import "bullets" for Bullet
+import "player" for Player
