@@ -259,10 +259,12 @@ class Data {
     foreign static getNumber(name, type)
     foreign static getColor(name, type)
     foreign static getBool(name, type)
+    foreign static getString(name, type)
 
     foreign static setNumber(name, value, type)
     foreign static setColor(name, value, type)    
     foreign static setBool(name, value, type)
+    foreign static setString(name, value, type)
 
     static system   { 2 }
 	static debug    { 3 }

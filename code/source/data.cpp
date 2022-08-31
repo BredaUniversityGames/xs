@@ -11,6 +11,7 @@
 #include "json/json.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
+#include "imgui/cpp/imgui_stdlib.h"
 #include "imgui/IconsFontAwesome5.h"
 
 using namespace xs;
@@ -31,7 +32,7 @@ namespace xs::data::internal
 	vector<regsitry_type> history;
 	int history_stack_pointer;
 
-	template<typename T>
+	template<class T>
 	T get(const std::string& name, type type);
 
 	template<typename T>
@@ -120,8 +121,7 @@ void xs::data::inspect(bool& show)
 		history.push_back(r);
 	}
 
-	ImGui::Begin(u8"\U0000f1c0  Data", &show);
-	ImGui::PushItemWidth(60);
+	ImGui::Begin(u8"\U0000f1c0  Data", &show);	
 
 	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
 	if (ImGui::Button(ICON_FA_UNDO))
@@ -144,12 +144,13 @@ void xs::data::inspect(bool& show)
 	static ImGuiTextFilter filter;
 	filter.Draw(ICON_FA_SEARCH);
 	
+	ImGui::PushItemWidth(60);
 	inspect_of_type(string(ICON_FA_GAMEPAD) + "  Game", filter, type::game);
 	inspect_of_type(string(ICON_FA_USER) + "  Player", filter, type::player);
 	inspect_of_type(string(ICON_FA_BUG) + "  Debug", filter, type::debug);
 	inspect_of_type(string(ICON_FA_COG) + "  System", filter, type::system);
-
 	ImGui::PopItemWidth();
+
 	ImGui::End();
 }
 
@@ -170,7 +171,7 @@ bool xs::data::get_bool(const std::string& name, type type)
 
 std::string xs::data::get_string(const std::string& name, type type)
 {
-	return "";
+	return get<string>(name, type);
 }
 
 void xs::data::set_number(const std::string& name, double value, type tp)
@@ -190,6 +191,7 @@ void xs::data::set_bool(const std::string& name, bool value, type tp)
 
 void xs::data::set_string(const std::string& name, const std::string& value, type tp)
 {
+	set<string>(name, value, tp);
 }
 
 
@@ -233,6 +235,7 @@ void xs::data::internal::save_of_type(type type)
 			auto val_double = std::get_if<double>(&itr.second.value);
 			auto val_bool = std::get_if<bool>(&itr.second.value);
 			auto val_uint32_t = std::get_if<uint32_t>(&itr.second.value);
+			auto val_string = std::get_if<string>(&itr.second.value);
 
 			if (val_double)
 			{
@@ -248,6 +251,11 @@ void xs::data::internal::save_of_type(type type)
 			{
 				j[itr.first]["value"] = *val_uint32_t;
 				j[itr.first]["type"] = "color";
+			}
+			else if (val_string)
+			{
+				j[itr.first]["value"] = *val_string;
+				j[itr.first]["type"] = "string";
 			}
 		}
 	}
@@ -283,6 +291,8 @@ void xs::data::internal::load_of_type(type type)
 				set_bool(name, (bool)value, type);
 			else if(etype == "number")
 				set_number(name, (double)value, type);
+			else if (etype == "string")
+				set_string(name, value, type);
 		}
 	}
 }
@@ -348,6 +358,18 @@ void xs::data::internal::inspect_entry(
 			set(itr.first, *val, itr.second.type);
 		}
 	}
+
+	{
+		auto val = std::get_if<string>(&itr.second.value);
+		if (val)
+		{			
+			ImGui::PushItemWidth(0);
+			ImGui::InputText(itr.first.c_str(), val);
+			ImGui::PopItemWidth();
+			set(itr.first, *val, itr.second.type);
+		}
+	}
+
 
 	if (ImGui::IsItemDeactivatedAfterEdit())
 	{
