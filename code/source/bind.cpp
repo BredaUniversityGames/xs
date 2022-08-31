@@ -409,6 +409,11 @@ void data_get_color(WrenVM* vm)
 
 void data_get_string(WrenVM* vm)
 {
+	wrenEnsureSlots(vm, 2);
+	const auto name = wrenGetSlotString(vm, 1);
+	const auto type = wrenGetSlotDouble(vm, 2);
+	auto value = xs::data::get_string(name, xs::data::type((int)type));
+	wrenSetSlotString(vm, 0, value.c_str());
 }
 
 void data_set_number(WrenVM* vm)
@@ -442,6 +447,11 @@ void data_set_color(WrenVM* vm)
 
 void data_set_string(WrenVM* vm)
 {
+	wrenEnsureSlots(vm, 4);
+	auto name = wrenGetSlotString(vm, 1);
+	auto val = wrenGetSlotString(vm, 2);
+	auto type = wrenGetSlotDouble(vm, 3);
+	xs::data::set_string(name, val, xs::data::type((int)type));
 }
 
 

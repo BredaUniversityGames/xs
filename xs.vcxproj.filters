@@ -160,6 +160,9 @@
     <ClCompile Include="code\source\device.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="external\imgui\cpp\imgui_stdlib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="nintendo\xs.aarch64.nmeta" />
@@ -302,6 +305,7 @@
     <None Include="external\wren\vm\wren_core.wren.inc">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="external\imgui\debuggers\imgui.natstepfilter" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="xs.rc">
@@ -316,5 +320,8 @@
   <ItemGroup>
     <WavePsslc Include="code\source\ps5\pixel_shader_p.pssl" />
     <WavePsslc Include="code\source\ps5\vertex_shader_vv.pssl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="external\imgui\debuggers\imgui.natvis" />
   </ItemGroup>
 </Project>

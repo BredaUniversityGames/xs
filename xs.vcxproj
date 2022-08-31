@@ -196,6 +196,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="external\imgui\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="external\imgui\imgui.cpp" />
     <ClCompile Include="external\imgui\imgui_demo.cpp" />
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
@@ -309,6 +310,7 @@
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="external\imgui\debuggers\imgui.natstepfilter" />
     <None Include="external\wren\optional\wren_opt_meta.wren" />
     <None Include="external\wren\optional\wren_opt_meta.wren.inc" />
     <None Include="external\wren\optional\wren_opt_random.wren" />
@@ -333,6 +335,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\xs.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="external\imgui\debuggers\imgui.natvis" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4F1FCE22-25BA-46E4-A479-385F1667DEF0}</ProjectGuid>
