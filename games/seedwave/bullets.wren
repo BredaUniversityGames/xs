@@ -17,8 +17,8 @@ class Bullet is Component {
 
     update(dt) {
         var t = owner.getComponent(Transform)
-        var w = Configuration.width * 0.45
-        var h = Configuration.height * 0.45
+        var w = Configuration.width * 0.51
+        var h = Configuration.height * 0.51
 
         if (t.position.x < -w) {
             owner.delete()
@@ -40,7 +40,7 @@ class Bullet is Component {
     static createPlayerBullet(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
         var bullet = Entity.new()
-        var t = Transform.new(owt.position + Vec2.new(0, 0))
+        var t = Transform.new(owt.position + Vec2.new(0,10))
         var dir =  Vec2.new(Game.random.float(-0.2, 0.2), 1.0)
         dir = dir.normalise
         dir = dir * speed
@@ -84,19 +84,24 @@ class Bullet is Component {
 }
 
 class Missile is Bullet {
-    construct new(team) {
+    construct new(team, speed) {
         //var d = Data.getNumber("Missle Damage")
         //super(d)
         super(team, 100)
+        _speed = speed
+        _targeting = 4.0
         // _target = Game.player
     }
 
-    update(dt) {
+    update(dt) {        
+        _speed = Math.damp(_speed, Data.getNumber("Missle Max Speed"), 0.5, dt)
         var p = Game.player
-        var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
-        d = d.normalise * Data.getNumber("Missle Speed")
         var b = owner.getComponent(Body)
-        b.velocity = Math.damp(b.velocity, d, 1.0, dt)
+        var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
+        d = d.normalise * Data.getNumber("Missle Max Speed")
+        d = d - b.velocity
+        _targeting = Math.damp(_targeting, 0.0, 1.0, dt)
+        b.velocity = Math.damp(b.velocity, d, _targeting, dt)        
         super.update(dt)
     }
 
@@ -104,11 +109,15 @@ class Missile is Bullet {
         var owt = owner.getComponent(Transform)
         var bullet = Entity.new()
         var t = Transform.new(owt.position - Vec2.new(0, 0))
-        var v = Vec2.randomDirection()
+        var v = Vec2.randomDirection()        
         v = v.normalise * speed   
-        System.print(v)
+        if(v.y < 0) {
+            v.y = -v.y
+        }
+
         var bd = Body.new(5, v)
-        var bl = Missile.new(Team.Computer)
+        var bl = Missile.new(Team.Computer, speed)
+        var u = Unit.new(Team.Computer, 1.0)
         var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
         s.layer = 1.9
         s.flags = Render.spriteCenter
@@ -118,12 +127,13 @@ class Missile is Bullet {
         bullet.addComponent(bd)
         bullet.addComponent(bl)
         bullet.addComponent(s)
+        bullet.addComponent(u)
         bullet.name = "Bullet"
-        bullet.tag = Tag.Computer | Tag.Bullet
+        bullet.tag = Tag.Computer | Tag.Bullet | Tag.Unit
         bullet.addComponent(DebugColor.new(0xFDFFC1FF))
     }
 
-    toString { "[Missile] ->" + super.toString() }
+    toString { "[Missile] ->" + super.toString }
 }
 
 import "game" for Game

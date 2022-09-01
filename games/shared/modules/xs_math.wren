@@ -90,6 +90,10 @@ class Vec2 {
             }
         }
     }
+
+    static reflect(incident, normal) {
+        return incident - normal * (2.0 * normal.dot(incident))
+    }
 }
 
 class Color {
