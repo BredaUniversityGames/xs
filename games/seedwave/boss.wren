@@ -327,7 +327,7 @@ class Missiles is Component {
     shoot() {
     }
 
-    toString { "[Missiles _time:%(_time)] ->" + super.toString() }
+    toString { "[Missiles _time:%(_time)] ->" + super.toString }
 }
 
 import "game" for Game

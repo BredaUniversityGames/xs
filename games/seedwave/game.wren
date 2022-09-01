@@ -55,8 +55,9 @@ class Game {
         var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit)
         var computerBullets = Entity.entitiesWithTag(Tag.Computer | Tag.Bullet)
 
-        //Game.collide(computerBullets, playerUnits)
+        Game.collide(computerBullets, playerUnits)
         Game.collide(playerBullets, computerUnits)
+        Game.collide(playerBullets, playerUnits)
     }
 
     static collide(bullets, units) {        
@@ -66,14 +67,15 @@ class Game {
                 var bT = b.getComponent(Transform)
                 var uB = u.getComponent(Body)
                 var bB = b.getComponent(Body)
-                var dis = uT.position - bT.position
-                dis = dis.magnitude
+                var d = uT.position - bT.position
+                var dis = d.magnitude
                 if(dis < (uB.size + bB.size)) {                    
                     var un = u.getComponent(Unit)
                     var bl = b.getComponentSuper(Bullet)
                     un.damage(bl.damage)
                     if(Bits.checkBitFlag(u.tag, Tag.Deflect)) {
-                        bB.velocity = bB.velocity * -0.6
+                        //var ref = Vec2.reflect(bB.velocity, d.normalise) 
+                        bB.velocity = -bB.velocity * -0.6
                         bT.position = bT.position + (bB.velocity.normalise * dis)
                     } else {
                         b.delete()
