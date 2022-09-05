@@ -8,7 +8,6 @@ import "tags" for Tag, Team
 import "unit" for Unit
 import "random" for Random
 
-
 class GameState {
     static Menu     { 1 }
     static Play     { 2 }
@@ -29,14 +28,17 @@ class Game {
         Boss.init()
 
         __background = Background.createBackground()
-        __player = Player.create()
-        __boss = Boss.randomBoss(3)
         __random = Random.new()
+        __player = Player.create()
+
+        __size = 2
+        __boss = Boss.randomBoss(__size)
+        __totalTime = 0
+        __bossTime = 0      
     }    
     
     static update(dt) {
         Entity.update(dt)
-
         Game.updateGame(dt)
     
         if(Data.getBool("Print Entities", Data.debug)) {
@@ -50,6 +52,8 @@ class Game {
     }
 
     static updateGame(dt) {
+        __totalTime = __totalTime + dt
+        __bossTime = __bossTime + dt
         var playerUnits = Entity.entitiesWithTag(Tag.Player | Tag.Unit)
         var playerBullets = Entity.entitiesWithTag(Tag.Player | Tag.Bullet)
         var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit)
@@ -58,6 +62,19 @@ class Game {
         Game.collide(computerBullets, playerUnits)
         Game.collide(playerBullets, computerUnits)
         Game.collide(playerBullets, playerUnits)
+
+        if(__boss.deleted) {            
+            Game.nextBoss()
+        }
+
+        Render.setColor(1, 1, 1, 1)
+        Render.text("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
+    }
+
+    static nextBoss() {
+        __bossTime = 0
+        __size = __size + 1
+        __boss = Boss.randomBoss(__size)
     }
 
     static collide(bullets, units) {        
@@ -75,7 +92,7 @@ class Game {
                     un.damage(bl.damage)
                     if(Bits.checkBitFlag(u.tag, Tag.Deflect)) {
                         //var ref = Vec2.reflect(bB.velocity, d.normalise) 
-                        bB.velocity = -bB.velocity * -0.6
+                        bB.velocity = bB.velocity * -0.6
                         bT.position = bT.position + (bB.velocity.normalise * dis)
                     } else {
                         b.delete()
@@ -112,7 +129,6 @@ class Game {
     }
 }
 
-import "create" for Create
 import "boss" for Boss
 import "bullets" for Bullet
 import "player" for Player

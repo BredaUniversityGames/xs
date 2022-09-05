@@ -49,15 +49,15 @@
     },
     "Part Health 1": {
         "type": "number",
-        "value": 120.0
+        "value": 60.0
     },
     "Part Health 2": {
         "type": "number",
-        "value": 180.0
+        "value": 90.0
     },
     "Part Health 3": {
         "type": "number",
-        "value": 260.0
+        "value": 130.0
     },
     "Part Size 1": {
         "type": "number",
