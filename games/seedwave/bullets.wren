@@ -89,19 +89,31 @@ class Missile is Bullet {
         //super(d)
         super(team, 100)
         _speed = speed
-        _targeting = 4.0
+        _targeting = 1.5
         // _target = Game.player
     }
 
     update(dt) {        
-        _speed = Math.damp(_speed, Data.getNumber("Missle Max Speed"), 0.5, dt)
+        if(_targeting > 0) {
+            _targeting = _targeting - dt * 0.4
+        } else {
+            _targeting = 0
+        }
+        
+        //_speed = Math.damp(_speed, Data.getNumber("Missle Max Speed"), 0.5, dt)        
         var p = Game.player
         var b = owner.getComponent(Body)
         var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
-        d = d.normalise * Data.getNumber("Missle Max Speed")
-        d = d - b.velocity
-        _targeting = Math.damp(_targeting, 0.0, 1.0, dt)
-        b.velocity = Math.damp(b.velocity, d, _targeting, dt)        
+        d = d.normalise
+        var dv = d * Data.getNumber("Missle Max Speed")
+        dv = dv - b.velocity
+        //_targeting = Math.damp(_targeting, 0.0, 1.0, dt)
+
+        b.velocity = Math.damp(b.velocity, dv, _targeting, dt)        
+
+        // b.velocity = Math.damp(b.velocity, d, 5, dt) 
+        // b.velocity = b.velocity * b.velocity.normalise.dot(d)
+        
         super.update(dt)
     }
 

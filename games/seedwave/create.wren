@@ -9,7 +9,7 @@ import "debug" for DebugColor
 import "components" for SlowRelation
 import "random" for Random
 
-class Create {
+class Evolver {
 }
 
 import "player" for Player

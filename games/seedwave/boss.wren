@@ -13,6 +13,7 @@ class Boss is Component {
         static init() {
         __random = Random.new()
         __offsets = []
+        __dna = ""
 
         __offsets.add(Vec2.new(0, 0))
         __offsets.add(Vec2.new(0, 1))
@@ -240,10 +241,13 @@ class Boss is Component {
         } else if(Data.getNumber("Protein", Data.debug) != 0) {
             dna = generateDna(Data.getNumber("Protein", Data.debug))
         } else {
-            dna = generateDna(10)
+            dna = generateDna(size)
         }
+        __dna = dna
         return create(dna)
     }
+
+    static dna { __dna }
 
     static getOffset(orbit, slot, maxOrbit) {
         var dr = Data.getNumber("Boss Orbit Radius")
@@ -331,4 +335,3 @@ class Missiles is Component {
 }
 
 import "game" for Game
-import "create" for Create

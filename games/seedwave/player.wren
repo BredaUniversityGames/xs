@@ -122,5 +122,3 @@ class Player is Component {
 
     toString { "[Player]" }
 }
-
-import "create" for Create
