@@ -299,9 +299,9 @@ void xs::data::internal::load_of_type(type type)
 
 const string& xs::data::internal::get_file_path(type type)
 {
-	static std::string game_path = "[cwd]/game.json";
+	static std::string game_path = "[game]/game.json";
 	static std::string player_path = "[save]/player.json";
-	static std::string system_path = "[cwd]/system.json";
+	static std::string system_path = "[game]/system.json";
 	static std::string debug_path = "[save]/debug.json";
 	static std::string no_path = "";
 
