@@ -137,7 +137,7 @@ void xs::inspector::render(float dt)
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
 		{
 			script::shutdown();
-			script::configure({});
+			script::configure();
 			script::initialize();
 			if(!xs::script::has_error())
 				internal::ok_timer = 4.0f;
