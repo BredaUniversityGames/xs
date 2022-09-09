@@ -150,7 +150,7 @@ void xs::script::configure()
 	initialized = false;
 	error = false;
 
-	internal::main = "[cwd]/game.wren";
+	internal::main = "[game]/game.wren";
 
 	if (!fileio::exists(internal::main))
 	{

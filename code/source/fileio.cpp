@@ -99,7 +99,7 @@ void fileio::initialize(/* const std::string& main_script*/)
 			if (exists(cwd + "/game.wren"))
 			{
 				cwd = get_path(cwd);
-				add_wildcard("[cwd]", cwd);
+				add_wildcard("[game]", cwd);
 				success = true;
 			}
 		}
