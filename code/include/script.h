@@ -6,7 +6,7 @@ typedef void (*WrenForeignMethodFn)(WrenVM* vm);
 
 namespace xs::script
 {
-	void configure(const std::string& main);
+	void configure();
 	void initialize();
 	void shutdown();
 	void update(double dt);
