@@ -1,6 +1,9 @@
-#include <render.h>
-#include <tools.h>
+#include "render.h"
+#include "tools.h"
 #include "../render_internal.h"
+#include "configuration.h"
+#include "fileio.h"
+#include "log.h"
 #include <ios>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -15,9 +18,8 @@
 #include <stb/stb_easy_font.h>
 #pragma clang diagnostic pop
 
-#include <configuration.h>
-#include <fileio.h>
-#include <log.h>
+#include <unordered_map>
+#include <string>
 
 
 // In order for any of the asserts in Agc headers to work (ex. registerstructs.h) SCE_AGC_DEBUG must be defined before including those headers.
@@ -89,7 +91,8 @@ namespace xs::render::internal
 	vec2 offset = vec2(0.0f, 0.0f);
 
 	uint8_t* alloc_direct_mem(sce::Agc::SizeAlign sizeAlign);
-	int create_scanout_buffers(const sce::Agc::CxRenderTarget* rts, uint32_t count);	
+	int create_scanout_buffers(const sce::Agc::CxRenderTarget* rts, uint32_t count);
+	int load_png(const std::string& filename, sce::Agc::Core::Texture& out_texture);
 }
 
 using namespace xs::render::internal;
@@ -179,7 +182,7 @@ int xs::render::internal::create_scanout_buffers(const sce::Agc::CxRenderTarget*
 	return videoHandle;
 }
 
-void CreateRenderTargets(sce::Agc::CxRenderTarget* rts, sce::Agc::Core::RenderTargetSpec* spec, uint32_t count)
+void create_render_targets(sce::Agc::CxRenderTarget* rts, sce::Agc::Core::RenderTargetSpec* spec, uint32_t count)
 {
 	// First, retrieve the size of the render target. We can of course do this before we have any pointers.
 	sce::Agc::SizeAlign rtSize = sce::Agc::Core::getSize(spec);
@@ -281,6 +284,7 @@ int LoadPNGTexture(const char* inFileName, sce::Agc::Core::Texture& outTexture)
 		return ret;
 	}
 	printImageInfo(imageInfo);
+
 	// allocate memory for output image
 	sce::Agc::Core::TextureSpec textureSpec;
 	textureSpec.init();
@@ -369,6 +373,86 @@ int LoadPNGTexture(const char* inFileName, sce::Agc::Core::Texture& outTexture)
 	return 0;
 }
 
+int xs::render::internal::load_png(const std::string& filename, sce::Agc::Core::Texture& out_texture)
+{
+	// Find image first
+	auto id = std::hash<std::string>{}(filename);
+	for (int i = 0; i < images.size(); i++)
+		if (images[i].string_id == id)
+			return i;
+
+	auto buffer = fileio::read_binary_file(filename);
+	internal::image img;
+	img.string_id = id;
+	auto data = stbi_load_from_memory(
+		reinterpret_cast<unsigned char*>(buffer.data()),
+		static_cast<int>(buffer.size()),
+		&img.width,
+		&img.height,
+		&img.channels,
+		4);
+
+	if (data == nullptr)
+	{
+		log::error("Image {} could not be loaded!", filename);
+		return -1;
+	}
+
+
+	{
+		int32_t ret = 0;
+
+		// allocate memory for output image
+		sce::Agc::Core::TextureSpec texture_spec;
+		texture_spec.init();
+		texture_spec.m_type = sce::Agc::Core::Texture::Type::k2d;
+		texture_spec.m_width = img.width;
+		texture_spec.m_height = img.height;
+		texture_spec.m_format = sce::Agc::Core::DataFormat({ sce::Agc::Core::TypedFormat::k8_8_8_8UNorm, sce::Agc::Core::Swizzle::kRGBA_R4S4 });
+
+		const sce::Agc::SizeAlign texture_size_align = sce::Agc::Core::getSize(&texture_spec);
+		texture_spec.m_dataAddress = alloc_direct_mem(texture_size_align);
+		if (texture_spec.m_dataAddress == nullptr)
+		{
+			ret = 1; // Alloc Dmem failed to allocate memory
+			printf("Error: Allocate GPU Memory, ret 0x%08x\n", ret);
+			return ret;
+		}
+
+		ret = sce::Agc::Core::initialize(&out_texture, &texture_spec);
+		if (ret < 0) {
+			printf("Error: Agc::Core::initialize( sce::Agc::Core::Texture*, sce::Agc::Core::TextureSpec ), ret 0x%08x\n", ret);
+			return ret;
+		}
+
+		sce::AgcGpuAddress::SurfaceSummary surfaceSummary;
+		ret = sce::Agc::Core::translate(&surfaceSummary, &texture_spec);
+		if (ret < 0) {
+			printf("Error: sce::Agc::Core::translate(), ret 0x%08x\n", ret);
+			return ret;
+		}
+		ret = sce::AgcGpuAddress::tileSurface(
+			out_texture.getDataAddress(),
+			texture_size_align.m_size,
+			data,
+			img.width * img.height * 4,
+			&surfaceSummary, 0, 0);
+		if (ret < 0) {
+			printf("Error: sce::AgcGpuAddress::tileSurface(), ret 0x%08x\n", ret);
+			return ret;
+		}
+
+		// create_gl_texture_with_data(img, data);
+		stbi_image_free(data);
+
+		const auto i = images.size();
+		images.push_back(img);
+		return static_cast<int>(i);
+
+		return 0;
+	}	
+}
+
 
 void xs::render::initialize()
 {
@@ -376,10 +460,11 @@ void xs::render::initialize()
 	SceError error = sce::Agc::init();
 	SCE_AGC_ASSERT(error == SCE_OK);
 
+	// We are going the use the toolkit to clear the screen. It's just a simple compute that goes over the targets
 	error = sce::Agc::Toolkit::init();
 	SCE_AGC_ASSERT(error == SCE_OK);	
 
-	// Load png decoder module
+	// Load png decoder module, as we will use it for textures/images
 	error = sceSysmoduleLoadModule(SCE_SYSMODULE_PNG_DEC);
 	SCE_AGC_ASSERT(error == SCE_OK);
 
@@ -408,18 +493,17 @@ void xs::render::initialize()
 	// Precompute the color value we use to clear the render target
 	clearColor = sce::Agc::Core::Encoder::encode(rtSpec.getFormat(), { 0 });
 
-
 	// Now we create a number of render targets from this spec. These are our scanout buffers.	
-	CreateRenderTargets(rts, &rtSpec, BUFFERING);
+	create_render_targets(rts, &rtSpec, BUFFERING);
 
 	// These labels are currently unused, but the intent is to use them for flip tracking.
 	flipLabels = (sce::Agc::Label*)alloc_direct_mem({ sizeof(sce::Agc::Label) * BUFFERING, sce::Agc::Alignment::kLabel });
 
-	// We need the videoout handle to flip.
+	// We need the videoout handle to flip. This will create buffers in HDMI ready format
 	videoHandle = create_scanout_buffers(rts, BUFFERING);
 
-	// Create a context for each buffered frame.
-	const uint32_t dcb_size = 1024 * 1024 * 8; // 8 MB
+	// Create a context for each draw context buffer.
+	const uint32_t dcb_size = 1024 * 1024 * 8; // 8 MB per context
 
 	// Set up to contexts, one for each target
 	for (uint32_t i = 0; i < BUFFERING; ++i)
@@ -428,27 +512,28 @@ void xs::render::initialize()
 		// for how the components have to be hooked up, so there is considerable freedom for the 
 		// developer here.
 		// In this case, we simply make all components use the DCB for their storage.
-
 		ctxs[i].m_dcb.init(
 			alloc_direct_mem({ dcb_size, 4 }),
 			dcb_size,
-			nullptr,		// Mem alloc function ptr
+			nullptr,			// Mem alloc function ptr
 			nullptr);
-		ctxs[i].m_bdr.init(
+		ctxs[i].m_bdr.init(		// binder
 			&ctxs[i].m_dcb,
 			&ctxs[i].m_dcb);
-		ctxs[i].m_sb.init(
+		ctxs[i].m_sb.init(		// state buffer
 			256, // This is the size of a chunk in the StateBuffer, defining the largest size of a load packet's payload.
 			&ctxs[i].m_dcb,
 			&ctxs[i].m_dcb);
 		flipLabels[i].m_value = 1; // 1 means "not used by GPU"
+
+		// Name what we just made
 		sce::Agc::Core::registerResource(&ctxs[i].m_dcb, "Context %d", i);
 		sce::Agc::Core::registerResource(&flipLabels[i], "Flip label %d", i);
 	}
 
 
 	// Initialize some state. We don't have to do this every loop through the frame, so we do it here.
-	// Which render target you want to use and which channels
+	// Which render target you want to use and which channels. 0xF is for writting to all the buffers
 	rtMask = sce::Agc::CxRenderTargetMask().init().setMask(0, 0xf);
 
 	// Set up a viewport using a helper function from Core.	
@@ -679,7 +764,8 @@ int xs::render::load_image(const std::string& image_file)
 	img.string_id = id;
 
 	auto path = fileio::get_path(image_file);
-	LoadPNGTexture(path.c_str(), img.texture);
+	//LoadPNGTexture(path.c_str(), img.texture);
+	load_png(path.c_str(), img.texture);
 
 	img.width = img.texture.getWidth();
 	img.height = img.texture.getHeight();
