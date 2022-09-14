@@ -111,7 +111,8 @@ void fileio::initialize(/* const std::string& main_script*/)
 		log::info("Please provide a valid game folder in the games/.ini file!");
 		log::info("A valid game folder contanins a valid game.wren script.");
 		log::info("Check the documentation and the example that was just created.");
-		fileio::write_text_file("[games]/.ini", "hello");
+		fileio::write_text_file("hello", "[games]/.ini");
+		add_wildcard("[game]", "[games]/hello");
 	}
 
 	char* pValue;
