@@ -3,9 +3,9 @@
 
 namespace xs::configuration
 {
-	inline int width = 640;
-	inline int height = 360;
-	inline std::string title = "xs window";
-	inline bool fullscreen = false;
-	inline int multiplier = 1;
+	int width();
+	int height();
+	std::string title();
+	bool fullscreen(); //TODO: Not suppported yet
+	int multiplier();
 }

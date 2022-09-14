@@ -11,6 +11,7 @@
 #include "configuration.h"
 #include "version.h"
 #include "profiler.h"
+#include "device.h"
 #if defined(PLATFORM_PC)
 #include <GLFW/glfw3.h>
 #include "device_pc.h"
@@ -130,9 +131,7 @@ void xs::inspector::render(float dt)
 			ImGuiWindowFlags_NoSavedSettings |
 			ImGuiWindowFlags_NoScrollWithMouse);
 		ImGui::SetWindowPos({ 0,0 });		
-		ImGui::SetWindowSize({
-			(float)(xs::configuration::width * xs::configuration::multiplier),
-			-1 });
+		ImGui::SetWindowSize({(float)(xs::device::get_width()), -1 });
 
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
 		{

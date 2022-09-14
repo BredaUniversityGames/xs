@@ -2337,7 +2337,7 @@ using is_detected_convertible =
 #if !defined(JSON_HAS_FILESYSTEM) && !defined(JSON_HAS_EXPERIMENTAL_FILESYSTEM)
     #ifdef JSON_HAS_CPP_17
         #if defined(__cpp_lib_filesystem)
-            #define JSON_HAS_FILESYSTEM 1
+            #define JSON_HAS_FILESYSTEM 0
         #elif defined(__cpp_lib_experimental_filesystem)
             #define JSON_HAS_EXPERIMENTAL_FILESYSTEM 1
         #elif !defined(__has_include)
