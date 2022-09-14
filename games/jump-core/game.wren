@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render, Data, File
+import "xs" for Input, Render, Data, File
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation, Label
@@ -25,14 +25,14 @@ class Bullet is Component {
     update(dt) {
         var t = owner.getComponent(Transform)
 
-        var w = Configuration.width * 0.5
+        var w = Data.getNumber("Width", Data.system) * 0.5
         if (t.position.x < -w) {
             owner.delete()
         } else if (t.position.x > w) {
             owner.delete()
         }
 
-        var h = Configuration.height * 0.5
+        var h = Data.getNumber("Height", Data.system) * 0.5
         if (t.position.y < -h) {
             owner.delete()
         } else if (t.position.y > h) {
@@ -75,10 +75,10 @@ class GameState {
 
 class Game {
     static config() {        
-        Configuration.width = 640
-        Configuration.height = 360
-        Configuration.multiplier = 2
-        Configuration.title = "JumpCore"
+        Data.setNumber("Width", 640, Data.system)
+        Data.setNumber("Height", 360, Data.system)
+        Data.setNumber("Multiplier", 2, Data.system)
+        Data.setString("Title", "JumpCore", Data.system)
     }
 
     static init() {        

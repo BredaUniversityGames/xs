@@ -1,18 +1,18 @@
-import "xs" for Configuration, Input, Render
+import "xs" for Input, Render
 
 class Game {
 
     static init() {
-        var w = Configuration.width
-        var h = Configuration.height
+        var w = Data.getNumber("Width", Data.system)
+        var h = Data.getNumber("Height", Data.system)
 
-        System.print("Width=%(Configuration.width) Height=%(Configuration.height)")
+        System.print("Width=%(Data.getNumber("Width", Data.system)) Height=%(Data.getNumber("Height", Data.system))")
 
-        Configuration.width = 512
-        Configuration.height = 512
+        Data.getNumber("Width", Data.system) = 512
+        Data.getNumber("Height", Data.system) = 512
         Configuration.title = "Dots"
         Configuration.multiplier = 2
-        System.print("Width=%(Configuration.width) Height=%(Configuration.height)")
+        System.print("Width=%(Data.getNumber("Width", Data.system)) Height=%(Data.getNumber("Height", Data.system))")
         
         __time = 0.0
         __x = 0.0

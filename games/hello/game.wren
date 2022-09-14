@@ -14,6 +14,15 @@ class Game {
     // You can remove this method
     static config() {
         System.print("config")
+        
+        // This can be saved to the system.json using the
+        // Data UI. This code overrides the values from the system.json
+        // and can be removed if there is no need for that
+        Data.setString("Title", "xs - hello", Data.system)
+        Data.setNumber("Width", 640, Data.system)
+        Data.setNumber("Height", 360, Data.system)
+        Data.setNumber("Multiplier", 1, Data.system)
+        Data.setBool("Fullscreen", false, Data.system)
     }
 
     // The init method is called when all system have been created.
