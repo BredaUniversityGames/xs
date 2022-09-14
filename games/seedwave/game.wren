@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render, Data
+import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Renderable, Body, Transform
@@ -17,10 +17,11 @@ class GameState {
 class Game {
 
     static config() {
-        Configuration.width = 640
-        Configuration.height = 360
-        Configuration.multiplier = 2
-        Configuration.title = "Seed Wave"        
+        Data.setString("Title", "~~seedwave~~", Data.system)
+        Data.setNumber("Width", 640, Data.system)
+        Data.setNumber("Height", 360, Data.system)
+        Data.setNumber("Multiplier", 2, Data.system)
+        Data.setBool("Fullscreen", false, Data.system)
     }    
 
     static init() {

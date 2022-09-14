@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render    // These are the parts of the xs we will be using
+import "xs" for Input, Render    // These are the parts of the xs we will be using
 import "random" for Random                      // Random is a part of the Wren library
 
 class Vec2 {
@@ -38,8 +38,8 @@ class Vec2 {
 class Game {
 
     static init() {       
-        Configuration.width = 360
-        Configuration.height = 240
+        Data.getNumber("Width", Data.system) = 360
+        Data.getNumber("Height", Data.system) = 240
         Configuration.multiplier = 3
         Configuration.title = "Game"
 

@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render, Data
+import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
@@ -16,8 +16,8 @@ class Player is Component {
     update(dt) {    
         // Keep in bounds
         var t = owner.getComponent(Transform)
-        var h = Configuration.height * 0.5
-        var w = Configuration.width * 0.5
+        var h = Data.getNumber("Height", Data.system) * 0.5
+        var w = Data.getNumber("Width", Data.system) * 0.5
         if (t.position.x < -w) {
             t.position.x = -w
         } else if (t.position.x > w) {

@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render
+import "xs" for Input, Render
 
 class Vec2 {
     construct new(x, y) {
@@ -86,7 +86,7 @@ class Game {
     static init() {
         __hexes = HexGrid.new(16)
         __pos = Vec2.new(0.0, 0.0)
-        Configuration.width = 1280
+        Data.getNumber("Width", Data.system) = 1280
         Configuration.heght = 720
         Configuration.multiplier = 1
         Configuration.title = "Hex"

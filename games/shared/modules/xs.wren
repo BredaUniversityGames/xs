@@ -2,6 +2,7 @@
 // xs API
 ///////////////////////////////////////////////////////////////////////////////
 
+/*
 class Configuration {
     foreign static title=(value) 
     foreign static title
@@ -12,6 +13,7 @@ class Configuration {
     foreign static multiplier=(value) 
     foreign static multiplier
 }
+*/
 
 class Render {
     foreign static setColor(r, g, b, a)

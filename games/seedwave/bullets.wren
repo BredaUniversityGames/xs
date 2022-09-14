@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render, Data
+import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
@@ -17,8 +17,8 @@ class Bullet is Component {
 
     update(dt) {
         var t = owner.getComponent(Transform)
-        var w = Configuration.width * 0.51
-        var h = Configuration.height * 0.51
+        var w = Data.getNumber("Width", Data.system) * 0.51
+        var h = Data.getNumber("Height", Data.system) * 0.51
 
         if (t.position.x < -w) {
             owner.delete()
