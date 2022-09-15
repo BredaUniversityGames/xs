@@ -8,6 +8,7 @@
 #include "configuration.h"
 #include "data.h"
 #include "fileio.h"
+#include "audio.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Input
@@ -227,17 +228,6 @@ void render_sprite_ex(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 9);
 
-	/*
-	const auto t1 = wrenGetSlotType(vm, 1);
-	const auto t2 = wrenGetSlotType(vm, 2);
-	const auto t3 = wrenGetSlotType(vm, 3);
-	const auto t4 = wrenGetSlotType(vm, 4);
-	const auto t5 = wrenGetSlotType(vm, 5);
-	const auto t6 = wrenGetSlotType(vm, 6);
-	const auto t7 = wrenGetSlotType(vm, 7);
-	const auto t8 = wrenGetSlotType(vm, 8);
-	*/
-
 	const auto sprite_id = wrenGetSlotDouble(vm, 1);
 	const auto x = wrenGetSlotDouble(vm, 2);
 	const auto y = wrenGetSlotDouble(vm, 3);		
@@ -298,6 +288,27 @@ void render_render_text(WrenVM* vm)
 	const auto flags_i = static_cast<uint32_t>(flags);
 
 	render_text((int)font_id, c_text, (float)x, (float)y, mul_c, add_c, flags_i);		
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Audio
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void audio_load_sound(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 3);
+	const auto filename = wrenGetSlotString(vm, 1);
+	const auto stream = wrenGetSlotBool(vm, 2);
+	const auto looping = wrenGetSlotBool(vm, 3);
+	xs::audio::load_sound(filename, stream, looping);
+}
+
+void audio_play_sound(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto filename = wrenGetSlotString(vm, 1);
+	xs::audio::play_sound(filename);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -520,6 +531,10 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "renderSprite(_,_,_,_,_,_,_,_)", render_sprite_ex);
 	bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
 	bind("xs", "Render", true, "renderText(_,_,_,_,_,_,_)", render_render_text);
+
+	// Audio
+	bind("xs", "Audio", true, "loadSound(_,_,_)", audio_load_sound);
+	bind("xs", "Audio", true, "playSound(_)", audio_play_sound);
 
 	// Configuration
 	bind("xs", "Configuration", true, "title=(_)", configuration_set_title);
