@@ -38,6 +38,9 @@
       <Platform>NX64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <PropertyGroup>
+    <FMODSuffix Condition="'$(Configuration)'=='Debug'">L</FMODSuffix>
+  </PropertyGroup>
   <ItemGroup>
     <CustomBuild Include="nintendo\xs.aarch64.nmeta" />
   </ItemGroup>
@@ -73,6 +76,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="code\source\audio.cpp" />
     <ClCompile Include="code\source\bind.cpp" />
     <ClCompile Include="code\source\device.cpp" />
     <ClCompile Include="code\source\device_pc.cpp">
@@ -258,6 +262,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="code\include\audio.h" />
     <ClInclude Include="code\include\configuration.h" />
     <ClInclude Include="code\include\defines.h" />
     <ClInclude Include="code\include\device.h" />
@@ -277,6 +282,17 @@
     <ClInclude Include="code\source\ps5\Camera.h" />
     <ClInclude Include="code\source\ps5\Instance.h" />
     <ClInclude Include="code\source\render_internal.h" />
+    <ClInclude Include="external\fmod\fmod.h" />
+    <ClInclude Include="external\fmod\fmod.hpp" />
+    <ClInclude Include="external\fmod\fmod_codec.h" />
+    <ClInclude Include="external\fmod\fmod_common.h" />
+    <ClInclude Include="external\fmod\fmod_dsp.h" />
+    <ClInclude Include="external\fmod\fmod_dsp_effects.h" />
+    <ClInclude Include="external\fmod\fmod_errors.h" />
+    <ClInclude Include="external\fmod\fmod_output.h" />
+    <ClInclude Include="external\fmod\fmod_studio.h" />
+    <ClInclude Include="external\fmod\fmod_studio.hpp" />
+    <ClInclude Include="external\fmod\fmod_studio_common.h" />
     <ClInclude Include="external\imgui\imgui_impl_glfw.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
@@ -501,16 +517,20 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;DEBUG;WIN64;PLATFORM_PC;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmod;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)external/GLFW;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GLFW/glfw3.lib;opengl32.lib;fmod/lib/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/fmod$(FMODSuffix)_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)external\fmod\lib\fmodstudio$(FMODSuffix).dll" $(OutDir)"
+copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">
     <ClCompile>
@@ -543,16 +563,20 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;WIN64;PLATFORM_PC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmod;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)external/GLFW;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GLFW/glfw3.lib;opengl32.lib;fmod/lib/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/fmod$(FMODSuffix)_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)external\fmod\lib\fmodstudio$(FMODSuffix).dll" $(OutDir)"
+copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">
     <ClCompile>
@@ -588,7 +612,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;WIN64;PLATFORM_PC;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmod;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
     </ClCompile>
@@ -597,10 +621,14 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(ProjectDir)external/GLFW;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GLFW/glfw3.lib;opengl32.lib;fmod/lib/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/fmod$(FMODSuffix)_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /Y "$(ProjectDir)external\fmod\lib\fmodstudio$(FMODSuffix).dll" $(OutDir)"
+copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">
     <ClCompile>
@@ -637,10 +665,12 @@
     <Link>
       <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
+      <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>PLATFORM_SWITCH;DEBUG;%(PreprocessorDefinitions);PLATFORM_SWITCH</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmod;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CPPExceptions>true</CPPExceptions>
       <WarningsAsErrors>true</WarningsAsErrors>
     </ClCompile>
@@ -649,10 +679,12 @@
     <Link>
       <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
+      <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>PLATFORM_SWITCH;NN_SDK_BUILD_DEVELOP;%(PreprocessorDefinitions);PLATFORM_SWITCH</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmod;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CPPExceptions>true</CPPExceptions>
       <WarningsAsErrors>true</WarningsAsErrors>
     </ClCompile>
@@ -662,10 +694,12 @@
       <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
       <Profile>true</Profile>
+      <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>PLATFORM_SWITCH;NN_SDK_BUILD_RELEASE;%(PreprocessorDefinitions);PLATFORM_SWITCH</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmod;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CPPExceptions>true</CPPExceptions>
       <WarningsAsErrors>true</WarningsAsErrors>
     </ClCompile>

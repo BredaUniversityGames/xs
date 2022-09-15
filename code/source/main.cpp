@@ -5,6 +5,7 @@
 #include "log.h"
 #include "render.h"
 #include "script.h"
+#include "audio.h"
 #include "account.h"
 #include "data.h"
 #include "inspector.h"
@@ -91,6 +92,7 @@ int xs::main(int argc, char* argv[])
     device::initialize();
     render::initialize();
     input::initialize();
+    audio::initialize();
     inspector::initialize();
     script::initialize();
 
@@ -103,7 +105,7 @@ int xs::main(int argc, char* argv[])
         const auto dt = std::chrono::duration<double>(elapsed).count();
 
         device::poll_events();
-        input::update(dt);        
+        input::update(dt);
         if (!inspector::paused())
         {
             render::clear();
@@ -116,6 +118,7 @@ int xs::main(int argc, char* argv[])
 	}
 
     inspector::shutdown();
+    audio::shutdown();
     input::shutdown();
     render::shutdown();
     device::shutdown();
