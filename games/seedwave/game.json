@@ -27,6 +27,10 @@
         "type": "number",
         "value": 12.0
     },
+    "Laser Shoot Time": {
+        "type": "number",
+        "value": 2.0
+    },
     "Max Missle Speed": {
         "type": "number",
         "value": 0.0
