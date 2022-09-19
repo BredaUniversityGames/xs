@@ -667,6 +667,24 @@ void xs::render::render()
 		verData[2] = { to_x, from_y,	to_u, to_v, 	0.0f, 1.0f, 0.0f };
 		verData[3] = { to_x, to_y,		to_u, from_v, 	0.0f, 0.0f, 1.0f };
 
+		vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				verData[i].x -= anchor.x;
+				verData[i].y -= anchor.y;
+			}
+		}
+
+		/*
+		if (spe.rotation != 0.0)
+		{
+			for (int i = 0; i < 6; i++)
+				rotate_vector3d(sprite_trigs_array[i].position, (float)spe.rotation);
+		}
+		*/
+
 		for (int i = 0; i < 4; i++)
 		{
 			verData[i].x += (float)spe.x;
@@ -749,7 +767,10 @@ void xs::render::clear()
 	sprite_queue.clear();
 }
 
-void xs::render::set_offset(double x, double y) {}
+void xs::render::set_offset(double x, double y)
+{
+	xs::render::internal::offset = vec2((float)x, (float)y);
+}
 
 int xs::render::load_image(const std::string& image_file)
 {
