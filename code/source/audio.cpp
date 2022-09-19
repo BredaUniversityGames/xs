@@ -12,6 +12,8 @@ namespace xs::audio
 	FMOD::System* core_system = nullptr;
 
 	std::unordered_map<std::string, FMOD::Sound*> sounds;
+	FMOD::SoundGroup* group_sfx = nullptr;
+	FMOD::SoundGroup* group_music = nullptr;
 
 	void initialize()
 	{
@@ -35,6 +37,9 @@ namespace xs::audio
 		{
 			// TODO
 		}
+
+		core_system->createSoundGroup("sfx", &group_sfx);
+		core_system->createSoundGroup("music", &group_music);
 	}
 
 	void shutdown()
@@ -50,39 +55,40 @@ namespace xs::audio
 		system->update();
 	}
 
-	void load_sound(const std::string& filename, bool stream, bool looping)
+	void load(bool sound_effect, const std::string& filename)
 	{
 		const std::string& real_filename = fileio::get_path(filename);
 
+		FMOD_MODE mode = sound_effect ? FMOD_DEFAULT : (FMOD_CREATESTREAM | FMOD_LOOP_NORMAL);
+		FMOD::SoundGroup* group = sound_effect ? group_sfx : group_music;
+
 		FMOD::Sound* sound;
-		FMOD_MODE mode = FMOD_DEFAULT;
-		if (stream) mode = mode | FMOD_CREATESTREAM;
-		if (looping) mode = mode | FMOD_LOOP_NORMAL;
 		FMOD_RESULT result = core_system->createSound(real_filename.c_str(), mode, nullptr, &sound);
 		if (result == FMOD_OK)
+		{
+			sound->setSoundGroup(group);
 			sounds[filename] = sound;
+		}
 	}
 
-	void play_sound(const std::string& filename)
+	void play(const std::string& filename)
 	{
 		auto sound = sounds.find(filename);
-		if (sound == sounds.end())
-		{
-			load_sound(filename, false, false);
-			sound = sounds.find(filename);
-		}
-
 		if (sound != sounds.end())
 			core_system->playSound(sound->second, nullptr, false, nullptr);
 	}
 
-	/*void unload_sound(const std::string& filename)
+	double get_volume(bool sound_effects)
 	{
-		auto sound = sounds.find(filename);
-		if (sound != sounds.end())
-		{
-			sound->second->release();
-			sounds.erase(sound);
-		}
-	}*/
+		FMOD::SoundGroup* group = sound_effects ? group_sfx : group_music;
+		float vol;
+		group->getVolume(&vol);
+		return static_cast<double>(vol);
+	}
+
+	void set_volume(bool sound_effects, double value)
+	{
+		FMOD::SoundGroup* group = sound_effects ? group_sfx : group_music;
+		group->setVolume(static_cast<float>(value));
+	}
 }

@@ -295,20 +295,35 @@ void render_render_text(WrenVM* vm)
 // Audio
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void audio_load_sound(WrenVM* vm)
+void audio_load(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 3);
-	const auto filename = wrenGetSlotString(vm, 1);
-	const auto stream = wrenGetSlotBool(vm, 2);
-	const auto looping = wrenGetSlotBool(vm, 3);
-	xs::audio::load_sound(filename, stream, looping);
+	const auto sound_effect = wrenGetSlotBool(vm, 1);
+	const auto filename = wrenGetSlotString(vm, 2);
+	xs::audio::load(sound_effect, filename);
 }
 
-void audio_play_sound(WrenVM* vm)
+void audio_play(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
 	const auto filename = wrenGetSlotString(vm, 1);
-	xs::audio::play_sound(filename);
+	xs::audio::play(filename);
+}
+
+void audio_get_volume(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto sound_effects = wrenGetSlotBool(vm, 1);
+	const auto volume = xs::audio::get_volume(sound_effects);
+	wrenSetSlotDouble(vm, 0, volume);
+}
+
+void audio_set_volume(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 3);
+	const auto sound_effects = wrenGetSlotBool(vm, 1);
+	const auto volume = wrenGetSlotDouble(vm, 2);
+	xs::audio::set_volume(sound_effects, volume);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -533,8 +548,10 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "renderText(_,_,_,_,_,_,_)", render_render_text);
 
 	// Audio
-	bind("xs", "Audio", true, "loadSound(_,_,_)", audio_load_sound);
-	bind("xs", "Audio", true, "playSound(_)", audio_play_sound);
+	bind("xs", "Audio", true, "load(_,_)", audio_load);
+	bind("xs", "Audio", true, "play(_)", audio_play);
+	bind("xs", "Audio", true, "getVolume(_)", audio_get_volume);
+	bind("xs", "Audio", true, "setVolume(_,_)", audio_set_volume);
 
 	// Configuration
 	bind("xs", "Configuration", true, "title=(_)", configuration_set_title);
