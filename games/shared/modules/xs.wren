@@ -251,6 +251,14 @@ class Input {
     static mouseButtonMiddle { 2 }
 }
 
+class Audio {
+
+    foreign static load(isSoundEffect, name)
+    foreign static play(name)
+    foreign static getVolume(isSoundEffects)
+    foreign static setVolume(isSoundEffects, volume)
+}
+
 class Data {
     static getNumber(name) { getNumber(name, game) }
     static getColor(name)  { getColor(name, game) }
