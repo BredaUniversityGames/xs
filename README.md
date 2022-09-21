@@ -10,7 +10,7 @@ xs is an experiment into making the smallest game making tool possible. It can a
 ## running an example
 Download the latest [release](https://github.com/BredaUniversityGames/xs/releases) and run the file _xs.exe_.
 
-- Starting with version 0.2.0, _xs.exe_ will try to read a file named _games/.ini_. If that file does not exist, xs will create one and fill it with _hello_, so that it will automatically run the game in the _games/hello_ folder (a simple 'hello world' example). To run a different game, find the _games/.ini_ file and replace its contents by the name of another game (let's say _yourgame_). Upon execution, wren will then try to run the game inside the _games/yourgame/_ folder.
+- Starting with version 0.2.0, _xs.exe_ will try to read a file named _games/.ini_. If that file does not exist, xs will create one and fill it with _hello_, so that it will automatically run the game in the _games/hello_ folder (a simple 'hello world' example). To run a different game, find the _games/.ini_ file and replace its contents by the name of another game (let's say _yourgame_). Upon execution, xs will then try to run the game inside the _games/yourgame/_ folder.
 - Before xs version 0.2.0, _xs.exe_ needed a command-line parameter to specify which game to run. 
 
 ## xs script
