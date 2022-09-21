@@ -253,10 +253,13 @@ class Input {
 
 class Audio {
 
-    foreign static load(isSoundEffect, name)
-    foreign static play(name)
-    foreign static getVolume(isSoundEffects)
-    foreign static setVolume(isSoundEffects, volume)
+    foreign static load(name, groupId)
+    foreign static play(soundId)
+    foreign static getGroupVolume(groupId)
+    foreign static setGroupVolume(groupId, volume)
+    
+    static groupSFX    { 1 }
+    static groupMusic  { 2 }
 }
 
 class Data {

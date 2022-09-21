@@ -298,32 +298,34 @@ void render_render_text(WrenVM* vm)
 void audio_load(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 3);
-	const auto sound_effect = wrenGetSlotBool(vm, 1);
-	const auto filename = wrenGetSlotString(vm, 2);
-	xs::audio::load(sound_effect, filename);
+	const auto filename = wrenGetSlotString(vm, 1);
+	const auto group_id = wrenGetSlotDouble(vm, 2);
+	auto sound_id = xs::audio::load(filename, static_cast<int>(group_id));
+	wrenSetSlotDouble(vm, 0, sound_id);
 }
 
 void audio_play(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
-	const auto filename = wrenGetSlotString(vm, 1);
-	xs::audio::play(filename);
+	const auto sound_id = wrenGetSlotDouble(vm, 1);
+	int channel_id = xs::audio::play(static_cast<int>(sound_id));
+	wrenSetSlotDouble(vm, 0, channel_id);
 }
 
-void audio_get_volume(WrenVM* vm)
+void audio_get_group_volume(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
-	const auto sound_effects = wrenGetSlotBool(vm, 1);
-	const auto volume = xs::audio::get_volume(sound_effects);
+	const auto group_id = wrenGetSlotDouble(vm, 1);
+	const auto volume = xs::audio::get_group_volume(static_cast<int>(group_id));
 	wrenSetSlotDouble(vm, 0, volume);
 }
 
-void audio_set_volume(WrenVM* vm)
+void audio_set_group_volume(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 3);
-	const auto sound_effects = wrenGetSlotBool(vm, 1);
+	const auto group_id = wrenGetSlotDouble(vm, 1);
 	const auto volume = wrenGetSlotDouble(vm, 2);
-	xs::audio::set_volume(sound_effects, volume);
+	xs::audio::set_group_volume(static_cast<int>(group_id), volume);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -550,8 +552,8 @@ void xs::script::bind_api()
 	// Audio
 	bind("xs", "Audio", true, "load(_,_)", audio_load);
 	bind("xs", "Audio", true, "play(_)", audio_play);
-	bind("xs", "Audio", true, "getVolume(_)", audio_get_volume);
-	bind("xs", "Audio", true, "setVolume(_,_)", audio_set_volume);
+	bind("xs", "Audio", true, "getGroupVolume(_)", audio_get_group_volume);
+	bind("xs", "Audio", true, "setGroupVolume(_,_)", audio_set_group_volume);
 
 	// Configuration
 	bind("xs", "Configuration", true, "title=(_)", configuration_set_title);
