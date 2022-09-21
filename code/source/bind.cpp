@@ -348,6 +348,7 @@ void audio_set_channel_volume(WrenVM* vm)
 // Configuration
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
 void configuration_get_width(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 1);
@@ -407,6 +408,8 @@ void configuration_set_title(WrenVM* vm)
 	const auto str = wrenGetSlotString(vm, 1);
 	xs::configuration::title = std::string(str);
 }
+
+*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Data
@@ -574,6 +577,7 @@ void xs::script::bind_api()
 	bind("xs", "Audio", true, "setChannelVolume(_,_)", audio_set_channel_volume);
 
 	// Configuration
+	/*
 	bind("xs", "Configuration", true, "title=(_)", configuration_set_title);
 	bind("xs", "Configuration", true, "title", configuration_get_title);
 	bind("xs", "Configuration", true, "width=(_)", configuration_set_width);
@@ -582,6 +586,7 @@ void xs::script::bind_api()
 	bind("xs", "Configuration", true, "height", configuration_get_height);
 	bind("xs", "Configuration", true, "multiplier=(_)", configuration_set_multiplier);
 	bind("xs", "Configuration", true, "multiplier", configuration_get_multiplier);
+	*/
 
 	// Data
 	bind("xs", "Data", true, "getNumber(_,_)", data_get_number);

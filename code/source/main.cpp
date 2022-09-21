@@ -61,34 +61,11 @@ int xs::main(int argc, char* argv[])
     log::info(" |__|__|_____| " + xs::version::version_string);
     log::info("Made with love at Breda University of Applied Sciences");
     log::info("");
-
-
-    string main_script;
-
-    // TODO: This approach fails on consoles
-    if (argc == 2)
-    {       
-        main_script = string(argv[1]);        
-    }
-    else
-    {
-        log::info("No arguments provided script to run. Trying games/init.txt");
-        if (fileio::exists("games/init.txt"))
-            main_script = fileio::read_text_file("games/init.txt");
-    }
-
-    if(main_script.empty())
-    {
-        log::info("Please provide a game script to run. Example:");
-        log::info("xs.exe [games]/awesome_game/main.wren");
-        log::info("Or provide an init.txt file with the relative path to the script.");
-        return -1;
-    }
     
     account::initialize();
-    fileio::initialize(main_script);
+    fileio::initialize();
     data::initialize();
-    script::configure(main_script);
+    script::configure();
     device::initialize();
     render::initialize();
     input::initialize();

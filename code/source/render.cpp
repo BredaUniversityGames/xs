@@ -288,8 +288,8 @@ void xs::render::render_text(
 
 void xs::render::initialize()
 {
-	width = configuration::width;
-	height = configuration::height;
+	width = configuration::width();
+	height = configuration::height();
 
 	internal::create_frame_buffers();
 	internal::compile_draw_shader();

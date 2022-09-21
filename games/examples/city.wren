@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render
+import "xs" for Input, Render
 import "random" for Random
 import "vector" for Vector, ColorRGBA, Base
 
@@ -55,7 +55,7 @@ class MovingObject is GameObject {
 
 class Ship  is MovingObject {
     construct new() {
-        var x = Configuration.width * -0.25
+        var x = Data.getNumber("Width", Data.system) * -0.25
         var pos = Vector.new(x, 0.0)
         var vel = Vector.new(0.0, 0.0)
         var size = Vector.new(35.0, 15.0)
@@ -92,8 +92,8 @@ class Ship  is MovingObject {
         move(dt)
 
         // Keep in bounds
-        var h = Configuration.height * 0.5
-        var w = Configuration.width * 0.5
+        var h = Data.getNumber("Height", Data.system) * 0.5
+        var w = Data.getNumber("Width", Data.system) * 0.5
         if (position.x < -w) {
             position.x = -w
         } else if (position.x > w) {
@@ -132,7 +132,7 @@ class Ship  is MovingObject {
 
 class Enemy  is MovingObject {
     construct new() {
-        var x = Configuration.width * 0.25
+        var x = Data.getNumber("Width", Data.system) * 0.25
         var pos = Vector.new(x, 0.0)
         var vel = Vector.new(0.0, 0.0)
         var size = Vector.new(35.0, 15.0)
@@ -189,7 +189,7 @@ class Bullet is MovingObject {
 
     update(dt) {
         move(dt)
-        if (position.x.abs > Configuration.width) {            
+        if (position.x.abs > Data.getNumber("Width", Data.system)) {            
             delete()
         }
     }
@@ -257,14 +257,14 @@ class Building is GameObject {
 
     construct new(layer) {        
         super()
-        var fromH = __fromHeight[layer] * Configuration.height
-        var toH = __toHeight[layer] * Configuration.height
+        var fromH = __fromHeight[layer] * Data.getNumber("Height", Data.system)
+        var toH = __toHeight[layer] * Data.getNumber("Height", Data.system)
         var fromW = __fromWidth[layer]
         var toW = __toWidth[layer]
 
         _width = 120        
         _height = __random.int(fromH, toH)
-        _scroll = __random.int(-_width, Configuration.width + _width)
+        _scroll = __random.int(-_width, Data.getNumber("Width", Data.system) + _width)
 
         _color = __colors[layer]
         _layer = layer * 0.25        
@@ -292,15 +292,15 @@ class Building is GameObject {
 
     update(dt) {
         _scroll = _scroll - _scrollSpeed * dt
-        if(_scroll < -_width - Configuration.width * 0.5) {
-            _scroll = _scroll + Configuration.width + 2 * _width
+        if(_scroll < -_width - Data.getNumber("Width", Data.system) * 0.5) {
+            _scroll = _scroll + Data.getNumber("Width", Data.system) + 2 * _width
         }        
     }
 
     render() {
         Render.setColor(_color)
         for(r in _rects) {
-            r.render(_scroll.round, -Configuration.height * 0.5)
+            r.render(_scroll.round, -Data.getNumber("Height", Data.system) * 0.5)
         }
     }
 
@@ -320,14 +320,14 @@ class Sprawl is Building {
 
     construct new(layer, offset) {        
         super()
-        var fromH = __fromHeight[layer] * Configuration.height
-        var toH = __toHeight[layer] * Configuration.height
+        var fromH = __fromHeight[layer] * Data.getNumber("Height", Data.system)
+        var toH = __toHeight[layer] * Data.getNumber("Height", Data.system)
         var fromW = __fromWidth[layer]
         var toW = __toWidth[layer]
 
         _width = 120
         _height = __random.int(fromH, toH)
-        _scroll = -(Configuration.width * 0.5) + (Configuration.width * offset)
+        _scroll = -(Data.getNumber("Width", Data.system) * 0.5) + (Data.getNumber("Width", Data.system) * offset)
 
         _color = __colors[layer]
         _layer = layer * 0.25        
@@ -351,15 +351,15 @@ class Sprawl is Building {
     update(dt) {
 
         _scroll = _scroll - _scrollSpeed * dt
-        if(_scroll < Configuration.width * -1.5) {
-            _scroll = _scroll + Configuration.width * 2 
+        if(_scroll < Data.getNumber("Width", Data.system) * -1.5) {
+            _scroll = _scroll + Data.getNumber("Width", Data.system) * 2 
         }        
     }
 
     render() {
         Render.setColor(_color)
         for(r in _rects) {
-            r.render(_scroll.round, -Configuration.height * 0.5)
+            r.render(_scroll.round, -Data.getNumber("Height", Data.system) * 0.5)
         }
     }
 }
@@ -371,8 +371,8 @@ class Game {
         Building.init()
         Sprawl.init()
 
-        Configuration.width = 640
-        Configuration.height = 360
+        Data.getNumber("Width", Data.system) = 640
+        Data.getNumber("Height", Data.system) = 360
         Configuration.multiplier = 1
         Configuration.title = "City"
 
@@ -396,7 +396,7 @@ class Game {
     
     static update(dt) {
         Render.setColor(1, 1, 1)
-        Render.rect(-Configuration.width, -Configuration.height, Configuration.width, Configuration.height)        
+        Render.rect(-Data.getNumber("Width", Data.system), -Data.getNumber("Height", Data.system), Data.getNumber("Width", Data.system), Data.getNumber("Height", Data.system))        
 
         for(a in __addQueue) {
             __objects.add(a)

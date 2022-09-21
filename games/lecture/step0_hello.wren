@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render
+import "xs" for Input, Render
 
 class Game {
 

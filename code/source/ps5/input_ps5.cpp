@@ -1,11 +1,39 @@
 #include "input.h"
+#include "tools.h"
+#include <cstdlib>
+#include <cstdio>
+#include <libsysmodule.h>
+#include <pad.h>
+#include "log.h"
 
 namespace xs::input::internal
 {
+	int32_t handle;
 }
+
+using namespace xs::input;
 
 void xs::input::initialize()
 {
+	sceUserServiceInitialize(NULL);
+	SceUserServiceUserId userId;
+	// Get user ID value
+	auto ret = sceUserServiceGetInitialUser(&userId);
+	if (ret < 0) {
+		/* Failed to obtain user ID value */
+		return;
+	}
+
+	scePadInit();
+	//  Example that specifies SCE_PAD_PORT_TYPE_STANDARD to type
+	// Specify 0 for index
+	// pParam is a reserved area (specify NULL)
+	internal::handle = scePadOpen(userId, SCE_PAD_PORT_TYPE_STANDARD, 0, NULL);
+	if (internal::handle < 0)
+	{
+		return;
+		/* Setting failed */
+	}
 }
 
 void xs::input::shutdown()
@@ -14,6 +42,12 @@ void xs::input::shutdown()
 
 void xs::input::update(double dt)
 {
+	ScePadData data;
+	scePadReadState(internal::handle, &data);
+	if (xs::tools::check_bit_flag_overlap(data.buttons, SCE_PAD_BUTTON_CROSS))
+	{
+		xs::log::info("whee!");
+	}
 }
 
 double xs::input::get_axis(int axis)

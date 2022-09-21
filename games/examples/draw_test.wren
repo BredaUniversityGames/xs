@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render
+import "xs" for Input, Render
 import "random" for Random
 import "vector" for Vector, ColorRGBA, Base
 
@@ -16,8 +16,8 @@ class Math {
 class Game {
 
     static init() {
-        Configuration.width = 640
-        Configuration.height = 360
+        Data.getNumber("Width", Data.system) = 640
+        Data.getNumber("Height", Data.system) = 360
         Configuration.title = "Draw Test"
         Configuration.multiplier = 2
         __time = 0.0
@@ -28,7 +28,7 @@ class Game {
 
         // Clear screen
         Render.setColor(1, 1, 1)
-        Render.rect(0, 0, Configuration.width, Configuration.height, 0.0)
+        Render.rect(0, 0, Data.getNumber("Width", Data.system), Data.getNumber("Height", Data.system), 0.0)
 
         // Render three triangles
         var l = 120
