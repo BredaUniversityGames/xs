@@ -145,13 +145,12 @@ namespace xs::script::internal
 
 using namespace xs::script::internal;
 
-void xs::script::configure(const std::string& main)
+void xs::script::configure()
 {
 	initialized = false;
 	error = false;
 
-	if (!main.empty())
-		internal::main = main;
+	internal::main = "[game]/game.wren";
 
 	if (!fileio::exists(internal::main))
 	{
@@ -221,7 +220,6 @@ void xs::script::configure(const std::string& main)
 		init_method = wrenMakeCallHandle(vm, "init()");
 		update_method = wrenMakeCallHandle(vm, "update(_)");
 		render_method = wrenMakeCallHandle(vm, "render()");
-
 		wrenCall(vm, config_method);
 	}
 }

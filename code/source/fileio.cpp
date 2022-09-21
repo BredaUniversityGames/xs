@@ -26,9 +26,12 @@ using namespace xs;
 using namespace fileio::internal;
 using namespace std;
 
-void fileio::initialize(const std::string& main_script)
+void fileio::initialize(/* const std::string& main_script*/)
 {
-#if defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC)
+	add_wildcard("[games]", "./games");
+
+#elif defined(PLATFORM_SWITCH)
 	nn::Result result;
 	size_t cacheSize = 0;
 
@@ -81,30 +84,51 @@ void fileio::initialize(const std::string& main_script)
 	add_wildcard("[games]", "rom:");
 	add_wildcard("[save]", "save:");
 
-#elif defined(PLATFORM_PC)
+#elif defined(PLATFORM_PS5)	
+	add_wildcard("[games]", "/app0");
+#endif
+
+	// All platforms
+	bool success = false;
+	if (exists("[games]/.ini"))
+	{
+		auto game_str = read_text_file("[games]/.ini");
+		if (!game_str.empty())
+		{
+			string cwd = "[games]/" + game_str;
+			if (exists(cwd + "/game.wren"))
+			{
+				cwd = get_path(cwd);
+				add_wildcard("[game]", cwd);
+				success = true;
+			}
+		}
+	}
+
+#if defined(PLATFORM_PC)
+	if(!success)
+	{
+		log::info("Please provide a valid game folder in the games/.ini file!");
+		log::info("A valid game folder contanins a valid game.wren script.");
+		log::info("Check the documentation and the example that was just created.");
+		fileio::write_text_file("hello", "[games]/.ini");
+		add_wildcard("[game]", "[games]/hello");
+	}
+
 	char* pValue;
 	size_t len;
 	_dupenv_s(&pValue, &len, "APPDATA");
-
-	// TODO: Get this from the game name
-	std::string save_path = string(pValue) + string("\\xs");
-
-	if (!filesystem::exists(save_path))
-		filesystem::create_directory(save_path);
-	
-	add_wildcard("[games]", "./games");
-	add_wildcard("[save]", save_path);
-
+	if (pValue != nullptr)
+	{
+		auto game_str = read_text_file("[games]/.ini");
+		string save_path = string(pValue) + string("\\xs\\") + game_str;
+		if (!filesystem::exists(save_path))
+			filesystem::create_directory(save_path);
+		add_wildcard("[save]", save_path);
+	}
 #elif defined(PLATFORM_PS5)	
-	add_wildcard("[games]", "/app0");
 	// add_wildcard("[save]", save_path);
 #endif
-
-	string cwd = main_script;
-	auto l_slash = cwd.find_last_of("/");
-	cwd.erase(l_slash, cwd.length());
-	cwd = get_path(cwd);
-	add_wildcard("[cwd]", cwd);
 }
 
 vector<char> fileio::read_binary_file(const std::string& filename)
@@ -178,5 +202,7 @@ bool xs::fileio::exists(const std::string& filename)
 {
 	const auto path = get_path(filename);
 	ifstream f(path.c_str());
-	return f.good();
+	auto good = f.good();
+	f.close();
+	return good;
 }

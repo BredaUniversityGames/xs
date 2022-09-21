@@ -1,4 +1,4 @@
-import "xs" for Configuration, Input, Render
+import "xs" for Input, Render
 import "xs_math"for Math, Bits, Vec2
 
 class EnemyShip {
@@ -43,11 +43,11 @@ class Ship {
 
 class Game {
     static init() {        
-        Configuration.width = 256
-        Configuration.height = 360
+        Data.getNumber("Width", Data.system) = 256
+        Data.getNumber("Height", Data.system) = 360
         Configuration.title = "Top Down Shooter"
         Configuration.multiplier = 2
-        System.print("Width=%(Configuration.width) Height=%(Configuration.height)")
+        System.print("Width=%(Data.getNumber("Width", Data.system)) Height=%(Data.getNumber("Height", Data.system))")
         
         __time = 0.0
         __x = 0.0

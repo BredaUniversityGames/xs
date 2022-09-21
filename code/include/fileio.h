@@ -5,7 +5,7 @@
 
 namespace xs::fileio
 {
-	void initialize(const std::string& main_script);
+	void initialize();
 	std::vector<char> read_binary_file(const std::string& filename);
 	std::string read_text_file(const std::string& filename);
 	bool write_text_file(const std::string& text, const std::string& filename);

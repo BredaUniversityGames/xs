@@ -1,4 +1,4 @@
- import "xs" for Configuration, Input, Render, Data
+ import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
  import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
@@ -8,6 +8,8 @@ import "bullets" for Bullet, Missile
 import "debug" for DebugColor
 import "random" for Random
 import "components" for SlowRelation
+
+import "weapons/laser" for Laser
 
 class Boss is Component {
         static init() {
@@ -126,6 +128,8 @@ class Boss is Component {
             part.addComponent(w)
         } else if (type == "L") {                           // Laser
             s.idx = 4 + level - 1
+            var l = Laser.new()
+            part.addComponent(l)
             c = DebugColor.new(0x9896FFFF)
         } else if(type == "M") {                            // Missiles
             s.idx = 8 + level - 1
@@ -163,7 +167,7 @@ class Boss is Component {
         var v = Vec2.new(0, 0)
         var b = Body.new(Data.getNumber("Core Size"), v)
         var u = Unit.new(Team.Computer, Data.getNumber("Core Health"))
-        var c = DebugColor.new(0x8BEC46FF)
+        var c = DebugColor.new(0xFF2222FF)
         var s = GridSprite.new("[games]/seedwave/assets/images/ships/ship_medium_64x128.png", 3, 1)
         s.layer = 1.0
         s.flags = Render.spriteCenter
@@ -301,13 +305,6 @@ class Cannon is Component {
         }
     }
     
-    shoot() {
-    }
-}
-
-class Laser is Component {
-    construct new() { super() }
-
     shoot() {
     }
 }

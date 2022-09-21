@@ -1,5 +1,5 @@
 
-import "xs" for Configuration, Input, Render, Data, File
+import "xs" for Input, Render, Data, File
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation, Label
@@ -19,7 +19,7 @@ class Parallax is Component {
         var t = owner.getComponent(Transform)
         t.position.x = t.position.x - dt * _speed
 
-        if(t.position.x < Configuration.width * -0.5 -_width) {
+        if(t.position.x < Data.getNumber("Width", Data.system) * -0.5 -_width) {
             t.position.x = t.position.x + _width * _repeat
         }
     }
@@ -54,8 +54,8 @@ class Background {
             ["[games]/jump-core/images/backgrounds/[level]/trees.png",          320,    140,    0,      0],
         ]
 
-        var w = Configuration.width * 0.5
-        var h = Configuration.height * 0.5
+        var w = Data.getNumber("Width", Data.system) * 0.5
+        var h = Data.getNumber("Height", Data.system) * 0.5
 
         __stuff = []
         for(i in 0...22) {

@@ -1,11 +1,11 @@
-import "xs" for Configuration, Input, Render
+import "xs" for Input, Render
 import "random" for Random
 
 class Game {
 
     static init() {
-        Configuration.width = 360
-        Configuration.height = 240
+        Data.getNumber("Width", Data.system) = 360
+        Data.getNumber("Height", Data.system) = 240
 
         Configuration.title = "Pong"
         Configuration.multiplier = 2   
@@ -32,8 +32,8 @@ class Game {
     }    
     
     static update(dt) {
-        var w = Configuration.width
-        var h = Configuration.height
+        var w = Data.getNumber("Width", Data.system)
+        var h = Data.getNumber("Height", Data.system)
         var hh = h / 2 - 10
         var hw = w / 2 - 10
         var maxVel = 100
