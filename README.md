@@ -1,40 +1,37 @@
 # xs - an extra small game engine
 
-xs is an experiment into making the smallest game making tool possible. It can also be a tool to teach introduction to programming for game developers, who might not be necessary programmers.
-- xs has no graphical interface beyond the reload script and pause/play buttons
+xs is an experiment into making the smallest game making tool possible. It can also be a tool to teach introduction to programming for game developers, who might not necessarily be programmers.
 - xs is using the [Wren](https://wren.io/) scripting language
-- xs is best run from the command line, passing it your main .wren script as a parameter
-- xs has not audio support at current
+- xs has no graphical interface beyond the reload script and pause/play buttons
+- xs has no audio support, except in the 'audio' branch of this repository
+- xs can be built for PC, Nintendo Switch, and PlayStation 5
 - xs is in a very early alpha (but open for contribution from anyone at games@buas)
 
-
 ## running an example
-Download the latest [release](https://github.com/BredaUniversityGames/xs/releases) and unzip it. You can run xs from the command line by giving it the game script:
+Download the latest [release](https://github.com/BredaUniversityGames/xs/releases) and run the file _xs.exe_.
 
-```
-C:\the\path\to\xs> .\xs.exe .\games\examples\pong.wren 
-```
+- Starting with version 0.2.0, _xs.exe_ will try to read a file named _games/.ini_. If that file does not exist, xs will create one and fill it with _hello_, so that it will automatically run the game in the _games/hello_ folder (a simple 'hello world' example). To run a different game, find the _games/.ini_ file and replace its contents by the name of another game (let's say _yourgame_). Upon execution, wren will then try to run the game inside the _games/yourgame/_ folder.
+- Before xs version 0.2.0, _xs.exe_ needed a command-line parameter to specify which game to run. 
 
 ## xs script
-The xs main script always has this basic structure
-
+Every xs game folder should contain a main script named _game.wren_. It always has the following basic structure:
 
 ```csharp
-import "xs" for Configuration, Input, Render    // These are the parts of the xs we will be using
+import "xs" for Data, Input, Render    // These are the parts of the xs we will be using
 
 // The entry point (main) is the Game class
 class Game {
-    static init() {       
+    static config() {       
         // init gets called by our engine once, when the scipt is initialilzed
         
         // Configure the window in xs
-        Configuration.width = 360
-        Configuration.height = 240
-        Configuration.title = "Window Title"
+        Data.setNumber("Width", 640, Data.system)
+        Data.setNumber("Height", 360, Data.system)
+        Data.setNumber("Multiplier", 1, Data.system)
     }        
     
     static update(dt) {
-        // udptate gets called by our engine every frame
+        // Update gets called by our engine every frame
     }
 }
 ```
