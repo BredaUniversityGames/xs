@@ -143,7 +143,35 @@ namespace xs::audio
 			log::error("Sound group with ID {} does not exist!", group_id);
 			return;
 		}
-		
+
 		group->second->setVolume(static_cast<float>(value));
+	}
+
+	double get_channel_volume(int channel_id)
+	{
+		FMOD::Channel* channel;
+		auto result = core_system->getChannel(channel_id, &channel);
+		if (result != FMOD_OK)
+		{
+			log::error("Sound channel with ID {} does not exist!", channel_id);
+			return -1;
+		}
+
+		float vol;
+		channel->getVolume(&vol);
+		return static_cast<double>(vol);
+	}
+
+	void set_channel_volume(int channel_id, double value)
+	{
+		FMOD::Channel* channel;
+		auto result = core_system->getChannel(channel_id, &channel);
+		if (result != FMOD_OK)
+		{
+			log::error("Sound channel with ID {} does not exist!", channel_id);
+			return;
+		}
+
+		channel->setVolume(static_cast<float>(value));
 	}
 }

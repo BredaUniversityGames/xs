@@ -328,6 +328,22 @@ void audio_set_group_volume(WrenVM* vm)
 	xs::audio::set_group_volume(static_cast<int>(group_id), volume);
 }
 
+void audio_get_channel_volume(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto channel_id = wrenGetSlotDouble(vm, 1);
+	const auto volume = xs::audio::get_channel_volume(static_cast<int>(channel_id));
+	wrenSetSlotDouble(vm, 0, volume);
+}
+
+void audio_set_channel_volume(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 3);
+	const auto channel_id = wrenGetSlotDouble(vm, 1);
+	const auto volume = wrenGetSlotDouble(vm, 2);
+	xs::audio::set_channel_volume(static_cast<int>(channel_id), volume);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Configuration
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -554,6 +570,8 @@ void xs::script::bind_api()
 	bind("xs", "Audio", true, "play(_)", audio_play);
 	bind("xs", "Audio", true, "getGroupVolume(_)", audio_get_group_volume);
 	bind("xs", "Audio", true, "setGroupVolume(_,_)", audio_set_group_volume);
+	bind("xs", "Audio", true, "getChannelVolume(_)", audio_get_channel_volume);
+	bind("xs", "Audio", true, "setChannelVolume(_,_)", audio_set_channel_volume);
 
 	// Configuration
 	bind("xs", "Configuration", true, "title=(_)", configuration_set_title);

@@ -257,7 +257,9 @@ class Audio {
     foreign static play(soundId)
     foreign static getGroupVolume(groupId)
     foreign static setGroupVolume(groupId, volume)
-    
+    foreign static getChannelVolume(channelId)
+    foreign static setChannelVolume(channelId, volume)
+
     static groupSFX    { 1 }
     static groupMusic  { 2 }
 }
