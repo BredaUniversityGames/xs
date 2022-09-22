@@ -57,4 +57,9 @@ executable/
 intermediate/
 build/
 rc.command.1.tlog
+
+# xs ini file
 games/.ini
+
+# Specific games to ignore
+games/gridiculous
