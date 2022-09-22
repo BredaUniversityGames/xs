@@ -1,4 +1,5 @@
-#include <log.h>
+#include "log.h"
+#include "version.h"
 
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
 
@@ -23,6 +24,13 @@ void xs::log::initialize()
     spdlog::info("{:>8} aligned, {:<8} aligned", "right", "left");
     spdlog::error("ERR!?");
 #endif
+
+    log::info("  __ __ _____ ");
+    log::info(" |  |  |   __|");
+    log::info(" |-   -|__   |");
+    log::info(" |__|__|_____| " + xs::version::version_string);
+    log::info("Made with love at Breda University of Applied Sciences");
+    log::info("");
 }
 
 #elif defined(PLATFORM_PS5)

@@ -8,7 +8,6 @@
 #include "account.h"
 #include "data.h"
 #include "inspector.h"
-#include "version.h"
 #include <glm/glm.hpp>
 #include <chrono>
 
@@ -53,14 +52,7 @@ int main(int argc, char* argv[])
 
 int xs::main(int argc, char* argv[])
 {	
-	log::initialize();
-    log::info("  __ __ _____ ");
-    log::info(" |  |  |   __|");
-    log::info(" |-   -|__   |");
-    log::info(" |__|__|_____| " + xs::version::version_string);
-    log::info("Made with love at Breda University of Applied Sciences");
-    log::info("");
-    
+	log::initialize();    
     account::initialize();
     fileio::initialize();
     data::initialize();
