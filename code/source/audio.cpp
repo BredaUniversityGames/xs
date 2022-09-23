@@ -1,11 +1,13 @@
 #include "audio.h"
-
+#include "fileio.h"
+#include "log.h"
 #include <fmod/fmod.hpp>
 #include <fmod/fmod_studio.hpp>
 #include <unordered_map>
 
-#include "fileio.h"
-#include "log.h"
+#if defined(PLATFORM_PS5)
+#include <kernel.h>
+#endif
 
 namespace xs::audio
 {
@@ -27,6 +29,17 @@ namespace xs::audio
 
 	void initialize()
 	{
+
+#if defined(PLATFORM_PS5)
+		SceKernelModule core_mod = sceKernelLoadStartModule("/app0/sce_module/libfmod.prx", 0, NULL, 0, NULL, NULL);
+		assert(core_mod >= 0);
+		SceKernelModule studio_mod = sceKernelLoadStartModule("/app0/sce_module/libfmodstudio.prx", 0, NULL, 0, NULL, NULL);
+		assert(studio_mod >= 0);
+#endif
+		
+		//if (mod < 0)
+		//	return 1;
+
 		// Create the Studio System object
 		FMOD_RESULT result = FMOD::Studio::System::create(&system);
 		if (result != FMOD_OK)
