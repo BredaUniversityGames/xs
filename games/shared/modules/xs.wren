@@ -240,6 +240,19 @@ class Input {
     static mouseButtonMiddle { 2 }
 }
 
+class Audio {
+
+    foreign static load(name, groupId)
+    foreign static play(soundId)
+    foreign static getGroupVolume(groupId)
+    foreign static setGroupVolume(groupId, volume)
+    foreign static getChannelVolume(channelId)
+    foreign static setChannelVolume(channelId, volume)
+
+    static groupSFX    { 1 }
+    static groupMusic  { 2 }
+}
+
 class Data {
     static getNumber(name) { getNumber(name, game) }
     static getColor(name)  { getColor(name, game) }

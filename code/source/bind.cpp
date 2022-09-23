@@ -8,6 +8,7 @@
 #include "configuration.h"
 #include "data.h"
 #include "fileio.h"
+#include "audio.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Input
@@ -227,17 +228,6 @@ void render_sprite_ex(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 9);
 
-	/*
-	const auto t1 = wrenGetSlotType(vm, 1);
-	const auto t2 = wrenGetSlotType(vm, 2);
-	const auto t3 = wrenGetSlotType(vm, 3);
-	const auto t4 = wrenGetSlotType(vm, 4);
-	const auto t5 = wrenGetSlotType(vm, 5);
-	const auto t6 = wrenGetSlotType(vm, 6);
-	const auto t7 = wrenGetSlotType(vm, 7);
-	const auto t8 = wrenGetSlotType(vm, 8);
-	*/
-
 	const auto sprite_id = wrenGetSlotDouble(vm, 1);
 	const auto x = wrenGetSlotDouble(vm, 2);
 	const auto y = wrenGetSlotDouble(vm, 3);		
@@ -298,6 +288,60 @@ void render_render_text(WrenVM* vm)
 	const auto flags_i = static_cast<uint32_t>(flags);
 
 	render_text((int)font_id, c_text, (float)x, (float)y, mul_c, add_c, flags_i);		
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Audio
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void audio_load(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 3);
+	const auto filename = wrenGetSlotString(vm, 1);
+	const auto group_id = wrenGetSlotDouble(vm, 2);
+	auto sound_id = xs::audio::load(filename, static_cast<int>(group_id));
+	wrenSetSlotDouble(vm, 0, sound_id);
+}
+
+void audio_play(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto sound_id = wrenGetSlotDouble(vm, 1);
+	int channel_id = xs::audio::play(static_cast<int>(sound_id));
+	wrenSetSlotDouble(vm, 0, channel_id);
+}
+
+void audio_get_group_volume(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto group_id = wrenGetSlotDouble(vm, 1);
+	const auto volume = xs::audio::get_group_volume(static_cast<int>(group_id));
+	wrenSetSlotDouble(vm, 0, volume);
+}
+
+void audio_set_group_volume(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 3);
+	const auto group_id = wrenGetSlotDouble(vm, 1);
+	const auto volume = wrenGetSlotDouble(vm, 2);
+	xs::audio::set_group_volume(static_cast<int>(group_id), volume);
+}
+
+void audio_get_channel_volume(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	const auto channel_id = wrenGetSlotDouble(vm, 1);
+	const auto volume = xs::audio::get_channel_volume(static_cast<int>(channel_id));
+	wrenSetSlotDouble(vm, 0, volume);
+}
+
+void audio_set_channel_volume(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 3);
+	const auto channel_id = wrenGetSlotDouble(vm, 1);
+	const auto volume = wrenGetSlotDouble(vm, 2);
+	xs::audio::set_channel_volume(static_cast<int>(channel_id), volume);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -523,6 +567,14 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "renderSprite(_,_,_,_,_,_,_,_)", render_sprite_ex);
 	bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
 	bind("xs", "Render", true, "renderText(_,_,_,_,_,_,_)", render_render_text);
+
+	// Audio
+	bind("xs", "Audio", true, "load(_,_)", audio_load);
+	bind("xs", "Audio", true, "play(_)", audio_play);
+	bind("xs", "Audio", true, "getGroupVolume(_)", audio_get_group_volume);
+	bind("xs", "Audio", true, "setGroupVolume(_,_)", audio_set_group_volume);
+	bind("xs", "Audio", true, "getChannelVolume(_)", audio_get_channel_volume);
+	bind("xs", "Audio", true, "setChannelVolume(_,_)", audio_set_channel_volume);
 
 	// Configuration
 	/*
