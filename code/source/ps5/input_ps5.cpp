@@ -1,10 +1,10 @@
 #include "input.h"
 #include "tools.h"
+#include "log.h"
 #include <cstdlib>
 #include <cstdio>
 #include <libsysmodule.h>
 #include <pad.h>
-#include "log.h"
 
 namespace xs::input::internal
 {
