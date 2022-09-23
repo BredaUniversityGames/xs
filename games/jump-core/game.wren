@@ -1,4 +1,4 @@
-import "xs" for Input, Render, Data, File
+import "xs" for Input, Render, Data, File, Audio
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation, Label
@@ -78,7 +78,7 @@ class Game {
         Data.setNumber("Width", 640, Data.system)
         Data.setNumber("Height", 360, Data.system)
         Data.setNumber("Multiplier", 2, Data.system)
-        Data.setString("Title", "JumpCore", Data.system)
+        Data.setString("Title", "JumpCore", Data.system)        
     }
 
     static init() {        
@@ -98,6 +98,9 @@ class Game {
         __core = 0.0
         __font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
         __levels = ["daytime", "night", "abandoned", "snow-rain", "sunset"]
+
+        var song = Audio.load("[games]/seedwave/Blast_2019.flac", Audio.groupMusic)
+        var sound = Audio.play(song)
     }        
     
     static update(dt) {        
