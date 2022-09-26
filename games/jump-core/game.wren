@@ -99,7 +99,7 @@ class Game {
         __font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
         __levels = ["daytime", "night", "abandoned", "snow-rain", "sunset"]
 
-        var song = Audio.load("[games]/seedwave/Blast_2019.flac", Audio.groupMusic)
+        var song = Audio.load("[game]/Blast_2019.flac", Audio.groupMusic)
         var sound = Audio.play(song)
     }        
     
