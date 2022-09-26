@@ -17,39 +17,6 @@
 #include "configuration.h"
 #include "device.h"
 
-enum JoystickButtons
-{
-	// Default order matching Xbox (360 and One) controller
-	JOYSTICK_BUTTON_A = 0,
-	JOYSTICK_BUTTON_B = 1,
-	JOYSTICK_BUTTON_X = 2,
-	JOYSTICK_BUTTON_Y = 3,
-	JOYSTICK_BUTTON_LB = 4,
-	JOYSTICK_BUTTON_RB = 5,
-	JOYSTICK_BUTTON_BACK = 6,
-	JOYSTICK_BUTTON_START = 7,
-	JOYSTICK_BUTTON_DUMMY = 8,
-	JOYSTICK_BUTTON_L3 = 9,
-	JOYSTICK_BUTTON_R3 = 10,
-	JOYSTICK_BUTTON_DPAD_UP = 11,
-	JOYSTICK_BUTTON_DPAD_RIGHT = 12,
-	JOYSTICK_BUTTON_DPAD_DOWN = 13,
-	JOYSTICK_BUTTON_DPAD_LEFT = 14,
-	JOYSTICK_BUTTON_COUNT
-};
-
-enum JoystickAxes
-{
-	// Default order matching Xbox (360 and One) controller
-	JOYSTICK_AXIS_LEFT_THUMB_HORIZONTAL = 0,
-	JOYSTICK_AXIS_LEFT_THUMB_VERTICAL,			// 1
-	JOYSTICK_AXIS_RIGHT_THUMB_HORIZONTAL,		// 2
-	JOYSTICK_AXIS_RIGHT_THUMB_VERTICAL,			// 3
-	JOYSTICK_AXIS_LEFT_TRIGGER,					// 4
-	JOYSTICK_AXIS_RIGHT_TRIGGER,				// 5	
-	JOYSTICK_AXIS_COUNT							// 6
-};
-
 enum class JoystickType
 {
 	XBOX,
@@ -109,6 +76,18 @@ namespace xs::input::internal
 	std::vector<std::pair<float, float>>	_touches_gameCoordinates;
 
 	void AddJoystick(int joy);
+
+	struct GamepadMapping
+	{
+		std::unordered_map<int, int> buttons;
+		int leftTrigger;
+		int rightTrigger;
+	};
+
+	GamepadMapping gamepadMapping_leftJoycon;
+	GamepadMapping gamepadMapping_rightJoycon;
+	GamepadMapping gamepadMapping_full;
+
 }
 
 using namespace std;
@@ -177,6 +156,46 @@ void xs::input::initialize()
 	nn::hid::InitializeTouchScreen();
 
 	//InitializeVibrationThread();
+
+	// --- pre-define button mappings
+
+	// left joycon only
+	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::BUTTON_SOUTH] = nn::hid::NpadButton::Left::Index;
+	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::BUTTON_EAST] = nn::hid::NpadButton::Down::Index;
+	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::BUTTON_WEST] = nn::hid::NpadButton::Up::Index;
+	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::BUTTON_NORTH] = nn::hid::NpadButton::Right::Index;
+	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::BUTTON_START] = nn::hid::NpadButton::Minus::Index;
+	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::STICK_LEFT] = nn::hid::NpadButton::StickL::Index;
+	gamepadMapping_leftJoycon.leftTrigger = nn::hid::NpadJoyButton::LeftSL::Index;
+	gamepadMapping_leftJoycon.rightTrigger = nn::hid::NpadJoyButton::LeftSR::Index;
+
+	// right joycon only
+	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::BUTTON_SOUTH] = nn::hid::NpadButton::A::Index;
+	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::BUTTON_EAST] = nn::hid::NpadButton::X::Index;
+	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::BUTTON_WEST] = nn::hid::NpadButton::B::Index;
+	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::BUTTON_NORTH] = nn::hid::NpadButton::Y::Index;
+	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::BUTTON_START] = nn::hid::NpadButton::Plus::Index;
+	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::STICK_LEFT] = nn::hid::NpadButton::StickR::Index;
+	gamepadMapping_rightJoycon.leftTrigger = nn::hid::NpadJoyButton::RightSL::Index;
+	gamepadMapping_rightJoycon.rightTrigger = nn::hid::NpadJoyButton::RightSR::Index;
+
+	// full layout (both joycons / handheld mode / pro controller)
+	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_SOUTH] = nn::hid::NpadButton::B::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_EAST] = nn::hid::NpadButton::A::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_WEST] = nn::hid::NpadButton::Y::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_NORTH] = nn::hid::NpadButton::X::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_START] = nn::hid::NpadButton::Plus::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::DPAD_LEFT] = nn::hid::NpadButton::Left::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::DPAD_DOWN] = nn::hid::NpadButton::Down::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::DPAD_UP] = nn::hid::NpadButton::Up::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::DPAD_RIGHT] = nn::hid::NpadButton::Right::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_SELECT] = nn::hid::NpadButton::Minus::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::STICK_LEFT] = nn::hid::NpadButton::StickL::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::STICK_RIGHT] = nn::hid::NpadButton::StickR::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::SHOULDER_LEFT] = nn::hid::NpadButton::L::Index;
+	gamepadMapping_full.buttons[xs::input::gamepad_button::SHOULDER_RIGHT] = nn::hid::NpadButton::L::Index;
+	gamepadMapping_full.leftTrigger = nn::hid::NpadButton::ZL::Index;
+	gamepadMapping_full.rightTrigger = nn::hid::NpadButton::ZR::Index;
 }
 
 void xs::input::shutdown()
@@ -188,6 +207,20 @@ int GetDefaultJoystick()
 	if (_joyState.empty())
 		return 0;
 	return _joyState.begin()->first;
+}
+
+float NormalizeStickInput(int32_t value)
+{
+	return value / float(nn::hid::AnalogStickMax);
+}
+
+void FillJoystickState(JoystickState& result_state, const nn::hid::NpadButtonSet& buttonSet, const GamepadMapping& mapping)
+{
+	for (auto& button : mapping.buttons)
+		result_state.Buttons[button.first] = buttonSet.Test(button.second);
+
+	result_state.Axes[xs::input::gamepad_axis::TRIGGER_LEFT] = buttonSet.Test(mapping.leftTrigger) ? 1.0f : 0.0f;
+	result_state.Axes[xs::input::gamepad_axis::TRIGGER_RIGHT] = buttonSet.Test(mapping.rightTrigger) ? 1.0f : 0.0f;
 }
 
 void xs::input::update(double dt)
@@ -224,15 +257,9 @@ void xs::input::update(double dt)
 			if (style.Test<nn::hid::NpadStyleJoyLeft>())
 			{
 				connected++;
-				state.Buttons[JOYSTICK_BUTTON_B] = leftState.buttons.Test<nn::hid::NpadButton::Left>();
-				state.Buttons[JOYSTICK_BUTTON_Y] = leftState.buttons.Test<nn::hid::NpadButton::Up>();
-				state.Buttons[JOYSTICK_BUTTON_A] = leftState.buttons.Test<nn::hid::NpadButton::Down>();
-				state.Buttons[JOYSTICK_BUTTON_X] = leftState.buttons.Test<nn::hid::NpadButton::Right>();
-				state.Buttons[JOYSTICK_BUTTON_START] = leftState.buttons.Test<nn::hid::NpadButton::Minus>();
-				state.Axes[JOYSTICK_AXIS_RIGHT_TRIGGER] = leftState.buttons.Test<nn::hid::NpadJoyButton::LeftSR>() ? 1.0f : 0.0f;
-				state.Axes[JOYSTICK_AXIS_LEFT_TRIGGER] = leftState.buttons.Test<nn::hid::NpadJoyButton::LeftSL>() ? 1.0f : 0.0f;
-				state.Axes[JOYSTICK_AXIS_LEFT_THUMB_HORIZONTAL] = float(-leftState.analogStickL.y) / float(nn::hid::AnalogStickMax);
-				state.Axes[JOYSTICK_AXIS_LEFT_THUMB_VERTICAL] = float(-leftState.analogStickL.x) / float(nn::hid::AnalogStickMax);
+				FillJoystickState(state, leftState.buttons, gamepadMapping_leftJoycon);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_X] = -NormalizeStickInput(leftState.analogStickL.y);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_Y] = -NormalizeStickInput(leftState.analogStickL.x);
 			}
 			else
 			{
@@ -249,15 +276,9 @@ void xs::input::update(double dt)
 			if (style.Test<nn::hid::NpadStyleJoyRight>())
 			{
 				connected++;
-				state.Buttons[JOYSTICK_BUTTON_B] = rightState.buttons.Test<nn::hid::NpadButton::A>();
-				state.Buttons[JOYSTICK_BUTTON_Y] = rightState.buttons.Test<nn::hid::NpadButton::B>();
-				state.Buttons[JOYSTICK_BUTTON_A] = rightState.buttons.Test<nn::hid::NpadButton::X>();
-				state.Buttons[JOYSTICK_BUTTON_X] = rightState.buttons.Test<nn::hid::NpadButton::Y>();
-				state.Buttons[JOYSTICK_BUTTON_START] = rightState.buttons.Test<nn::hid::NpadButton::Plus>();
-				state.Axes[JOYSTICK_AXIS_RIGHT_TRIGGER] = rightState.buttons.Test<nn::hid::NpadJoyButton::RightSR>() ? 1.0f : 0.0f;
-				state.Axes[JOYSTICK_AXIS_LEFT_TRIGGER] = rightState.buttons.Test<nn::hid::NpadJoyButton::RightSL>() ? 1.0f : 0.0f;
-				state.Axes[JOYSTICK_AXIS_LEFT_THUMB_HORIZONTAL] = float(rightState.analogStickR.y) / float(nn::hid::AnalogStickMax);
-				state.Axes[JOYSTICK_AXIS_LEFT_THUMB_VERTICAL] = float(rightState.analogStickR.x) / float(nn::hid::AnalogStickMax);
+				FillJoystickState(state, rightState.buttons, gamepadMapping_rightJoycon);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_X] = NormalizeStickInput(rightState.analogStickR.y);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_Y] = NormalizeStickInput(rightState.analogStickR.x);
 			}
 			else
 			{
@@ -281,20 +302,11 @@ void xs::input::update(double dt)
 			if (style.Test<nn::hid::NpadStyleJoyDual>())
 			{
 				connected++;
-				state.Buttons[JOYSTICK_BUTTON_A] = dualState.buttons.Test<nn::hid::NpadButton::A>();
-				state.Buttons[JOYSTICK_BUTTON_B] = dualState.buttons.Test<nn::hid::NpadButton::B>();
-				state.Buttons[JOYSTICK_BUTTON_X] = dualState.buttons.Test<nn::hid::NpadButton::X>();
-				state.Buttons[JOYSTICK_BUTTON_Y] = dualState.buttons.Test<nn::hid::NpadButton::Y>();
-				state.Buttons[JOYSTICK_BUTTON_START] = dualState.buttons.Test<nn::hid::NpadButton::Plus>();
-				state.Buttons[JOYSTICK_BUTTON_BACK] = dualState.buttons.Test<nn::hid::NpadButton::Minus>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_UP] = dualState.buttons.Test<nn::hid::NpadButton::Up>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_DOWN] = dualState.buttons.Test<nn::hid::NpadButton::Down>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_LEFT] = dualState.buttons.Test<nn::hid::NpadButton::Left>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_RIGHT] = dualState.buttons.Test<nn::hid::NpadButton::Right>();
-				state.Axes[JOYSTICK_AXIS_RIGHT_TRIGGER] = dualState.buttons.Test<nn::hid::NpadButton::ZR>() ? 1.0f : 0.0f;
-				state.Axes[JOYSTICK_AXIS_LEFT_TRIGGER] = dualState.buttons.Test<nn::hid::NpadButton::ZL>() ? 1.0f : 0.0f;
-				state.Axes[JOYSTICK_AXIS_LEFT_THUMB_HORIZONTAL] = float(dualState.analogStickL.x) / float(nn::hid::AnalogStickMax);
-				state.Axes[JOYSTICK_AXIS_LEFT_THUMB_VERTICAL] = float(-dualState.analogStickL.y) / float(nn::hid::AnalogStickMax);
+				FillJoystickState(state, dualState.buttons, gamepadMapping_full);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_X] = NormalizeStickInput(dualState.analogStickL.x);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_Y] = NormalizeStickInput(dualState.analogStickL.y);
+				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_X] = NormalizeStickInput(dualState.analogStickR.x);
+				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_Y] = NormalizeStickInput(dualState.analogStickR.y);
 			}
 			else
 			{
@@ -311,20 +323,11 @@ void xs::input::update(double dt)
 			if (style.Test<nn::hid::NpadStyleFullKey>())
 			{
 				connected++;
-				state.Buttons[JOYSTICK_BUTTON_A] = fullState.buttons.Test<nn::hid::NpadButton::A>();
-				state.Buttons[JOYSTICK_BUTTON_B] = fullState.buttons.Test<nn::hid::NpadButton::B>();
-				state.Buttons[JOYSTICK_BUTTON_X] = fullState.buttons.Test<nn::hid::NpadButton::X>();
-				state.Buttons[JOYSTICK_BUTTON_Y] = fullState.buttons.Test<nn::hid::NpadButton::Y>();
-				state.Buttons[JOYSTICK_BUTTON_START] = fullState.buttons.Test<nn::hid::NpadButton::Plus>();
-				state.Buttons[JOYSTICK_BUTTON_BACK] = fullState.buttons.Test<nn::hid::NpadButton::Minus>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_UP] = fullState.buttons.Test<nn::hid::NpadButton::Up>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_DOWN] = fullState.buttons.Test<nn::hid::NpadButton::Down>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_LEFT] = fullState.buttons.Test<nn::hid::NpadButton::Left>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_RIGHT] = fullState.buttons.Test<nn::hid::NpadButton::Right>();
-				state.Axes[JOYSTICK_AXIS_RIGHT_TRIGGER] = fullState.buttons.Test<nn::hid::NpadButton::ZR>() ? 1.0f : 0.0f;
-				state.Axes[JOYSTICK_AXIS_LEFT_TRIGGER] = fullState.buttons.Test<nn::hid::NpadButton::ZL>() ? 1.0f : 0.0f;
-				state.Axes[JOYSTICK_AXIS_LEFT_THUMB_HORIZONTAL] = float(fullState.analogStickL.x) / float(nn::hid::AnalogStickMax);
-				state.Axes[JOYSTICK_AXIS_LEFT_THUMB_VERTICAL] = float(-fullState.analogStickL.y) / float(nn::hid::AnalogStickMax);
+				FillJoystickState(state, fullState.buttons, gamepadMapping_full);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_X] = NormalizeStickInput(fullState.analogStickL.x);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_Y] = NormalizeStickInput(fullState.analogStickL.y);
+				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_X] = NormalizeStickInput(fullState.analogStickR.x);
+				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_Y] = NormalizeStickInput(fullState.analogStickR.y);
 			}
 			else
 			{
@@ -340,20 +343,11 @@ void xs::input::update(double dt)
 			if (style.Test<nn::hid::NpadStyleHandheld>())
 			{
 				connected++;
-				state.Buttons[JOYSTICK_BUTTON_A] = handheldState.buttons.Test<nn::hid::NpadButton::A>();
-				state.Buttons[JOYSTICK_BUTTON_B] = handheldState.buttons.Test<nn::hid::NpadButton::B>();
-				state.Buttons[JOYSTICK_BUTTON_X] = handheldState.buttons.Test<nn::hid::NpadButton::X>();
-				state.Buttons[JOYSTICK_BUTTON_Y] = handheldState.buttons.Test<nn::hid::NpadButton::Y>();
-				state.Buttons[JOYSTICK_BUTTON_START] = handheldState.buttons.Test<nn::hid::NpadButton::Plus>();
-				state.Buttons[JOYSTICK_BUTTON_BACK] = handheldState.buttons.Test<nn::hid::NpadButton::Minus>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_UP] = handheldState.buttons.Test<nn::hid::NpadButton::Up>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_DOWN] = handheldState.buttons.Test<nn::hid::NpadButton::Down>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_LEFT] = handheldState.buttons.Test<nn::hid::NpadButton::Left>();
-				state.Buttons[JOYSTICK_BUTTON_DPAD_RIGHT] = handheldState.buttons.Test<nn::hid::NpadButton::Right>();
-				state.Axes[JOYSTICK_AXIS_RIGHT_TRIGGER] = handheldState.buttons.Test<nn::hid::NpadButton::ZR>() ? 1.0f : 0.0f;
-				state.Axes[JOYSTICK_AXIS_LEFT_TRIGGER] = handheldState.buttons.Test<nn::hid::NpadButton::ZL>() ? 1.0f : 0.0f;
-				state.Axes[JOYSTICK_AXIS_LEFT_THUMB_HORIZONTAL] = float(handheldState.analogStickL.x) / float(nn::hid::AnalogStickMax);
-				state.Axes[JOYSTICK_AXIS_LEFT_THUMB_VERTICAL] = float(-handheldState.analogStickL.y) / float(nn::hid::AnalogStickMax);
+				FillJoystickState(state, handheldState.buttons, gamepadMapping_full);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_X] = NormalizeStickInput(handheldState.analogStickL.x);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_Y] = NormalizeStickInput(handheldState.analogStickL.y);
+				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_X] = NormalizeStickInput(handheldState.analogStickR.x);
+				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_Y] = NormalizeStickInput(handheldState.analogStickR.y);
 
 				if (_joyState.size() > 1)
 					removeQueue.push(joy);

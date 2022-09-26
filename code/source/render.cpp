@@ -45,7 +45,7 @@ namespace xs::render::internal
 		std::size_t	string_id	= 0;
 	};
 
-	struct font_atals
+	struct font_atlas
 	{
 		int image_id								= -1;
 		std::size_t	string_id						= 0;
@@ -110,7 +110,7 @@ namespace xs::render::internal
 	// std::vector<sprite_queue_entry> sprite_queue = {};
 	std::vector<image>		images = {};
 	// std::vector<sprite>		sprites = {};
-	std::vector<font_atals> fonts = {};
+	std::vector<font_atlas> fonts = {};
 }
 
 using namespace xs;
@@ -126,7 +126,7 @@ int xs::render::load_font(const std::string& font_file, double size)
 			return i;
 
 	int font_id = (int)fonts.size();
-	fonts.push_back(font_atals());
+	fonts.push_back(font_atlas());
 	auto& font = fonts.back();
 
 

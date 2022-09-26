@@ -6,9 +6,19 @@
 #include <libsysmodule.h>
 #include <pad.h>
 
+#include <unordered_map>
+#include <string>
+
 namespace xs::input::internal
 {
 	int32_t handle;
+	SceUserServiceUserId userId;
+
+	ScePadData data;
+	ScePadData previousData;
+
+	std::unordered_map<int, int> buttonMapping;
+	std::unordered_map<int, int> axisMapping;
 }
 
 using namespace xs::input;
@@ -34,35 +44,85 @@ void xs::input::initialize()
 		return;
 		/* Setting failed */
 	}
+
+	// define the mapping from generic xs buttons to ScePad buttons
+
+	internal::buttonMapping[xs::input::gamepad_button::BUTTON_SOUTH] = SCE_PAD_BUTTON_CROSS;
+	internal::buttonMapping[xs::input::gamepad_button::BUTTON_EAST] = SCE_PAD_BUTTON_CIRCLE;
+	internal::buttonMapping[xs::input::gamepad_button::BUTTON_WEST] = SCE_PAD_BUTTON_SQUARE;
+	internal::buttonMapping[xs::input::gamepad_button::BUTTON_NORTH] = SCE_PAD_BUTTON_TRIANGLE;
+
+	internal::buttonMapping[xs::input::gamepad_button::SHOULDER_LEFT] = SCE_PAD_BUTTON_L1;
+	internal::buttonMapping[xs::input::gamepad_button::SHOULDER_RIGHT] = SCE_PAD_BUTTON_R1;
+	internal::buttonMapping[xs::input::gamepad_button::BUTTON_START] = SCE_PAD_BUTTON_OPTIONS;
+	internal::buttonMapping[xs::input::gamepad_button::STICK_LEFT] = SCE_PAD_BUTTON_L3;
+	internal::buttonMapping[xs::input::gamepad_button::STICK_RIGHT] = SCE_PAD_BUTTON_R3;
+
+	internal::buttonMapping[xs::input::gamepad_button::DPAD_UP] = SCE_PAD_BUTTON_UP;
+	internal::buttonMapping[xs::input::gamepad_button::DPAD_RIGHT] = SCE_PAD_BUTTON_RIGHT;
+	internal::buttonMapping[xs::input::gamepad_button::DPAD_DOWN] = SCE_PAD_BUTTON_DOWN;
+	internal::buttonMapping[xs::input::gamepad_button::DPAD_LEFT] = SCE_PAD_BUTTON_LEFT;
+
+	// Notes:
+	// - An equivalent for BUTTON_SELECT does not exist on the PS5.
+	// - The left and right trigger (L2/R2) are axes in xs::input instead of buttons.
+	//   On PS5, they occur as both axes and buttons, but we ignore the button component here.
 }
 
 void xs::input::shutdown()
 {
+	scePadClose(internal::handle);
 }
 
 void xs::input::update(double dt)
 {
-	ScePadData data;
-	scePadReadState(internal::handle, &data);
-	if (xs::tools::check_bit_flag_overlap(data.buttons, SCE_PAD_BUTTON_CROSS))
-	{
-		xs::log::info("whee!");
-	}
+	internal::previousData = internal::data;
+	scePadReadState(internal::handle, &internal::data);
 }
 
 double xs::input::get_axis(int axis)
 {
+	// left stick: -1 to 1
+	if (axis == xs::input::gamepad_axis::STICK_LEFT_X)
+		return (internal::data.leftStick.x - 128) / 128.0;
+	if (axis == xs::input::gamepad_axis::STICK_LEFT_Y)
+		return (128 - internal::data.leftStick.y) / 128.0;
+
+	// right stick: -1 to 1
+	if (axis == xs::input::gamepad_axis::STICK_RIGHT_X)
+		return (internal::data.rightStick.x - 128) / 128.0;
+	if (axis == xs::input::gamepad_axis::STICK_RIGHT_Y)
+		return (128 - internal::data.rightStick.y) / 128.0;
+
+	// triggers: 0 to 1
+	if (axis == xs::input::gamepad_axis::TRIGGER_LEFT)
+		return internal::data.analogButtons.l2 / 255.0;
+	if (axis == xs::input::gamepad_axis::TRIGGER_RIGHT)
+		return internal::data.analogButtons.r2 / 255.0;
+
+	// unknown
 	return 0.0;
 }
 
 bool xs::input::get_button(int button)
 {
-	return false;
+	// map to the correct ScePad button
+	auto it = xs::input::internal::buttonMapping.find(button);
+	if (it == xs::input::internal::buttonMapping.end())
+		return false;
+
+	return xs::tools::check_bit_flag_overlap(internal::data.buttons, it->second);
 }
 
 bool xs::input::get_button_once(int button)
 {
-	return false;
+	// map to the correct ScePad button
+	auto it = xs::input::internal::buttonMapping.find(button);
+	if (it == xs::input::internal::buttonMapping.end())
+		return false;
+
+	return xs::tools::check_bit_flag_overlap(internal::data.buttons, it->second)
+		&& !xs::tools::check_bit_flag_overlap(internal::previousData.buttons, it->second);
 }
 
 bool xs::input::get_key(int key)
