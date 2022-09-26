@@ -29,12 +29,16 @@ namespace xs::audio
 
 	void initialize()
 	{
-
 #if defined(PLATFORM_PS5)
-		SceKernelModule core_mod = sceKernelLoadStartModule("/app0/sce_module/libfmod.prx", 0, NULL, 0, NULL, NULL);
+	#ifdef DEBUG
+		SceKernelModule core_mod = sceKernelLoadStartModule("/app0/sce_module/libfmodL.prx", 0, NULL, 0, NULL, NULL);
 		assert(core_mod >= 0);
-		SceKernelModule studio_mod = sceKernelLoadStartModule("/app0/sce_module/libfmodstudio.prx", 0, NULL, 0, NULL, NULL);
+		SceKernelModule studio_mod = sceKernelLoadStartModule("/app0/sce_module/libfmodstudioL.prx", 0, NULL, 0, NULL, NULL);
 		assert(studio_mod >= 0);
+	#else
+		sceKernelLoadStartModule("/app0/sce_module/libfmod.prx", 0, NULL, 0, NULL, NULL);
+		sceKernelLoadStartModule("/app0/sce_module/libfmodstudio.prx", 0, NULL, 0, NULL, NULL);
+	#endif		
 #endif
 		
 		//if (mod < 0)
