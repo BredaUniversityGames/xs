@@ -4,6 +4,7 @@
 
 #include "device.h"
 #include "device_pc.h"
+#include "configuration.h"
 
 namespace 
 {
@@ -17,8 +18,11 @@ namespace
 	void joystick_callback(int joy, int event) {}
 	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	{
-		// Translate the mouse position to game coordinates
-		xs::device::screen_to_game(static_cast<int>(xpos), static_cast<int>(ypos), mousepos[0], mousepos[1]);
+		// get the screen-to-game scaling parameters
+		const auto& screen_to_game = xs::configuration::get_scale_to_game(xs::device::get_width(), xs::device::get_height());
+
+		// translate the mouse position to game coordinates
+		xs::configuration::scale_to_game(static_cast<int>(xpos), static_cast<int>(ypos), screen_to_game, mousepos[0], mousepos[1]);
 	}
 
 }

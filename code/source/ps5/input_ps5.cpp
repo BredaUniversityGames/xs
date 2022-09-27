@@ -1,11 +1,14 @@
 #include "input.h"
 #include "tools.h"
 #include "log.h"
+#include "configuration.h"
+
 #include <cstdlib>
 #include <cstdio>
 #include <libsysmodule.h>
 #include <pad.h>
 
+#include <vector>
 #include <unordered_map>
 #include <string>
 
@@ -19,6 +22,9 @@ namespace xs::input::internal
 
 	std::unordered_map<int, int> buttonMapping;
 	std::unordered_map<int, int> axisMapping;
+
+	std::vector<std::pair<float, float>> touches_gameCoordinates;
+	xs::configuration::scale_parameters touchpadToGame;
 }
 
 using namespace xs::input;
@@ -44,6 +50,12 @@ void xs::input::initialize()
 		return;
 		/* Setting failed */
 	}
+
+	// get the size of the touchpad
+
+	ScePadControllerInformation info;
+	scePadGetControllerInformation(internal::handle, &info);
+	internal::touchpadToGame = xs::configuration::get_scale_to_game(info.touchPadInfo.resolution.x, info.touchPadInfo.resolution.y);
 
 	// define the mapping from generic xs buttons to ScePad buttons
 
@@ -78,6 +90,13 @@ void xs::input::update(double dt)
 {
 	internal::previousData = internal::data;
 	scePadReadState(internal::handle, &internal::data);
+
+	// translate touches to game coordinates
+	internal::touches_gameCoordinates.resize(internal::data.touchData.touchNum);
+	for (int i = 0; i < internal::data.touchData.touchNum; ++i)
+	{
+		xs::configuration::scale_to_game(internal::data.touchData.touch[i].x, internal::data.touchData.touch[i].y, internal::touchpadToGame, internal::touches_gameCoordinates[i].first, internal::touches_gameCoordinates[i].second);
+	}
 }
 
 double xs::input::get_axis(int axis)
@@ -162,20 +181,30 @@ bool xs::input::get_mousebutton_once(int button)
 
 int xs::input::get_nr_touches()
 {
-	return 0;
+	return internal::data.touchData.touchNum;
 }
 
 int xs::input::get_touch_id(int index)
 {
-	return 0;
+	if (index >= internal::data.touchData.touchNum)
+		return -1;
+	return internal::data.touchData.touch[index].id;
 }
 
 double xs::input::get_touch_x(int index)
 {
-	return 0.0;
+	if (index >= internal::data.touchData.touchNum)
+		return 0.0;
+
+	// TODO: scale to game coordinates
+	return static_cast<double>(internal::touches_gameCoordinates[index].first);
 }
 
 double xs::input::get_touch_y(int index)
 {
-	return 0.0;
+	if (index >= internal::data.touchData.touchNum)
+		return 0.0;
+
+	// TODO: scale to game coordinates
+	return static_cast<double>(internal::touches_gameCoordinates[index].second);
 }
