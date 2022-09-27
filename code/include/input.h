@@ -76,7 +76,7 @@ namespace xs::input
 	int get_nr_touches();
 
 	/// <summary>
-	/// Gets the unique ID corresponding to a touch array index.
+	/// Gets the unique ID corresponding to a touch array index, or -1 if that touch does not exist.
 	/// This can be used to track touches of the same finger across multiple frames.
 	/// The array index may change per frame, but the ID will not.
 	/// </summary>
@@ -84,13 +84,15 @@ namespace xs::input
 	int get_touch_id(int index);
 
 	/// <summary>
-	/// Gets the current X coordinate (in game coordinates) of the touch position at thet given array index.
+	/// Gets the current X coordinate (in game coordinates) of the touch position at the given array index.
+	/// Returns 0.0 if the given touch does not exist.
 	/// </summary>
 	/// <param name="index">The array index of the touch point to check.</param>
 	double get_touch_x(int index);
 
 	/// <summary>
-	/// Gets the current Y coordinate (in game coordinates) of the touch position at thet given array index.
+	/// Gets the current Y coordinate (in game coordinates) of the touch position at the given array index.
+	/// Returns 0.0 if the given touch does not exist.
 	/// </summary>
 	/// <param name="index">The array index of the touch point to check.</param>
 	double get_touch_y(int index);

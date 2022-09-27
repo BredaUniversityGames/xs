@@ -75,6 +75,8 @@ namespace xs::input::internal
 	nn::hid::TouchScreenState<nn::hid::TouchStateCountMax>	_touchScreenState;
 	std::vector<std::pair<float, float>>	_touches_gameCoordinates;
 
+	xs::configuration::scale_parameters touchScreenToGame;
+
 	void AddJoystick(int joy);
 
 	struct GamepadMapping
@@ -196,6 +198,9 @@ void xs::input::initialize()
 	gamepadMapping_full.buttons[xs::input::gamepad_button::SHOULDER_RIGHT] = nn::hid::NpadButton::L::Index;
 	gamepadMapping_full.leftTrigger = nn::hid::NpadButton::ZL::Index;
 	gamepadMapping_full.rightTrigger = nn::hid::NpadButton::ZR::Index;
+
+	// --- precompute the mapping from touchscreen to game coordinates
+	internal::touchScreenToGame = xs::configuration::get_scale_to_game(xs::device::get_width(), xs::device::get_height());
 }
 
 void xs::input::shutdown()
@@ -375,11 +380,12 @@ void xs::input::update(double dt)
 
 	// Get touchscreen data
 	nn::hid::GetTouchScreenState(&_touchScreenState);
-	// Translate screen to game canvas coordinates
+
+	// Translate touch points to game coordinates
 	_touches_gameCoordinates.resize(_touchScreenState.count);
 	for (auto i = 0; i < _touchScreenState.count; ++i)
-		xs::device::screen_to_game(_touchScreenState.touches[i].x, _touchScreenState.touches[i].y, _touches_gameCoordinates[i].first, _touches_gameCoordinates[i].second);
-
+		xs::configuration::scale_to_game(_touchScreenState.touches[i].x, _touchScreenState.touches[i].y, internal::touchScreenToGame, _touches_gameCoordinates[i].first, _touches_gameCoordinates[i].second);
+	
 	// Check if there are any new controllers this frame
 	//AddJoystick(nn::hid::NpadId::No1);
 	//AddJoystick(nn::hid::NpadId::No2);
@@ -471,7 +477,7 @@ int xs::input::get_touch_id(int index)
 {
 	if (index >= 0 && index < _touchScreenState.count)
 		return _touchScreenState.touches[index].fingerId;
-	return 0;
+	return -1;
 }
 
 double xs::input::get_touch_x(int index)
