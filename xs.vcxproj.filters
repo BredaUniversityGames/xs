@@ -34,7 +34,7 @@
     <ClCompile Include="external\glad\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\device_pc.cpp">
+    <ClCompile Include="code\source\pc\device_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\source\opengl.cpp">
@@ -43,7 +43,7 @@
     <ClCompile Include="code\source\render.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\input_pc.cpp">
+    <ClCompile Include="code\source\pc\input_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\source\script.cpp">
@@ -79,7 +79,7 @@
     <ClCompile Include="external\wren\optional\wren_opt_random.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\input_switch.cpp">
+    <ClCompile Include="code\source\switch\input_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="external\imgui\imgui_demo.cpp">
@@ -109,10 +109,10 @@
     <ClCompile Include="code\source\inspector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\account_switch.cpp">
+    <ClCompile Include="code\source\switch\account_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\account_pc.cpp">
+    <ClCompile Include="code\source\pc\account_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\source\ps5\account_ps5.cpp">
@@ -154,7 +154,7 @@
     <ClCompile Include="external\imgui\imgui_tables.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\device_switch.cpp">
+    <ClCompile Include="code\source\switch\device_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\source\device.cpp">
