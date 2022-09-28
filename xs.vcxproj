@@ -48,7 +48,7 @@
     <CustomBuild Include="nintendo\icon.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\source\account_pc.cpp">
+    <ClCompile Include="code\source\pc\account_pc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
@@ -62,7 +62,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\account_switch.cpp">
+    <ClCompile Include="code\source\switch\account_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
@@ -80,7 +80,7 @@
     <ClCompile Include="code\source\bind.cpp" />
     <ClCompile Include="code\source\configuration.cpp" />
     <ClCompile Include="code\source\device.cpp" />
-    <ClCompile Include="code\source\device_pc.cpp">
+    <ClCompile Include="code\source\pc\device_pc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -88,7 +88,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\device_switch.cpp">
+    <ClCompile Include="code\source\switch\device_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
@@ -97,7 +97,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="code\source\fileio.cpp" />
-    <ClCompile Include="code\source\input_pc.cpp">
+    <ClCompile Include="code\source\pc\input_pc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -105,7 +105,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\input_switch.cpp">
+    <ClCompile Include="code\source\switch\input_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
@@ -529,8 +529,8 @@
       <AdditionalDependencies>GLFW/glfw3.lib;opengl32.lib;fmod/lib/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/fmod$(FMODSuffix)_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)external\fmod\lib\fmodstudio$(FMODSuffix).dll" $(OutDir)"
-copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)"</Command>
+      <Command>copy /Y "$(ProjectDir)external\fmod\lib\fmodstudio$(FMODSuffix).dll" $(OutDir)
+copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">
