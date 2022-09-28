@@ -273,3 +273,12 @@ class Data {
     static game     { 4 }
     static player   { 5 }
 }
+
+class Device {
+
+    foreign static getPlatform()
+
+    static PlatformPC      { 0 }
+    static PlatformPS5     { 1 }
+    static PlatformSwitch  { 2 }
+}
