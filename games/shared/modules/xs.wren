@@ -218,8 +218,8 @@ class Input {
     static gamepadButtonNorth      { 3  }
     static gamepadShoulderLeft     { 4  }
     static gamepadShoulderRight    { 5  }
-    static gamepadButtonShare      { 6  }
-    static gamepadButtonMenu       { 7  }
+    static gamepadButtonSelect     { 6  }
+    static gamepadButtonStart      { 7  }
     
     static gamepadLeftStickPress   { 9  }
     static gamepadRightStickPress  { 10 }
