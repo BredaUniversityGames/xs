@@ -47,7 +47,7 @@ void xs::input::update(double dt)
 		gamepad_connected = glfwGetGamepadState(0, &gamepad_state);
 }
 
-double xs::input::get_axis(int axis)
+double xs::input::get_axis(gamepad_axis axis)
 {
 	if (!gamepad_connected) return 0.0;
 	
@@ -56,7 +56,7 @@ double xs::input::get_axis(int axis)
 	return static_cast<double>(gamepad_state.axes[axis]);
 }
 
-bool xs::input::get_button(int button)
+bool xs::input::get_button(gamepad_button button)
 {
 	if (!gamepad_connected) return false;
 	
@@ -64,7 +64,7 @@ bool xs::input::get_button(int button)
 	return static_cast<bool>(gamepad_state.buttons[button]);
 }
 
-bool xs::input::get_button_once(int button)
+bool xs::input::get_button_once(gamepad_button button)
 {
 	if (!gamepad_connected) return false;
 	
@@ -97,12 +97,12 @@ bool xs::input::get_mouse()
 	return true;
 }
 
-bool xs::input::get_mousebutton(int button)
+bool xs::input::get_mousebutton(mouse_button button)
 {
 	return glfwGetMouseButton(device::get_window(), button) == GLFW_PRESS;
 }
 
-bool xs::input::get_mousebutton_once(int button)
+bool xs::input::get_mousebutton_once(mouse_button button)
 {
 	return (glfwGetMouseButton(device::get_window(), button) ?
 		(mousebutton_once[button] ? false : (mousebutton_once[button] = true)) : \
