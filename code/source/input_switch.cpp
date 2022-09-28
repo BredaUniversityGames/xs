@@ -162,40 +162,40 @@ void xs::input::initialize()
 	// --- pre-define button mappings
 
 	// left joycon only
-	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::BUTTON_SOUTH] = nn::hid::NpadButton::Left::Index;
-	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::BUTTON_EAST] = nn::hid::NpadButton::Down::Index;
-	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::BUTTON_WEST] = nn::hid::NpadButton::Up::Index;
-	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::BUTTON_NORTH] = nn::hid::NpadButton::Right::Index;
-	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::BUTTON_START] = nn::hid::NpadButton::Minus::Index;
-	gamepadMapping_leftJoycon.buttons[xs::input::gamepad_button::STICK_LEFT] = nn::hid::NpadButton::StickL::Index;
+	gamepadMapping_leftJoycon.buttons[gamepad_button::BUTTON_SOUTH] = nn::hid::NpadButton::Left::Index;
+	gamepadMapping_leftJoycon.buttons[gamepad_button::BUTTON_EAST] = nn::hid::NpadButton::Down::Index;
+	gamepadMapping_leftJoycon.buttons[gamepad_button::BUTTON_WEST] = nn::hid::NpadButton::Up::Index;
+	gamepadMapping_leftJoycon.buttons[gamepad_button::BUTTON_NORTH] = nn::hid::NpadButton::Right::Index;
+	gamepadMapping_leftJoycon.buttons[gamepad_button::BUTTON_START] = nn::hid::NpadButton::Minus::Index;
+	gamepadMapping_leftJoycon.buttons[gamepad_button::STICK_LEFT] = nn::hid::NpadButton::StickL::Index;
 	gamepadMapping_leftJoycon.leftTrigger = nn::hid::NpadJoyButton::LeftSL::Index;
 	gamepadMapping_leftJoycon.rightTrigger = nn::hid::NpadJoyButton::LeftSR::Index;
 
 	// right joycon only
-	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::BUTTON_SOUTH] = nn::hid::NpadButton::A::Index;
-	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::BUTTON_EAST] = nn::hid::NpadButton::X::Index;
-	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::BUTTON_WEST] = nn::hid::NpadButton::B::Index;
-	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::BUTTON_NORTH] = nn::hid::NpadButton::Y::Index;
-	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::BUTTON_START] = nn::hid::NpadButton::Plus::Index;
-	gamepadMapping_rightJoycon.buttons[xs::input::gamepad_button::STICK_LEFT] = nn::hid::NpadButton::StickR::Index;
+	gamepadMapping_rightJoycon.buttons[gamepad_button::BUTTON_SOUTH] = nn::hid::NpadButton::A::Index;
+	gamepadMapping_rightJoycon.buttons[gamepad_button::BUTTON_EAST] = nn::hid::NpadButton::X::Index;
+	gamepadMapping_rightJoycon.buttons[gamepad_button::BUTTON_WEST] = nn::hid::NpadButton::B::Index;
+	gamepadMapping_rightJoycon.buttons[gamepad_button::BUTTON_NORTH] = nn::hid::NpadButton::Y::Index;
+	gamepadMapping_rightJoycon.buttons[gamepad_button::BUTTON_START] = nn::hid::NpadButton::Plus::Index;
+	gamepadMapping_rightJoycon.buttons[gamepad_button::STICK_LEFT] = nn::hid::NpadButton::StickR::Index;
 	gamepadMapping_rightJoycon.leftTrigger = nn::hid::NpadJoyButton::RightSL::Index;
 	gamepadMapping_rightJoycon.rightTrigger = nn::hid::NpadJoyButton::RightSR::Index;
 
 	// full layout (both joycons / handheld mode / pro controller)
-	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_SOUTH] = nn::hid::NpadButton::B::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_EAST] = nn::hid::NpadButton::A::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_WEST] = nn::hid::NpadButton::Y::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_NORTH] = nn::hid::NpadButton::X::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_START] = nn::hid::NpadButton::Plus::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::DPAD_LEFT] = nn::hid::NpadButton::Left::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::DPAD_DOWN] = nn::hid::NpadButton::Down::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::DPAD_UP] = nn::hid::NpadButton::Up::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::DPAD_RIGHT] = nn::hid::NpadButton::Right::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::BUTTON_SELECT] = nn::hid::NpadButton::Minus::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::STICK_LEFT] = nn::hid::NpadButton::StickL::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::STICK_RIGHT] = nn::hid::NpadButton::StickR::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::SHOULDER_LEFT] = nn::hid::NpadButton::L::Index;
-	gamepadMapping_full.buttons[xs::input::gamepad_button::SHOULDER_RIGHT] = nn::hid::NpadButton::L::Index;
+	gamepadMapping_full.buttons[gamepad_button::BUTTON_SOUTH] = nn::hid::NpadButton::B::Index;
+	gamepadMapping_full.buttons[gamepad_button::BUTTON_EAST] = nn::hid::NpadButton::A::Index;
+	gamepadMapping_full.buttons[gamepad_button::BUTTON_WEST] = nn::hid::NpadButton::Y::Index;
+	gamepadMapping_full.buttons[gamepad_button::BUTTON_NORTH] = nn::hid::NpadButton::X::Index;
+	gamepadMapping_full.buttons[gamepad_button::BUTTON_START] = nn::hid::NpadButton::Plus::Index;
+	gamepadMapping_full.buttons[gamepad_button::DPAD_LEFT] = nn::hid::NpadButton::Left::Index;
+	gamepadMapping_full.buttons[gamepad_button::DPAD_DOWN] = nn::hid::NpadButton::Down::Index;
+	gamepadMapping_full.buttons[gamepad_button::DPAD_UP] = nn::hid::NpadButton::Up::Index;
+	gamepadMapping_full.buttons[gamepad_button::DPAD_RIGHT] = nn::hid::NpadButton::Right::Index;
+	gamepadMapping_full.buttons[gamepad_button::BUTTON_SELECT] = nn::hid::NpadButton::Minus::Index;
+	gamepadMapping_full.buttons[gamepad_button::STICK_LEFT] = nn::hid::NpadButton::StickL::Index;
+	gamepadMapping_full.buttons[gamepad_button::STICK_RIGHT] = nn::hid::NpadButton::StickR::Index;
+	gamepadMapping_full.buttons[gamepad_button::SHOULDER_LEFT] = nn::hid::NpadButton::L::Index;
+	gamepadMapping_full.buttons[gamepad_button::SHOULDER_RIGHT] = nn::hid::NpadButton::L::Index;
 	gamepadMapping_full.leftTrigger = nn::hid::NpadButton::ZL::Index;
 	gamepadMapping_full.rightTrigger = nn::hid::NpadButton::ZR::Index;
 
@@ -395,7 +395,7 @@ void xs::input::update(double dt)
 
 }
 
-double xs::input::get_axis(int axis)
+double xs::input::get_axis(gamepad_axis axis)
 {
 	auto joystick = GetDefaultJoystick();
 	auto itr = _joyState.find(joystick);
@@ -407,20 +407,20 @@ double xs::input::get_axis(int axis)
 	return 0.0f;
 }
 
-bool xs::input::get_button(int button)
+bool xs::input::get_button(gamepad_button button)
 {
 	auto joystick = GetDefaultJoystick();
 	auto itr = _joyState.find(joystick);
 	if (itr != _joyState.end())
 	{
 		auto& state = itr->second;
-		return	state.Buttons[button];
+		return state.Buttons[button];
 	}
 	return false;
 
 }
 
-bool xs::input::get_button_once(int button)
+bool xs::input::get_button_once(gamepad_button button)
 {
 	auto joystick = GetDefaultJoystick();
 	auto itr = _joyState.find(joystick);
@@ -458,12 +458,12 @@ double xs::input::get_mouse_y()
 	return 0.0;
 }
 
-bool xs::input::get_mousebutton(int button)
+bool xs::input::get_mousebutton(mouse_button button)
 {
 	return false;
 }
 
-bool xs::input::get_mousebutton_once(int button)
+bool xs::input::get_mousebutton_once(mouse_button button)
 {
 	return false;
 }

@@ -59,21 +59,21 @@ void xs::input::initialize()
 
 	// define the mapping from generic xs buttons to ScePad buttons
 
-	internal::buttonMapping[xs::input::gamepad_button::BUTTON_SOUTH] = SCE_PAD_BUTTON_CROSS;
-	internal::buttonMapping[xs::input::gamepad_button::BUTTON_EAST] = SCE_PAD_BUTTON_CIRCLE;
-	internal::buttonMapping[xs::input::gamepad_button::BUTTON_WEST] = SCE_PAD_BUTTON_SQUARE;
-	internal::buttonMapping[xs::input::gamepad_button::BUTTON_NORTH] = SCE_PAD_BUTTON_TRIANGLE;
+	internal::buttonMapping[gamepad_button::BUTTON_SOUTH] = SCE_PAD_BUTTON_CROSS;
+	internal::buttonMapping[gamepad_button::BUTTON_EAST] = SCE_PAD_BUTTON_CIRCLE;
+	internal::buttonMapping[gamepad_button::BUTTON_WEST] = SCE_PAD_BUTTON_SQUARE;
+	internal::buttonMapping[gamepad_button::BUTTON_NORTH] = SCE_PAD_BUTTON_TRIANGLE;
 
-	internal::buttonMapping[xs::input::gamepad_button::SHOULDER_LEFT] = SCE_PAD_BUTTON_L1;
-	internal::buttonMapping[xs::input::gamepad_button::SHOULDER_RIGHT] = SCE_PAD_BUTTON_R1;
-	internal::buttonMapping[xs::input::gamepad_button::BUTTON_START] = SCE_PAD_BUTTON_OPTIONS;
-	internal::buttonMapping[xs::input::gamepad_button::STICK_LEFT] = SCE_PAD_BUTTON_L3;
-	internal::buttonMapping[xs::input::gamepad_button::STICK_RIGHT] = SCE_PAD_BUTTON_R3;
+	internal::buttonMapping[gamepad_button::SHOULDER_LEFT] = SCE_PAD_BUTTON_L1;
+	internal::buttonMapping[gamepad_button::SHOULDER_RIGHT] = SCE_PAD_BUTTON_R1;
+	internal::buttonMapping[gamepad_button::BUTTON_START] = SCE_PAD_BUTTON_OPTIONS;
+	internal::buttonMapping[gamepad_button::STICK_LEFT] = SCE_PAD_BUTTON_L3;
+	internal::buttonMapping[gamepad_button::STICK_RIGHT] = SCE_PAD_BUTTON_R3;
 
-	internal::buttonMapping[xs::input::gamepad_button::DPAD_UP] = SCE_PAD_BUTTON_UP;
-	internal::buttonMapping[xs::input::gamepad_button::DPAD_RIGHT] = SCE_PAD_BUTTON_RIGHT;
-	internal::buttonMapping[xs::input::gamepad_button::DPAD_DOWN] = SCE_PAD_BUTTON_DOWN;
-	internal::buttonMapping[xs::input::gamepad_button::DPAD_LEFT] = SCE_PAD_BUTTON_LEFT;
+	internal::buttonMapping[gamepad_button::DPAD_UP] = SCE_PAD_BUTTON_UP;
+	internal::buttonMapping[gamepad_button::DPAD_RIGHT] = SCE_PAD_BUTTON_RIGHT;
+	internal::buttonMapping[gamepad_button::DPAD_DOWN] = SCE_PAD_BUTTON_DOWN;
+	internal::buttonMapping[gamepad_button::DPAD_LEFT] = SCE_PAD_BUTTON_LEFT;
 
 	// Notes:
 	// - An equivalent for BUTTON_SELECT does not exist on the PS5.
@@ -99,31 +99,31 @@ void xs::input::update(double dt)
 	}
 }
 
-double xs::input::get_axis(int axis)
+double xs::input::get_axis(gamepad_axis axis)
 {
 	// left stick: -1 to 1
-	if (axis == xs::input::gamepad_axis::STICK_LEFT_X)
+	if (axis == gamepad_axis::STICK_LEFT_X)
 		return (internal::data.leftStick.x - 128) / 128.0;
-	if (axis == xs::input::gamepad_axis::STICK_LEFT_Y)
+	if (axis == gamepad_axis::STICK_LEFT_Y)
 		return (128 - internal::data.leftStick.y) / 128.0;
 
 	// right stick: -1 to 1
-	if (axis == xs::input::gamepad_axis::STICK_RIGHT_X)
+	if (axis == gamepad_axis::STICK_RIGHT_X)
 		return (internal::data.rightStick.x - 128) / 128.0;
-	if (axis == xs::input::gamepad_axis::STICK_RIGHT_Y)
+	if (axis == gamepad_axis::STICK_RIGHT_Y)
 		return (128 - internal::data.rightStick.y) / 128.0;
 
 	// triggers: 0 to 1
-	if (axis == xs::input::gamepad_axis::TRIGGER_LEFT)
+	if (axis == gamepad_axis::TRIGGER_LEFT)
 		return internal::data.analogButtons.l2 / 255.0;
-	if (axis == xs::input::gamepad_axis::TRIGGER_RIGHT)
+	if (axis == gamepad_axis::TRIGGER_RIGHT)
 		return internal::data.analogButtons.r2 / 255.0;
 
 	// unknown
 	return 0.0;
 }
 
-bool xs::input::get_button(int button)
+bool xs::input::get_button(gamepad_button button)
 {
 	// map to the correct ScePad button
 	auto it = xs::input::internal::buttonMapping.find(button);
@@ -133,7 +133,7 @@ bool xs::input::get_button(int button)
 	return xs::tools::check_bit_flag_overlap(internal::data.buttons, it->second);
 }
 
-bool xs::input::get_button_once(int button)
+bool xs::input::get_button_once(gamepad_button button)
 {
 	// map to the correct ScePad button
 	auto it = xs::input::internal::buttonMapping.find(button);
@@ -169,12 +169,12 @@ bool xs::input::get_mouse()
 	return false;
 }
 
-bool xs::input::get_mousebutton(int button)
+bool xs::input::get_mousebutton(mouse_button button)
 {
 	return false;
 }
 
-bool xs::input::get_mousebutton_once(int button)
+bool xs::input::get_mousebutton_once(mouse_button button)
 {
 	return false;
 }

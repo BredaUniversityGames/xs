@@ -17,7 +17,7 @@
 void input_get_axis(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
-	const int axis = static_cast<int>(wrenGetSlotDouble(vm, 1));
+	const auto axis = xs::input::gamepad_axis(wrenGetSlotDouble(vm, 1));
 	const auto output = xs::input::get_axis(axis);
 	wrenSetSlotDouble(vm, 0, output);
 }
@@ -25,7 +25,7 @@ void input_get_axis(WrenVM* vm)
 void input_get_button(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
-	const int button = static_cast<int>(wrenGetSlotDouble(vm, 1));
+	const auto button = xs::input::gamepad_button(wrenGetSlotDouble(vm, 1));
 	const auto output = xs::input::get_button(button);
 	wrenSetSlotBool(vm, 0, output);
 }
@@ -33,7 +33,7 @@ void input_get_button(WrenVM* vm)
 void input_get_button_once(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
-	const int button = static_cast<int>(wrenGetSlotDouble(vm, 1));
+	const auto button = xs::input::gamepad_button(wrenGetSlotDouble(vm, 1));
 	const auto output = xs::input::get_button_once(button);
 	wrenSetSlotBool(vm, 0, output);
 }
@@ -64,16 +64,16 @@ void input_get_mouse(WrenVM* vm)
 void input_get_mousebutton(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
-	const int key = static_cast<int>(wrenGetSlotDouble(vm, 1));
-	const auto output = xs::input::get_mousebutton(key);
+	const auto button = xs::input::mouse_button(wrenGetSlotDouble(vm, 1));
+	const auto output = xs::input::get_mousebutton(button);
 	wrenSetSlotBool(vm, 0, output);
 }
 
 void input_get_mousebutton_once(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
-	const int key = static_cast<int>(wrenGetSlotDouble(vm, 1));
-	const auto output = xs::input::get_mousebutton_once(key);
+	const auto button = xs::input::mouse_button(wrenGetSlotDouble(vm, 1));
+	const auto output = xs::input::get_mousebutton_once(button);
 	wrenSetSlotBool(vm, 0, output);
 }
 
