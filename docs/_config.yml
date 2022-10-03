@@ -1,3 +1,11 @@
 #Build settings
 markdown: kramdown
 remote_theme: just-the-docs/just-the-docs
+logo: "games\shared\images\icon_tiny.png"
+
+# Aux links for the upper right navigation
+aux_links:
+  "Download xs":
+    - "https://github.com/BredaUniversityGames/xs/releases"
+
+footer_content: "Made with ❤ at Breda University of Applied Sciences"
