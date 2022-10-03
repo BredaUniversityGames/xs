@@ -1,0 +1,1 @@
+`Render` provides functionality for rendering images, texts and a number shapes.
