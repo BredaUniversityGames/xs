@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Device
+title: Data
 nav_order: 4
 ---
 
