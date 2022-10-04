@@ -12,13 +12,19 @@ nav_order: 1
  An extra small game engine, made with 🧡 at Breda University of Applied Sciences
 </pre>
 ----
-**xs** an experiment into making the smallest game making tool possible. It can also be a tool to teach introduction to programming for game developers, who might not necessarily be programmers.
-- xs uses the [Wren](https://wren.io/) scripting language for gameplay
+# **xs** an educational game engine, made with the goal of being the smallest game making tool possible.
+It can also be a tool to teach introduction to programming for game developers, who might not necessarily be programmers.
+- xs uses the [Wren](https://wren.io/) scripting language
+- xs has minimal interface
 - xs uses 2D rendering and is best suited for pixel-perfect sprite graphics
 - xs has basic audio support (using Fmod) for playing sound effects and background music
 - xs can be built for PC, Nintendo Switch, and PlayStation 5
-- xs has minimal interface
-- xs is in a very early alpha (but open for contribution from anyone at games@buas)
+
+
+{: .warning }
+> xs is in a very early alpha (and  open for contribution from anyone at games@buas)
+> Features might be missing or not be stable.
+
 
 ## Running an example
 Download the latest [release](https://github.com/BredaUniversityGames/xs/releases) and run the file _xs.exe_. The xs engine will try to read a file named _games/.ini_. If that file does not exist, xs will create one and fill it with _hello_, so that it will automatically run the game in the _games/hello_ folder (a simple 'hello world' example). To run a different game, find the _games/.ini_ file and replace its contents by the name of another game (let's say _yourgame_). Upon execution, xs will then try to run the game inside the _games/yourgame/_ folder.
@@ -56,7 +62,6 @@ class Game {
 The *hello/game.wren* example shows a bit more of the engine usage. The engine ships with other examples as well.
 
 ## Contributors
-
 <ul class="list-style-none">
 {% for contributor in site.github.contributors %}
   <li class="d-inline-block mr-1">
@@ -64,3 +69,4 @@ The *hello/game.wren* example shows a bit more of the engine usage. The engine s
   </li>
 {% endfor %}
 </ul>
+Feel free to join
