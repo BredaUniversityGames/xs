@@ -4,15 +4,10 @@ title: Home
 nav_order: 1
 ---
 
-<pre>
-     __ __ _____
-    |  |  |   __|
-    |-   -|__   |
-    |__|__|_____|
- An extra small game engine, made with 🧡 at Breda University of Applied Sciences
-</pre>
-----
-# **xs** an educational game engine, made with the goal of being the smallest game making tool possible.
+![image](./img/icon.png)
+# An extra small game engine, made with 🧡 at Breda University of Applied Sciences 
+
+**xs** an educational game engine, made with the goal of being the smallest game making tool possible.
 It can also be a tool to teach introduction to programming for game developers, who might not necessarily be programmers.
 - xs uses the [Wren](https://wren.io/) scripting language
 - xs has minimal interface
@@ -69,4 +64,3 @@ The *hello/game.wren* example shows a bit more of the engine usage. The engine s
   </li>
 {% endfor %}
 </ul>
-Feel free to join
