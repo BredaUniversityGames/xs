@@ -5,13 +5,13 @@ title: xs game engine
 description: Documentation for the xs game engine
 baseurl: "/xs" # the subpath of your site, e.g. /blog
 url: "https://bredauniversitygames.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-logo: "./img/icon_tiny.png"
+logo: "img/icon_tiny.png"
 
 # Aux links for the upper right navigation
 aux_links:
-  "Download xs":
+  "Download":
     - "https://github.com/BredaUniversityGames/xs/releases"
-  "Contribute to xs":
+  "Contribute":
     - "https://github.com/BredaUniversityGames/xs"
 
 
