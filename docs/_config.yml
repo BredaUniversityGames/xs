@@ -1,13 +1,17 @@
 #Build settings
 markdown: kramdown
 remote_theme: just-the-docs/just-the-docs
+title: xs game engine
+description: Documentation for the xs game engine
+baseurl: "/xs" # the subpath of your site, e.g. /blog
+url: "https://bredauniversitygames.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 logo: "/img/icon.png"
 
 # Aux links for the upper right navigation
 aux_links:
   "Download xs":
     - "https://github.com/BredaUniversityGames/xs/releases"
-  "Contribute":
+  "Contribute to xs":
     - "https://github.com/BredaUniversityGames/xs"
 
 
