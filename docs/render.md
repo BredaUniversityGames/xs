@@ -54,24 +54,31 @@ Example
 Renders after all sprite have been rendered.
 
 ### **setColor**(r, g, b, a)
-### **setColor**(r, g, b)
-Equivalent to calling
+Sets the rendering color for consecutive shapes. Can also be set per vertex, for multicolored shapes. Values are in the `[0,1]` range.
 
-`Render.setColor(r, g, b, 1)`
+### **setColor**(r, g, b)
+Equivalent to calling `Render.setColor(r, g, b, 1)`
 
 ### **setColor**(color)
-Sets the color as a single 32bit number.
+Sets the color as a single 32bit number. Example:
+```csharp
+Render.setColor(0xF0C0D0FF)
+//                ^ ^ ^ ^
+//                R G B A
+```
 
 ### **line**(x0, y0, x1, y1)
+Draws a line from `[x0,y0]` to `[x1,y1]`
 
 ### **text**(text, x, y, size)
 
+
 ### **begin**(primitive)
-Will start the rendering of a new primitive. This can be either `triangles` or `lines`. Provide vertices using `vertex(x, y)` and call `end()` when done to finish the the primitive.
+Will start the rendering of a new primitive. This can be either `triangles` or `lines`. Provide vertices using `vertex(x, y)` and call `end()` when done to finish the the primitive. It's not possible to draw the primitives within a `being()`/`end()` block.
 
 ### **end**()
 Finish rendering a primitive. Providing number of vertices that does not match the type (divisible with 3 for `triangles` and divisible by 2 for `lines`) will result in an error.
 
 ### **vertex**(x, y)
-Provide a vertex. This call only be called between `being()` and `end()`
+Provide a vertex. This call only be called between `being()` and `end()`. 
 
