@@ -4,7 +4,7 @@ title: Home
 nav_order: 1
 ---
 
-![image](img/icon.png)
+![image](img/icon.jpg)
 # An extra small game engine, made with 🧡 at Breda University of Applied Sciences 
 
 **xs** an educational game engine, made with the goal of being the smallest game making tool possible.
