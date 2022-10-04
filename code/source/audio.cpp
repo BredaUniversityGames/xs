@@ -40,9 +40,6 @@ namespace xs::audio
 		sceKernelLoadStartModule("/app0/sce_module/libfmodstudio.prx", 0, NULL, 0, NULL, NULL);
 	#endif		
 #endif
-		
-		//if (mod < 0)
-		//	return 1;
 
 		// Create the Studio System object
 		FMOD_RESULT result = FMOD::Studio::System::create(&system);
