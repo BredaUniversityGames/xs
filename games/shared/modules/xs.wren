@@ -277,6 +277,8 @@ class Data {
 class Device {
 
     foreign static getPlatform()
+    foreign static canClose()
+    foreign static requestClose()
 
     static PlatformPC      { 0 }
     static PlatformPS5     { 1 }

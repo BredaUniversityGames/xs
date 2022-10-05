@@ -542,6 +542,20 @@ void device_get_platform(WrenVM* vm)
 	wrenSetSlotDouble(vm, 0, static_cast<double>(output));
 }
 
+void device_can_close(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 1);
+	const auto output = xs::device::can_close();
+	wrenSetSlotDouble(vm, 0, output);
+}
+
+void device_request_close(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 1);
+	const auto output = xs::device::request_close();
+	wrenSetSlotBool(vm, 0, output);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Bind xs API
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -617,4 +631,6 @@ void xs::script::bind_api()
 
 	// Device
 	bind("xs", "Device", true, "getPlatform()", device_get_platform);
+	bind("xs", "Device", true, "canClose()", device_can_close);
+	bind("xs", "Device", true, "requestClose()", device_request_close);
 }

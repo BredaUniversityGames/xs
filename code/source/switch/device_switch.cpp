@@ -207,9 +207,19 @@ void xs::device::swap_buffers()
 
 void xs::device::poll_events() {}
 
+bool xs::device::can_close()
+{
+	return false;
+}
+
+bool xs::device::request_close()
+{
+	return false;
+}
+
 bool xs::device::should_close()
 {
-	return  false;
+	return false;
 }
 
 int xs::device::get_width()
