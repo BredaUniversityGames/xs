@@ -20,7 +20,7 @@ class Game {
         Data.setString("Title", "~~seedwave~~", Data.system)
         Data.setNumber("Width", 640, Data.system)
         Data.setNumber("Height", 360, Data.system)
-        Data.setNumber("Multiplier", 2, Data.system)
+        Data.setNumber("Multiplier", 1, Data.system)
         Data.setBool("Fullscreen", false, Data.system)
     }    
 
@@ -70,6 +70,8 @@ class Game {
 
         Render.setColor(1, 1, 1, 1)
         Render.text("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
+
+        //Render.text("DNA:%(Boss.dna)", -50, 100, 1)
     }
 
     static nextBoss() {
