@@ -138,6 +138,17 @@ void device::poll_events()
 	glfwPollEvents();
 }
 
+bool device::can_close()
+{
+	return true;
+}
+
+bool device::request_close()
+{
+	glfwSetWindowShouldClose(internal::window, GL_TRUE);
+	return true;
+}
+
 bool device::should_close()
 {
 	return glfwWindowShouldClose(internal::window);

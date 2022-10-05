@@ -26,6 +26,16 @@ void device::poll_events()
 {
 }
 
+bool device::can_close()
+{
+	return false;
+}
+
+bool device::request_close()
+{
+	return false;
+}
+
 bool device::should_close()
 {
 	return false;

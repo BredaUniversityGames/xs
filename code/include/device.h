@@ -6,6 +6,7 @@ namespace xs::device
 	void shutdown();
 	void swap_buffers();
 	void poll_events();
+
 	bool should_close();
 	int get_width();
 	int get_height();
@@ -23,4 +24,17 @@ namespace xs::device
 	/// Use it as an API function to let external scripts ask for the current platform at run-time.
 	/// </summary>
 	platform get_platform();
+
+	/// <summary>
+	/// Returns whether the game is allowed to close itself on the target platform.
+	/// Use this to (for example) show/hide a quit button without having to ask for the platform itself.
+	/// </summary>
+	/// <returns>true if the target platform allows the game to close itself; false otherwise.</returns>
+	bool can_close();
+
+	/// <summary>
+	/// Tries to let the game close itself in the upcoming frame.
+	/// </summary>
+	/// <returns>true if the request was successful; false otherwise (for example if the platform does not allow it).</returns>
+	bool request_close();
 }
