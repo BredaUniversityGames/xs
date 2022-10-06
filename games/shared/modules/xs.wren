@@ -117,6 +117,15 @@ class Render {
     static renderSprite(spriteId, x, y) {
         renderSprite(spriteId, x, y, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }
+
+    static createGridSprite(imageId, columns, rows,  c, r) {
+        var ds = 1 / columns
+        var dt = 1 / rows        
+        var s = c * ds
+        var t = r * dt
+        return createSprite(imageId, s, t, s + ds, t + dt)
+    }
+
     static spriteBottom { 1 << 1 }
 	static spriteCenter { 1 << 2 }
 	static spriteFlipX  { 1 << 3 }
