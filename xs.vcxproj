@@ -406,6 +406,7 @@
     <NintendoSdkRoot>$(NINTENDO_SDK_ROOT)</NintendoSdkRoot>
     <NintendoSdkSpec>NX</NintendoSdkSpec>
     <NintendoSdkBuildType>Debug</NintendoSdkBuildType>
+    <ApplicationProgramFormat>Nsp</ApplicationProgramFormat>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -426,6 +427,7 @@
     <NintendoSdkRoot>$(NINTENDO_SDK_ROOT)</NintendoSdkRoot>
     <NintendoSdkSpec>NX</NintendoSdkSpec>
     <NintendoSdkBuildType>Release</NintendoSdkBuildType>
+    <ApplicationProgramFormat>Nsp</ApplicationProgramFormat>
   </PropertyGroup>
   <ImportGroup Label="ExtensionSettings">
     <Import Condition="Exists('$(VCTargetsPath)\BuildCustomizations\OrbisWavePsslc.props')" Project="$(VCTargetsPath)\BuildCustomizations\OrbisWavePsslc.props" />
