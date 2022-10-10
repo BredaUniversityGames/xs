@@ -14,10 +14,10 @@ namespace xs::script
 	bool has_error();
 	void clear_error();
 	void bind_api();
-	void bind(	// TODO: use std::string
-		const char* module,
-		const char* class_name,
+	void bind(	
+		const std::string& module,
+		const std::string& class_name,
 		bool is_static,
-		const char* signature,
+		const std::string& signature,
 		WrenForeignMethodFn func);
 }
