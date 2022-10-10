@@ -77,7 +77,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="code\source\audio.cpp" />
-    <ClCompile Include="code\source\bind.cpp" />
     <ClCompile Include="code\source\configuration.cpp" />
     <ClCompile Include="code\source\device.cpp" />
     <ClCompile Include="code\source\pc\device_pc.cpp">
