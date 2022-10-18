@@ -1,7 +1,7 @@
 ---
 layout: default
-title: Home
-nav_order: 1
+title: Getting Started
+nav_order: 2
 ---
 
 ## Creating a new project

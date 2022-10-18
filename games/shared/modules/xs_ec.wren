@@ -88,10 +88,10 @@ class Entity {
     components { _components.values }
 
     // Checks if the entity is marked for removal. Set reference to this entity
-    // to null iff true
+    // to null if true
     deleted { _deleted }
 
-    // Will mark the enriry for removal at the end of the update
+    // Will mark the entity for removal at the end of the update
     delete() { _deleted = true }
 
     // Components can have names. This makes debugguig much easier

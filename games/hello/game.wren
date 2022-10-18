@@ -32,7 +32,24 @@ class Game {
 
         // The "__" means that __time is a static variable (belongs to the class)
         __time = 0
+
+        __doStuff = Fiber.new {   
+            step()
+        }
     }    
+
+    static step() {
+        __time = __time + dt
+        if(__time >= 1.0) {
+            __doStuff.call()
+            __time = 0.0
+        }
+
+        for(i in 0...10) {                
+                System.write("Yield: %(i)")
+                Fiber.yield(i)
+        }
+    }
     
     // The uddate method is called once per tick.
     // Gameplay code goes here.
