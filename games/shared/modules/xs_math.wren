@@ -5,6 +5,7 @@
 import "random" for Random
 
 class Math {
+    static pi { 3.14159265359 }
     static lerp(a, b, t) { (a * (1.0 - t)) + (b * t) }
     static damp(a, b, lambda, dt) { lerp(a, b, 1.0 - (-lambda * dt).exp) }    
     static min(l, r) { l < r ? l : r }

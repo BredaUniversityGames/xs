@@ -95,7 +95,12 @@ void xs::input::update(double dt)
 	internal::touches_gameCoordinates.resize(internal::data.touchData.touchNum);
 	for (int i = 0; i < internal::data.touchData.touchNum; ++i)
 	{
-		xs::configuration::scale_to_game(internal::data.touchData.touch[i].x, internal::data.touchData.touch[i].y, internal::touchpadToGame, internal::touches_gameCoordinates[i].first, internal::touches_gameCoordinates[i].second);
+		xs::configuration::scale_to_game(
+			internal::data.touchData.touch[i].x,
+			internal::data.touchData.touch[i].y,
+			internal::touchpadToGame,
+			internal::touches_gameCoordinates[i].first,
+			internal::touches_gameCoordinates[i].second);
 	}
 }
 
