@@ -3,14 +3,16 @@ layout: default
 title: Render
 nav_order: 3
 ---
+
+# Render
+{: .no_toc }
+xs provides functionality for rendering images, texts and a number of shapes.
+
 ## Table of contents
 {: .no_toc .text-delta }
 
 1. TOC
 {:toc}
-
-# Render
-xs provides functionality for rendering images, texts and a number of shapes. The API is divided into   
 
 ## Working with bitmaps
 
@@ -66,7 +68,7 @@ Renders a sprite on the screen, takin the original size of the sprite, given a s
   - `spriteFlipY` - Flip the sprite verticaly
 
 ### renderSprite(spriteId, x, y)
-Equivalent to calling 
+This is equivalent to calling 
 
 `renderSprite(spriteId, x, y, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)`
 
