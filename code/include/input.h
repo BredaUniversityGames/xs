@@ -6,8 +6,6 @@ namespace xs::input
 	void shutdown();
 	void update(double dt);
 
-
-
 	/// <summary>
 	/// An enum listing all possible gamepad buttons with digital input values.
 	/// This is the same numbering as in GLFW input, so a GLFW-based implementation can use it directly without any further mapping.

@@ -56,22 +56,15 @@ void device::initialize()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	#if defined(DEBUG)	
+#if defined(DEBUG)	
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
+	glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
+	glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
 #else
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_FALSE);
 #endif
 
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-	/*auto width =  configuration::width data::get_number("Width", data::type::system);
-	auto height = data::get_number("Height", data::type::system);
-	auto title = data::get_string("Title", data::type::system);
-	auto mult = data::get_number("Multiplier", data::type::system);
-	if (width == 0.0) width = 640;
-	if (height == 0.0) height = 360;
-	if (title.empty()) title = "xs - window";
-	if (mult == 0.0) mult = 1;
-	*/
 
 	internal::width = configuration::width() * configuration::multiplier();
 	internal::height = configuration::height() * configuration::multiplier();
