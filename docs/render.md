@@ -1,15 +1,42 @@
 ---
 layout: default
 title: Render
-nav_order: 2
+nav_order: 3
 ---
+## Table of contents
+{: .no_toc .text-delta }
+
+1. TOC
+{:toc}
 
 # Render
-Provides functionality for rendering images, texts and a number of shapes. 
+xs provides functionality for rendering images, texts and a number of shapes. The API is divided into   
 
-## Working with bitmaps
+## **Working with bitmaps**
 
-Rendering bitmaps (sprites) is the main 
+Rendering bitmaps (sprites) is the main way of putting graphics on the screen with xs.
+```csharp
+import "xs" for Render
+
+class Game {
+//...
+  static init() {
+    
+  } 
+
+  static render() {
+    // Loads an image from the games/<gamename>/textures folder
+    var img = Render.loadImage("[game]/textures/flower.png")
+    // Creates a sprite by taking a part (the bottom lower corner )
+    var spr = Render.createSprite(img, 0.0, 0.0, 0.5, 0.5)
+    // Renders the flower sprite 
+    Render.renderSprite(spr, 100, 100, 2.0, Math.pi * 0.25,
+      0xFFDD00FF, 0xDDFF00FF, Render.spriteCenter)
+  }
+//...
+}
+
+``` 
 Example
 
 ### **loadImage**(path)
@@ -37,6 +64,7 @@ Renders a sprite on the screen, takin the original size of the sprite, given a s
   - `spriteCenter` - Anchored at the center
   - `spriteFlipX` - Flip the sprite horizontaly 
   - `spriteFlipY` - Flip the sprite verticaly
+
 ### **renderSprite**(spriteId, x, y)
 Equivalent to calling 
 

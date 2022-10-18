@@ -198,17 +198,11 @@ class AnimatedSprite is GridSprite {
 
         var currentAnimation = _animations[_currentName]
 
-        // assert currentAnimation not empty
-        //_time = _time + dt
-        //if( (_time - (1.0 /_fps)).abs < 0.01 ) {
-            //_time = 0.0
-            //_currentFrame = (_currentFrame + 1) % currentAnimation.count
-        //}
-
+        // TODO: Handle the "once" mode!
         _frame = _frame + 1
         if(_frame >= _flipFrames) {
             if(_mode == AnimatedSprite.loop) {
-                _currentFrame = (_currentFrame + 1) % currentAnimation.count
+                _currentFrame = (_currentFrame + 1) % currentAnimation.count                
             } else if (_mode == AnimatedSprite.destroy) {
                 _currentFrame = _currentFrame + 1
                 if(_currentFrame == currentAnimation.count) {
@@ -230,14 +224,21 @@ class AnimatedSprite is GridSprite {
 
     playAnimation(name) {
         // assert name is string
+        _currentFrame = 0
         _currentName = name
+    }
+
+    randomizeFrame(random) {        
+        _currentFrame = random.int(0, _animations[_currentName].count)
     }
 
     mode { _mode }
     mode=(m) { _mode = m }
+    isDone { /* _mode != AnimatedSprite.loop && */ _currentFrame == _animations[_currentName].count - 1}
 
-    static loop { 0 } 
-    static destroy { 1 }
+    static once { 0 }
+    static loop { 1 } 
+    static destroy { 2 }    
 }
 
 class Relation is Component {
