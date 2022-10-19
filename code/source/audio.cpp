@@ -40,6 +40,7 @@ namespace xs::audio
 		sceKernelLoadStartModule("/app0/sce_module/libfmodstudio.prx", 0, NULL, 0, NULL, NULL);
 	#endif		
 #endif
+		log::info("Audio Engine: FMOD Studio by Firelight Technologies Pty Ltd.");
 
 		// Create the Studio System object
 		FMOD_RESULT result = FMOD::Studio::System::create(&system);
