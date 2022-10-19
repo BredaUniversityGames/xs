@@ -121,7 +121,10 @@ void fileio::initialize(/* const std::string& main_script*/)
 	if (pValue != nullptr)
 	{
 		auto game_str = read_text_file("[games]/.ini");
-		string save_path = string(pValue) + string("\\xs\\") + game_str;
+		string save_path = string(pValue) + string("\\xs\\");
+		if (!filesystem::exists(save_path))
+			filesystem::create_directory(save_path);
+		save_path.append(game_str);
 		if (!filesystem::exists(save_path))
 			filesystem::create_directory(save_path);
  		add_wildcard("[save]", save_path);
