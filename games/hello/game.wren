@@ -26,31 +26,18 @@ class Game {
     }
 
     // The init method is called when all system have been created.
-    // You can initilize you game specific data here.
+    // You can initialize you game specific data here.
     static init() {        
         System.print("init")
 
         // The "__" means that __time is a static variable (belongs to the class)
         __time = 0
 
-        __doStuff = Fiber.new {   
-            step()
-        }
+        // Variable that exists only in this function 
+        var image = Render.loadImage("[games]/shared/images/FMOD_White.png")
+        __sprite = Render.createSprite(image, 0, 0, 1, 1)
     }    
 
-    static step() {
-        __time = __time + dt
-        if(__time >= 1.0) {
-            __doStuff.call()
-            __time = 0.0
-        }
-
-        for(i in 0...10) {                
-                System.write("Yield: %(i)")
-                Fiber.yield(i)
-        }
-    }
-    
     // The uddate method is called once per tick.
     // Gameplay code goes here.
     static update(dt) {
@@ -67,5 +54,7 @@ class Game {
         Render.text("Made with love at Games@BUas", -100, -50, 1)
         Render.setColor(0.5, 0.5, 0.5)
         Render.text("Time: %(__time)", -300, -160, 1)
+
+        Render.renderSprite(__sprite, 180, -152, 0.16, 0.0, 0xFFFFFFFF, 0x00000000, 0)
     }
 }

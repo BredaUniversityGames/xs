@@ -34,7 +34,7 @@ import "xs" for Data, Input, Render, Audio    // These are the parts of the xs w
 // The entry point (main) is the Game class
 class Game {
     static config() {       
-        // Config gets called before the engine is initialilzed
+        // Config gets called before the engine is initialized
 
         // Configure the window in xs
         Data.setNumber("Width", 640, Data.system)
@@ -43,11 +43,11 @@ class Game {
     }
 
     static init() {        
-        // You can initilize you game specific data here.    
+        // You can initialize you game specific data here.    
     }    
                         
     static update(dt) {
-        // The uddate method is called once per tick, gameplay code goes here.    
+        // The update method is called once per tick, gameplay code goes here.    
     }
     
     static render() {
