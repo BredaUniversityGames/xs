@@ -13,7 +13,7 @@ Device gives you access to device some device specific utilities.
 1. TOC
 {:toc}
 
-## **getPlatform**()
+## getPlatform()
 Gets the currently running platform. Can be one of:
 - `Device.PlatformPC`
 - `Device.PlatformPS5`

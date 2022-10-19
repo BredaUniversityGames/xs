@@ -1,11 +1,11 @@
 ---
 layout: default
-title: Basic Componenents
+title: Basic Components
 nav_order: 3
 parent: Optional
 ---
 
-# Audio
+# Basic Components
 {: .no_toc }
 TODO
 
