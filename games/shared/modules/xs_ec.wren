@@ -12,12 +12,12 @@ class Component {
     // owning entity.
     construct new() {
         _owner = null
-        _initilized = false
+        _initialized = false
     }
 
     // Called right before the first update. Good place to query and cache other
     // components.
-    initilize() {}
+    initialize() {}
 
     // Called when the component/entity is deleted. Set any references to other
     // entities and components to null.
@@ -33,10 +33,10 @@ class Component {
     owner=(o) { _owner = o }
 
     // Private (used by Entity)
-    initilized_ { _initilized }
+    initialized_ { _initialized }
 
     // Private (used by Entity)
-    initilized_=(i) { _initilized = i }
+    initialized_=(i) { _initialized = i }
 }
 
 class Entity {
@@ -119,8 +119,8 @@ class Entity {
 
         for (e in __entities) {
             for(c in e.components) {
-                if(!c.initilized_) {
-                    c.initilize()
+                if(!c.initialized_) {
+                    c.initialize()
                 }
                 c.update(dt)
             }

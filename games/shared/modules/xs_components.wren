@@ -201,8 +201,13 @@ class AnimatedSprite is GridSprite {
         // TODO: Handle the "once" mode!
         _frame = _frame + 1
         if(_frame >= _flipFrames) {
-            if(_mode == AnimatedSprite.loop) {
-                _currentFrame = (_currentFrame + 1) % currentAnimation.count                
+            if(_mode == AnimatedSprite.once) {
+                _currentFrame = (_currentFrame + 1)
+                if(_currentFrame >= currentAnimation.count) {
+                    _currentFrame = currentAnimation.count - 1
+                }
+            } else if(_mode == AnimatedSprite.loop) {
+                _currentFrame = (_currentFrame + 1) % currentAnimation.count
             } else if (_mode == AnimatedSprite.destroy) {
                 _currentFrame = _currentFrame + 1
                 if(_currentFrame == currentAnimation.count) {
@@ -234,7 +239,7 @@ class AnimatedSprite is GridSprite {
 
     mode { _mode }
     mode=(m) { _mode = m }
-    isDone { /* _mode != AnimatedSprite.loop && */ _currentFrame == _animations[_currentName].count - 1}
+    isDone { _mode != AnimatedSprite.loop && _currentFrame == _animations[_currentName].count - 1}
 
     static once { 0 }
     static loop { 1 } 
