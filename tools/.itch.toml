@@ -1,7 +1,6 @@
 [[prereqs]]
-name = "vcredist-2019-x64"
+name = "vcredist-2022-x64"
 
 [[actions]]
 name = "play"
 path = "xs.exe"
-
