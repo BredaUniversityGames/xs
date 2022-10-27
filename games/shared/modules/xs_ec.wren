@@ -149,7 +149,7 @@ class Entity {
     static entitiesWithTag(tag) {
         var found = []
         for (e in __entities) {
-                if(Bits.checkBitFlag(e.tag, tag)) {
+                if(Bits.checkBitFlagOverlap(e.tag, tag)) {
                 found.add(e)
             }
         }
