@@ -12,6 +12,7 @@ namespace xs::render::internal
 		int sprite_id = -1;
 		double x = 0.0;
 		double y = 0.0;
+		double z = 0.0;
 		double scale = 1.0;
 		double rotation = 0.0;
 		color mul_color = {};

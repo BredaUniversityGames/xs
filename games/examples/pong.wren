@@ -89,7 +89,7 @@ class Game {
         }
 
         Render.setColor(1.0, 0.0, 0.0)
-        Render.text(__player_score.toString, -40, 110, 4)
-        Render.text(__ai_score.toString, 25, 110, 4)
+        Render.shapeText(__player_score.toString, -40, 110, 4)
+        Render.shapeText(__ai_score.toString, 25, 110, 4)
     }
 }

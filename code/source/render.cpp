@@ -268,7 +268,7 @@ void xs::render::render_text(
 		}
 
 		auto sprite = create_sprite(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
-		render_sprite(sprite, begin + bearing, y - quad.y1, 1, 0, multiply, add, 0);
+		render_sprite(sprite, begin + bearing, y - quad.y1, 0, 1, 0, multiply, add, 0);
 
 		begin += advance + kerning;		
 	}
@@ -416,6 +416,11 @@ void xs::render::render()
 
 	glUseProgram(sprite_program);
 	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
+
+	std::sort(sprite_queue.begin(), sprite_queue.end(),
+		[](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
+			return lhs.z < rhs.z;
+		});
 
 	for (const auto& spe : sprite_queue)
 	{
@@ -639,7 +644,8 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 void xs::render::render_sprite(
 	int sprite_id,
 	double x,
-	double y,	
+	double y,
+	double z,
 	double scale,
 	double rotation,
 	color mutiply,
@@ -659,6 +665,7 @@ void xs::render::render_sprite(
 		sprite_id,
 		x + offset.x,
 		y + offset.y,
+		z,
 		scale,
 		rotation,
 		mutiply,

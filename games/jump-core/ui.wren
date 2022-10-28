@@ -12,7 +12,7 @@ class ImGuiRenderItem_ {
     }
 
     render(font) {
-        Render.renderText(font, _text, _x, _y, _color, 0x00000000, 0)
+        Render.text(font, _text, _x, _y, _color, 0x00000000, 0)
     }
 }
 

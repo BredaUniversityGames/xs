@@ -50,18 +50,10 @@ class Renderable is Component {
     layer=(l) { _layer = l }
 
     static render() {        
-        var sprites = []
         for(e in Entity.entities) {
             var s = e.getComponentSuper(Renderable)
             if(s != null) {
-                sprites.add(s)                
-            }
-        }
-
-        if(sprites.count != 0) {
-            sprites.sort{|a, b|  a.layer < b.layer }
-            for(s in sprites) {
-                s.render()
+                s.render()                
             }
         }
     }
@@ -98,7 +90,7 @@ class Sprite is Renderable {
 
     render() {        
         var t = owner.getComponent(Transform)
-        Render.renderSprite(_sprite, t.position.x, t.position.y, _scale, _rotation, _mul, _add, _flags)
+        Render.sprite(_sprite, t.position.x, t.position.y, layer, _scale, _rotation, _mul, _add, _flags)
     }
 
     add { _add }
@@ -139,7 +131,7 @@ class Label is Sprite {
 
     render() {
         var t = owner.getComponent(Transform)
-        Render.renderText(_font, _text, t.position.x, t.position.y, mul, add, flags)
+        Render.text(_font, _text, t.position.x, t.position.y, mul, add, flags)
     }
 
     //toString { "[Sprite sprite:%(_sprite)] -> " + super.toString }
@@ -198,7 +190,6 @@ class AnimatedSprite is GridSprite {
 
         var currentAnimation = _animations[_currentName]
 
-        // TODO: Handle the "once" mode!
         _frame = _frame + 1
         if(_frame >= _flipFrames) {
             if(_mode == AnimatedSprite.once) {

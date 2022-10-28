@@ -32,7 +32,7 @@ class Game {
     // Creates a sprite by taking a part (the bottom lower corner )
     var spr = Render.createSprite(img, 0.0, 0.0, 0.5, 0.5)
     // Renders the flower sprite 
-    Render.renderSprite(spr, 100, 100, 2.0, Math.pi * 0.25,
+    Render.sprite(spr, 100, 100, 2.0, Math.pi * 0.25,
       0xFFDD00FF, 0xDDFF00FF, Render.spriteCenter)
   }
 //...
@@ -53,7 +53,7 @@ Gets the height of an loaded image
 ### createSprite(imageId, x0, y0, x1, y1)
 Will create a new sprite from a part of an image, provided the 
 
-### renderSprite(spriteId, x, y, scale, rotation, mul, add, flags)
+### sprite(spriteId, x, y, scale, rotation, mul, add, flags)
 Renders a sprite on the screen, takin the original size of the sprite, given a set of paramters:
 - `spriteId` - Valid sprite ID, made with `createSprite` *(not an image ID)* 
 - `x` and `y` - Position for this sprite on the screen, taking the *offset* into account
@@ -67,10 +67,10 @@ Renders a sprite on the screen, takin the original size of the sprite, given a s
   - `spriteFlipX` - Flip the sprite horizontaly 
   - `spriteFlipY` - Flip the sprite verticaly
 
-### renderSprite(spriteId, x, y)
+### sprite(spriteId, x, y)
 This is equivalent to calling 
 
-`renderSprite(spriteId, x, y, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)`
+`sprite(spriteId, x, y, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)`
 
 ### setOffset(x, y)
 

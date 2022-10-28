@@ -59,7 +59,7 @@ class TileObject {
 
     render() {
         if (!_removed) {
-            Render.renderSprite(_sprite, _screenPosition.x, _screenPosition.y)
+            Render.sprite(_sprite, _screenPosition.x, _screenPosition.y)
         }
     }
 }
@@ -388,15 +388,15 @@ class Game {
     }
 
     /// Renders the sprite with the given name at a screen position that matches a given grid cell.
-    static renderSpriteAtCell(name, x, y) {
+    static spriteAtCell(name, x, y) {
         var pos = gridToScreen(x,y)
-        Render.renderSprite(__sprites[name], pos.x, pos.y)
+        Render.sprite(__sprites[name], pos.x, pos.y)
     }
 
     /// Renders the sprite with the given name at a screen position that matches a given grid cell, plus an offset vector.
-    static renderSpriteAtCell(name, x, y, offset) {
+    static spriteAtCell(name, x, y, offset) {
         var pos = gridToScreen(x,y) + offset
-        Render.renderSprite(__sprites[name], pos.x, pos.y)
+        Render.sprite(__sprites[name], pos.x, pos.y)
     }
 
     /// Renders all objects for a single frame of the game loop
@@ -404,16 +404,16 @@ class Game {
 
         // --- draw a background sprite
 
-        Render.renderSprite(__sprites["background"], -Data.getNumber("Width") / 2, -Data.getNumber("Height") / 2)
+        Render.sprite(__sprites["background"], -Data.getNumber("Width") / 2, -Data.getNumber("Height") / 2)
         
         // --- draw the grid background
 
         for (y in 0...__grid.height) {
             for (x in 0...__grid.width) {
                 if ((x + y) % 2 == 0) {
-                    renderSpriteAtCell("cell0a", x, y)
+                    spriteAtCell("cell0a", x, y)
                 } else {
-                    renderSpriteAtCell("cell0b", x, y)
+                    spriteAtCell("cell0b", x, y)
                 }
             }
         }
@@ -425,7 +425,7 @@ class Game {
             for (x in 0...__grid.width) {
                 var val = __grid.getValue(x,y)
                 if (val != __grid.emptyValue) {
-                    renderSpriteAtCell("cell%(val)", x, y)
+                    spriteAtCell("cell%(val)", x, y)
                 }
             }
         }*/
@@ -437,19 +437,19 @@ class Game {
 
         if (__moveStarted) {
             if (__moveDirections[0]) {
-                renderSpriteAtCell("arrow-up", __selectionX, __selectionY - 1)
+                spriteAtCell("arrow-up", __selectionX, __selectionY - 1)
             }
             if (__moveDirections[1]) {
-                renderSpriteAtCell("arrow-right", __selectionX + 1, __selectionY)
+                spriteAtCell("arrow-right", __selectionX + 1, __selectionY)
             }
             if (__moveDirections[2]) {
-                renderSpriteAtCell("arrow-down", __selectionX, __selectionY + 1)
+                spriteAtCell("arrow-down", __selectionX, __selectionY + 1)
             }
             if (__moveDirections[3]) {
-                renderSpriteAtCell("arrow-left", __selectionX - 1, __selectionY)
+                spriteAtCell("arrow-left", __selectionX - 1, __selectionY)
             }
         } else if (__playerCanMove) {
-            renderSpriteAtCell("selector", __selectionX, __selectionY, Vec2.new(-4, -4))
+            spriteAtCell("selector", __selectionX, __selectionY, Vec2.new(-4, -4))
         }
 
     }

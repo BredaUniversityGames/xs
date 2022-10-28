@@ -38,6 +38,7 @@ namespace xs::render
 		int sprite_id,
 		double x,
 		double y,		
+		double z,
 		double size,
 		double rotation,
 		color mutiply,

@@ -37,7 +37,7 @@ class Ship {
         var turn = Input.getAxis(0)
         turn = Math.remap(-1.0, 1.0, 0.0, 4.0, turn).round
         var sprite = _sprites[c][turn]
-        Render.renderSprite(sprite, _pos.x, _pos.y)
+        Render.sprite(sprite, _pos.x, _pos.y)
     }
 }
 
@@ -74,17 +74,17 @@ class Game {
 
 
         __bgY = __bgY - dt * 15
-        Render.renderSprite(__bgSprite, -128, __bgY)
-        Render.renderSprite(__bgSprite, -128, __bgY + 272)
-        Render.renderSprite(__bgSprite, -128, __bgY - 272)
+        Render.sprite(__bgSprite, -128, __bgY)
+        Render.sprite(__bgSprite, -128, __bgY + 272)
+        Render.sprite(__bgSprite, -128, __bgY - 272)
         if(__bgY < -272) {
             __bgY = __bgY + 272
         }            
 
         __clY = __clY - dt * 20
-        Render.renderSprite(__cloudsSprite, -128, __clY)
-        Render.renderSprite(__cloudsSprite, -128, __clY - 300)
-        Render.renderSprite(__cloudsSprite, -128, __clY + 300)
+        Render.sprite(__cloudsSprite, -128, __clY)
+        Render.sprite(__cloudsSprite, -128, __clY - 300)
+        Render.sprite(__cloudsSprite, -128, __clY + 300)
         if(__clY < -300) {
             __clY = __clY + 300
         }            

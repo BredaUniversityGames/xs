@@ -6,7 +6,7 @@ class Render {
     foreign static setColor(r, g, b, a)
     foreign static setColor(color)
     foreign static line(x0, y0, x1, y1)
-    foreign static text(text, x, y, size)
+    foreign static shapeText(text, x, y, size)
 
     static triangles { 1 }
     static lines { 2 }
@@ -109,14 +109,20 @@ class Render {
     foreign static getImageWidth(imageId)
     foreign static getImageHeight(imageId)
     foreign static createSprite(imageId, x0, y0, x1, y1)
-    foreign static renderSprite(spriteId, x, y, scale, rotation, mul, add, flags)
+    foreign static sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)
     foreign static setOffset(x, y)    
     foreign static loadFont(font,size)
-    foreign static renderText(fontId, text, x, y, mul, add, flags)
+    foreign static text(fontId, text, x, y, mul, add, flags)
 
-    static renderSprite(spriteId, x, y) {
-        renderSprite(spriteId, x, y, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
+    /*
+    static sprite(spriteId, x, y, scale, rotation, mul, add, flags) {
+        sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }
+
+    static sprite(spriteId, x, y) {
+        sprite(spriteId, x, y, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
+    }
+    */
 
     static createGridSprite(imageId, columns, rows,  c, r) {
         var ds = 1 / columns
