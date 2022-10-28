@@ -397,6 +397,11 @@ void xs::render::shutdown()
 	// TODO: Delete frame buffer
 }
 
+void xs::render::reload()
+{
+	sprites.clear();
+}
+
 void xs::render::set_offset(double x, double y)
 {
 	xs::render::internal::offset = vec2((float)x, (float)y);

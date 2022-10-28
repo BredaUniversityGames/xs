@@ -26,6 +26,7 @@ namespace xs::render
 	void shutdown();	
 	void render();
 	void clear();
+	void reload();
 	void set_offset(double x, double y);
 
 	int load_image(const std::string& image_file);
