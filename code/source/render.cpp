@@ -417,20 +417,22 @@ void xs::render::render()
 	glUseProgram(sprite_program);
 	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
 
-	std::sort(sprite_queue.begin(), sprite_queue.end(),
+	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
 		[](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
 			return lhs.z < rhs.z;
 		});
 
-	for (const auto& spe : sprite_queue)
+	int count = 0;
+	for (auto i = 0; i < sprite_queue.size(); i++)
 	{
+		const auto& spe = sprite_queue[i];
 		const auto& sprite = sprites[spe.sprite_id];
 		const auto& image = images[sprite.image_id];
 
-		auto from_x = 0.0; // spe.x;
-		auto from_y = 0.0; // spe.y;
-		auto to_x = /* spe.x + */ image.width * (sprite.to.x - sprite.from.x) * spe.scale;
-		auto to_y = /* spe.y + */ image.height * (sprite.to.y - sprite.from.y) * spe.scale;
+		auto from_x = 0.0;
+		auto from_y = 0.0;
+		auto to_x = image.width * (sprite.to.x - sprite.from.x) * spe.scale;
+		auto to_y = image.height * (sprite.to.y - sprite.from.y) * spe.scale;
 
 		auto from_u = sprite.from.x;
 		auto from_v = sprite.from.y;
@@ -449,54 +451,65 @@ void xs::render::render()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, image.gl_id);
 
-		//if (triangles_count < triangles_max - 1)
+		sprite_trigs_array[count + 0].position = { from_x, from_y, 0.0 };
+		sprite_trigs_array[count + 1].position = { from_x, to_y, 0.0 };
+		sprite_trigs_array[count + 2].position = { to_x, to_y, 0.0 };
+		sprite_trigs_array[count + 3].position = { to_x, to_y, 0.0 };
+		sprite_trigs_array[count + 4].position = { to_x, from_y, 0.0 };
+		sprite_trigs_array[count + 5].position = { from_x, from_y, 0.0 };
+
+		sprite_trigs_array[count + 0].texture = { from_u,	to_v };
+		sprite_trigs_array[count + 1].texture = { from_u,	from_v };
+		sprite_trigs_array[count + 2].texture = { to_u,		from_v };
+		sprite_trigs_array[count + 3].texture = { to_u,		from_v };
+		sprite_trigs_array[count + 4].texture = { to_u,		to_v };
+		sprite_trigs_array[count + 5].texture = { from_u,	to_v };
+
+		for (int i = 0; i < 6; ++i)
 		{
-			sprite_trigs_array[0].position = { from_x, from_y, 0.0 };
-			sprite_trigs_array[1].position = { from_x, to_y, 0.0 };
-			sprite_trigs_array[2].position = { to_x, to_y, 0.0 };
-			sprite_trigs_array[3].position = { to_x, to_y, 0.0 };
-			sprite_trigs_array[4].position = { to_x, from_y, 0.0 };
-			sprite_trigs_array[5].position = { from_x, from_y, 0.0 };
-
-			sprite_trigs_array[0].texture = { from_u,	to_v };
-			sprite_trigs_array[1].texture = { from_u,	from_v };
-			sprite_trigs_array[2].texture = { to_u,		from_v };
-			sprite_trigs_array[3].texture = { to_u,		from_v };
-			sprite_trigs_array[4].texture = { to_u,		to_v };
-			sprite_trigs_array[5].texture = { from_u,	to_v };
-
-			for (int i = 0; i < 6; ++i)
-			{
-				sprite_trigs_array[i].add_color = add_color;
-				sprite_trigs_array[i].mul_color = mul_color;				
-			}
+			sprite_trigs_array[count + i].add_color = add_color;
+			sprite_trigs_array[count + i].mul_color = mul_color;
+		}
 			
-			vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
-			if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
-			{				
-				for (int i = 0; i < 6; i++)
-					sprite_trigs_array[i].position -= anchor;
-			}
-
-			if (spe.rotation != 0.0)
-			{
-				for (int i = 0; i < 6; i++)
-					rotate_vector3d(sprite_trigs_array[i].position, (float)spe.rotation);
-			}
-
+		vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
+		{				
 			for (int i = 0; i < 6; i++)
-			{
-				sprite_trigs_array[i].position.x += (float)spe.x;
-				sprite_trigs_array[i].position.y += (float)spe.y;
-			}
-
-			
+				sprite_trigs_array[count + i].position -= anchor;
 		}
 
-		glBindVertexArray(sprite_trigs_vao);
-		glBindBuffer(GL_ARRAY_BUFFER, sprite_trigs_vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(sprite_vtx_format) * 6, &sprite_trigs_array[0], GL_DYNAMIC_DRAW);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		if (spe.rotation != 0.0)
+		{
+			for (int i = 0; i < 6; i++)
+				rotate_vector3d(sprite_trigs_array[count + i].position, (float)spe.rotation);
+		}
+
+		for (int i = 0; i < 6; i++)
+		{
+			sprite_trigs_array[count + i].position.x += (float)spe.x;
+			sprite_trigs_array[count + i].position.y += (float)spe.y;
+		}
+		count += 6;
+
+		bool render_batch = false;
+		if (i < sprite_queue.size() - 1)
+		{
+			const auto& nspe = sprite_queue[i + 1];
+			const auto& nsprite = sprites[nspe.sprite_id];
+			render_batch = nsprite.image_id != sprite.image_id;
+		}
+		else
+		{
+			render_batch = true;
+		}
+		if (render_batch)
+		{
+			glBindVertexArray(sprite_trigs_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, sprite_trigs_vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(sprite_vtx_format) * count, &sprite_trigs_array[0], GL_DYNAMIC_DRAW);
+			glDrawArrays(GL_TRIANGLES, 0, count);
+			count = 0;
+		}
 	}
 
 	XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
