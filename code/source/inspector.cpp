@@ -12,6 +12,7 @@
 #include "version.h"
 #include "profiler.h"
 #include "device.h"
+#include "render.h"
 #if defined(PLATFORM_PC)
 #include <GLFW/glfw3.h>
 #include "device_pc.h"
@@ -135,6 +136,7 @@ void xs::inspector::render(float dt)
 
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
 		{
+			render::reload();
 			script::shutdown();
 			script::configure();
 			script::initialize();
