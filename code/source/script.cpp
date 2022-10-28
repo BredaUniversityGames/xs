@@ -632,7 +632,7 @@ void render_create_sprite(WrenVM* vm)
 
 void render_sprite_ex(WrenVM* vm)
 {
-	wrenEnsureSlots(vm, 9);
+	wrenEnsureSlots(vm, 10);
 	CHECK_TYPE(vm, 1, WREN_TYPE_NUM);
 	CHECK_TYPE(vm, 2, WREN_TYPE_NUM);
 	CHECK_TYPE(vm, 3, WREN_TYPE_NUM);
@@ -641,14 +641,16 @@ void render_sprite_ex(WrenVM* vm)
 	CHECK_TYPE(vm, 6, WREN_TYPE_NUM);
 	CHECK_TYPE(vm, 7, WREN_TYPE_NUM);
 	CHECK_TYPE(vm, 8, WREN_TYPE_NUM);
+	CHECK_TYPE(vm, 9, WREN_TYPE_NUM);
 	const auto sprite_id = wrenGetSlotDouble(vm, 1);
 	const auto x = wrenGetSlotDouble(vm, 2);
 	const auto y = wrenGetSlotDouble(vm, 3);
-	const auto scale = wrenGetSlotDouble(vm, 4);
-	const auto rotation = wrenGetSlotDouble(vm, 5);
-	const auto mul = wrenGetSlotDouble(vm, 6);
-	const auto add = wrenGetSlotDouble(vm, 7);
-	const auto flags = wrenGetSlotDouble(vm, 8);
+	const auto z = wrenGetSlotDouble(vm, 4);
+	const auto scale = wrenGetSlotDouble(vm, 5);
+	const auto rotation = wrenGetSlotDouble(vm, 6);
+	const auto mul = wrenGetSlotDouble(vm, 7);
+	const auto add = wrenGetSlotDouble(vm, 8);
+	const auto flags = wrenGetSlotDouble(vm, 9);
 
 	xs::render::color mul_c;
 	mul_c.integer_value = static_cast<uint32_t>(mul);
@@ -658,7 +660,7 @@ void render_sprite_ex(WrenVM* vm)
 
 	const auto flags_i = static_cast<uint32_t>(flags);
 
-	xs::render::render_sprite((int)sprite_id, x, y, scale, rotation, mul_c, add_c, flags_i);
+	xs::render::render_sprite((int)sprite_id, x, y, z, scale, rotation, mul_c, add_c, flags_i);
 }
 
 void render_set_offset(WrenVM* vm)
@@ -952,16 +954,16 @@ void xs::script::bind_api()
 	bind("xs", "Render", true, "vertex(_,_)", render_vertex);
 	bind("xs", "Render", true, "setColor(_,_,_,_)", render_set_color);
 	bind("xs", "Render", true, "setColor(_)", render_set_color_uint);
-	bind("xs", "Render", true, "text(_,_,_,_)", render_text);
+	bind("xs", "Render", true, "shapeText(_,_,_,_)", render_text);
 	bind("xs", "Render", true, "line(_,_,_,_)", render_line);
 	bind("xs", "Render", true, "loadImage(_)", render_load_image);
 	bind("xs", "Render", true, "getImageWidth(_)", render_get_image_width);
 	bind("xs", "Render", true, "getImageHeight(_)", render_get_image_height);
 	bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
 	bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
-	bind("xs", "Render", true, "renderSprite(_,_,_,_,_,_,_,_)", render_sprite_ex);
+	bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
 	bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
-	bind("xs", "Render", true, "renderText(_,_,_,_,_,_,_)", render_render_text);
+	bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
 
 	// Audio
 	bind("xs", "Audio", true, "load(_,_)", audio_load);

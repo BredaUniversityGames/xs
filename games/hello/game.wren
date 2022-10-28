@@ -50,11 +50,11 @@ class Game {
             (__time * 10 + 1).sin.abs,
             (__time * 10 + 2).sin.abs,
             (__time * 10 + 3).sin.abs)
-        Render.text("xs", -100, 100, 20)
-        Render.text("Made with love at Games@BUas", -100, -50, 1)
+        Render.shapeText("xs", -100, 100, 20)
+        Render.shapeText("Made with love at Games@BUas", -100, -50, 1)
         Render.setColor(0.5, 0.5, 0.5)
-        Render.text("Time: %(__time)", -300, -160, 1)
+        Render.shapeText("Time: %(__time)", -300, -160, 1)
 
-        Render.renderSprite(__sprite, 180, -152, 0.16, 0.0, 0xFFFFFFFF, 0x00000000, 0)
+        Render.sprite(__sprite, 180, -152, 0.16, 0.0, 0xFFFFFFFF, 0x00000000, 0)
     }
 }

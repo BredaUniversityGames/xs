@@ -133,7 +133,7 @@ class Game {
             }
 
             var text = "CORE %(bars)   :    SCORE %(__score)   :  WAVE %(__wave)  :  HEALTH %(pu.health)"
-            Render.renderText(__font, text, 0, 150, 0xFFFFFFFF, 0x00000000, Render.spriteCenter)
+            Render.text(__font, text, 0, 150, 0xFFFFFFFF, 0x00000000, Render.spriteCenter)
         }
     }
 
