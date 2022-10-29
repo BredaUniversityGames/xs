@@ -144,9 +144,22 @@ class Entity {
         }
     }
 
+    // Get all the entities where the tag matches
+    // with a given tag.
+    static withTag(tag) {
+        var found = []
+        for (e in __entities) {
+                if(Bits.checkBitFlag(e.tag, tag)) {
+                found.add(e)
+            }
+        }
+        return found
+    }
+
+
     // Get all the entities where the tag matches (has bit overlap)
     // with a given tag.
-    static entitiesWithTag(tag) {
+    static withTagOverlap(tag) {
         var found = []
         for (e in __entities) {
                 if(Bits.checkBitFlagOverlap(e.tag, tag)) {

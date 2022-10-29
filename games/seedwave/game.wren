@@ -17,11 +17,14 @@ class GameState {
 class Game {
 
     static config() {
+        /*
+        Usiing system.json file instead
         Data.setString("Title", "~~seedwave~~", Data.system)
         Data.setNumber("Width", 640, Data.system)
         Data.setNumber("Height", 360, Data.system)
         Data.setNumber("Multiplier", 1, Data.system)
         Data.setBool("Fullscreen", false, Data.system)
+        */
     }    
 
     static init() {
@@ -55,10 +58,10 @@ class Game {
     static updateGame(dt) {
         __totalTime = __totalTime + dt
         __bossTime = __bossTime + dt
-        var playerUnits = Entity.entitiesWithTag(Tag.Player | Tag.Unit)
-        var playerBullets = Entity.entitiesWithTag(Tag.Player | Tag.Bullet)
-        var computerUnits = Entity.entitiesWithTag(Tag.Computer | Tag.Unit)
-        var computerBullets = Entity.entitiesWithTag(Tag.Computer | Tag.Bullet)
+        var playerUnits = Entity.withTag(Tag.Player | Tag.Unit)
+        var playerBullets = Entity.withTag(Tag.Player | Tag.Bullet)
+        var computerUnits = Entity.withTag(Tag.Computer | Tag.Unit)
+        var computerBullets = Entity.withTag(Tag.Computer | Tag.Bullet)
 
         Game.collide(computerBullets, playerUnits)
         Game.collide(playerBullets, computerUnits)
@@ -69,7 +72,7 @@ class Game {
         }
 
         Render.setColor(1, 1, 1, 1)
-        Render.text("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
+        Render.shapeText("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
 
         //Render.text("DNA:%(Boss.dna)", -50, 100, 1)
     }

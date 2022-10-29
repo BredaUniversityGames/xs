@@ -428,7 +428,7 @@ class Game {
         }
 
         Render.setColor(0x6C5A9DFF)
-        Render.shapeshapeshapeshapeText("SCORE", -200.0, 170.0, 1.0)
+        Render.shapeText("SCORE", -200.0, 170.0, 1.0)
 
         var i = 0
         while(i < __objects.count) {
