@@ -185,10 +185,10 @@ class Game {
             }
         }
  
-        var playerUnits = Entity.entitiesWithTag(Tag.player | Tag.unit)
-        var playerBullets = Entity.entitiesWithTag(Tag.player | Tag.bullet)
-        var computerUnits = Entity.entitiesWithTag(Tag.computer | Tag.unit)
-        var computerBullets = Entity.entitiesWithTag(Tag.computer | Tag.bullet)
+        var playerUnits = Entity.withTag(Tag.player | Tag.unit)
+        var playerBullets = Entity.withTag(Tag.player | Tag.bullet)
+        var computerUnits = Entity.withTag(Tag.computer | Tag.unit)
+        var computerBullets = Entity.withTag(Tag.computer | Tag.bullet)
 
         Game.collide(computerBullets, playerUnits)
         Game.collide(playerBullets, computerUnits)
@@ -368,7 +368,11 @@ class Game {
                 var dis = uT.position - bT.position
                 dis = dis.magnitude
                 if(dis < (uB.size + bB.size)) {
-                    u.getComponent(Unit).damage(b.getComponent(Bullet).damage)
+                    var unit = u.getComponent(Unit)
+                    System.print("Unit %(unit)")             
+                    var bullet = b.getComponent(Bullet)
+                    System.print("Bullet %(bullet)")
+                    unit.damage(bullet.damage)
                     b.delete()
                     // Render.disk(uT.position.x, uT.position.y, 2, 24)
                 }
