@@ -32,6 +32,11 @@ int xs::configuration::multiplier()
 	return mult != 0 ? mult : 1;
 }
 
+bool xs::configuration::on_top()
+{
+	return data::get_bool("Always on top", data::type::system);
+}
+
 scale_parameters xs::configuration::get_scale_to_game(int input_width, int input_height)
 {
 	// Calculate how to fit the buffer onto the screen.

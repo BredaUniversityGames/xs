@@ -8,6 +8,7 @@ namespace xs::configuration
 	std::string title();
 	bool fullscreen(); //TODO: Not suppported yet
 	int multiplier();
+	bool on_top();
 
 	/// <summary>
 	/// Parameters for transforming canvas coordinates to game coordinates.
