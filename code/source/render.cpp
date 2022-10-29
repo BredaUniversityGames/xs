@@ -268,7 +268,7 @@ void xs::render::render_text(
 		}
 
 		auto sprite = create_sprite(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
-		render_sprite(sprite, begin + bearing, y - quad.y1, 0, 1, 0, multiply, add, 0);
+		render_sprite(sprite, begin + bearing, y - quad.y1, 100000, 1, 0, multiply, add, 0);
 
 		begin += advance + kerning;		
 	}
@@ -399,6 +399,7 @@ void xs::render::shutdown()
 
 void xs::render::reload()
 {
+	sprite_queue.clear();
 	sprites.clear();
 }
 
@@ -671,14 +672,6 @@ void xs::render::render_sprite(
 	unsigned int flags)
 {
 	// TODO: Validate sprite
-	// int sprite_id = -1;
-	// double x = 0.0;
-	// double y = 0.0;
-	// sprite_anchor anchor = {};
-	// unsigned int flags = 0;
-	// color mul_color = {};
-	// color add_color = {};
-
 	sprite_queue.push_back({
 		sprite_id,
 		x + offset.x,
