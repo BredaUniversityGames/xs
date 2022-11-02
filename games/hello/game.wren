@@ -1,4 +1,4 @@
-// This is just confrimation, remove this line as soon as you
+// This is just confirmation, remove this line as soon as you
 // start making your game
 System.print("Wren just got compiled to bytecode")
 
@@ -8,8 +8,8 @@ import "xs" for Render, Data
 // The game class it the entry point to your game
 class Game {
 
-    // The config methos is called before the device, window, renderer
-    // and most other systems are created. You can use it to chage the
+    // The config method is called before the device, window, renderer
+    // and most other systems are created. You can use it to change the
     // window title and size (for example).
     // You can remove this method
     static config() {
@@ -38,7 +38,7 @@ class Game {
         __sprite = Render.createSprite(image, 0, 0, 1, 1)
     }    
 
-    // The uddate method is called once per tick.
+    // The update method is called once per tick.
     // Gameplay code goes here.
     static update(dt) {
         __time = __time + dt

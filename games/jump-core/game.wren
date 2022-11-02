@@ -77,7 +77,7 @@ class Game {
     static config() {        
         Data.setNumber("Width", 640, Data.system)
         Data.setNumber("Height", 360, Data.system)
-        Data.setNumber("Multiplier", 2, Data.system)
+        Data.setNumber("Multiplier", 1, Data.system)
         Data.setString("Title", "JumpCore", Data.system)        
     }
 
