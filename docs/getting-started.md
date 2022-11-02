@@ -15,15 +15,15 @@ This a short introduction how to use *xs* to make extra small games.
 
 First, grab the latest version of *xs* from the itch.io page [here](https://xs-engine.itch.io/xs). If you are a member of the BUAS organization on GitHub, you can build it from source. The contents of the folder should look some thing like this.
 
-![](img/folder.png)
+![](img/folder.webp)
 
 The preferred way of running *xs* is from the command line so the you can read the debug output. Open the your command line/terminal application and `cd` to the xs folder. Run the executable and you should get the following output in the command line.
 
-![](img/cmd.png)
+![](img/cmd.webp)
 
 On the first run your `games/.ini` file will be empty and xs will fill that with `hello` and use it to run the *hello* example
 
-![](img/hello.png)
+![](img/hello.webp)
 
 Great, *xs* is up and running.
 
@@ -111,35 +111,35 @@ Wren is lovely modern scripting language and there are handful of Visual Studio 
 - The *Wren* [extension](https://marketplace.visualstudio.com/items?itemName=nelarius.vscode-wren) in VS Code will give you syntax highlighting 
 - The *Wren Language Provider* [extension](https://marketplace.visualstudio.com/items?itemName=sponge.wren-language-provider) in VS Code will give you basic code completion
 
-*xs* can be instructed (from the `system.json` file or `config()` function) to run on top of other windows. This can be useful when developing or debugging with it. Running *xs* from the built-in terminal in 
+*xs* can be instructed (from the `system.json` file or `config()` function) to run on top of other windows. This can be useful when developing or debugging with it. Running *xs* from the built-in terminal in VS code will give a "single window"-like experience.
 
-![](img/VSCode.png)
+![](img/VSCode.webp)
 
 ## UI
 
 While the main interaction with *xs* with code, there is some minimal UI to help you build games more efficiently. Moving your mouse to the upper third of the screen will bring up the toolbar. 
 
-![](img/xs_UI.png)
+![](img/xs_UI.webp)
 
 The toolbar in xs has the following functionality:
 
-&nbsp;&nbsp;<img src="img/rotate.svg" height="14" /> &nbsp;&nbsp; Reload the current game. *Will not reload assets at current.*
+&nbsp;&nbsp;<img src="img/rotate.webp" height="16" /> &nbsp;&nbsp; Reload the current game. *Will not reload assets at current.*
 
-&nbsp;&nbsp;<img src="img/pause.svg" height="14" /> &nbsp;&nbsp; Pause the game, if running.
+&nbsp;&nbsp;<img src="img/pause.webp" height="16" /> &nbsp;&nbsp; Pause the game, if running.
 
-&nbsp;&nbsp;<img src="img/play.svg" height="14" /> &nbsp;&nbsp; Play the game, if paused.
+&nbsp;&nbsp;<img src="img/play.webp" height="16" /> &nbsp;&nbsp; Play the game, if paused.
 
-&nbsp;&nbsp;<img src="img/forward-step.svg" height="14" /> &nbsp;&nbsp; Advanced the game one frame forward, if paused.
+&nbsp;&nbsp;<img src="img/forward-step.webp" height="16" /> &nbsp;&nbsp; Advanced the game one frame forward, if paused.
 
-&nbsp;&nbsp;<img src="img/database.svg" height="14" /> &nbsp;&nbsp; Open and close the Data window. More information in the Data section of the documentation.
+&nbsp;&nbsp;<img src="img/database.webp" height="16" /> &nbsp;&nbsp; Open and close the Data window. More information in the Data section of the documentation.
 
-&nbsp;&nbsp;<img src="img/chart-column.svg" height="14" /> &nbsp;&nbsp; Open and closes the Profiler window.
+&nbsp;&nbsp;<img src="img/chart-column.webp" height="16" /> &nbsp;&nbsp; Open and closes the Profiler window.
 
-&nbsp;&nbsp;<img src="img/circle-half-stroke.svg" height="14" /> &nbsp;&nbsp; Switch the light/dark theme.
+&nbsp;&nbsp;<img src="img/circle-half-stroke.webp" height="16" /> &nbsp;&nbsp; Switch the light/dark theme.
 
-&nbsp;&nbsp;<img src="img/circle-check.svg" height="14" /> &nbsp;&nbsp; After a successful build this icon will appear briefly to confirm you amazing programming skills.
+&nbsp;&nbsp;<img src="img/circle-check.webp" height="16" /> &nbsp;&nbsp; After a successful build this icon will appear briefly to confirm you amazing programming skills.
 
-&nbsp;&nbsp;<img src="img/circle-exclamation.svg" height="14" /> &nbsp;&nbsp; Upon encountering an error .
+&nbsp;&nbsp;<img src="img/circle-exclamation.webp" height="16" /> &nbsp;&nbsp; Upon encountering an error, *xs* will stop execution and will show this icon. The actual error will be provided in the command line (Terminal in VS code) window.
 
 The number that follows is the version of *xs* the you are running.
 
