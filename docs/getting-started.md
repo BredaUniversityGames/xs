@@ -123,28 +123,31 @@ While the main interaction with *xs* with code, there is some minimal UI to help
 
 The toolbar in xs has the following functionality:
 
-&nbsp;&nbsp;<img src="img/rotate.webp" height="16" /> &nbsp;&nbsp; Reload the current game. *Will not reload assets at current.*
+&nbsp;&nbsp;<img src="img/rotate.webp" width="16" height="16" /> &nbsp;&nbsp; Reload the current game. *Will not reload assets at current.*
 
-&nbsp;&nbsp;<img src="img/pause.webp" height="16" /> &nbsp;&nbsp; Pause the game, if running.
+&nbsp;&nbsp;<img src="img/pause.webp" width="16" height="16" /> &nbsp;&nbsp; Pause the game, if running.
 
-&nbsp;&nbsp;<img src="img/play.webp" height="16" /> &nbsp;&nbsp; Play the game, if paused.
+&nbsp;&nbsp;<img src="img/play.webp" width="16" height="16" /> &nbsp;&nbsp; Play the game, if paused.
 
-&nbsp;&nbsp;<img src="img/forward-step.webp" height="16" /> &nbsp;&nbsp; Advanced the game one frame forward, if paused.
+&nbsp;&nbsp;<img src="img/forward-step.webp" width="16" height="16" /> &nbsp;&nbsp; Advanced the game one frame forward, if paused.
 
-&nbsp;&nbsp;<img src="img/database.webp" height="16" /> &nbsp;&nbsp; Open and close the Data window. More information in the Data section of the documentation.
+&nbsp;&nbsp;<img src="img/database.webp" width="16" height="16" /> &nbsp;&nbsp; Open and close the Data window. More information in the Data section of the documentation.
 
-&nbsp;&nbsp;<img src="img/chart-column.webp" height="16" /> &nbsp;&nbsp; Open and closes the Profiler window.
+&nbsp;&nbsp;<img src="img/chart-column.webp" width="16" height="16" /> &nbsp;&nbsp; Open and closes the Profiler window.
 
-&nbsp;&nbsp;<img src="img/circle-half-stroke.webp" height="16" /> &nbsp;&nbsp; Switch the light/dark theme.
+&nbsp;&nbsp;<img src="img/circle-half-stroke.webp" width="16" height="16" /> &nbsp;&nbsp; Switch the light/dark theme.
 
-&nbsp;&nbsp;<img src="img/circle-check.webp" height="16" /> &nbsp;&nbsp; After a successful build this icon will appear briefly to confirm you amazing programming skills.
+&nbsp;&nbsp;<img src="img/circle-check.webp" width="16" height="16" /> &nbsp;&nbsp; After a successful build this icon will appear briefly to confirm you amazing programming skills.
 
-&nbsp;&nbsp;<img src="img/circle-exclamation.webp" height="16" /> &nbsp;&nbsp; Upon encountering an error, *xs* will stop execution and will show this icon. The actual error will be provided in the command line (Terminal in VS code) window.
+&nbsp;&nbsp;<img src="img/circle-exclamation.webp" width="16" height="16" /> &nbsp;&nbsp; Upon encountering an error, *xs* will stop execution and will show this icon. The actual error will be provided in the command line (Terminal in VS code) window.
 
 The number that follows is the version of *xs* the you are running.
 
 ## Paths
 
+Paths in *xs* are relative and should start with one of the wildcards described in the *File* section of this documentation. For example you can use the `[game]` wildcard to access asset files in your game.
+
+`var image = Render.loadImage("[game]/images/cat.png")`
 
 ## Supported assets
 
@@ -152,5 +155,25 @@ xs supports `.png` images and a variety of sound files, with `.flac` being the p
 
 ## Wren modules
 
-A module in *wren* is simply another `.*wren` file that you can import into your code.
-*xs* ships a few modules that let's you interact with the engine and 
+A module in *wren* is usually another `.*wren` file that you can `import` into your code. Refer to the *wren* [manual](https://wren.io/modularity.html) for more information. *xs* ships with a few modules that let you interact with the engine and makes programming a bit easier.
+
+- `xs` - gives you access to the core API of *xs* and is covered in the main part of the documentation.
+- `xs_math` - has a handful of tools for 2d vector math, colors and bit operations.  
+- `xs_ec` - offers a simple entity-components framework
+- `xs_components` - has some useful components to help get started and demonstrate the use of the EC framework
+
+The *hello* example start with importing such functionality.
+
+`import "xs" for Render, Data`
+
+These modules are located in the `games/shared/modules/` folder, so feel free explore their contents. Other modules come with the language itself and you are read more about them on the [wren documentation site](https://wren.io/modules/)
+ - Core classes (numbers, lists and so on). These are automatically imported for you.
+ - `random` - gives access to the Random class used to generate random numbers
+ - `meta` - gives self-inspection capability to your scripts (excluded from *xs* at current)
+
+Lastly, you can, and should, use modules to organize your code. These must be located within your game's folder (and sub folders). When importing modules in *xs* we omit the `.wren` extension.
+
+### Circular dependencies
+
+It's not uncommon for two, or more, modules to need functionality defined in the other module. Two modules importing one another will result in circular dependencies, with an and less than helpful error message. The solution is simple. Just put the import directive at the very end of both of the modules.
+  
