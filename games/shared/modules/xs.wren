@@ -114,15 +114,9 @@ class Render {
     foreign static loadFont(font,size)
     foreign static text(fontId, text, x, y, mul, add, flags)
 
-    /*
-    static sprite(spriteId, x, y, scale, rotation, mul, add, flags) {
+    static sprite(spriteId, x, y) {
         sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }
-
-    static sprite(spriteId, x, y) {
-        sprite(spriteId, x, y, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
-    }
-    */
 
     static createGridSprite(imageId, columns, rows,  c, r) {
         var ds = 1 / columns
