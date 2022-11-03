@@ -37,9 +37,7 @@ class Game {
   }
 //...
 }
-
 ``` 
-Example
 
 ### loadImage(path)
 Loads an image using a realtive path. 
@@ -51,12 +49,13 @@ Gets the width of an loaded image
 Gets the height of an loaded image
 
 ### createSprite(imageId, x0, y0, x1, y1)
-Will create a new sprite from a part of an image, provided the 
+Will create a new sprite from a part of an image, with the provided the texture coordinates 
 
-### sprite(spriteId, x, y, scale, rotation, mul, add, flags)
-Renders a sprite on the screen, takin the original size of the sprite, given a set of paramters:
+### sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)
+Renders a sprite on the screen, takin the original size of the sprite, given a set of parameters:
 - `spriteId` - Valid sprite ID, made with `createSprite` *(not an image ID)* 
 - `x` and `y` - Position for this sprite on the screen, taking the *offset* into account
+- `z` sorting (depth) value
 - `scale` - Scaling factor
 - `rotation` - Rotation in *radians*
 - `mul` - Color (represented as an number) that will be multiplied with the  values of the sprite
@@ -64,24 +63,33 @@ Renders a sprite on the screen, takin the original size of the sprite, given a s
 - `flags` - Any combination of rendering bit flags
   - `spriteBottom` - Anchored at the bottom left
   - `spriteCenter` - Anchored at the center
-  - `spriteFlipX` - Flip the sprite horizontaly 
-  - `spriteFlipY` - Flip the sprite verticaly
+  - `spriteFlipX` - Flip the sprite horizontally 
+  - `spriteFlipY` - Flip the sprite vertically
+
+### sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)
+This is equivalent to calling
+
+`sprite(spriteId, x, y, 0.0, scale, rotation, mul, add, flags)`
+
+When two sprites are rendered at the same z (sorting) value, they will be rendered according to call order.  
 
 ### sprite(spriteId, x, y)
-This is equivalent to calling 
+This is equivalent to calling:
 
-`sprite(spriteId, x, y, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)`
+`sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)`
 
 ### setOffset(x, y)
+Will offset all render calls with the given values, until now values are set. 
 
 ### loadFont(font, size)
+Loads a given font with a certain size into a font atlas. 
 
-### renderText(fontId, text, x, y, mul, add, flags)
-
+### text(fontId, text, x, y, z, mul, add, flags)
+Renders a text string on the screen, taking the original size of the loaded font into account, given a set of parameters. They are the same as the sprite parameters.
+ - Known issue, the always text renders above the sprites. 
 
 ## Working with shapes
-Example
-Renders after all sprite have been rendered.
+Shapes are rendered after all sprites have been finished rendering.
 
 ### setColor(r, g, b, a)
 Sets the rendering color for consecutive shapes. Can also be set per vertex, for multicolored shapes. Values are in the `[0,1]` range.
@@ -100,8 +108,8 @@ Render.setColor(0xF0C0D0FF)
 ### line(x0, y0, x1, y1)
 Draws a line from `[x0,y0]` to `[x1,y1]`
 
-### text(text, x, y, size)
-
+### shapeText(text, x, y, size)
+Draws a shape text on the screen with a given size
 
 ### begin(primitive)
 Will start the rendering of a new primitive. This can be either `triangles` or `lines`. Provide vertices using `vertex(x, y)` and call `end()` when done to finish the the primitive. It's not possible to draw the primitives within a `being()`/`end()` block.

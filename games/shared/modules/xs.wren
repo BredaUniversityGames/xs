@@ -126,6 +126,10 @@ class Render {
         return createSprite(imageId, s, t, s + ds, t + dt)
     }
 
+    static text(fontId, text, x, y, z, mul, add, flags) {
+        text(fontId, text, x, y, mul, add, flags)
+    }
+
     static spriteBottom { 1 << 1 }
 	static spriteCenter { 1 << 2 }
 	static spriteFlipX  { 1 << 3 }
