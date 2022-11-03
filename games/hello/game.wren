@@ -55,6 +55,6 @@ class Game {
         Render.setColor(0.5, 0.5, 0.5)
         Render.shapeText("Time: %(__time)", -300, -160, 1)
 
-        Render.sprite(__sprite, 180, -152, 0.16, 0.0, 0xFFFFFFFF, 0x00000000, 0)
+        Render.sprite(__sprite, 180, -152, 0, 0.16, 0.0, 0xFFFFFFFF, 0x00000000, 0)
     }
 }
