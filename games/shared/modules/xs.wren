@@ -112,7 +112,7 @@ class Render {
     foreign static sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)
     foreign static setOffset(x, y)    
     foreign static loadFont(font,size)
-    foreign static text(fontId, text, x, y, mul, add, flags)
+    foreign static text(fontId, txt, x, y, mul, add, flags)
 
     static sprite(spriteId, x, y) {
         sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
@@ -126,8 +126,8 @@ class Render {
         return createSprite(imageId, s, t, s + ds, t + dt)
     }
 
-    static text(fontId, text, x, y, z, mul, add, flags) {
-        text(fontId, text, x, y, mul, add, flags)
+    static text(fontId, txt, x, y, z, mul, add, flags) {
+        text(fontId, txt, x, y, mul, add, flags)
     }
 
     static spriteBottom { 1 << 1 }
