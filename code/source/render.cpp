@@ -671,11 +671,18 @@ void xs::render::render_sprite(
 	color add,
 	unsigned int flags)
 {
-	// TODO: Validate sprite
+	assert(sprite_id >= 0);
+	assert(sprite_id < internal::sprites.size());
+
+	if (!tools::check_bit_flag_overlap(flags, sprite_flags::overlay)) {
+		x += offset.x;
+		y += offset.y;
+	}
+
 	sprite_queue.push_back({
 		sprite_id,
-		x + offset.x,
-		y + offset.y,
+		x,
+		y,
 		z,
 		scale,
 		rotation,

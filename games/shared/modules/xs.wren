@@ -130,10 +130,11 @@ class Render {
         text(fontId, txt, x, y, mul, add, flags)
     }
 
-    static spriteBottom { 1 << 1 }
-	static spriteCenter { 1 << 2 }
-	static spriteFlipX  { 1 << 3 }
-	static spriteFlipY  { 1 << 4 }
+    static spriteBottom     { 1 << 1 }
+	static spriteCenter     { 1 << 2 }
+	static spriteFlipX      { 1 << 3 }
+	static spriteFlipY      { 1 << 4 }
+    static spriteOverlay    { 1 << 5 }
 }
 
 class File {
