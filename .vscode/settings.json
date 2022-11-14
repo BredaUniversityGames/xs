@@ -1,0 +1,20 @@
+{
+    "material-icon-theme.folders.associations": {
+        "sce_module" : "Config",
+        "games" : "Home",
+        "executable" : "Core",
+        "nintendo" : "Mobile",
+        "intermediate" : "Secure",
+        ".vs" : "VScode",
+        "external" : "Scripts",
+        "seedwave" : "Shader",
+        "rogue-masterclass" : "Routes",
+        "jump-core" : "Job",
+        "hello" : "Decorators",
+        "grid" : "Mappings",
+        "hexofleet" : "Quasar"
+    },
+    "material-icon-theme.files.associations": {
+        "*.wren" : "ada"
+    }
+}
