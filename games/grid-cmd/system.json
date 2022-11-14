@@ -1,0 +1,22 @@
+{
+    "Always on top": {
+        "type": "bool",
+        "value": true
+    },
+    "Height": {
+        "type": "number",
+        "value": 180.0
+    },
+    "Multiplier": {
+        "type": "number",
+        "value": 4.0
+    },
+    "Title": {
+        "type": "string",
+        "value": "Grid Commander V0.1a"
+    },
+    "Width": {
+        "type": "number",
+        "value": 320.0
+    }
+}
