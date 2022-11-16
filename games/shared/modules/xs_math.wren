@@ -24,6 +24,7 @@ class Math {
 
     static radians(deg) { deg / 180.0 * 3.14159265359 }
     static degrees(rad) { rad * 180.0 / 3.14159265359 }
+    static mod(x, m)    { (x % m + m) % m }
 }
 
 class Bits {
@@ -54,7 +55,7 @@ class Vec2 {
     -(other) { this + -other }
     *(v) { Vec2.new(x * v, y * v) }
     /(v) { Vec2.new(x / v, y / v) }
-    ==(other) { (x == other.x) && (y == other.y) }
+    ==(other) { (other != null) && (x == other.x) && (y == other.y) }
     !=(other) { !(this == other) }    
     magnitude { (x * x + y * y).sqrt }
     normalise { this / this.magnitude }
@@ -64,8 +65,10 @@ class Vec2 {
         _x = a.cos * _x - a.sin * _y
         _y = a.sin * _x + a.cos * _y
     }
+    perp { Vec2.new(-y, x) }
 
     toString { "[%(_x), %(_y)]" }
+
 
     static distance(a, b) {
         var xdiff = a.x - b.x
