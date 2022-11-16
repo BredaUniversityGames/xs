@@ -1,4 +1,4 @@
-import "xs" for Input, Render
+import "xs" for Input, Render, Data
 
 class Vec2 {
     construct new(x, y) {
@@ -86,26 +86,30 @@ class Game {
     static init() {
         __hexes = HexGrid.new(16)
         __pos = Vec2.new(0.0, 0.0)
-        Data.getNumber("Width", Data.system) = 1280
-        Configuration.heght = 720
-        Configuration.multiplier = 1
-        Configuration.title = "Hex"
     }    
+
+    static config() {
+        Data.setString("Title", "Rogue", Data.system)
+        Data.setNumber("Width", 280, Data.system)
+        Data.setNumber("Height", 280, Data.system)
+        Data.setNumber("Multiplier", 2, Data.system)
+    }
+    static render() {}
     
     static update(dt) {        
         __pos.x = __pos.x + Input.getAxis(0)
         __pos.y = __pos.y - Input.getAxis(1)
 
         Render.setColor(1, 0, 1)
-        Render.polygon(__pos.x, __pos.y, 5, 6)
-        Render.polygon(__pos.x, __pos.y, 4, 6)
-        Render.polygon(__pos.x, __pos.y, 3, 6)
+        Render.circle(__pos.x, __pos.y, 5, 6)
+        Render.circle(__pos.x, __pos.y, 4, 6)
+        Render.circle(__pos.x, __pos.y, 3, 6)
 
         var origin = HexTile.new(0, 0)
         var playerTile = __hexes.getTile(__pos)
         var playerPos = __hexes.getPosiion(playerTile)
         Render.setColor(1, 0, 1)
-        Render.polygon(playerPos.x, playerPos.y, 7, 6)
+        Render.circle(playerPos.x, playerPos.y, 7, 6)
         
         Render.setColor(1, 1, 1)
         var bl = -256 + 16
@@ -114,7 +118,7 @@ class Game {
                 var tile = HexTile.new(x, y)                
                 if(HexTile.distance(tile, origin) < 5) {
                     var pos = __hexes.getPosiion(tile)
-                    Render.polygon(pos.x, pos.y, 14, 6)
+                    Render.circle(pos.x, pos.y, 14, 6)
                 }
             }
         } 

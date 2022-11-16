@@ -281,7 +281,6 @@ class Boss is Component {
         var ob = owner.getComponent(Body)
         var pt = Game.player.getComponent(Transform)
 
-        /*
         var dir = pt.position - ot.position        
         dir.y = 0
         dir.normalise
@@ -289,14 +288,13 @@ class Boss is Component {
 
         _sinTime = _sinTime + dt 
         ot.position.y = _sinTime.cos * 20 + 60
-        */
     }
 }
 
 class Cannon is Component {
     construct new() {
         super()
-        _time = -100000000000000000        
+        _time = 0        
     }
 
     update(dt) {
@@ -314,7 +312,7 @@ class Cannon is Component {
 class Missiles is Component {
     construct new() {
         super()
-        _time = -100000000000000000
+        _time = 0
     }
 
      update(dt) {
