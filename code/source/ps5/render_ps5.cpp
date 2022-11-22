@@ -10,12 +10,11 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-function"
-#pragma clang diagnostic ignored "-Wunused-but-set-variable"
-#pragma clang diagnostic ignored "-Wreturn-type"
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-#include <stb/stb_easy_font.h>
+	#pragma clang diagnostic ignored "-Wunused-function"
+	#pragma clang diagnostic ignored "-Wunused-but-set-variable"
+	#pragma clang diagnostic ignored "-Wreturn-type"
+	#include <stb/stb_image.h>
+	#include <stb/stb_easy_font.h>
 #pragma clang diagnostic pop
 
 #include <unordered_map>
@@ -40,9 +39,7 @@
 #include <video_out.h>
 #include <vectormath.h>
 #include <agc/toolkit/toolkit.h>
-
 #include <libsysmodule.h>
-#include <png_dec.h>
 
 #include "Camera.h"
 #include "Instance.h"
@@ -55,20 +52,12 @@ using namespace glm;
 
 namespace xs::render::internal
 {
-	struct image
-	{
-		sce::Agc::Core::Texture texture;
-		int		width = -1;
-		int		height = -1;
-		int		channels = -1;
-		std::size_t	string_id = 0;
-	};
 
 	struct Vert
 	{
 		float x, y;
 		float s, t;
-		float r, g, b;		
+		float r, g, b;
 	};
 
 	int width = -1;
@@ -87,8 +76,6 @@ namespace xs::render::internal
 	sce::Agc::Shader* gs = nullptr;	// TODO: Why pointer?
 	sce::Agc::Shader* ps = nullptr;	// TODO: Why pointer?
 	int frame = 0;
-	std::vector<image>		images = {};
-	vec2 offset = vec2(0.0f, 0.0f);
 
 	uint8_t* alloc_direct_mem(sce::Agc::SizeAlign sizeAlign);
 	int create_scanout_buffers(const sce::Agc::CxRenderTarget* rts, uint32_t count);
@@ -206,172 +193,52 @@ void create_render_targets(sce::Agc::CxRenderTarget* rts, sce::Agc::Core::Render
 	}
 }
 
-void printImageInfo(ScePngDecImageInfo& imageInfo)
+void xs::render::internal::create_texture_with_data(xs::render::internal::image& img, uchar* data)
 {
-	const char* csText;
-	switch (imageInfo.colorSpace) {
-	case SCE_PNG_DEC_COLOR_SPACE_GRAYSCALE:
-		csText = "Grayscale";
-		break;
-	case SCE_PNG_DEC_COLOR_SPACE_RGB:
-		csText = "RGB";
-		break;
-	case SCE_PNG_DEC_COLOR_SPACE_CLUT:
-		csText = "CLUT";
-		break;
-	case SCE_PNG_DEC_COLOR_SPACE_GRAYSCALE_ALPHA:
-		csText = "GrayscaleAlpha";
-		break;
-	case SCE_PNG_DEC_COLOR_SPACE_RGBA:
-		csText = "RGBA";
-		break;
-	default:
-		csText = "unknown";
-	}
-
-	printf("==== PNG image info. ====\n");
-	printf("imageSize = %u x %u\n", imageInfo.imageWidth, imageInfo.imageHeight);
-	printf("colorSpace = %s\n", csText);
-	printf("bitDepth = %u\n", imageInfo.bitDepth);
-	printf("imageFlag = 0x%x\n", imageInfo.imageFlag);
-}
-
-int LoadPNGTexture(const char* inFileName, sce::Agc::Core::Texture& outTexture)
-{
-	ScePngDecParseParam		parseParam;
-	ScePngDecImageInfo		imageInfo;
-	ScePngDecCreateParam	createParam;
-	ScePngDecHandle			handle;
-	ScePngDecDecodeParam	decodeParam;
 	int32_t ret = 0;
 
-	// read PNG image from file
-	std::FILE* fp;
-	long fileSize;
-
-	fp = std::fopen(inFileName, "rb");
-	if (fp == NULL) {
-		return -1;
-	}
-	std::fseek(fp, 0L, SEEK_END);
-	fileSize = std::ftell(fp);
-	if (fileSize < 1) {
-		std::fclose(fp);
-		return -1;
-	}
-	std::fseek(fp, 0L, SEEK_SET);
-
-	void* texelMemAddr = alloc_direct_mem({ (size_t)fileSize, sce::Agc::Alignment::kBuffer });
-	if (nullptr == texelMemAddr) {
-		fclose(fp);
-		return 1;
-	}
-	if (std::fread(texelMemAddr, 1, fileSize, fp) != fileSize) {
-		// Deallocate memory #todo: Check how to dealloc this as off_t of direct memory is discarded in AllocDMem function
-		sceKernelReleaseFlexibleMemory(texelMemAddr, fileSize);
-		std::fclose(fp);
-		return -1;
-	}
-	std::fclose(fp);
-
-	// get image info.
-	parseParam.pngMemAddr = texelMemAddr;
-	parseParam.pngMemSize = fileSize;
-	parseParam.reserved0 = 0;
-	ret = scePngDecParseHeader(&parseParam, &imageInfo);
-	if (ret < 0) {
-		printf("Error: scePngDecParseHeader(), ret 0x%08x\n", ret);
-		return ret;
-	}
-	printImageInfo(imageInfo);
-
 	// allocate memory for output image
-	sce::Agc::Core::TextureSpec textureSpec;
-	textureSpec.init();
-	textureSpec.m_type = sce::Agc::Core::Texture::Type::k2d;
-	textureSpec.m_width = imageInfo.imageWidth;
-	textureSpec.m_height = imageInfo.imageHeight;
-	textureSpec.m_format = sce::Agc::Core::DataFormat({ sce::Agc::Core::TypedFormat::k8_8_8_8UNorm, sce::Agc::Core::Swizzle::kRGBA_R4S4 });
+	sce::Agc::Core::TextureSpec texture_spec;
+	texture_spec.init();
+	texture_spec.m_type = sce::Agc::Core::Texture::Type::k2d;
+	texture_spec.m_width = img.width;
+	texture_spec.m_height = img.height;
+	texture_spec.m_format = sce::Agc::Core::DataFormat({ sce::Agc::Core::TypedFormat::k8_8_8_8UNorm, sce::Agc::Core::Swizzle::kRGBA_R4S4 });
 
-	const sce::Agc::SizeAlign textureSizeAlign = sce::Agc::Core::getSize(&textureSpec);
-	textureSpec.m_dataAddress = alloc_direct_mem(textureSizeAlign);
-	if (textureSpec.m_dataAddress == nullptr)
+	const sce::Agc::SizeAlign texture_size_align = sce::Agc::Core::getSize(&texture_spec);
+	texture_spec.m_dataAddress = alloc_direct_mem(texture_size_align);
+	if (texture_spec.m_dataAddress == nullptr)
 	{
 		ret = 1; // Alloc Dmem failed to allocate memory
 		printf("Error: Allocate GPU Memory, ret 0x%08x\n", ret);
-		return ret;
+		return;
 	}
 
-	ret = sce::Agc::Core::initialize(&outTexture, &textureSpec);
+	ret = sce::Agc::Core::initialize(&img.texture, &texture_spec);
 	if (ret < 0) {
 		printf("Error: Agc::Core::initialize( sce::Agc::Core::Texture*, sce::Agc::Core::TextureSpec ), ret 0x%08x\n", ret);
-		return ret;
-	}
-
-	// query memory size for PNG decoder
-	createParam.thisSize = sizeof(createParam);
-	createParam.attribute = imageInfo.bitDepth >> 4;
-	createParam.maxImageWidth = imageInfo.imageWidth;
-	size_t decoderSize = scePngDecQueryMemorySize(&createParam);
-	if (decoderSize < 0) {
-		printf("Error: scePngDecQueryMemorySize(), ret %lu\n", decoderSize);
-		return ret;
-	}
-	// allocate memory for PNG decoder
-	void* decoderMemory = alloc_direct_mem({ decoderSize, 0 });
-	if (decoderMemory == nullptr) {
-		printf("Error: decoderMemory.allocate(), ret 0x%08x\n", ret);
-		return ret;
-	}
-	// create PNG decoder
-	ret = scePngDecCreate(&createParam, decoderMemory, decoderSize, &handle);
-	if (ret < 0) {
-		printf("Error: scePngDecCreate(), ret 0x%08x\n", ret);
-		return ret;
-	}
-
-	// decode PNG image
-	size_t pngDataSize = outTexture.getWidth() * outTexture.getHeight() * 4;
-	void* pngDataBuff = alloc_direct_mem({ pngDataSize , 0 });
-	if (ret < 0) {
-		printf("Error: imageMemory.allocate(), ret 0x%08x\n", ret);
-		scePngDecDelete(handle);
-		return ret;
-	}
-	decodeParam.pngMemAddr = texelMemAddr;
-	decodeParam.pngMemSize = fileSize;
-	decodeParam.imageMemAddr = pngDataBuff;
-	decodeParam.imageMemSize = pngDataSize;
-	decodeParam.imagePitch = outTexture.getWidth() * 4;
-	decodeParam.pixelFormat = SCE_PNG_DEC_PIXEL_FORMAT_R8G8B8A8;
-	decodeParam.alphaValue = 255;
-	ret = scePngDecDecode(handle, &decodeParam, NULL);
-	if (ret < 0) {
-		printf("Error: scePngDecDecode(), ret 0x%08x\n", ret);
-		scePngDecDelete(handle);
-		return ret;
-	}
-	// delete PNG decoder
-	ret = scePngDecDelete(handle);
-	if (ret < 0) {
-		printf("Error: scePngDecDelete(), ret 0x%08x\n", ret);
-		return ret;
+		return;
 	}
 
 	sce::AgcGpuAddress::SurfaceSummary surfaceSummary;
-	ret = sce::Agc::Core::translate(&surfaceSummary, &textureSpec);
+	ret = sce::Agc::Core::translate(&surfaceSummary, &texture_spec);
 	if (ret < 0) {
 		printf("Error: sce::Agc::Core::translate(), ret 0x%08x\n", ret);
-		return ret;
+		return;
 	}
-	ret = sce::AgcGpuAddress::tileSurface(outTexture.getDataAddress(), textureSizeAlign.m_size,
-		pngDataBuff, pngDataSize, &surfaceSummary, 0, 0);
+	ret = sce::AgcGpuAddress::tileSurface(
+		img.texture.getDataAddress(),
+		texture_size_align.m_size,
+		data,
+		img.width * img.height * 4,
+		&surfaceSummary, 0, 0);
 	if (ret < 0) {
 		printf("Error: sce::AgcGpuAddress::tileSurface(), ret 0x%08x\n", ret);
-		return ret;
+		return;
 	}
-	return 0;
 }
+
+/*
 
 int xs::render::internal::load_png(const std::string& filename, sce::Agc::Core::Texture& out_texture)
 {
@@ -400,58 +267,13 @@ int xs::render::internal::load_png(const std::string& filename, sce::Agc::Core::
 
 
 	{
-		int32_t ret = 0;
-
-		// allocate memory for output image
-		sce::Agc::Core::TextureSpec texture_spec;
-		texture_spec.init();
-		texture_spec.m_type = sce::Agc::Core::Texture::Type::k2d;
-		texture_spec.m_width = img.width;
-		texture_spec.m_height = img.height;
-		texture_spec.m_format = sce::Agc::Core::DataFormat({ sce::Agc::Core::TypedFormat::k8_8_8_8UNorm, sce::Agc::Core::Swizzle::kRGBA_R4S4 });
-
-		const sce::Agc::SizeAlign texture_size_align = sce::Agc::Core::getSize(&texture_spec);
-		texture_spec.m_dataAddress = alloc_direct_mem(texture_size_align);
-		if (texture_spec.m_dataAddress == nullptr)
-		{
-			ret = 1; // Alloc Dmem failed to allocate memory
-			printf("Error: Allocate GPU Memory, ret 0x%08x\n", ret);
-			return ret;
-		}
-
-		ret = sce::Agc::Core::initialize(&out_texture, &texture_spec);
-		if (ret < 0) {
-			printf("Error: Agc::Core::initialize( sce::Agc::Core::Texture*, sce::Agc::Core::TextureSpec ), ret 0x%08x\n", ret);
-			return ret;
-		}
-
-		sce::AgcGpuAddress::SurfaceSummary surfaceSummary;
-		ret = sce::Agc::Core::translate(&surfaceSummary, &texture_spec);
-		if (ret < 0) {
-			printf("Error: sce::Agc::Core::translate(), ret 0x%08x\n", ret);
-			return ret;
-		}
-		ret = sce::AgcGpuAddress::tileSurface(
-			out_texture.getDataAddress(),
-			texture_size_align.m_size,
-			data,
-			img.width * img.height * 4,
-			&surfaceSummary, 0, 0);
-		if (ret < 0) {
-			printf("Error: sce::AgcGpuAddress::tileSurface(), ret 0x%08x\n", ret);
-			return ret;
-		}
-
-		// create_gl_texture_with_data(img, data);
-		stbi_image_free(data);
 
 		const auto i = images.size();
 		images.push_back(img);
 		return static_cast<int>(i);
-
-		return 0;
 	}	
 }
+*/
 
 
 void xs::render::initialize()
@@ -767,10 +589,7 @@ void xs::render::clear()
 	sprite_queue.clear();
 }
 
-void xs::render::set_offset(double x, double y)
-{
-	xs::render::internal::offset = vec2((float)x, (float)y);
-}
+/*
 
 int xs::render::load_image(const std::string& image_file)
 {
@@ -864,6 +683,7 @@ int xs::render::get_image_width(int image_id)
 	auto& img = images[image_id];
 	return img.width;
 }
+*/
 
 void xs::render::begin(primitive p)
 {

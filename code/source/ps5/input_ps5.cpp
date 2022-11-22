@@ -110,13 +110,13 @@ double xs::input::get_axis(gamepad_axis axis)
 	if (axis == gamepad_axis::STICK_LEFT_X)
 		return (internal::data.leftStick.x - 128) / 128.0;
 	if (axis == gamepad_axis::STICK_LEFT_Y)
-		return (128 - internal::data.leftStick.y) / 128.0;
+		return (internal::data.leftStick.y - 128) / 128.0;
 
 	// right stick: -1 to 1
 	if (axis == gamepad_axis::STICK_RIGHT_X)
 		return (internal::data.rightStick.x - 128) / 128.0;
 	if (axis == gamepad_axis::STICK_RIGHT_Y)
-		return (128 - internal::data.rightStick.y) / 128.0;
+		return (internal::data.rightStick.y - 128) / 128.0;
 
 	// triggers: 0 to 1
 	if (axis == gamepad_axis::TRIGGER_LEFT)
