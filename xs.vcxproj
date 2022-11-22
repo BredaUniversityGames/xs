@@ -48,6 +48,11 @@
     <CustomBuild Include="nintendo\icon.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\source\render_gl.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="code\source\pc\account_pc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
@@ -189,9 +194,9 @@
     </ClCompile>
     <ClCompile Include="code\source\data.cpp" />
     <ClCompile Include="code\source\render.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="code\source\script.cpp" />
     <ClCompile Include="code\source\tools.cpp" />
@@ -544,6 +549,8 @@ copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)</Comman
       <CppLanguageStd>Cpp17</CppLanguageStd>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <CLanguageStd>C99</CLanguageStd>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -592,6 +599,8 @@ copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)"</Comma
       <CppExceptions>true</CppExceptions>
       <CppLanguageStd>Cpp17</CppLanguageStd>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <CLanguageStd>C99</CLanguageStd>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -646,6 +655,8 @@ copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)"</Comma
       <CppExceptions>true</CppExceptions>
       <CppLanguageStd>Cpp17</CppLanguageStd>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <CLanguageStd>C99</CLanguageStd>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

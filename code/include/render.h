@@ -47,6 +47,35 @@ namespace xs::render
 		color add,
 		unsigned int flags);
 
+	/*
+	void render_grid(
+		int sprite_id,
+		double x,
+		double y,
+		double z,
+		double size,
+		double rotation,
+		color mutiply,
+		color add,
+		unsigned int flags);
+	*/
+	void render_grid(
+		int image_id,
+		int rows,
+		int columns,
+		double x,
+		double y,
+		double z,
+		double sx,
+		double sy,
+		int indices[],		
+		color mutiplies[],
+		color adds[],
+		color z_offests[],
+		unsigned int flags);
+
+
+
 	void render_text(
 		int font_id,
 		const std::string& text,
