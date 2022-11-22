@@ -166,6 +166,9 @@
     <ClCompile Include="code\source\audio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="code\source\render_gl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="nintendo\xs.aarch64.nmeta" />

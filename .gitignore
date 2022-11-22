@@ -52,7 +52,6 @@ Thumbs.db
 *.wmv
 
 .vs/
-xs.vcxproj.user
 executable/
 intermediate/
 build/
