@@ -44,6 +44,9 @@ namespace xs::render::internal
 	std::vector<font_atlas>			fonts = {};
 	std::vector<image>				images = {};
 	glm::vec2						offset = glm::vec2(0.0f, 0.0f);
+
+	const int FONT_ATLAS_MIN_CHARACTER = 32;
+	const int FONT_ATLAS_NR_CHARACTERS = 96;
 }
 
 using namespace xs;
@@ -89,29 +92,35 @@ int xs::render::load_font(const std::string& font_file, double size)
 	// Get font info
 	if (!stbtt_InitFont(&font.info, font.buffer, 0))
 		log::info("initializing font has failed\n");
-
-	image img;
-	img.width = 256;
-	img.height = 256;
-	auto bitmap = static_cast<unsigned char*>(malloc(img.width * img.height));	
-
-	stbtt_pack_context pc;	
-	stbtt_PackBegin(&pc, bitmap, img.width, img.height, 0, 2, nullptr);
 	
+	// calculate by what factor to scale the font at render time
 	int ascent;
 	int descent;
 	int lineGap;
 	stbtt_GetFontVMetrics(&font.info, &ascent, &descent, &lineGap);
 	font.scale = (size / double(ascent - descent));
 
+	// calculate how big the font atlas png should be
+	int requiredPixels = (int)size * (int)size * FONT_ATLAS_NR_CHARACTERS;
+	auto dimension = tools::next_power_of_two((uint32)sqrt(requiredPixels));
+
+	image img;
+	int val = ascent - descent;
+	img.width = dimension;
+	img.height = dimension;
+	auto bitmap = static_cast<unsigned char*>(malloc(img.width * img.height));
+
 	// pack font
 	font.packed_chars.resize(96);
-
-	stbtt_PackFontRange(&pc, font.buffer, 0, (float)size, 33, 92, &font.packed_chars[0]);
-
-	// Apply
+	
+	// pack font
+	stbtt_pack_context pc;
+	stbtt_PackBegin(&pc, bitmap, img.width, img.height, 0, 2, nullptr);
+	font.packed_chars.resize(96);
+	stbtt_PackFontRange(&pc, font.buffer, 0, (float)size, FONT_ATLAS_MIN_CHARACTER, FONT_ATLAS_NR_CHARACTERS, &font.packed_chars[0]);
 	stbtt_PackEnd(&pc);
 
+	// make the image monochrome; preserve alpha
 	auto n = img.width * img.height;
 	auto rgba = new color[n];
 	for (int i = 0; i < n; i++) {
@@ -119,7 +128,7 @@ int xs::render::load_font(const std::string& font_file, double size)
 		c.rgba[0] = 255;	// Channels are flipped here :D
 		c.rgba[1] = 255;
 		c.rgba[2] = 255;
-		c.rgba[3] = bitmap[i] > 196 ? 255 : 0;
+		c.rgba[3] = bitmap[i];
 		rgba[i] = c;
 	}
 
@@ -134,7 +143,8 @@ int xs::render::load_font(const std::string& font_file, double size)
 	font.string_id = id;
 
 #if DEBUG_FONT_ATLAS
-	stbi_write_png("FontAtlas.png", img.width, img.height, 4, rgba, 0);
+	std::string filename = std::string("FontAtlas-") + std::to_string(size) + ".png";
+	stbi_write_png(filename.c_str(), img.width, img.height, 4, rgba, 0);
 #endif
 	free(bitmap);
 
@@ -170,7 +180,7 @@ void xs::render::render_text(
 	auto last_idx = sprite_queue.size();
 	for (size_t i = 0; i < text.size(); i++)
 	{
-		const int charIndex = text[i] - 33;
+		const int charIndex = text[i] - FONT_ATLAS_MIN_CHARACTER;
 
 		stbtt_aligned_quad quad;
 		float tx = 0;
