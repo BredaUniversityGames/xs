@@ -68,12 +68,12 @@ int xs::render::load_font(const std::string& font_file, double size)
 	const std::string path = fileio::get_path(font_file);
 	FILE* file;
 #ifdef _WIN32 // defined to 32 and 64
-	bool sucess = fopen_s(&file, path.c_str(), "rb") == 0;
+	bool success = fopen_s(&file, path.c_str(), "rb") == 0;
 #else 
 	file = fopen(path.c_str(), "rb");
-	bool sucess = file != nullptr;
+	bool success = file != nullptr;
 #endif
-	assert(sucess);
+	assert(success);
 
 	long lSize;
 	fseek(file, 0, SEEK_END);		// obtain file size
@@ -290,7 +290,7 @@ void xs::render::render_sprite(
 	double z,
 	double scale,
 	double rotation,
-	color mutiply,
+	color multiply,
 	color add,
 	unsigned int flags)
 {
@@ -309,7 +309,7 @@ void xs::render::render_sprite(
 		z,
 		scale,
 		rotation,
-		mutiply,
+		multiply,
 		add,
 		flags
 	});
