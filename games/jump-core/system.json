@@ -1,10 +1,6 @@
 {
     "Always on top": {
         "type": "bool",
-        "value": true
-    },
-    "Fullscreen": {
-        "type": "bool",
         "value": false
     },
     "Height": {
@@ -13,11 +9,11 @@
     },
     "Multiplier": {
         "type": "number",
-        "value": 2.0
+        "value": 1.0
     },
     "Title": {
         "type": "string",
-        "value": "~~seedwave~~"
+        "value": "JumpCore"
     },
     "Width": {
         "type": "number",
