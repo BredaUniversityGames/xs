@@ -104,7 +104,7 @@ class EnemyCore is Component {
         var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
         d = d.normalise
         var b = owner.getComponent(Body)
-        b.velocity = d * 200.0 
+        b.velocity = d * 20.0 
 
         /*
         _time = _time + dt * 0.5

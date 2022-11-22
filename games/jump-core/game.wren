@@ -327,9 +327,9 @@ class Game {
         var e = Enemy.new(idx, tilt, core, bulletType)
         var u = Unit.new(Team.computer, Globals.EnemyHealth)
         var c = DebugColor.new(Globals.EnemyColor)
-        var s = Sprite.new("[games]/jump-core/images/ships/Purple-1.png")
+        var s = Sprite.new("[games]/jump-core/images/ships/Enemies-6b.png")
         s.layer = 0.9
-        s.flags = Render.spriteCenter | Render.spriteFlipX
+        s.flags = Render.spriteCenter
         ship.addComponent(t)
         ship.addComponent(b)
         ship.addComponent(e)
