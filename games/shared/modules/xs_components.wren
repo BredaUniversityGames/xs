@@ -168,6 +168,8 @@ class GridSprite is Sprite {
 
     idx{ _idx }
 
+    [i] { _sprites[i] }
+
     toString { "[GridSprite _idx:%(_idx) from:%(_sprites.count) ] -> " + super.toString }
 }
 
@@ -219,9 +221,10 @@ class AnimatedSprite is GridSprite {
     }
 
     playAnimation(name) {
-        // assert name is string
-        _currentFrame = 0
-        _currentName = name
+        if(_animations.containsKey(name)) {
+            _currentFrame = 0
+            _currentName = name
+        }
     }
 
     randomizeFrame(random) {        
@@ -235,6 +238,8 @@ class AnimatedSprite is GridSprite {
     static once { 0 }
     static loop { 1 } 
     static destroy { 2 }    
+
+    toString { "[AnimatedSprite _mode:%(_mode) _currentName:%(_currentName) ] -> " + super.toString }
 }
 
 class Relation is Component {

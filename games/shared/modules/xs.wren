@@ -118,11 +118,31 @@ class Render {
         sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }
 
+    static sprite(spriteId, x, y, z) {
+        sprite(spriteId, x, y, z, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
+    }
+
+    static sprite(spriteId, x, y, z, flags) {
+        sprite(spriteId, x, y, z, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, flags)
+    }
+
     static createGridSprite(imageId, columns, rows,  c, r) {
         var ds = 1 / columns
         var dt = 1 / rows        
         var s = c * ds
         var t = r * dt
+        return createSprite(imageId, s, t, s + ds, t + dt)
+    }
+
+    static createGridSprite(imageId, columns, rows,  idx) { 
+        var ds = 1 / columns
+        var dt = 1 / rows
+        var r = (idx / columns).truncate
+        var c = idx % columns
+        var s = c * ds
+        var t = r * dt
+        System.print("imageId: %(imageId), columns:%(columns), rows:%(rows),  idx:%(idx)")
+        System.print("c: %(c), r:%(r), s:%(s),  t:%(t)")
         return createSprite(imageId, s, t, s + ds, t + dt)
     }
 
