@@ -34,10 +34,10 @@
     <ClCompile Include="external\glad\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\pc\device_pc.cpp">
+    <ClCompile Include="code\source\pc\opengl\device_gl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\opengl.cpp">
+    <ClCompile Include="code\source\pc\opengl\opengl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\source\render.cpp">
@@ -166,7 +166,13 @@
     <ClCompile Include="code\source\audio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\render_gl.cpp">
+    <ClCompile Include="code\source\pc\opengl\render_gl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\source\pc\vulkan\device_vk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\source\pc\vulkan\render_vk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -294,7 +300,7 @@
     <ClInclude Include="code\source\ps5\Instance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\source\render_internal.h">
+    <ClInclude Include="code\include\render_internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\include\audio.h">
