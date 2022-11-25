@@ -193,8 +193,8 @@ void xs::render::shutdown()
 void xs::render::render()
 {	
 	XS_PROFILE_SECTION("xs::render::render");
-	auto w = width / 2.0f;
-	auto h = height / 2.0f;
+	auto w = width * 0.5f;
+	auto h = height * 0.5f;
 	mat4 p = ortho(-w, w, -h, h, -100.0f, 100.0f);
 	mat4 v = lookAt(vec3(0.0f, 0.0f, 100.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
 	mat4 vp = p * v;
