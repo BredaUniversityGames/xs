@@ -1,5 +1,5 @@
 #pragma once
-namespace xs::render::commandqueu
+namespace xs::render::commandqueue
 {
 	void initialize();
 	void shutdown();
