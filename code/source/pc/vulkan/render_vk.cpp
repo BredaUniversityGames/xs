@@ -11,6 +11,8 @@
 #include "tools.h"
 #include "profiler.h"
 #include "render.h"
+#include <vulkan.hpp>
+#include <GLFW/glfw3.h>
 
 using namespace glm;
 
@@ -32,6 +34,9 @@ namespace xs::render::internal
 	primitive				current_primitive = primitive::none;
 
 	vec4					current_color;
+	VkInstance              instance;
+
+	std::vector<std::string> supportedInstanceExtensions;
 }
 
 using namespace xs;
@@ -41,6 +46,73 @@ void xs::render::initialize()
 {
 	width = configuration::width();
 	height = configuration::height();
+
+	VkApplicationInfo appInfo{};
+	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	appInfo.pApplicationName = configuration::title().c_str();
+	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.pEngineName = "xs";
+	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+	appInfo.apiVersion = VK_API_VERSION_1_0;
+
+	std::vector<const char*> instanceExtensions = { VK_KHR_SURFACE_EXTENSION_NAME };
+
+	// Get extensions supported by the instance and store for later use
+	uint32_t extCount = 0;
+	vkEnumerateInstanceExtensionProperties(nullptr, &extCount, nullptr);
+	if (extCount > 0)
+	{
+		std::vector<VkExtensionProperties> extensions(extCount);
+		if (vkEnumerateInstanceExtensionProperties(nullptr, &extCount, &extensions.front()) == VK_SUCCESS)
+		{
+			for (VkExtensionProperties extension : extensions)
+			{
+				supportedInstanceExtensions.push_back(extension.extensionName);
+			}
+		}
+	}
+
+	VkInstanceCreateInfo instanceCreateInfo = {};
+	instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	instanceCreateInfo.pNext = NULL;
+	instanceCreateInfo.pApplicationInfo = &appInfo;
+
+	if (instanceExtensions.size() > 0)
+	{
+		#if defined(DEBUG)
+			instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);	// SRS - Dependency when VK_EXT_DEBUG_MARKER is enabled
+			instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		#endif
+		instanceCreateInfo.enabledExtensionCount = (uint32_t)instanceExtensions.size();
+		instanceCreateInfo.ppEnabledExtensionNames = instanceExtensions.data();
+	}
+
+	const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
+	#if defined(DEBUG)
+		// Check if this layer is available at instance level
+		uint32_t instanceLayerCount;
+		vkEnumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
+		std::vector<VkLayerProperties> instanceLayerProperties(instanceLayerCount);
+		vkEnumerateInstanceLayerProperties(&instanceLayerCount, instanceLayerProperties.data());
+		bool validationLayerPresent = false;
+		for (VkLayerProperties layer : instanceLayerProperties) {
+			if (strcmp(layer.layerName, validationLayerName) == 0) {
+				validationLayerPresent = true;
+				break;
+			}
+		}
+		if (validationLayerPresent) {
+			instanceCreateInfo.ppEnabledLayerNames = &validationLayerName;
+			instanceCreateInfo.enabledLayerCount = 1;
+		}
+		else 
+		{
+			spdlog::critical("Validation layer VK_LAYER_KHRONOS_validation not present, validation is disabled");
+			assert(false);
+		}
+	#endif
+
+
 }
 
 void xs::render::render()
@@ -89,6 +161,7 @@ void xs::render::render()
 
 void xs::render::shutdown()
 {
+	vkDestroyInstance(instance, nullptr);
 	// TODO: Delete all images
 }
 
