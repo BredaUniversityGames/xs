@@ -48,6 +48,7 @@
     <CustomBuild Include="nintendo\icon.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\source\pc\vulkan\fence_vk.cpp" />
     <ClCompile Include="code\source\pc\opengl\render_gl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
