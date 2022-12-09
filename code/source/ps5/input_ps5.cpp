@@ -213,3 +213,50 @@ double xs::input::get_touch_y(int index)
 	// TODO: scale to game coordinates
 	return static_cast<double>(internal::touches_gameCoordinates[index].second);
 }
+
+void xs::input::set_gamepad_vibration(int smallRumble, int largeRumble)
+{
+	//convert the parameters to uint8_t
+	scePadSetVibrationMode(internal::handle, SCE_PAD_VIBRATION_MODE_COMPATIBLE2);
+
+	ScePadVibrationParam rumbleParameter;
+	rumbleParameter.smallMotor = smallRumble;
+	rumbleParameter.largeMotor = largeRumble;
+
+	if (scePadSetVibration(internal::handle, &rumbleParameter) < 0)
+	{
+		//Note form kevin: Removed error code printing since this was done nowhere else
+		//TODO: print out error code
+	}
+}
+
+void xs::input::set_lightbar_colour(double red, double green, double blue)
+{
+	//Ap the RGB colours so they dont exeed 255 or get lower than 0
+	if (red > 255)
+		red = 255;
+	else if (red < 0)
+		red = 0;
+
+	if (green > 255)
+		green = 255;
+	else if (green < 0)
+		green = 0;
+
+	if (blue > 255)
+		blue = 255;
+	else if (blue < 0)
+		blue = 0;
+
+	ScePadLightBarParam lightbarParameter;
+	lightbarParameter.r = red;
+	lightbarParameter.g = green;
+	lightbarParameter.b = blue;
+
+	scePadSetLightBar(internal::handle, &lightbarParameter);
+}
+
+void xs::input::reset_lightbar()
+{
+	scePadResetLightBar(internal::handle);
+}
