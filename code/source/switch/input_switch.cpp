@@ -494,6 +494,22 @@ double xs::input::get_touch_y(int index)
 	return 0.0;
 }
 
+void xs::input::set_gamepad_vibration(int smallRumble, int largeRumble)
+{
+	//Unimplemented on the switch
+}
+
+void xs::input::set_lightbar_colour(double red, double green, double blue)
+{
+	//Unimplemented on the switch
+}
+
+void xs::input::reset_lightbar()
+{
+	//Unimplemented on the switch
+}
+
+
 std::string GetName(JoystickType type)
 {
 	switch (type)

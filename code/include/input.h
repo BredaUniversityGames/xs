@@ -151,4 +151,25 @@ namespace xs::input
 	/// </summary>
 	/// <param name="index">The array index of the touch point to check.</param>
 	double get_touch_y(int index);
+
+	/// <summary>
+	/// Turns on vibration for the left and right motor in dualshock controllers (currently not setup to allow for audio to produce the rumble)
+	/// <para> Currently only implemented for the PS5 and dualshock 4+ controllers</para>
+	/// </summary>
+	/// <param name="lightRumble">Value between 0 (off) and 255 (max rotation) for the small motor rotation</param>
+	/// <param name="heavyRumble">Value between 0 (off) and 255 (max rotation) for the large motor rotation</param>
+	void set_gamepad_vibration(int smallRumble, int largeRumble);
+
+	/// <summary>
+	/// Sets the colour vlaue for the lightbar on Dualshock controllers (4 and up)
+	/// <para> Currently only implemented for the PS5 and dualshock 4+ controllers</para>
+	/// </summary>
+	/// <param name="red, green, blue"> The new coulour values in RGB format ranging between 0 and 255</param>
+	void set_lightbar_colour(double red, double green, double blue);
+
+	/// <summary>
+	/// Turns off the light bar
+	/// <para> Currently only implemented for the PS5 and dualshock 4+ controllers</para> 
+	/// </summary>
+	void reset_lightbar();
 }
