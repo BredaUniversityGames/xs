@@ -61,6 +61,7 @@ namespace xs::render::internal
 
 	std::vector<VkImage>           swapchain_images;
 	std::vector<VkImageView>       swapchain_image_views;
+	std::vector<VkFramebuffer>     swapchain_framebuffers;
 	std::vector<std::string>       supported_instance_extensions;
 	std::vector<const char*>       instance_extensions;
 	const std::vector<const char*> device_extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
@@ -737,7 +738,30 @@ void create_present_queue()
 
 void create_frame_buffer()
 {
+	swapchain_framebuffers.resize(swapchain_image_views.size());
 
+	for (size_t i = 0; i < swapchain_image_views.size(); i++) 
+	{
+		VkImageView attachments[] = 
+		{
+			swapchain_image_views[i]
+		};
+
+		VkFramebufferCreateInfo framebufferInfo{};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = render_pass;
+		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.pAttachments = attachments;
+		framebufferInfo.width = swapchain_extent.width;
+		framebufferInfo.height = swapchain_extent.height;
+		framebufferInfo.layers = 1;
+
+		if (vkCreateFramebuffer(current_device, &framebufferInfo, nullptr, &swapchain_framebuffers[i]) != VK_SUCCESS) 
+		{
+			spdlog::critical("[Swapchain]: Failed to create framebuffer!");
+			assert(false);
+		}
+	}
 }
 
 void xs::render::initialize()
@@ -808,6 +832,9 @@ void xs::render::render()
 
 void xs::render::shutdown()
 {
+	for (auto framebuffer : swapchain_framebuffers) 
+		vkDestroyFramebuffer(current_device, framebuffer, nullptr);
+
 	vkDestroyPipeline(current_device, graphics_pipeline, nullptr);
 	vkDestroyRenderPass(current_device, render_pass, nullptr);
 	vkDestroyPipelineLayout(current_device, pipeline_layout, nullptr);
