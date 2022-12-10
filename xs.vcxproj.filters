@@ -175,12 +175,6 @@
     <ClCompile Include="code\source\pc\vulkan\render_vk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\pc\vulkan\instance_vk.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="code\source\pc\vulkan\fence_vk.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="nintendo\xs.aarch64.nmeta" />
@@ -345,22 +339,7 @@
     <ClInclude Include="external\fmod\fmod_studio_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\include\vulkan\instance_vk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\vulkan\crossplatform_vk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\vulkan\swapchain_vk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\vulkan\fence_vk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\vulkan\commandqueue_vk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\vulkan\pipelinestate_vk.h">
+    <ClInclude Include="code\include\vulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

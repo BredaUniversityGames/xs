@@ -13,6 +13,7 @@
 #include "render.h"
 #include <vulkan.hpp>
 #include <GLFW/glfw3.h>
+#include <map>
 
 using namespace glm;
 
@@ -29,24 +30,79 @@ namespace xs::render::internal
 	int const lines_max             =  16000;
 	int const triangles_max         =  21800;
 
-	vertex_format			vertex_array[lines_max * 2];
-	vertex_format			triangles_array[triangles_max * 3];
-	primitive				current_primitive = primitive::none;
+	vertex_format			 vertex_array[lines_max * 2];
+	vertex_format			 triangles_array[triangles_max * 3];
+	primitive				 current_primitive = primitive::none;
 
-	vec4					current_color;
-	VkInstance              instance;
+	vec4					 current_color;
 
-	std::vector<std::string> supportedInstanceExtensions;
+	uint32_t                 amount_gpu_devices    =  0;
+	VkInstance               instance;
+	VkDebugUtilsMessengerEXT debugMessenger;
+	VkPhysicalDevice         currentDevice;
+
+	std::vector<std::string>      supportedInstanceExtensions;
 }
 
 using namespace xs;
 using namespace xs::render::internal;
 
-void xs::render::initialize()
+static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
+	VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+	VkDebugUtilsMessageTypeFlagsEXT messageType,
+	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+	void* pUserData) 
 {
-	width = configuration::width();
-	height = configuration::height();
+	spdlog::error("[ValidationLayer]: {}", pCallbackData->pMessage);
+	return VK_FALSE;
+}
 
+VkResult create_debug_utils(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) 
+{
+	auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+	if (func != nullptr) {
+		return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
+	}
+	else {
+		return VK_ERROR_EXTENSION_NOT_PRESENT;
+	}
+}
+
+void destroy_debug_utils(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) 
+{
+	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
+	if (func != nullptr) {
+		func(instance, debugMessenger, pAllocator);
+	}
+}
+
+int RateDeviceSuitability(VkPhysicalDevice device) 
+{
+	VkPhysicalDeviceProperties deviceProperties;
+	VkPhysicalDeviceFeatures deviceFeatures;
+	vkGetPhysicalDeviceProperties(device, &deviceProperties);
+	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+	int score = 0;
+
+	// Discrete GPUs have a significant performance advantage
+	if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+		score += 1000;
+	}
+
+	// Maximum possible size of textures affects graphics quality
+	score += deviceProperties.limits.maxImageDimension2D;
+
+	// Application can't function without geometry shaders
+	if (!deviceFeatures.geometryShader) {
+		return 0;
+	}
+
+	return score;
+}
+
+void create_instance()
+{
 	VkApplicationInfo appInfo{};
 	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 	appInfo.pApplicationName = configuration::title().c_str();
@@ -65,7 +121,7 @@ void xs::render::initialize()
 		std::vector<VkExtensionProperties> extensions(extCount);
 		if (vkEnumerateInstanceExtensionProperties(nullptr, &extCount, &extensions.front()) == VK_SUCCESS)
 		{
-			for (VkExtensionProperties extension : extensions)
+			for (const VkExtensionProperties& extension : extensions)
 			{
 				supportedInstanceExtensions.push_back(extension.extensionName);
 			}
@@ -79,40 +135,105 @@ void xs::render::initialize()
 
 	if (instanceExtensions.size() > 0)
 	{
-		#if defined(DEBUG)
-			instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);	// SRS - Dependency when VK_EXT_DEBUG_MARKER is enabled
-			instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-		#endif
+#if defined(DEBUG)
+		instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);	// SRS - Dependency when VK_EXT_DEBUG_MARKER is enabled
+		instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
 		instanceCreateInfo.enabledExtensionCount = (uint32_t)instanceExtensions.size();
 		instanceCreateInfo.ppEnabledExtensionNames = instanceExtensions.data();
 	}
 
+	if (vkCreateInstance(&instanceCreateInfo, nullptr, &instance) != VK_SUCCESS)
+	{
+		spdlog::critical("[ValidationLayer]: Failed to create instance!");
+		assert(false);
+	}
+
+#if defined(DEBUG)
 	const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
-	#if defined(DEBUG)
-		// Check if this layer is available at instance level
-		uint32_t instanceLayerCount;
-		vkEnumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
-		std::vector<VkLayerProperties> instanceLayerProperties(instanceLayerCount);
-		vkEnumerateInstanceLayerProperties(&instanceLayerCount, instanceLayerProperties.data());
-		bool validationLayerPresent = false;
-		for (VkLayerProperties layer : instanceLayerProperties) {
-			if (strcmp(layer.layerName, validationLayerName) == 0) {
-				validationLayerPresent = true;
-				break;
-			}
+	// Check if this layer is available at instance level
+	uint32_t instanceLayerCount;
+	vkEnumerateInstanceLayerProperties(&instanceLayerCount, nullptr);
+	std::vector<VkLayerProperties> instanceLayerProperties(instanceLayerCount);
+	vkEnumerateInstanceLayerProperties(&instanceLayerCount, instanceLayerProperties.data());
+	bool validationLayerPresent = false;
+	for (const VkLayerProperties& layer : instanceLayerProperties) {
+		if (strcmp(layer.layerName, validationLayerName) == 0) {
+			validationLayerPresent = true;
+			break;
 		}
-		if (validationLayerPresent) {
-			instanceCreateInfo.ppEnabledLayerNames = &validationLayerName;
-			instanceCreateInfo.enabledLayerCount = 1;
-		}
-		else 
-		{
-			spdlog::critical("Validation layer VK_LAYER_KHRONOS_validation not present, validation is disabled");
-			assert(false);
-		}
-	#endif
+	}
+	if (validationLayerPresent) {
+		instanceCreateInfo.ppEnabledLayerNames = &validationLayerName;
+		instanceCreateInfo.enabledLayerCount = 1;
+	}
+	else
+	{
+		spdlog::critical("[ValidationLayer]: VK_LAYER_KHRONOS_validation not present, validation is disabled");
+		assert(false);
+	}
+#endif
+}
+
+void create_debug_handler()
+{
+	VkDebugUtilsMessengerCreateInfoEXT createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	createInfo.pfnUserCallback = debug_callback;
+	createInfo.pUserData = nullptr;
+
+	if (create_debug_utils(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
+	{
+		spdlog::critical("[ValidationLayer]: Failed to set up debug messenger!");
+		assert(false);
+	}
+}
+
+void CreateGPUDevives()
+{
+	vkEnumeratePhysicalDevices(instance, &amount_gpu_devices, nullptr);
+	std::vector<VkPhysicalDevice> devices(amount_gpu_devices);
+	vkEnumeratePhysicalDevices(instance, &amount_gpu_devices, devices.data());
+
+	if (amount_gpu_devices == 0)
+	{
+		spdlog::critical("[GPU]: Failed to find GPUs with Vulkan support! ");
+		assert(false);
+	}
 
 
+	std::multimap<int, VkPhysicalDevice> candidates;
+	for (const auto& device : devices) 
+	{
+		int score = RateDeviceSuitability(device);
+		candidates.insert(std::make_pair(score, device));
+	}
+
+	if (candidates.rbegin()->first > 0) 
+	{
+		currentDevice = candidates.rbegin()->second;
+	}
+	else 
+	{
+		spdlog::critical("[GPU]: Failed to find a suitable GPU! ");
+		assert(false);
+	}
+}
+
+void xs::render::initialize()
+{
+	width = configuration::width();
+	height = configuration::height();
+
+	create_instance();
+
+#if defined(DEBUG)
+	create_debug_handler();
+#endif
+
+	CreateGPUDevives();
 }
 
 void xs::render::render()
@@ -161,7 +282,12 @@ void xs::render::render()
 
 void xs::render::shutdown()
 {
+#if defined(DEBUG)
+	destroy_debug_utils(instance, debugMessenger, nullptr);
+#endif
+
 	vkDestroyInstance(instance, nullptr);
+
 	// TODO: Delete all images
 }
 
