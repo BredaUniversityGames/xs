@@ -82,11 +82,11 @@ int xs::main(int argc, char* argv[])
             script::render();
         }
         render::render();
-        //inspector::render(float(dt));
+        inspector::render(float(dt));
         device::swap_buffers();
 	}
 
-    //inspector::shutdown();
+    inspector::shutdown();
     audio::shutdown();
     input::shutdown();
     render::shutdown();

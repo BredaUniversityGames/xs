@@ -129,3 +129,4 @@ int xs::device::get_height()
 	return internal::height;
 }
 #endif
+

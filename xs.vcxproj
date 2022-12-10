@@ -266,6 +266,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="external\imgui\imgui_impl_vulkan.cpp" />
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
     <ClCompile Include="external\imgui\implot.cpp" />
@@ -314,7 +315,10 @@
     <ClInclude Include="code\include\tools.h" />
     <ClInclude Include="code\include\version.h" />
     <ClInclude Include="code\include\vulkan.h" />
-    <ClInclude Include="code\source\pc\vulkan\render_vk.h" />
+    <ClInclude Include="code\include\vulkan\render_vk.h" />
+    <ClInclude Include="code\include\vulkan\pipeline_vk.h" />
+    <ClInclude Include="code\include\vulkan\shadermanager_vk.h" />
+    <ClInclude Include="code\include\vulkan\swapchain_vk.h" />
     <ClInclude Include="code\source\ps5\address_sanitizer_utils.h" />
     <ClInclude Include="code\source\ps5\Camera.h" />
     <ClInclude Include="code\source\ps5\Instance.h" />

@@ -23,6 +23,8 @@
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
+#include "vulkan/render_vk.h"
+
 using namespace glm;
 
 namespace xs::render::internal
@@ -1199,4 +1201,45 @@ void xs::render::text(const std::string& text, double x, double y, double size)
 			return;
 	}
 }
+
+VkDevice& xs::render::get_device()
+{
+	return current_device;
+}
+
+VkPhysicalDevice& xs::render::get_gpu_device()
+{
+	return current_gpu;
+}
+
+VkInstance& xs::render::get_instance()
+{
+	return instance;
+}
+
+VkQueue& xs::render::get_queue()
+{
+	return graphics_queue;
+}
+
+uint32_t xs::render::get_family_queue()
+{
+	return pick_queue_families(current_gpu).graphics_family.value();
+}
+
+VkSurfaceKHR& xs::render::get_surface()
+{
+	return surface;
+}
+
+VkRenderPass& xs::render::get_renderpass()
+{
+	return render_pass;
+}
+
+VkCommandBuffer& xs::render::get_command_buffer()
+{
+	return command_buffers[current_frame];
+}
+
 #endif
