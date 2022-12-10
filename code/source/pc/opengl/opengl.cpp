@@ -1,3 +1,4 @@
+#if defined(OPENGL)
 #include <string>
 #define GLFW_INCLUDE_NONE
 #include <opengl.h>
@@ -196,4 +197,4 @@ void init_debug_messages()
 	glDebugMessageCallback(debug_callback_func, NULL);
 }
 #endif
-
+#endif

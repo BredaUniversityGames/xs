@@ -1,3 +1,4 @@
+#if defined(VULKAN)
 #include "device.h"
 #include "device_pc.h"
 #include "log.h"
@@ -5,8 +6,10 @@
 #include "fileio.h"
 #include "data.h"
 #include "profiler.h"
-#include <GLFW/glfw3.h>
 #include <stb/stb_image.h>
+
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 
 namespace xs::device::internal
 {
@@ -20,7 +23,7 @@ using namespace xs::device;
 
 static void errorCallback(int error, const char* description)
 {
-	fputs(description, stderr);
+	spdlog::error("[GLFW]: {}", description);
 }
 
 void device::initialize()
@@ -42,13 +45,7 @@ void device::initialize()
 	if (configuration::on_top())
 		glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
-#if defined(DEBUG)	
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-	glfwWindowHint(GLFW_FOCUSED, GLFW_TRUE);
-#else
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_FALSE);
-#endif
-
+	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	internal::width = configuration::width() * configuration::multiplier();
@@ -67,9 +64,6 @@ void device::initialize()
 		assert(false);
 		exit(EXIT_FAILURE);
 	}
-
-	glfwMakeContextCurrent(internal::window);
-	glfwSwapInterval(1);
 
 	int major = glfwGetWindowAttrib(internal::window, GLFW_CONTEXT_VERSION_MAJOR);
 	int minor = glfwGetWindowAttrib(internal::window, GLFW_CONTEXT_VERSION_MINOR);
@@ -96,7 +90,7 @@ void device::shutdown()
 void device::swap_buffers()
 {
 	XS_PROFILE_FUNCTION();
-	glfwSwapBuffers(internal::window);
+	//glfwSwapBuffers(internal::window);
 }
 
 void device::poll_events()
@@ -134,3 +128,4 @@ int xs::device::get_height()
 {
 	return internal::height;
 }
+#endif

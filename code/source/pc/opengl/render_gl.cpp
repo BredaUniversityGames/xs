@@ -1,3 +1,4 @@
+#if defined(OPENGL)
 #include "render.h"
 #include "render_internal.h"
 #include <ios>
@@ -722,3 +723,4 @@ bool xs::render::internal::link_program(GLuint program)
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	return status != 0;
 }
+#endif

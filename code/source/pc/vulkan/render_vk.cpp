@@ -1,3 +1,4 @@
+#if defined(VULKAN)
 #include "render_internal.h"
 #include <ios>
 #include <glm/glm.hpp>
@@ -5,15 +6,22 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <stb/stb_image.h>
 #include <stb/stb_easy_font.h>
+#include <map>
+#include <set>
 #include "configuration.h"
 #include "fileio.h"
 #include "log.h"
 #include "tools.h"
 #include "profiler.h"
 #include "render.h"
-#include <vulkan.hpp>
+#include "device_pc.h"
+#include <optional>
+
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan.h>
+#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
-#include <map>
+#include <GLFW/glfw3native.h>
 
 using namespace glm;
 
@@ -38,10 +46,15 @@ namespace xs::render::internal
 
 	uint32_t                 amount_gpu_devices    =  0;
 	VkInstance               instance;
-	VkDebugUtilsMessengerEXT debugMessenger;
-	VkPhysicalDevice         currentDevice;
+	VkDebugUtilsMessengerEXT debug_messenger;
+	VkPhysicalDevice         current_gpu;
+	VkDevice                 current_device;
+	VkSurfaceKHR             surface;
+	VkQueue                  graphics_queue;
+	VkQueue                  present_queue;
 
 	std::vector<std::string>      supportedInstanceExtensions;
+	std::vector<const char*>      instanceExtensions;
 }
 
 using namespace xs;
@@ -53,7 +66,23 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
 	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 	void* pUserData) 
 {
-	spdlog::error("[ValidationLayer]: {}", pCallbackData->pMessage);
+	switch (messageSeverity)
+	{
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+		spdlog::info("[ValidationLayer]: {}", pCallbackData->pMessage);
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+		spdlog::warn("[ValidationLayer]: {}", pCallbackData->pMessage);
+		break;
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_FLAG_BITS_MAX_ENUM_EXT:
+		spdlog::critical("[ValidationLayer]: {}", pCallbackData->pMessage);
+
+		break;
+	default:
+		break;
+	}
 	return VK_FALSE;
 }
 
@@ -71,12 +100,13 @@ VkResult create_debug_utils(VkInstance instance, const VkDebugUtilsMessengerCrea
 void destroy_debug_utils(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator) 
 {
 	auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT");
-	if (func != nullptr) {
+	if (func != nullptr) 
+	{
 		func(instance, debugMessenger, pAllocator);
 	}
 }
 
-int RateDeviceSuitability(VkPhysicalDevice device) 
+int rate_suitable_gpu(VkPhysicalDevice device) 
 {
 	VkPhysicalDeviceProperties deviceProperties;
 	VkPhysicalDeviceFeatures deviceFeatures;
@@ -86,7 +116,8 @@ int RateDeviceSuitability(VkPhysicalDevice device)
 	int score = 0;
 
 	// Discrete GPUs have a significant performance advantage
-	if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+	if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) 
+	{
 		score += 1000;
 	}
 
@@ -94,32 +125,29 @@ int RateDeviceSuitability(VkPhysicalDevice device)
 	score += deviceProperties.limits.maxImageDimension2D;
 
 	// Application can't function without geometry shaders
-	if (!deviceFeatures.geometryShader) {
+	if (!deviceFeatures.geometryShader) 
 		return 0;
-	}
 
 	return score;
 }
 
 void create_instance()
 {
-	VkApplicationInfo appInfo{};
-	appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	appInfo.pApplicationName = configuration::title().c_str();
-	appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.pEngineName = "xs";
-	appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-	appInfo.apiVersion = VK_API_VERSION_1_0;
-
-	std::vector<const char*> instanceExtensions = { VK_KHR_SURFACE_EXTENSION_NAME };
+	VkApplicationInfo app_info{};
+	app_info.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	app_info.pApplicationName = configuration::title().c_str();
+	app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+	app_info.pEngineName = "xs";
+	app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+	app_info.apiVersion = VK_API_VERSION_1_0;
 
 	// Get extensions supported by the instance and store for later use
-	uint32_t extCount = 0;
-	vkEnumerateInstanceExtensionProperties(nullptr, &extCount, nullptr);
-	if (extCount > 0)
+	uint32_t ext_count = 0;
+	vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, nullptr);
+	if (ext_count > 0)
 	{
-		std::vector<VkExtensionProperties> extensions(extCount);
-		if (vkEnumerateInstanceExtensionProperties(nullptr, &extCount, &extensions.front()) == VK_SUCCESS)
+		std::vector<VkExtensionProperties> extensions(ext_count);
+		if (vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, &extensions.front()) == VK_SUCCESS)
 		{
 			for (const VkExtensionProperties& extension : extensions)
 			{
@@ -128,22 +156,30 @@ void create_instance()
 		}
 	}
 
-	VkInstanceCreateInfo instanceCreateInfo = {};
-	instanceCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	instanceCreateInfo.pNext = NULL;
-	instanceCreateInfo.pApplicationInfo = &appInfo;
+	uint32_t glfw_extension_count = 0;
+	const char** glfw_extensions;
+	glfw_extensions = glfwGetRequiredInstanceExtensions(&glfw_extension_count);
 
+	for (uint32_t i = 0; i < glfw_extension_count; i++)
+		xs::render::internal::instanceExtensions.push_back(glfw_extensions[i]);
+
+	VkInstanceCreateInfo instance_create_info = {};
+	instance_create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	instance_create_info.pNext = NULL;
+	instance_create_info.pApplicationInfo = &app_info;
+	instance_create_info.enabledExtensionCount = glfw_extension_count;
+	instance_create_info.ppEnabledExtensionNames = glfw_extensions;
 	if (instanceExtensions.size() > 0)
 	{
 #if defined(DEBUG)
 		instanceExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);	// SRS - Dependency when VK_EXT_DEBUG_MARKER is enabled
 		instanceExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 #endif
-		instanceCreateInfo.enabledExtensionCount = (uint32_t)instanceExtensions.size();
-		instanceCreateInfo.ppEnabledExtensionNames = instanceExtensions.data();
+		instance_create_info.enabledExtensionCount = (uint32_t)instanceExtensions.size();
+		instance_create_info.ppEnabledExtensionNames = instanceExtensions.data();
 	}
 
-	if (vkCreateInstance(&instanceCreateInfo, nullptr, &instance) != VK_SUCCESS)
+	if (vkCreateInstance(&instance_create_info, nullptr, &xs::render::internal::instance) != VK_SUCCESS)
 	{
 		spdlog::critical("[ValidationLayer]: Failed to create instance!");
 		assert(false);
@@ -164,8 +200,8 @@ void create_instance()
 		}
 	}
 	if (validationLayerPresent) {
-		instanceCreateInfo.ppEnabledLayerNames = &validationLayerName;
-		instanceCreateInfo.enabledLayerCount = 1;
+		instance_create_info.ppEnabledLayerNames = &validationLayerName;
+		instance_create_info.enabledLayerCount = 1;
 	}
 	else
 	{
@@ -177,21 +213,96 @@ void create_instance()
 
 void create_debug_handler()
 {
-	VkDebugUtilsMessengerCreateInfoEXT createInfo{};
-	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-	createInfo.pfnUserCallback = debug_callback;
-	createInfo.pUserData = nullptr;
+	VkDebugUtilsMessengerCreateInfoEXT create_debug_info{};
+	create_debug_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	create_debug_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	create_debug_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	create_debug_info.pfnUserCallback = debug_callback;
+	create_debug_info.pUserData = nullptr;
 
-	if (create_debug_utils(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS)
+	if (create_debug_utils(instance, &create_debug_info, nullptr, &debug_messenger) != VK_SUCCESS)
 	{
 		spdlog::critical("[ValidationLayer]: Failed to set up debug messenger!");
 		assert(false);
 	}
 }
 
-void CreateGPUDevives()
+struct QueueFamilyIndices {
+	std::optional<uint32_t> graphics_family;
+	std::optional<uint32_t> present_family;
+
+	bool is_complete() {
+		return graphics_family.has_value() && present_family.has_value();
+	}
+};
+
+QueueFamilyIndices pick_queue_families(VkPhysicalDevice device)
+{
+	QueueFamilyIndices indices;
+	uint32_t queue_family_count = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
+
+	std::vector<VkQueueFamilyProperties> queue_families(queue_family_count);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families.data());
+
+	int i = 0;
+	VkBool32 presentSupport = false;
+	for (const auto& queue_family : queue_families)
+	{
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+
+		if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) 
+			indices.graphics_family = i;
+		
+		if (presentSupport)
+			indices.present_family = i;
+
+		if (indices.is_complete())
+			break;
+
+		i++;
+	}
+
+	return indices;
+}
+
+void create_logical_device()
+{
+	float queue_priority = 1.0f;
+
+	QueueFamilyIndices indices = pick_queue_families(current_gpu);
+
+	VkDeviceQueueCreateInfo queue_create_info{};
+	queue_create_info.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	queue_create_info.queueFamilyIndex = indices.graphics_family.value();
+	queue_create_info.queueCount = 1;
+	queue_create_info.pQueuePriorities = &queue_priority;
+
+	char* extensions[] = {
+		 VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+
+	VkDeviceCreateInfo device_info = {};
+	device_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	device_info.pQueueCreateInfos = &queue_create_info;
+	device_info.queueCreateInfoCount = 1;
+	device_info.ppEnabledExtensionNames = extensions;
+#if defined(DEBUG)
+	device_info.enabledLayerCount = static_cast<uint32_t>(instanceExtensions.size());
+	device_info.ppEnabledLayerNames = instanceExtensions.data();
+#else
+	device_info.enabledLayerCount = 0;
+#endif
+
+	if (vkCreateDevice(current_gpu, &device_info, 0, &current_device) != VK_SUCCESS) 
+	{
+		spdlog::critical("[GPU]: Failed to create logical device!");
+		assert(false);
+	}
+
+	vkGetDeviceQueue(current_device, indices.graphics_family.value(), 0, &graphics_queue);
+}
+
+void pick_gpu_device()
 {
 	vkEnumeratePhysicalDevices(instance, &amount_gpu_devices, nullptr);
 	std::vector<VkPhysicalDevice> devices(amount_gpu_devices);
@@ -207,19 +318,49 @@ void CreateGPUDevives()
 	std::multimap<int, VkPhysicalDevice> candidates;
 	for (const auto& device : devices) 
 	{
-		int score = RateDeviceSuitability(device);
+		int score = rate_suitable_gpu(device);
 		candidates.insert(std::make_pair(score, device));
 	}
 
 	if (candidates.rbegin()->first > 0) 
 	{
-		currentDevice = candidates.rbegin()->second;
+		current_gpu = candidates.rbegin()->second;
 	}
 	else 
 	{
 		spdlog::critical("[GPU]: Failed to find a suitable GPU! ");
 		assert(false);
 	}
+}
+
+void create_surface()
+{
+	if (glfwCreateWindowSurface(instance, device::get_window(), nullptr, &surface) != VK_SUCCESS)
+	{
+		spdlog::critical("[Window]: Failed to create window surface!");
+		assert(false);
+	}
+}
+
+void create_present_queue()
+{
+	QueueFamilyIndices indices = pick_queue_families(current_gpu);
+
+	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+	std::set<uint32_t> uniqueQueueFamilies = { indices.graphics_family.value(), indices.present_family.value() };
+
+	float queuePriority = 1.0f;
+	for (uint32_t queueFamily : uniqueQueueFamilies) 
+	{
+		VkDeviceQueueCreateInfo queueCreateInfo{};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamily;
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+		queueCreateInfos.push_back(queueCreateInfo);
+	}
+
+	vkGetDeviceQueue(current_device, indices.present_family.value(), 0, &present_queue);
 }
 
 void xs::render::initialize()
@@ -233,7 +374,10 @@ void xs::render::initialize()
 	create_debug_handler();
 #endif
 
-	CreateGPUDevives();
+	create_surface();
+	pick_gpu_device();
+	create_logical_device();
+	create_present_queue();
 }
 
 void xs::render::render()
@@ -282,10 +426,13 @@ void xs::render::render()
 
 void xs::render::shutdown()
 {
+	vkDestroyDevice(current_device, nullptr);
+
 #if defined(DEBUG)
-	destroy_debug_utils(instance, debugMessenger, nullptr);
+	destroy_debug_utils(instance, debug_messenger, nullptr);
 #endif
 
+	vkDestroySurfaceKHR(instance, surface, nullptr);
 	vkDestroyInstance(instance, nullptr);
 
 	// TODO: Delete all images
@@ -452,4 +599,4 @@ void xs::render::text(const std::string& text, double x, double y, double size)
 			return;
 	}
 }
-
+#endif

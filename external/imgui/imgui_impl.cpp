@@ -1,8 +1,7 @@
 #include "imgui.h"
 #include "imgui_impl.h"
 
-#if defined(PLATFORM_PC)
-
+#if defined(OPENGL)
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "device.h"
@@ -33,6 +32,35 @@ void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+#elif defined(VULKAN)
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_vulkan.h"
+#include "device.h"
+#include "device_pc.h"
+
+bool ImGui_Impl_Init()
+{
+	//const auto window = xs::device::get_window();
+	//const bool glfw = ImGui_ImplGlfw_InitForOpenGL(window, true);
+	//return glfw;
+	return true;
+}
+
+void ImGui_Impl_Shutdown()
+{
+	//ImGui_ImplGlfw_Shutdown();
+}
+
+void ImGui_Impl_NewFrame()
+{
+	//ImGui_ImplGlfw_NewFrame();
+	//ImGui::NewFrame();
+}
+
+void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
+{
+	//ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
 
 #elif defined(PLATFORM_SWITCH)
 

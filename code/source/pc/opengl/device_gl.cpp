@@ -1,3 +1,4 @@
+#if defined(OPENGL)
 #include "device.h"
 #include "device_pc.h"
 #include "log.h"
@@ -163,3 +164,4 @@ int xs::device::get_height()
 {
 	return internal::height;
 }
+#endif

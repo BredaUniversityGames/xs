@@ -67,8 +67,8 @@ namespace xs::render::internal
 
 inline void xs::render::internal::rotate_vector3d(glm::vec3& vec, float radians)
 {
-	const float x = cos(radians) * vec.x - sin(radians) * vec.y;
-	const float y = sin(radians) * vec.x + cos(radians) * vec.y;
+	const float x = cosf(radians) * vec.x - sinf(radians) * vec.y;
+	const float y = sinf(radians) * vec.x + cosf(radians) * vec.y;
 	vec.x = x;
 	vec.y = y;
 }
