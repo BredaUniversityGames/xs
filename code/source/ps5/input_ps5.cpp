@@ -225,8 +225,7 @@ void xs::input::set_gamepad_vibration(int smallRumble, int largeRumble)
 
 	if (scePadSetVibration(internal::handle, &rumbleParameter) < 0)
 	{
-		//Note form kevin: Removed error code printing since this was done nowhere else
-		//TODO: print out error code
+		//Note form kevin: Removed error code printing since this wasnt done anywhere else
 	}
 }
 

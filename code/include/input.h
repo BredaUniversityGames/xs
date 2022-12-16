@@ -153,7 +153,7 @@ namespace xs::input
 	double get_touch_y(int index);
 
 	/// <summary>
-	/// Turns on vibration for the left and right motor in dualshock controllers (currently not setup to allow for audio to produce the rumble)
+	/// Turns on vibration for the left and right motor in dualshock controllers (currently not setup to allow for audio(LPCM) to produce the rumble)
 	/// <para> Currently only implemented for the PS5 and dualshock 4+ controllers</para>
 	/// </summary>
 	/// <param name="lightRumble">Value between 0 (off) and 255 (max rotation) for the small motor rotation</param>
