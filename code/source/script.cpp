@@ -511,7 +511,7 @@ void set_gamepad_vibration(WrenVM* vm)
 	const auto smallRumble = wrenGetSlotDouble(vm, 1);
 	const auto largeRumble = wrenGetSlotDouble(vm, 2);
 
-	xs::input::set_gamepad_vibration(smallRumble, largeRumble);
+	xs::input::set_gamepad_vibration(static_cast<int>(smallRumble), static_cast<int>(largeRumble));
 }
 
 void set_lightbar_colour(WrenVM* vm)
