@@ -87,12 +87,6 @@ void device::shutdown()
 	glfwTerminate();
 }
 
-void device::swap_buffers()
-{
-	XS_PROFILE_FUNCTION();
-	//glfwSwapBuffers(internal::window);
-}
-
 void device::poll_events()
 {
 	glfwPollEvents();

@@ -17,16 +17,19 @@
 #include "device_pc.h"
 #include <optional>
 
-#define VK_USE_PLATFORM_WIN32_KHR
-#include <vulkan.h>
+
+#define GLFW_INCLUDE_NONE
 #define GLFW_EXPOSE_NATIVE_WIN32
+#define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
+#include <imgui_impl_glfw.h>
 #include "vulkan/render_vk.h"
+#include "device.h"
+#include <imgui_impl.h>
 
 using namespace glm;
-
 namespace xs::render::internal
 {
 	const int MAX_FRAMES_IN_FLIGHT = 2;
@@ -58,12 +61,14 @@ namespace xs::render::internal
 	VkQueue                  graphics_queue;
 	VkQueue                  present_queue;
 	VkSwapchainKHR           swapchain;
+	bool				     swapchain_rebuild;
 	VkFormat                 swapchain_image_format;
 	VkExtent2D               swapchain_extent;
 	VkPipelineLayout         pipeline_layout;
 	VkRenderPass             render_pass;
 	VkPipeline               graphics_pipeline;
 	VkCommandPool            command_pool;
+	uint32_t				 image_index;
 	
 	std::vector<VkCommandBuffer>   command_buffers;
 	std::vector<VkImage>           swapchain_images;
@@ -847,14 +852,6 @@ void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
 	vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 
 	vkCmdDraw(command_buffer, 3, 1, 0, 0);
-
-	vkCmdEndRenderPass(command_buffer);
-
-	if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS) 
-	{
-		spdlog::critical("[CommandList]: Failed to record command buffer!");
-		assert(false);
-	}
 }
 
 void create_sync_objects() 
@@ -886,51 +883,17 @@ void switch_frame()
 {
 	vkWaitForFences(current_device, 1, &in_flight_fences[current_frame], VK_TRUE, UINT64_MAX);
 
-	uint32_t image_index;
-	VkResult result = vkAcquireNextImageKHR(current_device, swapchain, UINT64_MAX, image_available_semaphores[current_frame], VK_NULL_HANDLE, &image_index);
+	VkResult result = vkAcquireNextImageKHR(xs::render::internal::current_device, xs::render::internal::swapchain, UINT64_MAX, xs::render::internal::image_available_semaphores[current_frame], VK_NULL_HANDLE, &image_index);
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+	{
+		swapchain_rebuild = true;
+		return;
+	}
 
 	vkResetFences(current_device, 1, &in_flight_fences[current_frame]);
 
 	vkResetCommandBuffer(command_buffers[current_frame], /*VkCommandBufferResetFlagBits*/ 0);
 	record_command_buffer(command_buffers[current_frame], image_index);
-
-	VkSubmitInfo submitInfo{};
-	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-	VkSemaphore waitSemaphores[] = { image_available_semaphores[current_frame] };
-	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-	submitInfo.waitSemaphoreCount = 1;
-	submitInfo.pWaitSemaphores = waitSemaphores;
-	submitInfo.pWaitDstStageMask = waitStages;
-
-	submitInfo.commandBufferCount = 1;
-	submitInfo.pCommandBuffers = &command_buffers[current_frame];
-
-	VkSemaphore signalSemaphores[] = { render_finished_semaphores[current_frame] };
-	submitInfo.signalSemaphoreCount = 1;
-	submitInfo.pSignalSemaphores = signalSemaphores;
-
-	if (vkQueueSubmit(graphics_queue, 1, &submitInfo, in_flight_fences[current_frame]) != VK_SUCCESS) 
-	{
-		spdlog::critical("[CommandList]: Failed to submit draw command buffer!");
-		assert(false);
-	}
-
-	VkPresentInfoKHR presentInfo{};
-	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-
-	presentInfo.waitSemaphoreCount = 1;
-	presentInfo.pWaitSemaphores = signalSemaphores;
-
-	VkSwapchainKHR swapChains[] = { swapchain };
-	presentInfo.swapchainCount = 1;
-	presentInfo.pSwapchains = swapChains;
-
-	presentInfo.pImageIndices = &image_index;
-
-	result = vkQueuePresentKHR(present_queue, &presentInfo);
-
-	current_frame = (current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
 }
 
 void xs::render::initialize()
@@ -1202,6 +1165,54 @@ void xs::render::text(const std::string& text, double x, double y, double size)
 	}
 }
 
+void device::swap_buffers()
+{
+	XS_PROFILE_FUNCTION();
+	vkCmdEndRenderPass(command_buffers[current_frame]);
+
+	if (vkEndCommandBuffer(command_buffers[current_frame]) != VK_SUCCESS)
+	{
+		spdlog::critical("[CommandList]: Failed to record command buffer!");
+		assert(false);
+	}
+
+	VkSubmitInfo submitInfo{};
+	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+	VkSemaphore waitSemaphores[] = { image_available_semaphores[current_frame] };
+	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+	submitInfo.waitSemaphoreCount = 1;
+	submitInfo.pWaitSemaphores = waitSemaphores;
+	submitInfo.pWaitDstStageMask = waitStages;
+
+	submitInfo.commandBufferCount = 1;
+	submitInfo.pCommandBuffers = &command_buffers[current_frame];
+
+	VkSemaphore signalSemaphores[] = { render_finished_semaphores[current_frame] };
+	submitInfo.signalSemaphoreCount = 1;
+	submitInfo.pSignalSemaphores = signalSemaphores;
+
+	if (vkQueueSubmit(graphics_queue, 1, &submitInfo, in_flight_fences[current_frame]) != VK_SUCCESS)
+	{
+		spdlog::critical("[CommandList]: Failed to submit draw command buffer!");
+		assert(false);
+	}
+
+	VkPresentInfoKHR presentInfo{};
+	presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+	presentInfo.waitSemaphoreCount = 1;
+	presentInfo.pWaitSemaphores = signalSemaphores;
+
+	VkSwapchainKHR swapChains[] = { swapchain };
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = swapChains;
+	presentInfo.pImageIndices = &image_index;
+	vkQueuePresentKHR(present_queue, &presentInfo);
+
+	current_frame = (current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
+}
+
 VkDevice& xs::render::get_device()
 {
 	return current_device;
@@ -1240,6 +1251,11 @@ VkRenderPass& xs::render::get_renderpass()
 VkCommandBuffer& xs::render::get_command_buffer()
 {
 	return command_buffers[current_frame];
+}
+
+VkSwapchainKHR& xs::render::get_swapchain()
+{
+	return swapchain;
 }
 
 #endif

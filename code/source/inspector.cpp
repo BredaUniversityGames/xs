@@ -20,7 +20,6 @@
 #include <nn/fs.h>
 #endif
 
-
 namespace xs::inspector::internal
 {
 	bool paused = false;
@@ -233,7 +232,6 @@ void xs::inspector::render(float dt)
 			xs::profiler::inspect(internal::show_profiler);
 		}
 	}
-
 
 	ImGui::Render();
 	ImGui_Impl_RenderDrawData(ImGui::GetDrawData());

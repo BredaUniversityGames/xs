@@ -1,4 +1,6 @@
 #pragma once
+#define VK_USE_PLATFORM_WIN32_KHR
+#include <vulkan.h>
 namespace xs::render
 {
 	VkDevice& get_device();
@@ -9,4 +11,5 @@ namespace xs::render
 	VkSurfaceKHR& get_surface();
 	VkRenderPass& get_renderpass();
 	VkCommandBuffer& get_command_buffer();
+	VkSwapchainKHR& get_swapchain();
 }
