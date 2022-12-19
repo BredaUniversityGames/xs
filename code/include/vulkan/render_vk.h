@@ -12,4 +12,6 @@ namespace xs::render
 	VkRenderPass& get_renderpass();
 	VkCommandBuffer& get_command_buffer();
 	VkSwapchainKHR& get_swapchain();
+    VkCommandBuffer begin_single_time_commands();
+	void end_single_time_commands(VkCommandBuffer command_buffer);
 }

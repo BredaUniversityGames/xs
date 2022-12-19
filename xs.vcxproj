@@ -48,6 +48,8 @@
     <CustomBuild Include="nintendo\icon.bmp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\source\pc\vulkan\buffer_vk.cpp" />
+    <ClCompile Include="code\source\pc\vulkan\stage_buffer_vk.cpp" />
     <ClCompile Include="code\source\pc\opengl\324234.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
@@ -315,9 +317,11 @@
     <ClInclude Include="code\include\tools.h" />
     <ClInclude Include="code\include\version.h" />
     <ClInclude Include="code\include\vulkan.h" />
+    <ClInclude Include="code\include\vulkan\buffer_vk.h" />
     <ClInclude Include="code\include\vulkan\render_vk.h" />
     <ClInclude Include="code\include\vulkan\pipeline_vk.h" />
     <ClInclude Include="code\include\vulkan\shadermanager_vk.h" />
+    <ClInclude Include="code\include\vulkan\stage_buffer_vk.h" />
     <ClInclude Include="code\include\vulkan\swapchain_vk.h" />
     <ClInclude Include="code\source\ps5\address_sanitizer_utils.h" />
     <ClInclude Include="code\source\ps5\Camera.h" />

@@ -40,7 +40,6 @@ void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
 #include "vulkan/render_vk.h"
 #include "configuration.h"
 
-ImGui_ImplVulkanH_Window vulkan_imgui_window;
 VkDescriptorPool         descriptor_pool = VK_NULL_HANDLE;
 
 static void check_vk_result(VkResult err)
