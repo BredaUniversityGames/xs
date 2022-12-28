@@ -121,6 +121,8 @@ void fileio::initialize(/* const std::string& main_script*/)
 	if (pValue != nullptr)
 	{
 		auto game_str = read_text_file("[games]/.ini");
+		auto tokens = xs::tools::string_split(game_str, "/");
+		game_str = tokens[tokens.size() - 1];
 		string save_path = string(pValue) + string("\\xs\\");
 		if (!filesystem::exists(save_path))
 			filesystem::create_directory(save_path);

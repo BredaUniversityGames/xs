@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <tuple>
+#include <vector>
 
 namespace xs::tools
 {
@@ -8,6 +9,10 @@ std::string string_replace(
 	const std::string& subject,
 	const std::string& search,
 	const std::string& replace);
+std::vector<std::string> string_split(
+	const std::string& source,
+	const char* delimiter = " ",
+	bool keep_empty = false);
 std::tuple<double, double, double, double> parse_color(const std::string& hex_color);
 static inline void switch_on_bit_flag(unsigned int& flags, unsigned int bit) { flags |= bit; }
 static inline void switch_off_bit_flag(unsigned int& flags, unsigned int bit) { flags &= (~bit); }
