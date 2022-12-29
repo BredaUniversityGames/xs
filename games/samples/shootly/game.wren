@@ -1,60 +1,132 @@
-// This is just confirmation, remove this line as soon as you
-// start making your game
-System.print("Wren just got compiled to bytecode")
+import "xs" for Input, Render, Data
+import "xs_ec"for Entity, Component
+import "xs_math"for Math, Bits, Vec2, Color
+import "xs_components" for Renderable, Body, Transform
+import "background" for Background
+import "debug" for DebugColor
+import "tags" for Tag, Team
+import "unit" for Unit
+import "random" for Random
 
-// The xs module is 
-import "xs" for Render, Data
+class GameState {
+    static Menu     { 1 }
+    static Play     { 2 }
+    static Score    { 3 }
+}
 
-// The game class it the entry point to your game
 class Game {
 
-    // The config method is called before the device, window, renderer
-    // and most other systems are created. You can use it to change the
-    // window title and size (for example).
-    // You can remove this method
-    static config() {
-        System.print("config")
-        
-        // This can be saved to the system.json using the
-        // Data UI. This code overrides the values from the system.json
-        // and can be removed if there is no need for that
-        Data.setString("Title", "xs - hello", Data.system)
-        Data.setNumber("Width", 640, Data.system)
-        Data.setNumber("Height", 360, Data.system)
-        Data.setNumber("Multiplier", 1, Data.system)
-        Data.setBool("Fullscreen", false, Data.system)
-    }
+    static config() { /* loaded from system.json */ }    
 
-    // The init method is called when all system have been created.
-    // You can initialize you game specific data here.
-    static init() {        
-        System.print("init")
+    static init() {
+        Entity.init()
+        Boss.init()
 
-        // The "__" means that __time is a static variable (belongs to the class)
-        __time = 0
+        //__background = Background.createBackground()        
+        __random = Random.new()
 
-        // Variable that exists only in this function 
-        var image = Render.loadImage("[games]/shared/images/FMOD_White.png")
-        __sprite = Render.createSprite(image, 0, 0, 1, 1)
+        __player = Player.create()
+
+        __size = 2
+        __boss = Boss.randomBoss(__size)
+        __totalTime = 0
+        __bossTime = 0      
     }    
-
-    // The update method is called once per tick.
-    // Gameplay code goes here.
+    
     static update(dt) {
-        __time = __time + dt
+        Entity.update(dt)
+        // Game.updateGame(dt)
+        
+        if(Data.getBool("Print Entities", Data.debug)) {
+            Entity.print()
+            Data.setBool("Print Entities", false, Data.debug)            
+        }
+
+        if(Data.getBool("Debug Render", Data.debug)) {
+            debugRender()
+        }
     }
 
-    // The render method is called once per tick, right after update.
-    static render() {
-        Render.setColor(
-            (__time * 10 + 1).sin.abs,
-            (__time * 10 + 2).sin.abs,
-            (__time * 10 + 3).sin.abs)
-        Render.shapeText("xs", -100, 100, 20)
-        Render.shapeText("Made with love at Games@BUas", -100, -50, 1)
-        Render.setColor(0.5, 0.5, 0.5)
-        Render.shapeText("Time: %(__time)", -300, -160, 1)
+    static updateGame(dt) {
+        return
+        __totalTime = __totalTime + dt
+        __bossTime = __bossTime + dt
+        var playerUnits = Entity.withTag(Tag.Player | Tag.Unit)
+        var playerBullets = Entity.withTag(Tag.Player | Tag.Bullet)
+        var computerUnits = Entity.withTag(Tag.Computer | Tag.Unit)
+        var computerBullets = Entity.withTag(Tag.Computer | Tag.Bullet)
 
-        Render.sprite(__sprite, 180, -152, 0, 0.16, 0.0, 0xFFFFFFFF, 0x00000000, 0)
+        Game.collide(computerBullets, playerUnits)
+        Game.collide(playerBullets, computerUnits)
+        Game.collide(playerBullets, playerUnits)
+
+
+        if(__boss.deleted) {            
+            Game.nextBoss()
+        }
+
+        Render.setColor(1, 1, 1, 1)
+        Render.shapeText("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
+
+        //Render.text("DNA:%(Boss.dna)", -50, 100, 1)
+    }
+
+    static nextBoss() {
+        __bossTime = 0
+        __size = __size + 1
+        __boss = Boss.randomBoss(__size)
+    }
+
+    static collide(bullets, units) {        
+        for(u in units) {                       
+            for(b in bullets) {     
+                var uT = u.getComponent(Transform)
+                var bT = b.getComponent(Transform)
+                var uB = u.getComponent(Body)
+                var bB = b.getComponent(Body)
+                var d = uT.position - bT.position
+                var dis = d.magnitude
+                if(dis < (uB.size + bB.size)) {                    
+                    var un = u.getComponent(Unit)
+                    var bl = b.getComponentSuper(Bullet)
+                    un.damage(bl.damage)
+                    if(Bits.checkBitFlag(u.tag, Tag.Deflect)) {
+                        //var ref = Vec2.reflect(bB.velocity, d.normalise) 
+                        bB.velocity = bB.velocity * -0.6
+                        bT.position = bT.position + (bB.velocity.normalise * dis)
+                    } else {
+                        b.delete()
+                    }                    
+                    // Render.disk(uT.position.x, uT.position.y, 2, 24)
+                }
+            }
+        }
+    }
+
+    static render() {
+        Renderable.render()
+    }
+
+    static player { __player }
+    static random { __random }
+
+    static debugRender() {
+        for(e in Entity.entities) {
+            var b = e.getComponent(Body)
+            if(b != null) {
+                var t = e.getComponent(Transform)
+                var c = e.getComponent(DebugColor)
+                if(c != null) {
+                    Render.setColor(c.color)
+                } else {
+                    Render.setColor(1.0, 1.0, 1.0)
+                }
+                Render.disk(t.position.x, t.position.y, b.size, 24)
+            }
+        }
     }
 }
+
+import "boss" for Boss
+import "bullets" for Bullet
+import "player" for Player

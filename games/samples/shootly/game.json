@@ -1,0 +1,122 @@
+{
+    "Boss Core 1 Radius": {
+        "type": "number",
+        "value": 20.0
+    },
+    "Boss Orbit Angle": {
+        "type": "number",
+        "value": 12.0
+    },
+    "Boss Orbit Radius": {
+        "type": "number",
+        "value": 12.0
+    },
+    "Cannon Round Speed": {
+        "type": "number",
+        "value": 200.0
+    },
+    "Cannon Shoot Time": {
+        "type": "number",
+        "value": 0.30000001192092896
+    },
+    "Core Health": {
+        "type": "number",
+        "value": 400.0
+    },
+    "Core Size": {
+        "type": "number",
+        "value": 12.0
+    },
+    "Laser Shoot Time": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Max Missle Speed": {
+        "type": "number",
+        "value": 0.0
+    },
+    "Missle Damage": {
+        "type": "number",
+        "value": 50.0
+    },
+    "Missle Max Speed": {
+        "type": "number",
+        "value": 600.0
+    },
+    "Missle Shoot Time": {
+        "type": "number",
+        "value": 1.0
+    },
+    "Missle Speed": {
+        "type": "number",
+        "value": 400.0
+    },
+    "Part Health 1": {
+        "type": "number",
+        "value": 60.0
+    },
+    "Part Health 2": {
+        "type": "number",
+        "value": 90.0
+    },
+    "Part Health 3": {
+        "type": "number",
+        "value": 130.0
+    },
+    "Part Size 1": {
+        "type": "number",
+        "value": 8.0
+    },
+    "Part Size 2": {
+        "type": "number",
+        "value": 16.0
+    },
+    "Part Size 3": {
+        "type": "number",
+        "value": 20.0
+    },
+    "Part delay lambda from": {
+        "type": "number",
+        "value": 20.0
+    },
+    "Part delay lambda to": {
+        "type": "number",
+        "value": 60.0
+    },
+    "Player Bullet Damage": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Player Bullet Speed": {
+        "type": "number",
+        "value": 500.0
+    },
+    "Player Health": {
+        "type": "number",
+        "value": 300.0
+    },
+    "Player Input Dead Zone": {
+        "type": "number",
+        "value": 0.12999999523162842
+    },
+    "Player Shoot Time": {
+        "type": "number",
+        "value": 0.05000000074505806
+    },
+    "Player Size": {
+        "type": "number",
+        "value": 4.0
+    },
+    "Player Speed": {
+        "type": "number",
+        "value": 300.260009765625
+    },
+    "Player Speed When Aiming": {
+        "type": "number",
+        "value": 120.0
+    },
+    "Slow Lambda": {
+        "type": "number",
+        "value": 30.0
+    }
+}
