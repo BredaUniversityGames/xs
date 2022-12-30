@@ -7,7 +7,7 @@ class Background {
     static createBackground() {
         var bg = Entity.new()
         var t = Transform.new(Vec2.new(0, 0))        
-        var s = Sprite.new("[games]/seedwave/assets/images/background/not_tiled_space_BG.png")
+        var s = Sprite.new("[game]/assets/images/Background/stars_texture.png")
         s.layer = -1
         s.flags = Render.spriteCenter
         bg.addComponent(t)
