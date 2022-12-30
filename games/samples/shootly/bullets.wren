@@ -7,6 +7,7 @@ import "tags" for Team, Tag
 import "debug" for DebugColor
 import "components" for SlowRelation
 import "random" for Random
+import "game" for Game
 
 class Bullet is Component {
     construct new(team, damage) {
@@ -36,30 +37,6 @@ class Bullet is Component {
     damage { _damage }
     team { _team }
     toString { "[Bullet team:%(_team) damage:%(_damage)]" }
-
-    static createPlayerBullet(owner, speed, damage) {
-        var owt = owner.getComponent(Transform)
-        var bullet = Entity.new()
-        var t = Transform.new(owt.position + Vec2.new(0,10))
-        var dir =  Vec2.new(Game.random.float(-0.2, 0.2), 1.0)
-        dir = dir.normalise
-        dir = dir * speed
-        var v = dir
-        var bd = Body.new(5, v)
-        var bl = Bullet.new(Team.Player, damage)
-        var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
-        s.layer = 1.9
-        s.flags = Render.spriteCenter
-        s.addAnimation("anim", [0,1,2])
-        s.playAnimation("anim") 
-        bullet.addComponent(t)
-        bullet.addComponent(bd)
-        bullet.addComponent(bl)
-        bullet.addComponent(s)
-        bullet.name = "Bullet"
-        bullet.tag = Tag.Player | Tag.Bullet
-        bullet.addComponent(DebugColor.new(0x8BEC46FF))
-    }
 
     static create(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
@@ -147,5 +124,3 @@ class Missile is Bullet {
 
     toString { "[Missile] ->" + super.toString }
 }
-
-import "game" for Game

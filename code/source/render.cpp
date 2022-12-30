@@ -105,7 +105,7 @@ int xs::render::load_font(const std::string& font_file, double size)
 	auto dimension = tools::next_power_of_two((uint32)sqrt(requiredPixels));
 
 	image img;
-	int val = ascent - descent;
+	//int val = ascent - descent;
 	img.width = dimension;
 	img.height = dimension;
 	auto bitmap = static_cast<unsigned char*>(malloc(img.width * img.height));

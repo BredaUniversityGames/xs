@@ -2,11 +2,6 @@ import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Renderable, Body, Transform
-import "background" for Background
-import "debug" for DebugColor
-import "tags" for Tag, Team
-import "unit" for Unit
-import "random" for Random
 
 class GameState {
     static Menu     { 1 }
@@ -20,15 +15,27 @@ class Game {
 
     static init() {
         Entity.init()
-        Boss.init()
-
-        //__background = Background.createBackground()        
+        Create.init()
+        
+        __background = Background.createBackground()
         __random = Random.new()
-
         __player = Player.create()
-
         __size = 2
-        __boss = Boss.randomBoss(__size)
+
+        Create.Enemy(Vec2.new(-100, 250), Size.S, 0)
+        Create.Enemy(Vec2.new(0, 250), Size.S, 1)
+        Create.Enemy(Vec2.new(100,250), Size.S, 2)
+
+        Create.Enemy(Vec2.new(-200,   100), Size.M, 0)
+        Create.Enemy(Vec2.new(-100, 100), Size.M, 1)
+        Create.Enemy(Vec2.new(0, 100), Size.M, 2)
+        Create.Enemy(Vec2.new(100, 100), Size.M, 3)
+        Create.Enemy(Vec2.new(200, 100), Size.M, 4)
+
+        Create.Enemy(Vec2.new(-150,   -150), Size.L, 2)
+        Create.Enemy(Vec2.new(0, -150), Size.L, 1)
+        Create.Enemy(Vec2.new(150, -150), Size.L, 0)
+
         __totalTime = 0
         __bossTime = 0      
     }    
@@ -60,21 +67,13 @@ class Game {
         Game.collide(playerBullets, computerUnits)
         Game.collide(playerBullets, playerUnits)
 
-
-        if(__boss.deleted) {            
-            Game.nextBoss()
-        }
-
         Render.setColor(1, 1, 1, 1)
-        Render.shapeText("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
-
-        //Render.text("DNA:%(Boss.dna)", -50, 100, 1)
+        // Render.shapeText("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
     }
 
     static nextBoss() {
         __bossTime = 0
         __size = __size + 1
-        __boss = Boss.randomBoss(__size)
     }
 
     static collide(bullets, units) {        
@@ -127,6 +126,11 @@ class Game {
     }
 }
 
-import "boss" for Boss
 import "bullets" for Bullet
 import "player" for Player
+import "background" for Background
+import "debug" for DebugColor
+import "tags" for Tag, Team, Size
+import "unit" for Unit
+import "random" for Random
+import "create" for Create

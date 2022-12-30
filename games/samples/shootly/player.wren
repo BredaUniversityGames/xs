@@ -8,6 +8,7 @@ import "bullets" for Bullet
 import "debug" for DebugColor
 import "components" for SlowRelation
 import "random" for Random
+import "create" for Create 
 
 class Player is Component {
 
@@ -63,7 +64,7 @@ class Player is Component {
         if((Input.getButton(0) ||
             Input.getKeyOnce(Input.keySpace)) &&
             _shootTime > Data.getNumber("Player Shoot Time")) {
-            Bullet.createPlayerBullet(
+            Create.PlayerBullet(
                     owner,
                     Data.getNumber("Player Bullet Speed"),
                     Data.getNumber("Player Bullet Damage"))
