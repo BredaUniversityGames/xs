@@ -194,9 +194,9 @@ class Input {
     foreign static getTouchX(index)
     foreign static getTouchY(index)
 
-    foreign static setPadVibration(smallRumble, largeRumble)
-    foreign static setPadLightbarColour(red, green, blue)
-    foreign static resetPadLightbarColour()
+    foreign static setPadVibration(leftRumble, rightRumble)
+    foreign static setPadLightbarColor(red, green, blue)
+    foreign static resetPadLightbarColor()
 
     static getTouchData() {
         var nrTouches = getNrTouches()

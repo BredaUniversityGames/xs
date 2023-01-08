@@ -141,15 +141,15 @@ double xs::input::get_touch_y(int index)
 
 void xs::input::set_gamepad_vibration(int smallRumble, int largeRumble)
 {
-	//Unimplemented on the switch
+	//Unimplemented on the PC
 }
 
-void xs::input::set_lightbar_colour(double red, double green, double blue)
+void xs::input::set_lightbar_color(double red, double green, double blue)
 {
-	//Unimplemented on the switch
+	//Unimplemented on the PC (specific dualshock 5 controller mechanic)
 }
 
 void xs::input::reset_lightbar()
 {
-	//Unimplemented on the switch
+	//Unimplemented on the PC (specific dualshock 5 controller mechanic)
 }
