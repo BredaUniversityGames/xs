@@ -26,6 +26,7 @@ namespace xs::input::internal
 	std::vector<std::pair<float, float>> touches_gameCoordinates;
 	xs::configuration::scale_parameters touchpadToGame;
 
+	ScePadVibrationParam rumbleParameter;
 	int maxRumbleIntensity = 255;
 }
 
@@ -233,11 +234,11 @@ void xs::input::set_gamepad_vibration(int leftRumble, int rightRumble)
 	//We use the one that is most faithfull to the dualshock 4 controllers rumble.
 	scePadSetVibrationMode(internal::handle, SCE_PAD_VIBRATION_MODE_COMPATIBLE2);
 
-	ScePadVibrationParam rumbleParameter;
-	rumbleParameter.smallMotor = rightRumble * internal::maxRumbleIntensity;
-	rumbleParameter.largeMotor = leftRumble * internal::maxRumbleIntensity;
+	
+	internal::rumbleParameter.smallMotor = rightRumble * internal::maxRumbleIntensity;
+	internal::rumbleParameter.largeMotor = leftRumble * internal::maxRumbleIntensity;
 
-	if (scePadSetVibration(internal::handle, &rumbleParameter) < 0)
+	if (scePadSetVibration(internal::handle, &internal::rumbleParameter) < 0)
 	{
 		//Note: Removed error code printing since this wasnt done anywhere else
 		//Negative values mean an error, the meaning of the code can be found in the playstation documentation
