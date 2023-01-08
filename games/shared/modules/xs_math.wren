@@ -69,6 +69,25 @@ class Vec2 {
 
     toString { "[%(_x), %(_y)]" }
 
+    atan2 {
+        // atan2 is an invalid operation when x = 0 and y = 0
+        // but this method does not return errors.
+        var a = 0.0
+        if(_x > 0.0) {
+            a = (_y / _x).atan
+        } else if(_x < 0.0 && _y >= 0.0) {
+            a = (_y / _x).atan + Math.pi
+        } else if(_x < 0.0 && _y < 0.0) {
+            a = (_y / _x).atan - Math.pi
+        } else if(_x == 0 && _y > 0.0) {
+            a = Math.pi / 2.0
+        } else if(_x == 0 && _y < 0) {
+            a = -Math.pi / 2.0
+        }
+
+        return a
+    }
+
 
     static distance(a, b) {
         var xdiff = a.x - b.x

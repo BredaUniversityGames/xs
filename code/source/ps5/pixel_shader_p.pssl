@@ -15,7 +15,7 @@ float4 main(V2P input) : S_TARGET_OUTPUT0
 {	
 	float4 diffuse = color.Sample(samp, input.Texture);
 	diffuse = pow(diffuse, 2.2);
-	if (diffuse.w < 0.002f) discard;
+	//if (diffuse.w == 0.0f) discard;
 	return diffuse;
 	//return float4(input.Texture, 0.f, 1.0) * m_color;
 }
