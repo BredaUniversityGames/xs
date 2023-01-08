@@ -25,6 +25,8 @@ namespace xs::input::internal
 
 	std::vector<std::pair<float, float>> touches_gameCoordinates;
 	xs::configuration::scale_parameters touchpadToGame;
+
+	int maxRumbleIntensity = 255;
 }
 
 using namespace xs::input;
@@ -214,24 +216,38 @@ double xs::input::get_touch_y(int index)
 	return static_cast<double>(internal::touches_gameCoordinates[index].second);
 }
 
-void xs::input::set_gamepad_vibration(int smallRumble, int largeRumble)
+void xs::input::set_gamepad_vibration(int leftRumble, int rightRumble)
 {
-	//convert the parameters to uint8_t
+	if (leftRumble > 1)
+		leftRumble = 1;
+	else if (leftRumble < 0)
+		leftRumble = 0;
+
+	if (rightRumble > 1)
+		rightRumble = 1;
+	else if (rightRumble < 0)
+		rightRumble = 0;
+
+	//Note:
+	//Technically there are 2 compatablity modes for PS5 pad vibration.
+	//We use the one that is most faithfull to the dualshock 4 controllers rumble.
 	scePadSetVibrationMode(internal::handle, SCE_PAD_VIBRATION_MODE_COMPATIBLE2);
 
 	ScePadVibrationParam rumbleParameter;
-	rumbleParameter.smallMotor = smallRumble;
-	rumbleParameter.largeMotor = largeRumble;
+	rumbleParameter.smallMotor = rightRumble * internal::maxRumbleIntensity;
+	rumbleParameter.largeMotor = leftRumble * internal::maxRumbleIntensity;
 
 	if (scePadSetVibration(internal::handle, &rumbleParameter) < 0)
 	{
-		//Note form kevin: Removed error code printing since this wasnt done anywhere else
+		//Note: Removed error code printing since this wasnt done anywhere else
+		//Negative values mean an error, the meaning of the code can be found in the playstation documentation
 	}
 }
 
-void xs::input::set_lightbar_colour(double red, double green, double blue)
+void xs::input::set_lightbar_color(double red, double green, double blue)
 {
-	//Ap the RGB colours so they dont exeed 255 or get lower than 0
+	//Todo: maby use std clamp
+	//Clamp the RGB colours so they dont exeed 255 or get lower than 0
 	if (red > 255)
 		red = 255;
 	else if (red < 0)
