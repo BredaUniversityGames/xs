@@ -16,12 +16,14 @@ class Game {
     static init() {
         Entity.init()
         Create.init()
+        Waves.init()
         
         __background = Background.createBackground()
         __random = Random.new()
         __player = Player.create()
         __size = 2
 
+        /*
         Create.Enemy(Vec2.new(-100, 250), Size.S, 0)
         Create.Enemy(Vec2.new(0, 250), Size.S, 1)
         Create.Enemy(Vec2.new(100,250), Size.S, 2)
@@ -35,6 +37,7 @@ class Game {
         Create.Enemy(Vec2.new(-150,   -150), Size.L, 2)
         Create.Enemy(Vec2.new(0, -150), Size.L, 1)
         Create.Enemy(Vec2.new(150, -150), Size.L, 0)
+        */
 
         __totalTime = 0
         __bossTime = 0      
@@ -42,6 +45,7 @@ class Game {
     
     static update(dt) {
         Entity.update(dt)
+        Waves.update(dt)
         // Game.updateGame(dt)
         
         if(Data.getBool("Print Entities", Data.debug)) {
@@ -134,3 +138,4 @@ import "tags" for Tag, Team, Size
 import "unit" for Unit
 import "random" for Random
 import "create" for Create
+import "enemy" for Waves 

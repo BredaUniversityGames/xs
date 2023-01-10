@@ -9,11 +9,32 @@ class Create {
         __random = Random.new()
     }
 
+    static drone(offset, parent) {        
+        var e = Entity.new()
+        var t = Transform.new(Vec2.new())
+        // var v = Vec2.new(0, 0)
+        var c = DebugColor.new(0x8BEC46FF)
+        var s = AnimatedSprite.new("[game]/assets/images/Support Units/support_units.png", 4, 3, 15)        
+        var r = SlowRelation.new(parent, 4.2)
+        r.offset = offset
+        s.layer = 1.0
+        s.flags = Render.spriteCenter
+        s.addAnimation("anim", [0, 1])
+        s.playAnimation("anim")
+        e.addComponent(t)
+        e.addComponent(c)
+        e.addComponent(s)
+        e.addComponent(r)
+        e.name = "Drone"
+        //ship.tag = (Tag.Player | Tag.Unit)
+        return e
+    }
+
     static Turret(parent, position, size, type, power) {
         var e = Entity.new()
         var t = Transform.new(Vec2.new())
         var r = Relation.new(parent)
-        var tr = Turret.new()
+        var tr = null
         var s = null
         if (size == Size.S) {
             s = GridSprite.new("[game]/assets/images/Weapons/Small/turret_small_32x32.png", 3, 4)
@@ -23,12 +44,16 @@ class Create {
 
         if(type == Turret.Cannon) {
             s.idx = 3 * 3 + power
-        } else if(type == Turret.Missile) {
+            tr = Cannon.new()
+        } else if(type == Turret.Launcher) {
             s.idx = 3 + power
+            tr = Launcher.new()
         } else if(type == Turret.Laser) {
             s.idx = power
+            tr = Laser.new()
         } else if(type == Turret.Plasma) {
             s.idx = 2 * 3 + power
+            tr = Plasma.new()
         }
 
         s.flags = Render.spriteCenter
@@ -37,7 +62,7 @@ class Create {
         e.addComponent(t)
         e.addComponent(r)
         e.addComponent(s)
-        e.addComponent(tr)
+        //e.addComponent(tr)
     }
 
     static Turret(parent, position, size) {
@@ -110,7 +135,9 @@ class Create {
     static Enemy(position, size, variation) {
         var e = Entity.new()
         var t = Transform.new(position)
+        var s = Ship.new()
         e.addComponent(t)
+        e.addComponent(s)
         if(size == Size.S) {
             Create.EnemySmall(e, variation)
         } else if (size == Size.M) {
@@ -129,7 +156,7 @@ class Create {
         s.addAnimation("play", [0, 1])
         s.playAnimation("play")
         s.flags = Render.spriteCenter
-        s.rotation = rotation
+        t.rotation = rotation
         s.scale = scale
         r.offset = position
         e.addComponent(t)
@@ -160,12 +187,36 @@ class Create {
         bullet.tag = Tag.Player | Tag.Bullet
         bullet.addComponent(DebugColor.new(0x8BEC46FF))
     }
+
+    static enemyProjectile(owner, direction, damage) {
+        var owt = owner.getComponent(Transform)
+        var bullet = Entity.new()
+        var t = Transform.new(owt.position - Vec2.new(0, 0))
+        t.rotation = direction.atan2 - Math.pi * 0.5
+        var v = direction * 2
+        var bd = Body.new(5, v)
+        var bl = Bullet.new(Team.Computer, damage)
+        var s = AnimatedSprite.new("[game]/assets/images/Projectiles_2/projectile-04.png", 2, 1, 15)
+        s.layer = 1.9
+        s.flags = Render.spriteCenter
+        s.addAnimation("anim", [0,1])
+        s.playAnimation("anim") 
+        bullet.addComponent(t)
+        bullet.addComponent(bd)
+        bullet.addComponent(bl)
+        bullet.addComponent(s)
+        bullet.name = "Bullet"
+        bullet.tag = Tag.Computer | Tag.Bullet
+        bullet.addComponent(DebugColor.new(0xFFA8D3FF))
+    }
 }
 
 import "unit" for Unit
+import "components" for SlowRelation
 import "tags" for Team, Tag, Size
 import "bullets" for Bullet
 import "debug" for DebugColor
 import "random" for Random
-import "enemy" for Turret
+import "enemy" for Turret, Ship, Cannon, Laser, Launcher, Plasma
 import "player" for Player
+import "game" for Game
