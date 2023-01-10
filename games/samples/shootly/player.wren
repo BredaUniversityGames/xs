@@ -32,6 +32,10 @@ class Player is Component {
         ship.addComponent(s)
         ship.name = "Player"
         ship.tag = (Tag.Player | Tag.Unit)
+
+        Create.drone(Vec2.new(50, -10), ship)
+        Create.drone(Vec2.new(-50, -10), ship)
+
         return ship
     }
 
@@ -122,4 +126,10 @@ class Player is Component {
     }
 
     toString { "[Player]" }
+}
+
+class Drone is Component {
+    construct new() {
+        super()
+    }
 }
