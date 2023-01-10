@@ -6,12 +6,16 @@ class Transform is Component {
     construct new(position) {
          super()
         _position = position
+        _rotation = 0.0
     }
 
     position { _position }
     position=(p) { _position = p }
 
-    toString { "[Transform position:%(_position)]" }
+    rotation { _rotation }
+    rotation=(r) { _rotation = r }
+
+    toString { "[Transform position:%(_position) rotation:%(_rotation)]" }
 }
 
 class Body is Component {    
@@ -92,11 +96,11 @@ class Sprite is Renderable {
         var t = owner.getComponent(Transform)
         Render.sprite(
             _sprite,
-            t.position.x.round,
-            t.position.y.round,
+            t.position.x,
+            t.position.y,
             layer,
-            _scale,
-            _rotation,
+            _scale,            
+            t.rotation,         // _rotation,
             _mul,
             _add,
             _flags)
@@ -114,8 +118,8 @@ class Sprite is Renderable {
     scale { _scale }
     scale=(s) { _scale = s }
 
-    rotation { _rotation }
-    rotation=(r) { _rotation = r }
+    //rotation { _rotation }
+    //rotation=(r) { _rotation = r }
 
     sprite_=(s) { _sprite = s }
 
