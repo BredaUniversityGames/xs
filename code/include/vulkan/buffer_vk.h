@@ -5,7 +5,8 @@ namespace xs::render
 	struct buffer
 	{
 		buffer() = default;
-		void initialize(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
+		void initialize(const VkDeviceSize size, const VkBufferUsageFlags usage, const VkMemoryPropertyFlags properties);
+		void set_device_memory(const VkMemoryRequirements memory_requirement, const VkMemoryPropertyFlags properties);
 		void upload_data(void* data);
 		void shutdown();
 		VkBuffer buffer_data;

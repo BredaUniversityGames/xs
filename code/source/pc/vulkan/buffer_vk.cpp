@@ -21,7 +21,7 @@ namespace xs::render
         return 0;
     }
 
-	void buffer::initialize(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties)
+	void buffer::initialize(const VkDeviceSize size, const VkBufferUsageFlags usage, const VkMemoryPropertyFlags properties)
 	{
         VkBufferCreateInfo buffer_info{};
         buffer_info.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -40,19 +40,24 @@ namespace xs::render
         VkMemoryRequirements mem_requirements;
         vkGetBufferMemoryRequirements(xs::render::get_device(), buffer_data, &mem_requirements);
 
+        set_device_memory(mem_requirements, properties);
+
+        vkBindBufferMemory(xs::render::get_device(), buffer_data, buffer_memory, 0);
+	}
+
+    void buffer::set_device_memory(const VkMemoryRequirements memory_requirement, const VkMemoryPropertyFlags properties)
+    {
         VkMemoryAllocateInfo alloc_info{};
         alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-        alloc_info.allocationSize = mem_requirements.size;
-        alloc_info.memoryTypeIndex = find_memory_type(mem_requirements.memoryTypeBits, properties);
+        alloc_info.allocationSize = memory_requirement.size;
+        alloc_info.memoryTypeIndex = find_memory_type(memory_requirement.memoryTypeBits, properties);
 
         if (vkAllocateMemory(xs::render::get_device(), &alloc_info, nullptr, &buffer_memory) != VK_SUCCESS)
         {
             spdlog::error("[Buffer]: failed to allocate buffer memory!");
             assert(false);
         }
-
-        vkBindBufferMemory(xs::render::get_device(), buffer_data, buffer_memory, 0);
-	}
+    }
 
 	void buffer::upload_data(void* data)
 	{

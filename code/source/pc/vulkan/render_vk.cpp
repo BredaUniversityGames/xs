@@ -26,6 +26,7 @@
 
 #include <imgui_impl_glfw.h>
 #include "vulkan/render_vk.h"
+#include "vulkan/texture_vk.h"
 #include "device.h"
 #include <imgui_impl.h>
 #include <vulkan/buffer_vk.h>
@@ -33,8 +34,6 @@
 using namespace glm;
 namespace xs::render::internal
 {
-	const int MAX_FRAMES_IN_FLIGHT = 2;
-
 	struct vertex_format 
 	{ 
 		vec3 position; 
@@ -65,6 +64,18 @@ namespace xs::render::internal
 			return attributeDescriptions;
 		}
 	};
+
+	struct sprite_vtx_format
+	{
+		vec3 position;
+		vec2 texture;
+		vec4 add_color;
+		vec4 mul_color;
+	};
+	unsigned int			sprite_program = 0;
+	int const				sprite_trigs_max = 21800;
+	int						sprite_trigs_count = 0;
+	sprite_vtx_format		sprite_trigs_array[sprite_trigs_max * 3];
 
 	int       width                 = -1;
 	int       height                = -1;
@@ -101,8 +112,10 @@ namespace xs::render::internal
 	uint32_t				 image_index;
 	VkDescriptorPool         descriptor_pool;
 	VkDescriptorSetLayout	 descriptor_set_layout;
+	VkDescriptorSetLayout	 texture_descriptor_set_layout;
 	buffer					 vertex_buffer_triangles;
 	buffer					 vertex_buffer_lines;
+	buffer					 sprite_buffer;
 
 	struct uniform_vertex { alignas(16) mat4 view_projection_matrix; }; 
 	struct SwapChainSupportDetails
@@ -133,6 +146,7 @@ namespace xs::render::internal
 	std::vector<VkFence>           in_flight_fences;
 	std::vector<std::string>       supported_instance_extensions;
 	std::vector<const char*>       instance_extensions;
+	std::unordered_map<uint32_t, texture>           textures;
 	const std::vector<const char*> device_extensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 }
 
@@ -602,6 +616,7 @@ uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 void create_vertex_buffer() 
 {
 	vertex_buffer_triangles.initialize(sizeof(triangles_array[0]) * (static_cast<unsigned long long>(triangles_max) * 3), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+	sprite_buffer.initialize(sizeof(sprite_trigs_array[0]) * (static_cast<unsigned long long>(sprite_trigs_max) * 3), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 	vertex_buffer_lines.initialize(sizeof(vertex_array[0]) * (static_cast<unsigned long long>(lines_max) * 2), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 }
 
@@ -609,6 +624,7 @@ void update_vertex_buffer()
 {
 	vertex_buffer_triangles.upload_data(&triangles_array[0]);
 	vertex_buffer_lines.upload_data(&vertex_array[0]);
+	vertex_buffer_lines.upload_data(&sprite_trigs_array[0]);
 }
 
 void create_graphics_pipeline() 
@@ -693,10 +709,12 @@ void create_graphics_pipeline()
 	dynamic_state.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
 	dynamic_state.pDynamicStates = dynamic_states.data();
 
+	VkDescriptorSetLayout set_layouts[] = { descriptor_set_layout, texture_descriptor_set_layout };
+
 	VkPipelineLayoutCreateInfo pipeline_layout_info{};
 	pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipeline_layout_info.setLayoutCount = 1;
-	pipeline_layout_info.pSetLayouts = &descriptor_set_layout;
+	pipeline_layout_info.setLayoutCount = 2;
+	pipeline_layout_info.pSetLayouts = set_layouts;
 	pipeline_layout_info.pushConstantRangeCount = 0;
 
 	if (vkCreatePipelineLayout(current_device, &pipeline_layout_info, nullptr, &pipeline_layout) != VK_SUCCESS)
@@ -923,6 +941,12 @@ void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
 	vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer_triangles.buffer_data, offsets);
 	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
 	vkCmdDraw(command_buffer, triangles_count*3, 1, 0, 0);
+
+	vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer_lines.buffer_data, offsets);
+	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
+	vkCmdDraw(command_buffer, lines_count * 2, 1, 0, 0);
+
+	//vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 1, 1, &current_texture.descriptor_set, 0, nullptr);
 }
 
 void create_sync_objects() 
@@ -955,7 +979,7 @@ void create_descriptor_pool() {
 	pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	pool_sizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 	pool_sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	pool_sizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+	pool_sizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) * 2;
 
 	VkDescriptorPoolCreateInfo poolInfo{};
 	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -979,21 +1003,28 @@ void create_descriptor_set_layout()
 	ubo_layout_binding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
 	VkDescriptorSetLayoutBinding sampler_layout_binding{};
-	sampler_layout_binding.binding = 1;
+	sampler_layout_binding.binding = 0;
 	sampler_layout_binding.descriptorCount = 1;
 	sampler_layout_binding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	sampler_layout_binding.pImmutableSamplers = nullptr;
 	sampler_layout_binding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
 
-	std::array<VkDescriptorSetLayoutBinding, 2> bindings = { ubo_layout_binding, sampler_layout_binding };
 	VkDescriptorSetLayoutCreateInfo layout_info{};
 	layout_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layout_info.bindingCount = static_cast<uint32_t>(bindings.size());
-	layout_info.pBindings = bindings.data();
+	layout_info.bindingCount = 1;
+	layout_info.pBindings = &ubo_layout_binding;
 
 	if (vkCreateDescriptorSetLayout(current_device, &layout_info, nullptr, &descriptor_set_layout) != VK_SUCCESS)
 	{
-		spdlog::error("[Descriptor]: Failed to create descriptor set layout!");
+		log::error("[Descriptor]: Failed to create descriptor set layout!");
+		assert(false);
+	}
+
+	layout_info.pBindings = &sampler_layout_binding;
+
+	if (vkCreateDescriptorSetLayout(current_device, &layout_info, nullptr, &texture_descriptor_set_layout) != VK_SUCCESS)
+	{
+		log::error("[Descriptor]: Failed to create texture descriptor set layout!");
 		assert(false);
 	}
 }
@@ -1016,35 +1047,22 @@ void create_descriptor_sets()
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 	{
-		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = uniform_buffers[i].buffer_data;
-		bufferInfo.offset = 0;
-		bufferInfo.range = sizeof(uniform_vertex);
+		VkDescriptorBufferInfo buffer_info{};
+		buffer_info.buffer = uniform_buffers[i].buffer_data;
+		buffer_info.offset = 0;
+		buffer_info.range = sizeof(uniform_vertex);
 
-		//VkDescriptorImageInfo imageInfo{};
-		//imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		//imageInfo.imageView = textureImageView;
-		//imageInfo.sampler = textureSampler;
+		VkWriteDescriptorSet descriptor_writes{};
 
-		std::array<VkWriteDescriptorSet, 1> descriptorWrites{};
+		descriptor_writes.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		descriptor_writes.dstSet = descriptor_sets[i];
+		descriptor_writes.dstBinding = 0;
+		descriptor_writes.dstArrayElement = 0;
+		descriptor_writes.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		descriptor_writes.descriptorCount = 1;
+		descriptor_writes.pBufferInfo = &buffer_info;
 
-		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		descriptorWrites[0].dstSet = descriptor_sets[i];
-		descriptorWrites[0].dstBinding = 0;
-		descriptorWrites[0].dstArrayElement = 0;
-		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		descriptorWrites[0].descriptorCount = 1;
-		descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-		//descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		//descriptorWrites[1].dstSet = descriptorSets[i];
-		//descriptorWrites[1].dstBinding = 1;
-		//descriptorWrites[1].dstArrayElement = 0;
-		//descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		//descriptorWrites[1].descriptorCount = 1;
-		//descriptorWrites[1].pImageInfo = &imageInfo;
-
-		vkUpdateDescriptorSets(current_device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+		vkUpdateDescriptorSets(current_device, 1, &descriptor_writes, 0, nullptr);
 	}
 }
 
@@ -1164,6 +1182,62 @@ void xs::render::render()
 
 		vec4 add_color = to_vec4(spe.add_color);
 		vec4 mul_color = to_vec4(spe.mul_color);
+
+		sprite_trigs_array[count + 0].position = { from_x, from_y, 0.0 };
+		sprite_trigs_array[count + 1].position = { from_x, to_y, 0.0 };
+		sprite_trigs_array[count + 2].position = { to_x, to_y, 0.0 };
+		sprite_trigs_array[count + 3].position = { to_x, to_y, 0.0 };
+		sprite_trigs_array[count + 4].position = { to_x, from_y, 0.0 };
+		sprite_trigs_array[count + 5].position = { from_x, from_y, 0.0 };
+
+		sprite_trigs_array[count + 0].texture = { from_u,	to_v };
+		sprite_trigs_array[count + 1].texture = { from_u,	from_v }; 
+		sprite_trigs_array[count + 2].texture = { to_u,		from_v };
+		sprite_trigs_array[count + 3].texture = { to_u,		from_v };
+		sprite_trigs_array[count + 4].texture = { to_u,		to_v };
+		sprite_trigs_array[count + 5].texture = { from_u,	to_v };
+
+		for (int i = 0; i < 6; ++i)
+		{
+			sprite_trigs_array[count + i].add_color = add_color;
+			sprite_trigs_array[count + i].mul_color = mul_color;
+		}
+
+		vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
+		{
+			for (int i = 0; i < 6; i++)
+				sprite_trigs_array[count + i].position -= anchor;
+		}
+
+		if (spe.rotation != 0.0)
+		{
+			for (int i = 0; i < 6; i++)
+				rotate_vector3d(sprite_trigs_array[count + i].position, (float)spe.rotation);
+		}
+
+		for (int i = 0; i < 6; i++)
+		{
+			sprite_trigs_array[count + i].position.x += (float)spe.x;
+			sprite_trigs_array[count + i].position.y += (float)spe.y;
+		}
+		count += 6;
+
+		bool render_batch = false;
+		if (i < sprite_queue.size() - 1)
+		{
+			const auto& nspe = sprite_queue[i + 1];
+			const auto& nsprite = sprites[nspe.sprite_id];
+			render_batch = nsprite.image_id != sprite.image_id;
+		}
+		else
+		{
+			render_batch = true;
+		}
+
+		if (render_batch)
+		{
+		}
 	}
 
 	update_vertex_buffer();
@@ -1197,7 +1271,9 @@ void xs::render::shutdown()
 	}
 
 	vkDestroyDescriptorPool(current_device, descriptor_pool, nullptr);
+
 	vkDestroyDescriptorSetLayout(current_device, descriptor_set_layout, nullptr);
+	vkDestroyDescriptorSetLayout(current_device, texture_descriptor_set_layout, nullptr);
 
 	vkDestroyCommandPool(current_device, command_pool, nullptr);
 	vkDestroyDevice(current_device, nullptr);
@@ -1221,7 +1297,30 @@ void xs::render::clear()
 
 void xs::render::internal::create_texture_with_data(xs::render::internal::image& img, uchar* data)
 {
+    VkFormat format;
+    VkImageUsageFlags usage;
+    VkImageTiling tiling = VkImageTiling::VK_IMAGE_TILING_OPTIMAL;
 
+    switch (img.channels)
+    {
+    case 1:
+        format = VkFormat::VK_FORMAT_R8_SRGB;
+        usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        break;
+    case 4:
+        format = VkFormat::VK_FORMAT_R8G8B8A8_SRGB;
+        usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        break;
+    case 3:
+        format = VkFormat::VK_FORMAT_R8G8B8_SRGB;
+        usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        break;
+    default:
+        assert(false);
+    }
+	texture tex;
+	tex.initialize(data, img.width, img.height, tiling, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, format);
+	textures.insert(std::make_pair(img.texture, tex));
 }
 
 void xs::render::begin(primitive p)
@@ -1303,7 +1402,6 @@ void xs::render::set_color(double r, double g, double b, double a)
 	current_color.a = static_cast<float>(a);
 }
 
-
 static float inverseColorValue = 1.f / 255.0f;
 void xs::render::set_color(color c)
 {
@@ -1373,6 +1471,56 @@ void xs::render::text(const std::string& text, double x, double y, double size)
 		if (triangles_count >= triangles_max)
 			return;
 	}
+}
+
+void xs::render::transition_image_layout(const VkImage& image, const VkFormat& format, const VkImageLayout& oldLayout, const VkImageLayout& newLayout)
+{
+	VkCommandBuffer commandBuffer = begin_single_time_commands();
+
+	VkImageMemoryBarrier barrier{};
+	barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.oldLayout = oldLayout;
+	barrier.newLayout = newLayout;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image = image;
+	barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	barrier.subresourceRange.baseMipLevel = 0;
+	barrier.subresourceRange.levelCount = 1;
+	barrier.subresourceRange.baseArrayLayer = 0;
+	barrier.subresourceRange.layerCount = 1;
+
+	VkPipelineStageFlags sourceStage;
+	VkPipelineStageFlags destinationStage;
+
+	if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+		barrier.srcAccessMask = 0;
+		barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+		destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	}
+	else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+		barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+		barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+	}
+	else {
+		throw std::invalid_argument("unsupported layout transition!");
+	}
+
+	vkCmdPipelineBarrier(
+		commandBuffer,
+		sourceStage, destinationStage,
+		0,
+		0, nullptr,
+		0, nullptr,
+		1, &barrier
+	);
+
+	end_single_time_commands(commandBuffer);
 }
 
 void device::swap_buffers()
@@ -1503,21 +1651,13 @@ void xs::render::end_single_time_commands(VkCommandBuffer command_buffer)
 	vkFreeCommandBuffers(current_device, command_pool, 1, &command_buffer);
 }
 
+VkDescriptorPool& xs::render::get_descriptor_pool()
+{
+	return descriptor_pool;
+}
+
+VkDescriptorSetLayout& xs::render::get_texture_descriptor_set_layout()
+{
+	return texture_descriptor_set_layout;
+}
 #endif
-    /*void recreateSwapChain() {
-        int width = 0, height = 0;
-        glfwGetFramebufferSize(window, &width, &height);
-        while (width == 0 || height == 0) {
-            glfwGetFramebufferSize(window, &width, &height);
-            glfwWaitEvents();
-        }
-
-        vkDeviceWaitIdle(device);
-
-        cleanupSwapChain();
-
-        createSwapChain();
-        createImageViews();
-        createFramebuffers();
-    }*/
-

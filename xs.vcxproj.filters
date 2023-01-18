@@ -187,6 +187,9 @@
     <ClCompile Include="code\source\pc\vulkan\stage_buffer_vk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="code\source\pc\vulkan\texture_vk.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="nintendo\xs.aarch64.nmeta" />
@@ -370,6 +373,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\include\vulkan\stage_buffer_vk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\vulkan\texture_vk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
