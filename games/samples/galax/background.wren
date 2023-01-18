@@ -22,26 +22,37 @@ class Parallax is Component {
 }
 
 class Background {
-    static createBackground() {
-        var bg = Entity.new()
-        var t = Transform.new(Vec2.new(0, 0))        
-        var s = Sprite.new("[game]/assets/images/Background/stars_texture.png")
-        s.layer = -1
-        s.flags = Render.spriteCenter
-        bg.addComponent(t)
-        bg.addComponent(s)
-        bg.name = "Background"
+    static createBackground() {        
+        {
+            var bg = Entity.new()
+            var t = Transform.new(Vec2.new(0, 0))
+            var s = Sprite.new("[game]/assets/images/Background/blue.png")
+            s.layer = -100
+            s.flags = Render.spriteCenter
+            bg.addComponent(t)
+            bg.addComponent(s)
+            bg.name = "Background"
+            s.scale = 70
+        }
 
-        /*
-        addLayer("[game]/assets/images/Background/stars.png", 125, Math.radians(0))
-        addLayer("[game]/assets/images/Background/stars.png", 100, Math.radians(90))
-        addLayer("[game]/assets/images/Background/stars.png", 75, Math.radians(180))        
-        addLayer("[game]/assets/images/Background/stars.png", 50, Math.radians(270))
-        */
+        addLayer("[game]/assets/images/Background/stars.png", 35, 0)
+        addLayer("[game]/assets/images/Background/stars.png", 55, Render.spriteFlipX)
+        addLayer("[game]/assets/images/Background/stars.png", 75, Render.spriteFlipY)
+
+        {
+            var fg = Entity.new()
+            var t = Transform.new(Vec2.new(0, 0))
+            var s = Sprite.new("[game]/assets/images/Background/frame.png")
+            s.layer = 100
+            s.flags = Render.spriteCenter
+            fg.addComponent(t)
+            fg.addComponent(s)
+            fg.name = "Foreground"
+        }
     }
 
 
-    static addLayer(relativeFilePath, speed, rotation) {
+    static addLayer(relativeFilePath, speed, flags) {
         var img = Render.loadImage(relativeFilePath)
         var ch = Data.getNumber("Height", Data.system) * 0.5
         var cw = Data.getNumber("Width", Data.system) * 0.5
@@ -55,7 +66,8 @@ class Background {
             var t = Transform.new(Vec2.new(-cw, y))
             var s = Sprite.new(relativeFilePath)
             var p = Parallax.new(speed, h, repeat)
-            t.rotation = rotation
+            s.flags = flags
+            //t.rotation = rotation
             layer.addComponent(t)
             layer.addComponent(p)
             layer.addComponent(s)
