@@ -132,7 +132,6 @@ int xs::render::load_font(const std::string& font_file, double size)
 		rgba[i] = c;
 	}
 
-
 	img.channels = 4;
 	img.string_id = id;
 	create_texture_with_data(img, (uchar*)rgba);

@@ -53,12 +53,12 @@ namespace xs::render::internal
 
 			attributeDescriptions[0].binding = 0;
 			attributeDescriptions[0].location = 0;
-			attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 			attributeDescriptions[0].offset = offsetof(vertex_format, position);
 
 			attributeDescriptions[1].binding = 0;
 			attributeDescriptions[1].location = 1;
-			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+			attributeDescriptions[1].format = VK_FORMAT_R32G32B32A32_SFLOAT;
 			attributeDescriptions[1].offset = offsetof(vertex_format, color);
 
 			return attributeDescriptions;
@@ -71,6 +71,41 @@ namespace xs::render::internal
 		vec2 texture;
 		vec4 add_color;
 		vec4 mul_color;
+
+		static VkVertexInputBindingDescription get_binding_description() {
+			VkVertexInputBindingDescription bindingDescription{};
+			bindingDescription.binding = 0;
+			bindingDescription.stride = sizeof(sprite_vtx_format);
+			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+			return bindingDescription;
+		}
+
+		static std::array<VkVertexInputAttributeDescription, 4> get_attribute_descriptions() {
+			std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
+
+			attributeDescriptions[0].binding = 0;
+			attributeDescriptions[0].location = 0;
+			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+			attributeDescriptions[0].offset = offsetof(sprite_vtx_format, position);
+
+			attributeDescriptions[1].binding = 0;
+			attributeDescriptions[1].location = 1;
+			attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[1].offset = offsetof(sprite_vtx_format, texture);
+
+			attributeDescriptions[2].binding = 0;
+			attributeDescriptions[2].location = 2;
+			attributeDescriptions[2].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+			attributeDescriptions[2].offset = offsetof(sprite_vtx_format, mul_color);
+
+			attributeDescriptions[3].binding = 0;
+			attributeDescriptions[3].location = 3;
+			attributeDescriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
+			attributeDescriptions[3].offset = offsetof(sprite_vtx_format, add_color);
+
+			return attributeDescriptions;
+		}
 	};
 	unsigned int			sprite_program = 0;
 	int const				sprite_trigs_max = 21800;
@@ -105,13 +140,15 @@ namespace xs::render::internal
 	bool				     swapchain_rebuild;
 	VkFormat                 swapchain_image_format;
 	VkExtent2D               swapchain_extent;
-	VkPipelineLayout         pipeline_layout;
+	VkPipelineLayout         triangle_pipeline_layout;
+	VkPipelineLayout         sprite_pipeline_layout;
 	VkRenderPass             render_pass;
-	VkPipeline               graphics_pipeline;
+	VkPipeline               triangle_graphics_pipeline;
+	VkPipeline               sprite_graphics_pipeline;
 	VkCommandPool            command_pool;
 	uint32_t				 image_index;
 	VkDescriptorPool         descriptor_pool;
-	VkDescriptorSetLayout	 descriptor_set_layout;
+	VkDescriptorSetLayout	 ubo_descriptor_set_layout;
 	VkDescriptorSetLayout	 texture_descriptor_set_layout;
 	buffer					 vertex_buffer_triangles;
 	buffer					 vertex_buffer_lines;
@@ -161,7 +198,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(
 {
 	switch (messageSeverity)
 	{
-	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
 	case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
 		spdlog::info("[ValidationLayer]: {}", pCallbackData->pMessage);
 		break;
@@ -224,6 +260,15 @@ int rate_suitable_gpu(VkPhysicalDevice device)
 	return score;
 }
 
+void create_debug_handler(VkDebugUtilsMessengerCreateInfoEXT& create_debug_info)
+{
+	create_debug_info = {};
+	create_debug_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	create_debug_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	create_debug_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	create_debug_info.pfnUserCallback = debug_callback;
+}
+
 void create_instance()
 {
 	VkApplicationInfo app_info{};
@@ -272,11 +317,6 @@ void create_instance()
 		instance_create_info.ppEnabledExtensionNames = instance_extensions.data();
 	}
 
-	if (vkCreateInstance(&instance_create_info, nullptr, &xs::render::internal::instance) != VK_SUCCESS)
-	{
-		spdlog::critical("[ValidationLayer]: Failed to create instance!");
-		assert(false);
-	}
 
 #if defined(DEBUG)
 	const char* validationLayerName = "VK_LAYER_KHRONOS_validation";
@@ -292,9 +332,12 @@ void create_instance()
 			break;
 		}
 	}
+	VkDebugUtilsMessengerCreateInfoEXT debug_create_info{};
 	if (validationLayerPresent) {
 		instance_create_info.ppEnabledLayerNames = &validationLayerName;
 		instance_create_info.enabledLayerCount = 1;
+		create_debug_handler(debug_create_info);
+		instance_create_info.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debug_create_info;
 	}
 	else
 	{
@@ -302,20 +345,10 @@ void create_instance()
 		assert(false);
 	}
 #endif
-}
 
-void create_debug_handler()
-{
-	VkDebugUtilsMessengerCreateInfoEXT create_debug_info{};
-	create_debug_info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-	create_debug_info.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-	create_debug_info.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-	create_debug_info.pfnUserCallback = debug_callback;
-	create_debug_info.pUserData = nullptr;
-
-	if (create_debug_utils(instance, &create_debug_info, nullptr, &debug_messenger) != VK_SUCCESS)
+	if (vkCreateInstance(&instance_create_info, nullptr, &xs::render::internal::instance) != VK_SUCCESS)
 	{
-		spdlog::critical("[ValidationLayer]: Failed to set up debug messenger!");
+		spdlog::critical("[ValidationLayer]: Failed to create instance!");
 		assert(false);
 	}
 }
@@ -627,10 +660,140 @@ void update_vertex_buffer()
 	vertex_buffer_lines.upload_data(&sprite_trigs_array[0]);
 }
 
-void create_graphics_pipeline() 
+void create_sprite_graphics_pipeline()
 {
 	auto vs_str = xs::fileio::read_binary_file("[games]/shared/shaders/v_sprite.spv");
 	auto fs_str = xs::fileio::read_binary_file("[games]/shared/shaders/f_sprite.spv");
+
+	VkShaderModule vert_shader_module = create_shader_module(vs_str);
+	VkShaderModule frag_shader_module = create_shader_module(fs_str);
+
+	VkPipelineShaderStageCreateInfo vert_shader_stage_info{};
+	vert_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	vert_shader_stage_info.stage = VK_SHADER_STAGE_VERTEX_BIT;
+	vert_shader_stage_info.module = vert_shader_module;
+	vert_shader_stage_info.pName = "main";
+
+	VkPipelineShaderStageCreateInfo frag_shader_stage_info{};
+	frag_shader_stage_info.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+	frag_shader_stage_info.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+	frag_shader_stage_info.module = frag_shader_module;
+	frag_shader_stage_info.pName = "main";
+
+	VkPipelineShaderStageCreateInfo shader_stages[] = { vert_shader_stage_info, frag_shader_stage_info };
+
+	auto bindingDescription = sprite_vtx_format::get_binding_description();
+	auto attributeDescriptions = sprite_vtx_format::get_attribute_descriptions();
+
+	VkPipelineVertexInputStateCreateInfo vertex_input_info{};
+	vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
+	vertex_input_info.vertexBindingDescriptionCount = 1;
+	vertex_input_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+	vertex_input_info.pVertexBindingDescriptions = &bindingDescription;
+	vertex_input_info.pVertexAttributeDescriptions = attributeDescriptions.data();
+
+	VkPipelineInputAssemblyStateCreateInfo input_assembly{};
+	input_assembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+	input_assembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+	input_assembly.primitiveRestartEnable = VK_FALSE;
+
+	VkPipelineViewportStateCreateInfo viewport_state{};
+	viewport_state.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+	viewport_state.viewportCount = 1;
+	viewport_state.scissorCount = 1;
+
+	VkPipelineRasterizationStateCreateInfo rasterizer{};
+	rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+	rasterizer.depthClampEnable = VK_FALSE;
+	rasterizer.rasterizerDiscardEnable = VK_FALSE;
+	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+	rasterizer.lineWidth = 1.0f;
+	rasterizer.cullMode = VK_CULL_MODE_NONE;
+	rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+	rasterizer.depthBiasEnable = VK_FALSE;
+
+	VkPipelineMultisampleStateCreateInfo multisampling{};
+	multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+	multisampling.sampleShadingEnable = VK_FALSE;
+	multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+
+	VkPipelineColorBlendAttachmentState color_blend_attachment{};
+	color_blend_attachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+	color_blend_attachment.blendEnable = VK_TRUE;
+	color_blend_attachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+	color_blend_attachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+	color_blend_attachment.colorBlendOp = VK_BLEND_OP_ADD;
+	color_blend_attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+	color_blend_attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+	color_blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+	VkPipelineColorBlendStateCreateInfo color_blending{};
+	color_blending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+	color_blending.logicOpEnable = VK_FALSE;
+	color_blending.logicOp = VK_LOGIC_OP_COPY;
+	color_blending.attachmentCount = 1;
+	color_blending.pAttachments = &color_blend_attachment;
+	color_blending.blendConstants[0] = 0.0f;
+	color_blending.blendConstants[1] = 0.0f;
+	color_blending.blendConstants[2] = 0.0f;
+	color_blending.blendConstants[3] = 0.0f;
+
+	std::vector<VkDynamicState> dynamic_states =
+	{
+		VK_DYNAMIC_STATE_VIEWPORT,
+		VK_DYNAMIC_STATE_SCISSOR
+	};
+
+	VkPipelineDynamicStateCreateInfo dynamic_state{};
+	dynamic_state.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+	dynamic_state.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
+	dynamic_state.pDynamicStates = dynamic_states.data();
+
+	VkDescriptorSetLayout set_layouts[] = { ubo_descriptor_set_layout, texture_descriptor_set_layout };
+
+	VkPipelineLayoutCreateInfo pipeline_layout_info{};
+	pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+	pipeline_layout_info.setLayoutCount = 2;
+	pipeline_layout_info.pSetLayouts = set_layouts;
+	pipeline_layout_info.pushConstantRangeCount = 0;
+
+	if (vkCreatePipelineLayout(current_device, &pipeline_layout_info, nullptr, &sprite_pipeline_layout) != VK_SUCCESS)
+	{
+		spdlog::critical("[Pipeline]: Failed to create pipeline layout!");
+		assert(false);
+	}
+
+	VkGraphicsPipelineCreateInfo pipeline_info{};
+	pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+	pipeline_info.stageCount = 2;
+	pipeline_info.pStages = shader_stages;
+	pipeline_info.pVertexInputState = &vertex_input_info;
+	pipeline_info.pInputAssemblyState = &input_assembly;
+	pipeline_info.pViewportState = &viewport_state;
+	pipeline_info.pRasterizationState = &rasterizer;
+	pipeline_info.pMultisampleState = &multisampling;
+	pipeline_info.pColorBlendState = &color_blending;
+	pipeline_info.pDynamicState = &dynamic_state;
+	pipeline_info.layout = sprite_pipeline_layout;
+	pipeline_info.renderPass = render_pass;
+	pipeline_info.subpass = 0;
+	pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
+
+	if (vkCreateGraphicsPipelines(current_device, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &sprite_graphics_pipeline) != VK_SUCCESS)
+	{
+		spdlog::critical("[Pipeline]: Failed to create graphics pipeline!");
+		assert(false);
+	}
+
+	vkDestroyShaderModule(current_device, frag_shader_module, nullptr);
+	vkDestroyShaderModule(current_device, vert_shader_module, nullptr);
+}
+
+void create_graphics_pipeline() 
+{
+	auto vs_str = xs::fileio::read_binary_file("[games]/shared/shaders/v_triangle.spv");
+	auto fs_str = xs::fileio::read_binary_file("[games]/shared/shaders/f_triangle.spv");
 
 	VkShaderModule vert_shader_module = create_shader_module(vs_str);
 	VkShaderModule frag_shader_module = create_shader_module(fs_str);
@@ -653,6 +816,8 @@ void create_graphics_pipeline()
 	auto attributeDescriptions = vertex_format::get_attribute_descriptions();
 
 	VkPipelineVertexInputStateCreateInfo vertex_input_info{};
+	vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+
 	vertex_input_info.vertexBindingDescriptionCount = 1;
 	vertex_input_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
 	vertex_input_info.pVertexBindingDescriptions = &bindingDescription;
@@ -709,15 +874,13 @@ void create_graphics_pipeline()
 	dynamic_state.dynamicStateCount = static_cast<uint32_t>(dynamic_states.size());
 	dynamic_state.pDynamicStates = dynamic_states.data();
 
-	VkDescriptorSetLayout set_layouts[] = { descriptor_set_layout, texture_descriptor_set_layout };
-
 	VkPipelineLayoutCreateInfo pipeline_layout_info{};
 	pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-	pipeline_layout_info.setLayoutCount = 2;
-	pipeline_layout_info.pSetLayouts = set_layouts;
+	pipeline_layout_info.setLayoutCount = 1;
+	pipeline_layout_info.pSetLayouts = &ubo_descriptor_set_layout;
 	pipeline_layout_info.pushConstantRangeCount = 0;
 
-	if (vkCreatePipelineLayout(current_device, &pipeline_layout_info, nullptr, &pipeline_layout) != VK_SUCCESS)
+	if (vkCreatePipelineLayout(current_device, &pipeline_layout_info, nullptr, &triangle_pipeline_layout) != VK_SUCCESS)
 	{
 		spdlog::critical("[Pipeline]: Failed to create pipeline layout!");
 		assert(false);
@@ -734,12 +897,12 @@ void create_graphics_pipeline()
 	pipeline_info.pMultisampleState = &multisampling;
 	pipeline_info.pColorBlendState = &color_blending;
 	pipeline_info.pDynamicState = &dynamic_state;
-	pipeline_info.layout = pipeline_layout;
+	pipeline_info.layout = triangle_pipeline_layout;
 	pipeline_info.renderPass = render_pass;
 	pipeline_info.subpass = 0;
 	pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
 
-	if (vkCreateGraphicsPipelines(current_device, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &graphics_pipeline) != VK_SUCCESS)
+	if (vkCreateGraphicsPipelines(current_device, VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &triangle_graphics_pipeline) != VK_SUCCESS)
 	{
 		spdlog::critical("[Pipeline]: Failed to create graphics pipeline!");
 		assert(false);
@@ -764,7 +927,6 @@ void create_render_pass()
 	VkAttachmentReference color_attachment_ref{};
 	color_attachment_ref.attachment = 0;
 	color_attachment_ref.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
 	VkSubpassDescription subpass{};
 	subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 	subpass.colorAttachmentCount = 1;
@@ -921,7 +1083,7 @@ void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
 
 	vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
-	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
+	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, triangle_graphics_pipeline);
 
 	VkViewport viewport{};
 	viewport.x = 0.0f;
@@ -939,14 +1101,103 @@ void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
 
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer_triangles.buffer_data, offsets);
-	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
-	vkCmdDraw(command_buffer, triangles_count*3, 1, 0, 0);
+	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, triangle_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
+	vkCmdDraw(command_buffer, triangles_count * 3, 1, 0, 0);
 
 	vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer_lines.buffer_data, offsets);
-	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
+	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, triangle_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
 	vkCmdDraw(command_buffer, lines_count * 2, 1, 0, 0);
 
-	//vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline_layout, 1, 1, &current_texture.descriptor_set, 0, nullptr);
+	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_graphics_pipeline);
+	int count = 0;
+	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
+	for (auto i = 0; i < sprite_queue.size(); i++)
+	{
+		const auto& spe = sprite_queue[i];
+		const auto& sprite = sprites[spe.sprite_id];
+		const auto& image = images[sprite.image_id];
+
+		auto from_x = 0.0;
+		auto from_y = 0.0;
+		auto to_x = image.width * (sprite.to.x - sprite.from.x) * spe.scale;
+		auto to_y = image.height * (sprite.to.y - sprite.from.y) * spe.scale;
+
+		auto from_u = sprite.from.x;
+		auto from_v = sprite.from.y;
+		auto to_u = sprite.to.x;
+		auto to_v = sprite.to.y;
+
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_x))
+			std::swap(from_u, to_u);
+
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_y))
+			std::swap(from_v, to_v);
+
+		vec4 add_color = to_vec4(spe.add_color);
+		vec4 mul_color = to_vec4(spe.mul_color);
+
+		sprite_trigs_array[count + 0].position = { from_x, from_y, 0.0 };
+		sprite_trigs_array[count + 1].position = { from_x, to_y, 0.0 };
+		sprite_trigs_array[count + 2].position = { to_x, to_y, 0.0 };
+		sprite_trigs_array[count + 3].position = { to_x, to_y, 0.0 };
+		sprite_trigs_array[count + 4].position = { to_x, from_y, 0.0 };
+		sprite_trigs_array[count + 5].position = { from_x, from_y, 0.0 };
+
+		sprite_trigs_array[count + 0].texture = { from_u,	to_v };
+		sprite_trigs_array[count + 1].texture = { from_u,	from_v };
+		sprite_trigs_array[count + 2].texture = { to_u,		from_v };
+		sprite_trigs_array[count + 3].texture = { to_u,		from_v };
+		sprite_trigs_array[count + 4].texture = { to_u,		to_v };
+		sprite_trigs_array[count + 5].texture = { from_u,	to_v };
+
+		for (int i = 0; i < 6; ++i)
+		{
+			sprite_trigs_array[count + i].add_color = add_color;
+			sprite_trigs_array[count + i].mul_color = mul_color;
+		}
+
+		vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
+		{
+			for (int i = 0; i < 6; i++)
+				sprite_trigs_array[count + i].position -= anchor;
+		}
+
+		if (spe.rotation != 0.0)
+		{
+			for (int i = 0; i < 6; i++)
+				rotate_vector3d(sprite_trigs_array[count + i].position, (float)spe.rotation);
+		}
+
+		for (int i = 0; i < 6; i++)
+		{
+			sprite_trigs_array[count + i].position.x += (float)spe.x;
+			sprite_trigs_array[count + i].position.y += (float)spe.y;
+		}
+		count += 6;
+
+		bool render_batch = false;
+		if (i < sprite_queue.size() - 1)
+		{
+			const auto& nspe = sprite_queue[i + 1];
+			const auto& nsprite = sprites[nspe.sprite_id];
+			render_batch = nsprite.image_id != sprite.image_id;
+		}
+		else
+		{
+			render_batch = true;
+		}
+
+		if (render_batch)
+		{
+			//offsets[0] = { static_cast<unsigned long long>(count) * sizeof(sprite_vtx_format) };
+			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 1, 1, &textures.find(static_cast<const uint32_t&>(image.string_id))->second.descriptor_set, 0, nullptr);
+			sprite_buffer.upload_data(&sprite_trigs_array[0]);
+			vkCmdBindVertexBuffers(command_buffer, 0, 1, &sprite_buffer.buffer_data, offsets);
+			vkCmdDraw(command_buffer, count, 1, 0, 0);
+			count = 0;
+		}
+	}
 }
 
 void create_sync_objects() 
@@ -974,20 +1225,22 @@ void create_sync_objects()
 	}
 }
 
-void create_descriptor_pool() {
+void create_descriptor_pool() 
+{
+	const int max_texture = 1000;
 	std::array<VkDescriptorPoolSize, 2> pool_sizes{};
 	pool_sizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	pool_sizes[0].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
 	pool_sizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	pool_sizes[1].descriptorCount = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) * 2;
+	pool_sizes[1].descriptorCount = max_texture;
 
-	VkDescriptorPoolCreateInfo poolInfo{};
-	poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	poolInfo.poolSizeCount = static_cast<uint32_t>(pool_sizes.size());
-	poolInfo.pPoolSizes = pool_sizes.data();
-	poolInfo.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT);
+	VkDescriptorPoolCreateInfo pool_info{};
+	pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	pool_info.poolSizeCount = static_cast<uint32_t>(pool_sizes.size());
+	pool_info.pPoolSizes = pool_sizes.data();
+	pool_info.maxSets = static_cast<uint32_t>(MAX_FRAMES_IN_FLIGHT) + max_texture;
 
-	if (vkCreateDescriptorPool(current_device, &poolInfo, nullptr, &descriptor_pool) != VK_SUCCESS)
+	if (vkCreateDescriptorPool(current_device, &pool_info, nullptr, &descriptor_pool) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create descriptor pool!");
 	}
@@ -1014,7 +1267,7 @@ void create_descriptor_set_layout()
 	layout_info.bindingCount = 1;
 	layout_info.pBindings = &ubo_layout_binding;
 
-	if (vkCreateDescriptorSetLayout(current_device, &layout_info, nullptr, &descriptor_set_layout) != VK_SUCCESS)
+	if (vkCreateDescriptorSetLayout(current_device, &layout_info, nullptr, &ubo_descriptor_set_layout) != VK_SUCCESS)
 	{
 		log::error("[Descriptor]: Failed to create descriptor set layout!");
 		assert(false);
@@ -1031,7 +1284,7 @@ void create_descriptor_set_layout()
 
 void create_descriptor_sets() 
 {
-	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, descriptor_set_layout);
+	std::vector<VkDescriptorSetLayout> layouts(MAX_FRAMES_IN_FLIGHT, ubo_descriptor_set_layout);
 	VkDescriptorSetAllocateInfo alloc_info{};
 	alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
 	alloc_info.descriptorPool = descriptor_pool;
@@ -1053,7 +1306,6 @@ void create_descriptor_sets()
 		buffer_info.range = sizeof(uniform_vertex);
 
 		VkWriteDescriptorSet descriptor_writes{};
-
 		descriptor_writes.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptor_writes.dstSet = descriptor_sets[i];
 		descriptor_writes.dstBinding = 0;
@@ -1124,7 +1376,14 @@ void xs::render::initialize()
 	create_instance();
 
 #if defined(DEBUG)
-	create_debug_handler();
+	VkDebugUtilsMessengerCreateInfoEXT create_debug_info{};
+	create_debug_handler(create_debug_info);
+
+	if (create_debug_utils(instance, &create_debug_info, nullptr, &debug_messenger) != VK_SUCCESS)
+	{
+		spdlog::critical("[ValidationLayer]: Failed to set up debug messenger!");
+		assert(false);
+	}
 #endif
 
 	create_surface();
@@ -1135,6 +1394,7 @@ void xs::render::initialize()
 	create_image_views();
 	create_render_pass();
 	create_descriptor_set_layout();
+	create_sprite_graphics_pipeline();
 	create_graphics_pipeline();
 	create_frame_buffers();
 	create_command_pool();
@@ -1157,89 +1417,6 @@ void xs::render::render()
 			return lhs.z < rhs.z;
 		});
 
-	int count = 0;
-	for (auto i = 0; i < sprite_queue.size(); i++)
-	{
-		const auto& spe = sprite_queue[i];
-		const auto& sprite = sprites[spe.sprite_id];
-		const auto& image = images[sprite.image_id];
-
-		auto from_x = 0.0;
-		auto from_y = 0.0;
-		auto to_x = image.width * (sprite.to.x - sprite.from.x) * spe.scale;
-		auto to_y = image.height * (sprite.to.y - sprite.from.y) * spe.scale;
-
-		auto from_u = sprite.from.x;
-		auto from_v = sprite.from.y;
-		auto to_u = sprite.to.x;
-		auto to_v = sprite.to.y;
-
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_x))
-			std::swap(from_u, to_u);
-
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_y))
-			std::swap(from_v, to_v);
-
-		vec4 add_color = to_vec4(spe.add_color);
-		vec4 mul_color = to_vec4(spe.mul_color);
-
-		sprite_trigs_array[count + 0].position = { from_x, from_y, 0.0 };
-		sprite_trigs_array[count + 1].position = { from_x, to_y, 0.0 };
-		sprite_trigs_array[count + 2].position = { to_x, to_y, 0.0 };
-		sprite_trigs_array[count + 3].position = { to_x, to_y, 0.0 };
-		sprite_trigs_array[count + 4].position = { to_x, from_y, 0.0 };
-		sprite_trigs_array[count + 5].position = { from_x, from_y, 0.0 };
-
-		sprite_trigs_array[count + 0].texture = { from_u,	to_v };
-		sprite_trigs_array[count + 1].texture = { from_u,	from_v }; 
-		sprite_trigs_array[count + 2].texture = { to_u,		from_v };
-		sprite_trigs_array[count + 3].texture = { to_u,		from_v };
-		sprite_trigs_array[count + 4].texture = { to_u,		to_v };
-		sprite_trigs_array[count + 5].texture = { from_u,	to_v };
-
-		for (int i = 0; i < 6; ++i)
-		{
-			sprite_trigs_array[count + i].add_color = add_color;
-			sprite_trigs_array[count + i].mul_color = mul_color;
-		}
-
-		vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
-		{
-			for (int i = 0; i < 6; i++)
-				sprite_trigs_array[count + i].position -= anchor;
-		}
-
-		if (spe.rotation != 0.0)
-		{
-			for (int i = 0; i < 6; i++)
-				rotate_vector3d(sprite_trigs_array[count + i].position, (float)spe.rotation);
-		}
-
-		for (int i = 0; i < 6; i++)
-		{
-			sprite_trigs_array[count + i].position.x += (float)spe.x;
-			sprite_trigs_array[count + i].position.y += (float)spe.y;
-		}
-		count += 6;
-
-		bool render_batch = false;
-		if (i < sprite_queue.size() - 1)
-		{
-			const auto& nspe = sprite_queue[i + 1];
-			const auto& nsprite = sprites[nspe.sprite_id];
-			render_batch = nsprite.image_id != sprite.image_id;
-		}
-		else
-		{
-			render_batch = true;
-		}
-
-		if (render_batch)
-		{
-		}
-	}
-
 	update_vertex_buffer();
 	switch_frame();
 }
@@ -1258,8 +1435,10 @@ void xs::render::shutdown()
 	vertex_buffer_triangles.shutdown();
 	vertex_buffer_lines.shutdown();
 
-	vkDestroyPipeline(current_device, graphics_pipeline, nullptr);
-	vkDestroyPipelineLayout(current_device, pipeline_layout, nullptr);
+	vkDestroyPipeline(current_device, triangle_graphics_pipeline, nullptr);
+	vkDestroyPipeline(current_device, sprite_graphics_pipeline, nullptr);
+	vkDestroyPipelineLayout(current_device, triangle_pipeline_layout, nullptr);
+	vkDestroyPipelineLayout(current_device, sprite_pipeline_layout, nullptr);
 	vkDestroyRenderPass(current_device, render_pass, nullptr);
 
 	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) 
@@ -1272,7 +1451,7 @@ void xs::render::shutdown()
 
 	vkDestroyDescriptorPool(current_device, descriptor_pool, nullptr);
 
-	vkDestroyDescriptorSetLayout(current_device, descriptor_set_layout, nullptr);
+	vkDestroyDescriptorSetLayout(current_device, ubo_descriptor_set_layout, nullptr);
 	vkDestroyDescriptorSetLayout(current_device, texture_descriptor_set_layout, nullptr);
 
 	vkDestroyCommandPool(current_device, command_pool, nullptr);
@@ -1298,29 +1477,39 @@ void xs::render::clear()
 void xs::render::internal::create_texture_with_data(xs::render::internal::image& img, uchar* data)
 {
     VkFormat format;
-    VkImageUsageFlags usage;
+    VkImageUsageFlags usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+
     VkImageTiling tiling = VkImageTiling::VK_IMAGE_TILING_OPTIMAL;
 
-    switch (img.channels)
-    {
-    case 1:
-        format = VkFormat::VK_FORMAT_R8_SRGB;
-        usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-        break;
-    case 4:
-        format = VkFormat::VK_FORMAT_R8G8B8A8_SRGB;
-        usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-        break;
-    case 3:
-        format = VkFormat::VK_FORMAT_R8G8B8_SRGB;
-        usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-        break;
-    default:
-        assert(false);
-    }
+	VkFormatProperties fp;
+
+	switch (img.channels)
+	{
+	case 1:
+		format = VkFormat::VK_FORMAT_R8_SRGB;
+		break;
+	case 3:
+		format = VkFormat::VK_FORMAT_R8G8B8_SRGB;
+		break;
+	case 4:
+		format = VkFormat::VK_FORMAT_R8G8B8A8_SRGB;
+		break;
+	default:
+		assert(false);
+	}
+
+	vkGetPhysicalDeviceFormatProperties(current_gpu, VkFormat::VK_FORMAT_R8G8B8_SRGB, &fp);
+
+	if ((fp.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) != VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT)
+	{
+		log::warn("channels: {}, format type: VK_FORMAT_R8G8B8_SRGB not supported", img.channels);
+
+		format = VkFormat::VK_FORMAT_R8G8B8A8_SRGB;
+	}
+
 	texture tex;
 	tex.initialize(data, img.width, img.height, tiling, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, format);
-	textures.insert(std::make_pair(img.texture, tex));
+	textures.insert(std::make_pair(static_cast<const uint32_t&>(img.string_id), tex));
 }
 
 void xs::render::begin(primitive p)
@@ -1549,7 +1738,8 @@ void device::swap_buffers()
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
-	if (vkQueueSubmit(graphics_queue, 1, &submitInfo, in_flight_fences[current_frame]) != VK_SUCCESS)
+	auto error = vkQueueSubmit(graphics_queue, 1, &submitInfo, in_flight_fences[current_frame]);
+	if (error != VK_SUCCESS)
 	{
 		spdlog::critical("[CommandList]: Failed to submit draw command buffer!");
 		assert(false);
@@ -1573,7 +1763,7 @@ void device::swap_buffers()
 
 VkDevice& xs::render::get_device()
 {
-	return current_device;
+	return xs::render::internal::current_device;
 }
 
 VkPhysicalDevice& xs::render::get_gpu_device()

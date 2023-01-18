@@ -393,6 +393,8 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="external\imgui\debuggers\imgui.natstepfilter" />
+    <None Include="games\shared\shaders\triangle.vert" />
+    <None Include="games\shared\shaders\triangle.frag" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="xs.rc">

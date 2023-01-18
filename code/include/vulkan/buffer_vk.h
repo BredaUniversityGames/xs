@@ -8,6 +8,7 @@ namespace xs::render
 		void initialize(const VkDeviceSize size, const VkBufferUsageFlags usage, const VkMemoryPropertyFlags properties);
 		void set_device_memory(const VkMemoryRequirements memory_requirement, const VkMemoryPropertyFlags properties);
 		void upload_data(void* data);
+		void upload_data(void* data, const VkDeviceSize size);
 		void shutdown();
 		VkBuffer buffer_data;
 		VkDeviceMemory buffer_memory;

@@ -380,6 +380,8 @@
     <None Include="external\wren\optional\wren_opt_random.wren.inc" />
     <None Include="external\wren\vm\wren_core.wren" />
     <None Include="external\wren\vm\wren_core.wren.inc" />
+    <None Include="games\shared\shaders\triangle.frag" />
+    <None Include="games\shared\shaders\triangle.vert" />
   </ItemGroup>
   <ItemGroup>
     <WavePsslc Include="code\source\ps5\pixel_shader_p.pssl">

@@ -1,3 +1,4 @@
+#if defined(VULKAN)
 #include "vulkan/render_vk.h"
 #include "vulkan/texture_vk.h"
 #include "log.h"
@@ -6,28 +7,24 @@ void xs::render::texture::initialize(void* data, const uint32_t width, const uin
 {
     VkDevice& device = xs::render::get_device();
 
-    create_texture_sampler();
-    create_texture_view(format);
-    create_descriptor_sets();
+    stage_buffer.initialize(width * height * sizeof(uint32_t), data);
 
-    stage_buffer.initialize(width * height * 4, data);
+    VkImageCreateInfo image_info{};
+    image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    image_info.imageType = VK_IMAGE_TYPE_2D;
+    image_info.extent.width = width;
+    image_info.extent.height = height;
+    image_info.extent.depth = 1;
+    image_info.mipLevels = 1;
+    image_info.arrayLayers = 1;
+    image_info.format = format;
+    image_info.tiling = tiling;
+    image_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    image_info.usage = usage;
+    image_info.samples = VK_SAMPLE_COUNT_1_BIT;
+    image_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    VkImageCreateInfo imageInfo{};
-    imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    imageInfo.imageType = VK_IMAGE_TYPE_2D;
-    imageInfo.extent.width = width;
-    imageInfo.extent.height = height;
-    imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = 1;
-    imageInfo.arrayLayers = 1;
-    imageInfo.format = format;
-    imageInfo.tiling = tiling;
-    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    imageInfo.usage = usage;
-    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-    if (vkCreateImage(device, &imageInfo, nullptr, &image) != VK_SUCCESS)
+    if (vkCreateImage(device, &image_info, nullptr, &image) != VK_SUCCESS)
         log::error("failed to create image!");
 
     VkMemoryRequirements memory_requirement;
@@ -40,6 +37,10 @@ void xs::render::texture::initialize(void* data, const uint32_t width, const uin
     xs::render::transition_image_layout(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
     stage_buffer.copy_buffer_to_image(stage_buffer.staging_buffer.buffer_data, image, width, height);
     xs::render::transition_image_layout(image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    create_texture_sampler();
+    create_texture_view(format);
+    create_descriptor_sets();
 
     stage_buffer.staging_buffer.shutdown();
 }
@@ -60,7 +61,7 @@ void xs::render::texture::create_texture_sampler()
     samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
     samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.anisotropyEnable = VK_TRUE;
+    samplerInfo.anisotropyEnable = VK_FALSE;
     samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
     samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
     samplerInfo.unnormalizedCoordinates = VK_FALSE;
@@ -98,16 +99,17 @@ void xs::render::texture::create_descriptor_sets()
     alloc_info.descriptorSetCount = 1;
     alloc_info.pSetLayouts = &xs::render::get_texture_descriptor_set_layout();
 
-    if (vkAllocateDescriptorSets(xs::render::get_device(), &alloc_info, &descriptor_set) != VK_SUCCESS)
+    auto error = vkAllocateDescriptorSets(xs::render::get_device(), &alloc_info, &descriptor_set);
+    if (error != VK_SUCCESS)
     {
-        spdlog::error("[Descriptor]: Failed to allocate descriptor sets!");
+        spdlog::error("[Descriptor]: Failed to allocate descriptor sets, {}!", error);
         assert(false);
     }
 
     VkDescriptorImageInfo image_info{};
     image_info.sampler = texture_sampler;
     image_info.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-    //image_info.imageView = texture_image_view;
+    image_info.imageView = image_view;
 
     VkWriteDescriptorSet descriptorWrites{};
 
@@ -127,3 +129,4 @@ void xs::render::texture::shutdown()
     vkDestroySampler(xs::render::get_device(), texture_sampler, nullptr);
     vkDestroyImageView(xs::render::get_device(), image_view, nullptr);
 }
+#endif

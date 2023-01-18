@@ -11,12 +11,12 @@ namespace xs::render
 		void create_texture_view(const VkFormat& format);
 		void create_descriptor_sets();
 		void shutdown();
+		VkDescriptorSet descriptor_set;
 	private:
 		buffer buffer;
 		stage_buffer stage_buffer;
 		VkImage image;
 		VkSampler texture_sampler;
-		VkDescriptorSet descriptor_set;
 		VkImageView image_view;
 	};
 }

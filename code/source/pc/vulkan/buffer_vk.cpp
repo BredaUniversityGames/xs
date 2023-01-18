@@ -68,6 +68,15 @@ namespace xs::render
         vkUnmapMemory(xs::render::get_device(), buffer_memory);
 	}
 
+    void buffer::upload_data(void* data, const VkDeviceSize size)
+    {
+        assert(static_cast<uint32_t>(size) >= 0);
+        void* pointer = nullptr;
+        vkMapMemory(xs::render::get_device(), buffer_memory, 0, size, 0, &pointer);
+        memcpy(pointer, data, size);
+        vkUnmapMemory(xs::render::get_device(), buffer_memory);
+    }
+
 	void buffer::shutdown()
 	{
         vkDestroyBuffer(xs::render::get_device(), buffer_data, nullptr);

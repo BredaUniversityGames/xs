@@ -5,7 +5,7 @@
     },
     "Fullscreen": {
         "type": "bool",
-        "value": false
+        "value": true
     },
     "Height": {
         "type": "number",
@@ -13,14 +13,14 @@
     },
     "Multiplier": {
         "type": "number",
-        "value": 2.0
+        "value": 1.9900000095367432
     },
     "Title": {
         "type": "string",
-        "value": "~~seedwave~~"
+        "value": "               "
     },
     "Width": {
         "type": "number",
-        "value": 640.0
+        "value": 640.010009765625
     }
 }
