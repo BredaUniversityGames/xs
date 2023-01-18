@@ -19,7 +19,7 @@ class Unit is Component {
 
     update(dt) {
         if(_health <= 0) {
-            // Game.createExplosion(owner)
+            Create.explosion(owner)
             owner.delete()
             return
         }
@@ -36,3 +36,5 @@ class Unit is Component {
 
     toString { "[Unit team:%(_team) health:%(_health)]" }
 }
+
+import "create" for Create

@@ -68,7 +68,7 @@ class Player is Component {
         if((Input.getButton(0) ||
             Input.getKeyOnce(Input.keySpace)) &&
             _shootTime > Data.getNumber("Player Shoot Time")) {
-            Create.PlayerBullet(
+            Create.playerBullet(
                     owner,
                     Data.getNumber("Player Bullet Speed"),
                     Data.getNumber("Player Bullet Damage"))

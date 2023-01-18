@@ -2,12 +2,6 @@ import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
-import "unit" for Unit
-import "tags" for Team, Tag
-import "debug" for DebugColor
-import "components" for SlowRelation
-import "random" for Random
-import "game" for Game
 
 class Bullet is Component {
     construct new(team, damage) {
@@ -124,3 +118,10 @@ class Missile is Bullet {
 
     toString { "[Missile] ->" + super.toString }
 }
+
+import "unit" for Unit
+import "tags" for Team, Tag
+import "debug" for DebugColor
+import "components" for SlowRelation
+import "random" for Random
+import "game" for Game

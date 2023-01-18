@@ -30,50 +30,8 @@ class Create {
         return e
     }
 
+
     /*
-    static Turret(parent, position, size, type, power) {
-        var e = Entity.new()
-        var t = Transform.new(Vec2.new())
-        var r = Relation.new(parent)
-        var tr = null
-        var s = null
-        if (size == Size.S) {
-            s = GridSprite.new("[game]/assets/images/Weapons/Small/turret_small_32x32.png", 3, 4)
-        } else if(size == Size.M) {
-            s = GridSprite.new("[game]/assets/images/Weapons/Medium/turret_medium_64x64.png", 3, 4)
-        }
-
-        if(type == Turret.Cannon) {
-            s.idx = 3 * 3 + power
-            tr = Cannon.new()
-        } else if(type == Turret.Launcher) {
-            s.idx = 3 + power
-            tr = Launcher.new()
-        } else if(type == Turret.Laser) {
-            s.idx = power
-            tr = Laser.new()
-        } else if(type == Turret.Plasma) {
-            s.idx = 2 * 3 + power
-            tr = Plasma.new()
-        }
-
-        s.flags = Render.spriteCenter
-        r.offset = position
-
-        e.addComponent(t)
-        e.addComponent(r)
-        e.addComponent(s)
-        //e.addComponent(tr)
-    }
-
-    static Turret(parent, position, size) {
-        var type = __random.int(0, 5)
-        var power = __random.int(0, 3)
-        Create.Turret(parent, position, size, type, power)
-    }
-
-
-
     static EnemySmall(entity, variation) {
         var s = GridSprite.new("[game]/assets/images/Ships/Small/ship_small_32x64.png", 3, 1)
         s.idx = variation
@@ -151,16 +109,20 @@ class Create {
     */
 
     static Enemy(position, variation, weapon, t) {
-        var e = Entity.new()
+        var e = Entity.new()        
         var tr = Transform.new(position)
         var sp = Sprite.new("[game]/assets/images/02 Heavy/heavy_2.png")
         sp.flags = Render.spriteCenter
-        var c = Body.new(4, Vec2.new())
+        var c = Body.new(14, Vec2.new())
         var sh = Ship.new(t)
+        var u = Unit.new(Team.Computer, 1)
         e.addComponent(tr)
         e.addComponent(sh)
         e.addComponent(sp)
         e.addComponent(c)
+        e.addComponent(u)
+        e.tag =  Tag.Computer | Tag.Unit
+
 
         /*
         if(size == Size.S) {
@@ -192,7 +154,7 @@ class Create {
         e.addComponent(s)
     }
 
-    static PlayerBullet(owner, speed, damage) {
+    static playerBullet(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
         var bullet = Entity.new()
         var t = Transform.new(owt.position + Vec2.new(0,10))
@@ -217,6 +179,7 @@ class Create {
     }
 
     static enemyProjectile(owner, direction, damage) {
+        System.print(Bullet)
         var owt = owner.getComponent(Transform)
         var bullet = Entity.new()
         var t = Transform.new(owt.position - Vec2.new(0, 0))
@@ -237,14 +200,34 @@ class Create {
         bullet.tag = Tag.Computer | Tag.Bullet
         bullet.addComponent(DebugColor.new(0xFFA8D3FF))
     }
+
+    static explosion(owner) {
+        var owt = owner.getComponent(Transform)
+        var explosion = Entity.new()
+        var t = Transform.new(owt.position)
+        var b = Body.new(001, Vec2.new(0, 0))
+        //var e = Explosion.new(1.0)
+        var s = AnimatedSprite.new("[game]/assets/images/vfx/explosion-a.png", 8, 1, 15)
+        s.layer = 1.9
+        s.flags = Render.spriteCenter
+        s.addAnimation("explode", [0, 1, 2, 3, 4, 5, 6, 7])
+        s.playAnimation("explode")
+        s.mode = AnimatedSprite.destroy
+        explosion.addComponent(t)
+        explosion.addComponent(b)
+        //explosion.addComponent(e)
+        explosion.addComponent(s)
+        explosion.addComponent(DebugColor.new(0xFFFFFFFF))
+        explosion.name = "Explosion"
+    }
 }
 
 import "unit" for Unit
 import "components" for SlowRelation
 import "tags" for Team, Tag, Size
-import "bullets" for Bullet
 import "debug" for DebugColor
 import "random" for Random
 import "enemy" for Turret, Ship, Cannon, Laser, Launcher, Plasma
 import "player" for Player
 import "game" for Game
+import "bullets" for Bullet

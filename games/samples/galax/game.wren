@@ -22,23 +22,6 @@ class Game {
         __random = Random.new()
         __player = Player.create()
         __size = 2
-
-        /*
-        Create.Enemy(Vec2.new(-100, 250), Size.S, 0)
-        Create.Enemy(Vec2.new(0, 250), Size.S, 1)
-        Create.Enemy(Vec2.new(100,250), Size.S, 2)
-
-        Create.Enemy(Vec2.new(-200,   100), Size.M, 0)
-        Create.Enemy(Vec2.new(-100, 100), Size.M, 1)
-        Create.Enemy(Vec2.new(0, 100), Size.M, 2)
-        Create.Enemy(Vec2.new(100, 100), Size.M, 3)
-        Create.Enemy(Vec2.new(200, 100), Size.M, 4)
-
-        Create.Enemy(Vec2.new(-150,   -150), Size.L, 2)
-        Create.Enemy(Vec2.new(0, -150), Size.L, 1)
-        Create.Enemy(Vec2.new(150, -150), Size.L, 0)
-        */
-
         __totalTime = 0
         __bossTime = 0      
     }    
@@ -46,7 +29,7 @@ class Game {
     static update(dt) {
         Entity.update(dt)
         Waves.update(dt)
-        // Game.updateGame(dt)
+        Game.updateGame(dt)
         
         if(Data.getBool("Print Entities", Data.debug)) {
             Entity.print()
@@ -59,7 +42,6 @@ class Game {
     }
 
     static updateGame(dt) {
-        return
         __totalTime = __totalTime + dt
         __bossTime = __bossTime + dt
         var playerUnits = Entity.withTag(Tag.Player | Tag.Unit)
@@ -69,7 +51,6 @@ class Game {
 
         Game.collide(computerBullets, playerUnits)
         Game.collide(playerBullets, computerUnits)
-        Game.collide(playerBullets, playerUnits)
 
         Render.setColor(1, 1, 1, 1)
         // Render.shapeText("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
