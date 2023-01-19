@@ -12,8 +12,9 @@ namespace xs::render
 		void create_descriptor_sets();
 		void shutdown();
 		VkDescriptorSet descriptor_set;
+		xs::render::buffer buffer;
+		xs::render::buffer data;
 	private:
-		buffer buffer;
 		stage_buffer stage_buffer;
 		VkImage image;
 		VkSampler texture_sampler;

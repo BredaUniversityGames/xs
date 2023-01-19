@@ -152,7 +152,6 @@ namespace xs::render::internal
 	VkDescriptorSetLayout	 texture_descriptor_set_layout;
 	buffer					 vertex_buffer_triangles;
 	buffer					 vertex_buffer_lines;
-	buffer					 sprite_buffer;
 
 	struct uniform_vertex { alignas(16) mat4 view_projection_matrix; }; 
 	struct SwapChainSupportDetails
@@ -461,7 +460,6 @@ QueueFamilyIndices pick_queue_families(VkPhysicalDevice device)
 		if (queue_family.queueFlags & VK_QUEUE_GRAPHICS_BIT) 
 			indices.graphics_family = i;
 		
-
 		bool extensions_supported = check_device_extension_support(device);
 		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &present_support);
 
@@ -649,7 +647,6 @@ uint32_t find_memory_type(uint32_t typeFilter, VkMemoryPropertyFlags properties)
 void create_vertex_buffer() 
 {
 	vertex_buffer_triangles.initialize(sizeof(triangles_array[0]) * (static_cast<unsigned long long>(triangles_max) * 3), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-	sprite_buffer.initialize(sizeof(sprite_trigs_array[0]) * (static_cast<unsigned long long>(sprite_trigs_max) * 3), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 	vertex_buffer_lines.initialize(sizeof(vertex_array[0]) * (static_cast<unsigned long long>(lines_max) * 2), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 }
 
@@ -657,7 +654,6 @@ void update_vertex_buffer()
 {
 	vertex_buffer_triangles.upload_data(&triangles_array[0]);
 	vertex_buffer_lines.upload_data(&vertex_array[0]);
-	vertex_buffer_lines.upload_data(&sprite_trigs_array[0]);
 }
 
 void create_sprite_graphics_pipeline()
@@ -1083,8 +1079,6 @@ void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
 
 	vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
-	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, triangle_graphics_pipeline);
-
 	VkViewport viewport{};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
@@ -1099,18 +1093,16 @@ void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
 	scissor.extent = swapchain_extent;
 	vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 
+
+	// TODO: make it only sort when you add stuff to the queu
+	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
+		[](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
+			return lhs.z < rhs.z;
+		});
+
 	VkDeviceSize offsets[] = { 0 };
-	vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer_triangles.buffer_data, offsets);
-	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, triangle_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
-	vkCmdDraw(command_buffer, triangles_count * 3, 1, 0, 0);
-
-	vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer_lines.buffer_data, offsets);
-	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, triangle_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
-	vkCmdDraw(command_buffer, lines_count * 2, 1, 0, 0);
-
 	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_graphics_pipeline);
 	int count = 0;
-	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
 	for (auto i = 0; i < sprite_queue.size(); i++)
 	{
 		const auto& spe = sprite_queue[i];
@@ -1190,14 +1182,25 @@ void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
 
 		if (render_batch)
 		{
-			//offsets[0] = { static_cast<unsigned long long>(count) * sizeof(sprite_vtx_format) };
+			auto& value = textures.find(static_cast<const uint32_t&>(image.string_id))->second.data;
+			value.upload_data(&sprite_trigs_array[0]);
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 1, 1, &textures.find(static_cast<const uint32_t&>(image.string_id))->second.descriptor_set, 0, nullptr);
-			sprite_buffer.upload_data(&sprite_trigs_array[0]);
-			vkCmdBindVertexBuffers(command_buffer, 0, 1, &sprite_buffer.buffer_data, offsets);
+			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
+			vkCmdBindVertexBuffers(command_buffer, 0, 1, &value.buffer_data, offsets);
 			vkCmdDraw(command_buffer, count, 1, 0, 0);
 			count = 0;
 		}
 	}
+
+
+	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, triangle_graphics_pipeline);
+	vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer_triangles.buffer_data, offsets);
+	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, triangle_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
+	vkCmdDraw(command_buffer, triangles_count * 3, 1, 0, 0);
+
+	vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer_lines.buffer_data, offsets);
+	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, triangle_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
+	vkCmdDraw(command_buffer, lines_count * 2, 1, 0, 0);
 }
 
 void create_sync_objects() 
@@ -1411,18 +1414,13 @@ void xs::render::render()
 {
 	XS_PROFILE_SECTION("xs::render::render");
 
-	// TODO: make it only sort when you add stuff to the queu
-	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
-		[](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
-			return lhs.z < rhs.z;
-		});
-
 	update_vertex_buffer();
 	switch_frame();
 }
 
 void xs::render::shutdown()
 {
+	switch_frame();
 	vkDeviceWaitIdle(current_device);
 
 	for (auto framebuffer : swapchain_framebuffers)
@@ -1509,6 +1507,7 @@ void xs::render::internal::create_texture_with_data(xs::render::internal::image&
 
 	texture tex;
 	tex.initialize(data, img.width, img.height, tiling, usage, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, format);
+	tex.data.initialize(sizeof(sprite_trigs_array[0]) * (static_cast<unsigned long long>(sprite_trigs_max) * 3), VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 	textures.insert(std::make_pair(static_cast<const uint32_t&>(img.string_id), tex));
 }
 

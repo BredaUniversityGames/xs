@@ -126,6 +126,9 @@ void xs::render::texture::create_descriptor_sets()
 
 void xs::render::texture::shutdown()
 {
+    data.shutdown();
+    stage_buffer.shutdown();
+    buffer.shutdown();
     vkDestroySampler(xs::render::get_device(), texture_sampler, nullptr);
     vkDestroyImageView(xs::render::get_device(), image_view, nullptr);
 }
