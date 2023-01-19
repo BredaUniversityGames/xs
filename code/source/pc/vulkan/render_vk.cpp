@@ -85,22 +85,22 @@ namespace xs::render::internal
 			std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
 
 			attributeDescriptions[0].binding = 0;
-			attributeDescriptions[0].location = 0;
+			attributeDescriptions[0].location = 1;
 			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
 			attributeDescriptions[0].offset = offsetof(sprite_vtx_format, position);
 
 			attributeDescriptions[1].binding = 0;
-			attributeDescriptions[1].location = 1;
+			attributeDescriptions[1].location = 2;
 			attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
 			attributeDescriptions[1].offset = offsetof(sprite_vtx_format, texture);
 
 			attributeDescriptions[2].binding = 0;
-			attributeDescriptions[2].location = 2;
+			attributeDescriptions[2].location = 3;
 			attributeDescriptions[2].format = VK_FORMAT_R32G32B32A32_SFLOAT;
 			attributeDescriptions[2].offset = offsetof(sprite_vtx_format, mul_color);
 
 			attributeDescriptions[3].binding = 0;
-			attributeDescriptions[3].location = 3;
+			attributeDescriptions[3].location = 4;
 			attributeDescriptions[3].format = VK_FORMAT_R32G32B32A32_SFLOAT;
 			attributeDescriptions[3].offset = offsetof(sprite_vtx_format, add_color);
 
@@ -1184,8 +1184,8 @@ void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
 		{
 			auto& value = textures.find(static_cast<const uint32_t&>(image.string_id))->second.data;
 			value.upload_data(&sprite_trigs_array[0]);
-			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 1, 1, &textures.find(static_cast<const uint32_t&>(image.string_id))->second.descriptor_set, 0, nullptr);
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
+			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 1, 1, &textures.find(static_cast<const uint32_t&>(image.string_id))->second.descriptor_set, 0, nullptr);
 			vkCmdBindVertexBuffers(command_buffer, 0, 1, &value.buffer_data, offsets);
 			vkCmdDraw(command_buffer, count, 1, 0, 0);
 			count = 0;

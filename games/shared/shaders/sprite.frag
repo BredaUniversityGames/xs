@@ -1,5 +1,5 @@
 #version 460 core
-layout (set = 1, binding = 0) uniform sampler2D s_image;
+layout (binding = 0) uniform sampler2D s_image;
 
 layout (location = 0) in vec4 v_mul_color;
 layout (location = 1) in vec4 v_add_color;

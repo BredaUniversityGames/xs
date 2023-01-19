@@ -75,6 +75,7 @@ namespace xs::render::internal
 	sprite_vtx_format		sprite_trigs_array[sprite_trigs_max * 3];
 	unsigned int			sprite_trigs_vao = 0;
 	unsigned int			sprite_trigs_vbo = 0;
+	unsigned int            ubo_handle = 0;
 }
 
 using namespace xs;
@@ -178,6 +179,16 @@ void xs::render::initialize()
 		4, 4, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
 		reinterpret_cast<void*>(offsetof(sprite_vtx_format, add_color)));
 
+	glGenBuffers(1, &ubo_handle);
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo_handle);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	// define the range of the buffer that links to a uniform binding point
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo_handle, 0, sizeof(glm::mat4));
+
+	// store the projection matrix (we only do this once now) (note: we're not using zoom anymore by changing the FoV)
+
+
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 }
 
@@ -204,7 +215,9 @@ void xs::render::render()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glUseProgram(sprite_program);
-	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo_handle);
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), value_ptr(vp));
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
 		[](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
