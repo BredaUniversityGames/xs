@@ -9,11 +9,6 @@
     </LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NXTargetName>Default</NXTargetName>
-    <LocalDebuggerCommandArguments />
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">
     <NXTargetName>Default</NXTargetName>
@@ -30,11 +25,6 @@
     <DebuggerFlavor>OasisNXDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <NXTargetName>Default</NXTargetName>
-    <LocalDebuggerCommandArguments>[games]/seedwave/game.wren</LocalDebuggerCommandArguments>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NXTargetName>Default</NXTargetName>
     <LocalDebuggerCommandArguments>[games]/seedwave/game.wren</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
@@ -64,11 +54,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
-    <NXTargetName>Default</NXTargetName>
-    <LocalDebuggerCommandArguments>[games]/seedwave/game.wren</LocalDebuggerCommandArguments>
-    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|Win32'">
     <NXTargetName>Default</NXTargetName>
     <LocalDebuggerCommandArguments>[games]/seedwave/game.wren</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
