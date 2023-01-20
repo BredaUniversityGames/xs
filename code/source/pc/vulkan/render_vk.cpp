@@ -1307,7 +1307,7 @@ void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
 		if (render_batch)
 		{
 			auto& value = textures.at(static_cast<const uint32_t&>(image.string_id)).data;
-			value.upload_data(&sprite_trigs_array[0], count * sizeof(sprite_vtx_format));
+			value.upload_data(&sprite_trigs_array[0], count * 3 );
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 1, 1, &textures.find(static_cast<const uint32_t&>(image.string_id))->second.descriptor_set, 0, nullptr);
 			vkCmdBindVertexBuffers(command_buffer, 0, 1, &value.buffer_data, offsets);
 			vkCmdDraw(command_buffer, count, 1, 0, 0);
