@@ -121,6 +121,7 @@ class Entity {
             for(c in e.components) {
                 if(!c.initialized_) {
                     c.initialize()
+                    c.initialized_ = true
                 }
                 c.update(dt)
             }

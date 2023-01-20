@@ -87,7 +87,7 @@ void device::initialize()
 	}
 
 	glfwMakeContextCurrent(internal::window);
-	glfwSwapInterval(1);
+	// glfwSwapInterval(1);
 
 	int major = glfwGetWindowAttrib(internal::window, GLFW_CONTEXT_VERSION_MAJOR);
 	int minor = glfwGetWindowAttrib(internal::window, GLFW_CONTEXT_VERSION_MINOR);

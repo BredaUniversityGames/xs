@@ -105,18 +105,17 @@ int xs::render::load_font(const std::string& font_file, double size)
 	auto dimension = tools::next_power_of_two((uint32)sqrt(requiredPixels));
 
 	image img;
-	int val = ascent - descent;
+	//int val = ascent - descent;
 	img.width = dimension;
 	img.height = dimension;
 	auto bitmap = static_cast<unsigned char*>(malloc(img.width * img.height));
 
 	// pack font
-	font.packed_chars.resize(96);
+	font.packed_chars.resize(FONT_ATLAS_NR_CHARACTERS);
 	
 	// pack font
 	stbtt_pack_context pc;
 	stbtt_PackBegin(&pc, bitmap, img.width, img.height, 0, 2, nullptr);
-	font.packed_chars.resize(96);
 	stbtt_PackFontRange(&pc, font.buffer, 0, (float)size, FONT_ATLAS_MIN_CHARACTER, FONT_ATLAS_NR_CHARACTERS, &font.packed_chars[0]);
 	stbtt_PackEnd(&pc);
 

@@ -384,6 +384,11 @@ void xs::render::render()
 {
 	SceError error;
 
+	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
+		[](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
+			return lhs.z < rhs.z;
+		});
+
 	// First we identify the back buffer.
 	const uint32_t buffer = frame++ % BUFFERING;
 
@@ -521,6 +526,16 @@ void xs::render::render()
 		camera->res_x = 640.0f * 0.5f;
 		camera->res_y = 360.0f * 0.5f;
 
+		ctx.m_sb.setState(sce::Agc::CxBlendControl().init()
+			.setSlot(0)
+			.setBlend(sce::Agc::CxBlendControl::Blend::kEnable)
+			.setAlphaSourceMultiplier(sce::Agc::CxBlendControl::AlphaSourceMultiplier::kOne)
+			.setAlphaBlendFunc(sce::Agc::CxBlendControl::AlphaBlendFunc::kAdd)
+			.setAlphaDestMultiplier(sce::Agc::CxBlendControl::AlphaDestMultiplier::kOne)
+			.setColorSourceMultiplier(sce::Agc::CxBlendControl::ColorSourceMultiplier::kOne)
+			.setColorBlendFunc(sce::Agc::CxBlendControl::ColorBlendFunc::kAdd)
+			.setColorDestMultiplier(sce::Agc::CxBlendControl::ColorDestMultiplier::kOneMinusSrcAlpha));
+
 		ctx.m_bdr.getStage(sce::Agc::ShaderType::kGs)
 			.setVertexBuffers(0, 1, &vertBuffer)
 			.setVertexAttributes(0, 3, attributes)
@@ -528,8 +543,7 @@ void xs::render::render()
 
 		ctx.m_bdr.getStage(sce::Agc::ShaderType::kPs)
 			.setTextures(0, 1, &image.texture)
-			.setSamplers(0, 1, &sampler);
-
+			.setSamplers(0, 1, &sampler);		
 
 		// In this example, we're actually drawing two triangles. The state only differs in what is in
 		// frame_reg. Because we're not calling into the Binder or StateBuffer in between these draws, they will 

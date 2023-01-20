@@ -16,5 +16,10 @@
     },
     "material-icon-theme.files.associations": {
         "*.wren" : "ada"
-    }
+    },
+    "cSpell.words": [
+        "stbi",
+        "stbtt",
+        "Wunused"
+    ]
 }
