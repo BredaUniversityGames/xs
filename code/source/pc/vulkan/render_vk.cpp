@@ -412,7 +412,7 @@ VkPresentModeKHR choose_swap_present_mode(const std::vector<VkPresentModeKHR>& a
 {
 	for (const auto& available_presentMode : available_presentModes)
 	{
-		if (available_presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
+		if (available_presentMode == VK_PRESENT_MODE_FIFO_KHR)
 			return available_presentMode;
 	}
 
@@ -1102,6 +1102,7 @@ void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
 
 	VkDeviceSize offsets[] = { 0 };
 	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_graphics_pipeline);
+	vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
 	int count = 0;
 	for (auto i = 0; i < sprite_queue.size(); i++)
 	{
@@ -1182,16 +1183,14 @@ void record_command_buffer(VkCommandBuffer command_buffer, uint32_t image_index)
 
 		if (render_batch)
 		{
-			auto& value = textures.find(static_cast<const uint32_t&>(image.string_id))->second.data;
-			value.upload_data(&sprite_trigs_array[0]);
-			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 0, 1, &descriptor_sets[current_frame], 0, nullptr);
+			auto& value = textures.at(static_cast<const uint32_t&>(image.string_id)).data;
+			value.upload_data(&sprite_trigs_array[0], count * sizeof(sprite_vtx_format));
 			vkCmdBindDescriptorSets(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sprite_pipeline_layout, 1, 1, &textures.find(static_cast<const uint32_t&>(image.string_id))->second.descriptor_set, 0, nullptr);
 			vkCmdBindVertexBuffers(command_buffer, 0, 1, &value.buffer_data, offsets);
 			vkCmdDraw(command_buffer, count, 1, 0, 0);
 			count = 0;
 		}
 	}
-
 
 	vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, triangle_graphics_pipeline);
 	vkCmdBindVertexBuffers(command_buffer, 0, 1, &vertex_buffer_triangles.buffer_data, offsets);
@@ -1359,11 +1358,11 @@ void switch_frame()
 	vkWaitForFences(current_device, 1, &in_flight_fences[current_frame], VK_TRUE, UINT64_MAX);
 
 	VkResult result = vkAcquireNextImageKHR(xs::render::internal::current_device, xs::render::internal::swapchain, UINT64_MAX, xs::render::internal::image_available_semaphores[current_frame], VK_NULL_HANDLE, &image_index);
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+	/*if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
 	{
 		swapchain_rebuild = true;
 		return;
-	}
+	}*/
 
 	vkResetFences(current_device, 1, &in_flight_fences[current_frame]);
 
@@ -1413,7 +1412,6 @@ void xs::render::initialize()
 void xs::render::render()
 {
 	XS_PROFILE_SECTION("xs::render::render");
-
 	update_vertex_buffer();
 	switch_frame();
 }
@@ -1713,6 +1711,7 @@ void xs::render::transition_image_layout(const VkImage& image, const VkFormat& f
 
 void device::swap_buffers()
 {
+	XS_PROFILE_FUNCTION();
 	vkCmdEndRenderPass(command_buffers[current_frame]);
 
 	if (vkEndCommandBuffer(command_buffers[current_frame]) != VK_SUCCESS)
@@ -1757,7 +1756,6 @@ void device::swap_buffers()
 	vkQueuePresentKHR(present_queue, &presentInfo);
 
 	current_frame = (current_frame + 1) % MAX_FRAMES_IN_FLIGHT;
-	XS_PROFILE_FUNCTION();
 }
 
 VkDevice& xs::render::get_device()

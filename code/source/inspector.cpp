@@ -217,7 +217,11 @@ void xs::inspector::render(float dt)
 		}
 		Tooltip("About");
 		ImGui::SameLine();
+		ImGui::Text("| delta time: %f ms | fps: %f", dt, 1.f / dt);
+
+		ImGui::SameLine();
 		ImGui::Text("| xs %s", xs::version::version_string.c_str());
+
 		ImGui::PopStyleColor();
 		Tooltip("Engine Version");
 		ImGui::End();

@@ -72,7 +72,7 @@ int xs::main(int argc, char* argv[])
         auto elapsed = current_time - prev_time;
         prev_time = current_time;
         const auto dt = std::chrono::duration<double>(elapsed).count();
-
+        
         device::poll_events();
         input::update(dt);
         if (!inspector::paused())
