@@ -350,9 +350,9 @@ void xs::input::update(double dt)
 				connected++;
 				FillJoystickState(state, handheldState.buttons, gamepadMapping_full);
 				state.Axes[xs::input::gamepad_axis::STICK_LEFT_X] = NormalizeStickInput(handheldState.analogStickL.x);
-				state.Axes[xs::input::gamepad_axis::STICK_LEFT_Y] = NormalizeStickInput(handheldState.analogStickL.y);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_Y] = -NormalizeStickInput(handheldState.analogStickL.y);
 				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_X] = NormalizeStickInput(handheldState.analogStickR.x);
-				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_Y] = NormalizeStickInput(handheldState.analogStickR.y);
+				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_Y] = -NormalizeStickInput(handheldState.analogStickR.y);
 
 				if (_joyState.size() > 1)
 					removeQueue.push(joy);
