@@ -167,6 +167,7 @@ class Create {
         var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
         s.layer = 1.9
         s.flags = Render.spriteCenter
+        s.scale = 1.5
         s.addAnimation("anim", [0,1,2])
         s.playAnimation("anim") 
         bullet.addComponent(t)
@@ -184,12 +185,13 @@ class Create {
         var bullet = Entity.new()
         var t = Transform.new(owt.position - Vec2.new(0, 0))
         t.rotation = direction.atan2 - Math.pi * 0.5
-        var v = direction * 2
+        var v = direction * 7.0
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.Computer, damage)
         var s = AnimatedSprite.new("[game]/assets/images/Projectiles_2/projectile-04.png", 2, 1, 15)
         s.layer = 1.9
         s.flags = Render.spriteCenter
+        s.scale = 1.5
         s.addAnimation("anim", [0,1])
         s.playAnimation("anim") 
         bullet.addComponent(t)
@@ -210,9 +212,11 @@ class Create {
         var s = AnimatedSprite.new("[game]/assets/images/vfx/explosion-a.png", 8, 1, 15)
         s.layer = 1.9
         s.flags = Render.spriteCenter
+        s.scale = 2.0
         s.addAnimation("explode", [0, 1, 2, 3, 4, 5, 6, 7])
         s.playAnimation("explode")
         s.mode = AnimatedSprite.destroy
+        t.rotation = __random.float(0.0, 2.0 * Math.pi)
         explosion.addComponent(t)
         explosion.addComponent(b)
         //explosion.addComponent(e)
