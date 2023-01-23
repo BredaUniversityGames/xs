@@ -83,7 +83,7 @@ class Turret is Component {
         _d = Math.pi / 2.0
         _a = 3
         _b = 2
-        _A = 100
+        _A = 200
         _B = 150
         _t = t
         _time = 0
@@ -91,6 +91,7 @@ class Turret is Component {
 
     initialize() {
         _transform = owner.getComponent(Transform)
+        _body = owner.getComponent(Body)
     }
 
     update(dt) {
@@ -101,13 +102,24 @@ class Turret is Component {
         var pos = Ship.lissajous(_d, _a, _b, _t)
         pos.x = pos.x * _A
         pos.y = pos.y * _B
-        _transform.position = pos
 
+        //_transform.position = pos
 
         var pe = Game.player
         var pt = pe.getComponent(Transform)
         var t = owner.getComponent(Transform)
         var d = pt.position - t.position
+
+        {
+            var p = Game.player
+            var d =  pos - _transform.position
+            if(d.magnitude > 360) {
+                d = d.normalise * 360
+            }
+            _body.velocity = d
+            //var dv = d * Data.getNumber("Missle Max Speed")
+            //dv = dv - b.velocity
+        }
 
         if(_time >= 1.0) {
             _time = 0.0
@@ -126,10 +138,10 @@ class Turret is Component {
 
     static update(dt) {
         __time = __time + dt
-        if(__time > 5.0) {
-            var dt = 0.15
+        if(__time > 1.0) {
+            var dvt = 0.3
             for(i in 0...5) {
-                Create.Enemy(Vec2.new(0, 250), Size.S, 3, dt * i)
+                Create.Enemy(Vec2.new(200, 550), Size.S, 3, dvt * i)
                 __wave = __wave + 1
                 __time = 0
             }
