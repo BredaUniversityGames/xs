@@ -211,3 +211,18 @@ bool xs::fileio::exists(const std::string& filename)
 	f.close();
 	return good;
 }
+
+#if defined(PLATFORM_PC) && (defined(DEBUG) || defined(PROFILE))
+
+uint64_t xs::fileio::last_write(const std::string& filename)
+{
+	const auto path = get_path(filename);
+	std::filesystem::file_time_type ftime = std::filesystem::last_write_time(path);
+	return static_cast<uint64_t>(ftime.time_since_epoch().count());
+}
+
+#else 
+
+int64_t xs::fileio::last_write(const std::string& filename) { return 0; } 
+
+#endif
