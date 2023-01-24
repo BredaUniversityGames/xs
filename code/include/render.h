@@ -28,6 +28,7 @@ namespace xs::render
 	void render();
 	void clear();
 	void reload();
+	void reload_images();
 	void set_offset(double x, double y);
 
 	int load_image(const std::string& image_file);
