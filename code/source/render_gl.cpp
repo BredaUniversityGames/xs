@@ -13,6 +13,8 @@
 	#pragma clang diagnostic pop
 #else
 	#include <stb/stb_easy_font.h>
+	#include <filesystem>
+	//#include <time>
 #endif
 
 #include "opengl.h"

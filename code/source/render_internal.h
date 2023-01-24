@@ -22,13 +22,14 @@ namespace xs::render::internal
 		int			height		= -1;
 		int			channels	= -1;
 		std::size_t	string_id	= 0;
+		std::string file;
 	};
 
 	struct sprite
 	{
 		int image_id	= -1;
 		glm::vec2 from	= {};
-		glm::vec2 to	= {};
+		glm::vec2 to	= {};		
 	};
 
 	struct sprite_queue_entry
