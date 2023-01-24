@@ -5,6 +5,14 @@ import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, Anim
 
 class Create {
 
+    static makeList(size) {
+        var list = []
+        for(i in 0...size) {
+            list.add(i)
+        }
+        return list
+    }
+
     static init() {
         __random = Random.new()
     }
@@ -12,7 +20,6 @@ class Create {
     static drone(offset, parent) {        
         var e = Entity.new()
         var t = Transform.new(Vec2.new())
-        // var v = Vec2.new(0, 0)
         var c = DebugColor.new(0x8BEC46FF)
         var s = AnimatedSprite.new("[game]/assets/images/Support Units/support_units.png", 4, 3, 15)        
         var r = SlowRelation.new(parent, 4.2)
@@ -30,91 +37,35 @@ class Create {
         return e
     }
 
+    static pair(a, b) { a * 65536 + b }
 
-    /*
-    static EnemySmall(entity, variation) {
-        var s = GridSprite.new("[game]/assets/images/Ships/Small/ship_small_32x64.png", 3, 1)
-        s.idx = variation
-        var c = Body.new(4, Vec2.new())
-        s.flags = Render.spriteCenter
-        entity.addComponent(s)
-        entity.addComponent(c)
-        Create.Turret(entity, Vec2.new(), Size.S)
+    static enemy(position, type, difficulty, formation, t) {
+        if(__images == null) {
+            __images = {}
+            __images[pair(Ship.plasma, 1)] = "[game]/assets/images/02 Heavy/heavy_3.png"
+            __images[pair(Ship.plasma, 2)] = "[game]/assets/images/02 Heavy/heavy_1.png"
+            __images[pair(Ship.plasma, 3)] = "[game]/assets/images/02 Heavy/heavy_4.png"
+            __images[pair(Ship.plasma, 4)] = "[game]/assets/images/02 Heavy/heavy_2.png"
 
-        Create.Exhaust(entity, Vec2.new(0, 33), 0.0, 1)
-    }
+            __images[pair(Ship.fire, 1)] = "[game]/assets/images/03 Danger/danger_3.png"
+            __images[pair(Ship.fire, 2)] = "[game]/assets/images/03 Danger/danger_1.png"
+            __images[pair(Ship.fire, 3)] = "[game]/assets/images/03 Danger/danger_5.png"
+            __images[pair(Ship.fire, 4)] = "[game]/assets/images/03 Danger/danger_6.png"
 
-    static EnemyMedium(entity, variation) {
-        var s = GridSprite.new("[game]/assets/images/Ships/Medium/ship_medium_64x128.png", 5, 1)
-        s.idx = variation
-        var c = Body.new(4, Vec2.new())
-        s.flags = Render.spriteCenter
-        entity.addComponent(s)
-        entity.addComponent(c)
-        Create.Turret(entity, Vec2.new(), Size.M)
-
-        if(variation != 3) {
-            Create.Exhaust(entity, Vec2.new(20, 63), Math.radians(-45.0), 1.2)
-            Create.Exhaust(entity, Vec2.new(-20, 63), Math.radians(45.0), 1.2)
-        } else {
-            Create.Exhaust(entity, Vec2.new(16, 68), 0.0, 1)
-            Create.Exhaust(entity, Vec2.new(0, 68), 0.0, 1)
-            Create.Exhaust(entity, Vec2.new(-16, 68), 0.0, 1)
+            __images[pair(Ship.cannon, 1)] = "[game]/assets/images/04 Cannon/cannon_3.png"
+            __images[pair(Ship.cannon, 2)] = "[game]/assets/images/04 Cannon/cannon_4.png"
+            __images[pair(Ship.cannon, 3)] = "[game]/assets/images/04 Cannon/cannon_5.png"
+            __images[pair(Ship.cannon, 4)] = "[game]/assets/images/04 Cannon/cannon_6.png"            
         }
-    }
+        
 
-    static EnemyLarge(entity, variation) {
-        var s = GridSprite.new("[game]/assets/images/Ships/Big/ship_big_128x256.png", 4, 1)
-        var c = Body.new(4, Vec2.new())
-        s.flags = Render.spriteCenter
-        s.idx = variation
-        entity.addComponent(s)
-        entity.addComponent(c)
-
-        Create.Exhaust(entity, Vec2.new(36, 126), Math.radians(-45.0), 2)
-        Create.Exhaust(entity, Vec2.new(-36, 126), Math.radians(45.0), 2)
-
-        if(variation == 0) {
-            Create.Turret(entity, Vec2.new(16.0, 16.0), Size.S)
-            Create.Turret(entity, Vec2.new(-16.0, 16.0), Size.S)
-            Create.Turret(entity, Vec2.new(16.0, -16.0), Size.S)
-            Create.Turret(entity, Vec2.new(-16.0, -16.0), Size.S)
-            Create.Turret(entity, Vec2.new(16.0, -48.0), Size.S)
-            Create.Turret(entity, Vec2.new(-16.0, -48.0), Size.S)
-        } else if(variation == 1) {
-            Create.Turret(entity, Vec2.new(), Size.M)
-            Create.Turret(entity, Vec2.new(0, -70), Size.M)
-        } else if(variation == 2) {
-            Create.Turret(entity, Vec2.new(0.0, 16.0), Size.M)
-            Create.Turret(entity, Vec2.new(0, -36), Size.S)
-            Create.Turret(entity, Vec2.new(0, -70), Size.S)
-        } 
-    }
-
-    static Enemy(position, size, variation) {
-        var e = Entity.new()
-        var t = Transform.new(position)
-        var s = Ship.new()
-        e.addComponent(t)
-        e.addComponent(s)
-        if(size == Size.S) {
-            Create.EnemySmall(e, variation)
-        } else if (size == Size.M) {
-            Create.EnemyMedium(e, variation)
-        } else if(size == Size.L) {
-            Create.EnemyLarge(e, variation)
-        }
-        return e
-    }
-    */
-
-    static Enemy(position, variation, weapon, t) {
+        var spf = __images[pair(type, difficulty)]
+        var sp = Sprite.new(spf)        
         var e = Entity.new()        
         var tr = Transform.new(position)
-        var sp = Sprite.new("[game]/assets/images/02 Heavy/heavy_2.png")
         sp.flags = Render.spriteCenter
         var c = Body.new(14, Vec2.new())
-        var sh = Ship.new(t)
+        var sh = Ship.new(formation, t)
         var u = Unit.new(Team.Computer, 1)
         e.addComponent(tr)
         e.addComponent(sh)
@@ -123,16 +74,6 @@ class Create {
         e.addComponent(u)
         e.tag =  Tag.Computer | Tag.Unit
 
-
-        /*
-        if(size == Size.S) {
-            Create.EnemySmall(e, variation)
-        } else if (size == Size.M) {
-            Create.EnemyMedium(e, variation)
-        } else if(size == Size.L) {
-            Create.EnemyLarge(e, variation)
-        }
-        */
         return e
     }
 
@@ -180,7 +121,6 @@ class Create {
     }
 
     static enemyProjectile(owner, direction, damage) {
-        System.print(Bullet)
         var owt = owner.getComponent(Transform)
         var bullet = Entity.new()
         var t = Transform.new(owt.position - Vec2.new(0, 0))
@@ -203,26 +143,53 @@ class Create {
         bullet.addComponent(DebugColor.new(0xFFA8D3FF))
     }
 
+    static enemyPlasma(owner, direction, damage) {
+        var owt = owner.getComponent(Transform)
+        var bullet = Entity.new()
+        var t = Transform.new(owt.position - Vec2.new(0, 0))
+        var v = direction * 7.0
+        var bd = Body.new(5, v)
+        var bl = Bullet.new(Team.Computer, damage)
+        var s = AnimatedSprite.new("[game]/assets/images/vfx/explosion-f.png", 8, 1, 20)
+        s.layer = 1.9
+        s.flags = Render.spriteCenter
+        s.scale = 1.5
+        s.addAnimation("anim", makeList(7))
+        s.playAnimation("anim") 
+        s.randomizeFrame(__random)
+        bullet.addComponent(t)
+        bullet.addComponent(bd)
+        bullet.addComponent(bl)
+        bullet.addComponent(s)
+        bullet.name = "Plasma"
+        bullet.tag = Tag.Computer | Tag.Bullet
+        bullet.addComponent(DebugColor.new(0xFFA8D3FF))
+    }
+
     static explosion(owner) {
         var owt = owner.getComponent(Transform)
         var explosion = Entity.new()
         var t = Transform.new(owt.position)
         var b = Body.new(001, Vec2.new(0, 0))
-        //var e = Explosion.new(1.0)
-        var s = AnimatedSprite.new("[game]/assets/images/vfx/explosion-a.png", 8, 1, 15)
+        var s = AnimatedSprite.new("[game]/assets/images/Explosion/explosion.png", 4, 3, 30)
         s.layer = 1.9
         s.flags = Render.spriteCenter
-        s.scale = 2.0
-        s.addAnimation("explode", [0, 1, 2, 3, 4, 5, 6, 7])
+        s.addAnimation("explode", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
         s.playAnimation("explode")
         s.mode = AnimatedSprite.destroy
-        t.rotation = __random.float(0.0, 2.0 * Math.pi)
         explosion.addComponent(t)
         explosion.addComponent(b)
-        //explosion.addComponent(e)
         explosion.addComponent(s)
         explosion.addComponent(DebugColor.new(0xFFFFFFFF))
         explosion.name = "Explosion"
+    }
+
+    static createFormation(position) {
+        var e = Entity.new()
+        var t  = Transform.new(position)
+        var f = Formation.new(3, 2, 200, 150)
+        e.addComponent(t)
+        e.addComponent(f)
     }
 }
 
@@ -231,7 +198,7 @@ import "components" for SlowRelation
 import "tags" for Team, Tag, Size
 import "debug" for DebugColor
 import "random" for Random
-import "enemy" for Turret, Ship, Cannon, Laser, Launcher, Plasma
+import "enemy" for Ship, Formation
 import "player" for Player
 import "game" for Game
 import "bullets" for Bullet
