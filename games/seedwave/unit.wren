@@ -27,7 +27,7 @@ class Unit is Component {
         if(_health <= 0) {
             if(_destroy) {
                 owner.delete()
-            }
+            } 
             // Game.createExplosion(owner)
             return
         }

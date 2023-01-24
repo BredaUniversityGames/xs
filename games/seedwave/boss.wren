@@ -7,7 +7,6 @@ import "bullets" for Bullet, Missile
 import "debug" for DebugColor
 import "random" for Random
 import "components" for SlowRelation
-import "weapons/laser" for Laser
 
 class Boss is Component {
         static init() {
@@ -69,7 +68,7 @@ class Boss is Component {
         var dna = ""
         var protein = 0
         while(protein <= size) {
-            var r = __random.int(-1, 5)
+            var r = __random.int(-1, 9)
             var l = __random.int(1, 4)
             if(r <= 0) {
                 dna = dna + "S"                 // Skip
@@ -82,7 +81,15 @@ class Boss is Component {
                 dna = dna + "M" + l.toString    // Missles
             } else if(r == 4) {
                 dna = dna + "D" + l.toString    // Deflect
-            }
+            } else if(r == 5) {
+                dna = dna + "N" + l.toString    // Needler
+            } else if(r == 6) {
+                dna = dna + "E" + l.toString    // EMP
+            } else if(r == 7) {
+                dna = dna + "H" + l.toString    // Helpers
+            } else if(r == 7) {
+                dna = dna + "V" + l.toString    // Vulcan
+            } 
             protein = protein + l
         }
         return dna
@@ -141,6 +148,18 @@ class Boss is Component {
         } else if(type == "D") {                            // Deflect
             part.tag = (part.tag| Tag.Deflect)              // |
             s.idx = 3
+            c = DebugColor.new(0xFFB599FF)
+        } else if(type == "N") {                            // Needler
+            s.idx = 4
+            c = DebugColor.new(0xFFB599FF)
+        } else if(type == "E") {                            // EMP
+            s.idx = 5
+            c = DebugColor.new(0xFFB599FF)
+        } else if(type == "H") {                            // Helpers
+            s.idx = 6
+            c = DebugColor.new(0xFFB599FF)
+        } else if(type == "V") {                            // Vulcan
+            s.idx = 7
             c = DebugColor.new(0xFFB599FF)
         }
         s.layer = 1.0
@@ -301,6 +320,7 @@ class Part is Component {
 
     initialize() {
         _unit = owner.getComponent(Unit)        
+        _sprite = owner.getComponentSuper(Sprite)
     }
 
     update(dt) {
@@ -308,6 +328,8 @@ class Part is Component {
             System.print("Deed")
             owner.tag = 0
             owner.deleteComponent(Body)
+            owner.deleteComponent(DebugColor)
+            owner.deleteComponent(Unit)
             _sprite.add = 0x00000000
             _sprite.mul = 0x1A1A1AFF
             _active = false
@@ -327,6 +349,8 @@ class Cannon is Part {
             Bullet.create(owner, -Data.getNumber("Cannon Round Speed"), 0)
             _time = 0
         }
+
+        super.update(dt)
     }
     
     shoot() {
@@ -347,6 +371,8 @@ class Missiles is Part {
                 Data.getNumber("Missle Damage"))
             _time = 0
         }
+
+        super.update(dt)
     }
 
     shoot() {
@@ -357,3 +383,4 @@ class Missiles is Part {
 
 import "game" for Game
 import "unit" for Unit
+import "weapons/laser" for Laser

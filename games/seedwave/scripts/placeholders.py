@@ -7,6 +7,14 @@ import math
 
 letters = ["c", "l", "m", "d", "n", "e", "h", "v"]
 
+class color:
+    def __init__(self, r : float, g : float,  b : float):
+        self.r = r
+        self.g = g
+        self.b = b
+
+    
+
 def next_power_of_2(x):  
     return 1 if x == 0 else 2**(x - 1).bit_length()
 
@@ -57,12 +65,61 @@ def ellipse(radius : float, r : float, g : float, b : float, sx : float, sy : fl
 
 def circle(radius : float, r : float, g : float, b : float, file : str):
     ellipse(radius, r, g, b, 1.0, 1.0, file)
+
+def checkerboard(width : int, height : int, size : int, fc : color, sc : color, file : str):
+    colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+    colorCtx = cairo.Context(colorSurf)
+    tx = int(width / size)
+    ty = int(height / size)
+    for i in range(0, tx):
+        x = i * size
+        for j in range(0, ty):            
+            y = j * size
+            colorCtx.rectangle(x, y, size, size)
+            if ((i + j) % 2 == 0):
+                colorCtx.set_source_rgb(fc.r, fc.g, fc.b)
+            else: 
+                colorCtx.set_source_rgb(sc.r, sc.g, sc.b)
+            colorCtx.fill()    
+    colorSurf.write_to_png("games/seedwave/assets/images/" + file)
+
+
+
+def sidewalls(width : int, height : int, size : int, cl : color, file : str):
+    colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+    colorCtx = cairo.Context(colorSurf)
+    tx = int(width / size)
+    ty = int(height / size)
+       
+    for j in range(0, ty):            
+        y = j * size
+        colorCtx.rectangle(0, y, size * 2 +  2 * size * random.random(), size)
+        colorCtx.set_source_rgb(cl.r + random.random() * 0.02,
+                                cl.g + random.random() * 0.02,
+                                cl.b + random.random() * 0.02)        
+        colorCtx.fill()    
+
+        colorCtx.rectangle(width - size * 2 -  2 * size * random.random(), y, size * 5, size)
+        colorCtx.set_source_rgb(cl.r + random.random() * 0.02,
+                                cl.g + random.random() * 0.02,
+                                cl.b + random.random() * 0.02)        
+        colorCtx.fill()    
+    colorSurf.write_to_png("games/seedwave/assets/images/" + file)
      
 
-parts(8, "s")
-parts(14, "m")
-parts(20, "l")
-circle(16, 1, 0.5, 0.5, "ships/core.png")
-ellipse(4, 0.5, 0.8, 0.8, 1.0, 2.0, "ships/player.png")
-circle(3, 1, 0.5, 0.8, "projectiles/cannon.png")
-ellipse(3, 1, 0.5, 0.5, 1.0, 3.0, "projectiles/missile.png")
+#parts(8, "s")
+#parts(14, "m")
+#parts(20, "l")
+#circle(16, 1, 0.5, 0.5, "ships/core.png")
+#ellipse(4, 0.5, 0.8, 0.8, 1.0, 2.0, "ships/player.png")
+#circle(3, 1, 0.5, 0.8, "projectiles/cannon.png")
+#ellipse(3, 1, 0.5, 0.5, 1.0, 3.0, "projectiles/missile.png")
+
+dark = color(0.1, 0.1, 0.1)
+light = color(0.13, 0.13, 0.13)
+#checkerboard(640, 360, 40, dark, light, "background/base.png")
+
+mid = color(0.15, 0.15, 0.15)
+sidewalls(640, 360, 20, mid,  "background/side.png")
+
+
