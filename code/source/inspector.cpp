@@ -178,6 +178,15 @@ void xs::inspector::render(float dt)
 		Tooltip("Profiler");
 
 		ImGui::SameLine();
+		if (ImGui::Button(ICON_FA_IMAGES))
+		{
+			render::reload_images();	
+			internal::next_frame = true;
+		}
+		Tooltip("Reload Art");
+
+
+		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_ADJUST))
 		{
 			internal::theme = !internal::theme;

@@ -47,6 +47,11 @@ namespace xs::render::internal
 
 	const int FONT_ATLAS_MIN_CHARACTER = 32;
 	const int FONT_ATLAS_NR_CHARACTERS = 96;
+
+#ifdef PLATFORM_PC
+	std::vector<uint64_t> last_write_times;
+	// void reload_images();
+#endif
 }
 
 using namespace xs;
@@ -239,9 +244,10 @@ int xs::render::load_image(const std::string& image_file)
 			return i;
 
 	auto buffer = fileio::read_binary_file(image_file);	
-	internal::image img;
+	internal::image img;	
 	img.string_id = id;
-	GLubyte* data = stbi_load_from_memory(
+	img.file = image_file;
+	uchar* data = stbi_load_from_memory(
 		reinterpret_cast<unsigned char*>(buffer.data()),
 		static_cast<int>(buffer.size()),
 		&img.width,
@@ -259,7 +265,11 @@ int xs::render::load_image(const std::string& image_file)
 	stbi_image_free(data);
 
 	const auto i = images.size();
-	images.push_back(img);
+	images.push_back(img);	
+
+	auto tm = xs::fileio::last_write(image_file);
+	last_write_times.push_back(tm);
+
 	return static_cast<int>(i);
 }
 
@@ -318,4 +328,42 @@ void xs::render::set_offset(double x, double y)
 {
 	xs::render::internal::offset = vec2((float)x, (float)y);
 }
+
+#if defined(PLATFORM_PC) && (defined(DEBUG) || defined(PROFILE))
+
+void xs::render::reload_images()
+{
+	for (int i = 0; i < images.size(); i++) {
+		auto& image = images[i];
+		auto last_time = last_write_times[i];
+		auto new_time = xs::fileio::last_write(image.file);
+
+		if (new_time > last_time) {
+			auto buffer = fileio::read_binary_file(image.file);
+			uchar* data = stbi_load_from_memory(
+				reinterpret_cast<unsigned char*>(buffer.data()),
+				static_cast<int>(buffer.size()),
+				&image.width,
+				&image.height,
+				&image.channels,
+				4);
+
+			if (data == nullptr)
+			{
+				log::error("Image {} could not be reloaded!", image.file);
+				return;
+			}
+
+			create_texture_with_data(image, data);
+			stbi_image_free(data);
+		}
+	}
+}
+
+#else 
+
+void xs::render::reload_images() {}
+
+#endif
+
 
