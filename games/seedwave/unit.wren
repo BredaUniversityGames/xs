@@ -1,13 +1,19 @@
 import "xs_ec"for Entity, Component
-import "xs_components" for Sprite
+import "xs_components" for Sprite, Body
+import "xs_math" for Color
 import "tags" for Team
 
 class Unit is Component {
-    construct new(team, health) {
+    construct new(team, health, destroy) {
         super()
         _team = team
-        _health = health
+        _health = health        
+        _destroy = destroy
         _timer = 0
+    }
+
+    initialize() {
+        _sprite = owner.getComponentSuper(Sprite)
     }
 
     damage(d) {
@@ -19,17 +25,18 @@ class Unit is Component {
 
     update(dt) {
         if(_health <= 0) {
+            if(_destroy) {
+                owner.delete()
+            }
             // Game.createExplosion(owner)
-            owner.delete()
             return
         }
         
         if(_timer > 0) {
             _timer = _timer - dt
-            var s = owner.getComponentSuper(Sprite)
-            s.add = 0xE0E0E000
+            _sprite.add = 0xE0E0E000
             if(_timer < 0) {
-                s.add = 0x00000000
+                _sprite.add = 0x00000000
             }
         }
     }

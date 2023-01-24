@@ -31,7 +31,7 @@ class Game {
         Entity.init()      
         Boss.init()
 
-        __background = Background.createBackground()
+        //__background = Background.createBackground()
         __random = Random.new()
         __player = Player.create()
 
