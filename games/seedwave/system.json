@@ -1,7 +1,7 @@
 {
     "Always on top": {
         "type": "bool",
-        "value": false
+        "value": true
     },
     "Fullscreen": {
         "type": "bool",
