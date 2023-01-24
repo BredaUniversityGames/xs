@@ -2,13 +2,11 @@
 import "xs_ec"for Entity, Component
  import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
-import "unit" for Unit
 import "tags" for Team, Tag
 import "bullets" for Bullet, Missile
 import "debug" for DebugColor
 import "random" for Random
 import "components" for SlowRelation
-
 import "weapons/laser" for Laser
 
 class Boss is Component {
@@ -97,18 +95,22 @@ class Boss is Component {
 
         var size = Boss.getPartSize(level)
         var health = 0
+        var str = ""
         if(level == 1) {
             health = Data.getNumber("Part Health 1")
+            str = "s"
         } else if (level == 2) {
             health = Data.getNumber("Part Health 2")
+            str = "m"
         } else if (level == 3) {
             health = Data.getNumber("Part Health 3")
+            str = "l"
         }
 
         var part = Entity.new()
         var t = Transform.new(Vec2.new(0, 0))
         var b = Body.new(size, Vec2.new(0, 0))
-        var u = Unit.new(Team.Computer, health)
+        var u = Unit.new(Team.Computer, health, false)
         var c = DebugColor.new(0xFFFFFFFF)
         var r = SlowRelation.new(boss, l)
         r.offset = position
@@ -120,29 +122,29 @@ class Boss is Component {
         part.name = "Part"
         part.tag = (Tag.Computer | Tag.Unit)
 
-        var s = GridSprite.new("[games]/seedwave/assets/images/ships/turret_medium_64x64.png", 3, 4)
+        var s =  GridSprite.new("[game]/assets/images/ships/parts_" + str + ".png", 8, 1)
         if(type == "C") {                                 //  Cannon
-            s.idx = 0 + level - 1
+            s.idx = 0
             c = DebugColor.new(0xFFA8D3FF)
             var w = Cannon.new()
             part.addComponent(w)
         } else if (type == "L") {                           // Laser
-            s.idx = 4 + level - 1
+            s.idx = 1
             var l = Laser.new()
             part.addComponent(l)
             c = DebugColor.new(0x9896FFFF)
         } else if(type == "M") {                            // Missiles
-            s.idx = 8 + level - 1
+            s.idx = 2
             c = DebugColor.new(0xFDFFC1FF)
             var w = Missiles.new()
             part.addComponent(w)
         } else if(type == "D") {                            // Deflect
-            part.tag = (part.tag| Tag.Deflect)
-            s.idx = 8 + level - 1
+            part.tag = (part.tag| Tag.Deflect)              // |
+            s.idx = 3
             c = DebugColor.new(0xFFB599FF)
         }
         s.layer = 1.0
-        s.flags = Render.spriteCenter | Render.spriteFlipY // |
+        s.flags = Render.spriteCenter
         part.addComponent(c)
         part.addComponent(s)
     }
@@ -166,9 +168,9 @@ class Boss is Component {
         var bs = Boss.new()
         var v = Vec2.new(0, 0)
         var b = Body.new(Data.getNumber("Core Size"), v)
-        var u = Unit.new(Team.Computer, Data.getNumber("Core Health"))
+        var u = Unit.new(Team.Computer, Data.getNumber("Core Health"), true)
         var c = DebugColor.new(0xFF2222FF)
-        var s = GridSprite.new("[games]/seedwave/assets/images/ships/ship_medium_64x128.png", 3, 1)
+        var s = Sprite.new("[game]/assets/images/ships/core.png")
         s.layer = 1.0
         s.flags = Render.spriteCenter
         ship.addComponent(t)
@@ -291,7 +293,29 @@ class Boss is Component {
     }
 }
 
-class Cannon is Component {
+class Part is Component {
+    construct new() {
+        super()
+        _active = true
+    }
+
+    initialize() {
+        _unit = owner.getComponent(Unit)        
+    }
+
+    update(dt) {
+        if(_active && _unit.health <= 0) {
+            System.print("Deed")
+            owner.tag = 0
+            owner.deleteComponent(Body)
+            _sprite.add = 0x00000000
+            _sprite.mul = 0x1A1A1AFF
+            _active = false
+        }
+    }
+}
+
+class Cannon is Part {
     construct new() {
         super()
         _time = 0        
@@ -309,7 +333,7 @@ class Cannon is Component {
     }
 }
 
-class Missiles is Component {
+class Missiles is Part {
     construct new() {
         super()
         _time = 0
@@ -332,3 +356,4 @@ class Missiles is Component {
 }
 
 import "game" for Game
+import "unit" for Unit

@@ -10,7 +10,7 @@ class Laser  is Component {
     update(dt) {
         _time = _time + dt
         if(_time > Data.getNumber("Laser Shoot Time")) {
-            System.print("Buzz")
+            // System.print("Buzz")
             // Bullet.create(owner, -Data.getNumber("Cannon Round Speed"), 0)
             _time = 0
         }
