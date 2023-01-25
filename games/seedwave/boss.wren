@@ -12,7 +12,7 @@ import "weapons/bosspart" for BossPart
 import "weapons/laser" for Laser
 import "weapons/cannon" for Cannon
 import "weapons/missiles" for Missiles
-
+import "weapons/deflect" for Deflect
 //import "weapons/needler" for Needler
 
 class Boss is Component {
@@ -75,7 +75,7 @@ class Boss is Component {
         var dna = ""
         var protein = 0
         while(protein <= size) {
-            var r = __random.int(-1, 9)
+            var r = __random.int(-1, 5)
             var l = __random.int(1, 4)
             if(r <= 0) {
                 dna = dna + "S"                 // Skip
@@ -155,6 +155,8 @@ class Boss is Component {
         } else if(type == "D") {                            // Deflect
             part.tag = (part.tag| Tag.Deflect)              // |
             s.idx = 3
+            var d = Deflect.new()
+            part.addComponent(d)
             c = DebugColor.new(0xFFB599FF)
         } else if(type == "N") {                            // Needler
             s.idx = 4
@@ -290,7 +292,6 @@ class Boss is Component {
         var dl = Data.getNumber("Boss Orbit Angle") / rad
         var a = dl * slot        
         var pos = Vec2.new(a.cos * rad, a.sin * rad)
-        //System.print(pos)
         return pos
     }
 
