@@ -1,8 +1,8 @@
 import "xs" for Data
 import "xs_ec" for Component
-import "boss" for Part
+import "weapons/bosspart" for BossPart
 
-class Laser  is Part {
+class Laser  is BossPart{
     construct new() {
         super()
         _time = 0        

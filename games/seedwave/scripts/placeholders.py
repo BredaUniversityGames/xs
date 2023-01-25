@@ -5,7 +5,7 @@ import random
 import colorsys
 import math
 
-letters = ["c", "l", "m", "d", "n", "e", "h", "v"]
+letters = ["C", "L", "M", "D", "N", "E", "H", "V"]
 
 class color:
     def __init__(self, r : float, g : float,  b : float):
@@ -39,7 +39,7 @@ def parts(radius, name):
         colorCtx.fill()
 
         l = letters[i]
-        colorCtx.set_font_size(radius * 1.07)
+        colorCtx.set_font_size(radius * 0.75)
         colorCtx.select_font_face("Mono", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
         colorCtx.set_source_rgb(1, 1, 1)
         (xb, yb, w, h, dx, dy) = colorCtx.text_extents(l)
@@ -107,17 +107,17 @@ def sidewalls(width : int, height : int, size : int, cl : color, file : str):
     colorSurf.write_to_png("games/seedwave/assets/images/" + file)
      
 
-#parts(8, "s")
-#parts(14, "m")
-#parts(20, "l")
-#circle(16, 1, 0.5, 0.5, "ships/core.png")
-#ellipse(4, 0.5, 0.8, 0.8, 1.0, 2.0, "ships/player.png")
-#circle(3, 1, 0.5, 0.8, "projectiles/cannon.png")
-#ellipse(3, 1, 0.5, 0.5, 1.0, 3.0, "projectiles/missile.png")
+parts(8, "s")
+parts(14, "m")
+parts(20, "l")
+circle(16, 1, 0.5, 0.5, "ships/core.png")
+ellipse(4, 0.5, 0.8, 0.8, 1.0, 2.0, "ships/player.png")
+circle(3, 1, 0.5, 0.8, "projectiles/cannon.png")
+ellipse(3, 1, 0.5, 0.5, 1.0, 3.0, "projectiles/missile.png")
 
 dark = color(0.1, 0.1, 0.1)
 light = color(0.13, 0.13, 0.13)
-#checkerboard(640, 360, 40, dark, light, "background/base.png")
+checkerboard(640, 360, 40, dark, light, "background/base.png")
 
 mid = color(0.15, 0.15, 0.15)
 sidewalls(640, 360, 20, mid,  "background/side.png")
