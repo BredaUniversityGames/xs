@@ -267,8 +267,11 @@ int xs::render::load_image(const std::string& image_file)
 	const auto i = images.size();
 	images.push_back(img);	
 
+
+#if defined(PLATFORM_PC) && (defined(DEBUG) || defined(PROFILE))
 	auto tm = xs::fileio::last_write(image_file);
 	last_write_times.push_back(tm);
+#endif
 
 	return static_cast<int>(i);
 }
