@@ -223,6 +223,6 @@ uint64_t xs::fileio::last_write(const std::string& filename)
 
 #else 
 
-int64_t xs::fileio::last_write(const std::string& filename) { return 0; } 
+uint64_t xs::fileio::last_write(const std::string& filename) { return 0; }
 
 #endif
