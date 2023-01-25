@@ -13,13 +13,10 @@ class color:
         self.g = g
         self.b = b
 
-    
-
 def next_power_of_2(x):  
     return 1 if x == 0 else 2**(x - 1).bit_length()
 
 def get_color(num):
-      #random.seed(num)
       hue = float(num) / len(letters)
       (h, s, v) = (hue, 0.4, 0.9)
       (r, g, b) = colorsys.hsv_to_rgb(h, s, v)
@@ -52,7 +49,7 @@ def parts(radius, name):
 
 
 def ellipse(radius : float, r : float, g : float, b : float, sx : float, sy : float, file : str):
-    next_p2 = next_power_of_2(radius * int(max(sx, sy)) * 2 + 1)
+    next_p2 = next_power_of_2(int(radius) * int(max(sx, sy)) * 2 + 1)
     colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, next_p2, next_p2)
     colorCtx = cairo.Context(colorSurf)
     x = next_p2 * 0.5    
@@ -105,15 +102,34 @@ def sidewalls(width : int, height : int, size : int, cl : color, file : str):
                                 cl.b + random.random() * 0.02)        
         colorCtx.fill()    
     colorSurf.write_to_png("games/seedwave/assets/images/" + file)
+
+def box(width : int, height : int, r : float, g : float, b : float, file : str):
+    colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+    colorCtx = cairo.Context(colorSurf)
+    colorCtx.rectangle(0, 0, width, height)
+    colorCtx.set_source_rgb(r, g, b)
+    colorCtx.fill()  
+    colorSurf.write_to_png("games/seedwave/assets/images/" + file)
      
 
 parts(8, "s")
 parts(14, "m")
 parts(20, "l")
-circle(16, 1, 0.5, 0.5, "ships/core.png")
-ellipse(4, 0.5, 0.8, 0.8, 1.0, 2.0, "ships/player.png")
-circle(3, 1, 0.5, 0.8, "projectiles/cannon.png")
-ellipse(3, 1, 0.5, 0.5, 1.0, 3.0, "projectiles/missile.png")
+
+circle(16, 0.776, 0.277, 0.990, "ships/core.png")
+ellipse(4, 0.990, 0.622, 0.277, 1.0, 2.0, "ships/player.png")
+ellipse(2.5, 0.990, 0.622, 0.277, 1.0, 3.0, "projectiles/pl_cannon.png")
+
+(r, g, b) = get_color(0)
+circle(3, r, g, b, "projectiles/cannon.png")
+
+(r, g, b) = get_color(2)
+ellipse(3, r, g, b, 1.0, 3.0, "projectiles/missile.png")
+
+(r, g, b) = get_color(1)
+box(16, 360, r, g, b, "projectiles/beam_l.png")
+box(12, 360, r, g, b, "projectiles/beam_m.png")
+box(8, 360, r, g, b, "projectiles/beam_s.png")
 
 dark = color(0.1, 0.1, 0.1)
 light = color(0.13, 0.13, 0.13)
@@ -121,5 +137,3 @@ checkerboard(640, 360, 40, dark, light, "background/base.png")
 
 mid = color(0.15, 0.15, 0.15)
 sidewalls(640, 360, 20, mid,  "background/side.png")
-
-

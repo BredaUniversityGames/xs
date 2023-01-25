@@ -5,7 +5,7 @@ import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, Anim
 import "unit" for Unit
 import "tags" for Team, Tag
 import "debug" for DebugColor
-import "components" for SlowRelation
+import "components" for SlowRelation, TurnToVelocity
 import "random" for Random
 
 class Bullet is Component {
@@ -47,7 +47,8 @@ class Bullet is Component {
         var v = dir
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.Player, damage)
-        var s = Sprite.new("[game]/assets/images/projectiles/cannon.png")
+        var tr = TurnToVelocity.new()
+        var s = Sprite.new("[game]/assets/images/projectiles/pl_cannon.png")
         s.layer = 1.9
         s.flags = Render.spriteCenter
         //s.addAnimation("anim", [0,1,2])
@@ -56,6 +57,7 @@ class Bullet is Component {
         bullet.addComponent(bd)
         bullet.addComponent(bl)
         bullet.addComponent(s)
+        bullet.addComponent(tr)
         bullet.name = "Bullet"
         bullet.tag = Tag.Player | Tag.Bullet
         bullet.addComponent(DebugColor.new(0x8BEC46FF))
