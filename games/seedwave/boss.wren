@@ -1,12 +1,19 @@
- import "xs" for Input, Render, Data
+import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
- import "xs_math"for Math, Bits, Vec2
+import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 import "tags" for Team, Tag
 import "bullets" for Bullet, Missile
 import "debug" for DebugColor
 import "random" for Random
 import "components" for SlowRelation
+
+import "weapons/bosspart" for BossPart
+import "weapons/laser" for Laser
+import "weapons/cannon" for Cannon
+import "weapons/missiles" for Missiles
+
+//import "weapons/needler" for Needler
 
 class Boss is Component {
         static init() {
@@ -312,75 +319,5 @@ class Boss is Component {
     }
 }
 
-class Part is Component {
-    construct new() {
-        super()
-        _active = true
-    }
-
-    initialize() {
-        _unit = owner.getComponent(Unit)        
-        _sprite = owner.getComponentSuper(Sprite)
-    }
-
-    update(dt) {
-        if(_active && _unit.health <= 0) {
-            System.print("Deed")
-            owner.tag = 0
-            owner.deleteComponent(Body)
-            owner.deleteComponent(DebugColor)
-            owner.deleteComponent(Unit)
-            _sprite.add = 0x00000000
-            _sprite.mul = 0x1A1A1AFF
-            _active = false
-        }
-    }
-}
-
-class Cannon is Part {
-    construct new() {
-        super()
-        _time = 0        
-    }
-
-    update(dt) {
-        _time = _time + dt
-        if(_time > Data.getNumber("Cannon Shoot Time")) {
-            Bullet.create(owner, -Data.getNumber("Cannon Round Speed"), 0)
-            _time = 0
-        }
-
-        super.update(dt)
-    }
-    
-    shoot() {
-    }
-}
-
-class Missiles is Part {
-    construct new() {
-        super()
-        _time = 0
-    }
-
-     update(dt) {
-        _time = _time + dt
-        if(_time > Data.getNumber("Missle Shoot Time")) {            
-            Missile.create(owner,
-                Data.getNumber("Missle Speed"),
-                Data.getNumber("Missle Damage"))
-            _time = 0
-        }
-
-        super.update(dt)
-    }
-
-    shoot() {
-    }
-
-    toString { "[Missiles _time:%(_time)] ->" + super.toString }
-}
-
 import "game" for Game
 import "unit" for Unit
-import "weapons/laser" for Laser
