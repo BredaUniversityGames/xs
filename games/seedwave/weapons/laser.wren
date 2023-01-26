@@ -1,34 +1,45 @@
 import "xs" for Data, Render
 import "xs_ec" for Entity, Component
 import "xs_components" for Transform, Sprite, Relation
-import "xs_math" for Vec2
+import "xs_math" for Vec2, Color
 import "weapons/bosspart" for BossPart
 
-/*
 class Beam is Component {
     construct new() {
-
-    }
-}
-*/
-
-class Laser is BossPart {
-    construct new() {
         super()
-        _time = 0        
+        _time = 0
     }
 
     initialize() {
+        _sprite = owner.getComponentSuper(Sprite)
+    }
+
+    update(dt) {
+        _time = _time + dt * 3
+        var val = _time.sin
+        var color = Color.new(255,255,255, 255 * val)        
+        _sprite.mul = color.toNum
+
+        if(val < 0.0) {
+            owner.delete()
+        }
+    }
+}
+
+
+class Laser is BossPart {
+    construct new(level) {
+        super()
+        _level = level
+        _time = 0     
+        _beam = null           
+    }
+
+    /*
+    initialize() {
         super.initialize()
         {
-            var e = Entity.new()
-            var t = Transform.new(Vec2.new(0, 0))
-            var s = Sprite.new("[game]/assets/images/projectiles/beam_m.png")
-            var r = Relation.new(owner)
-            // s.flags = Render.spriteCenter
-            e.addComponent(t)
-            e.addComponent(s)
-            e.addComponent(r)
+
         }
     }
 
@@ -39,8 +50,22 @@ class Laser is BossPart {
         }
         super.update(dt)
     }
+    */
     
-    shoot() {}
+    shoot() {
+        _beam = Entity.new()
+        var t = Transform.new(Vec2.new(0, 0))
+        var s = Sprite.new("[game]/assets/images/projectiles/beam_" + _level.toString + ".png")
+        var r = Relation.new(owner)
+        var b = Beam.new()
+        s.flags = Render.spriteCenterX | Render.spriteTop // |
+        _beam.addComponent(t)
+        _beam.addComponent(s)
+        _beam.addComponent(r)
+        _beam.addComponent(b)
+    }
 
-    makeBeam() {}
+    active { super.active && (_beam == null || _beam.deleted) }
+
+    // makeBeam() {}
 }

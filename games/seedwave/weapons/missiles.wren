@@ -11,7 +11,8 @@ class Missiles is BossPart {
         _time = 0
     }
 
-     update(dt) {
+    /*
+    update(dt) {
         _time = _time + dt
         if(_time > Data.getNumber("Missle Shoot Time")) {            
             Missile.create(owner,
@@ -22,8 +23,12 @@ class Missiles is BossPart {
 
         super.update(dt)
     }
+    */
 
     shoot() {
+        Missile.create(owner,
+            Data.getNumber("Missle Speed"),
+            Data.getNumber("Missle Damage"))
     }
 
     toString { "[Missiles _time:%(_time)] ->" + super.toString }

@@ -112,24 +112,24 @@ def box(width : int, height : int, r : float, g : float, b : float, file : str):
     colorSurf.write_to_png("games/seedwave/assets/images/" + file)
      
 
-parts(8, "s")
-parts(14, "m")
-parts(20, "l")
+parts(8, "1")
+parts(14, "2")
+parts(20, "3")
 
 circle(16, 0.776, 0.277, 0.990, "ships/core.png")
 ellipse(4, 0.990, 0.622, 0.277, 1.0, 2.0, "ships/player.png")
 ellipse(2.5, 0.990, 0.622, 0.277, 1.0, 3.0, "projectiles/pl_cannon.png")
 
 (r, g, b) = get_color(0)
-circle(3, r, g, b, "projectiles/cannon.png")
+circle(4, r, g, b, "projectiles/cannon.png")
 
 (r, g, b) = get_color(2)
 ellipse(3, r, g, b, 1.0, 3.0, "projectiles/missile.png")
 
 (r, g, b) = get_color(1)
-box(16, 360, r, g, b, "projectiles/beam_l.png")
-box(12, 360, r, g, b, "projectiles/beam_m.png")
-box(8, 360, r, g, b, "projectiles/beam_s.png")
+box(16, 360, r, g, b, "projectiles/beam_3.png")
+box(12, 360, r, g, b, "projectiles/beam_2.png")
+box(8, 360, r, g, b, "projectiles/beam_1.png")
 
 dark = color(0.1, 0.1, 0.1)
 light = color(0.13, 0.13, 0.13)

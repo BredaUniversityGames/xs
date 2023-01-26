@@ -261,8 +261,15 @@ void xs::render::render()
 			sprite_trigs_array[count + i].mul_color = mul_color;
 		}
 			
-		vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
+		vec3 anchor(0.0f, 0.0f, 0.0f);
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
+			anchor.x = (float)((to_x - from_x) * 0.5);
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
+			anchor.y = (float)((to_y - from_y) * 0.5);
+		else if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
+			anchor.y = (float)(to_y - from_y);
+
+		//if (anchor.x != 0.0f || anchor.y != 0.0f)
 		{				
 			for (int i = 0; i < 6; i++)
 				sprite_trigs_array[count + i].position -= anchor;

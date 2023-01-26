@@ -16,11 +16,14 @@ namespace xs::render
 
 	enum sprite_flags
 	{
-		bottom	= 1 << 1,
-		center	= 1 << 2,
-		flip_x	= 1 << 3,
-		flip_y	= 1 << 4,
-		overlay	= 1 << 5,
+		bottom		= 1 << 1,
+		top			= 1 << 2,
+		center_x	= 1 << 3,
+		center_y	= 1 << 4,
+		flip_x		= 1 << 5,
+		flip_y		= 1 << 6,
+		overlay		= 1 << 7,
+		center		= center_x | center_y
 	};
 
 	void initialize();

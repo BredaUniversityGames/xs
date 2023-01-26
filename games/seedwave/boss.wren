@@ -109,16 +109,12 @@ class Boss is Component {
 
         var size = Boss.getPartSize(level)
         var health = 0
-        var str = ""
         if(level == 1) {
             health = Data.getNumber("Part Health 1")
-            str = "s"
         } else if (level == 2) {
             health = Data.getNumber("Part Health 2")
-            str = "m"
         } else if (level == 3) {
             health = Data.getNumber("Part Health 3")
-            str = "l"
         }
 
         var part = Entity.new()
@@ -136,7 +132,7 @@ class Boss is Component {
         part.name = "Part"
         part.tag = (Tag.Computer | Tag.Unit)
 
-        var s =  GridSprite.new("[game]/assets/images/ships/parts_" + str + ".png", 8, 1)
+        var s =  GridSprite.new("[game]/assets/images/ships/parts_" + level.toString + ".png", 8, 1)
         if(type == "C") {                                 //  Cannon
             s.idx = 0
             c = DebugColor.new(0xFFA8D3FF)
@@ -144,7 +140,7 @@ class Boss is Component {
             part.addComponent(w)
         } else if (type == "L") {                           // Laser
             s.idx = 1
-            var l = Laser.new()
+            var l = Laser.new(level)
             part.addComponent(l)
             c = DebugColor.new(0x9896FFFF)
         } else if(type == "M") {                            // Missiles
@@ -175,6 +171,7 @@ class Boss is Component {
         s.flags = Render.spriteCenter
         part.addComponent(c)
         part.addComponent(s)
+        return part
     }
 
     static getPartSize(level) {
@@ -193,7 +190,7 @@ class Boss is Component {
         var ship = Entity.new()
         var p = Vec2.new(0, 0)
         var t = Transform.new(p)
-        var bs = Boss.new()
+        
         var v = Vec2.new(0, 0)
         var b = Body.new(Data.getNumber("Core Size"), v)
         var u = Unit.new(Team.Computer, Data.getNumber("Core Health"), true)
@@ -201,8 +198,7 @@ class Boss is Component {
         var s = Sprite.new("[game]/assets/images/ships/core.png")
         s.layer = 1.0
         s.flags = Render.spriteCenter
-        ship.addComponent(t)
-        ship.addComponent(bs)
+        ship.addComponent(t)        
         ship.addComponent(b)
         ship.addComponent(u)
         ship.addComponent(c)
@@ -214,6 +210,7 @@ class Boss is Component {
         var idx = 0
         var offsets = [Vec2.new(0,0)]
         var radii = [Data.getNumber("Core Size")]        
+        var pairs = []
         var maxOrbit = 0        
         for(i in dna) {
             var level = Num.fromString(i)
@@ -254,6 +251,7 @@ class Boss is Component {
                 var posL = Vec2.new(-pos.x, pos.y)
                 var partR = part(ship, type, level, pos)
                 var partL = part(ship, type, level, posL)
+                pairs.add( [partR.getComponentSuper(BossPart), partL.getComponentSuper(BossPart)] )
                 level = null
                 type = null
                 idx = idx + 1
@@ -265,7 +263,10 @@ class Boss is Component {
                 type = i
             }
         }
-        return ship        
+
+        var bs = Boss.new(pairs)
+        ship.addComponent(bs)
+        return ship
     }
 
     static randomBoss(size) {        
@@ -296,13 +297,16 @@ class Boss is Component {
     }
 
 
-    construct new() {
+    construct new(pairs) {
         super()
         _time = 0
         _sinTime = 0
+        _pairs = pairs
+        _wait = 0.5   
     }
 
-    initialize() { }
+    initialize() { }    
+    
 
 
     update(dt) {
@@ -316,7 +320,22 @@ class Boss is Component {
         ob.velocity = dir * 1.5
 
         _sinTime = _sinTime + dt 
-        ot.position.y = _sinTime.cos * 20 + 60
+        ot.position.y = _sinTime.cos * 20 + 60        
+
+        _time = _time + dt
+
+        if(_time > 0.4) {            
+            _time = 0
+            var i = Game.random.int(0, _pairs.count)            
+            var pair = _pairs[i]
+            _wait = 0.0
+            for(i in 0..1) {
+                if(pair[i].active) {
+                    pair[i].shoot()
+                    _wait = _wait + pair[i].wait
+                }
+            }
+        }
     }
 }
 
