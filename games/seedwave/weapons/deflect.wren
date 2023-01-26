@@ -10,12 +10,15 @@ class Deflect is BossPart {
         _time = 0
     }
 
+    /*
+
     update(dt) {
         super.update(dt)
     }
 
     shoot() {
     }
+    */
 
     toString { "[Deflect] ->" + super.toString }
 }

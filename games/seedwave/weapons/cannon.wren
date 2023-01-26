@@ -11,6 +11,7 @@ class Cannon is BossPart {
         _time = 0        
     }
 
+    /*
     update(dt) {
         _time = _time + dt
         if(_time > Data.getNumber("Cannon Shoot Time")) {
@@ -20,7 +21,9 @@ class Cannon is BossPart {
 
         super.update(dt)
     }
+    */
     
     shoot() {
+        Bullet.create(owner, -Data.getNumber("Cannon Round Speed"), 0)
     }
 }

@@ -22,12 +22,18 @@ class BossPart is Component {
             owner.deleteComponent(Body)
             owner.deleteComponent(DebugColor)
             owner.deleteComponent(Unit)
-            owner.deleteComponentSuper(BossPart)
+            //owner.deleteComponentSuper(BossPart)
             _sprite.add = 0x00000000
-            _sprite.mul = 0x1A1A1AFF
+            _sprite.mul = 0x4A4A4AFF
             _active = false
         }
     }
+
+    shoot() {}
+
+    active { _active }
+
+    wait { 0.15 }
 }
 
 import "unit" for Unit

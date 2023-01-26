@@ -151,10 +151,13 @@ class Render {
     }
 
     static spriteBottom     { 1 << 1 }
-	static spriteCenter     { 1 << 2 }
-	static spriteFlipX      { 1 << 3 }
-	static spriteFlipY      { 1 << 4 }
-    static spriteOverlay    { 1 << 5 }
+    static spriteTop        { 1 << 2 }
+	static spriteCenterX    { 1 << 3 }
+    static spriteCenterY    { 1 << 4 }
+	static spriteFlipX      { 1 << 5 }
+	static spriteFlipY      { 1 << 6 }
+    static spriteOverlay    { 1 << 7 }
+    static spriteCenter     { spriteCenterX | spriteCenterY }
 }
 
 class File {
