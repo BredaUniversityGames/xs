@@ -7,7 +7,6 @@ import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, Anim
 class BossPart is Component {
     construct new() {
         super()
-        _active = true
     }
 
     initialize() {
@@ -16,24 +15,21 @@ class BossPart is Component {
     }
 
     update(dt) {
-        if(_active && _unit.health <= 0) {
-            System.print("Deed")
+        if(!destroyed && _unit.health <= 0) {
             owner.tag = 0
             owner.deleteComponent(Body)
             owner.deleteComponent(DebugColor)
             owner.deleteComponent(Unit)
-            //owner.deleteComponentSuper(BossPart)
             _sprite.add = 0x00000000
             _sprite.mul = 0x4A4A4AFF
-            _active = false
         }
     }
 
     shoot() {}
 
-    active { _active }
+    ready { true }
 
-    wait { 0.15 }
+    destroyed { owner.getComponent(Unit) == null }
 }
 
 import "unit" for Unit

@@ -307,8 +307,6 @@ class Boss is Component {
 
     initialize() { }    
     
-
-
     update(dt) {
         var ot = owner.getComponent(Transform)
         var ob = owner.getComponent(Body)
@@ -324,15 +322,16 @@ class Boss is Component {
 
         _time = _time + dt
 
-        if(_time > 0.4) {            
+        if(_time > _wait) {
             _time = 0
             var i = Game.random.int(0, _pairs.count)            
             var pair = _pairs[i]
             _wait = 0.0
             for(i in 0..1) {
-                if(pair[i].active) {
+                var part = pair[i]            
+                if(!part.destroyed && part.ready) {
                     pair[i].shoot()
-                    _wait = _wait + pair[i].wait
+                    _wait = _wait + 0.15
                 }
             }
         }

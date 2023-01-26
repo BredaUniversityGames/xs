@@ -130,6 +130,7 @@ ellipse(3, r, g, b, 1.0, 3.0, "projectiles/missile.png")
 box(16, 360, r, g, b, "projectiles/beam_3.png")
 box(12, 360, r, g, b, "projectiles/beam_2.png")
 box(8, 360, r, g, b, "projectiles/beam_1.png")
+box(1, 360, r, g, b, "projectiles/beam_0.png")
 
 dark = color(0.1, 0.1, 0.1)
 light = color(0.13, 0.13, 0.13)
