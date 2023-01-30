@@ -46,7 +46,7 @@ if os.path.exists(source_dir):
     toml_dst = current_dir + "\\build\\.itch.toml"
     shutil.copyfile(toml_src, toml_dst)
     
-    butler_command = "butler push build  + user + "/ " + game + ":win"
+    butler_command = "butler push build " + user + "/ " + game_dir + ":win"
     os.system(butler_command)
 
 else:
