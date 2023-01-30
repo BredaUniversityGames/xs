@@ -25,6 +25,9 @@ namespace xs::input::internal
 
 	std::vector<std::pair<float, float>> touches_gameCoordinates;
 	xs::configuration::scale_parameters touchpadToGame;
+
+	ScePadVibrationParam rumbleParameter;
+	int maxRumbleIntensity = 255;
 }
 
 using namespace xs::input;
@@ -212,4 +215,64 @@ double xs::input::get_touch_y(int index)
 
 	// TODO: scale to game coordinates
 	return static_cast<double>(internal::touches_gameCoordinates[index].second);
+}
+
+void xs::input::set_gamepad_vibration(int leftRumble, int rightRumble)
+{
+	if (leftRumble > 1)
+		leftRumble = 1;
+	else if (leftRumble < 0)
+		leftRumble = 0;
+
+	if (rightRumble > 1)
+		rightRumble = 1;
+	else if (rightRumble < 0)
+		rightRumble = 0;
+
+	//Note:
+	//Technically there are 2 compatablity modes for PS5 pad vibration.
+	//We use the one that is most faithfull to the dualshock 4 controllers rumble.
+	scePadSetVibrationMode(internal::handle, SCE_PAD_VIBRATION_MODE_COMPATIBLE2);
+
+	
+	internal::rumbleParameter.smallMotor = rightRumble * internal::maxRumbleIntensity;
+	internal::rumbleParameter.largeMotor = leftRumble * internal::maxRumbleIntensity;
+
+	if (scePadSetVibration(internal::handle, &internal::rumbleParameter) < 0)
+	{
+		//Note: Removed error code printing since this wasnt done anywhere else
+		//Negative values mean an error, the meaning of the code can be found in the playstation documentation
+	}
+}
+
+void xs::input::set_lightbar_color(double red, double green, double blue)
+{
+	//Todo: maby use std clamp
+	//Clamp the RGB colours so they dont exeed 255 or get lower than 0
+	if (red > 255)
+		red = 255;
+	else if (red < 0)
+		red = 0;
+
+	if (green > 255)
+		green = 255;
+	else if (green < 0)
+		green = 0;
+
+	if (blue > 255)
+		blue = 255;
+	else if (blue < 0)
+		blue = 0;
+
+	ScePadLightBarParam lightbarParameter;
+	lightbarParameter.r = red;
+	lightbarParameter.g = green;
+	lightbarParameter.b = blue;
+
+	scePadSetLightBar(internal::handle, &lightbarParameter);
+}
+
+void xs::input::reset_lightbar()
+{
+	scePadResetLightBar(internal::handle);
 }
