@@ -501,6 +501,38 @@ void input_get_touch_y(WrenVM* vm)
 	wrenSetSlotDouble(vm, 0, output);
 }
 
+void input_set_gamepad_vibration(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 3);
+
+	CHECK_TYPE(vm, 1, WREN_TYPE_NUM);
+	CHECK_TYPE(vm, 2, WREN_TYPE_NUM);
+
+	const auto leftRumble = wrenGetSlotDouble(vm, 1);
+	const auto rightRumble = wrenGetSlotDouble(vm, 2);
+
+	xs::input::set_gamepad_vibration(static_cast<int>(leftRumble), static_cast<int>(rightRumble));
+}
+
+void input_set_lightbar_color(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 4);
+
+	CHECK_TYPE(vm, 1, WREN_TYPE_NUM);
+	CHECK_TYPE(vm, 2, WREN_TYPE_NUM);
+	CHECK_TYPE(vm, 3, WREN_TYPE_NUM);
+
+	const auto r = wrenGetSlotDouble(vm, 1);
+	const auto g = wrenGetSlotDouble(vm, 2);
+	const auto b = wrenGetSlotDouble(vm, 3);
+
+	xs::input::set_lightbar_color(r,g,b);
+}
+
+void input_reset_lightbar(WrenVM* vm)
+{
+	xs::input::reset_lightbar();
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Render
@@ -947,6 +979,9 @@ void xs::script::bind_api()
 	bind("xs", "Input", true, "getTouchId(_)", input_get_touch_id);
 	bind("xs", "Input", true, "getTouchX(_)", input_get_touch_x);
 	bind("xs", "Input", true, "getTouchY(_)", input_get_touch_y);
+	bind("xs", "Input", true, "setPadVibration(_,_)", input_set_gamepad_vibration);
+	bind("xs", "Input", true, "setPadLightbarColor(_,_,_)", input_set_lightbar_color);
+	bind("xs", "Input", true, "resetPadLightbarColor()", input_reset_lightbar);
 
 	// Render
 	bind("xs", "Render", true, "begin(_)", render_begin);
