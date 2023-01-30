@@ -7,6 +7,7 @@
 #include "imgui_impl_opengl3.h"
 #include "device.h"
 #include "device_pc.h"
+#include "opengl.h"
 
 bool ImGui_Impl_Init()
 {
@@ -22,7 +23,7 @@ void ImGui_Impl_Shutdown()
 }
 
 void ImGui_Impl_NewFrame()
-{
+{	
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -30,6 +31,7 @@ void ImGui_Impl_NewFrame()
 
 void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
 {
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
