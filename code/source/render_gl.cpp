@@ -269,7 +269,7 @@ void xs::render::render()
 		else if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
 			anchor.y = (float)(to_y - from_y);
 
-		//if (anchor.x != 0.0f || anchor.y != 0.0f)
+		if (anchor.x != 0.0f || anchor.y != 0.0f)
 		{				
 			for (int i = 0; i < 6; i++)
 				sprite_trigs_array[count + i].position -= anchor;
