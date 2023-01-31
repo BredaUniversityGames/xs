@@ -31,11 +31,11 @@ class Game {
         Entity.init()      
         Boss.init()
 
-        __background = Background.createBackground()
+        Background.createBackground()
         __random = Random.new()
         __player = Player.create()
 
-        __size = 2
+        __size = 3
         __boss = Boss.randomBoss(__size)
         __totalTime = 0
         __bossTime = 0      
@@ -72,7 +72,18 @@ class Game {
         }
 
         Render.setColor(1, 1, 1, 1)
-        Render.shapeText("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
+        //Render.shapeText("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
+        var y = 140
+        var x = -310
+        Render.shapeText("DNA:%(Boss.dna)", x, y, 1)
+        y = y - 10
+        Render.shapeText("BossTime:%(__bossTime.round)", x, y, 1)
+        y = y - 10
+        var pu = __player.getComponent(Unit)
+        Render.shapeText("P Health:%(pu.health)", x, y, 1)
+        y = y - 10
+        var cu = __boss.getComponent(Unit)
+        Render.shapeText("Core Health:%(cu.health)", x, y, 1)
 
         //Render.text("DNA:%(Boss.dna)", -50, 100, 1)
     }

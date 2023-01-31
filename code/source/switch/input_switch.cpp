@@ -350,9 +350,9 @@ void xs::input::update(double dt)
 				connected++;
 				FillJoystickState(state, handheldState.buttons, gamepadMapping_full);
 				state.Axes[xs::input::gamepad_axis::STICK_LEFT_X] = NormalizeStickInput(handheldState.analogStickL.x);
-				state.Axes[xs::input::gamepad_axis::STICK_LEFT_Y] = NormalizeStickInput(handheldState.analogStickL.y);
+				state.Axes[xs::input::gamepad_axis::STICK_LEFT_Y] = -NormalizeStickInput(handheldState.analogStickL.y);
 				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_X] = NormalizeStickInput(handheldState.analogStickR.x);
-				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_Y] = NormalizeStickInput(handheldState.analogStickR.y);
+				state.Axes[xs::input::gamepad_axis::STICK_RIGHT_Y] = -NormalizeStickInput(handheldState.analogStickR.y);
 
 				if (_joyState.size() > 1)
 					removeQueue.push(joy);
@@ -493,6 +493,23 @@ double xs::input::get_touch_y(int index)
 		return static_cast<double>(_touches_gameCoordinates[index].second);
 	return 0.0;
 }
+
+//These three functions only exists here to not throw an error when called
+void xs::input::set_gamepad_vibration(int smallRumble, int largeRumble)
+{
+	//Unimplemented on the switch (Probably too simple for the switch rumble)
+}
+
+void xs::input::set_lightbar_color(double red, double green, double blue)
+{
+	//Unimplemented on the switch (specific dualshock 5 controller mechanic)
+}
+
+void xs::input::reset_lightbar()
+{
+	//Unimplemented on the switch (specific dualshock 5 controller mechanic)
+}
+
 
 std::string GetName(JoystickType type)
 {

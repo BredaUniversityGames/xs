@@ -23,7 +23,6 @@ class Game {
         __player = Player.create()
         __size = 2
         __totalTime = 0
-        __bossTime = 0      
     }    
     
     static update(dt) {
@@ -43,7 +42,6 @@ class Game {
 
     static updateGame(dt) {
         __totalTime = __totalTime + dt
-        __bossTime = __bossTime + dt
         var playerUnits = Entity.withTag(Tag.Player | Tag.Unit)
         var playerBullets = Entity.withTag(Tag.Player | Tag.Bullet)
         var computerUnits = Entity.withTag(Tag.Computer | Tag.Unit)
@@ -54,11 +52,6 @@ class Game {
 
         Render.setColor(1, 1, 1, 1)
         // Render.shapeText("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
-    }
-
-    static nextBoss() {
-        __bossTime = 0
-        __size = __size + 1
     }
 
     static collide(bullets, units) {        

@@ -13,7 +13,7 @@
     },
     "Cannon Round Speed": {
         "type": "number",
-        "value": 200.0
+        "value": 400.0
     },
     "Cannon Shoot Time": {
         "type": "number",
