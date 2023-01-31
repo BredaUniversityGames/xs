@@ -89,13 +89,13 @@ class Missile is Bullet {
     construct new(team, speed) {
         super(team, Data.getNumber("Missle Damage"))
         _speed = speed
-        _targeting = 1.5
+        _targeting = 3.0
         _time  = 0
     }
 
     update(dt) {        
         if(_targeting > 0) {
-            _targeting = _targeting - dt * 0.4
+            _targeting = _targeting - dt * 2.0
         } else {
             _targeting = 0
         }
@@ -108,8 +108,13 @@ class Missile is Bullet {
         d = d.normalise
         var dv = d * Data.getNumber("Missle Max Speed")
         dv = dv - b.velocity
-
+            
         b.velocity = Math.damp(b.velocity, dv, _targeting, dt)                
+
+        if(b.velocity.magnitude < Data.getNumber("Missle Max Speed") * 0.4) {
+           b.velocity = b.velocity.normalise
+           b.velocity = b.velocity * Data.getNumber("Missle Max Speed") * 0.4
+        }
 
         // b.velocity = Math.damp(b.velocity, d, 5, dt) 
         // b.velocity = b.velocity * b.velocity.normalise.dot(d)

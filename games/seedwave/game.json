@@ -73,7 +73,7 @@
     },
     "Missle Max Speed": {
         "type": "number",
-        "value": 600.0
+        "value": 500.0
     },
     "Missle Shoot Time": {
         "type": "number",
@@ -85,15 +85,15 @@
     },
     "Part Health 1": {
         "type": "number",
-        "value": 60.0
+        "value": 250.0
     },
     "Part Health 2": {
         "type": "number",
-        "value": 90.0
+        "value": 400.0
     },
     "Part Health 3": {
         "type": "number",
-        "value": 130.0
+        "value": 650.0
     },
     "Part Size 1": {
         "type": "number",

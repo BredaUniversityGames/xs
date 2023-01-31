@@ -303,10 +303,11 @@ class Boss is Component {
         _sinTime = 0
         _pairs = pairs
         _wait = 0.5           
-        _health = 0.0
+        _health = 0.0        
     }
 
     initialize() {
+        //_unit = 
         _maxHealth = 0.0
         for(pr in  _pairs) {
             for(p in pr) {

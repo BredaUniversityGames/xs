@@ -30,6 +30,8 @@ class BossPart is Component {
     ready { true }
 
     destroyed { owner.getComponent(Unit) == null }
+
+    wait { 0.25 }
 }
 
 import "unit" for Unit
