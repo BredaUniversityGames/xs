@@ -4,31 +4,6 @@ import "xs_components" for Transform, Sprite, Relation
 import "xs_math" for Vec2, Color
 import "weapons/bosspart" for BossPart
 
-/*
-class Beam is Component {
-    construct new(level) {
-        super()
-        _time = 0
-    }
-
-    initialize() {
-        _sprite = owner.getComponentSuper(Sprite)
-    }
-
-    update(dt) {        
-        _time = _time + dt
-        if()
-        var val = _time.sin
-        var color = Color.new(255,255,255, 255 * val)        
-        _sprite.mul = color.toNum
-
-        if(val < 0.0) {
-            owner.delete()
-        }
-    }
-}
-*/
-
 class LaserState {
     static idle     { 0 }
     static prepare  { 1 }
@@ -43,13 +18,15 @@ class Laser is BossPart {
         _time = 0     
         _beam = null           
         _state = LaserState.idle
+        _damage = Data.getNumber("Laser Damage/Second " + level.toString)
+        _width = Data.getNumber("Laser Width " + level.toString)
+        _duration = Data.getNumber("Laser Duration ")
     }
 
-        /*
     initialize() {
         super.initialize()
+        _transform = owner.getComponent(Transform)
     }
-    */
 
     update(dt) {        
         _time = _time + dt
@@ -62,6 +39,14 @@ class Laser is BossPart {
                 _time = 0.0
             }
         } else if(_state == LaserState.shoot) {
+            var player = Game.player
+            var pt = player.getComponent(Transform)
+            var dx = (pt.position.x - _transform.position.x).abs
+            if(dx < _width) {
+                var pu = player.getComponent(Unit)
+                pu.damage(_damage * dt)
+            }
+
             // Do some damage here
             if(_time > 1.0) {
                 _beam.delete()
@@ -99,3 +84,6 @@ class Laser is BossPart {
 
     ready { _state == LaserState.idle }
 }
+
+import "game" for Game
+import "unit" for Unit

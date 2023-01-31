@@ -13,11 +13,11 @@
     },
     "Multiplier": {
         "type": "number",
-        "value": 1.0
+        "value": 3.0
     },
     "Title": {
         "type": "string",
-        "value": "~~seedwave~~"
+        "value": "Peperuga"
     },
     "Width": {
         "type": "number",

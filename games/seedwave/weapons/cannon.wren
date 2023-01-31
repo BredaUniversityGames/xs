@@ -24,6 +24,6 @@ class Cannon is BossPart {
     */
     
     shoot() {
-        Bullet.create(owner, -Data.getNumber("Cannon Round Speed"), 0)
+        Bullet.create(owner, -Data.getNumber("Cannon Round Speed"), Data.getNumber("Cannon Damage"))
     }
 }

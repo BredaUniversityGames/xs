@@ -302,10 +302,19 @@ class Boss is Component {
         _time = 0
         _sinTime = 0
         _pairs = pairs
-        _wait = 0.5   
+        _wait = 0.5           
+        _health = 0.0
     }
 
-    initialize() { }    
+    initialize() {
+        _maxHealth = 0.0
+        for(pr in  _pairs) {
+            for(p in pr) {
+                var u = p.owner.getComponent(Unit)
+                _maxHealth = _maxHealth + u.maxHealth
+            }
+        }
+    }    
     
     update(dt) {
         var ot = owner.getComponent(Transform)
@@ -335,7 +344,21 @@ class Boss is Component {
                 }
             }
         }
+
+        _health = 0.0
+        for(pr in  _pairs) {
+            for(p in pr) {
+                var u = p.owner.getComponent(Unit)
+                if(u != null) {
+                    var maxHealth = _maxHealth + u.maxHealth
+                    _health = _health + u.health
+                }
+            }
+        }
     }
+
+    maxHealth { _maxHealth }
+    health { _health }
 }
 
 import "game" for Game

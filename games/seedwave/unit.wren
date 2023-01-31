@@ -1,3 +1,4 @@
+import "xs"for Input
 import "xs_ec"for Entity, Component
 import "xs_components" for Sprite, Body
 import "xs_math" for Color
@@ -7,6 +8,7 @@ class Unit is Component {
     construct new(team, health, destroy) {
         super()
         _team = team
+        _maxHealth = health
         _health = health        
         _destroy = destroy
         _timer = 0
@@ -19,12 +21,18 @@ class Unit is Component {
     damage(d) {
         _health = _health - d
         _timer = 0.15
+
+        if(_team == Team.Player) {
+            Input.setPadVibration(10, 10)
+        }
     }
     team { _team }
     health { _health }
+    maxHealth { _maxHealth }
 
     update(dt) {
         if(_health <= 0) {
+            _health = 0
             if(_destroy) {
                 owner.delete()
             } 

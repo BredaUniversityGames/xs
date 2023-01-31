@@ -111,13 +111,28 @@ def box(width : int, height : int, r : float, g : float, b : float, file : str):
     colorCtx.fill()  
     colorSurf.write_to_png("games/seedwave/assets/images/" + file)
      
+def healthbar(width : int, size : int, cl : color, file : str):
+    height = 100 * size    
+    colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+    colorCtx = cairo.Context(colorSurf)
+    tx = width / 100.0
+
+    for j in range(1, 101): 
+        y = height - j * size
+        w = tx * j 
+        colorCtx.rectangle(width * 0.5 - w * 0.5, y, w, size)
+        colorCtx.set_source_rgb(cl.r, cl.g, cl.b)
+        colorCtx.fill()    
+    colorSurf.write_to_png("games/seedwave/assets/images/" + file)
+
 
 parts(8, "1")
 parts(14, "2")
 parts(20, "3")
 
-circle(16, 0.776, 0.277, 0.990, "ships/core.png")
+circle(12, 0.776, 0.277, 0.990, "ships/core.png")
 ellipse(4, 0.990, 0.622, 0.277, 1.0, 2.0, "ships/player.png")
+circle(2, 0.990, 0.622, 0.277, "ships/jump_target.png")
 ellipse(2.5, 0.990, 0.622, 0.277, 1.0, 3.0, "projectiles/pl_cannon.png")
 
 (r, g, b) = get_color(0)
@@ -138,3 +153,6 @@ checkerboard(640, 360, 40, dark, light, "background/base.png")
 
 mid = color(0.15, 0.15, 0.15)
 sidewalls(640, 360, 20, mid,  "background/side.png")
+
+white = color(1.0, 1.0, 0.9)
+healthbar(400, 4, white, "ui/healthbar_boss.png")

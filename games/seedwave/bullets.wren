@@ -87,13 +87,10 @@ class Bullet is Component {
 
 class Missile is Bullet {
     construct new(team, speed) {
-        //var d = Data.getNumber("Missle Damage")
-        //super(d)
-        super(team, 100)
+        super(team, Data.getNumber("Missle Damage"))
         _speed = speed
         _targeting = 1.5
         _time  = 0
-        // _target = Game.player
     }
 
     update(dt) {        

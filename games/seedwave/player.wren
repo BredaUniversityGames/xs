@@ -31,6 +31,18 @@ class Player is Component {
         ship.addComponent(s)
         ship.name = "Player"
         ship.tag = (Tag.Player | Tag.Unit)
+
+        {
+            var jump = Entity.new()
+            var jt = Transform.new(Vec2.new(0,0))
+            var jr = Relation.new(ship)
+            var js = Sprite.new("[game]/assets/images/ships/jump_target.png")
+            jr.offset = Vec2.new(60,0)
+            jump.addComponent(jt)
+            jump.addComponent(jr)
+            jump.addComponent(js)
+        }
+
         return ship
     }
 
@@ -117,6 +129,9 @@ class Player is Component {
         
         if(vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
             vel = vel * speed
+            if(Input.getButtonOnce(Input.gamepadButtonWest)) {
+                t.position.x = t.position.x + vel.x.sign * 60.0
+            }
         } else {
             vel = vel * 0
         }

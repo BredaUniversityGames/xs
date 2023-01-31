@@ -33,12 +33,13 @@ class Game {
 
         Background.createBackground()
         __random = Random.new()
-        __player = Player.create()
+        __player = Player.create()        
 
         __size = 3
         __boss = Boss.randomBoss(__size)
+        __healthBar = Create.BossHealthBar()
         __totalTime = 0
-        __bossTime = 0      
+        __bossTime = 0              
     }    
     
     static update(dt) {
@@ -72,7 +73,6 @@ class Game {
         }
 
         Render.setColor(1, 1, 1, 1)
-        //Render.shapeText("Time:%(__totalTime.round) BossTime:%(__bossTime.round) DNA:%(Boss.dna)", -300, 150, 1)
         var y = 140
         var x = -310
         Render.shapeText("DNA:%(Boss.dna)", x, y, 1)
@@ -84,14 +84,21 @@ class Game {
         y = y - 10
         var cu = __boss.getComponent(Unit)
         Render.shapeText("Core Health:%(cu.health)", x, y, 1)
+        y = y - 10
+        var bb = __boss.getComponent(Boss)
+        Render.shapeText("Boss Max Health:%(bb.maxHealth)", x, y, 1)
+        y = y - 10
+        Render.shapeText("Boss Health:%(bb.health)", x, y, 1)
 
-        //Render.text("DNA:%(Boss.dna)", -50, 100, 1)
     }
 
     static nextBoss() {
         __bossTime = 0
         __size = __size + 1
         __boss = Boss.randomBoss(__size)
+
+        __healthBar.delete()
+        __healthBar = Create.BossHealthBar()
     }
 
     static collide(bullets, units) {        
@@ -122,11 +129,13 @@ class Game {
 
     static render() {
         if(Data.getBool("Renderable Render", Data.debug)) {
+        // {
             Renderable.render()
         }
     }
 
     static player { __player }
+    static boss { __boss }
     static random { __random }
 
     static debugRender() {
@@ -149,3 +158,4 @@ class Game {
 import "boss" for Boss
 import "bullets" for Bullet
 import "player" for Player
+import "create" for Create
