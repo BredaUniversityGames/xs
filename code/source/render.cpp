@@ -278,7 +278,7 @@ int xs::render::load_image(const std::string& image_file)
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
 {
-	assert(image_id >= 0 && image_id < images.size());
+ 	assert(image_id >= 0 && image_id < images.size());
 
 	for(int i = 0; i < sprites.size(); i++)
 	{

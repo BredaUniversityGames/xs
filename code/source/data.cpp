@@ -114,7 +114,7 @@ void xs::data::initialize()
 void xs::data::shutdown() {}
 
 void xs::data::inspect(bool& show)
-{
+{	
 	if (history.empty())
 	{
 		auto r(reg);
@@ -144,12 +144,14 @@ void xs::data::inspect(bool& show)
 	static ImGuiTextFilter filter;
 	filter.Draw(ICON_FA_SEARCH);
 	
-	ImGui::PushItemWidth(60);
+	ImGui::BeginChild("Child");
+	ImGui::PushItemWidth(80);
 	inspect_of_type(string(ICON_FA_GAMEPAD) + "  Game", filter, type::game);
 	inspect_of_type(string(ICON_FA_USER) + "  Player", filter, type::player);
 	inspect_of_type(string(ICON_FA_BUG) + "  Debug", filter, type::debug);
 	inspect_of_type(string(ICON_FA_COG) + "  System", filter, type::system);
 	ImGui::PopItemWidth();
+	ImGui::EndChild();
 
 	ImGui::End();
 }
