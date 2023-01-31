@@ -91,6 +91,7 @@ class Turret is Component {
 
     initialize() {
         _transform = owner.getComponent(Transform)
+        _body = owner.getComponent(Body)
     }
 
     update(dt) {
@@ -101,13 +102,22 @@ class Turret is Component {
         var pos = Ship.lissajous(_d, _a, _b, _t)
         pos.x = pos.x * _A
         pos.y = pos.y * _B
-        _transform.position = pos
 
+        
+        var d = pos - _transform.position
+        var dv = null
+        // if(d.length)
+        {
+            d = d.normalise
+            //dv = d * Data.getNumber("Missle Max Speed")
+            dv = dv - _body.velocity
+        }
+        _body.velocity = dv
 
-        var pe = Game.player
-        var pt = pe.getComponent(Transform)
-        var t = owner.getComponent(Transform)
-        var d = pt.position - t.position
+        //var pe = Game.player
+        //var pt = pe.getComponent(Transform)
+       // var t = owner.getComponent(Transform)
+        //var d = pt.position - t.position
 
         if(_time >= 1.0) {
             _time = 0.0
