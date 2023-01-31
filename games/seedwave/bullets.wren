@@ -5,7 +5,7 @@ import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, Anim
 import "unit" for Unit
 import "tags" for Team, Tag
 import "debug" for DebugColor
-import "components" for SlowRelation
+import "components" for SlowRelation, TurnToVelocity
 import "random" for Random
 
 class Bullet is Component {
@@ -47,15 +47,17 @@ class Bullet is Component {
         var v = dir
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.Player, damage)
-        var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
+        var tr = TurnToVelocity.new()
+        var s = Sprite.new("[game]/assets/images/projectiles/pl_cannon.png")
         s.layer = 1.9
         s.flags = Render.spriteCenter
-        s.addAnimation("anim", [0,1,2])
-        s.playAnimation("anim") 
+        //s.addAnimation("anim", [0,1,2])
+        //s.playAnimation("anim") 
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)
         bullet.addComponent(s)
+        bullet.addComponent(tr)
         bullet.name = "Bullet"
         bullet.tag = Tag.Player | Tag.Bullet
         bullet.addComponent(DebugColor.new(0x8BEC46FF))
@@ -68,11 +70,11 @@ class Bullet is Component {
         var v = Vec2.new(0, speed)
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.Player, damage)
-        var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
+        var s = Sprite.new("[game]/assets/images/projectiles/cannon.png")
         s.layer = 1.9
         s.flags = Render.spriteCenter
-        s.addAnimation("anim", [0,1,2])
-        s.playAnimation("anim") 
+        //s.addAnimation("anim", [0,1,2])
+        //s.playAnimation("anim") 
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)
@@ -90,6 +92,7 @@ class Missile is Bullet {
         super(team, 100)
         _speed = speed
         _targeting = 1.5
+        _time  = 0
         // _target = Game.player
     }
 
@@ -101,18 +104,26 @@ class Missile is Bullet {
         }
         
         //_speed = Math.damp(_speed, Data.getNumber("Missle Max Speed"), 0.5, dt)        
+
         var p = Game.player
         var b = owner.getComponent(Body)
         var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
         d = d.normalise
         var dv = d * Data.getNumber("Missle Max Speed")
         dv = dv - b.velocity
-        //_targeting = Math.damp(_targeting, 0.0, 1.0, dt)
 
-        b.velocity = Math.damp(b.velocity, dv, _targeting, dt)        
+        b.velocity = Math.damp(b.velocity, dv, _targeting, dt)                
 
         // b.velocity = Math.damp(b.velocity, d, 5, dt) 
         // b.velocity = b.velocity * b.velocity.normalise.dot(d)
+
+        var alpha = b.velocity.atan2 + Math.pi * 0.5
+        owner.getComponent(Transform).rotation = alpha
+
+        _time = _time + dt
+        if(_time > 5.0) {
+            owner.delete()
+        }
         
         super.update(dt)
     }
@@ -129,12 +140,12 @@ class Missile is Bullet {
 
         var bd = Body.new(5, v)
         var bl = Missile.new(Team.Computer, speed)
-        var u = Unit.new(Team.Computer, 1.0)
-        var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
+        var u = Unit.new(Team.Computer, 1.0, true)
+        var s = Sprite.new("[game]/assets/images/projectiles/missile.png")
         s.layer = 1.9
         s.flags = Render.spriteCenter
-        s.addAnimation("anim", [0,1,2])
-        s.playAnimation("anim") 
+        // s.addAnimation("anim", [0,1,2])
+        // s.playAnimation("anim") 
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)

@@ -19,7 +19,7 @@ class Player is Component {
         var sc = Player.new()
         var v = Vec2.new(0, 0)
         var b = Body.new(Data.getNumber("Player Size"), v)
-        var u = Unit.new(Team.Player, Data.getNumber("Player Health"))
+        var u = Unit.new(Team.Player, Data.getNumber("Player Health"), true)
         var c = DebugColor.new(0x8BEC46FF)
         var s = GridSprite.new("[game]/assets/images/Plane 01/planes_01_A.png", 4, 5)
         s.layer = 1.0
@@ -66,7 +66,7 @@ class Player is Component {
 
         _shootTime = _shootTime + dt
         if((Input.getButton(0) ||
-            Input.getKeyOnce(Input.keySpace)) &&
+            Input.getKey(Input.keySpace)) &&
             _shootTime > Data.getNumber("Player Shoot Time")) {
             Create.playerBullet(
                     owner,

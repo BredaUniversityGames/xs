@@ -84,6 +84,15 @@ class Entity {
         }
     }
 
+    // Will mark the component for removal at the end of the update
+    deleteComponentSuper(type) {     
+        for(v in _components.values) {
+            if(v is type) {
+                _compDeleteQueue.add(v.type)
+            }
+        }           
+    }
+
     // Get all to components 
     components { _components.values }
 
