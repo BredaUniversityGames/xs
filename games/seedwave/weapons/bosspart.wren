@@ -22,6 +22,7 @@ class BossPart is Component {
             owner.deleteComponent(Unit)
             _sprite.add = 0x00000000
             _sprite.mul = 0x4A4A4AFF
+            Create.explosion(owner)
         }
     }
 
@@ -36,3 +37,4 @@ class BossPart is Component {
 
 import "unit" for Unit
 import "debug" for DebugColor
+import "create" for Create
