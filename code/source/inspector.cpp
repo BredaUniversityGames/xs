@@ -109,7 +109,7 @@ void xs::inspector::render(float dt)
 	
 	ImGui_Impl_NewFrame();
 
-	ImGui::ShowDemoWindow();
+	// ImGui::ShowDemoWindow();
 
 	internal::ok_timer -= dt;
 
