@@ -28,3 +28,4 @@ class HealthBar is Component {
 
 import "game" for Game
 import "unit" for Unit
+import "boss" for Boss

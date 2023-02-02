@@ -2,17 +2,6 @@ import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
-import "tags" for Team, Tag
-import "bullets" for Bullet, Missile
-import "debug" for DebugColor
-import "random" for Random
-import "components" for SlowRelation
-
-import "weapons/bosspart" for BossPart
-import "weapons/laser" for Laser
-import "weapons/cannon" for Cannon
-import "weapons/missiles" for Missiles
-import "weapons/deflect" for Deflect
 //import "weapons/needler" for Needler
 
 class Boss is Component {
@@ -189,8 +178,7 @@ class Boss is Component {
         System.print(dna)
         var ship = Entity.new()
         var p = Vec2.new(0, 0)
-        var t = Transform.new(p)
-        
+        var t = Transform.new(p)        
         var v = Vec2.new(0, 0)
         var b = Body.new(Data.getNumber("Core Size"), v)
         var u = Unit.new(Team.Computer, Data.getNumber("Core Health"), true)
@@ -265,7 +253,7 @@ class Boss is Component {
         }
 
         var bs = Boss.new(pairs)
-        ship.addComponent(bs)
+        ship.addComponent(bs) 
         return ship
     }
 
@@ -362,5 +350,15 @@ class Boss is Component {
     health { _health }
 }
 
+import "tags" for Team, Tag
+import "bullets" for Bullet, Missile
+import "debug" for DebugColor
+import "random" for Random
+import "components" for SlowRelation
+import "weapons/bosspart" for BossPart
+import "weapons/laser" for Laser
+import "weapons/cannon" for Cannon
+import "weapons/missiles" for Missiles
+import "weapons/deflect" for Deflect
 import "game" for Game
 import "unit" for Unit

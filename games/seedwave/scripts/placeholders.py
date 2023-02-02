@@ -4,6 +4,7 @@ import cairo
 import random
 import colorsys
 import math
+from xsmath import vec2 
 
 letters = ["C", "L", "M", "D", "N", "E", "H", "V"]
 
@@ -125,6 +126,44 @@ def healthbar(width : int, size : int, cl : color, file : str):
         colorCtx.fill()    
     colorSurf.write_to_png("games/seedwave/assets/images/" + file)
 
+class ExplosionBall:
+    def __init__(self, size: float, position: vec2) -> None:
+        self.position = position
+        self.size = size
+    
+    def draw(self, ctx: cairo.Context, param: float) -> None :
+        p = math.pow(param, 1/4)
+        pos = vec2(0,0) * (1.0 - p) + self.position * p
+        rad = self.size * p
+        ctx.set_source_rgb(1, 1, 1)
+        ctx.arc(pos.x, pos.y, rad, 0.0, math.pi * 2)
+        ctx.set_operator(cairo.Operator.OVER)
+        ctx.fill()
+        ctx.set_source_rgba(1, 1, 1, 1)
+        ctx.set_operator(cairo.Operator.XOR)
+        s_p = math.pow(param, 2)
+        s_rad = rad * s_p
+        s_pos = pos - pos.normalized() * (rad - s_rad)
+        ctx.arc(s_pos.x, s_pos.y, s_rad, 0.0, math.pi * 2)
+        ctx.fill()
+
+def explosion(size : int, frames: int, file : str) :
+    colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, size * frames, size)
+    colorCtx = cairo.Context(colorSurf)
+    colorCtx.translate(size * 0.5, size * 0.5)
+    ebs = [
+        ExplosionBall(size * 0.25, vec2(size * 0.2, size * 0.2)),
+        ExplosionBall(size * 0.2, vec2(size * 0.3, -size * 0.24)),
+        ExplosionBall(size * 0.3, vec2(size * -0.1, -size * 0.1)),
+        ExplosionBall(size * 0.15, vec2(size * -0.1, -size * -0.1)),
+    ]
+
+    for i in range(1, frames + 1):
+        for e in ebs:
+            e.draw(colorCtx, i / frames)
+        colorCtx.translate(size, 0)
+    colorSurf.write_to_png("games/seedwave/assets/images/" + file)
+
 
 parts(8, "1")
 parts(14, "2")
@@ -156,3 +195,6 @@ sidewalls(640, 360, 20, mid,  "background/side.png")
 
 white = color(1.0, 1.0, 0.9)
 healthbar(400, 4, white, "ui/healthbar_boss.png")
+
+
+explosion(64, 16, "fx/explosion.png")

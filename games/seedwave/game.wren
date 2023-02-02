@@ -37,7 +37,8 @@ class Game {
 
         __size = 3
         __boss = Boss.randomBoss(__size)
-        __healthBar = Create.BossHealthBar()
+        System.print(Game.boss.getComponent(Boss))
+        __healthBar = Create.bossHealthBar()
         __totalTime = 0
         __bossTime = 0              
     }    
@@ -98,7 +99,7 @@ class Game {
         __boss = Boss.randomBoss(__size)
 
         __healthBar.delete()
-        __healthBar = Create.BossHealthBar()
+        __healthBar = Create.bossHealthBar()
     }
 
     static collide(bullets, units) {        
