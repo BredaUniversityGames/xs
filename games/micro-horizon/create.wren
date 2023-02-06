@@ -38,7 +38,7 @@ class Create {
 
     static enemy() {
         var enemy = Entity.new()
-        var t = Transform.new(Vec2.new(200, 0))
+        var t = Transform.new(Vec2.new(500, 450))
         var e = Enemy.new()
         var b = Body.new(Data.getNumber("Enemy Size"), Vec2.new(0,0))
         var u = Unit.new(Team.Player, Data.getNumber("Enemy HP"), true)
@@ -198,6 +198,40 @@ class Create {
         scp.name = "Aim"
         return scp
     }
+
+    static part(follow, dist, size) {
+        var part = Entity.new()
+        var t = Transform.new(Vec2.new())
+        var s = Sprite.new("[game]/assets/images/missile.png")
+        var p = Part.new(follow, dist)
+        var b = Body.new(size, Vec2.new(0,0))
+        s.layer = 0.1
+        s.flags = Render.spriteCenter
+        part.addComponent(t)
+        part.addComponent(s)
+        part.addComponent(p)
+        part.addComponent(b)
+        part.addComponent(DebugColor.new(0xF0F0F0FF))
+        part.name = "Part"
+        return part        
+    }
+
+    static foot(parent, offset) {
+        var foot = Entity.new()
+        var t = Transform.new(Vec2.new())
+        var s = Sprite.new("[game]/assets/images/missile.png")
+        var f = Foot.new(parent, offset)
+        var b = Body.new(15, Vec2.new(0,0))
+        s.layer = 0.1
+        s.flags = Render.spriteCenter
+        foot.addComponent(t)
+        foot.addComponent(s)
+        foot.addComponent(f)
+        foot.addComponent(b)
+        foot.addComponent(DebugColor.new(0x00F0F0FF))
+        foot.name = "Foot"
+        return foot  
+    }
 }
 
 import "player" for Player
@@ -210,6 +244,6 @@ import "random" for Random
 import "ui" for HealthBar
 import "arrow" for Arrow
 import "game" for Game
-import "enemy" for Enemy
+import "enemy" for Enemy, Part, Foot
 import "damage" for Damage
 import "aim" for Aim
