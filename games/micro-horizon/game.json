@@ -3,13 +3,17 @@
         "type": "number",
         "value": 1.0
     },
+    "Dodge Input Dead Zone": {
+        "type": "number",
+        "value": 0.0
+    },
     "Enemy HP": {
         "type": "number",
         "value": 8.0
     },
     "Enemy Size": {
         "type": "number",
-        "value": 35.0
+        "value": 17.0
     },
     "Max Missle Speed": {
         "type": "number",

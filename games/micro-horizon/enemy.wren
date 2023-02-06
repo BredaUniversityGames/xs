@@ -3,6 +3,67 @@ import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 
+class Part is Component {
+    construct new(follow, dist) {
+        super()
+        _follow = follow
+        _dist = dist
+    }
+
+    initialize() {
+        _transform = owner.getComponent(Transform)
+        _followTransform = _follow.getComponent(Transform)
+    }
+
+    update(dt) {
+        var dir = _followTransform.position - _transform.position
+        if((dir.magnitude - _dist).abs > 2) {
+            _transform.rotation = dir.atan2
+            var pos = _followTransform.position - dir.normalise * _dist
+            _transform.position = Math.damp(_transform.position, pos, 25, dt)
+        }
+    }
+}
+
+class Foot is Component {
+    construct new(parent, offset) {
+        super()
+        _parent = parent
+        _offset = offset
+        _toPos = null
+    }
+
+    initialize() {
+        _transform = owner.getComponent(Transform)
+    }
+
+    update(dt) {
+        var pt = _parent.getComponent(Transform)
+        var offset = _offset
+        if(pt.rotation != 0.0) {
+            offset = _offset.rotated(pt.rotation)        
+        }
+
+        var pos = pt.position + offset 
+
+        if(_toPos == null) {
+            _toPos = pos
+        } else {
+            _transform.position = Math.damp(_transform.position, _toPos, 10.0, dt)
+        }
+
+        var d = pos - _transform.position
+        if(d.magnitude > 50) {
+            _toPos = pos
+        }
+
+        if(_parent.deleted) {
+            owner.delete()
+        }
+    }
+}
+
+
 class Enemy is Component {
     construct new() {
         super()
@@ -19,28 +80,24 @@ class Enemy is Component {
         _transform = owner.getComponent(Transform)
         _body = owner.getComponent(Body)
 
-        // Create the shield ring
-        _shields = []
-        var t = 0.0
-        var dt = Math.pi / 3.0                
-        var R = Data.getNumber("Shield Orbit Radius")
-        for(i in 0...6) {
-            var pos = Vec2.new(t.sin * R, t.cos * R)
-            var sh = Create.shield(owner, pos)
-            _shields.add(sh)
-            t = t + dt
+
+        var sizes = [30, 30, 20, 15, 10]
+        var distances = [43, 64, 54, 38, 28, 25]
+        _parts = [owner]
+        for(i in 1...6) {
+            var pred = _parts[i-1]
+            var size = sizes[i-1]
+            var dist = distances[i-1]
+            var sh = Create.part(pred, dist, size)
+            _parts.add(sh)
         }
 
-        // Crate the missiles 
-        // _missiles
-        t = dt / 2.0
-        R = Data.getNumber("Missile Orbit Radius")
-        for(i in 0...6) {
-            var pos = Vec2.new(t.sin * R, t.cos * R)
-            var sh = Create.missile(owner, pos)
-            t = t + dt
-        }
-
+        var spread = 40
+        var gait = 18
+        Create.foot(_parts[1], Vec2.new(gait, spread))
+        Create.foot(_parts[1], Vec2.new(gait, -spread))
+        Create.foot(_parts[2], Vec2.new(-gait, spread))
+        Create.foot(_parts[2], Vec2.new(-gait, -spread))
     }    
     
     update(dt) {
@@ -65,6 +122,28 @@ class Enemy is Component {
         checkShield()
         
         _transform.rotation = _transform.rotation + _rotationSpeed * dt
+
+        for(i in 1..._parts.count) {
+            var p0 = _parts[i]
+            var t0 = p0.getComponent(Transform)
+            var b0 = p0.getComponent(Body)
+            for(j in 0...i) {
+                var p1 = _parts[j]
+                var t1 = p1.getComponent(Transform)
+                var b1 = p1.getComponent(Body)
+
+                var d01 = t0.position - t1.position
+                if(d01.magnitude > 0) {
+                    var dff = d01.magnitude - (b0.size + b1.size)
+                    // System.print("dff: %(dff)")
+                    if(dff <= 0) {
+                        //System.print("Overlap")
+                        t0.position = t0.position - d01.normalise * dff * 0.5
+                        continue
+                    }
+                }
+            }
+        }
     }
 
     idleUpdate(dt) {
@@ -99,10 +178,10 @@ class Enemy is Component {
         var pt = Game.player.getComponent(Transform)
         var dir = pt.position - _transform.position
         dir.normalise
-        setVelocity(dir * 0.2, dt)
-        setRotationSpeed(6.0, dt)
+        setVelocity(dir * 1.2, dt)
+        // setRotationSpeed(6.0, dt)
 
-        if(_time > 2.0) {
+        if(_time > 200000.0) {
             charge()
         }
     }
@@ -141,6 +220,7 @@ class Enemy is Component {
     }
 
     checkShield() {
+        /*
         if(_state == homingWrnState || _state == homingState) {
             return false
         }        
@@ -154,6 +234,7 @@ class Enemy is Component {
             _state = homingWrnState
             System.print("Homing")
         }
+        */
     } 
 
     setVelocity(vel, dt) {

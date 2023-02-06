@@ -235,8 +235,8 @@ circle(10, r, g, b, "missile.png")
 (r, g, b) = get_color(8)
 warning(35)
 
-dark = color(0.1, 0.1, 0.1)
-light = color(0.13, 0.13, 0.13)
+dark = color(0.0423, 0.0900, 0.0622)
+light = color(0.0864, 0.180, 0.125)
 checkerboard(640, 360, 40, dark, light, "background.png")
 
 explosion(64, 16, "explosion.png")
