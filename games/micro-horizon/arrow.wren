@@ -2,6 +2,7 @@ import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
+import "random" for Random
 
 class Arrow is Component {
     construct new() {
@@ -10,9 +11,11 @@ class Arrow is Component {
         _trigger = 0.0
         _ready= false
         _time = 0.0
+        _pull = 0.0
     }
 
     initialize() {
+        owner.tag = Tag.Bow
         _relation = owner.getComponent(Relation)
         _transform = owner.getComponent(Transform)
     }
@@ -20,31 +23,18 @@ class Arrow is Component {
     update(dt) {
         _time = _time + dt
         var trig = (Input.getAxis(5) + 1.0) / 2.0
-        if(trig == 0.0 /*&& _time > 1.0 */) {
+        if(trig == 0.0) {
             _ready = true
+            _pull = 0.0
         }
 
         if(!_ready) {
             return
         }
 
-        var t = _transform
-        var w = Data.getNumber("Width", Data.system) * 0.55
-        var h = Data.getNumber("Height", Data.system) * 0.55
-
-        if (t.position.x < -w) {
-            owner.delete()
-        } else if (t.position.x > w) {
-            owner.delete()
-        }
-        
-        if (t.position.y < -h) {
-            owner.delete()
-        } else if (t.position.y > h) {
-            owner.delete()
-        }
-
-        _relation.offset = Vec2.new(12 - trig * 12, 0.0)
+        var t = _transform    
+        _pull = Math.damp(_pull, trig, 5.0, dt)
+        _relation.offset = Vec2.new(12 - _pull * 12, 0.0)
         var dtrig = _trigger - trig
         _trigger = trig
 
@@ -59,7 +49,10 @@ class Arrow is Component {
         _ready = false
         var pt = _relation.parent.getComponent(Transform)
         var dir = Vec2.new(500.0, 0.0)
-        dir = dir.rotated(pt.rotation)
+        var spread = (1.0 - _pull) * Math.pi / 3.0
+        System.print("Pull: %(_pull) spread %(spread)")
+        var randrot = Game.random.float(-spread, spread)
+        dir = dir.rotated(pt.rotation + randrot)
 
         var b = Body.new(2, dir)
         owner.addComponent(b)
@@ -79,7 +72,7 @@ class Arrow is Component {
         Create.arrow(_relation.parent)
     }
 
-    damage { _damage }
+    pull { _pull }
 }
 
 import "game" for Game

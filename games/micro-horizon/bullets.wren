@@ -100,8 +100,6 @@ class Missile is Bullet {
             _targeting = 0
         }
         
-        //_speed = Math.damp(_speed, Data.getNumber("Missle Max Speed"), 0.5, dt)        
-
         var p = Game.player
         var b = owner.getComponent(Body)
         var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
@@ -115,9 +113,6 @@ class Missile is Bullet {
            b.velocity = b.velocity.normalise
            b.velocity = b.velocity * Data.getNumber("Missle Max Speed") * 0.4
         }
-
-        // b.velocity = Math.damp(b.velocity, d, 5, dt) 
-        // b.velocity = b.velocity * b.velocity.normalise.dot(d)
 
         var alpha = b.velocity.atan2 + Math.pi * 0.5
         owner.getComponent(Transform).rotation = alpha

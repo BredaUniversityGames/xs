@@ -61,9 +61,27 @@ def arrow(radius):
         colorCtx.arc(0, 0, radius, 0.0, math.pi * 2.0)
         colorCtx.set_source_rgb(1, 1, 1)
         colorCtx.fill()
-
-
     colorSurf.write_to_png("games/micro-horizon/assets/images/arrow.png")
+
+
+def aim(radius):
+    number = 8
+    next_p2 = next_power_of_2(int(radius * 2 + 1))
+    colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, next_p2 * number, next_p2)
+    colorCtx = cairo.Context(colorSurf)   
+    colorCtx.translate(next_p2 * 1.5, next_p2 * 0.5)
+    for i in range(0, number):            
+        a =  (number - i) / number
+        a *= math.pi / 6.0
+        colorCtx.set_source_rgba(1, 1, 1, 0.5)
+        colorCtx.move_to(0, 0)
+        colorCtx.line_to( math.cos(a) * radius,  math.sin(a) * radius)
+        colorCtx.stroke()
+        colorCtx.move_to(0, 0)
+        colorCtx.line_to( math.cos(-a) * radius,  math.sin(-a) * radius)        
+        colorCtx.stroke()
+        colorCtx.translate(next_p2, 0.0)
+    colorSurf.write_to_png("games/micro-horizon/assets/images/aim.png")
 
 
 def warning(radius):
@@ -110,29 +128,6 @@ def checkerboard(width : int, height : int, size : int, fc : color, sc : color, 
             else: 
                 colorCtx.set_source_rgb(sc.r, sc.g, sc.b)
             colorCtx.fill()    
-    colorSurf.write_to_png("games/micro-horizon/assets/images/" + file)
-
-
-
-def sidewalls(width : int, height : int, size : int, cl : color, file : str):
-    colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    colorCtx = cairo.Context(colorSurf)
-    tx = int(width / size)
-    ty = int(height / size)
-       
-    for j in range(0, ty):            
-        y = j * size
-        colorCtx.rectangle(0, y, size * 2 +  2 * size * random.random(), size)
-        colorCtx.set_source_rgb(cl.r + random.random() * 0.02,
-                                cl.g + random.random() * 0.02,
-                                cl.b + random.random() * 0.02)        
-        colorCtx.fill()    
-
-        colorCtx.rectangle(width - size * 2 -  2 * size * random.random(), y, size * 5, size)
-        colorCtx.set_source_rgb(cl.r + random.random() * 0.02,
-                                cl.g + random.random() * 0.02,
-                                cl.b + random.random() * 0.02)        
-        colorCtx.fill()    
     colorSurf.write_to_png("games/micro-horizon/assets/images/" + file)
 
 def box(width : int, height : int, r : float, g : float, b : float, file : str):
@@ -227,6 +222,8 @@ def player() :
     surf.write_to_png("games/micro-horizon/assets/images/player.png")
 
 player()
+
+aim(60)
 
 arrow(3.5)
 (r, g, b) = get_color(8)

@@ -182,6 +182,22 @@ class Create {
         return wrn
     }
 
+    static aim(owner) {
+        var scp = Entity.new()
+        var t = Transform.new(Vec2.new())
+        var s = GridSprite.new("[game]/assets/images/aim.png", 8, 1)
+        var r = Relation.new(owner)
+        var a = Aim.new()
+        s.layer = 0.1
+        s.flags = Render.spriteCenter
+        scp.addComponent(t)
+        scp.addComponent(s)
+        scp.addComponent(r)
+        scp.addComponent(a)
+        scp.addComponent(DebugColor.new(0xF0F0F0FF))
+        scp.name = "Aim"
+        return scp
+    }
 }
 
 import "player" for Player
@@ -196,3 +212,4 @@ import "arrow" for Arrow
 import "game" for Game
 import "enemy" for Enemy
 import "damage" for Damage
+import "aim" for Aim
