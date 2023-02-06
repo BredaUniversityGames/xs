@@ -263,7 +263,11 @@ class Relation is Component {
 
     update(dt) {
         var pt = _parent.getComponent(Transform)
-        owner.getComponent(Transform).position = pt.position + _offset
+        var offset = _offset
+        if(pt.rotation != 0.0) {
+            offset = _offset.rotated(pt.rotation)
+        }
+        owner.getComponent(Transform).position = pt.position + offset 
 
         if(_parent.deleted) {
             owner.delete()
@@ -272,6 +276,7 @@ class Relation is Component {
 
     offset { _offset }
     offset=(o) { _offset = o }
+    parent { _parent }
 
     toString { "[Relation parent:%(_parent) offset:%(_offset) ]" }
 }
