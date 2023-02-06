@@ -20,16 +20,19 @@ class Enemy is Component {
         _body = owner.getComponent(Body)
 
         // Create the shield ring
+        _shields = []
         var t = 0.0
-        var dt = Math.pi / 3.0
+        var dt = Math.pi / 3.0                
         var R = Data.getNumber("Shield Orbit Radius")
         for(i in 0...6) {
             var pos = Vec2.new(t.sin * R, t.cos * R)
             var sh = Create.shield(owner, pos)
+            _shields.add(sh)
             t = t + dt
         }
 
         // Crate the missiles 
+        // _missiles
         t = dt / 2.0
         R = Data.getNumber("Missile Orbit Radius")
         for(i in 0...6) {
@@ -55,8 +58,12 @@ class Enemy is Component {
 
         } else if(_state == homingState) {
 
-        }
+        } else if(_state == homingWrnState) {
 
+        }   
+
+        checkShield()
+        
         _transform.rotation = _transform.rotation + _rotationSpeed * dt
     }
 
@@ -100,6 +107,25 @@ class Enemy is Component {
         }
     }
 
+    homingWrnUpdate(dt) {
+        if(_time > 0.6) {
+            _state = chargeState
+            _time = 0.0
+            _warning.delete()
+        }
+        setRotationSpeed(1.0, dt)
+    }
+
+    homingUpdate(dt) {
+        if(_time > 2.0) {
+            _state = idleState
+            _time = 0.0
+
+            // TODO: 
+        }
+        setRotationSpeed(1.0, dt)
+    }
+
     charge() {
         _chargePosition = Game.player.getComponent(Transform).position
         var dir = _chargePosition - _transform.position
@@ -110,6 +136,26 @@ class Enemy is Component {
         _warning = Create.warning(_chargePosition)
     }
 
+    launch() {
+
+    }
+
+    checkShield() {
+        if(_state == homingWrnState || _state == homingState) {
+            return false
+        }        
+        var deleted = 0
+        for(s in _shields) {
+            if(s.deleted) {
+                deleted = deleted + 1
+            }
+        }
+        if(deleted == _shields.count) {
+            _state = homingWrnState
+            System.print("Homing")
+        }
+    } 
+
     setVelocity(vel, dt) {
         _body.velocity = Math.damp(_body.velocity, vel, 10.0, dt)
     }
@@ -117,11 +163,9 @@ class Enemy is Component {
     setRotationSpeed(rotSpeed, dt) {
         _rotationSpeed = Math.damp(_rotationSpeed, rotSpeed, 10.0, dt)
     }
-
     
-    //maxHealth { _maxHealth }
-    health { _health }
-
+    // maxHealth { _maxHealth }
+    // health { _health }
 
     // States
     shieldState { 1 }

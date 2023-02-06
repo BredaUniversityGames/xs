@@ -12,36 +12,33 @@ import "random" for Random
 class Player is Component {
     construct new() {
         super()
-        // _shootTime = 0
-        // _animFrame = 0
-        //_frame = 0
+        _time = 0
+        _state = stateNormal
+        _dodgePosition = Vec2.new()
+        _cooldown = 0
     }
 
     initialize() {
         _body = owner.getComponent(Body)
         _transform = owner.getComponent(Transform)
+        var aim = Create.aim(owner)
     }
 
     update(dt) {
-        move(dt)
-        keepInBounds()
-
-        /*
-        _shootTime = _shootTime + dt
-        if((Input.getKey(Input.keySpace)) &&
-            _shootTime > Data.getNumber("Player Shoot Time")) {
-            Bullet.createPlayerBullet(
-                    owner,
-                    Data.getNumber("Player Arrow Speed"),
-                    Data.getNumber("Player Arrow HP"))
-            _shootTime = 0
+        if(_state == stateNormal) {
+            _cooldown = _cooldown - dt
+            move(dt)
+            checkDodge()
+        } else if(_state == stateDodge) {
+            dodge(dt)
         }
-        */      
     }
 
-    move(dt) {
+    move(dt) {        
         // Translation
+        var aim = (Input.getAxis(5) + 1.0) / 2.0
         var speed = Data.getNumber("Player Speed")
+        speed = speed * (1 - aim)
         var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
         if(vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
             vel = vel * speed
@@ -55,6 +52,37 @@ class Player is Component {
             var a = face.atan2
             _transform.rotation = a
         }
+
+        if(_state != stateDodge && _cooldown <= 0.0) {
+            var trig = Input.getAxis(4)
+            if(trig > Data.getNumber("Dodge Input Dead Zone")) {            
+                _state = stateDodge
+                _dodgePosition = _transform.position + (_body.velocity.normalise * 100.0)
+                _cooldown = 1.0
+                System.print("dodge")
+            }
+        }
+    }
+
+    dodge(dt) {
+        _transform.position = Math.damp(_transform.position, _dodgePosition, 10.0, dt)
+
+        if((_transform.position - _dodgePosition).magnitude < 10) {
+            _state = stateNormal
+        }
+    }
+
+    checkDodge() {
+        /*
+        if(_state != stateDodge) {
+            var trig = Input.getAxis(4)
+            if(trig > Data.getNumber("Dodge Input Dead Zone")) {            
+                _state = stateDodge
+                _dodgePosition = _transform.position
+                System.print("dodge")
+            }
+        }
+        */
     }
 
     keepInBounds() {
@@ -74,4 +102,10 @@ class Player is Component {
     }
 
     toString { "[Player]" }
+
+    stateNormal { 0 }
+    stateDodge  { 1 }
+    statePostDodge  { 2 }
 }
+
+import "create" for Create
