@@ -1,0 +1,102 @@
+{
+    "Arrow HP": {
+        "type": "number",
+        "value": 1.0
+    },
+    "Enemy HP": {
+        "type": "number",
+        "value": 8.0
+    },
+    "Enemy Size": {
+        "type": "number",
+        "value": 35.0
+    },
+    "Max Missle Speed": {
+        "type": "number",
+        "value": 0.0
+    },
+    "Missile HP": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Missile Orbit Radius": {
+        "type": "number",
+        "value": 40.0
+    },
+    "Missile Size": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Missle Damage": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Missle Max Speed": {
+        "type": "number",
+        "value": 500.0
+    },
+    "Missle Shoot Time": {
+        "type": "number",
+        "value": 1.0
+    },
+    "Missle Speed": {
+        "type": "number",
+        "value": 300.0
+    },
+    "Player Bullet Damage": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Player Bullet Speed": {
+        "type": "number",
+        "value": 500.0
+    },
+    "Player HP": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Player Health": {
+        "type": "number",
+        "value": 100.0
+    },
+    "Player Input Dead Zone": {
+        "type": "number",
+        "value": 0.12999999523162842
+    },
+    "Player Position Easing": {
+        "type": "number",
+        "value": 6.0
+    },
+    "Player Shoot Time": {
+        "type": "number",
+        "value": 0.05000000074505806
+    },
+    "Player Size": {
+        "type": "number",
+        "value": 4.0
+    },
+    "Player Speed": {
+        "type": "number",
+        "value": 200.25999450683594
+    },
+    "Player Speed When Aiming": {
+        "type": "number",
+        "value": 120.0
+    },
+    "Shield HP": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Shield Orbit Radius": {
+        "type": "number",
+        "value": 44.0
+    },
+    "Shield Size": {
+        "type": "number",
+        "value": 18.0
+    },
+    "Slow Lambda": {
+        "type": "number",
+        "value": 30.0
+    }
+}
