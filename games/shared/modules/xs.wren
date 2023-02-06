@@ -37,7 +37,7 @@ class Render {
         Render.begin(Render.triangles)
         var t = 0.0
         var dt = (Num.pi * 2.0) / divs
-        for(i in 0..divs) {            
+        for(i in 0...divs) {            
             Render.vertex(x, y)
             var xr = t.cos * r            
             var yr = t.sin * r
