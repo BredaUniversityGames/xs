@@ -1,15 +1,8 @@
- import "xs" for Input, Render, Data
+import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
- import "xs_math"for Math, Bits, Vec2
+import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
-import "unit" for Unit
-import "tags" for Team, Tag
-import "bullets" for Bullet, Missile
-import "debug" for DebugColor
-import "random" for Random
-import "components" for SlowRelation
-
-import "weapons/laser" for Laser
+//import "weapons/needler" for Needler
 
 class Boss is Component {
         static init() {
@@ -84,7 +77,15 @@ class Boss is Component {
                 dna = dna + "M" + l.toString    // Missles
             } else if(r == 4) {
                 dna = dna + "D" + l.toString    // Deflect
-            }
+            } else if(r == 5) {
+                dna = dna + "N" + l.toString    // Needler
+            } else if(r == 6) {
+                dna = dna + "E" + l.toString    // EMP
+            } else if(r == 7) {
+                dna = dna + "H" + l.toString    // Helpers
+            } else if(r == 7) {
+                dna = dna + "V" + l.toString    // Vulcan
+            } 
             protein = protein + l
         }
         return dna
@@ -108,7 +109,7 @@ class Boss is Component {
         var part = Entity.new()
         var t = Transform.new(Vec2.new(0, 0))
         var b = Body.new(size, Vec2.new(0, 0))
-        var u = Unit.new(Team.Computer, health)
+        var u = Unit.new(Team.Computer, health, false)
         var c = DebugColor.new(0xFFFFFFFF)
         var r = SlowRelation.new(boss, l)
         r.offset = position
@@ -120,31 +121,46 @@ class Boss is Component {
         part.name = "Part"
         part.tag = (Tag.Computer | Tag.Unit)
 
-        var s = GridSprite.new("[games]/seedwave/assets/images/ships/turret_medium_64x64.png", 3, 4)
+        var s =  GridSprite.new("[game]/assets/images/ships/parts_" + level.toString + ".png", 8, 1)
         if(type == "C") {                                 //  Cannon
-            s.idx = 0 + level - 1
+            s.idx = 0
             c = DebugColor.new(0xFFA8D3FF)
             var w = Cannon.new()
             part.addComponent(w)
         } else if (type == "L") {                           // Laser
-            s.idx = 4 + level - 1
-            var l = Laser.new()
+            s.idx = 1
+            var l = Laser.new(level)
             part.addComponent(l)
             c = DebugColor.new(0x9896FFFF)
         } else if(type == "M") {                            // Missiles
-            s.idx = 8 + level - 1
+            s.idx = 2
             c = DebugColor.new(0xFDFFC1FF)
             var w = Missiles.new()
             part.addComponent(w)
         } else if(type == "D") {                            // Deflect
-            part.tag = (part.tag| Tag.Deflect)
-            s.idx = 8 + level - 1
+            part.tag = (part.tag| Tag.Deflect)              // |
+            s.idx = 3
+            var d = Deflect.new()
+            part.addComponent(d)
+            c = DebugColor.new(0xFFB599FF)
+        } else if(type == "N") {                            // Needler
+            s.idx = 4
+            c = DebugColor.new(0xFFB599FF)
+        } else if(type == "E") {                            // EMP
+            s.idx = 5
+            c = DebugColor.new(0xFFB599FF)
+        } else if(type == "H") {                            // Helpers
+            s.idx = 6
+            c = DebugColor.new(0xFFB599FF)
+        } else if(type == "V") {                            // Vulcan
+            s.idx = 7
             c = DebugColor.new(0xFFB599FF)
         }
         s.layer = 1.0
-        s.flags = Render.spriteCenter | Render.spriteFlipY // |
+        s.flags = Render.spriteCenter
         part.addComponent(c)
         part.addComponent(s)
+        return part
     }
 
     static getPartSize(level) {
@@ -162,17 +178,15 @@ class Boss is Component {
         System.print(dna)
         var ship = Entity.new()
         var p = Vec2.new(0, 0)
-        var t = Transform.new(p)
-        var bs = Boss.new()
+        var t = Transform.new(p)        
         var v = Vec2.new(0, 0)
         var b = Body.new(Data.getNumber("Core Size"), v)
-        var u = Unit.new(Team.Computer, Data.getNumber("Core Health"))
+        var u = Unit.new(Team.Computer, Data.getNumber("Core Health"), true)
         var c = DebugColor.new(0xFF2222FF)
-        var s = GridSprite.new("[games]/seedwave/assets/images/ships/ship_medium_64x128.png", 3, 1)
+        var s = Sprite.new("[game]/assets/images/ships/core.png")
         s.layer = 1.0
         s.flags = Render.spriteCenter
-        ship.addComponent(t)
-        ship.addComponent(bs)
+        ship.addComponent(t)        
         ship.addComponent(b)
         ship.addComponent(u)
         ship.addComponent(c)
@@ -184,6 +198,7 @@ class Boss is Component {
         var idx = 0
         var offsets = [Vec2.new(0,0)]
         var radii = [Data.getNumber("Core Size")]        
+        var pairs = []
         var maxOrbit = 0        
         for(i in dna) {
             var level = Num.fromString(i)
@@ -224,6 +239,7 @@ class Boss is Component {
                 var posL = Vec2.new(-pos.x, pos.y)
                 var partR = part(ship, type, level, pos)
                 var partL = part(ship, type, level, posL)
+                pairs.add( [partR.getComponentSuper(BossPart), partL.getComponentSuper(BossPart)] )
                 level = null
                 type = null
                 idx = idx + 1
@@ -235,7 +251,10 @@ class Boss is Component {
                 type = i
             }
         }
-        return ship        
+
+        var bs = Boss.new(pairs)
+        ship.addComponent(bs) 
+        return ship
     }
 
     static randomBoss(size) {        
@@ -262,20 +281,30 @@ class Boss is Component {
         var dl = Data.getNumber("Boss Orbit Angle") / rad
         var a = dl * slot        
         var pos = Vec2.new(a.cos * rad, a.sin * rad)
-        //System.print(pos)
         return pos
     }
 
 
-    construct new() {
+    construct new(pairs) {
         super()
         _time = 0
         _sinTime = 0
+        _pairs = pairs
+        _wait = 0.5           
+        _health = 0.0        
     }
 
-    initialize() { }
-
-
+    initialize() {
+        //_unit = 
+        _maxHealth = 0.0
+        for(pr in  _pairs) {
+            for(p in pr) {
+                var u = p.owner.getComponent(Unit)
+                _maxHealth = _maxHealth + u.maxHealth
+            }
+        }
+    }    
+    
     update(dt) {
         var ot = owner.getComponent(Transform)
         var ob = owner.getComponent(Body)
@@ -287,48 +316,49 @@ class Boss is Component {
         ob.velocity = dir * 1.5
 
         _sinTime = _sinTime + dt 
-        ot.position.y = _sinTime.cos * 20 + 60
-    }
-}
+        ot.position.y = _sinTime.cos * 20 + 60        
 
-class Cannon is Component {
-    construct new() {
-        super()
-        _time = 0        
-    }
-
-    update(dt) {
         _time = _time + dt
-        if(_time > Data.getNumber("Cannon Shoot Time")) {
-            Bullet.create(owner, -Data.getNumber("Cannon Round Speed"), 0)
+
+        if(_time > _wait) {
             _time = 0
+            var i = Game.random.int(0, _pairs.count)            
+            var pair = _pairs[i]
+            _wait = 0.0
+            for(i in 0..1) {
+                var part = pair[i]            
+                if(!part.destroyed && part.ready) {
+                    pair[i].shoot()
+                    _wait = _wait + 0.15
+                }
+            }
         }
-    }
-    
-    shoot() {
-    }
-}
 
-class Missiles is Component {
-    construct new() {
-        super()
-        _time = 0
-    }
-
-     update(dt) {
-        _time = _time + dt
-        if(_time > Data.getNumber("Missle Shoot Time")) {            
-            Missile.create(owner,
-                Data.getNumber("Missle Speed"),
-                Data.getNumber("Missle Damage"))
-            _time = 0
+        _health = 0.0
+        for(pr in  _pairs) {
+            for(p in pr) {
+                var u = p.owner.getComponent(Unit)
+                if(u != null) {
+                    var maxHealth = _maxHealth + u.maxHealth
+                    _health = _health + u.health
+                }
+            }
         }
     }
 
-    shoot() {
-    }
-
-    toString { "[Missiles _time:%(_time)] ->" + super.toString }
+    maxHealth { _maxHealth }
+    health { _health }
 }
 
+import "tags" for Team, Tag
+import "bullets" for Bullet, Missile
+import "debug" for DebugColor
+import "random" for Random
+import "components" for SlowRelation
+import "weapons/bosspart" for BossPart
+import "weapons/laser" for Laser
+import "weapons/cannon" for Cannon
+import "weapons/missiles" for Missiles
+import "weapons/deflect" for Deflect
 import "game" for Game
+import "unit" for Unit

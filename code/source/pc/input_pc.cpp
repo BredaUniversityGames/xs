@@ -10,8 +10,17 @@ namespace
 {
 	GLFWgamepadstate gamepad_state;
 	GLFWgamepadstate prev_gamepad_state;
-	char key_once[512 + 1];
-	char mousebutton_once[8];
+
+	constexpr int nr_keys = 350;
+	bool keys_down[nr_keys];
+	bool prev_keys_down[nr_keys];
+	bool keys_down_changed[nr_keys];
+	
+	constexpr int nr_mousebuttons = 8;
+	bool mousebuttons_down[nr_mousebuttons];
+	bool prev_mousebuttons_down[nr_mousebuttons];
+	bool mousebuttons_down_changed[nr_keys];
+
 	float mousepos[2];
 	bool gamepad_connected;
 
@@ -25,12 +34,27 @@ namespace
 		xs::configuration::scale_to_game(static_cast<int>(xpos), static_cast<int>(ypos), screen_to_game, mousepos[0], mousepos[1]);
 	}
 
+	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		if (action == GLFW_PRESS || action == GLFW_RELEASE)
+			keys_down_changed[key] = true;
+	}
+
+	void mousebutton_callback(GLFWwindow* window, int button, int action, int mods)
+	{
+		if (action == GLFW_PRESS || action == GLFW_RELEASE)
+			mousebuttons_down_changed[button] = true;
+	}
+
 }
 
 void xs::input::initialize()
 {
 	glfwSetJoystickCallback(joystick_callback);
 	glfwSetCursorPosCallback(device::get_window(), cursor_position_callback);
+	glfwSetKeyCallback(device::get_window(), key_callback);
+	glfwSetMouseButtonCallback(device::get_window(), mousebutton_callback);
+
 	update(0.0f);
 }
 
@@ -42,7 +66,28 @@ void xs::input::shutdown()
 
 void xs::input::update(double dt)
 {
+	for (int i = 0; i < nr_keys; ++i)
+	{
+		prev_keys_down[i] = keys_down[i];
+		if (keys_down_changed[i])
+		{
+			keys_down[i] = !keys_down[i];
+			keys_down_changed[i] = false;
+		}
+	}
+
+	for (int i = 0; i < nr_mousebuttons; ++i)
+	{
+		prev_mousebuttons_down[i] = mousebuttons_down[i];
+		if (mousebuttons_down_changed[i])
+		{
+			mousebuttons_down[i] = !mousebuttons_down[i];
+			mousebuttons_down_changed[i] = false;
+		}
+	}
+
 	prev_gamepad_state = gamepad_state;
+
 	if (glfwJoystickPresent(0) && glfwJoystickIsGamepad(0))
 		gamepad_connected = glfwGetGamepadState(0, &gamepad_state);
 }
@@ -52,7 +97,6 @@ double xs::input::get_axis(gamepad_axis axis)
 	if (!gamepad_connected) return 0.0;
 	
 	assert(axis >= 0 && axis <= GLFW_GAMEPAD_AXIS_LAST);
-	//return (static_cast<double>(gamepad_state.axes[axis]) + 1.0) * 0.5;
 	return static_cast<double>(gamepad_state.axes[axis]);
 }
 
@@ -74,22 +118,16 @@ bool xs::input::get_button_once(gamepad_button button)
 		static_cast<bool>(gamepad_state.buttons[button]);
 }
 
-
 bool xs::input::get_key(int key)
 {
-	return glfwGetKey(device::get_window(), key) == GLFW_PRESS;
+	assert(key >= GLFW_KEY_SPACE && key <= GLFW_KEY_LAST);
+	return keys_down[key];
 }
 
 bool xs::input::get_key_once(int key)
 {
-	/*
-	auto k = key_once[key];
-	return glfwGetKey(device::get_window(), key) == GLFW_PRESS;
-	*/
-
-	return (glfwGetKey(device::get_window(), key) ?
-		(key_once[key] ? false : (key_once[key] = true)) : \
-		(key_once[key] = false));
+	assert(key >= GLFW_KEY_SPACE && key <= GLFW_KEY_LAST);
+	return keys_down[key] && !prev_keys_down[key];
 }
 
 bool xs::input::get_mouse()
@@ -99,14 +137,12 @@ bool xs::input::get_mouse()
 
 bool xs::input::get_mousebutton(mouse_button button)
 {
-	return glfwGetMouseButton(device::get_window(), button) == GLFW_PRESS;
+	return mousebuttons_down[button];
 }
 
 bool xs::input::get_mousebutton_once(mouse_button button)
 {
-	return (glfwGetMouseButton(device::get_window(), button) ?
-		(mousebutton_once[button] ? false : (mousebutton_once[button] = true)) : \
-		(mousebutton_once[button] = false));
+	return mousebuttons_down[button] && !prev_mousebuttons_down[button];
 }
 
 double xs::input::get_mouse_x()
@@ -137,4 +173,19 @@ double xs::input::get_touch_x(int index)
 double xs::input::get_touch_y(int index)
 {
 	return 0.0;
+}
+
+void xs::input::set_gamepad_vibration(int smallRumble, int largeRumble)
+{
+	//Unimplemented on the PC
+}
+
+void xs::input::set_lightbar_color(double red, double green, double blue)
+{
+	//Unimplemented on the PC (specific dualshock 5 controller mechanic)
+}
+
+void xs::input::reset_lightbar()
+{
+	//Unimplemented on the PC (specific dualshock 5 controller mechanic)
 }

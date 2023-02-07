@@ -18,9 +18,9 @@ class Player is Component {
         var sc = Player.new()
         var v = Vec2.new(0, 0)
         var b = Body.new(Data.getNumber("Player Size"), v)
-        var u = Unit.new(Team.Player, Data.getNumber("Player Health"))
+        var u = Unit.new(Team.Player, Data.getNumber("Player Health"), true)
         var c = DebugColor.new(0x8BEC46FF)
-        var s = GridSprite.new("[games]/seedwave/assets/images/ships/planes_05_A.png", 4, 5)
+        var s = Sprite.new("[game]/assets/images/ships/player.png")
         s.layer = 1.0
         s.flags = Render.spriteCenter
         ship.addComponent(t)
@@ -31,6 +31,18 @@ class Player is Component {
         ship.addComponent(s)
         ship.name = "Player"
         ship.tag = (Tag.Player | Tag.Unit)
+
+        {
+            var jump = Entity.new()
+            var jt = Transform.new(Vec2.new(0,0))
+            var jr = Relation.new(ship)
+            var js = Sprite.new("[game]/assets/images/ships/jump_target.png")
+            jr.offset = Vec2.new(60,0)
+            jump.addComponent(jt)
+            jump.addComponent(jr)
+            jump.addComponent(js)
+        }
+
         return ship
     }
 
@@ -61,7 +73,7 @@ class Player is Component {
 
         _shootTime = _shootTime + dt
         if((Input.getButton(0) ||
-            Input.getKeyOnce(Input.keySpace)) &&
+            Input.getKey(Input.keySpace)) &&
             _shootTime > Data.getNumber("Player Shoot Time")) {
             Bullet.createPlayerBullet(
                     owner,
@@ -90,6 +102,8 @@ class Player is Component {
             vel.x = -1.0
         }
 
+        /*
+
         var s = owner.getComponent(GridSprite)
         
         _frame = _frame + 1
@@ -111,9 +125,13 @@ class Player is Component {
             s.idx = 0
         }
         s.idx = s.idx + _animFrame
+        */
         
         if(vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
             vel = vel * speed
+            if(Input.getButtonOnce(Input.gamepadButtonWest)) {
+                t.position.x = t.position.x + vel.x.sign * 60.0
+            }
         } else {
             vel = vel * 0
         }

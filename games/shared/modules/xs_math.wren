@@ -65,6 +65,10 @@ class Vec2 {
         _x = a.cos * _x - a.sin * _y
         _y = a.sin * _x + a.cos * _y
     }
+    rotated(a) {
+        return Vec2.new(a.cos * _x - a.sin * _y,
+                        a.sin * _x + a.cos * _y)
+    }
     perp { Vec2.new(-y, x) }
 
     toString { "[%(_x), %(_y)]" }

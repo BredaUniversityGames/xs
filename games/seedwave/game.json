@@ -1,7 +1,7 @@
 {
     "Boss Core 1 Radius": {
         "type": "number",
-        "value": 20.0
+        "value": 21.8799991607666
     },
     "Boss Orbit Angle": {
         "type": "number",
@@ -10,6 +10,10 @@
     "Boss Orbit Radius": {
         "type": "number",
         "value": 12.0
+    },
+    "Cannon Damage": {
+        "type": "number",
+        "value": 10.0
     },
     "Cannon Round Speed": {
         "type": "number",
@@ -27,9 +31,37 @@
         "type": "number",
         "value": 12.0
     },
+    "Laser Damage/Second 1": {
+        "type": "number",
+        "value": 40.0
+    },
+    "Laser Damage/Second 2": {
+        "type": "number",
+        "value": 70.0
+    },
+    "Laser Damage/Second 3": {
+        "type": "number",
+        "value": 100.0
+    },
+    "Laser Duration ": {
+        "type": "number",
+        "value": 1.0
+    },
     "Laser Shoot Time": {
         "type": "number",
         "value": 2.0
+    },
+    "Laser Width 1": {
+        "type": "number",
+        "value": 4.0
+    },
+    "Laser Width 2": {
+        "type": "number",
+        "value": 7.0
+    },
+    "Laser Width 3": {
+        "type": "number",
+        "value": 10.0
     },
     "Max Missle Speed": {
         "type": "number",
@@ -37,11 +69,11 @@
     },
     "Missle Damage": {
         "type": "number",
-        "value": 50.0
+        "value": 10.0
     },
     "Missle Max Speed": {
         "type": "number",
-        "value": 600.0
+        "value": 500.0
     },
     "Missle Shoot Time": {
         "type": "number",
@@ -49,19 +81,19 @@
     },
     "Missle Speed": {
         "type": "number",
-        "value": 400.0
+        "value": 300.0
     },
     "Part Health 1": {
         "type": "number",
-        "value": 60.0
+        "value": 250.0
     },
     "Part Health 2": {
         "type": "number",
-        "value": 90.0
+        "value": 400.0
     },
     "Part Health 3": {
         "type": "number",
-        "value": 130.0
+        "value": 650.0
     },
     "Part Size 1": {
         "type": "number",
@@ -69,7 +101,7 @@
     },
     "Part Size 2": {
         "type": "number",
-        "value": 16.0
+        "value": 14.0
     },
     "Part Size 3": {
         "type": "number",
@@ -93,7 +125,7 @@
     },
     "Player Health": {
         "type": "number",
-        "value": 300.0
+        "value": 100.0
     },
     "Player Input Dead Zone": {
         "type": "number",
@@ -109,7 +141,7 @@
     },
     "Player Speed": {
         "type": "number",
-        "value": 300.260009765625
+        "value": 200.25999450683594
     },
     "Player Speed When Aiming": {
         "type": "number",

@@ -23,10 +23,11 @@ class Parallax is Component {
 
 class Game {
     static config() {
-        Data.getNumber("Width", Data.system) = 640
-        Data.getNumber("Height", Data.system) = 360
-        Configuration.multiplier = 2
-        Configuration.title = "Parallax Test for Rumena"
+        Data.setNumber("Width", 640, Data.system)
+        Data.setNumber("Height", 360, Data.system)
+        Data.setNumber("Multiplier", 2, Data.system)
+        Data.setBool("Fullscreen", false, Data.system)
+        Data.setString("Title", "Parallax Test for Rumena", Data.system)
     }
 
     static init() {        

@@ -57,6 +57,7 @@ void device::initialize()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+
 	if(configuration::on_top())
 		glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
