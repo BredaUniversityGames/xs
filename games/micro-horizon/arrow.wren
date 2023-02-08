@@ -4,6 +4,8 @@ import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 import "random" for Random
 
+// Arrow being pulled in the bow
+// When flying it changes components 
 class Arrow is Component {
     construct new() {
         super()
@@ -39,7 +41,6 @@ class Arrow is Component {
         _trigger = trig
 
         if(dtrig > 0.1) {
-            System.print("shoot")
             _trigger = 0.0
             shoot()
         }

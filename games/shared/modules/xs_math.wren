@@ -25,6 +25,7 @@ class Math {
     static radians(deg) { deg / 180.0 * 3.14159265359 }
     static degrees(rad) { rad * 180.0 / 3.14159265359 }
     static mod(x, m)    { (x % m + m) % m }   
+    static clamp(a, f, t) { max(min(a, t), f) }
 }
 
 class Bits {
@@ -58,7 +59,7 @@ class Vec2 {
     ==(other) { (other != null) && (x == other.x) && (y == other.y) }
     !=(other) { !(this == other) }    
     magnitude { (x * x + y * y).sqrt }
-    normalise { this / this.magnitude }
+    normal { this / this.magnitude }
     dot(other) { (x * other.x + y * other.y) }
 	cross(other) { }
     rotate(a) {
@@ -112,7 +113,7 @@ class Vec2 {
         while(true) {
             var v = Vec2.new(__random.float(-1, 1), __random.float(-1, 1))
             if(v.magnitude < 1.0) {
-                return v.normalise
+                return v.normal
             }
         }
     }
@@ -121,14 +122,9 @@ class Vec2 {
         return incident - normal * (2.0 * normal.dot(incident))
     }
 
-    static proj(a, b) {
+    static project(a, b) {
         var k = a.dot(b) / b.dot(b)
         return Vec2.new(k * b.x, k * b.y)
-    }
-
-    static hypot2(a, b) {
-        var ab = a - b
-        return ab.dot(ab)
     }
 }
 
@@ -141,7 +137,7 @@ class Geom {
         var ab = b - a
 
         // Get point D by taking the projection of AC onto AB then adding the offset of A
-        var d = Vec2.proj(ac, ab) + a
+        var d = Vec2.project(ac, ab) + a
 
         var ad = d - a
         // D might not be on AB so calculate k of D down AB (aka solve AD = k * AB)
@@ -150,12 +146,12 @@ class Geom {
 
         // Check if D is off either end of the line segment
         if (k <= 0.0) {
-            return Vec2.distance(c,a) // Vec2.hypot2(c, a).sqrt
+            return Vec2.distance(c,a)
         } else if (k >= 1.0) {
-            return Vec2.distance(c, b) // Vec2.hypot2(c, b).sqrt
+            return Vec2.distance(c, b)
         }
 
-        return Vec2.distance(c, d) //.sqrt
+        return Vec2.distance(c, d)
     }
 }
 

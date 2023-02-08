@@ -2,11 +2,6 @@ import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
-import "unit" for Unit
-import "tags" for Team, Tag
-import "debug" for DebugColor
-import "components" for SlowRelation, TurnToVelocity
-import "random" for Random
 
 class Bullet is Component {
     construct new(team, damage) {
@@ -42,7 +37,7 @@ class Bullet is Component {
         var bullet = Entity.new()
         var t = Transform.new(owt.position + Vec2.new(0,10))
         var dir =  Vec2.new(Game.random.float(-0.2, 0.2), 1.0)
-        dir = dir.normalise
+        dir = dir.normal
         dir = dir * speed
         var v = dir
         var bd = Body.new(5, v)
@@ -105,19 +100,19 @@ class Missile is Bullet {
         var p = Game.player
         var b = owner.getComponent(Body)
         var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
-        d = d.normalise
+        d = d.normal
         var dv = d * Data.getNumber("Missle Max Speed")
         dv = dv - b.velocity
             
         b.velocity = Math.damp(b.velocity, dv, _targeting, dt)                
 
         if(b.velocity.magnitude < Data.getNumber("Missle Max Speed") * 0.4) {
-           b.velocity = b.velocity.normalise
+           b.velocity = b.velocity.normal
            b.velocity = b.velocity * Data.getNumber("Missle Max Speed") * 0.4
         }
 
         // b.velocity = Math.damp(b.velocity, d, 5, dt) 
-        // b.velocity = b.velocity * b.velocity.normalise.dot(d)
+        // b.velocity = b.velocity * b.velocity.normal.dot(d)
 
         var alpha = b.velocity.atan2 + Math.pi * 0.5
         owner.getComponent(Transform).rotation = alpha
@@ -135,7 +130,7 @@ class Missile is Bullet {
         var bullet = Entity.new()
         var t = Transform.new(owt.position - Vec2.new(0, 0))
         var v = Vec2.randomDirection()        
-        v = v.normalise * speed   
+        v = v.normal * speed   
         if(v.y < 0) {
             v.y = -v.y
         }
@@ -162,3 +157,8 @@ class Missile is Bullet {
 }
 
 import "game" for Game
+import "unit" for Unit
+import "tags" for Team, Tag
+import "debug" for DebugColor
+import "components" for SlowRelation, TurnToVelocity
+import "random" for Random

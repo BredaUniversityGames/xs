@@ -184,6 +184,7 @@ class Boss is Component {
         var u = Unit.new(Team.Computer, Data.getNumber("Core Health"), true)
         var c = DebugColor.new(0xFF2222FF)
         var s = Sprite.new("[game]/assets/images/ships/core.png")
+        u.multiplier = 0.1
         s.layer = 1.0
         s.flags = Render.spriteCenter
         ship.addComponent(t)        
@@ -217,7 +218,7 @@ class Boss is Component {
                         var mg = to.magnitude                
                         var df = (or + rad) - mg 
                         if(df > 0) {
-                            var tn = to.normalise
+                            var tn = to.normal
                             pos = pos + (tn * df)
                             overlap = df
                         }
@@ -295,8 +296,8 @@ class Boss is Component {
     }
 
     initialize() {
-        //_unit = 
-        _maxHealth = 0.0
+        _unit = owner.getComponent(Unit)
+        _maxHealth = _unit.maxHealth
         for(pr in  _pairs) {
             for(p in pr) {
                 var u = p.owner.getComponent(Unit)
@@ -312,7 +313,7 @@ class Boss is Component {
 
         var dir = pt.position - ot.position        
         dir.y = 0
-        dir.normalise
+        dir.normal
         ob.velocity = dir * 1.5
 
         _sinTime = _sinTime + dt 
@@ -322,15 +323,20 @@ class Boss is Component {
 
         if(_time > _wait) {
             _time = 0
-            var i = Game.random.int(0, _pairs.count)            
-            var pair = _pairs[i]
-            _wait = 0.0
-            for(i in 0..1) {
-                var part = pair[i]            
-                if(!part.destroyed && part.ready) {
-                    pair[i].shoot()
-                    _wait = _wait + 0.15
+            var i = Game.random.int(-1, _pairs.count) 
+            if(i != -1) {   
+                var pair = _pairs[i]
+                _wait = 0.0
+                for(i in 0..1) {
+                    var part = pair[i]            
+                    if(!part.destroyed && part.ready) {
+                        pair[i].shoot()
+                        _wait = _wait + 0.15
+                    }
                 }
+            } else {
+                shoot()
+                _wait = _wait + 0.15                
             }
         }
 
@@ -344,6 +350,18 @@ class Boss is Component {
                 }
             }
         }
+        var u = owner.getComponent(Unit)
+        if(_health <= 0.0) {
+            u.multiplier = 1
+        }
+        _health = _health + u.health
+    }
+
+    shoot() {
+        Bullet.create(
+            owner,
+            -Data.getNumber("Cannon Round Speed"),
+            Data.getNumber("Cannon Damage"))
     }
 
     maxHealth { _maxHealth }

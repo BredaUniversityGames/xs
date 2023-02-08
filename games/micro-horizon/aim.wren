@@ -3,6 +3,7 @@ import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 
+// The arrow aiming cone
 class Aim is Component {
     construct new() {
         super()

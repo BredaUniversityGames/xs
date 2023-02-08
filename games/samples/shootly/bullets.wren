@@ -81,7 +81,7 @@ class Missile is Bullet {
         var p = Game.player
         var b = owner.getComponent(Body)
         var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
-        d = d.normalise
+        d = d.normal
         var dv = d * Data.getNumber("Missle Max Speed")
         dv = dv - b.velocity
         //_targeting = Math.damp(_targeting, 0.0, 1.0, dt)
@@ -89,7 +89,7 @@ class Missile is Bullet {
         b.velocity = Math.damp(b.velocity, dv, _targeting, dt)        
 
         // b.velocity = Math.damp(b.velocity, d, 5, dt) 
-        // b.velocity = b.velocity * b.velocity.normalise.dot(d)
+        // b.velocity = b.velocity * b.velocity.normal.dot(d)
         
         super.update(dt)
     }
@@ -99,7 +99,7 @@ class Missile is Bullet {
         var bullet = Entity.new()
         var t = Transform.new(owt.position - Vec2.new(0, 0))
         var v = Vec2.randomDirection()        
-        v = v.normalise * speed   
+        v = v.normal * speed   
         if(v.y < 0) {
             v.y = -v.y
         }

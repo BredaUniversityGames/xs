@@ -59,7 +59,7 @@ class Player is Component {
             var trig = Input.getAxis(4)
             if(trig > Data.getNumber("Dodge Input Dead Zone")) {            
                 _state = stateDodge
-                _dodgePosition = _transform.position + (_body.velocity.normalise * 100.0)
+                _dodgePosition = _transform.position + (_body.velocity.normal * 100.0)
                 _cooldown = 1.0
                 System.print("dodge")
             }

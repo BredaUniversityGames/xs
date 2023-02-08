@@ -169,7 +169,7 @@ class Create {
         var bullet = Entity.new()
         var t = Transform.new(owt.position + Vec2.new(0,10))
         var dir =  Vec2.new(__random.float(-0.2, 0.2), 1.0)
-        dir = dir.normalise
+        dir = dir.normal
         dir = dir * speed
         var v = dir
         var bd = Body.new(5, v)
