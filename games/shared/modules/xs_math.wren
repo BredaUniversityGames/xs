@@ -24,7 +24,7 @@ class Math {
 
     static radians(deg) { deg / 180.0 * 3.14159265359 }
     static degrees(rad) { rad * 180.0 / 3.14159265359 }
-    static mod(x, m)    { (x % m + m) % m }
+    static mod(x, m)    { (x % m + m) % m }   
 }
 
 class Bits {
@@ -92,7 +92,6 @@ class Vec2 {
         return a
     }
 
-
     static distance(a, b) {
         var xdiff = a.x - b.x
         var ydiff = a.y - b.y
@@ -120,6 +119,43 @@ class Vec2 {
 
     static reflect(incident, normal) {
         return incident - normal * (2.0 * normal.dot(incident))
+    }
+
+    static proj(a, b) {
+        var k = a.dot(b) / b.dot(b)
+        return Vec2.new(k * b.x, k * b.y)
+    }
+
+    static hypot2(a, b) {
+        var ab = a - b
+        return ab.dot(ab)
+    }
+}
+
+class Geom {
+    
+    // Based on https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm        
+    static distanceSegmentToPoint(a, b, c) {
+        // Compute vectors AC and AB
+        var ac = c - a
+        var ab = b - a
+
+        // Get point D by taking the projection of AC onto AB then adding the offset of A
+        var d = Vec2.proj(ac, ab) + a
+
+        var ad = d - a
+        // D might not be on AB so calculate k of D down AB (aka solve AD = k * AB)
+        // We can use either component, but choose larger value to reduce the chance of dividing by zero
+        var k = ab.x.abs > ab.y.abs ? ad.x / ab.x : ad.y / ab.y
+
+        // Check if D is off either end of the line segment
+        if (k <= 0.0) {
+            return Vec2.distance(c,a) // Vec2.hypot2(c, a).sqrt
+        } else if (k >= 1.0) {
+            return Vec2.distance(c, b) // Vec2.hypot2(c, b).sqrt
+        }
+
+        return Vec2.distance(c, d) //.sqrt
     }
 }
 
