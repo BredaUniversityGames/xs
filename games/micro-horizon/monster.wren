@@ -64,7 +64,7 @@ class Foot is Component {
 }
 
 
-class Enemy is Component {
+class Monster is Component {
     construct new() {
         super()
         _state = idleState
