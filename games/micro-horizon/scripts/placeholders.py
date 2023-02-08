@@ -6,7 +6,7 @@ import colorsys
 import math
 from xsmath import vec2 
 
-letters = ["C", "L", "M", "D", "N", "E", "H", "V"]
+sizes = [17, 30, 30, 17, 12, 10, 7]
 
 class color:
     def __init__(self, r : float, g : float,  b : float):
@@ -14,39 +14,42 @@ class color:
         self.g = g
         self.b = b
 
+    def __add__(self, other) :
+        return color(self.r + other.r,
+                     self.g + other.g,
+                     self.b + other.b)
+
 def next_power_of_2(x):  
     return 1 if x == 0 else 2**(x - 1).bit_length()
 
 def get_color(num):
-      hue = float(num) / len(letters)
+      hue = float(num) / 8
       (h, s, v) = (hue, 0.4, 0.9)
       (r, g, b) = colorsys.hsv_to_rgb(h, s, v)
       return (r, g, b)
 
-def parts(radius, name):
-    number = len(letters) 
+def parts(radius, clr):
+    number = len(sizes) 
     next_p2 = next_power_of_2(radius * 2 + 1)
     colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, next_p2 * number, next_p2)
     colorCtx = cairo.Context(colorSurf)
+    colorCtx.translate(next_p2 * 0.5, next_p2 * 0.5)
     for i in range(0, number):
         x = i * next_p2 + next_p2 * 0.5
         y = next_p2 * 0.5
-        colorCtx.arc(x, y, radius, 0.0, math.pi * 2.0)
-        (r, g, b) = get_color(i)
-        colorCtx.set_source_rgb(r, g, b)
+        r = sizes[i] + 3
+        colorCtx.arc(0, 0, r, 0.0, math.pi * 2.0)
+        colorCtx.set_source_rgb(clr.r, clr.g, clr.b)
         colorCtx.fill()
-
-        l = letters[i]
-        colorCtx.set_font_size(radius * 0.75)
-        colorCtx.select_font_face("Mono", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
-        colorCtx.set_source_rgb(1, 1, 1)
-        (xb, yb, w, h, dx, dy) = colorCtx.text_extents(l)
-        #colorCtx.move_to(x - size * 0.3, y + size * 0.3)
-        colorCtx.move_to(x - w * 0.4, y + h * 0.5)
-        colorCtx.show_text(l)
-        colorCtx.fill()
-
-    colorSurf.write_to_png("games/micro-horizon/assets/images/ships/parts_" + name + ".png")
+        clr = clr + color(0.07, 0.07, 0.07)
+        colorCtx.set_line_width(5)
+        colorCtx.move_to(-r * 0.7, 0)
+        colorCtx.line_to(r * 0.7, 0)
+        colorCtx.set_source_rgb(clr.r, clr.g, clr.b)
+        colorCtx.stroke()
+        colorCtx.translate(next_p2, 0.0)
+        
+    colorSurf.write_to_png("games/micro-horizon/assets/images/parts.png")
 
 def arrow(radius):
     number = 5 
@@ -205,7 +208,7 @@ def player() :
     for i in range(0, 6) :
         r = s
         if i < 2:
-            r = s * 1.4
+            r = s * 1.2
         x = math.cos(t) * r
         y = math.sin(t) * r
         if i == 0:
@@ -226,8 +229,7 @@ player()
 aim(60)
 
 arrow(3.5)
-(r, g, b) = get_color(8)
-circle(35, r, g, b, "core.png")
+circle(15, 0.35, 0.35, 0.35, "foot.png")
 (r, g, b) = get_color(3)
 circle(18, r, g, b, "shield.png")
 (r, g, b) = get_color(1)
@@ -235,11 +237,27 @@ circle(10, r, g, b, "missile.png")
 (r, g, b) = get_color(8)
 warning(35)
 
-dark = color(0.0423, 0.0900, 0.0622)
-light = color(0.0864, 0.180, 0.125)
+(r, g, b) = get_color(8)
+circle(15, r, g, b, "hitbox15.png")
+circle(20, r, g, b, "hitbox20.png")
+
+#dark = color(0.0462, 0.0700, 0.0525)
+#light = color(0.0372, 0.0600, 0.0433)
+dark = color(0.1, 0.1, 0.1)
+light = color(0.13, 0.13, 0.13)
 checkerboard(640, 360, 40, dark, light, "background.png")
 
 explosion(64, 16, "explosion.png")
+
+part_color = color(0.55, 0.55, 0.55)
+parts(36, part_color)
+
+(r, g, b) = get_color(8)
+ellipse(3, r, g, b, 1.0, 3.0, "missile.png")
+
+box(8, 1024, r, g, b, "beam_1.png")
+box(1, 1024, r, g, b, "beam_0.png")
+
 
 '''
 parts(8, "1")
@@ -254,9 +272,6 @@ ellipse(2.5, 0.990, 0.622, 0.277, 1.0, 3.0, "projectiles/pl_cannon.png")
 
 (r, g, b) = get_color(0)
 circle(4, r, g, b, "projectiles/cannon.png")
-
-(r, g, b) = get_color(2)
-ellipse(3, r, g, b, 1.0, 3.0, "projectiles/missile.png")
 
 (r, g, b) = get_color(1)
 box(16, 360, r, g, b, "projectiles/beam_3.png")

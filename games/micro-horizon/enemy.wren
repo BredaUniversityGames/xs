@@ -17,7 +17,7 @@ class Part is Component {
 
     update(dt) {
         var dir = _followTransform.position - _transform.position
-        if((dir.magnitude - _dist).abs > 2) {
+        if((dir.magnitude - _dist).abs > 3) {
             _transform.rotation = dir.atan2
             var pos = _followTransform.position - dir.normalise * _dist
             _transform.position = Math.damp(_transform.position, pos, 25, dt)
@@ -81,14 +81,14 @@ class Enemy is Component {
         _body = owner.getComponent(Body)
 
 
-        var sizes = [30, 30, 20, 15, 10]
-        var distances = [43, 64, 54, 38, 28, 25]
+        var sizes = [30, 30, 17, 12, 10, 7]
+        var distances = [50, 64, 52, 36, 26, 23]
         _parts = [owner]
-        for(i in 1...6) {
+        for(i in 1...7) {
             var pred = _parts[i-1]
             var size = sizes[i-1]
             var dist = distances[i-1]
-            var sh = Create.part(pred, dist, size)
+            var sh = Create.part(pred, dist, size, i)
             _parts.add(sh)
         }
 
@@ -98,6 +98,16 @@ class Enemy is Component {
         Create.foot(_parts[1], Vec2.new(gait, -spread))
         Create.foot(_parts[2], Vec2.new(-gait, spread))
         Create.foot(_parts[2], Vec2.new(-gait, -spread))
+
+        spread = 19
+        gait = 10
+        Create.hitbox(_parts[0], Vec2.new(12.0, 0.0), 15)
+        Create.hitbox(_parts[1], Vec2.new(-gait, spread), 20)
+        Create.hitbox(_parts[1], Vec2.new(-gait, -spread), 20)
+        Create.hitbox(_parts[2], Vec2.new(-gait, spread), 20)
+        Create.hitbox(_parts[2], Vec2.new(-gait, -spread), 20)
+
+        _laser = Create.laser(_parts[2], 20)
     }    
     
     update(dt) {
@@ -105,8 +115,8 @@ class Enemy is Component {
         
         if(_state == idleState) {
             idleUpdate(dt)
-        } else if(_state == shieldState) {
-            shieldUpdate(dt)
+        } else if(_state == moveState) {
+            moveUpdate(dt)
         } else if(_state == chargeWrnState) {
             chargeWrnUpdate(dt)
         } else if(_state == chargeState) {
@@ -117,12 +127,11 @@ class Enemy is Component {
 
         } else if(_state == homingWrnState) {
 
-        }   
-
-        checkShield()
+        }
         
         _transform.rotation = _transform.rotation + _rotationSpeed * dt
 
+        // Do the physics
         for(i in 1..._parts.count) {
             var p0 = _parts[i]
             var t0 = p0.getComponent(Transform)
@@ -138,7 +147,7 @@ class Enemy is Component {
                     // System.print("dff: %(dff)")
                     if(dff <= 0) {
                         //System.print("Overlap")
-                        t0.position = t0.position - d01.normalise * dff * 0.5
+                        t0.position = t0.position - d01.normalise * dff * 0.75
                         continue
                     }
                 }
@@ -147,12 +156,11 @@ class Enemy is Component {
     }
 
     idleUpdate(dt) {
-        if(_time > 1.5) {
-            _state = shieldState
+        if(_time > 0.0) {
+            _state = moveState
             _time = 0.0
         }
         setVelocity(Vec2.new(0.0, 0.0), dt)
-        setRotationSpeed(1.0, dt)
     }
 
     chargeWrnUpdate(dt) {
@@ -161,7 +169,6 @@ class Enemy is Component {
             _time = 0.0
             _warning.delete()
         }
-        setRotationSpeed(1.0, dt)
     }
 
     chargeUpdate(dt) {
@@ -171,17 +178,33 @@ class Enemy is Component {
             _state = idleState 
         }
         setVelocity(_chargeVelocity, dt)
-        setRotationSpeed(1.0, dt)
     }
 
-    shieldUpdate(dt) {
+    moveUpdate(dt) {
         var pt = Game.player.getComponent(Transform)
         var dir = pt.position - _transform.position
-        dir.normalise
-        setVelocity(dir * 1.2, dt)
-        // setRotationSpeed(6.0, dt)
+        
+        var alpha = dir.atan2
+        owner.getComponent(Transform).rotation = alpha
 
-        if(_time > 200000.0) {
+        if(dir.magnitude > 150.0) {
+            dir.normalise
+            setVelocity(dir * 0.6, dt)
+
+            if(_time > 3.0) {
+                for(i in 0...3) {
+                    Create.missile(_parts[1], 200, 2)
+                    _time = 0.0
+                }
+            }
+        } else {
+            setVelocity(dir * 0.0, dt)
+            if(_time > 3.0) {
+                charge()
+            }
+        }
+
+        if(_time > 6.0) {
             charge()
         }
     }
@@ -208,11 +231,12 @@ class Enemy is Component {
     charge() {
         _chargePosition = Game.player.getComponent(Transform).position
         var dir = _chargePosition - _transform.position
-        dir.normalise
-        _chargeVelocity = dir * 2.5
+        dir = dir.normalise
+        _chargeVelocity = dir * 900.5
         _time = 0.0
         _state = chargeWrnState
         _warning = Create.warning(_chargePosition)
+        _chargePosition = _chargePosition + dir * 100
     }
 
     launch() {
@@ -240,16 +264,12 @@ class Enemy is Component {
     setVelocity(vel, dt) {
         _body.velocity = Math.damp(_body.velocity, vel, 10.0, dt)
     }
-
-    setRotationSpeed(rotSpeed, dt) {
-        _rotationSpeed = Math.damp(_rotationSpeed, rotSpeed, 10.0, dt)
-    }
     
     // maxHealth { _maxHealth }
     // health { _health }
 
     // States
-    shieldState { 1 }
+    moveState { 1 }
     chargeState { 2 }
     shootState  { 3 }
     homingState { 4 }
