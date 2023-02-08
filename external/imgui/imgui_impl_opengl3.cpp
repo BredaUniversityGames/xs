@@ -114,7 +114,7 @@
 #endif
 #if defined(__GNUC__)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wcast-function-type"   // warning: cast between incompatible function types
+//#pragma GCC diagnostic ignored "-Wcast-function-type"   // warning: cast between incompatible function types
 #endif
 
 // GL includes
