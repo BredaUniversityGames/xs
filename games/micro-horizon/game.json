@@ -7,14 +7,6 @@
         "type": "number",
         "value": 0.0
     },
-    "Monster HP": {
-        "type": "number",
-        "value": 8.0
-    },
-    "Monster Size": {
-        "type": "number",
-        "value": 17.0
-    },
     "Max Missle Speed": {
         "type": "number",
         "value": 0.0
@@ -46,6 +38,38 @@
     "Missle Speed": {
         "type": "number",
         "value": 300.0
+    },
+    "Monster HP": {
+        "type": "number",
+        "value": 8.0
+    },
+    "Part Size 0": {
+        "type": "number",
+        "value": 17.0
+    },
+    "Part Size 1": {
+        "type": "number",
+        "value": 30.0
+    },
+    "Part Size 2": {
+        "type": "number",
+        "value": 30.0
+    },
+    "Part Size 3": {
+        "type": "number",
+        "value": 17.0
+    },
+    "Part Size 4": {
+        "type": "number",
+        "value": 12.0
+    },
+    "Part Size 5": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Part Size 6": {
+        "type": "number",
+        "value": 7.0
     },
     "Player Bullet Damage": {
         "type": "number",
@@ -82,6 +106,10 @@
     "Player Speed": {
         "type": "number",
         "value": 200.25999450683594
+    },
+    "Player Speed Aim": {
+        "type": "number",
+        "value": 0.0
     },
     "Player Speed When Aiming": {
         "type": "number",

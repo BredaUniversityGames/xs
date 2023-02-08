@@ -73,3 +73,19 @@ class TurnToVelocity is Component {
 
     toString { "[TurnToVelocity]" }
 }
+
+class TNB is Component {
+    construct new() {
+        super()
+    }
+
+    initialize() {
+        _body = owner.getComponent(Body)
+        _transform = owner.getComponent(Transform)
+    }
+
+    body { _body }
+    transform { _transform }
+    
+    toString { "[TNB body:%(_body) transform:%(_transform) i:%(initialized_) ]" }
+}

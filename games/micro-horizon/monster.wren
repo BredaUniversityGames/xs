@@ -1,29 +1,7 @@
 import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
-import "xs_math"for Math, Bits, Vec2
+import "xs_math"for Math, Bits, Vec2, Geom
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
-
-class Part is Component {
-    construct new(follow, dist) {
-        super()
-        _follow = follow
-        _dist = dist
-    }
-
-    initialize() {
-        _transform = owner.getComponent(Transform)
-        _followTransform = _follow.getComponent(Transform)
-    }
-
-    update(dt) {
-        var dir = _followTransform.position - _transform.position
-        if((dir.magnitude - _dist).abs > 3) {
-            _transform.rotation = dir.atan2
-            var pos = _followTransform.position - dir.normalise * _dist
-            _transform.position = Math.damp(_transform.position, pos, 25, dt)
-        }
-    }
-}
 
 class Foot is Component {
     construct new(parent, offset) {
@@ -65,9 +43,10 @@ class Foot is Component {
 
 
 class Monster is Component {
+
     construct new() {
         super()
-        _state = idleState
+        _state = Monster.idleState
         _time = 0.0
         _rotationSpeed = 0.0
         _chargePosition = null
@@ -75,69 +54,128 @@ class Monster is Component {
         _warning = null
     }
 
+    static getPartSize(i) { Data.getNumber("Part Size %(i)") }
+
     initialize() {
         super.initialize()
         _transform = owner.getComponent(Transform)
         _body = owner.getComponent(Body)
-
-
-        var sizes = [30, 30, 17, 12, 10, 7]
+        
         var distances = [50, 64, 52, 36, 26, 23]
-        _parts = [owner]
-        for(i in 1...7) {
-            var pred = _parts[i-1]
-            var size = sizes[i-1]
-            var dist = distances[i-1]
-            var sh = Create.part(pred, dist, size, i)
-            _parts.add(sh)
+        _parts_old = [owner]
+
+        _parts = [owner.getComponent(TNB)]
+
+        var n = 7
+        for(i in 1...n) {
+            var size = Monster.getPartSize(i)
+            var part = Create.part(size, i)
+            _parts_old.add(part)
+            var tnb = part.getComponent(TNB)
+            _parts.add(tnb)            
         }
 
         var spread = 40
         var gait = 18
-        Create.foot(_parts[1], Vec2.new(gait, spread))
-        Create.foot(_parts[1], Vec2.new(gait, -spread))
-        Create.foot(_parts[2], Vec2.new(-gait, spread))
-        Create.foot(_parts[2], Vec2.new(-gait, -spread))
+        Create.foot(_parts_old[1], Vec2.new(gait, spread))
+        Create.foot(_parts_old[1], Vec2.new(gait, -spread))
+        Create.foot(_parts_old[2], Vec2.new(-gait, spread))
+        Create.foot(_parts_old[2], Vec2.new(-gait, -spread))
 
         spread = 19
         gait = 10
-        Create.hitbox(_parts[0], Vec2.new(12.0, 0.0), 15)
-        Create.hitbox(_parts[1], Vec2.new(-gait, spread), 20)
-        Create.hitbox(_parts[1], Vec2.new(-gait, -spread), 20)
-        Create.hitbox(_parts[2], Vec2.new(-gait, spread), 20)
-        Create.hitbox(_parts[2], Vec2.new(-gait, -spread), 20)
+        Create.hitbox(_parts_old[0], Vec2.new(12.0, 0.0), 15)
+        Create.hitbox(_parts_old[1], Vec2.new(-gait, spread), 20)
+        Create.hitbox(_parts_old[1], Vec2.new(-gait, -spread), 20)
+        Create.hitbox(_parts_old[2], Vec2.new(-gait, spread), 20)
+        Create.hitbox(_parts_old[2], Vec2.new(-gait, -spread), 20)
 
-        _laser = Create.laser(_parts[2], 20)
+        // _laser = Create.laser(_parts_old[2], 20)
     }    
     
     update(dt) {
         _time = _time + dt
         
-        if(_state == idleState) {
+        if(_state == Monster.idleState) {
             idleUpdate(dt)
-        } else if(_state == moveState) {
+        } else if(_state == Monster.moveState) {
             moveUpdate(dt)
-        } else if(_state == chargeWrnState) {
+        } else if(_state == Monster.chargeWrnState) {
             chargeWrnUpdate(dt)
-        } else if(_state == chargeState) {
+        } else if(_state == Monster.chargeState) {
             chargeUpdate(dt)
-        } else if(_state == shootState) {
-
-        } else if(_state == homingState) {
-
-        } else if(_state == homingWrnState) {
-
         }
         
-        _transform.rotation = _transform.rotation + _rotationSpeed * dt
+        //_transform.rotation = _transform.rotation + _rotationSpeed * dt
 
-        // Do the physics
+        fakysics(dt)    
+    }
+
+    fakysics(dt) {
+        // Some warmup time
+        if(!_parts[_parts.count - 1].initialized_) {
+            System.print("Wait now")
+            return
+        }
+
+        // Make things follow
         for(i in 1..._parts.count) {
-            var p0 = _parts[i]
+            var p0 = _parts[i-1]
+            var p1 = _parts[i]
+            var dist = p1.body.size + p0.body.size + 5
+
+            // Keep distance (harsh)
+            var dir = p0.transform.position - p1.transform.position
+            p1.transform.rotation = dir.atan2
+            if((dir.magnitude - dist).abs > 3) {   // TODO                
+                var pos = p0.transform.position - dir.normalise * dist
+                p1.transform.position = Math.damp(p1.transform.position, pos, 25, dt) //TODO
+            }
+
+            // Try to straighten
+            {   
+                var offset = Vec2.new (-dist, 0.0)
+                offset = offset.rotated(p0.transform.rotation)
+                var pos = p0.transform.position + offset 
+                //Render.setColor(0xFFFF00FF)
+                //Render.disk(pos.x, pos.y, 2, 24)
+
+                var desDir = offset - p1.transform.position
+                dir = dir.normalise
+                desDir = desDir.normalise
+                var a = dir.dot(desDir)
+                a = 1.0 - a
+                //a = a.pow(2)
+                p1.transform.position = Math.damp(p1.transform.position, pos, 1.2 * a, dt) //TODO
+            }
+        }
+
+        /*
+        // Make things follow
+        for(i in 1..._parts_old.count) {
+            var p0 = _parts_old[i-1]
+            var p1 = _parts_old[i]
+            var pt0 = p0.getComponent(Transform)
+            var pt1 = p1.getComponent(Transform)
+            var pb0 = p0.getComponent(Body)
+            var pb1 = p1.getComponent(Body)
+            var dist = pb1.size + pb0.size + 5
+            var dir = pt0.position - pt1.position
+            if((dir.magnitude - dist).abs > 3) {   // TODO
+                pt1.rotation = dir.atan2
+                var pos = pt0.position - dir.normalise * dist
+                pt1.position = Math.damp(pt1.position, pos, 25, dt) //TODO
+            }
+        }
+        */
+
+        /*
+        for(i in 1..._parts_old.count) {
+            var p0 = _parts_old[i]
             var t0 = p0.getComponent(Transform)
             var b0 = p0.getComponent(Body)
             for(j in 0...i) {
-                var p1 = _parts[j]
+                var p1 = _parts_old[j]
                 var t1 = p1.getComponent(Transform)
                 var b1 = p1.getComponent(Body)
 
@@ -153,11 +191,70 @@ class Monster is Component {
                 }
             }
         }
+        */
+
+        for(i in 1...(_parts_old.count - 1)) {
+            var pc = _parts_old[i]
+            var pct = pc.getComponent(Transform)
+            var pn = _parts_old[i+1]
+            var pnt = pn.getComponent(Transform)
+
+            for(j in 0...i) {
+                var pp = _parts_old[j]
+                var ppt = pp.getComponent(Transform)
+                var ppb = pp.getComponent(Body)
+                var dist = Geom.distanceSegmentToPoint(pct.position, pnt.position, ppt.position)
+
+                if(dist < ppb.size) {
+                    var offset = ppb.size - dist                    
+                    System.print("offset: %(offset)")
+                    var mid = (pct.position + pnt.position) * 0.5
+                    var nor = mid - ppt.position
+                    nor = nor.normalise
+
+                    pct.position = pct.position + nor * offset
+                    pnt.position = pnt.position + nor * offset                    
+                }
+            }
+        }
+
+        /*
+        // Smooth(er)
+        var rots = []
+        for(i in 0..._parts_old.count) {
+            var pc = _parts_old[i]
+            var pct = pc.getComponent(Transform)
+            var count = 1
+            var rot = pct.rotation
+            if(i > 0) {
+                var pp = _parts_old[i-1]
+                var ppt = pp.getComponent(Transform)
+                rot = rot + ppt.rotation
+                count = count + 1
+            }
+            if(i < (_parts_old.count - 1)) {
+                var pn = _parts_old[i+1]
+                var pnt = pn.getComponent(Transform)
+                rot = rot + pnt.rotation
+                count = count + 1                                
+            }
+
+            rot = rot / count
+            rots.add(rot)            
+        }
+        /*
+        for(i in 0..._parts_old.count) {
+            var pc = _parts_old[i]
+            var pct = pc.getComponent(Transform)
+            pct.rotation = rots[i]
+        }
+        */
+        */
     }
 
     idleUpdate(dt) {
         if(_time > 0.0) {
-            _state = moveState
+            _state = Monster.moveState
             _time = 0.0
         }
         setVelocity(Vec2.new(0.0, 0.0), dt)
@@ -165,17 +262,17 @@ class Monster is Component {
 
     chargeWrnUpdate(dt) {
         if(_time > 0.6) {
-            _state = chargeState
+            _state = Monster.chargeState
             _time = 0.0
             _warning.delete()
         }
     }
 
     chargeUpdate(dt) {
-        if((_chargePosition - _transform.position).magnitude < 10) {
+        if((_chargePosition - _transform.position).magnitude < 10) {    // TODO
             _body.velocity = Vec2.new(0.0, 0.0) 
             _time = 0.0
-            _state = idleState 
+            _state = Monster.idleState 
         }
         setVelocity(_chargeVelocity, dt)
     }
@@ -187,102 +284,65 @@ class Monster is Component {
         var alpha = dir.atan2
         owner.getComponent(Transform).rotation = alpha
 
-        if(dir.magnitude > 150.0) {
+        if(dir.magnitude > 150.0 || true) {     // TODO
             dir.normalise
-            setVelocity(dir * 0.6, dt)
+            setVelocity(dir * 0.6, dt)  // TODO
 
+            /*
             if(_time > 3.0) {
                 for(i in 0...3) {
-                    Create.missile(_parts[1], 200, 2)
+                    Create.missile(_parts_old[1], 200, 2)   // TODO
                     _time = 0.0
                 }
             }
+            */
         } else {
-            setVelocity(dir * 0.0, dt)
+            setVelocity(dir * 0.0, dt)  // TODO
             if(_time > 3.0) {
                 charge()
             }
         }
 
-        if(_time > 6.0) {
+        /*
+        if(_time > 6.0) {   // TODO
             charge()
         }
-    }
-
-    homingWrnUpdate(dt) {
-        if(_time > 0.6) {
-            _state = chargeState
-            _time = 0.0
-            _warning.delete()
-        }
-        setRotationSpeed(1.0, dt)
-    }
-
-    homingUpdate(dt) {
-        if(_time > 2.0) {
-            _state = idleState
-            _time = 0.0
-
-            // TODO: 
-        }
-        setRotationSpeed(1.0, dt)
+        */
     }
 
     charge() {
         _chargePosition = Game.player.getComponent(Transform).position
         var dir = _chargePosition - _transform.position
         dir = dir.normalise
-        _chargeVelocity = dir * 900.5
+        _chargeVelocity = dir * 900.5   // TODO
         _time = 0.0
-        _state = chargeWrnState
+        _state = Monster.chargeWrnState
         _warning = Create.warning(_chargePosition)
-        _chargePosition = _chargePosition + dir * 100
+        _chargePosition = _chargePosition + dir * 100 // TODO
     }
-
-    launch() {
-
-    }
-
-    checkShield() {
-        /*
-        if(_state == homingWrnState || _state == homingState) {
-            return false
-        }        
-        var deleted = 0
-        for(s in _shields) {
-            if(s.deleted) {
-                deleted = deleted + 1
-            }
-        }
-        if(deleted == _shields.count) {
-            _state = homingWrnState
-            System.print("Homing")
-        }
-        */
-    } 
 
     setVelocity(vel, dt) {
-        _body.velocity = Math.damp(_body.velocity, vel, 10.0, dt)
+        _body.velocity = Math.damp(_body.velocity, vel, 10.0, dt) // TODO
     }
     
     // maxHealth { _maxHealth }
     // health { _health }
 
+
+
     // States
-    moveState { 1 }
-    chargeState { 2 }
-    shootState  { 3 }
-    homingState { 4 }
-    idleState   { 5 }
-    chargeWrnState { 6 }
-    homingWrnState { 7 }
+    static idleState       { 1 }
+    static moveState       { 2 }
+    static chargeState     { 3 }
+    static chargeWrnState  { 4 }
+    static homingWrnState  { 5 }
 }
 
 import "tags" for Team, Tag
 import "bullets" for Bullet, Missile
 import "debug" for DebugColor
 import "random" for Random
-import "components" for SlowRelation
+import "components" for SlowRelation, TNB
 import "game" for Game
 import "unit" for Unit
 import "create" for Create
