@@ -71,7 +71,8 @@ int xs::main(int argc, char* argv[])
         auto current_time = chrono::high_resolution_clock::now();
         auto elapsed = current_time - prev_time;
         prev_time = current_time;
-        const auto dt = std::chrono::duration<double>(elapsed).count();
+        auto dt = std::chrono::duration<double>(elapsed).count();
+        if (dt > 0.03333) dt = 0.03333;
 
         device::poll_events();
         input::update(dt);
