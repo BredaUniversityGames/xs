@@ -40,11 +40,12 @@ class Create {
         var monster = Entity.new()
         var t = Transform.new(Vec2.new(500, 450))
         var e = Monster.new()
-        var b = Body.new(Data.getNumber("Monster Size"), Vec2.new(0,0))
+        var b = Body.new(Data.getNumber("Part Size 0"), Vec2.new(0,0))
         var u = Unit.new(Team.Player, Data.getNumber("Monster HP") * 100, true)
         var c = DebugColor.new(0x8BEC46FF)
         var s = GridSprite.new("[game]/assets/images/parts.png", 7, 1)
         var ttv = TurnToVelocity.new()
+        var tnb = TNB.new()
         s.idx = 0
         s.layer = 1.1
         s.flags = Render.spriteCenter
@@ -54,7 +55,7 @@ class Create {
         monster.addComponent(u)
         monster.addComponent(c)
         monster.addComponent(s)
-        //monster.addComponent(ttv)
+        monster.addComponent(tnb)
         monster.name = "Monster"
         monster.tag = (Tag.Computer | Tag.Deflect | Tag.Unit)
         return monster
@@ -231,23 +232,23 @@ class Create {
         return scp
     }
 
-    static part(follow, dist, size, idx) {
+    static part(size, idx) {
         var part = Entity.new()
-        var t = Transform.new(Vec2.new())
-        var s = GridSprite.new("[game]/assets/images/parts.png", 7, 1)
-        var p = Part.new(follow, dist)
+        var t = Transform.new(Vec2.new(Game.random.float(), Game.random.float()))
+        var s = GridSprite.new("[game]/assets/images/parts.png", 7, 1)        
         var b = Body.new(size, Vec2.new(0,0))
         var u = Unit.new(Team.Computer, 1000000000, false)
+        var tnb = TNB.new()
         s.layer = 0.2
         s.flags = Render.spriteCenter
         s.idx = idx
         part.addComponent(t)
-        part.addComponent(s)
-        part.addComponent(p)
+        part.addComponent(s)        
         part.addComponent(b)
         part.addComponent(u)
+        part.addComponent(tnb)
         part.addComponent(DebugColor.new(0xF0F0F0FF))
-        part.name = "Part"
+        part.name = "Part%(idx)"
         part.tag = (Tag.Computer | Tag.Deflect | Tag.Unit)
         return part        
     }
@@ -300,11 +301,11 @@ import "unit" for Unit
 import "tags" for Team, Tag
 import "bullets" for Bullet, Missile, Laser
 import "debug" for DebugColor
-import "components" for SlowRelation, TurnToVelocity
+import "components" for SlowRelation, TurnToVelocity, TNB
 import "random" for Random
 import "ui" for HealthBar
 import "arrow" for Arrow
 import "game" for Game
-import "monster" for Monster, Part, Foot
+import "monster" for Monster, Foot
 import "damage" for Damage
 import "aim" for Aim
