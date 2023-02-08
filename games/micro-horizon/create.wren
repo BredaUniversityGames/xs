@@ -41,9 +41,11 @@ class Create {
         var t = Transform.new(Vec2.new(500, 450))
         var e = Enemy.new()
         var b = Body.new(Data.getNumber("Enemy Size"), Vec2.new(0,0))
-        var u = Unit.new(Team.Player, Data.getNumber("Enemy HP"), true)
+        var u = Unit.new(Team.Player, Data.getNumber("Enemy HP") * 100, true)
         var c = DebugColor.new(0x8BEC46FF)
-        var s = Sprite.new("[game]/assets/images/core.png")
+        var s = GridSprite.new("[game]/assets/images/parts.png", 7, 1)
+        var ttv = TurnToVelocity.new()
+        s.idx = 0
         s.layer = 1.1
         s.flags = Render.spriteCenter
         enemy.addComponent(t)
@@ -52,8 +54,9 @@ class Create {
         enemy.addComponent(u)
         enemy.addComponent(c)
         enemy.addComponent(s)
+        //enemy.addComponent(ttv)
         enemy.name = "Enemy"
-        enemy.tag = (Tag.Computer | Tag.Unit)
+        enemy.tag = (Tag.Computer | Tag.Deflect | Tag.Unit)
         return enemy
     }
 
@@ -81,28 +84,57 @@ class Create {
         return sh
     }
 
-    static missile(enemy, offset) {
-        var ms = Entity.new()
-        var t = Transform.new(Vec2.new(0, 0))
-        // var e = Enemy.new()
-        var b = Body.new(Data.getNumber("Missile Size"), Vec2.new(0,0))
-        var u = Unit.new(Team.Player, Data.getNumber("Missile HP"), true)
-        var c = DebugColor.new(0xC0FFFFFF)
-        var s = Sprite.new("[game]/assets/images/missile.png")
-        var r = Relation.new(enemy)
-        s.layer = 1.1
+    static missile(owner, speed, damage) {
+        var owt = owner.getComponent(Transform)
+        var bullet = Entity.new()
+        var t = Transform.new(owt.position - Vec2.new(0, 0))
+        var v = Vec2.randomDirection()        
+        v = v.normalise * speed   
+        if(v.y < 0) {
+            v.y = -v.y
+        }
+
+        var bd = Body.new(5, v)
+        var m = Missile.new(Team.Computer, speed)
+        var u = Unit.new(Team.Computer, 1.0, true)
+        var s = Sprite.new("[game]/assets/images//missile.png")
+        var d = Damage.new(20) // TODO: Settings
+        s.layer = 1.9
         s.flags = Render.spriteCenter
-        r.offset = offset
-        ms.addComponent(t)
-        // ms.addComponent(e)            
-        ms.addComponent(b)
-        ms.addComponent(u)
-        ms.addComponent(c)
-        ms.addComponent(s)
-        ms.addComponent(r)
-        ms.name = "Missile"
-        ms.tag = (Tag.Computer)
-        return ms
+        bullet.addComponent(t)
+        bullet.addComponent(bd)
+        bullet.addComponent(m)
+        bullet.addComponent(s)
+        bullet.addComponent(u)
+        bullet.addComponent(d)
+        bullet.name = "Missile"
+        bullet.tag = Tag.Computer | Tag.Bullet | Tag.Unit
+        bullet.addComponent(DebugColor.new(0xFDFFC1FF))
+    }
+
+    static laser(owner, damage) {
+        var owt = owner.getComponent(Transform)
+        var lsr = Entity.new()
+        var t = Transform.new(owt.position - Vec2.new(0, 0))
+        var v = Vec2.randomDirection()        
+        var s = Sprite.new("[game]/assets/images//beam_1.png")
+        var d = Damage.new(20) // TODO: Settings
+        var l = Laser.new() // TODO: Settings
+        var r = Relation.new(owner)
+        s.layer = 1.9
+        s.flags = Render.spriteCenterX
+        lsr.addComponent(t)
+        //lsr.addComponent(bd)
+        //lsr.addComponent(m)
+        lsr.addComponent(s)
+        //lsr.addComponent(u)
+        lsr.addComponent(d)
+        lsr.addComponent(r)
+        lsr.addComponent(l)
+        lsr.name = "Laser"
+        return lsr
+        //bullet.tag = Tag.Computer | Tag.Bullet | Tag.Unit
+        //bullet.addComponent(DebugColor.new(0xFDFFC1FF))
     }
 
     static arrow(owner) {
@@ -199,47 +231,76 @@ class Create {
         return scp
     }
 
-    static part(follow, dist, size) {
+    static part(follow, dist, size, idx) {
         var part = Entity.new()
         var t = Transform.new(Vec2.new())
-        var s = Sprite.new("[game]/assets/images/missile.png")
+        var s = GridSprite.new("[game]/assets/images/parts.png", 7, 1)
         var p = Part.new(follow, dist)
         var b = Body.new(size, Vec2.new(0,0))
-        s.layer = 0.1
+        var u = Unit.new(Team.Computer, 1000000000, false)
+        s.layer = 0.2
         s.flags = Render.spriteCenter
+        s.idx = idx
         part.addComponent(t)
         part.addComponent(s)
         part.addComponent(p)
         part.addComponent(b)
+        part.addComponent(u)
         part.addComponent(DebugColor.new(0xF0F0F0FF))
         part.name = "Part"
+        part.tag = (Tag.Computer | Tag.Deflect | Tag.Unit)
         return part        
     }
 
     static foot(parent, offset) {
         var foot = Entity.new()
         var t = Transform.new(Vec2.new())
-        var s = Sprite.new("[game]/assets/images/missile.png")
+        var s = Sprite.new("[game]/assets/images/foot.png")
         var f = Foot.new(parent, offset)
         var b = Body.new(15, Vec2.new(0,0))
+        var u = Unit.new(Team.Computer, 1000000000, false)
         s.layer = 0.1
         s.flags = Render.spriteCenter
         foot.addComponent(t)
         foot.addComponent(s)
         foot.addComponent(f)
         foot.addComponent(b)
+        foot.addComponent(u)
         foot.addComponent(DebugColor.new(0x00F0F0FF))
         foot.name = "Foot"
+        foot.tag = (Tag.Computer | Tag.Deflect | Tag.Unit)
         return foot  
     }
+
+    static hitbox(parent, offset, size) {
+        var hb = Entity.new()
+        var t = Transform.new(Vec2.new())
+        var s = Sprite.new("[game]/assets/images/hitbox%(size).png")
+        var r = Relation.new(parent)
+        var b = Body.new(size, Vec2.new(0,0))
+        var u = Unit.new(Team.Computer, 1000, true)
+        s.layer = 0.09
+        s.flags = Render.spriteCenter
+        r.offset = offset
+        hb.addComponent(t)
+        hb.addComponent(s)
+        hb.addComponent(r)
+        hb.addComponent(b)
+        hb.addComponent(u)
+        hb.addComponent(DebugColor.new(0xFF3030FF))
+        hb.name = "HitPoint"
+        hb.tag = (Tag.Computer | Tag.Unit)
+        return hb  
+    }
+
 }
 
 import "player" for Player
 import "unit" for Unit
 import "tags" for Team, Tag
-import "bullets" for Bullet
+import "bullets" for Bullet, Missile, Laser
 import "debug" for DebugColor
-import "components" for SlowRelation
+import "components" for SlowRelation, TurnToVelocity
 import "random" for Random
 import "ui" for HealthBar
 import "arrow" for Arrow

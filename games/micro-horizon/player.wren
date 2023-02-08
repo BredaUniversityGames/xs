@@ -29,6 +29,7 @@ class Player is Component {
             _cooldown = _cooldown - dt
             move(dt)
             checkDodge()
+            keepInBounds()
         } else if(_state == stateDodge) {
             dodge(dt)
         }
@@ -37,8 +38,9 @@ class Player is Component {
     move(dt) {        
         // Translation
         var aim = (Input.getAxis(5) + 1.0) / 2.0
-        var speed = Data.getNumber("Player Speed")
-        speed = speed * (1 - aim)
+        var normalSpeed = Data.getNumber("Player Speed")
+        var aimSpeed = Data.getNumber("Player Speed Aim")
+        var speed = Math.lerp(normalSpeed, aimSpeed, aim)
         var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
         if(vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
             vel = vel * speed

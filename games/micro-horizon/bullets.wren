@@ -2,11 +2,6 @@ import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
-import "unit" for Unit
-import "tags" for Team, Tag
-import "debug" for DebugColor
-import "components" for SlowRelation, TurnToVelocity
-import "random" for Random
 
 class Bullet is Component {
     construct new(team, damage) {
@@ -33,35 +28,9 @@ class Bullet is Component {
         }
     }
 
-    damage { _damage }
+    //damage { _damage }
     team { _team }
     toString { "[Bullet team:%(_team) damage:%(_damage)]" }
-
-    static createPlayerBullet(owner, speed, damage) {
-        var owt = owner.getComponent(Transform)
-        var bullet = Entity.new()
-        var t = Transform.new(owt.position + Vec2.new(0,10))
-        var dir =  Vec2.new(Game.random.float(-0.2, 0.2), 1.0)
-        dir = dir.normalise
-        dir = dir * speed
-        var v = dir
-        var bd = Body.new(5, v)
-        var bl = Bullet.new(Team.Player, damage)
-        var tr = TurnToVelocity.new()
-        var s = Sprite.new("[game]/assets/images/projectiles/pl_cannon.png")
-        s.layer = 1.9
-        s.flags = Render.spriteCenter
-        //s.addAnimation("anim", [0,1,2])
-        //s.playAnimation("anim") 
-        bullet.addComponent(t)
-        bullet.addComponent(bd)
-        bullet.addComponent(bl)
-        bullet.addComponent(s)
-        bullet.addComponent(tr)
-        bullet.name = "Bullet"
-        bullet.tag = Tag.Player | Tag.Bullet
-        bullet.addComponent(DebugColor.new(0x8BEC46FF))
-    }
 
     static create(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
@@ -80,7 +49,7 @@ class Bullet is Component {
         bullet.addComponent(bl)
         bullet.addComponent(s)
         bullet.name = "Bullet"
-        bullet.tag = Tag.Computer | Tag.Bullet
+        bullet.tag = (Tag.Computer | Tag.Bullet)
         bullet.addComponent(DebugColor.new(0xFFA8D3FF))
     }
 }
@@ -134,11 +103,10 @@ class Missile is Bullet {
         if(v.y < 0) {
             v.y = -v.y
         }
-
         var bd = Body.new(5, v)
         var bl = Missile.new(Team.Computer, speed)
         var u = Unit.new(Team.Computer, 1.0, true)
-        var s = Sprite.new("[game]/assets/images/projectiles/missile.png")
+        var s = Sprite.new("[game]/assets/images/missile.png")
         s.layer = 1.9
         s.flags = Render.spriteCenter
         // s.addAnimation("anim", [0,1,2])
@@ -156,4 +124,27 @@ class Missile is Bullet {
     toString { "[Missile] ->" + super.toString }
 }
 
+class Laser is Component {
+    construct new() {
+        super()
+    }
+
+    initialize() {
+        _transform = owner.getComponent(Transform)
+
+    }
+
+    update(dt) {
+        //_transform.rotation = _transform.rotation + dt * 2
+        var p = Game.player
+        var d = p.getComponent(Transform).position - _transform.position
+        _transform.rotation = d.atan2 - Math.pi * 0.5
+    }
+}
+
 import "game" for Game
+import "unit" for Unit
+import "tags" for Team, Tag
+import "debug" for DebugColor
+import "components" for SlowRelation, TurnToVelocity
+import "random" for Random

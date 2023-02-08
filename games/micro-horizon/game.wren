@@ -73,7 +73,7 @@ class Game {
                     un.damage(bl.damage)
                     if(Bits.checkBitFlag(u.tag, Tag.Deflect)) {
                         //var ref = Vec2.reflect(bB.velocity, d.normalise) 
-                        bB.velocity = bB.velocity * -0.6
+                        bB.velocity = bB.velocity * -1.0
                         bT.position = bT.position + (bB.velocity.normalise * dis)
                     } else {
                         b.delete()
