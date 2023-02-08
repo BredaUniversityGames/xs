@@ -90,7 +90,7 @@ class Create {
         var bullet = Entity.new()
         var t = Transform.new(owt.position - Vec2.new(0, 0))
         var v = Vec2.randomDirection()        
-        v = v.normalise * speed   
+        v = v.normal * speed   
         if(v.y < 0) {
             v.y = -v.y
         }
@@ -118,16 +118,13 @@ class Create {
         var lsr = Entity.new()
         var t = Transform.new(owt.position - Vec2.new(0, 0))
         var v = Vec2.randomDirection()        
-        var s = Sprite.new("[game]/assets/images//beam_1.png")
         var d = Damage.new(20) // TODO: Settings
         var l = Laser.new() // TODO: Settings
         var r = Relation.new(owner)
-        s.layer = 1.9
-        s.flags = Render.spriteCenterX
         lsr.addComponent(t)
         //lsr.addComponent(bd)
         //lsr.addComponent(m)
-        lsr.addComponent(s)
+        //
         //lsr.addComponent(u)
         lsr.addComponent(d)
         lsr.addComponent(r)

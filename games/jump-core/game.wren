@@ -427,7 +427,7 @@ class Game {
         var t = Transform.new(owt.position)
         var targetPos = playerShip.getComponent(Transform).position
         var dir = targetPos - owt.position
-        var v = dir.normalise * speed
+        var v = dir.normal * speed
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
         var s = AnimatedSprite.new("[games]/jump-core/images/projectiles/projectile-02.png", 2, 1, 10)
@@ -476,7 +476,7 @@ class Game {
             var bullet = Entity.new()
             var t = Transform.new(owt.position)
             var d = -Vec2.new(dir[i].cos, dir[i].sin)
-            var v = d.normalise * speed
+            var v = d.normal * speed
             var bd = Body.new(5, v)
             var bl = Bullet.new(owu.team, damage)
             var s = AnimatedSprite.new("[games]/jump-core/images/projectiles/projectile-04.png", 2, 1, 10)

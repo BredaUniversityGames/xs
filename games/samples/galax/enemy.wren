@@ -62,14 +62,14 @@ class Ship is Component {
             var p = Game.player
             var d =  pos - _transform.position
             if(d.magnitude > 360) {
-                d = d.normalise * 360
+                d = d.normal * 360
             }
             _body.velocity = d
         }
 
         if(_time >= 1.0) {
             _time = 0.0
-            Create.enemyPlasma(owner, d.normalise * 50.0, 1) 
+            Create.enemyPlasma(owner, d.normal * 50.0, 1) 
         }
     }
 

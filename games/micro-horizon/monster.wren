@@ -61,9 +61,7 @@ class Monster is Component {
         _transform = owner.getComponent(Transform)
         _body = owner.getComponent(Body)
         
-        var distances = [50, 64, 52, 36, 26, 23]
         _parts_old = [owner]
-
         _parts = [owner.getComponent(TNB)]
 
         var n = 7
@@ -77,23 +75,30 @@ class Monster is Component {
 
         var spread = 40
         var gait = 18
-        Create.foot(_parts_old[1], Vec2.new(gait, spread))
-        Create.foot(_parts_old[1], Vec2.new(gait, -spread))
-        Create.foot(_parts_old[2], Vec2.new(-gait, spread))
-        Create.foot(_parts_old[2], Vec2.new(-gait, -spread))
+        Create.foot(_parts[1].owner, Vec2.new(gait, spread))
+        Create.foot(_parts[1].owner, Vec2.new(gait, -spread))
+        Create.foot(_parts[2].owner, Vec2.new(-gait, spread))
+        Create.foot(_parts[2].owner, Vec2.new(-gait, -spread))
 
-        spread = 19
-        gait = 10
-        Create.hitbox(_parts_old[0], Vec2.new(12.0, 0.0), 15)
-        Create.hitbox(_parts_old[1], Vec2.new(-gait, spread), 20)
-        Create.hitbox(_parts_old[1], Vec2.new(-gait, -spread), 20)
-        Create.hitbox(_parts_old[2], Vec2.new(-gait, spread), 20)
-        Create.hitbox(_parts_old[2], Vec2.new(-gait, -spread), 20)
+        spread = 12
+        gait = 8
+        Create.hitbox(_parts[0].owner, Vec2.new(12.0, 0.0), 15)
+        Create.hitbox(_parts[1].owner, Vec2.new(-gait, spread), 25)
+        Create.hitbox(_parts[1].owner, Vec2.new(-gait, -spread), 25)
+        Create.hitbox(_parts[2].owner, Vec2.new(-gait, spread), 25)
+        Create.hitbox(_parts[2].owner, Vec2.new(-gait, -spread), 25)
 
-        // _laser = Create.laser(_parts_old[2], 20)
+        _laser = Create.laser(_parts_old[1], 20)
     }    
     
     update(dt) {
+
+        // Some warmup time to initialize
+        if(!_parts[_parts.count - 1].initialized_) {
+            return
+        }
+
+
         _time = _time + dt
         
         if(_state == Monster.idleState) {
@@ -106,154 +111,83 @@ class Monster is Component {
             chargeUpdate(dt)
         }
         
-        //_transform.rotation = _transform.rotation + _rotationSpeed * dt
-
-        fakysics(dt)    
+        fakysics(dt)
     }
 
+    // This is the entire animation rig
     fakysics(dt) {
-        // Some warmup time
-        if(!_parts[_parts.count - 1].initialized_) {
-            System.print("Wait now")
-            return
-        }
-
         // Make things follow
         for(i in 1..._parts.count) {
             var p0 = _parts[i-1]
             var p1 = _parts[i]
-            var dist = p1.body.size + p0.body.size + 5
+            var dist = p1.size + p0.size + 5
 
             // Keep distance (harsh)
-            var dir = p0.transform.position - p1.transform.position
-            p1.transform.rotation = dir.atan2
+            var dir = p0.position - p1.position
+            p1.rotation = dir.atan2
             if((dir.magnitude - dist).abs > 3) {   // TODO                
-                var pos = p0.transform.position - dir.normalise * dist
-                p1.transform.position = Math.damp(p1.transform.position, pos, 25, dt) //TODO
+                var pos = p0.position - dir.normal * dist
+                p1.position = Math.damp(p1.position, pos, 25, dt) //TODO
             }
 
-            // Try to straighten
+            // Reduce sharp turns
             {   
                 var offset = Vec2.new (-dist, 0.0)
-                offset = offset.rotated(p0.transform.rotation)
-                var pos = p0.transform.position + offset 
-                //Render.setColor(0xFFFF00FF)
-                //Render.disk(pos.x, pos.y, 2, 24)
+                offset = offset.rotated(p0.rotation)
+                var pos = p0.position + offset 
 
-                var desDir = offset - p1.transform.position
-                dir = dir.normalise
-                desDir = desDir.normalise
+                var desDir = offset - p1.position
+                dir = dir.normal
+                desDir = desDir.normal
                 var a = dir.dot(desDir)
                 a = 1.0 - a
-                //a = a.pow(2)
-                p1.transform.position = Math.damp(p1.transform.position, pos, 1.2 * a, dt) //TODO
+                p1.position = Math.damp(p1.position, pos, 1.2 * a, dt) //TODO
             }
         }
 
-        /*
-        // Make things follow
-        for(i in 1..._parts_old.count) {
-            var p0 = _parts_old[i-1]
-            var p1 = _parts_old[i]
-            var pt0 = p0.getComponent(Transform)
-            var pt1 = p1.getComponent(Transform)
-            var pb0 = p0.getComponent(Body)
-            var pb1 = p1.getComponent(Body)
-            var dist = pb1.size + pb0.size + 5
-            var dir = pt0.position - pt1.position
-            if((dir.magnitude - dist).abs > 3) {   // TODO
-                pt1.rotation = dir.atan2
-                var pos = pt0.position - dir.normalise * dist
-                pt1.position = Math.damp(pt1.position, pos, 25, dt) //TODO
-            }
-        }
-        */
-
-        /*
-        for(i in 1..._parts_old.count) {
-            var p0 = _parts_old[i]
-            var t0 = p0.getComponent(Transform)
-            var b0 = p0.getComponent(Body)
+        // Resolve pieces overlap
+        for(i in 1..._parts.count) {
+            var p0 = _parts[i]
             for(j in 0...i) {
-                var p1 = _parts_old[j]
-                var t1 = p1.getComponent(Transform)
-                var b1 = p1.getComponent(Body)
+                var p1 = _parts[j]
 
-                var d01 = t0.position - t1.position
+                var d01 = p0.position - p1.position
                 if(d01.magnitude > 0) {
-                    var dff = d01.magnitude - (b0.size + b1.size)
+                    var dff = d01.magnitude - (p0.size + p1.size)
                     // System.print("dff: %(dff)")
                     if(dff <= 0) {
                         //System.print("Overlap")
-                        t0.position = t0.position - d01.normalise * dff * 0.75
-                        continue
+                        p0.position = p0.position - d01.normal * dff * 0.75
+                        // continue
                     }
                 }
             }
         }
-        */
 
-        for(i in 1...(_parts_old.count - 1)) {
-            var pc = _parts_old[i]
-            var pct = pc.getComponent(Transform)
-            var pn = _parts_old[i+1]
-            var pnt = pn.getComponent(Transform)
-
+        // Resolve tail overlap
+        for(i in 1...(_parts.count - 1)) {
+            var curr = _parts[i]
+            var next = _parts[i+1]
             for(j in 0...i) {
-                var pp = _parts_old[j]
-                var ppt = pp.getComponent(Transform)
-                var ppb = pp.getComponent(Body)
-                var dist = Geom.distanceSegmentToPoint(pct.position, pnt.position, ppt.position)
+                var prev = _parts[j]
+                var dist = Geom.distanceSegmentToPoint(curr.position, next.position, prev.position)
 
-                if(dist < ppb.size) {
-                    var offset = ppb.size - dist                    
-                    System.print("offset: %(offset)")
-                    var mid = (pct.position + pnt.position) * 0.5
-                    var nor = mid - ppt.position
-                    nor = nor.normalise
+                if(dist < prev.size) {
+                    var offset = prev.size - dist
+                    // System.print("offset: %(offset)")
+                    var middle = (curr.position + next.position) * 0.5
+                    var normal = middle - prev.position
+                    normal = normal.normal
 
-                    pct.position = pct.position + nor * offset
-                    pnt.position = pnt.position + nor * offset                    
+                    curr.position = curr.position + normal * offset
+                    next.position = next.position + normal * offset                    
                 }
             }
         }
-
-        /*
-        // Smooth(er)
-        var rots = []
-        for(i in 0..._parts_old.count) {
-            var pc = _parts_old[i]
-            var pct = pc.getComponent(Transform)
-            var count = 1
-            var rot = pct.rotation
-            if(i > 0) {
-                var pp = _parts_old[i-1]
-                var ppt = pp.getComponent(Transform)
-                rot = rot + ppt.rotation
-                count = count + 1
-            }
-            if(i < (_parts_old.count - 1)) {
-                var pn = _parts_old[i+1]
-                var pnt = pn.getComponent(Transform)
-                rot = rot + pnt.rotation
-                count = count + 1                                
-            }
-
-            rot = rot / count
-            rots.add(rot)            
-        }
-        /*
-        for(i in 0..._parts_old.count) {
-            var pc = _parts_old[i]
-            var pct = pc.getComponent(Transform)
-            pct.rotation = rots[i]
-        }
-        */
-        */
     }
 
     idleUpdate(dt) {
-        if(_time > 0.0) {
+        if(_time > 1.0) {   // TODO
             _state = Monster.moveState
             _time = 0.0
         }
@@ -261,7 +195,7 @@ class Monster is Component {
     }
 
     chargeWrnUpdate(dt) {
-        if(_time > 0.6) {
+        if(_time > 0.6) {   // TODO
             _state = Monster.chargeState
             _time = 0.0
             _warning.delete()
@@ -280,55 +214,61 @@ class Monster is Component {
     moveUpdate(dt) {
         var pt = Game.player.getComponent(Transform)
         var dir = pt.position - _transform.position
-        
+
         var alpha = dir.atan2
-        owner.getComponent(Transform).rotation = alpha
+        _transform.rotation = alpha
 
-        if(dir.magnitude > 150.0 || true) {     // TODO
-            dir.normalise
+        if(dir.magnitude > 150.0) {     // TODO
+            dir.normal
             setVelocity(dir * 0.6, dt)  // TODO
-
-            /*
-            if(_time > 3.0) {
-                for(i in 0...3) {
-                    Create.missile(_parts_old[1], 200, 2)   // TODO
-                    _time = 0.0
-                }
+            if(_time > 3.0) {           // TODO
+                launch()
             }
-            */
         } else {
             setVelocity(dir * 0.0, dt)  // TODO
-            if(_time > 3.0) {
+            if(_time > 3.0) {           // TODO
                 charge()
             }
         }
 
-        /*
         if(_time > 6.0) {   // TODO
             charge()
         }
-        */
     }
 
     charge() {
         _chargePosition = Game.player.getComponent(Transform).position
         var dir = _chargePosition - _transform.position
-        dir = dir.normalise
+        dir = dir.normal
         _chargeVelocity = dir * 900.5   // TODO
         _time = 0.0
         _state = Monster.chargeWrnState
         _warning = Create.warning(_chargePosition)
-        _chargePosition = _chargePosition + dir * 100 // TODO
+        _chargePosition = _chargePosition + dir * 80 // TODO
     }
 
     setVelocity(vel, dt) {
         _body.velocity = Math.damp(_body.velocity, vel, 10.0, dt) // TODO
     }
+
+    launch() {
+        var choice = Game.random.int(0, 2)
+
+        if(choice == 0) {
+            for(i in 0...3) {
+                Create.missile(_parts[2].owner, 200, 2)   // TODO                
+                _state = Monster.idleState
+                _time = 0.0
+            }
+        } else if(choice == 1) {
+            _laser.getComponent(Laser).zing()
+            _state = Monster.idleState
+            _time = -1.0
+        }
+    }
     
     // maxHealth { _maxHealth }
     // health { _health }
-
-
 
     // States
     static idleState       { 1 }
@@ -339,7 +279,7 @@ class Monster is Component {
 }
 
 import "tags" for Team, Tag
-import "bullets" for Bullet, Missile
+import "bullets" for Bullet, Missile, Laser
 import "debug" for DebugColor
 import "random" for Random
 import "components" for SlowRelation, TNB

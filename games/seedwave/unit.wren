@@ -12,6 +12,7 @@ class Unit is Component {
         _health = health        
         _destroy = destroy
         _timer = 0
+        _multiplier = 1.0
     }
 
     initialize() {
@@ -19,7 +20,7 @@ class Unit is Component {
     }
 
     damage(d) {
-        _health = _health - d
+        _health = _health - d * _multiplier
         _timer = 0.15
 
         if(_team == Team.Player) {
@@ -29,6 +30,8 @@ class Unit is Component {
     team { _team }
     health { _health }
     maxHealth { _maxHealth }
+    multiplier { _multiplier }
+    multiplier=(m) { _multiplier = m }
 
     update(dt) {
         if(_health <= 0) {

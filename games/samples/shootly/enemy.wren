@@ -25,7 +25,7 @@ class Turret is Component {
         _time = _time + dt
         if(_time >= 1.0) {
             _time = 0.0
-            Create.enemyProjectile(owner, d.normalise * 500.0, 5) 
+            Create.enemyProjectile(owner, d.normal * 500.0, 5) 
         }
     }
     */
@@ -53,7 +53,7 @@ class Turret is Component {
         _time = _time + dt
         if(_time >= 1.0) {
             _time = 0.0
-            Create.enemyProjectile(owner, d.normalise * 500.0, 5) 
+            Create.enemyProjectile(owner, d.normal * 500.0, 5) 
         }
     }
  }

@@ -58,13 +58,13 @@ class Missile is Bullet {
     construct new(team, speed) {
         super(team, Data.getNumber("Missle Damage"))
         _speed = speed
-        _targeting = 3.0
+        _targeting = 4.0
         _time  = 0
     }
 
     update(dt) {        
         if(_targeting > 0) {
-            _targeting = _targeting - dt * 2.0
+            _targeting = _targeting - dt * 1.5
         } else {
             _targeting = 0
         }
@@ -72,14 +72,14 @@ class Missile is Bullet {
         var p = Game.player
         var b = owner.getComponent(Body)
         var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
-        d = d.normalise
+        d = d.normal
         var dv = d * Data.getNumber("Missle Max Speed")
         dv = dv - b.velocity
             
         b.velocity = Math.damp(b.velocity, dv, _targeting, dt)                
 
         if(b.velocity.magnitude < Data.getNumber("Missle Max Speed") * 0.4) {
-           b.velocity = b.velocity.normalise
+           b.velocity = b.velocity.normal
            b.velocity = b.velocity * Data.getNumber("Missle Max Speed") * 0.4
         }
 
@@ -99,7 +99,7 @@ class Missile is Bullet {
         var bullet = Entity.new()
         var t = Transform.new(owt.position - Vec2.new(0, 0))
         var v = Vec2.randomDirection()        
-        v = v.normalise * speed   
+        v = v.normal * speed   
         if(v.y < 0) {
             v.y = -v.y
         }
@@ -125,21 +125,59 @@ class Missile is Bullet {
 }
 
 class Laser is Component {
-    construct new() {
-        super()
-    }
+    construct new() { super() }
 
     initialize() {
         _transform = owner.getComponent(Transform)
-
+        _state = Laser.stateIdle
+        _time = 0.0
     }
 
     update(dt) {
-        //_transform.rotation = _transform.rotation + dt * 2
-        var p = Game.player
-        var d = p.getComponent(Transform).position - _transform.position
-        _transform.rotation = d.atan2 - Math.pi * 0.5
+        _time = _time + dt
+
+        if(_state == Laser.stateIdle) {
+            var p = Game.player
+            var d = p.getComponent(Transform).position - _transform.position
+            _transform.rotation = d.atan2 - Math.pi * 0.5
+        } else if(_state == Laser.statePrep) {
+            var p = Game.player
+            var d = p.getComponent(Transform).position - _transform.position
+            _transform.rotation = d.atan2 - Math.pi * 0.5
+            if(_time > 0.4) { // TODO
+                _time = 0.0
+                _state = Laser.stateShoot
+                var s = Sprite.new("[game]/assets/images//beam_1.png") 
+                s.layer = 1.9
+                s.flags = Render.spriteCenterX
+                owner.addComponent(s)
+            }
+        } else if(_state == Laser.stateShoot) {
+            if(_time > 1.5) { // TODO
+                _time = 0.0
+                _state = Laser.stateIdle 
+                owner.deleteComponent(Sprite)
+                // TODO: Do damage here
+            }
+        }
     }
+
+    zing() {
+        if(_state == Laser.stateIdle) {
+            _state = Laser.statePrep   
+            var s = Sprite.new("[game]/assets/images//beam_0.png") 
+            s.layer = 1.9
+            s.flags = Render.spriteCenterX
+            owner.addComponent(s)
+            _time = 0
+        }
+    }
+
+    toString { "[Laser] ->" + super.toString }
+
+    static stateIdle    { 1 }
+    static statePrep    { 2 }
+    static stateShoot   { 3 }
 }
 
 import "game" for Game

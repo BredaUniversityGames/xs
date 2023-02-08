@@ -145,7 +145,7 @@ class Enemy  is MovingObject {
         var toPos = Game.playerShip.position
         var dir = toPos - position
         dir.x = 0.0
-        dir.normalise
+        dir.normal
         velocity = dir * 1.5
         move(dt)
         
@@ -217,7 +217,7 @@ class Rocket is MovingObject {
     update(dt) {
         var toPos = Game.playerShip.position
         var dir = toPos - position
-        dir.normalise
+        dir.normal
         velocity = dir * 1.0
         move(dt)
     }

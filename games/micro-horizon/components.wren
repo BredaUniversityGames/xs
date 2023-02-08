@@ -86,6 +86,13 @@ class TNB is Component {
 
     body { _body }
     transform { _transform }
+
+    position { _transform.position }
+    position=(p) { _transform.position = p }
+    size { _body.size }
+    rotation { _transform.rotation }
+    rotation=(r) { _transform.rotation = r }
+
     
     toString { "[TNB body:%(_body) transform:%(_transform) i:%(initialized_) ]" }
 }

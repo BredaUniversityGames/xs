@@ -102,7 +102,7 @@ class EnemyCore is Component {
 
         var p = Game.playerShip
         var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
-        d = d.normalise
+        d = d.normal
         var b = owner.getComponent(Body)
         b.velocity = d * 20.0 
 

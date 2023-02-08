@@ -24,6 +24,22 @@ class Create {
         return e
     }
 
+    static playerHealthBar() {
+        var e = Entity.new()
+        var t = Transform.new(Vec2.new(0, -170))
+        var s = GridSprite.new("[game]/assets/images/ui/healthbar_boss.png", 1, 100)
+        var u = Game.player.getComponentSuper(Unit)
+        var h = HealthBar.new(u)
+        s.idx = 1
+        s.layer = 100.0
+        s.mul = Color.new(255, 174, 0).toNum
+        s.flags = Render.spriteCenter | Render.spriteOverlay // |
+        e.addComponent(t)
+        e.addComponent(s)
+        e.addComponent(h)
+        return e
+    }
+
     static explosion(owner) {
         var owt = owner.getComponent(Transform)
         var explosion = Entity.new()

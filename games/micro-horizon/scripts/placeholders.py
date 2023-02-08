@@ -240,6 +240,8 @@ warning(35)
 (r, g, b) = get_color(8)
 circle(15, r, g, b, "hitbox15.png")
 circle(20, r, g, b, "hitbox20.png")
+circle(25, r, g, b, "hitbox25.png")
+circle(30, r, g, b, "hitbox30.png")
 
 #dark = color(0.0462, 0.0700, 0.0525)
 #light = color(0.0372, 0.0600, 0.0433)
