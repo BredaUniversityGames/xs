@@ -36,39 +36,39 @@ class Create {
         return player
     }
 
-    static enemy() {
-        var enemy = Entity.new()
+    static monster() {
+        var monster = Entity.new()
         var t = Transform.new(Vec2.new(500, 450))
-        var e = Enemy.new()
-        var b = Body.new(Data.getNumber("Enemy Size"), Vec2.new(0,0))
-        var u = Unit.new(Team.Player, Data.getNumber("Enemy HP") * 100, true)
+        var e = Monster.new()
+        var b = Body.new(Data.getNumber("Monster Size"), Vec2.new(0,0))
+        var u = Unit.new(Team.Player, Data.getNumber("Monster HP") * 100, true)
         var c = DebugColor.new(0x8BEC46FF)
         var s = GridSprite.new("[game]/assets/images/parts.png", 7, 1)
         var ttv = TurnToVelocity.new()
         s.idx = 0
         s.layer = 1.1
         s.flags = Render.spriteCenter
-        enemy.addComponent(t)
-        enemy.addComponent(e)            
-        enemy.addComponent(b)
-        enemy.addComponent(u)
-        enemy.addComponent(c)
-        enemy.addComponent(s)
-        //enemy.addComponent(ttv)
-        enemy.name = "Enemy"
-        enemy.tag = (Tag.Computer | Tag.Deflect | Tag.Unit)
-        return enemy
+        monster.addComponent(t)
+        monster.addComponent(e)            
+        monster.addComponent(b)
+        monster.addComponent(u)
+        monster.addComponent(c)
+        monster.addComponent(s)
+        //monster.addComponent(ttv)
+        monster.name = "Monster"
+        monster.tag = (Tag.Computer | Tag.Deflect | Tag.Unit)
+        return monster
     }
 
-    static shield(enemy, offset) {
+    static shield(monster, offset) {
         var sh = Entity.new()
         var t = Transform.new(Vec2.new(0, 0))
-        // var e = Enemy.new()
+        // var e = Monster.new()
         var b = Body.new(Data.getNumber("Shield Size"), Vec2.new(0,0))
         var u = Unit.new(Team.Player, Data.getNumber("Shield HP"), true)
         var c = DebugColor.new(0xFFEC46FF)
         var s = Sprite.new("[game]/assets/images/shield.png")
-        var r = Relation.new(enemy)
+        var r = Relation.new(monster)
         s.layer = 1.1
         s.flags = Render.spriteCenter
         r.offset = offset
@@ -305,6 +305,6 @@ import "random" for Random
 import "ui" for HealthBar
 import "arrow" for Arrow
 import "game" for Game
-import "enemy" for Enemy, Part, Foot
+import "monster" for Monster, Part, Foot
 import "damage" for Damage
 import "aim" for Aim

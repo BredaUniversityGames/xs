@@ -20,7 +20,7 @@ class Game {
 
         Create.background()
         __player = Create.player()        
-        __enemy = Create.enemy()
+        __monster = Create.monster()
 
         __size = 3
         // __boss = Boss.randomBoss(__size)

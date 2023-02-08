@@ -7,11 +7,11 @@
         "type": "number",
         "value": 0.0
     },
-    "Enemy HP": {
+    "Monster HP": {
         "type": "number",
         "value": 8.0
     },
-    "Enemy Size": {
+    "Monster Size": {
         "type": "number",
         "value": 17.0
     },
