@@ -22,8 +22,9 @@ namespace xs::data::internal
 {
 	struct registry_value
 	{
-		type type = type::none;
+		type type = type::none;		
 		std::variant<double, bool, uint32_t, std::string> value;
+		bool active = false;
 	};
 
 	using regsitry_type = std::unordered_map<std::string, registry_value>;
@@ -36,7 +37,7 @@ namespace xs::data::internal
 	T get(const std::string& name, type type);
 
 	template<typename T>
-	void set(const std::string& name, const T& reg_value, type type);
+	void set(const std::string& name, const T& reg_value, type type, bool active = false);
 
 	uint32_t color_convert(ImVec4 color)
 	{
@@ -72,12 +73,13 @@ namespace xs::data::internal
 template<class T>
 T xs::data::internal::get(const std::string& name, type type)
 {
-	auto itr = internal::reg.find(name);
+	auto& itr = internal::reg.find(name);
 	if (itr != internal::reg.end())
 	{	
 		try
 		{
 			auto val = std::get<T>(itr->second.value);
+			itr->second.active = true;
 			return val;
 		}
 		catch (...)
@@ -89,16 +91,16 @@ T xs::data::internal::get(const std::string& name, type type)
 	{
 		xs::log::warn("Data value with name '{}' not found. Adding default to data.", name);
 		T t = {};
-		internal::reg[name] = { type, t };
+		internal::reg[name] = { type, t, true };
 	}
 	
 	return {};
 }
 
 template<typename T>
-void xs::data::internal::set(const std::string& name, const T& value, type type)
+void xs::data::internal::set(const std::string& name, const T& value, type type, bool active)
 {
-	internal::reg[name] = { type, value };
+	internal::reg[name] = { type, value, active };
 }
 
 using namespace xs::data::internal;
@@ -143,6 +145,11 @@ void xs::data::inspect(bool& show)
 
 	static ImGuiTextFilter filter;
 	filter.Draw(ICON_FA_SEARCH);
+	ImGui::SameLine();
+	if (ImGui::Button(ICON_FA_TIMES)) {
+		filter.Clear();
+	}
+
 	
 	ImGui::BeginChild("Child");
 	ImGui::PushItemWidth(80);
@@ -335,8 +342,8 @@ void xs::data::internal::inspect_entry(
 		{
 			auto val = std::get<double>(itr.second.value);
 			float flt = (float)val;
-			ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);
-			set(itr.first, flt, itr.second.type);
+			ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);			
+			set(itr.first, flt, itr.second.type, itr.second.active);
 		}
 	}
 
@@ -346,7 +353,7 @@ void xs::data::internal::inspect_entry(
 		if (val)
 		{
 			ImGui::Checkbox(itr.first.c_str(), val);
-			set(itr.first, *val, itr.second.type);
+			set(itr.first, *val, itr.second.type, itr.second.active);
 		}
 	}
 
@@ -357,7 +364,7 @@ void xs::data::internal::inspect_entry(
 			ImVec4 vec = color_convert(*val);
 			ImGui::ColorEdit4(itr.first.c_str(), &vec.x);
 			*val = color_convert(vec);
-			set(itr.first, *val, itr.second.type);
+			set(itr.first, *val, itr.second.type, itr.second.active);
 		}
 	}
 
@@ -372,6 +379,17 @@ void xs::data::internal::inspect_entry(
 		}
 	}
 
+	if (!itr.second.active)
+	{
+		
+		ImGui::SameLine(ImGui::GetWindowWidth() - 40);
+		ImGui::PushID(itr.first.c_str());
+		if (ImGui::Button(u8"\xf1f8"))
+		{
+			reg.erase(itr.first);			
+		}
+		ImGui::PopID();
+	}
 
 	if (ImGui::IsItemDeactivatedAfterEdit())
 	{
