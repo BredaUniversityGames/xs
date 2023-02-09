@@ -263,7 +263,7 @@ class Monster is Component {
         } else if(choice == 1) {
             _laser.getComponent(Laser).zing()
             _state = Monster.idleState
-            _time = -1.0
+            _time = -2.5
         }
     }
     
