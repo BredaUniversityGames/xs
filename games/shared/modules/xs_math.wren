@@ -26,6 +26,13 @@ class Math {
     static degrees(rad) { rad * 180.0 / 3.14159265359 }
     static mod(x, m)    { (x % m + m) % m }   
     static clamp(a, f, t) { max(min(a, t), f) }
+    static slerp(a,  b,  t) {
+	    var CS = (1 - t) * (a.cos) + t * (b.cos)
+	    var SN = (1 - t) * (a.sin) + t * (b.sin)
+	    return Vec2.new(CS, SN).atan2
+    }
+    static sdamp(a, b, lambda, dt) { slerp(a, b, 1.0 - (-lambda * dt).exp) }    
+    
 }
 
 class Bits {

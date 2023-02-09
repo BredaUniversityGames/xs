@@ -141,10 +141,7 @@ class Laser is Component {
             var d = p.getComponent(Transform).position - _transform.position
             _transform.rotation = d.atan2 - Math.pi * 0.5
         } else if(_state == Laser.statePrep) {
-            var p = Game.player
-            var d = p.getComponent(Transform).position - _transform.position
-            _transform.rotation = d.atan2 - Math.pi * 0.5
-            if(_time > 0.4) { // TODO
+            if(_time > 0.5) { // TODO
                 _time = 0.0
                 _state = Laser.stateShoot
                 var s = Sprite.new("[game]/assets/images//beam_1.png") 
@@ -153,12 +150,19 @@ class Laser is Component {
                 owner.addComponent(s)
             }
         } else if(_state == Laser.stateShoot) {
-            if(_time > 1.5) { // TODO
+            if(_time > 4.0) { // TODO
                 _time = 0.0
                 _state = Laser.stateIdle 
                 owner.deleteComponent(Sprite)
                 // TODO: Do damage here
             }
+        }
+
+        if(_state != Laser.stateIdle) {
+            var p = Game.player
+            var d = p.getComponent(Transform).position - _transform.position
+            var rot = d.atan2 - Math.pi * 0.5
+            _transform.rotation = Math.sdamp(_transform.rotation, rot, 5.0, dt) // TODO
         }
     }
 
@@ -169,6 +173,13 @@ class Laser is Component {
             s.layer = 1.9
             s.flags = Render.spriteCenterX
             owner.addComponent(s)
+
+            var p = Game.player
+            var d = p.getComponent(Transform).position - _transform.position
+            var rot = d.atan2 - Math.pi * 0.5
+            _from = rot - Math.pi * 0.35
+            _to = rot + Math.pi * 0.35
+            _t = 0.0            
             _time = 0
         }
     }
