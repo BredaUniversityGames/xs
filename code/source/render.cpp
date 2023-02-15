@@ -78,7 +78,11 @@ int xs::render::load_font(const std::string& font_file, double size)
 	file = fopen(path.c_str(), "rb");
 	bool success = file != nullptr;
 #endif
-	assert(success);
+	if (!success)
+	{
+		log::error("Could not open font file {}\n", path);
+		return -1;
+	}
 
 	long lSize;
 	fseek(file, 0, SEEK_END);		// obtain file size
@@ -157,12 +161,21 @@ int xs::render::load_font(const std::string& font_file, double size)
 
 int xs::render::get_image_height(int image_id)
 {
+	if (image_id < 0 || image_id >= images.size()) {
+		log::error("get_image_height() image_id={} is invalid!", image_id);
+		return -1;
+	}
 	auto& img = images[image_id];
 	return img.height;
 }
 
 int xs::render::get_image_width(int image_id)
 {
+	if (image_id < 0 || image_id >= images.size()) {
+		log::error("get_image_width() image_id={} is invalid!", image_id);
+		return -1;
+	}
+
 	auto& img = images[image_id];
 	return img.width;
 }
@@ -278,7 +291,10 @@ int xs::render::load_image(const std::string& image_file)
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
 {
- 	assert(image_id >= 0 && image_id < images.size());
+	if (image_id < 0 || image_id >= images.size()) {
+		log::error("Can't create sprite with image {}!", image_id);
+		return -1;
+	}
 
 	for(int i = 0; i < sprites.size(); i++)
 	{
@@ -306,8 +322,10 @@ void xs::render::render_sprite(
 	color add,
 	unsigned int flags)
 {
-	assert(sprite_id >= 0);
-	assert(sprite_id < internal::sprites.size());
+	if (sprite_id < 0 || sprite_id >= internal::sprites.size()) {
+		log::error("Can't render sprite {}!", sprite_id);
+		return;
+	}
 
 	if (!tools::check_bit_flag_overlap(flags, sprite_flags::overlay)) {
 		x += offset.x;
