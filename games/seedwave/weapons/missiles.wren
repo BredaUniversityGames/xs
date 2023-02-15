@@ -6,30 +6,18 @@ import "weapons/bosspart" for BossPart
 import "bullets" for Missile
 
 class Missiles is BossPart {
-    construct new() {
-        super()
+    construct new(level) {
+        super(level)
         _time = 0
     }
 
-    /*
-    update(dt) {
-        _time = _time + dt
-        if(_time > Data.getNumber("Missle Shoot Time")) {            
-            Missile.create(owner,
-                Data.getNumber("Missle Speed"),
-                Data.getNumber("Missle Damage"))
-            _time = 0
-        }
-
-        super.update(dt)
-    }
-    */
-
     shoot() {
-        Missile.create(owner,
+        Create.missile(owner,
             Data.getNumber("Missle Speed"),
             Data.getNumber("Missle Damage"))
     }
 
     toString { "[Missiles _time:%(_time)] ->" + super.toString }
 }
+
+import "create" for Create

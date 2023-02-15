@@ -5,8 +5,9 @@ import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 
 class BossPart is Component {
-    construct new() {
+    construct new(level) {
         super()
+        _level = level
     }
 
     initialize() {
@@ -27,12 +28,10 @@ class BossPart is Component {
     }
 
     shoot() {}
-
     ready { true }
-
     destroyed { owner.getComponent(Unit) == null }
-
     wait { 0.25 }
+    level { _level }
 }
 
 import "unit" for Unit

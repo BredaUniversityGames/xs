@@ -6,24 +6,17 @@ import "weapons/bosspart" for BossPart
 import "bullets" for Bullet
 
 class Cannon is BossPart {
-    construct new() {
-        super()
+    construct new(level) {
+        super(level)
         _time = 0        
     }
-
-    /*
-    update(dt) {
-        _time = _time + dt
-        if(_time > Data.getNumber("Cannon Shoot Time")) {
-            Bullet.create(owner, -Data.getNumber("Cannon Round Speed"), 0)
-            _time = 0
-        }
-
-        super.update(dt)
-    }
-    */
     
     shoot() {
-        Bullet.create(owner, -Data.getNumber("Cannon Round Speed"), Data.getNumber("Cannon Damage"))
+        Create.enemyBullet(
+            owner,
+            -Data.getNumber("Cannon Round Speed"),
+            Data.getNumber("Cannon Damage"))
     }
 }
+
+import "create" for Create

@@ -32,17 +32,6 @@ class Player is Component {
         ship.name = "Player"
         ship.tag = (Tag.Player | Tag.Unit)
 
-        {
-            var jump = Entity.new()
-            var jt = Transform.new(Vec2.new(0,0))
-            var jr = Relation.new(ship)
-            var js = Sprite.new("[game]/assets/images/ships/jump_target.png")
-            jr.offset = Vec2.new(60,0)
-            jump.addComponent(jt)
-            jump.addComponent(jr)
-            jump.addComponent(js)
-        }
-
         return ship
     }
 
@@ -75,7 +64,7 @@ class Player is Component {
         if((Input.getButton(0) ||
             Input.getKey(Input.keySpace)) &&
             _shootTime > Data.getNumber("Player Shoot Time")) {
-            Bullet.createPlayerBullet(
+            Create.playerBullet(
                     owner,
                     Data.getNumber("Player Bullet Speed"),
                     Data.getNumber("Player Bullet Damage"))
@@ -102,30 +91,6 @@ class Player is Component {
             vel.x = -1.0
         }
 
-        /*
-
-        var s = owner.getComponent(GridSprite)
-        
-        _frame = _frame + 1
-        if(_frame > 4) {
-            _frame = 0
-            _animFrame = (_animFrame + 1) % 4
-        }
-
-
-        if(vel.x > 0.5) {
-            s.idx = 16
-        } else if(vel.x > 0.35) {
-            s.idx = 12
-        } else if(vel.x < -0.5) {
-            s.idx = 8
-        } else if(vel.x < -0.35) {
-            s.idx = 4
-        } else {
-            s.idx = 0
-        }
-        s.idx = s.idx + _animFrame
-        */
         
         if(vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
             vel = vel * speed
@@ -140,3 +105,5 @@ class Player is Component {
 
     toString { "[Player]" }
 }
+
+import "create" for Create
