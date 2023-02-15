@@ -13,8 +13,7 @@ class LaserState {
 
 class Laser is BossPart {
     construct new(level) {
-        super()
-        _level = level
+        super(level)
         _time = 0     
         _beam = null           
         _state = LaserState.idle
@@ -73,7 +72,7 @@ class Laser is BossPart {
         _beam = Entity.new()
         var t = Transform.new(Vec2.new(0, 0))
         var s = forReal ?
-            Sprite.new("[game]/assets/images/projectiles/beam_" + _level.toString + ".png") :
+            Sprite.new("[game]/assets/images/projectiles/beam_" + level.toString + ".png") :
             Sprite.new("[game]/assets/images/projectiles/beam_0.png")
         var r = Relation.new(owner)
         s.flags = Render.spriteCenterX | Render.spriteTop // |

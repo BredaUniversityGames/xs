@@ -5,20 +5,10 @@ import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, Anim
 import "weapons/bosspart" for BossPart
 
 class Deflect is BossPart {
-    construct new() {
-        super()
+    construct new(level) {
+        super(level)
         _time = 0
     }
-
-    /*
-
-    update(dt) {
-        super.update(dt)
-    }
-
-    shoot() {
-    }
-    */
 
     toString { "[Deflect] ->" + super.toString }
 }

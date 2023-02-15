@@ -31,53 +31,6 @@ class Bullet is Component {
     damage { _damage }
     team { _team }
     toString { "[Bullet team:%(_team) damage:%(_damage)]" }
-
-    static createPlayerBullet(owner, speed, damage) {
-        var owt = owner.getComponent(Transform)
-        var bullet = Entity.new()
-        var t = Transform.new(owt.position + Vec2.new(0,10))
-        var dir =  Vec2.new(Game.random.float(-0.2, 0.2), 1.0)
-        dir = dir.normal
-        dir = dir * speed
-        var v = dir
-        var bd = Body.new(5, v)
-        var bl = Bullet.new(Team.Player, damage)
-        var tr = TurnToVelocity.new()
-        var s = Sprite.new("[game]/assets/images/projectiles/pl_cannon.png")
-        s.layer = 1.9
-        s.flags = Render.spriteCenter
-        //s.addAnimation("anim", [0,1,2])
-        //s.playAnimation("anim") 
-        bullet.addComponent(t)
-        bullet.addComponent(bd)
-        bullet.addComponent(bl)
-        bullet.addComponent(s)
-        bullet.addComponent(tr)
-        bullet.name = "Bullet"
-        bullet.tag = Tag.Player | Tag.Bullet
-        bullet.addComponent(DebugColor.new(0x8BEC46FF))
-    }
-
-    static create(owner, speed, damage) {
-        var owt = owner.getComponent(Transform)
-        var bullet = Entity.new()
-        var t = Transform.new(owt.position - Vec2.new(0, 0))
-        var v = Vec2.new(0, speed)
-        var bd = Body.new(5, v)
-        var bl = Bullet.new(Team.Player, damage)
-        var s = Sprite.new("[game]/assets/images/projectiles/cannon.png")
-        s.layer = 1.9
-        s.flags = Render.spriteCenter
-        //s.addAnimation("anim", [0,1,2])
-        //s.playAnimation("anim") 
-        bullet.addComponent(t)
-        bullet.addComponent(bd)
-        bullet.addComponent(bl)
-        bullet.addComponent(s)
-        bullet.name = "Bullet"
-        bullet.tag = Tag.Computer | Tag.Bullet
-        bullet.addComponent(DebugColor.new(0xFFA8D3FF))
-    }
 }
 
 class Missile is Bullet {
@@ -123,34 +76,6 @@ class Missile is Bullet {
         }
         
         super.update(dt)
-    }
-
-    static create(owner, speed, damage) {
-        var owt = owner.getComponent(Transform)
-        var bullet = Entity.new()
-        var t = Transform.new(owt.position - Vec2.new(0, 0))
-        var v = Vec2.randomDirection()        
-        v = v.normal * speed   
-        if(v.y < 0) {
-            v.y = -v.y
-        }
-
-        var bd = Body.new(5, v)
-        var bl = Missile.new(Team.Computer, speed)
-        var u = Unit.new(Team.Computer, 1.0, true)
-        var s = Sprite.new("[game]/assets/images/projectiles/missile.png")
-        s.layer = 1.9
-        s.flags = Render.spriteCenter
-        // s.addAnimation("anim", [0,1,2])
-        // s.playAnimation("anim") 
-        bullet.addComponent(t)
-        bullet.addComponent(bd)
-        bullet.addComponent(bl)
-        bullet.addComponent(s)
-        bullet.addComponent(u)
-        bullet.name = "Bullet"
-        bullet.tag = Tag.Computer | Tag.Bullet | Tag.Unit
-        bullet.addComponent(DebugColor.new(0xFDFFC1FF))
     }
 
     toString { "[Missile] ->" + super.toString }

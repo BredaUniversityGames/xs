@@ -13,8 +13,6 @@ class Boss is Component {
         __offsets.add(Vec2.new(0, 0))
         __offsets.add(Vec2.new(0, 1))
         __offsets.add(Vec2.new(0, -1))
-        //__offsets.add(Vec2.new(0, 2))
-        //__offsets.add(Vec2.new(0, -2))
 
         __offsets.add(Vec2.new(1, 0))
         __offsets.add(Vec2.new(1, 1))
@@ -125,7 +123,7 @@ class Boss is Component {
         if(type == "C") {                                 //  Cannon
             s.idx = 0
             c = DebugColor.new(0xFFA8D3FF)
-            var w = Cannon.new()
+            var w = Cannon.new(level)
             part.addComponent(w)
         } else if (type == "L") {                           // Laser
             s.idx = 1
@@ -135,12 +133,12 @@ class Boss is Component {
         } else if(type == "M") {                            // Missiles
             s.idx = 2
             c = DebugColor.new(0xFDFFC1FF)
-            var w = Missiles.new()
+            var w = Missiles.new(level)
             part.addComponent(w)
         } else if(type == "D") {                            // Deflect
             part.tag = (part.tag| Tag.Deflect)              // |
             s.idx = 3
-            var d = Deflect.new()
+            var d = Deflect.new(level)
             part.addComponent(d)
             c = DebugColor.new(0xFFB599FF)
         } else if(type == "N") {                            // Needler
@@ -253,6 +251,15 @@ class Boss is Component {
             }
         }
 
+        for(pr in  pairs) {
+            for(p in pr) {
+                var r = p.owner.getComponent(SlowRelation)
+                var s = p.owner.getComponentSuper(Sprite)
+                s.layer = 1 + r.offset.y * 0.01
+            }
+        }
+
+
         var bs = Boss.new(pairs)
         ship.addComponent(bs) 
         return ship
@@ -297,7 +304,7 @@ class Boss is Component {
 
     initialize() {
         _unit = owner.getComponent(Unit)
-        _maxHealth = _unit.maxHealth
+        _maxHealth = 0.0 // _unit.maxHealth
         for(pr in  _pairs) {
             for(p in pr) {
                 var u = p.owner.getComponent(Unit)
@@ -353,12 +360,14 @@ class Boss is Component {
         var u = owner.getComponent(Unit)
         if(_health <= 0.0) {
             u.multiplier = 1
+        } else {
+            u.multiplier = 0.0
         }
         _health = _health + u.health
     }
 
     shoot() {
-        Bullet.create(
+        Create.enemyBullet(
             owner,
             -Data.getNumber("Cannon Round Speed"),
             Data.getNumber("Cannon Damage"))
@@ -380,3 +389,4 @@ import "weapons/missiles" for Missiles
 import "weapons/deflect" for Deflect
 import "game" for Game
 import "unit" for Unit
+import "create" for Create

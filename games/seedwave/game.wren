@@ -16,16 +16,7 @@ class GameState {
 
 class Game {
 
-    static config() {
-        /*
-        Usiing system.json file instead
-        Data.setString("Title", "~~seedwave~~", Data.system)
-        Data.setNumber("Width", 640, Data.system)
-        Data.setNumber("Height", 360, Data.system)
-        Data.setNumber("Multiplier", 1, Data.system)
-        Data.setBool("Fullscreen", false, Data.system)
-        */
-    }    
+    static config() {}    
 
     static init() {
         Entity.init()      
@@ -40,6 +31,7 @@ class Game {
         __boss = Boss.randomBoss(__size)
         System.print(Game.boss.getComponent(Boss))
         __healthBar = Create.bossHealthBar()
+        Create.coreHealthBar()
         __totalTime = 0
         __bossTime = 0              
     }    
@@ -99,7 +91,7 @@ class Game {
         __boss = Boss.randomBoss(__size)
 
         __healthBar.delete()
-        __healthBar = Create.bossHealthBar()
+        __healthBar = Create.bossHealthBar()        
     }
 
     static collide(bullets, units) {        
