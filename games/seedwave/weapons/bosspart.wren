@@ -30,7 +30,7 @@ class BossPart is Component {
     shoot() {}
     ready { true }
     destroyed { owner.getComponent(Unit) == null }
-    wait { 0.25 }
+    wait { Data.getNumber("Default Part Wait") }
     level { _level }
 }
 

@@ -13,6 +13,7 @@ class Unit is Component {
         _destroy = destroy
         _timer = 0
         _multiplier = 1.0
+        _damage = 0.0
     }
 
     initialize() {
@@ -22,6 +23,7 @@ class Unit is Component {
     damage(d) {
         _health = _health - d * _multiplier
         _timer = 0.15
+        _damage = d
 
         if(_team == Team.Player) {
             Input.setPadVibration(10, 10)
@@ -50,6 +52,12 @@ class Unit is Component {
                 _sprite.add = 0x00000000
             }
         }
+    }
+
+    damage {
+        var d = _damage
+        _damage = 0.0
+        return d
     }
 
     toString { "[Unit team:%(_team) health:%(_health)]" }

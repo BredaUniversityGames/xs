@@ -12,10 +12,17 @@ class Cannon is BossPart {
     }
     
     shoot() {
-        Create.enemyBullet(
-            owner,
-            -Data.getNumber("Cannon Round Speed"),
-            Data.getNumber("Cannon Damage"))
+        var t = (level / 2).floor
+        t = 1.5 * Data.getNumber("Cannon Spread") * -t
+        var dt = Data.getNumber("Cannon Spread")
+        for(i in 0...level) {
+            Create.enemyBullet(
+                owner,
+                -Data.getNumber("Cannon Round Speed"),
+                Data.getNumber("Cannon Damage"),
+                Vec2.new(t, 0))
+            t = t + dt
+        }
     }
 }
 
