@@ -8,7 +8,6 @@ class Boss is Component {
         static init() {
         __random = Random.new()
         __offsets = []
-        __dna = ""
 
         __offsets.add(Vec2.new(0, 0))
         __offsets.add(Vec2.new(0, 1))
@@ -55,39 +54,7 @@ class Boss is Component {
         __offsets.add(Vec2.new(7, -1))
         __offsets.add(Vec2.new(7, 2))
         __offsets.add(Vec2.new(7, -2))
-    }
-
-    static generateDna(size) {
-        System.print(size)
-        var dna = ""
-        var protein = 0
-        while(protein <= size) {
-            var r = __random.int(-1, 5)
-            var l = __random.int(1, 4)
-            if(r <= 0) {
-                dna = dna + "S"                 // Skip
-                continue
-            } else if(r == 1) {
-                dna = dna + "C" + l.toString    // Canons
-            } else if(r == 2) {
-                dna = dna + "L" + l.toString    // Lasers
-            } else if(r == 3) {
-                dna = dna + "M" + l.toString    // Missles
-            } else if(r == 4) {
-                dna = dna + "D" + l.toString    // Deflect
-            } else if(r == 5) {
-                dna = dna + "N" + l.toString    // Needler
-            } else if(r == 6) {
-                dna = dna + "E" + l.toString    // EMP
-            } else if(r == 7) {
-                dna = dna + "H" + l.toString    // Helpers
-            } else if(r == 7) {
-                dna = dna + "V" + l.toString    // Vulcan
-            } 
-            protein = protein + l
-        }
-        return dna
-    }
+    }    
 
     static part(boss, type, level, position) {
         var l = __random.float(
@@ -173,7 +140,7 @@ class Boss is Component {
     }
 
     static create(dna) {
-        System.print(dna)
+        System.print("Creating boss with dna %(dna)")
         var ship = Entity.new()
         var p = Vec2.new(0, 0)
         var t = Transform.new(p)        
@@ -201,7 +168,7 @@ class Boss is Component {
         var maxOrbit = 0        
         for(i in dna) {
             var level = Num.fromString(i)
-            if(level != null && type != null) {
+            if(level != null && level != 0 && type != null) {
                 var pos = Vec2.new(__offsets[idx].x, __offsets[idx].y)                
                 pos = getOffset(pos.x, pos.y, maxOrbit)
                 var rad = getPartSize(level)
@@ -235,9 +202,10 @@ class Boss is Component {
                     maxOrbit = pos.magnitude
                 }
 
+                System.print("type=%(type)")
                 var posL = Vec2.new(-pos.x, pos.y)
                 var partR = part(ship, type, level, pos)
-                var partL = part(ship, type, level, posL)
+                var partL = part(ship, type, level, posL)                
                 pairs.add( [partR.getComponentSuper(BossPart), partL.getComponentSuper(BossPart)] )
                 level = null
                 type = null
@@ -263,22 +231,7 @@ class Boss is Component {
         var bs = Boss.new(pairs)
         ship.addComponent(bs) 
         return ship
-    }
-
-    static randomBoss(size) {        
-        var dna = ""
-        if(!Data.getString("DNA", Data.debug).isEmpty) {
-            dna = Data.getString("DNA", Data.debug)
-        } else if(Data.getNumber("Protein", Data.debug) != 0) {
-            dna = generateDna(Data.getNumber("Protein", Data.debug))
-        } else {
-            dna = generateDna(size)
-        }
-        __dna = dna
-        return create(dna)
-    }
-
-    static dna { __dna }
+    }    
 
     static getOffset(orbit, slot, maxOrbit) {
         var dr = Data.getNumber("Boss Orbit Radius")
@@ -338,12 +291,12 @@ class Boss is Component {
                     var part = pair[i]            
                     if(!part.destroyed && part.ready) {
                         pair[i].shoot()
-                        _wait = _wait + 0.15
+                        _wait = _wait + part.wait
                     }
                 }
             } else {
                 shoot()
-                _wait = _wait + 0.15                
+                _wait = _wait + 0.15   
             }
         }
 
@@ -361,7 +314,7 @@ class Boss is Component {
         if(_health <= 0.0) {
             u.multiplier = 1
         } else {
-            u.multiplier = 0.0
+            u.multiplier = 0.2
         }
         _health = _health + u.health
     }
@@ -370,7 +323,8 @@ class Boss is Component {
         Create.enemyBullet(
             owner,
             -Data.getNumber("Cannon Round Speed"),
-            Data.getNumber("Cannon Damage"))
+            Data.getNumber("Cannon Damage"),
+            Vec2.new())
     }
 
     maxHealth { _maxHealth }

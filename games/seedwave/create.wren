@@ -5,9 +5,6 @@ import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, Anim
 import "boss" for Boss
 import "components" for SlowRelation, TurnToVelocity
 
-class Evolver {
-}
-
 class Create {
     static bossHealthBar() {        
         var e = Entity.new()
@@ -124,10 +121,10 @@ class Create {
         bullet.addComponent(DebugColor.new(0xFDFFC1FF))
     }
 
-    static enemyBullet(owner, speed, damage) {
+    static enemyBullet(owner, speed, damage, offset){
         var owt = owner.getComponent(Transform)
         var bullet = Entity.new()
-        var t = Transform.new(owt.position - Vec2.new(0, 0))
+        var t = Transform.new(owt.position + offset)
         var v = Vec2.new(0, speed)
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.Player, damage)

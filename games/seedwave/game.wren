@@ -21,19 +21,14 @@ class Game {
     static init() {
         Entity.init()      
         Boss.init()
+        Evolver.init()
 
         Background.createBackground()
         __random = Random.new()
-        __player = Player.create()        
+        __player = Player.create()
         Create.playerHealthBar()
 
-        __size = 3
-        __boss = Boss.randomBoss(__size)
-        System.print(Game.boss.getComponent(Boss))
-        __healthBar = Create.bossHealthBar()
-        Create.coreHealthBar()
-        __totalTime = 0
-        __bossTime = 0              
+        nextBoss()
     }    
     
     static update(dt) {
@@ -51,7 +46,6 @@ class Game {
     }
 
     static updateGame(dt) {
-        __totalTime = __totalTime + dt
         __bossTime = __bossTime + dt
         var playerUnits = Entity.withTag(Tag.Player | Tag.Unit)
         var playerBullets = Entity.withTag(Tag.Player | Tag.Bullet)
@@ -62,6 +56,12 @@ class Game {
         Game.collide(playerBullets, computerUnits)
         Game.collide(playerBullets, playerUnits)
 
+        {
+            var pu = __player.getComponent(Unit)
+            __bossDamage = __bossDamage + pu.damage
+        }
+
+
         if(__boss.deleted) {            
             Game.nextBoss()
         }
@@ -69,7 +69,7 @@ class Game {
         Render.setColor(1, 1, 1, 1)
         var y = 140
         var x = -310
-        Render.shapeText("DNA:%(Boss.dna)", x, y, 1)
+        Render.shapeText("DNA:%(Evolver.currentDna)", x, y, 1)
         y = y - 10
         Render.shapeText("BossTime:%(__bossTime.round)", x, y, 1)
         y = y - 10
@@ -83,15 +83,24 @@ class Game {
         Render.shapeText("Boss Max Health:%(bb.maxHealth)", x, y, 1)
         y = y - 10
         Render.shapeText("Boss Health:%(bb.health)", x, y, 1)
+        y = y - 10
+        Render.shapeText("Boss Damage:%(__bossDamage)", x, y, 1)
     }
 
     static nextBoss() {
-        __bossTime = 0
-        __size = __size + 1
-        __boss = Boss.randomBoss(__size)
+        if(__healthBar != null) {
+            __healthBar.delete()
+            __coreBar.delete()
+            Evolver.addScoreToCurrent(__bossDamage)
+        }
 
-        __healthBar.delete()
-        __healthBar = Create.bossHealthBar()        
+        __bossTime = 0
+        __bossDamage = 0
+        
+        var dna = Evolver.getNextDna()
+        __boss = Boss.create(dna)
+        __healthBar = Create.bossHealthBar()
+        __coreBar = Create.coreHealthBar()
     }
 
     static collide(bullets, units) {        
@@ -122,7 +131,6 @@ class Game {
 
     static render() {
         if(Data.getBool("Renderable Render", Data.debug)) {
-        // {
             Renderable.render()
         }
     }
@@ -152,3 +160,4 @@ import "boss" for Boss
 import "bullets" for Bullet
 import "player" for Player
 import "create" for Create
+import "evolver" for Evolver

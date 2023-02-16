@@ -6,8 +6,8 @@ import shutil
 from pathlib import Path
 from shutil import copytree, ignore_patterns
 
-game_dir = "micro-horizon"
-itch_name = "horizon-zero-scope"
+game_dir = "seedwave"
+itch_name = "peperuga"
 user = "bojan"
 
 os.system('MSBuild xs.sln /p:Platform=PC /p:Configuration=Test')

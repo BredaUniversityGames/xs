@@ -47,7 +47,7 @@ class Laser is BossPart {
             }
 
             // Do some damage here
-            if(_time > 1.0) {
+            if(_time > _duration) {
                 _beam.delete()
                 _state = LaserState.cooldown
                 _time = 0.0
@@ -80,6 +80,8 @@ class Laser is BossPart {
         _beam.addComponent(s)
         _beam.addComponent(r)
     }
+
+    wait { Data.getNumber("Laser Wait") }
 
     ready { _state == LaserState.idle }
 }

@@ -12,10 +12,14 @@ class Missiles is BossPart {
     }
 
     shoot() {
-        Create.missile(owner,
-            Data.getNumber("Missle Speed"),
-            Data.getNumber("Missle Damage"))
+        for(i in 0...level) {
+            Create.missile(owner,
+                Data.getNumber("Missle Speed"),
+                Data.getNumber("Missle Damage"))
+        }
     }
+
+    wait { Data.getNumber("Missle Wait") }
 
     toString { "[Missiles _time:%(_time)] ->" + super.toString }
 }
