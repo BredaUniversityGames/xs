@@ -15,6 +15,7 @@ namespace xs::data
 	void initialize();
 	void shutdown();
 	void inspect(bool& show);	
+	bool has_chages();
 
 	double get_number(const std::string& name, type type);
 	uint32_t get_color(const std::string& name, type type);

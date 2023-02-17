@@ -13,13 +13,13 @@
 #include "profiler.h"
 #include "device.h"
 #include "render.h"
+#include "tools.h"
 #if defined(PLATFORM_PC)
 #include <GLFW/glfw3.h>
 #include "device_pc.h"
 #elif defined(PLATFORM_SWITCH)
 #include <nn/fs.h>
 #endif
-
 
 namespace xs::inspector::internal
 {
@@ -29,10 +29,14 @@ namespace xs::inspector::internal
 	bool show_profiler = false;
 	void embrace_the_darkness();
 	void follow_the_light();
+	void go_gray();
+	ImVec4 get_nice_color(double hue);
 	float ok_timer = 0.0f;
 	bool theme = false;
 	bool next_frame;
 }
+
+using namespace xs::inspector::internal;
 
 void xs::inspector::initialize()
 {
@@ -81,7 +85,7 @@ void xs::inspector::initialize()
 	strcpy(str, constStr);
 	io.IniFilename = str;
 
-	xs::inspector::internal::embrace_the_darkness();
+	xs::inspector::internal::go_gray();
 }
 
 void xs::inspector::shutdown()
@@ -105,7 +109,6 @@ void xs::inspector::render(float dt)
 #ifdef PLATFORM_PS5
 	return;
 #endif // PLATFORM_PS5
-
 	
 	ImGui_Impl_NewFrame();
 
@@ -131,8 +134,14 @@ void xs::inspector::render(float dt)
 		ImGui::SetWindowPos({ 0,0 });		
 		ImGui::SetWindowSize({(float)(xs::device::get_width()), -1 });
 
+
+		double hue = 0.0;
+		double dhue = 60.0;
+		ImGuiStyle& style = ImGui::GetStyle();
+		ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_WindowBg]);
+		ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
-		{
+		{		
 			render::reload();
 			script::shutdown();
 			script::configure();
@@ -140,59 +149,93 @@ void xs::inspector::render(float dt)
 			if(!xs::script::has_error())
 				internal::ok_timer = 4.0f;
 		}		
-		Tooltip("Reload Game");
-
+		ImGui::PopStyleColor();
+		Tooltip("Reload Game");		
+	
+		hue += dhue;		
 		ImGui::SameLine();
 		if (internal::paused)
 		{
+			ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 			if (ImGui::Button(ICON_FA_PLAY))
 				internal::paused = false;
+			ImGui::PopStyleColor();
 			Tooltip("Play");			
 			ImGui::SameLine();
+			ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 			if (ImGui::Button(ICON_FA_FAST_FORWARD))
 				internal::next_frame = true;
+			ImGui::PopStyleColor();
 			Tooltip("Next Frame");			
 		}
 		else
 		{
+			ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 			if (ImGui::Button(ICON_FA_PAUSE))
 				internal::paused = true;
+			ImGui::PopStyleColor();
 			Tooltip("Pause");
-		}
+		}		
 
+		hue += dhue;
+		ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_DATABASE))
 		{
 			internal::show_registry = !internal::show_registry;
 		}
+		ImGui::PopStyleColor();
 		Tooltip("Data");
+		
 
+		
 		ImGui::SameLine();
+		hue += dhue;
+		ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 		if (ImGui::Button(ICON_FA_CHART_BAR))
 		{
 			internal::show_profiler = !internal::show_profiler;
 		}
+		ImGui::PopStyleColor();
 		Tooltip("Profiler");
 
 		ImGui::SameLine();
+		hue += dhue;
+		ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 		if (ImGui::Button(ICON_FA_IMAGES))
 		{
 			render::reload_images();	
 			internal::next_frame = true;
 		}
+		ImGui::PopStyleColor();
 		Tooltip("Reload Art");
 
 
 		ImGui::SameLine();
+		hue += dhue;
+		ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 		if (ImGui::Button(ICON_FA_ADJUST))
 		{
 			internal::theme = !internal::theme;
 			if (internal::theme)
-				internal::follow_the_light();
-			else
 				internal::embrace_the_darkness();				
+			else
+				internal::go_gray();
+				
 		}
-		Tooltip("Theme");
+		ImGui::PopStyleColor();
+		Tooltip("Theme");		
+		
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));		
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
+		{
+		}
+		Tooltip("About");
+		ImGui::SameLine();
+		ImGui::Text("| xs %s |", xs::version::version_string.c_str());
+		ImGui::PopStyleColor();
+		Tooltip("Engine Version");
 
 		ImGui::SameLine();
 		if (internal::ok_timer > 0.0f) {
@@ -207,27 +250,28 @@ void xs::inspector::render(float dt)
 		if (xs::script::has_error())
 		{
 			internal::paused = true;
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));		
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.1f, 0.1f, 1.0f));
 			if (ImGui::Button(ICON_FA_TIMES_CIRCLE))
-			{	
+			{
 				xs::script::clear_error();
 				internal::paused = false;
-			}			
-			Tooltip("Script Error! Check output.");		
+			}
+			Tooltip("Script Error! Check output.");
 			ImGui::PopStyleColor(1);
 		}
-		
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));		
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
-		{
+
+		if (xs::data::has_chages()) {
+			ImGui::SameLine();
+			ImGui::PushStyleColor(ImGuiCol_Text, 0xFFFF5FB9);
+			if (ImGui::Button(ICON_FA_EXCLAMATION_TRIANGLE)) {
+				internal::show_registry = true;
+			}
+			ImGui::PopStyleColor();
+			Tooltip("Data has unsaved changes");
 		}
-		Tooltip("About");
-		ImGui::SameLine();
-		ImGui::Text("| xs %s", xs::version::version_string.c_str());
+
 		ImGui::PopStyleColor();
-		Tooltip("Engine Version");
-		ImGui::End();
+		ImGui::End();		
 
 		if (internal::show_registry)
 		{
@@ -403,4 +447,95 @@ void xs::inspector::internal::follow_the_light()
 	style.PopupBorderSize = 0;
 	style.FrameBorderSize = 0;
 	style.TabBorderSize = 0;
+}
+
+void xs::inspector::internal::go_gray()
+{
+	ImVec4* colors = ImGui::GetStyle().Colors;
+	colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+	colors[ImGuiCol_WindowBg] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+	colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	colors[ImGuiCol_PopupBg] = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
+	colors[ImGuiCol_Border] = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
+	colors[ImGuiCol_BorderShadow] = ImVec4(0.24f, 0.24f, 0.24f, 0.00f);
+	colors[ImGuiCol_FrameBg] = ImVec4(0.54f, 0.54f, 0.54f, 1.00f);
+	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.26f, 0.26f, 0.54f);
+	colors[ImGuiCol_FrameBgActive] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
+	colors[ImGuiCol_TitleBg] = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
+	colors[ImGuiCol_TitleBgActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+	colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
+	colors[ImGuiCol_MenuBarBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.22f, 0.22f, 0.22f, 0.54f);
+	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.34f, 0.34f, 0.34f, 0.54f);
+	colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
+	colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	colors[ImGuiCol_CheckMark] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	colors[ImGuiCol_SliderGrab] = ImVec4(0.34f, 0.34f, 0.34f, 0.54f);
+	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.56f, 0.56f, 0.56f, 0.54f);
+	colors[ImGuiCol_Button] = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
+	colors[ImGuiCol_ButtonHovered] = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
+	colors[ImGuiCol_ButtonActive] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_Header] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+	colors[ImGuiCol_HeaderHovered] = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
+	colors[ImGuiCol_HeaderActive] = ImVec4(0.20f, 0.22f, 0.23f, 0.33f);
+	colors[ImGuiCol_Separator] = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
+	colors[ImGuiCol_SeparatorHovered] = ImVec4(0.44f, 0.44f, 0.44f, 0.29f);
+	colors[ImGuiCol_SeparatorActive] = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
+	colors[ImGuiCol_ResizeGrip] = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
+	colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.44f, 0.44f, 0.44f, 0.29f);
+	colors[ImGuiCol_ResizeGripActive] = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
+	colors[ImGuiCol_Tab] = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
+	colors[ImGuiCol_TabHovered] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+	colors[ImGuiCol_TabActive] = ImVec4(0.20f, 0.20f, 0.20f, 0.36f);
+	colors[ImGuiCol_TabUnfocused] = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
+	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+	colors[ImGuiCol_DockingPreview] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
+	colors[ImGuiCol_DockingEmptyBg] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_PlotLines] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_PlotHistogram] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_PlotHistogramHovered] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_TableHeaderBg] = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
+	colors[ImGuiCol_TableBorderStrong] = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
+	colors[ImGuiCol_TableBorderLight] = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
+	colors[ImGuiCol_TableRowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	colors[ImGuiCol_TableRowBgAlt] = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+	colors[ImGuiCol_TextSelectedBg] = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
+	colors[ImGuiCol_DragDropTarget] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
+	colors[ImGuiCol_NavHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
+	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
+	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
+
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.WindowPadding = ImVec2(8.00f, 8.00f);
+	style.FramePadding = ImVec2(5.00f, 2.00f);
+	// style.CellPadding = ImVec2(6.00f, 6.00f);
+	style.ItemSpacing = ImVec2(6.00f, 6.00f);
+	style.ItemInnerSpacing = ImVec2(6.00f, 6.00f);
+	style.TouchExtraPadding = ImVec2(0.00f, 0.00f);
+	style.IndentSpacing = 25;
+	style.ScrollbarSize = 10;
+	style.GrabMinSize = 10;
+	style.WindowBorderSize = 1;
+	style.ChildBorderSize = 0;
+	style.PopupBorderSize = 0;
+	style.FrameBorderSize = 0;
+	style.TabBorderSize = 1;
+	style.WindowRounding = 7;
+	style.ChildRounding = 4;
+	style.FrameRounding = 3;
+	style.PopupRounding = 4;
+	style.ScrollbarRounding = 9;
+	style.GrabRounding = 3;
+	style.LogSliderDeadzone = 4;
+	style.TabRounding = 4;
+	style.FrameBorderSize = 0;
+}
+
+ImVec4 xs::inspector::internal::get_nice_color(double hue)
+{
+	auto rgb = xs::tools::hsv_to_rgb(hue, 0.4, 0.9);
+	return ImVec4((float)std::get<0>(rgb), (float)std::get<1>(rgb), (float)std::get<2>(rgb), 1.0f);
 }

@@ -33,11 +33,14 @@ namespace xs::data::internal
 	vector<regsitry_type> history;
 	int history_stack_pointer;
 
+	std::unordered_map<xs::data::type, bool> edited;
+
 	template<class T>
 	T get(const std::string& name, type type);
 
 	template<typename T>
 	void set(const std::string& name, const T& reg_value, type type, bool active = false);
+
 
 	uint32_t color_convert(ImVec4 color)
 	{
@@ -59,7 +62,9 @@ namespace xs::data::internal
 			((color >> 0) & 0xFF) * s);
 	}
 
-	void inspect_entry(std::pair<const std::string, registry_value>& itr);
+	ImVec4 get_nice_color(double hue);
+
+	bool inspect_entry(std::pair<const std::string, registry_value>& itr);
 	void inspect_of_type(const std::string& type_name, ImGuiTextFilter& filter, type type);
 	void save_of_type(type type);
 	void load_of_type(type type);
@@ -123,7 +128,10 @@ void xs::data::inspect(bool& show)
 		history.push_back(r);
 	}
 
-	ImGui::Begin(u8"\U0000f1c0  Data", &show);	
+	ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(120));
+	ImGui::Begin(u8"\U0000f1c0  Data", &show, ImGuiWindowFlags_NoCollapse);
+	ImGui::PopStyleColor();
+
 
 	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
 	if (ImGui::Button(ICON_FA_UNDO))
@@ -161,6 +169,11 @@ void xs::data::inspect(bool& show)
 	ImGui::EndChild();
 
 	ImGui::End();
+}
+
+bool xs::data::has_chages()
+{
+	return edited[type::debug] || edited[type::game] || edited[type::system];
 }
 
 double xs::data::get_number(const std::string& name, type type)
@@ -220,11 +233,15 @@ void xs::data::internal::inspect_of_type(
 				sorted.push_back(itr.first);
 		sort(sorted.begin(), sorted.end());
 
+		bool& ed = edited[type];
 		for(const auto& s : sorted)
-			inspect_entry(*reg.find(s));
+			ed = std::max(ed, inspect_entry(*reg.find(s)));
 
+		bool ted = ed;
+		if(ted) ImGui::PushStyleColor(ImGuiCol_Button, 0xFF773049);
 		if (ImGui::Button("Save"))
 			save_of_type(type);
+		if (ted) ImGui::PopStyleColor();
 		tooltip("Save to a file");
 		ImGui::SameLine();
 
@@ -278,6 +295,8 @@ void xs::data::internal::save_of_type(type type)
 		ofs << str;
 		ofs.close();
 	}
+
+	edited[type] = false;
 }
 
 void xs::data::internal::load_of_type(type type)
@@ -331,18 +350,18 @@ const string& xs::data::internal::get_file_path(type type)
 	return no_path;
 }
 
-void xs::data::internal::inspect_entry(
+bool xs::data::internal::inspect_entry(
 	std::pair<const std::string,
 	xs::data::internal::registry_value>& itr)
 {
-
+	bool edited = false;
 	{
 		auto val = std::get_if<double>(&itr.second.value);
 		if(val)
 		{
 			auto val = std::get<double>(itr.second.value);
 			float flt = (float)val;
-			ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);			
+			edited = ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);			
 			set(itr.first, flt, itr.second.type, itr.second.active);
 		}
 	}
@@ -352,7 +371,7 @@ void xs::data::internal::inspect_entry(
 		auto val = std::get_if<bool>(&itr.second.value);
 		if (val)
 		{
-			ImGui::Checkbox(itr.first.c_str(), val);
+			edited = ImGui::Checkbox(itr.first.c_str(), val);
 			set(itr.first, *val, itr.second.type, itr.second.active);
 		}
 	}
@@ -362,7 +381,7 @@ void xs::data::internal::inspect_entry(
 		if (val)
 		{
 			ImVec4 vec = color_convert(*val);
-			ImGui::ColorEdit4(itr.first.c_str(), &vec.x);
+			edited = ImGui::ColorEdit4(itr.first.c_str(), &vec.x);
 			*val = color_convert(vec);
 			set(itr.first, *val, itr.second.type, itr.second.active);
 		}
@@ -373,22 +392,10 @@ void xs::data::internal::inspect_entry(
 		if (val)
 		{			
 			ImGui::PushItemWidth(0);
-			ImGui::InputText(itr.first.c_str(), val);
+			edited = ImGui::InputText(itr.first.c_str(), val);
 			ImGui::PopItemWidth();
 			set(itr.first, *val, itr.second.type);
 		}
-	}
-
-	if (!itr.second.active)
-	{
-		
-		ImGui::SameLine(ImGui::GetWindowWidth() - 40);
-		ImGui::PushID(itr.first.c_str());
-		if (ImGui::Button(u8"\xf1f8"))
-		{
-			reg.erase(itr.first);			
-		}
-		ImGui::PopID();
 	}
 
 	if (ImGui::IsItemDeactivatedAfterEdit())
@@ -402,6 +409,21 @@ void xs::data::internal::inspect_entry(
 		regsitry_type r(reg);
 		history.push_back(r);
 	}
+
+
+	if (!itr.second.active)
+	{
+
+		ImGui::SameLine(ImGui::GetWindowWidth() - 40);
+		ImGui::PushID(itr.first.c_str());
+		if (ImGui::Button(u8"\xf1f8"))
+		{
+			reg.erase(itr.first);
+		}
+		ImGui::PopID();
+	}
+
+	return edited;
 }
 
 void xs::data::internal::tooltip(const char* tooltip)
@@ -437,3 +459,10 @@ void xs::data::internal::redo()
 		reg = r;
 	}
 }
+
+ImVec4 xs::data::internal::get_nice_color(double hue)
+{
+	auto rgb = xs::tools::hsv_to_rgb(hue, 0.4, 0.9);
+	return ImVec4((float)std::get<0>(rgb), (float)std::get<1>(rgb), (float)std::get<2>(rgb), 1.0f);
+}
+
