@@ -17,5 +17,7 @@ namespace xs::profiler
 
 	void begin_section(const std::string& name);
 	void end_section(const std::string& name);
+	void begin_timing();
+	double end_timing();
 	void inspect(bool& show);
 }

@@ -9,19 +9,20 @@
 namespace xs::profiler::internal
 {
 
-using time_t = std::chrono::time_point<std::chrono::steady_clock>;
-using span_t = std::chrono::nanoseconds;
+    using time_t = std::chrono::time_point<std::chrono::steady_clock>;
+    using span_t = std::chrono::nanoseconds;
 
-struct entry
-{
-	time_t start{};
-	time_t end{};
-	span_t accum{};
-	float avg = 0.0f;
-	std::deque<float> history;
-};
-std::unordered_map<std::string, entry> times;
+    struct entry
+    {
+	    time_t start{};
+	    time_t end{};
+	    span_t accum{};
+	    float avg = 0.0f;
+	    std::deque<float> history;
+    };
+    std::unordered_map<std::string, entry> times;
 
+    time_t timer{};
 }
 
 using namespace xs::profiler;
@@ -52,6 +53,18 @@ void xs::profiler::end_section(const std::string& name)
     auto elapsed = e.end - e.start;
     e.accum += elapsed;
 #endif // defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+}
+
+void xs::profiler::begin_timing()
+{
+    timer = std::chrono::high_resolution_clock::now();
+}
+
+double xs::profiler::end_timing()
+{
+    auto time = std::chrono::high_resolution_clock::now();
+    auto elapsed = time - timer;
+    return (double)elapsed.count() / 1000000.0;
 }
 
 void xs::profiler::inspect(bool& show)
