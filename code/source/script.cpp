@@ -156,6 +156,8 @@ using namespace xs::script::internal;
 
 void xs::script::configure()
 {
+	xs::profiler::begin_timing();
+
 	initialized = false;
 	error = false;
 
@@ -215,7 +217,7 @@ void xs::script::configure()
 			};			
 			string pr = praise[idx];
 			idx = (idx + 1) % praise.size();
-			log::info(string("Script compile success. ") + pr);
+			log::info(string("Game compile success. ") + pr);
 		} break;
 	}
 
@@ -231,6 +233,10 @@ void xs::script::configure()
 		render_method = wrenMakeCallHandle(vm, "render()");
 		wrenCall(vm, config_method);
 	}
+
+	auto timing = xs::profiler::end_timing();
+	log::info("Game compile and configure took {} ms.", timing);
+	
 }
 
 void xs::script::initialize()
@@ -405,6 +411,7 @@ void input_get_button(WrenVM* vm)
 void input_get_button_once(WrenVM* vm)
 {
 	wrenEnsureSlots(vm, 2);
+	CHECK_TYPE(vm, 1, WREN_TYPE_NUM);
 	const auto button = xs::input::gamepad_button(wrenGetSlotDouble(vm, 1));
 	const auto output = xs::input::get_button_once(button);
 	wrenSetSlotBool(vm, 0, output);
