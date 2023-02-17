@@ -139,6 +139,14 @@
         "type": "number",
         "value": 500.0
     },
+    "Player Energy Recovery Speed": {
+        "type": "number",
+        "value": 0.0
+    },
+    "Player Energy Shield Speed": {
+        "type": "number",
+        "value": 0.0
+    },
     "Player Health": {
         "type": "number",
         "value": 150.0

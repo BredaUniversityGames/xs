@@ -202,7 +202,6 @@ class Boss is Component {
                     maxOrbit = pos.magnitude
                 }
 
-                System.print("type=%(type)")
                 var posL = Vec2.new(-pos.x, pos.y)
                 var partR = part(ship, type, level, pos)
                 var partL = part(ship, type, level, posL)                

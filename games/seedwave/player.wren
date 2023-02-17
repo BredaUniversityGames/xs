@@ -9,6 +9,12 @@ import "debug" for DebugColor
 import "components" for SlowRelation
 import "random" for Random
 
+class Shield is Component {
+    construct new() {
+        super()
+    }
+}
+
 class Player is Component {
 
     static create() {
@@ -40,9 +46,10 @@ class Player is Component {
         _shootTime = 0
         _animFrame = 0
         _frame = 0
+        _energy = 100.0
     }
 
-    update(dt) {
+    update(dt) {        
         // Get input        
 
         // Keep in bounds
@@ -72,9 +79,9 @@ class Player is Component {
         }
 
         var speed = Data.getNumber("Player Speed")
-        if(Input.getButton(Input.gamepadButtonWest)) {
-            speed = Data.getNumber("Player Speed When Aiming")
-        }
+        //if(Input.getButton(Input.gamepadButtonWest)) {
+        //    speed = Data.getNumber("Player Speed When Aiming")
+        //}
 
         var b = owner.getComponent(Body)
         var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
@@ -90,17 +97,22 @@ class Player is Component {
         if(Input.getKey(Input.keyLeft)) {
             vel.x = -1.0
         }
-
         
         if(vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
             vel = vel * speed
-            if(Input.getButtonOnce(Input.gamepadButtonWest)) {
-                t.position.x = t.position.x + vel.x.sign * 60.0
-            }
         } else {
             vel = vel * 0
         }
         b.velocity = vel        
+        
+        _energy = _energy + dt * Data.getNumber("Player Energy Recovery Speed")
+        var u = owner.getComponent(Unit)
+        if(Input.getButton(Input.gamepadButtonWest) && _energy > 0.0) {
+            _energy = _energy - dt * Data.getNumber("Player Energy Shield Speed")
+            u.multiplier = 0.0
+        } else {
+            u.multiplier = 1.0
+        }
     }
 
     toString { "[Player]" }

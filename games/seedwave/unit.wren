@@ -23,7 +23,7 @@ class Unit is Component {
     damage(d) {
         _health = _health - d * _multiplier
         _timer = 0.15
-        _damage = d
+        _damage = d * _multiplier
 
         if(_team == Team.Player) {
             Input.setPadVibration(10, 10)
