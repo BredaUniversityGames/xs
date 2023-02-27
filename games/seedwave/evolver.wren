@@ -25,7 +25,7 @@ class Evolver {
     }
 
     static generateDnaPair() {
-        var r = __random.int(-1, 5)
+        var r = __random.int(-1, 9)
         var l = __random.int(1, 4)
         if(r <= 0) {
             return "S0"                // Skip
@@ -42,8 +42,8 @@ class Evolver {
         } else if(r == 6) {
             return "E" + l.toString    // EMP
         } else if(r == 7) {
-            return "H" + l.toString    // Helpers
-        } else if(r == 7) {
+            return "R" + l.toString    // dRones
+        } else if(r == 8) {
             return "V" + l.toString    // Vulcan
         } 
         return ""

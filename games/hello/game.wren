@@ -11,7 +11,6 @@ class Game {
     // The config method is called before the device, window, renderer
     // and most other systems are created. You can use it to change the
     // window title and size (for example).
-    // You can remove this method
     static config() {
         System.print("config")
         

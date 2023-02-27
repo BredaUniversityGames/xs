@@ -6,9 +6,9 @@ import shutil
 from pathlib import Path
 from shutil import copytree, ignore_patterns
 
-game_dir = "seedwave"
-itch_name = "peperuga"
-user = "bojan"
+game_dir = "sample"
+itch_name = "xs"
+user = "xs-engine"
 
 os.system('MSBuild xs.sln /p:Platform=PC /p:Configuration=Test')
 

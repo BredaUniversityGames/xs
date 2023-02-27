@@ -11,4 +11,6 @@ class Deflect is BossPart {
     }
 
     toString { "[Deflect] ->" + super.toString }
+
+    wait() { 0 } 
 }

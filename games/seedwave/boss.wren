@@ -2,7 +2,6 @@ import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
-//import "weapons/needler" for Needler
 
 class Boss is Component {
         static init() {
@@ -23,12 +22,14 @@ class Boss is Component {
         __offsets.add(Vec2.new(2, 1))
         __offsets.add(Vec2.new(2, -1))
         __offsets.add(Vec2.new(2, 2))
-        __offsets.add(Vec2.new(2, -3))
+        __offsets.add(Vec2.new(2, -2))
 
         __offsets.add(Vec2.new(3, 0))
         __offsets.add(Vec2.new(3, 1))
         __offsets.add(Vec2.new(3, -1))
         __offsets.add(Vec2.new(3, 2))
+        __offsets.add(Vec2.new(3, -2))
+        __offsets.add(Vec2.new(3, 3))
         __offsets.add(Vec2.new(3, -3))
 
         __offsets.add(Vec2.new(4, 0))
@@ -36,24 +37,36 @@ class Boss is Component {
         __offsets.add(Vec2.new(4, -1))
         __offsets.add(Vec2.new(4, 2))
         __offsets.add(Vec2.new(4, -2))
+        __offsets.add(Vec2.new(4, 3))
+        __offsets.add(Vec2.new(4, -3))
+
 
         __offsets.add(Vec2.new(5, 0))
         __offsets.add(Vec2.new(5, 1))
         __offsets.add(Vec2.new(5, -1))
         __offsets.add(Vec2.new(5, 2))
         __offsets.add(Vec2.new(5, -2))
+        __offsets.add(Vec2.new(5, 3))
+        __offsets.add(Vec2.new(5, -3))
+
 
         __offsets.add(Vec2.new(6, 0))
         __offsets.add(Vec2.new(6, 1))
         __offsets.add(Vec2.new(6, -1))
         __offsets.add(Vec2.new(6, 2))
         __offsets.add(Vec2.new(6, -2))
+        __offsets.add(Vec2.new(6, 3))
+        __offsets.add(Vec2.new(6, -3))
+
 
         __offsets.add(Vec2.new(7, 0))
         __offsets.add(Vec2.new(7, 1))
         __offsets.add(Vec2.new(7, -1))
         __offsets.add(Vec2.new(7, 2))
         __offsets.add(Vec2.new(7, -2))
+        __offsets.add(Vec2.new(7, 3))
+        __offsets.add(Vec2.new(7, -3))
+
     }    
 
     static part(boss, type, level, position) {
@@ -103,23 +116,31 @@ class Boss is Component {
             var w = Missiles.new(level)
             part.addComponent(w)
         } else if(type == "D") {                            // Deflect
-            part.tag = (part.tag| Tag.Deflect)              // |
+            part.tag = (part.tag | Tag.Deflect)             // |
             s.idx = 3
             var d = Deflect.new(level)
             part.addComponent(d)
             c = DebugColor.new(0xFFB599FF)
-        } else if(type == "N") {                            // Needler
-            s.idx = 4
+        } else if(type == "N") {                            // Needler        
+            s.idx = 4            
             c = DebugColor.new(0xFFB599FF)
+            var n = Needler.new(level)
+            part.addComponent(n)
         } else if(type == "E") {                            // EMP
             s.idx = 5
             c = DebugColor.new(0xFFB599FF)
-        } else if(type == "H") {                            // Helpers
+            var e = EMP.new(level)
+            part.addComponent(e)
+        } else if(type == "R") {                            // Helpers
             s.idx = 6
             c = DebugColor.new(0xFFB599FF)
+            var d = Drones.new(level)
+            part.addComponent(d)
         } else if(type == "V") {                            // Vulcan
             s.idx = 7
             c = DebugColor.new(0xFFB599FF)
+            var v = Vulcan.new(level)
+            part.addComponent(v)
         }
         s.layer = 1.0
         s.flags = Render.spriteCenter
@@ -244,6 +265,12 @@ class Boss is Component {
         return pos
     }
 
+    static debugRender(position) {
+        for(off in __offsets) {
+            var pos = getOffset(off.x, off.y, 0.0) + position
+            Render.disk(pos.x, pos.y, 3.0, 12)
+        }
+    }
 
     construct new(pairs) {
         super()
@@ -328,6 +355,11 @@ class Boss is Component {
 
     maxHealth { _maxHealth }
     health { _health }
+
+    debugRender() {
+        var pos = owner.getComponent(Transform).position
+        Boss.debugRender(pos)
+    }
 }
 
 import "tags" for Team, Tag
@@ -340,6 +372,10 @@ import "weapons/laser" for Laser
 import "weapons/cannon" for Cannon
 import "weapons/missiles" for Missiles
 import "weapons/deflect" for Deflect
+import "weapons/needler" for Needler
+import "weapons/vulcan" for Vulcan
+import "weapons/emp" for EMP
+import "weapons/drones" for Drones
 import "game" for Game
 import "unit" for Unit
 import "create" for Create
