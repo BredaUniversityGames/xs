@@ -174,5 +174,9 @@
     "Slow Lambda": {
         "type": "number",
         "value": 30.0
+    },
+    "Vulcan Speed": {
+        "type": "number",
+        "value": 180.0
     }
 }

@@ -121,11 +121,16 @@ class Create {
         bullet.addComponent(DebugColor.new(0xFDFFC1FF))
     }
 
-    static enemyBullet(owner, speed, damage, offset){
+    static enemyBullet(owner, velocity, damage, offset){
         var owt = owner.getComponent(Transform)
         var bullet = Entity.new()
         var t = Transform.new(owt.position + offset)
-        var v = Vec2.new(0, speed)
+        var v = null
+        if(velocity is Vec2) {
+            v = velocity
+        } else if(velocity is Num) {
+            v = Vec2.new(0, velocity)
+        }
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.Player, damage)
         var s = Sprite.new("[game]/assets/images/projectiles/cannon.png")

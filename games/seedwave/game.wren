@@ -140,6 +140,8 @@ class Game {
     static random { __random }
 
     static debugRender() {
+        boss.getComponent(Boss).debugRender()
+        /*
         for(e in Entity.entities) {
             var b = e.getComponent(Body)
             if(b != null) {
@@ -153,6 +155,7 @@ class Game {
                 Render.disk(t.position.x, t.position.y, b.size, 24)
             }
         }
+        */
     }
 }
 
