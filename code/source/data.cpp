@@ -62,8 +62,6 @@ namespace xs::data::internal
 			((color >> 0) & 0xFF) * s);
 	}
 
-	ImVec4 get_nice_color(double hue);
-
 	bool inspect_entry(std::pair<const std::string, registry_value>& itr);
 	void inspect_of_type(const std::string& type_name, ImGuiTextFilter& filter, type type);
 	void save_of_type(type type);
@@ -128,9 +126,7 @@ void xs::data::inspect(bool& show)
 		history.push_back(r);
 	}
 
-	ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(120));
 	ImGui::Begin(u8"\U0000f1c0  Data", &show, ImGuiWindowFlags_NoCollapse);
-	ImGui::PopStyleColor();
 
 
 	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
@@ -159,14 +155,14 @@ void xs::data::inspect(bool& show)
 	}
 
 	
-	ImGui::BeginChild("Child");
+	//ImGui::BeginChild("Child");
 	ImGui::PushItemWidth(80);
 	inspect_of_type(string(ICON_FA_GAMEPAD) + "  Game", filter, type::game);
 	inspect_of_type(string(ICON_FA_USER) + "  Player", filter, type::player);
 	inspect_of_type(string(ICON_FA_BUG) + "  Debug", filter, type::debug);
 	inspect_of_type(string(ICON_FA_COG) + "  System", filter, type::system);
 	ImGui::PopItemWidth();
-	ImGui::EndChild();
+	//ImGui::EndChild();
 
 	ImGui::End();
 }
@@ -225,30 +221,47 @@ void xs::data::internal::inspect_of_type(
 	ImGuiTextFilter& filter,
 	xs::data::type type)
 {
+	if(edited[type])
+		ImGui::PushStyleColor(ImGuiCol_Text, 0xFFFF5FB9);
+
 	if (ImGui::CollapsingHeader(type_name.c_str()))
 	{
+		if (edited[type])
+			ImGui::PopStyleColor();
+
+		bool& ed = edited[type];
+		{
+			bool ted = ed;
+			if (ted) ImGui::PushStyleColor(ImGuiCol_Button, 0xFF773049);
+			if (ImGui::Button("Save"))
+				save_of_type(type);
+			if (ted) ImGui::PopStyleColor();
+			tooltip("Save to a file");
+			ImGui::SameLine();
+
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+			ImGui::Text("%s", fileio::get_path(get_file_path(type)).c_str());
+			ImGui::PopStyleColor();
+		}
+
+		// ImGui::BeginChild("Child", ImVec2(0, -100)); // TODO:Find out how to get the size
+		ImGui::BeginChild("Child");
+
 		vector<string> sorted;
 		for (auto& itr : reg)
 			if (filter.PassFilter(itr.first.c_str()) && itr.second.type == type)
 				sorted.push_back(itr.first);
 		sort(sorted.begin(), sorted.end());
-
-		bool& ed = edited[type];
-		for(const auto& s : sorted)
+		
+		for (const auto& s : sorted)
 			ed = std::max(ed, inspect_entry(*reg.find(s)));
 
-		bool ted = ed;
-		if(ted) ImGui::PushStyleColor(ImGuiCol_Button, 0xFF773049);
-		if (ImGui::Button("Save"))
-			save_of_type(type);
-		if (ted) ImGui::PopStyleColor();
-		tooltip("Save to a file");
-		ImGui::SameLine();
-
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-		ImGui::Text("%s", fileio::get_path(get_file_path(type)).c_str());
-		ImGui::PopStyleColor();
-	}	
+		ImGui::EndChild();
+	}
+	else {
+		if (edited[type])
+			ImGui::PopStyleColor();
+	}
 }
 
 void xs::data::internal::save_of_type(type type)
@@ -458,11 +471,5 @@ void xs::data::internal::redo()
 		regsitry_type& r = history[idx];
 		reg = r;
 	}
-}
-
-ImVec4 xs::data::internal::get_nice_color(double hue)
-{
-	auto rgb = xs::tools::hsv_to_rgb(hue, 0.4, 0.9);
-	return ImVec4((float)std::get<0>(rgb), (float)std::get<1>(rgb), (float)std::get<2>(rgb), 1.0f);
 }
 

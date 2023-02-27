@@ -30,7 +30,6 @@ namespace xs::inspector::internal
 	void embrace_the_darkness();
 	void follow_the_light();
 	void go_gray();
-	ImVec4 get_nice_color(double hue);
 	float ok_timer = 0.0f;
 	bool theme = false;
 	bool next_frame;
@@ -139,7 +138,6 @@ void xs::inspector::render(float dt)
 		double dhue = 60.0;
 		ImGuiStyle& style = ImGui::GetStyle();
 		ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_WindowBg]);
-		ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
 		{		
 			render::reload();
@@ -149,71 +147,57 @@ void xs::inspector::render(float dt)
 			if(!xs::script::has_error())
 				internal::ok_timer = 4.0f;
 		}		
-		ImGui::PopStyleColor();
 		Tooltip("Reload Game");		
 	
 		hue += dhue;		
 		ImGui::SameLine();
 		if (internal::paused)
 		{
-			ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 			if (ImGui::Button(ICON_FA_PLAY))
 				internal::paused = false;
-			ImGui::PopStyleColor();
 			Tooltip("Play");			
 			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 			if (ImGui::Button(ICON_FA_FAST_FORWARD))
 				internal::next_frame = true;
-			ImGui::PopStyleColor();
 			Tooltip("Next Frame");			
 		}
 		else
 		{
-			ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 			if (ImGui::Button(ICON_FA_PAUSE))
 				internal::paused = true;
-			ImGui::PopStyleColor();
 			Tooltip("Pause");
 		}		
 
 		hue += dhue;
-		ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_DATABASE))
 		{
 			internal::show_registry = !internal::show_registry;
 		}
-		ImGui::PopStyleColor();
 		Tooltip("Data");
 		
 
 		
 		ImGui::SameLine();
 		hue += dhue;
-		ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 		if (ImGui::Button(ICON_FA_CHART_BAR))
 		{
 			internal::show_profiler = !internal::show_profiler;
 		}
-		ImGui::PopStyleColor();
 		Tooltip("Profiler");
 
 		ImGui::SameLine();
 		hue += dhue;
-		ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 		if (ImGui::Button(ICON_FA_IMAGES))
 		{
 			render::reload_images();	
 			internal::next_frame = true;
 		}
-		ImGui::PopStyleColor();
 		Tooltip("Reload Art");
 
 
 		ImGui::SameLine();
 		hue += dhue;
-		ImGui::PushStyleColor(ImGuiCol_Text, get_nice_color(hue));
 		if (ImGui::Button(ICON_FA_ADJUST))
 		{
 			internal::theme = !internal::theme;
@@ -223,7 +207,6 @@ void xs::inspector::render(float dt)
 				internal::go_gray();
 				
 		}
-		ImGui::PopStyleColor();
 		Tooltip("Theme");		
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));		
@@ -532,10 +515,4 @@ void xs::inspector::internal::go_gray()
 	style.LogSliderDeadzone = 4;
 	style.TabRounding = 4;
 	style.FrameBorderSize = 0;
-}
-
-ImVec4 xs::inspector::internal::get_nice_color(double hue)
-{
-	auto rgb = xs::tools::hsv_to_rgb(hue, 0.4, 0.9);
-	return ImVec4((float)std::get<0>(rgb), (float)std::get<1>(rgb), (float)std::get<2>(rgb), 1.0f);
 }
