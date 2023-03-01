@@ -130,7 +130,7 @@ class Game {
     }
 
     static render() {
-        if(Data.getBool("Renderable Render", Data.debug)) {
+        if(!Data.getBool("Disable Renderer", Data.debug)) {
             Renderable.render()
         }
     }

@@ -1,19 +1,19 @@
 {
     "Boss Core 1 Radius": {
         "type": "number",
-        "value": 21.8799991607666
+        "value": 22.459999084472656
     },
     "Boss Orbit Angle": {
         "type": "number",
-        "value": 12.0
+        "value": 34.029998779296875
     },
     "Boss Orbit Radius": {
         "type": "number",
-        "value": 12.0
+        "value": 42.720001220703125
     },
     "Cannon Damage": {
         "type": "number",
-        "value": 10.0
+        "value": 10.770000457763672
     },
     "Cannon Round Speed": {
         "type": "number",
@@ -105,7 +105,7 @@
     },
     "Part Health 2": {
         "type": "number",
-        "value": 300.0
+        "value": 300.69000244140625
     },
     "Part Health 3": {
         "type": "number",
