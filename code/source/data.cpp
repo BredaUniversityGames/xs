@@ -63,7 +63,7 @@ namespace xs::data::internal
 	}
 
 	bool inspect_entry(std::pair<const std::string, registry_value>& itr);
-	void inspect_of_type(const std::string& type_name, ImGuiTextFilter& filter, type type);
+	void inspect_of_type(const std::string& name, const std::string& icon, ImGuiTextFilter& filter, type type);
 	void save_of_type(type type);
 	void load_of_type(type type);
 	const string& get_file_path(type type);
@@ -153,16 +153,17 @@ void xs::data::inspect(bool& show)
 	if (ImGui::Button(ICON_FA_TIMES)) {
 		filter.Clear();
 	}
+	tooltip("Clear filter");
 
-	
-	//ImGui::BeginChild("Child");
-	ImGui::PushItemWidth(80);
-	inspect_of_type(string(ICON_FA_GAMEPAD) + "  Game", filter, type::game);
-	inspect_of_type(string(ICON_FA_USER) + "  Player", filter, type::player);
-	inspect_of_type(string(ICON_FA_BUG) + "  Debug", filter, type::debug);
-	inspect_of_type(string(ICON_FA_COG) + "  System", filter, type::system);
-	ImGui::PopItemWidth();
-	//ImGui::EndChild();
+	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+	if (ImGui::BeginTabBar("DataTabs", tab_bar_flags))
+	{		
+		inspect_of_type("Game Data", string(ICON_FA_GAMEPAD), filter, type::game);
+		inspect_of_type("User (Save) Data", string(ICON_FA_USER), filter, type::player);
+		inspect_of_type("Debug Only Data", string(ICON_FA_BUG), filter, type::debug);
+		inspect_of_type("System Data", string(ICON_FA_COG), filter, type::system);
+		ImGui::EndTabBar();
+	}
 
 	ImGui::End();
 }
@@ -217,23 +218,24 @@ void xs::data::set_string(const std::string& name, const std::string& value, typ
 ////									Internal Impl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 void xs::data::internal::inspect_of_type(
-	const string& type_name,
+	const std::string& name,
+	const std::string& icon,
 	ImGuiTextFilter& filter,
-	xs::data::type type)
-{
+	type type)
+{	
+	int flags = ImGuiTabItemFlags_None;
 	if(edited[type])
-		ImGui::PushStyleColor(ImGuiCol_Text, 0xFFFF5FB9);
+		flags |= ImGuiTabItemFlags_UnsavedDocument;
 
-	if (ImGui::CollapsingHeader(type_name.c_str()))
+	if (ImGui::BeginTabItem(icon.c_str(), NULL, flags))
 	{
-		if (edited[type])
-			ImGui::PopStyleColor();
+		tooltip(name.c_str());
 
 		bool& ed = edited[type];
 		{
 			bool ted = ed;
 			if (ted) ImGui::PushStyleColor(ImGuiCol_Button, 0xFF773049);
-			if (ImGui::Button("Save"))
+			if (ImGui::Button(string(ICON_FA_SAVE).c_str()))
 				save_of_type(type);
 			if (ted) ImGui::PopStyleColor();
 			tooltip("Save to a file");
@@ -242,10 +244,8 @@ void xs::data::internal::inspect_of_type(
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 			ImGui::Text("%s", fileio::get_path(get_file_path(type)).c_str());
 			ImGui::PopStyleColor();
+			
 		}
-
-		// ImGui::BeginChild("Child", ImVec2(0, -100)); // TODO:Find out how to get the size
-		ImGui::BeginChild("Child");
 
 		vector<string> sorted;
 		for (auto& itr : reg)
@@ -253,15 +253,15 @@ void xs::data::internal::inspect_of_type(
 				sorted.push_back(itr.first);
 		sort(sorted.begin(), sorted.end());
 		
+		ImGui::BeginChild("Child");
+		ImGui::PushItemWidth(80);
 		for (const auto& s : sorted)
 			ed = std::max(ed, inspect_entry(*reg.find(s)));
-
+		ImGui::PopItemWidth();
 		ImGui::EndChild();
-	}
-	else {
-		if (edited[type])
-			ImGui::PopStyleColor();
-	}
+
+		ImGui::EndTabItem();
+	}		
 }
 
 void xs::data::internal::save_of_type(type type)
@@ -275,7 +275,6 @@ void xs::data::internal::save_of_type(type type)
 			auto val_bool = std::get_if<bool>(&itr.second.value);
 			auto val_uint32_t = std::get_if<uint32_t>(&itr.second.value);
 			auto val_string = std::get_if<string>(&itr.second.value);
-
 			if (val_double)
 			{
 				j[itr.first]["value"] = *val_double;
