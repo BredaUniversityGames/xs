@@ -6,9 +6,9 @@ import shutil
 from pathlib import Path
 from shutil import copytree, ignore_patterns
 
-game_dir = "sample"
-itch_name = "xs"
-user = "xs-engine"
+game_dir = "seedwave"
+itch_name = "peperuga"
+user = "bojan"
 
 os.system('MSBuild xs.sln /p:Platform=PC /p:Configuration=Test')
 
@@ -31,11 +31,11 @@ if os.path.exists(source_dir):
 
     asset_dir = current_dir + "\\games\\" + game_dir
     output_dir = current_dir + "\\build\\games\\" + game_dir
-    shutil.copytree(asset_dir, output_dir, False, ignore=ignore_patterns('*.obj', ".bnvib", "*.py", "*.pyc"))
+    shutil.copytree(asset_dir, output_dir, False, ignore=ignore_patterns('*.obj', "*.bnvib", "*.pyc"))
 
     asset_dir = current_dir + "\\games\\" + "shared"
     output_dir = current_dir + "\\build\\games\\" + "shared"
-    shutil.copytree(asset_dir, output_dir, False, ignore=ignore_patterns('*.obj', ".bnvib", "*.py"))    
+    shutil.copytree(asset_dir, output_dir, False, ignore=ignore_patterns('*.obj', "*.bnvib", "*.py"))    
 
     ini_src = current_dir + "\\games\\.ini"
     ini_dst = current_dir + "\\build\\games\\.ini"

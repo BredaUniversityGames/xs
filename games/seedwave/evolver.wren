@@ -25,7 +25,7 @@ class Evolver {
     }
 
     static generateDnaPair() {
-        var r = __random.int(-1, 9)
+        var r = __random.int(-2, 9)
         var l = __random.int(1, 4)
         if(r <= 0) {
             return "S0"                // Skip
@@ -54,8 +54,8 @@ class Evolver {
         var protein = 0
         while(protein <= size) {
             var p = generateDnaPair()
-            if(p != "S0") {
-                dna = dna + p
+            dna = dna + p
+            if(p != "S0") {                
                 protein = protein + Num.fromString(p[1])
             }
         }
@@ -128,7 +128,9 @@ class Evolver {
     static currentDna { __dna }
 
     static addScoreToCurrent(score) {
-        __entries[__entries.count-1].score = -score
+        if(__entries.count > 0) {
+            __entries[__entries.count-1].score = -score
+        }
     }
 
 }

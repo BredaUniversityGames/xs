@@ -6,7 +6,7 @@ import colorsys
 import math
 from xsmath import vec2 
 
-letters = ["C", "L", "M", "D", "N", "E", "H", "V"]
+letters = ["C", "L", "M", "D", "N", "E", "R", "V"]
 
 class color:
     def __init__(self, r : float, g : float,  b : float):
