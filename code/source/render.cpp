@@ -50,7 +50,6 @@ namespace xs::render::internal
 
 #ifdef PLATFORM_PC
 	std::vector<uint64_t> last_write_times;
-	// void reload_images();
 #endif
 }
 
@@ -72,7 +71,7 @@ int xs::render::load_font(const std::string& font_file, double size)
 
 	const std::string path = fileio::get_path(font_file);
 	FILE* file;
-#ifdef _WIN32 // defined to 32 and 64
+#ifdef _WIN32
 	bool success = fopen_s(&file, path.c_str(), "rb") == 0;
 #else 
 	file = fopen(path.c_str(), "rb");
@@ -281,7 +280,7 @@ int xs::render::load_image(const std::string& image_file)
 	images.push_back(img);	
 
 
-#if defined(PLATFORM_PC) && (defined(DEBUG) || defined(PROFILE))
+#if defined(PLATFORM_PC)
 	auto tm = xs::fileio::last_write(image_file);
 	last_write_times.push_back(tm);
 #endif
@@ -350,7 +349,7 @@ void xs::render::set_offset(double x, double y)
 	xs::render::internal::offset = vec2((float)x, (float)y);
 }
 
-#if defined(PLATFORM_PC) && (defined(DEBUG) || defined(PROFILE))
+#if defined(PLATFORM_PC)
 
 void xs::render::reload_images()
 {
@@ -373,6 +372,10 @@ void xs::render::reload_images()
 			{
 				log::error("Image {} could not be reloaded!", image.file);
 				return;
+			}
+			else
+			{
+				log::info("Image {} reloaded!", image.file);
 			}
 
 			create_texture_with_data(image, data);
