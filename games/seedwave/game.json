@@ -5,11 +5,11 @@
     },
     "Boss Orbit Angle": {
         "type": "number",
-        "value": 34.029998779296875
+        "value": 17.209999084472656
     },
     "Boss Orbit Radius": {
         "type": "number",
-        "value": 42.720001220703125
+        "value": 32.619998931884766
     },
     "Cannon Damage": {
         "type": "number",
