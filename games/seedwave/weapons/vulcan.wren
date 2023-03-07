@@ -7,26 +7,38 @@ import "weapons/bosspart" for BossPart
 class Vulcan is BossPart {
     construct new(level) {
         super(level)
-        _time = 0        
+        _time = 0
+        _shootsLeft = 0
+    }
+
+    update(dt) {
+        super.update(dt)
+        _time = _time + dt
+        if(_shootsLeft > 0) {
+            if(_time > Data.getNumber("Vulcan Shoot Interval")) {
+                _time = 0
+                _shootsLeft = _shootsLeft - 1
+                fire()
+            }
+        }
     }
     
     shoot() {        
+        _shootsLeft = level
+    }
+
+    fire() {
         var p = Game.player
         var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
         d = d.normal
         var dv = d * Data.getNumber("Vulcan Speed")
-
-        // var t = (level / 2).floor
-        var t = 0
-        // t = 1.5 * Data.getNumber("Vulcan Spread") * -t
-        for(i in 0...level) {
-            Create.enemyBullet(
-                owner,
-                dv,
-                Data.getNumber("Cannon Damage"),
-                Vec2.new(t, 0))
-        }
+        Create.enemyVulcan(
+            owner,
+            dv,
+            Data.getNumber("Vulcan Damage"),
+            Vec2.new(0, 0))
     }
+        
 }
 
 import "create" for Create

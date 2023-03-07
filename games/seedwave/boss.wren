@@ -121,25 +121,25 @@ class Boss is Component {
             var d = Deflect.new(level)
             part.addComponent(d)
             c = DebugColor.new(0xFFB599FF)
-        } else if(type == "N") {                            // Needler        
+        } else if(type == "V") {                            // Vulcan
             s.idx = 4            
             c = DebugColor.new(0xFFB599FF)
-            var n = Needler.new(level)
+            var n = Vulcan.new(level)
             part.addComponent(n)
-        } else if(type == "E") {                            // EMP
+        } else if(type == "N") {                            // Needler
             s.idx = 5
             c = DebugColor.new(0xFFB599FF)
-            var e = EMP.new(level)
+            var e = Needler.new(level)
             part.addComponent(e)
         } else if(type == "R") {                            // Helpers
             s.idx = 6
             c = DebugColor.new(0xFFB599FF)
             var d = Drones.new(level)
             part.addComponent(d)
-        } else if(type == "V") {                            // Vulcan
+        } else if(type == "E") {                            // EMP
             s.idx = 7
             c = DebugColor.new(0xFFB599FF)
-            var v = Vulcan.new(level)
+            var v = EMP.new(level)
             part.addComponent(v)
         }
         s.layer = 1.0
