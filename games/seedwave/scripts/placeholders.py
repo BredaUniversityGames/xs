@@ -6,7 +6,7 @@ import colorsys
 import math
 from xsmath import vec2 
 
-letters = ["C", "L", "M", "D", "N", "E", "R", "V"]
+letters = ["C", "L", "M", "D", "V", "N", "0", "0"]
 
 class color:
     def __init__(self, r : float, g : float,  b : float):
@@ -180,6 +180,9 @@ circle(4, r, g, b, "projectiles/cannon.png")
 
 (r, g, b) = get_color(2)
 ellipse(3, r, g, b, 1.0, 3.0, "projectiles/missile.png")
+
+(r, g, b) = get_color(5)
+ellipse(3, r, g, b, 0.8, 2.0, "projectiles/vulcan.png")
 
 (r, g, b) = get_color(1)
 box(16, 360, r, g, b, "projectiles/beam_3.png")

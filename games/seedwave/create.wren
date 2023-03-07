@@ -146,6 +146,34 @@ class Create {
         bullet.tag = Tag.Computer | Tag.Bullet
         bullet.addComponent(DebugColor.new(0xFFA8D3FF))
     }
+
+    static enemyVulcan(owner, velocity, damage, offset){
+        var owt = owner.getComponent(Transform)
+        var bullet = Entity.new()
+        var t = Transform.new(owt.position + offset)
+        var v = null
+        var trn = TurnToVelocity.new()
+        if(velocity is Vec2) {
+            v = velocity
+        } else if(velocity is Num) {
+            v = Vec2.new(0, velocity)
+        }
+        var bd = Body.new(5, v)
+        var bl = Bullet.new(Team.Player, damage)
+        var s = Sprite.new("[game]/assets/images/projectiles/vulcan.png")
+        s.layer = 1.9
+        s.flags = Render.spriteCenter
+        //s.addAnimation("anim", [0,1,2])
+        //s.playAnimation("anim") 
+        bullet.addComponent(t)
+        bullet.addComponent(bd)
+        bullet.addComponent(bl)
+        bullet.addComponent(s)
+        bullet.addComponent(trn)
+        bullet.name = "Bullet"
+        bullet.tag = Tag.Computer | Tag.Bullet
+        bullet.addComponent(DebugColor.new(0xFFA8D3FF))
+    }
 }
 
 import "player" for Player
