@@ -39,6 +39,10 @@
         "type": "number",
         "value": 0.20000000298023224
     },
+    "Initial DNA Size": {
+        "type": "number",
+        "value": 3.0
+    },
     "Laser Damage/Second 1": {
         "type": "number",
         "value": 40.0
@@ -78,6 +82,10 @@
     "Max Missle Speed": {
         "type": "number",
         "value": 0.0
+    },
+    "Min Population Variance": {
+        "type": "number",
+        "value": 0.6600000262260437
     },
     "Missle Damage": {
         "type": "number",
@@ -133,7 +141,7 @@
     },
     "Player Bullet Damage": {
         "type": "number",
-        "value": 10.0
+        "value": 50.0
     },
     "Player Bullet Speed": {
         "type": "number",
@@ -171,9 +179,21 @@
         "type": "number",
         "value": 120.0
     },
+    "Population Size": {
+        "type": "number",
+        "value": 3.0
+    },
     "Slow Lambda": {
         "type": "number",
         "value": 30.0
+    },
+    "Vulcan Damage": {
+        "type": "number",
+        "value": 0.0
+    },
+    "Vulcan Shoot Interval": {
+        "type": "number",
+        "value": 0.0
     },
     "Vulcan Speed": {
         "type": "number",

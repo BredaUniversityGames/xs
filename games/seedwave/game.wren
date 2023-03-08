@@ -97,7 +97,7 @@ class Game {
         __bossTime = 0
         __bossDamage = 0
         
-        var dna = Evolver.getNextDna()
+        var dna = Evolver.nextDna
         __boss = Boss.create(dna)
         __healthBar = Create.bossHealthBar()
         __coreBar = Create.coreHealthBar()

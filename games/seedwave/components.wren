@@ -14,8 +14,8 @@ class SlowRelation is Component {
     update(dt) {
         var pt = _parent.getComponent(Transform)                
         var target = pt.position + _offset
-        owner.getComponent(Transform).position = Math.damp(owner.getComponent(Transform).position, target, _lambda, dt)
-            //Damp(owner.getComponent(Transform).position, target, _lambda, dt)
+        owner.getComponent(Transform).position =
+            Math.damp(owner.getComponent(Transform).position, target, _lambda, dt)
 
         if(_parent.deleted) {
             owner.delete()
