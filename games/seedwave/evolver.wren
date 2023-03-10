@@ -26,7 +26,7 @@ class Evolver {
         __generation = 0
         __mother = null
         __father = null
-        __current = 0
+        __current = -1
         createNextGeneration()
     }
 
@@ -47,13 +47,6 @@ class Evolver {
                     count = count + 1
                 }
             }
-                
-            /*
-            for(i in 0...ps) {
-                var dna = DNA.new(__random, ids)
-                __population.add(Entry.new(dna, __generation))
-            }
-            */
 
             System.print("Created random population \n %(__population) ")
         } else {    // Otherwise, create a new population from the previous generation
@@ -82,14 +75,16 @@ class Evolver {
             return dna
         } else {
             // otherwise, return the next dna in the population
-            var current = __current
+            var current = __current            
+            System.print("Current: %(__current) Population: %(__population.count)")
+            if(__current == __population.count - 1) {
+                createNextGeneration()
+                __current = -1
+            } 
             __current = __current + 1
             System.print("Current: %(__current) Population: %(__population.count)")
-            if(__current >= __population.count) {
-                createNextGeneration()
-                __current = 0
-            }
-            return __population[current].dna
+            var dna = __population[__current].dna            
+            return dna
         }
     }
 

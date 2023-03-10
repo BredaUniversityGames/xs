@@ -85,7 +85,7 @@
     },
     "Min Population Variance": {
         "type": "number",
-        "value": 0.6600000262260437
+        "value": 0.9800000190734863
     },
     "Missle Damage": {
         "type": "number",

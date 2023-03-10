@@ -130,4 +130,24 @@ class DNA {
         child.genes.add(Gene.new(random))
         return child        
     }
+
+    // Mutate the DNA
+    mutate(random) {
+        var n = _genes.count
+        for(i in 0...n) {
+            if(random.float() < 0.1) {
+                _genes[i] = Gene.new(random)
+            }
+        }
+    }
+
+    // Crossover the DNA
+    crossover(random, other) {
+        var n = _genes.count
+        for(i in 0...n) {
+            if(random.float() < 0.5) {
+                _genes[i] = other.genes[i]
+            }
+        }
+    }
 }
