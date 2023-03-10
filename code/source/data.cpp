@@ -76,7 +76,7 @@ namespace xs::data::internal
 template<class T>
 T xs::data::internal::get(const std::string& name, type type)
 {
-	auto& itr = internal::reg.find(name);
+	auto itr = internal::reg.find(name);
 	if (itr != internal::reg.end())
 	{	
 		try
@@ -428,7 +428,7 @@ bool xs::data::internal::inspect_entry(
 
 		ImGui::SameLine(ImGui::GetWindowWidth() - 40);
 		ImGui::PushID(itr.first.c_str());
-		if (ImGui::Button(u8"\xf1f8"))
+		if (ImGui::Button(u8"\U0000f1f8"))
 		{
 			reg.erase(itr.first);
 		}
