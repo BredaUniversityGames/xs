@@ -20,7 +20,7 @@
 #include "device.h"
 
 extern "C" {
-#include "wren_opt_random.h"
+#include "wren/optional/wren_opt_random.h"
 }
 
 using namespace std;

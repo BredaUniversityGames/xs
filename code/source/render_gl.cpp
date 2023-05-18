@@ -1,3 +1,10 @@
+#include "opengl.h"
+
+#include <OpenGL/gl.h>
+#include <OpenGL/gl3.h>
+#include <OpenGL/glext.h>
+#include <OpenGL/gl3ext.h>
+
 #include "render.h"
 #include "render_internal.h"
 #include <ios>
@@ -17,7 +24,6 @@
 	//#include <time>
 #endif
 
-#include "opengl.h"
 #include "configuration.h"
 #include "fileio.h"
 #include "log.h"
@@ -91,7 +97,8 @@ void xs::render::initialize()
 	internal::compile_sprite_shader();
 
 	///////// Trigs //////////////////////
-	glCreateVertexArrays(1, &lines_vao);
+	//glCreateVertexArrays(1, &lines_vao);
+    glGenVertexArrays(1, &lines_vao);
 	glBindVertexArray(lines_vao);
 
 	// Allocate VBO
@@ -552,7 +559,8 @@ void xs::render::text(const std::string& text, double x, double y, double size)
 
 void xs::render::internal::create_frame_buffers()
 {
-	glCreateFramebuffers(1, &render_fbo);
+	//glCreateFramebuffers(1, &render_fbo);
+    glGenFramebuffers(1, &render_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
 	glGenTextures(1, &render_texture);
 	glBindTexture(GL_TEXTURE_2D, render_texture);

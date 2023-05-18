@@ -9,6 +9,21 @@
 #include <kernel.h>
 #endif
 
+#ifdef __APPLE__
+namespace xs::audio
+{
+void initialize() {}
+void shutdown() { }
+void update(double dt) {}
+int load(const std::string& filename, int group_id) { return 0; }
+int play(int sound_id) { return 0; }
+double get_group_volume(int group_id) { return 0.0f; }
+void set_group_volume(int group_id, double value) {}
+double get_channel_volume(int channel_id) { return 0.0f; }
+void set_channel_volume(int channel_id, double value) {}
+}
+#else
+
 namespace xs::audio
 {
 	FMOD::Studio::System* system = nullptr;
@@ -190,3 +205,4 @@ namespace xs::audio
 		channel->setVolume(static_cast<float>(value));
 	}
 }
+#endif

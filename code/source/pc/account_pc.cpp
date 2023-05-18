@@ -4,10 +4,10 @@
 
 void xs::account::initialize()
 {
-	auto succes = SteamAPI_Init();
+	// auto succes = SteamAPI_Init();
 }
 
 void xs::account::shutdown()
 {
-	SteamAPI_Shutdown();
+	// SteamAPI_Shutdown();
 }

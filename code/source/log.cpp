@@ -1,7 +1,7 @@
 #include "log.h"
 #include "version.h"
 
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(__APPLE__)
 
 #include <spdlog/cfg/env.h>
 

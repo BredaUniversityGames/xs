@@ -9,7 +9,7 @@
 #if defined(PLATFORM_PS5)
 	#include <agc.h>	
 	using textureType = sce::Agc::Core::Texture;
-#elif defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#elif defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(__APPLE__)
 	using textureType = unsigned int;
 #endif
 
