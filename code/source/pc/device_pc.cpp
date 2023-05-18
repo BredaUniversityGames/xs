@@ -42,7 +42,7 @@ void device::initialize()
 {
 	if (!glfwInit())
 	{
-		spdlog::critical("GLFW init failed");
+		log::critical("GLFW init failed");
 		assert(false);
 		exit(EXIT_FAILURE);
 	}
@@ -80,7 +80,7 @@ void device::initialize()
 
 	if (!internal::window)
 	{
-		spdlog::critical("GLFW window could not be created");
+		log::critical("GLFW window could not be created");
 		glfwTerminate();
 		assert(false);
 		exit(EXIT_FAILURE);
@@ -92,15 +92,17 @@ void device::initialize()
 	int major = glfwGetWindowAttrib(internal::window, GLFW_CONTEXT_VERSION_MAJOR);
 	int minor = glfwGetWindowAttrib(internal::window, GLFW_CONTEXT_VERSION_MINOR);
 	int revision = glfwGetWindowAttrib(internal::window, GLFW_CONTEXT_REVISION);
-	spdlog::info("GLFW OpenGL context version {}.{}.{}", major, minor, revision);
+	log::info("GLFW OpenGL context version {}.{}.{}", major, minor, revision);
 
+#if !defined(__APPLE__)
 	// OpenGL init here
 	if (!gladLoadGLLoader(GLADloadproc(glfwGetProcAddress)))
 	{
-		spdlog::critical("GLAD failed to initialize OpenGL context");
+		log::critical("GLAD failed to initialize OpenGL context");
 		assert(false);
 		exit(EXIT_FAILURE);
 	}
+#endif
 
 	logOpenGLVersionInfo();
 	init_debug_messages();

@@ -195,22 +195,22 @@ std::string xs::data::get_string(const std::string& name, type type)
 
 void xs::data::set_number(const std::string& name, double value, type tp)
 {
-	set<double>(name, value, tp);
+	xs::data::internal::set<double>(name, value, tp);
 }
 
 void xs::data::set_color(const std::string& name, uint32_t value, type tp)
 {
-	set<uint32_t>(name, value, tp);
+    xs::data::internal::set<uint32_t>(name, value, tp);
 }
 
 void xs::data::set_bool(const std::string& name, bool value, type tp)
 {
-	set<bool>(name, value, tp);
+    xs::data::internal::set<bool>(name, value, tp);
 }
 
 void xs::data::set_string(const std::string& name, const std::string& value, type tp)
 {
-	set<string>(name, value, tp);
+    xs::data::internal::set<string>(name, value, tp);
 }
 
 

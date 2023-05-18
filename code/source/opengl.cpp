@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include <log.h>
 
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWTICH)
+
 static void APIENTRY debug_callback_func(
 	GLenum source,
 	GLenum type,
@@ -120,6 +122,8 @@ static void APIENTRY debug_callback_func(
 	// ASSERT(type != GL_DEBUG_TYPE_ERROR, "GL Error occurs.");
 }
 
+#endif
+
 #if defined(PLATFORM_PC) && defined(DEBUG)
 static void APIENTRY DebugCallbackFuncAMD(
 	GLuint id,
@@ -195,5 +199,10 @@ void init_debug_messages()
 {
 	glDebugMessageCallback(debug_callback_func, NULL);
 }
+
+#elif defined(__APPLE__)
+
+void xs::init_debug_messages() {}
+
 #endif
 

@@ -1,5 +1,5 @@
 #pragma once
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(__APPLE__)
 	#if defined(APIENTRY) && defined(_WIN32)
 	#undef APIENTRY
 	#endif
@@ -25,6 +25,9 @@ public:
 	template<typename FormatString, typename... Args>
 	static void error(const FormatString& fmt, const Args&... args);
 
+    template<typename FormatString, typename... Args>
+    static void critical(const FormatString& fmt, const Args&... args);
+
 private:
 
 	static constexpr auto magenta = "\033[35m";
@@ -33,7 +36,7 @@ private:
 	static constexpr auto reset = "\033[0m";
 };
 
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(__APPLE__)
 
 template<typename FormatString, typename ...Args>
 inline void log::info(const FormatString& fmt, const Args & ...args)
@@ -51,6 +54,12 @@ template<typename FormatString, typename ...Args>
 inline void log::error(const FormatString& fmt, const Args & ...args)
 {
 	spdlog::error(fmt, args...);
+}
+
+template<typename FormatString, typename ...Args>
+inline void log::critical(const FormatString& fmt, const Args & ...args)
+{
+    spdlog::critical(fmt, args...);
 }
 
 #elif defined(PLATFORM_PS5)
@@ -79,7 +88,14 @@ inline void log::error(const FormatString& fmt, const Args & ...args)
 	printf("[%serror%s] ", red, reset);
 	fmt::print(fmt, args...);
 	printf("\n");
+}
 
+template<typename FormatString, typename ...Args>
+inline void log::critical(const FormatString& fmt, const Args & ...args)
+{
+    printf("[%serror%s] ", red, reset);
+    fmt::print(fmt, args...);
+    printf("\n");
 }
 
 #endif

@@ -3,8 +3,14 @@
 #undef APIENTRY
 #endif
 
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#else
 // This should be only place glad is included
 #include <glad/include/glad/glad.h>
+#endif
+
+#include <OpenGL/gl.h>
 
 #ifdef DEBUG
 #define XS_DEBUG_ONLY(x) (x)

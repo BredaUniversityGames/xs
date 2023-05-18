@@ -1,7 +1,7 @@
 #include "imgui.h"
 #include "imgui_impl.h"
 
-#if defined(PLATFORM_PC)
+#if defined(PLATFORM_PC) || defined(__APPLE__)
 
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
