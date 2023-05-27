@@ -255,13 +255,13 @@
 			path = code/include;
 			sourceTree = SOURCE_ROOT;
 		};
-		5A11175B2A112A350069A591 /* extrenal */ = {
+		5A11175B2A112A350069A591 /* external */ = {
 			isa = PBXGroup;
 			children = (
 				5A1117B92A112D780069A591 /* wren */,
 				5A11175D2A112A870069A591 /* imgui */,
 			);
-			name = extrenal;
+			name = external;
 			sourceTree = "<group>";
 		};
 		5A11175D2A112A870069A591 /* imgui */ = {
@@ -428,7 +428,7 @@
 		5A608CA32A10ECD5008F3085 = {
 			isa = PBXGroup;
 			children = (
-				5A11175B2A112A350069A591 /* extrenal */,
+				5A11175B2A112A350069A591 /* external */,
 				5A5918A52A10EEBC0029C1BB /* xs */,
 				5A5918A42A10EEBC0029C1BB /* Products */,
 				5A5918AB2A10F0520029C1BB /* Frameworks */,
