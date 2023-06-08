@@ -238,9 +238,21 @@
     </ClCompile>
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="external\imgui\implot.cpp" />
-    <ClCompile Include="external\imgui\implot_demo.cpp" />
-    <ClCompile Include="external\imgui\implot_items.cpp" />
+    <ClCompile Include="external\imgui\implot.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="external\imgui\implot_demo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="external\imgui\implot_items.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="external\wren\optional\wren_opt_meta.c" />
     <ClCompile Include="external\wren\optional\wren_opt_random.c" />
     <ClCompile Include="external\wren\vm\wren_compiler.c" />
