@@ -40,7 +40,11 @@ using namespace xs::inspector::internal;
 void xs::inspector::initialize()
 {
 	ImGui::CreateContext();
+
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
 	ImPlot::CreateContext();
+#endif
+
 	ImGui_Impl_Init();
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
@@ -138,8 +142,8 @@ void xs::inspector::render(float dt)
 		ImGui::SetWindowSize({(float)(xs::device::get_width()), -1 });
 
 
-		double hue = 0.0;
-		double dhue = 60.0;
+		// double hue = 0.0;
+		// double dhue = 60.0;
 		ImGuiStyle& style = ImGui::GetStyle();
 		ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_WindowBg]);
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
@@ -153,7 +157,8 @@ void xs::inspector::render(float dt)
 		}		
 		Tooltip("Reload Game");		
 	
-		hue += dhue;		
+		//chue += dhue;		
+
 		ImGui::SameLine();
 		if (internal::paused)
 		{
@@ -172,7 +177,7 @@ void xs::inspector::render(float dt)
 			Tooltip("Pause");
 		}		
 
-		hue += dhue;
+		// hue += dhue;
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_DATABASE))
 		{
@@ -183,7 +188,7 @@ void xs::inspector::render(float dt)
 
 		
 		ImGui::SameLine();
-		hue += dhue;
+		// hue += dhue;
 		if (ImGui::Button(ICON_FA_CHART_BAR))
 		{
 			internal::show_profiler = !internal::show_profiler;
@@ -191,7 +196,7 @@ void xs::inspector::render(float dt)
 		Tooltip("Profiler");
 
 		ImGui::SameLine();
-		hue += dhue;
+		// hue += dhue;
 		if (ImGui::Button(ICON_FA_IMAGES))
 		{
 			render::reload_images();	
@@ -201,7 +206,7 @@ void xs::inspector::render(float dt)
 
 
 		ImGui::SameLine();
-		hue += dhue;
+		// hue += dhue;
 		if (ImGui::Button(ICON_FA_ADJUST))
 		{
 			internal::theme = !internal::theme;

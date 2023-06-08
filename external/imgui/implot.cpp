@@ -881,6 +881,7 @@ ImPlotTime MkGmtTime(struct tm *ptm) {
     t.S = _mkgmtime(ptm);
 #else
     t.S = timegm(ptm);
+    t.S = mktime(ptm);
 #endif
     if (t.S < 0)
         t.S = 0;
