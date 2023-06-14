@@ -57,7 +57,8 @@ namespace xs::render::internal
 	{
 		vec2 position;
 		vec2 texture;
-		float r, g, b;
+		vec3 mul_color;
+		vec3 add_color;
 	};
 
 	int width = -1;
@@ -89,12 +90,12 @@ using namespace xs::render::internal;
 // They are declared inside the shader code. For example, the Shader::ps_header and Shader::ps_text symbols
 // were declared in the shader by putting the attribute [CxxSymbol("Shader::ps")] in front of the pixel 
 // shader's entry point.
-namespace Shader
+namespace shaders
 {
-	extern char  ps_header[];
-	extern const char  ps_text[];
-	extern char  gs_header[];
-	extern const char  gs_text[];
+	extern char  sprite_ps_header[];
+	extern const char  sprite_ps_text[];
+	extern char  sprite_gs_header[];
+	extern const char  sprite_gs_text[];
 }
 
 // This is a temporary utility function to allocate direct memory. It's not important to understand how this works.
@@ -329,12 +330,12 @@ void xs::render::initialize()
 	frame_reg.init();
 
 	// First, we load the shaders, since the size of the shader's register blocks is not known.	
-	error = sce::Agc::createShader(&gs, Shader::gs_header, Shader::gs_text);
+	error = sce::Agc::createShader(&gs, shaders::sprite_gs_header, shaders::sprite_gs_text);
 	SCE_AGC_ASSERT(error == SCE_OK);
-	sce::Agc::Core::registerResource(gs, "Shader::gs");
-	error = sce::Agc::createShader(&ps, Shader::ps_header, Shader::ps_text);
+	sce::Agc::Core::registerResource(gs, "shaders::sprite_gs");
+	error = sce::Agc::createShader(&ps, shaders::sprite_ps_header, shaders::sprite_ps_text);
 	SCE_AGC_ASSERT(error == SCE_OK);
-	sce::Agc::Core::registerResource(ps, "Shader::ps");
+	sce::Agc::Core::registerResource(ps, "shaders::sprite_ps");
 
 	blend_control
 		.init()
@@ -403,7 +404,7 @@ void xs::render::render()
 	ctx.m_sb.setState(vport);
 	ctx.m_sb.setState(rts[buffer]);
 
-	sce::Agc::Core::VertexAttribute attributes[3] =
+	sce::Agc::Core::VertexAttribute attributes[4] =
 	{
 		{
 			0, // m_vbTableIndex
@@ -423,6 +424,12 @@ void xs::render::render()
 			sizeof(float) * 4, // m_offset
 			sce::Agc::Core::VertexAttribute::Index::kVertexId
 		},
+		{
+			0, // m_vbTableIndex
+			sce::Agc::Core::VertexAttribute::Format::k32_32_32Float,
+			sizeof(float) * 7, // m_offset
+			sce::Agc::Core::VertexAttribute::Index::kVertexId
+		}
 	};
 
 	sampler
@@ -471,14 +478,17 @@ void xs::render::render()
 		verData[2].texture = { to_u, to_v		};
 		verData[3].texture = { to_u, from_v		};
 
-		/*
-		from_u,  to_v, 1.0f, 0.0f, 0.0f
-		};
-		verData[1] = { from_x, to_y,	from_u, from_v, 	0.0f, 1.0f, 0.0f };
-		verData[2] = { to_x, from_y,	to_u, to_v, 	0.0f, 1.0f, 0.0f };
-		verData[3] = { to_x, to_y,		to_u, from_v, 	0.0f, 0.0f, 1.0f };
-		*/
+		// Colors
+		verData[0].add_color = add_color;
+		verData[1].add_color = add_color;
+		verData[2].add_color = add_color;
+		verData[3].add_color = add_color;
 
+		verData[0].mul_color = mul_color;
+		verData[1].mul_color = mul_color;
+		verData[2].mul_color = mul_color;
+		verData[3].mul_color = mul_color;
+		
 		vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
 		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
 		{
@@ -515,7 +525,7 @@ void xs::render::render()
 
 		ctx.m_bdr.getStage(sce::Agc::ShaderType::kGs)
 			.setVertexBuffers(0, 1, &vertBuffer)
-			.setVertexAttributes(0, 3, attributes)
+			.setVertexAttributes(0, 4, attributes)
 			.setUserSrtBuffer(&camera, sizeof(camera_srt));
 
 		ctx.m_bdr.getStage(sce::Agc::ShaderType::kPs)
