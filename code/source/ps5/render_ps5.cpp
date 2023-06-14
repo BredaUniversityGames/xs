@@ -41,22 +41,22 @@
 #include <agc/toolkit/toolkit.h>
 #include <libsysmodule.h>
 
-#include "Camera.h"
-#include "Instance.h"
+#include "shaders/camera_srt.h"
 
 const uint32_t BUFFERING = 2;
 const uint32_t SCREEN_WIDTH = 1920;
 const uint32_t SCREEN_HEIGHT = 1080;
 
 using namespace glm;
+using namespace sce::Agc::Core;
+using namespace sce::Vectormath::Simd::Aos;
 
 namespace xs::render::internal
 {
-
 	struct Vert
 	{
-		float x, y;
-		float s, t;
+		vec2 position;
+		vec2 texture;
 		float r, g, b;
 	};
 
@@ -75,6 +75,7 @@ namespace xs::render::internal
 	sce::Agc::Core::Encoder::EncoderValue clearColor;
 	sce::Agc::Shader* gs = nullptr;	// TODO: Why pointer?
 	sce::Agc::Shader* ps = nullptr;	// TODO: Why pointer?
+	sce::Agc::CxBlendControl blend_control;
 	int frame = 0;
 
 	uint8_t* alloc_direct_mem(sce::Agc::SizeAlign sizeAlign);
@@ -238,44 +239,6 @@ void xs::render::internal::create_texture_with_data(xs::render::internal::image&
 	}
 }
 
-/*
-
-int xs::render::internal::load_png(const std::string& filename, sce::Agc::Core::Texture& out_texture)
-{
-	// Find image first
-	auto id = std::hash<std::string>{}(filename);
-	for (int i = 0; i < images.size(); i++)
-		if (images[i].string_id == id)
-			return i;
-
-	auto buffer = fileio::read_binary_file(filename);
-	internal::image img;
-	img.string_id = id;
-	auto data = stbi_load_from_memory(
-		reinterpret_cast<unsigned char*>(buffer.data()),
-		static_cast<int>(buffer.size()),
-		&img.width,
-		&img.height,
-		&img.channels,
-		4);
-
-	if (data == nullptr)
-	{
-		log::error("Image {} could not be loaded!", filename);
-		return -1;
-	}
-
-
-	{
-
-		const auto i = images.size();
-		images.push_back(img);
-		return static_cast<int>(i);
-	}	
-}
-*/
-
-
 void xs::render::initialize()
 {
 	// This function always needs to be called before any other Agc call.
@@ -372,6 +335,13 @@ void xs::render::initialize()
 	error = sce::Agc::createShader(&ps, Shader::ps_header, Shader::ps_text);
 	SCE_AGC_ASSERT(error == SCE_OK);
 	sce::Agc::Core::registerResource(ps, "Shader::ps");
+
+	blend_control
+		.init()
+		.setBlend(sce::Agc::CxBlendControl::Blend::kEnable)
+		.setColorSourceMultiplier(sce::Agc::CxBlendControl::ColorSourceMultiplier::kSrcAlpha)
+		.setColorBlendFunc(sce::Agc::CxBlendControl::ColorBlendFunc::kAdd)
+		.setColorDestMultiplier(sce::Agc::CxBlendControl::ColorDestMultiplier::kOneMinusSrcAlpha);
 }
 
 void xs::render::shutdown()
@@ -489,18 +459,33 @@ void xs::render::render()
 		vertBuffers.push_back({});
 		sce::Agc::Core::Buffer& vertBuffer = vertBuffers.back();
 		Vert* verData = (Vert*)ctx.m_dcb.allocateTopDown({ sizeof(Vert) * 4, sce::Agc::Alignment::kBuffer });
-		verData[0] = { from_x, from_y,	from_u, to_v, 	1.0f, 0.0f, 0.0f };
+		// Position
+		verData[0].position = { from_x, from_y	}; 
+		verData[1].position = { from_x, to_y	};
+		verData[2].position = { to_x, from_y	};
+		verData[3].position = { to_x, to_y		};
+
+		// Texture
+		verData[0].texture = { from_u, to_v	};
+		verData[1].texture = { from_u, from_v	};
+		verData[2].texture = { to_u, to_v		};
+		verData[3].texture = { to_u, from_v		};
+
+		/*
+		from_u,  to_v, 1.0f, 0.0f, 0.0f
+		};
 		verData[1] = { from_x, to_y,	from_u, from_v, 	0.0f, 1.0f, 0.0f };
 		verData[2] = { to_x, from_y,	to_u, to_v, 	0.0f, 1.0f, 0.0f };
 		verData[3] = { to_x, to_y,		to_u, from_v, 	0.0f, 0.0f, 1.0f };
+		*/
 
 		vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
 		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				verData[i].x -= anchor.x;
-				verData[i].y -= anchor.y;
+				verData[i].position.x -= anchor.x;
+				verData[i].position.y -= anchor.y;
 			}
 		}
 
@@ -514,32 +499,24 @@ void xs::render::render()
 
 		for (int i = 0; i < 4; i++)
 		{
-			verData[i].x += (float)spe.x;
-			verData[i].y += (float)spe.y;
+			verData[i].position.x += (float)spe.x;
+			verData[i].position.y += (float)spe.y;
 		}
 
 		sce::Agc::Core::initializeRegularBuffer(&vertBuffer, verData, sizeof(Vert), 4);
 
-		Camera* camera = (Camera*)ctx.m_dcb.allocateTopDown(sizeof(Camera), sce::Agc::Alignment::kBuffer);
+		camera_srt* camera = (camera_srt*)ctx.m_dcb.allocateTopDown(sizeof(camera_srt), sce::Agc::Alignment::kBuffer);
 		camera->x = 0.0f;
 		camera->y = 0.0f;
-		camera->res_x = 640.0f * 0.5f;
-		camera->res_y = 360.0f * 0.5f;
+		camera->res_x = 640.0f * 0.5f; // TODO: Get from somewhere
+		camera->res_y = 360.0f * 0.5f; // TODO: Get from somewhere
 
-		ctx.m_sb.setState(sce::Agc::CxBlendControl().init()
-			.setSlot(0)
-			.setBlend(sce::Agc::CxBlendControl::Blend::kEnable)
-			.setAlphaSourceMultiplier(sce::Agc::CxBlendControl::AlphaSourceMultiplier::kOne)
-			.setAlphaBlendFunc(sce::Agc::CxBlendControl::AlphaBlendFunc::kAdd)
-			.setAlphaDestMultiplier(sce::Agc::CxBlendControl::AlphaDestMultiplier::kOne)
-			.setColorSourceMultiplier(sce::Agc::CxBlendControl::ColorSourceMultiplier::kOne)
-			.setColorBlendFunc(sce::Agc::CxBlendControl::ColorBlendFunc::kAdd)
-			.setColorDestMultiplier(sce::Agc::CxBlendControl::ColorDestMultiplier::kOneMinusSrcAlpha));
+		ctx.m_sb.setState(blend_control);
 
 		ctx.m_bdr.getStage(sce::Agc::ShaderType::kGs)
 			.setVertexBuffers(0, 1, &vertBuffer)
 			.setVertexAttributes(0, 3, attributes)
-			.setUserSrtBuffer(&camera, sizeof(camera));
+			.setUserSrtBuffer(&camera, sizeof(camera_srt));
 
 		ctx.m_bdr.getStage(sce::Agc::ShaderType::kPs)
 			.setTextures(0, 1, &image.texture)
