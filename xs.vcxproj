@@ -296,8 +296,8 @@
     <ClInclude Include="code\include\tools.h" />
     <ClInclude Include="code\include\version.h" />
     <ClInclude Include="code\source\ps5\address_sanitizer_utils.h" />
-    <ClInclude Include="code\source\ps5\Camera.h" />
-    <ClInclude Include="code\source\ps5\Instance.h" />
+    <ClInclude Include="code\source\ps5\shaders\camera_srt.h" />
+    <ClInclude Include="code\source\ps5\shaders\shader_types.h" />
     <ClInclude Include="code\source\render_internal.h" />
     <ClInclude Include="external\fmod\fmod.h" />
     <ClInclude Include="external\fmod\fmod.hpp" />
@@ -352,10 +352,10 @@
     <None Include="external\wren\vm\wren_core.wren.inc" />
   </ItemGroup>
   <ItemGroup>
-    <WavePsslc Include="code\source\ps5\pixel_shader_p.pssl">
+    <WavePsslc Include="code\source\ps5\shaders\sprite_p.pssl">
       <FileType>Document</FileType>
     </WavePsslc>
-    <WavePsslc Include="code\source\ps5\vertex_shader_vv.pssl">
+    <WavePsslc Include="code\source\ps5\shaders\sprite_vv.pssl">
       <FileType>Document</FileType>
     </WavePsslc>
   </ItemGroup>

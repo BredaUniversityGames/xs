@@ -1,7 +1,6 @@
-#include "Camera.h"
-// #include "Instance.h"
+#include "camera_srt.h"
 
-Camera* camera : S_SRT_DATA;
+camera_srt* camera : S_SRT_DATA;
 
 struct VS_INPUT
 {

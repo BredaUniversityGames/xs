@@ -288,10 +288,7 @@
     <ClInclude Include="code\include\profiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\source\ps5\Camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\source\ps5\Instance.h">
+    <ClInclude Include="code\source\ps5\shaders\camera_srt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\source\render_internal.h">
@@ -333,6 +330,9 @@
     <ClInclude Include="external\fmod\fmod_studio_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="code\source\ps5\shaders\shader_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="external\wren\optional\wren_opt_meta.wren" />
@@ -360,8 +360,8 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <WavePsslc Include="code\source\ps5\pixel_shader_p.pssl" />
-    <WavePsslc Include="code\source\ps5\vertex_shader_vv.pssl" />
+    <WavePsslc Include="code\source\ps5\shaders\sprite_p.pssl" />
+    <WavePsslc Include="code\source\ps5\shaders\sprite_vv.pssl" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="external\imgui\debuggers\imgui.natvis" />
