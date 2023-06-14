@@ -1,18 +1,13 @@
-struct V2P
-{
-	float4 pos				: S_POSITION;
-	float2 Texture		: TEXCOORD0;
-	float3 Color			: COLOR0;	
-};
+#include "vertex_format.h"
 
 SamplerState samp : register(s0);
 Texture2D color : register(t0);
 
-[CxxSymbol("Shader::ps")]
-float4 main(V2P input) : S_TARGET_OUTPUT0
+[CxxSymbol("shaders::sprite_ps")]
+float4 main(vs_output input) : S_TARGET_OUTPUT0
 {	
-	float4 diffuse = color.Sample(samp, input.Texture);
+	float4 diffuse = color.Sample(samp, input.texture);
 	//diffuse.rgb = pow(diffuse.rgb, 2.2);
+	diffuse.rgb = diffuse.rgb * input.mul_color + input.add_color;
 	return diffuse;
-	//return float4(input.Texture, 0.f, 1.0) * m_color;
 }
