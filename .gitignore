@@ -67,3 +67,4 @@ games/hexofleet
 games/jump-core/images/
 
 xs.xcodeproj/xcuserdata/
+*.xcuserstate
