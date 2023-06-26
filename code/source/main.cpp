@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 
 #endif
 
-
+/*
 int xs::main(int argc, char* argv[])
 {	
 	log::initialize();    
@@ -104,4 +104,5 @@ int xs::main(int argc, char* argv[])
 
 	return 0;
 }
+ */
 

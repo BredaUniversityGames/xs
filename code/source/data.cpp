@@ -126,7 +126,7 @@ void xs::data::inspect(bool& show)
 		history.push_back(r);
 	}
 
-	ImGui::Begin(u8"\U0000f1c0  Data", &show, ImGuiWindowFlags_NoCollapse);
+	ImGui::Begin((const char*)u8"\U0000f1c0  Data", &show, ImGuiWindowFlags_NoCollapse);
 
 
 	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
@@ -428,7 +428,7 @@ bool xs::data::internal::inspect_entry(
 
 		ImGui::SameLine(ImGui::GetWindowWidth() - 40);
 		ImGui::PushID(itr.first.c_str());
-		if (ImGui::Button(u8"\U0000f1f8"))
+		if (ImGui::Button((const char*)u8"\U0000f1f8"))
 		{
 			reg.erase(itr.first);
 		}
