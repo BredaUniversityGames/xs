@@ -30,7 +30,6 @@
 		5A11178D2A112A870069A591 /* imgui_widgets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A1117612A112A870069A591 /* imgui_widgets.cpp */; };
 		5A11178E2A112A870069A591 /* implot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A1117652A112A870069A591 /* implot.cpp */; };
 		5A11178F2A112A870069A591 /* imgui_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A1117662A112A870069A591 /* imgui_impl.cpp */; };
-		5A1117912A112A870069A591 /* binary_to_compressed_c.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A1117722A112A870069A591 /* binary_to_compressed_c.cpp */; };
 		5A1117922A112A870069A591 /* implot_items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A1117742A112A870069A591 /* implot_items.cpp */; };
 		5A1117932A112A870069A591 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A11177B2A112A870069A591 /* imgui.cpp */; };
 		5A1117952A112A870069A591 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A1117802A112A870069A591 /* imgui_stdlib.cpp */; };
@@ -123,7 +122,6 @@
 		5A11176F2A112A870069A591 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
 		5A1117702A112A870069A591 /* Cousine-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Cousine-Regular.ttf"; sourceTree = "<group>"; };
 		5A1117712A112A870069A591 /* Karla-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Karla-Regular.ttf"; sourceTree = "<group>"; };
-		5A1117722A112A870069A591 /* binary_to_compressed_c.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = binary_to_compressed_c.cpp; sourceTree = "<group>"; };
 		5A1117732A112A870069A591 /* imgui_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_impl.h; sourceTree = "<group>"; };
 		5A1117742A112A870069A591 /* implot_items.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = implot_items.cpp; sourceTree = "<group>"; };
 		5A1117762A112A870069A591 /* imgui.gdb */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = imgui.gdb; sourceTree = "<group>"; };
@@ -310,7 +308,6 @@
 				5A11176F2A112A870069A591 /* README.txt */,
 				5A1117702A112A870069A591 /* Cousine-Regular.ttf */,
 				5A1117712A112A870069A591 /* Karla-Regular.ttf */,
-				5A1117722A112A870069A591 /* binary_to_compressed_c.cpp */,
 			);
 			path = extra_fonts;
 			sourceTree = "<group>";
@@ -510,7 +507,6 @@
 				5A11172E2A1107180069A591 /* input_pc.cpp in Sources */,
 				5A1117952A112A870069A591 /* imgui_stdlib.cpp in Sources */,
 				5A1117962A112A870069A591 /* imgui_impl_opengl3.cpp in Sources */,
-				5A1117912A112A870069A591 /* binary_to_compressed_c.cpp in Sources */,
 				5A1117322A1107180069A591 /* log.cpp in Sources */,
 				5A1117E52A112D780069A591 /* wren_debug.c in Sources */,
 				5A1117DE2A112D780069A591 /* wren_core.wren.inc in Sources */,
