@@ -26,11 +26,16 @@ using namespace xs;
 using namespace fileio::internal;
 using namespace std;
 
+#define XS_PLATFORM_MACOS
+
 void fileio::initialize(/* const std::string& main_script*/)
 {
 #if defined(PLATFORM_PC)
 	add_wildcard("[games]", "./games");
-
+    
+#elif defined(XS_PLATFORM_MACOS)
+    add_wildcard("[games]", "./games");
+    
 #elif defined(PLATFORM_SWITCH)
 	nn::Result result;
 	size_t cacheSize = 0;
