@@ -48,15 +48,16 @@ int main(int argc, char* argv[])
     return  xs::main(argc, argv);
 }
 
-#else
+#elif defined(PLATFORM_APPLE)
+/*
 int main(int argc, char* argv[])
 {
     return  xs::main(argc, argv);
 }
+*/
 
 #endif
 
-/*
 int xs::main(int argc, char* argv[])
 {	
 	log::initialize();    
@@ -104,5 +105,3 @@ int xs::main(int argc, char* argv[])
 
 	return 0;
 }
- */
-

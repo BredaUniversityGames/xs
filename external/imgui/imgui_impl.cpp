@@ -1,7 +1,7 @@
 #include "imgui.h"
 #include "imgui_impl.h"
 
-#if defined(PLATFORM_PC) || defined(__APPLE__)
+#if defined(PLATFORM_PC)
 
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -82,6 +82,25 @@ void ImGui_Impl_NewFrame()
 void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
 {
 	ImGui_Impl_PS5_RenderDrawData(ImGui::GetDrawData());
+}
+
+#elif defined(PLATFORM_APPLE)
+
+bool ImGui_Impl_Init()
+{
+    return false;
+}
+
+void ImGui_Impl_Shutdown()
+{
+}
+
+void ImGui_Impl_NewFrame()
+{
+}
+
+void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
+{
 }
 
 #endif
