@@ -1,5 +1,5 @@
 #pragma once
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(__APPLE__)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
 	#if defined(APIENTRY) && defined(_WIN32)
 	#undef APIENTRY
 	#endif

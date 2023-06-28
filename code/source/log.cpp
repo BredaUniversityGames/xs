@@ -1,5 +1,5 @@
 #include "log.h"
-#include "version.h"
+#include "../include/version.h"
 
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(__APPLE__)
 

@@ -9,7 +9,7 @@
 #include "data.h"
 #include "log.h"
 #include "configuration.h"
-#include "version.h"
+#include "../include/version.h"
 #include "profiler.h"
 #include "device.h"
 #include "render.h"
