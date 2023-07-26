@@ -7,16 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		346E73A42A4A29D5006ECAD5 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E735C2A4A29D5006ECAD5 /* GameViewController.m */; };
-		346E73A52A4A29D5006ECAD5 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E735C2A4A29D5006ECAD5 /* GameViewController.m */; };
 		346E73A62A4A29D5006ECAD5 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E735C2A4A29D5006ECAD5 /* GameViewController.m */; };
 		346E73A72A4A29D5006ECAD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E735D2A4A29D5006ECAD5 /* Main.storyboard */; };
 		346E73A82A4A29D5006ECAD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E735D2A4A29D5006ECAD5 /* Main.storyboard */; };
 		346E73A92A4A29D5006ECAD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E735D2A4A29D5006ECAD5 /* Main.storyboard */; };
-		346E73AA2A4A29D5006ECAD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E735F2A4A29D5006ECAD5 /* main.m */; };
-		346E73AB2A4A29D5006ECAD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E735F2A4A29D5006ECAD5 /* main.m */; };
-		346E73AD2A4A29D5006ECAD5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E73602A4A29D5006ECAD5 /* AppDelegate.m */; };
-		346E73AE2A4A29D5006ECAD5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E73602A4A29D5006ECAD5 /* AppDelegate.m */; };
 		346E73AF2A4A29D5006ECAD5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E73602A4A29D5006ECAD5 /* AppDelegate.m */; };
 		346E73B02A4A29D5006ECAD5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346E73642A4A29D5006ECAD5 /* Assets.xcassets */; };
 		346E73B12A4A29D5006ECAD5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346E73642A4A29D5006ECAD5 /* Assets.xcassets */; };
@@ -98,8 +92,6 @@
 		346EBFC02A49F33D00771230 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346EBFBE2A49F33D00771230 /* Main.storyboard */; };
 		346EBFC32A49F33D00771230 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346EBFC12A49F33D00771230 /* LaunchScreen.storyboard */; };
 		346EBFC52A49F33D00771230 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBFC42A49F33D00771230 /* main.m */; };
-		346EBFCE2A49F33D00771230 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBFCD2A49F33D00771230 /* AppDelegate.m */; };
-		346EBFD62A49F33D00771230 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBFD52A49F33D00771230 /* main.m */; };
 		346EBFD82A49F33D00771230 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBF992A49F33C00771230 /* Renderer.m */; };
 		346EBFD92A49F33D00771230 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBF992A49F33C00771230 /* Renderer.m */; };
 		346EBFDA2A49F33D00771230 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBF992A49F33C00771230 /* Renderer.m */; };
@@ -107,6 +99,7 @@
 		346EBFDC2A49F33D00771230 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 346EBF9B2A49F33C00771230 /* Shaders.metal */; };
 		346EBFDE2A49F33D00771230 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346EBF9C2A49F33D00771230 /* Assets.xcassets */; };
 		346EBFDF2A49F33D00771230 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346EBF9C2A49F33D00771230 /* Assets.xcassets */; };
+		34C40F6D2A71BE6000BB62E7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E735F2A4A29D5006ECAD5 /* main.m */; };
 		34EB6F5F2A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D292A4C6E6200DA6B15 /* wren_opt_meta.c */; };
 		34EB6F602A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D292A4C6E6200DA6B15 /* wren_opt_meta.c */; };
 		34EB6F612A4C6ED600DA6B15 /* wren_opt_meta.c in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D292A4C6E6200DA6B15 /* wren_opt_meta.c */; };
@@ -345,7 +338,6 @@
 		34EB6CEA2A4C6E6200DA6B15 /* isteamparentalsettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = isteamparentalsettings.h; sourceTree = "<group>"; };
 		34EB6CEB2A4C6E6200DA6B15 /* isteamhttp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = isteamhttp.h; sourceTree = "<group>"; };
 		34EB6CEC2A4C6E6200DA6B15 /* isteamuserstats.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = isteamuserstats.h; sourceTree = "<group>"; };
-		34EB6CED2A4C6E6200DA6B15 /* linmath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = linmath.h; sourceTree = "<group>"; };
 		34EB6CEF2A4C6E6200DA6B15 /* imgui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui.h; sourceTree = "<group>"; };
 		34EB6CF02A4C6E6200DA6B15 /* imstb_textedit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imstb_textedit.h; sourceTree = "<group>"; };
 		34EB6CF12A4C6E6200DA6B15 /* imconfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imconfig.h; sourceTree = "<group>"; };
@@ -1184,7 +1176,6 @@
 			children = (
 				34EB6C942A4C6E6100DA6B15 /* fmod */,
 				34EB6CB22A4C6E6100DA6B15 /* steam */,
-				34EB6CED2A4C6E6200DA6B15 /* linmath.h */,
 				34EB6CEE2A4C6E6200DA6B15 /* imgui */,
 				34EB6D1E2A4C6E6200DA6B15 /* wren */,
 				34EB6D3F2A4C6E6200DA6B15 /* stb */,
@@ -2305,12 +2296,10 @@
 				346E73E02A4A29D5006ECAD5 /* profiler.cpp in Sources */,
 				346E73B32A4A29D5006ECAD5 /* Shaders.metal in Sources */,
 				346E73DD2A4A29D5006ECAD5 /* log.cpp in Sources */,
-				346E73AD2A4A29D5006ECAD5 /* AppDelegate.m in Sources */,
 				34EB6F652A4C6EE900DA6B15 /* wren_value.c in Sources */,
 				346E73B92A4A29D5006ECAD5 /* GameViewController.m in Sources */,
 				34EB6F6A2A4C6EE900DA6B15 /* wren_debug.c in Sources */,
 				346E74102A4A29D5006ECAD5 /* configuration.cpp in Sources */,
-				346E73AA2A4A29D5006ECAD5 /* main.m in Sources */,
 				34EB6F5F2A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */,
 				346E74012A4A29D5006ECAD5 /* device.cpp in Sources */,
 				34EB6F672A4C6EE900DA6B15 /* wren_primitive.c in Sources */,
@@ -2328,7 +2317,6 @@
 				34EB6F662A4C6EE900DA6B15 /* wren_vm.c in Sources */,
 				34EB6F962A4C706C00DA6B15 /* render_apple.cpp in Sources */,
 				346EBFA92A49F33D00771230 /* GameViewController.m in Sources */,
-				346E73A42A4A29D5006ECAD5 /* GameViewController.m in Sources */,
 				346E73C22A4A29D5006ECAD5 /* main.m in Sources */,
 				346E741F2A4A29D5006ECAD5 /* main.cpp in Sources */,
 				346EBFB12A49F33D00771230 /* main.m in Sources */,
@@ -2364,14 +2352,12 @@
 				346E73E12A4A29D5006ECAD5 /* profiler.cpp in Sources */,
 				346E73B42A4A29D5006ECAD5 /* Shaders.metal in Sources */,
 				346E73DE2A4A29D5006ECAD5 /* log.cpp in Sources */,
-				346E73AE2A4A29D5006ECAD5 /* AppDelegate.m in Sources */,
 				34EB6F6C2A4C6EEA00DA6B15 /* wren_value.c in Sources */,
 				34EB6FA82A4CD00900DA6B15 /* imgui_stdlib.cpp in Sources */,
 				34EB6F992A4C721B00DA6B15 /* input_apple.cpp in Sources */,
 				346E73BA2A4A29D5006ECAD5 /* GameViewController.m in Sources */,
 				34EB6F712A4C6EEA00DA6B15 /* wren_debug.c in Sources */,
 				346E74112A4A29D5006ECAD5 /* configuration.cpp in Sources */,
-				346E73AB2A4A29D5006ECAD5 /* main.m in Sources */,
 				34EB6F602A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */,
 				346E74022A4A29D5006ECAD5 /* device.cpp in Sources */,
 				34EB6F6E2A4C6EEA00DA6B15 /* wren_primitive.c in Sources */,
@@ -2387,7 +2373,6 @@
 				34EB6F9D2A4CCBCE00DA6B15 /* imgui_impl.cpp in Sources */,
 				34EB6F6D2A4C6EEA00DA6B15 /* wren_vm.c in Sources */,
 				346EBFBD2A49F33D00771230 /* GameViewController.m in Sources */,
-				346E73A52A4A29D5006ECAD5 /* GameViewController.m in Sources */,
 				34EB6FA12A4CCC2700DA6B15 /* device_apple.cpp in Sources */,
 				346E73C32A4A29D5006ECAD5 /* main.m in Sources */,
 				346E74202A4A29D5006ECAD5 /* main.cpp in Sources */,
@@ -2423,6 +2408,7 @@
 				346E73AF2A4A29D5006ECAD5 /* AppDelegate.m in Sources */,
 				34EB6F8F2A4C6F2500DA6B15 /* implot_demo.cpp in Sources */,
 				346E74122A4A29D5006ECAD5 /* configuration.cpp in Sources */,
+				34C40F6D2A71BE6000BB62E7 /* main.m in Sources */,
 				34EB6F772A4C6EEA00DA6B15 /* wren_core.c in Sources */,
 				34EB6F792A4C6EEA00DA6B15 /* wren_compiler.c in Sources */,
 				34EB6F8D2A4C6F2500DA6B15 /* implot.cpp in Sources */,
@@ -2442,9 +2428,7 @@
 				346E74212A4A29D5006ECAD5 /* main.cpp in Sources */,
 				34EB6F742A4C6EEA00DA6B15 /* wren_vm.c in Sources */,
 				34EB6F732A4C6EEA00DA6B15 /* wren_value.c in Sources */,
-				346EBFD62A49F33D00771230 /* main.m in Sources */,
 				34EB6F932A4C6F2500DA6B15 /* imgui_widgets.cpp in Sources */,
-				346EBFCE2A49F33D00771230 /* AppDelegate.m in Sources */,
 				34EB6F782A4C6EEA00DA6B15 /* wren_debug.c in Sources */,
 				346E74002A4A29D5006ECAD5 /* audio.cpp in Sources */,
 				346E73D92A4A29D5006ECAD5 /* render.cpp in Sources */,
