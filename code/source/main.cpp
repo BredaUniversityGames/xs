@@ -49,13 +49,10 @@ int main(int argc, char* argv[])
 }
 
 #elif defined(PLATFORM_APPLE)
-/*
 int main(int argc, char* argv[])
 {
     return  xs::main(argc, argv);
 }
-*/
-
 #endif
 
 int xs::main(int argc, char* argv[])
