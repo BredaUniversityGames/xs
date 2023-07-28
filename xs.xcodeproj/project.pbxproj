@@ -151,19 +151,19 @@
 		34EB6F912A4C6F2500DA6B15 /* imgui_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D172A4C6E6200DA6B15 /* imgui_tables.cpp */; };
 		34EB6F922A4C6F2500DA6B15 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D1D2A4C6E6200DA6B15 /* imgui_draw.cpp */; };
 		34EB6F932A4C6F2500DA6B15 /* imgui_widgets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6CF22A4C6E6200DA6B15 /* imgui_widgets.cpp */; };
-		34EB6F962A4C706C00DA6B15 /* render_apple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F952A4C706C00DA6B15 /* render_apple.cpp */; };
-		34EB6F982A4C721B00DA6B15 /* input_apple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F972A4C721B00DA6B15 /* input_apple.cpp */; };
-		34EB6F992A4C721B00DA6B15 /* input_apple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F972A4C721B00DA6B15 /* input_apple.cpp */; };
-		34EB6F9A2A4C721B00DA6B15 /* input_apple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F972A4C721B00DA6B15 /* input_apple.cpp */; };
+		34EB6F962A4C706C00DA6B15 /* render_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F952A4C706C00DA6B15 /* render_apple.mm */; };
+		34EB6F982A4C721B00DA6B15 /* input_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F972A4C721B00DA6B15 /* input_apple.mm */; };
+		34EB6F992A4C721B00DA6B15 /* input_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F972A4C721B00DA6B15 /* input_apple.mm */; };
+		34EB6F9A2A4C721B00DA6B15 /* input_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F972A4C721B00DA6B15 /* input_apple.mm */; };
 		34EB6F9B2A4CCBCC00DA6B15 /* imgui_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6CF72A4C6E6200DA6B15 /* imgui_impl.cpp */; };
 		34EB6F9D2A4CCBCE00DA6B15 /* imgui_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6CF72A4C6E6200DA6B15 /* imgui_impl.cpp */; };
 		34EB6F9E2A4CCBCF00DA6B15 /* imgui_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6CF72A4C6E6200DA6B15 /* imgui_impl.cpp */; };
-		34EB6FA02A4CCC2700DA6B15 /* device_apple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.cpp */; };
-		34EB6FA12A4CCC2700DA6B15 /* device_apple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.cpp */; };
-		34EB6FA22A4CCC2700DA6B15 /* device_apple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.cpp */; };
-		34EB6FA42A4CCD2000DA6B15 /* account_apple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6FA32A4CCD2000DA6B15 /* account_apple.cpp */; };
-		34EB6FA52A4CCD2000DA6B15 /* account_apple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6FA32A4CCD2000DA6B15 /* account_apple.cpp */; };
-		34EB6FA62A4CCD2000DA6B15 /* account_apple.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6FA32A4CCD2000DA6B15 /* account_apple.cpp */; };
+		34EB6FA02A4CCC2700DA6B15 /* device_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */; };
+		34EB6FA12A4CCC2700DA6B15 /* device_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */; };
+		34EB6FA22A4CCC2700DA6B15 /* device_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */; };
+		34EB6FA42A4CCD2000DA6B15 /* account_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6FA32A4CCD2000DA6B15 /* account_apple.mm */; };
+		34EB6FA52A4CCD2000DA6B15 /* account_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6FA32A4CCD2000DA6B15 /* account_apple.mm */; };
+		34EB6FA62A4CCD2000DA6B15 /* account_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6FA32A4CCD2000DA6B15 /* account_apple.mm */; };
 		34EB6FA72A4CD00900DA6B15 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D112A4C6E6200DA6B15 /* imgui_stdlib.cpp */; };
 		34EB6FA82A4CD00900DA6B15 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D112A4C6E6200DA6B15 /* imgui_stdlib.cpp */; };
 		34EB6FA92A4CD00A00DA6B15 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D112A4C6E6200DA6B15 /* imgui_stdlib.cpp */; };
@@ -249,13 +249,6 @@
 		346EBFC22A49F33D00771230 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		346EBFC42A49F33D00771230 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		346EBFCA2A49F33D00771230 /* xs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xs.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		346EBFCC2A49F33D00771230 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		346EBFCD2A49F33D00771230 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		346EBFCF2A49F33D00771230 /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
-		346EBFD02A49F33D00771230 /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
-		346EBFD32A49F33D00771230 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		346EBFD52A49F33D00771230 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		346EBFD72A49F33D00771230 /* xs_macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = xs_macOS.entitlements; sourceTree = "<group>"; };
 		34EB6C952A4C6E6100DA6B15 /* fmod_output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_output.h; sourceTree = "<group>"; };
 		34EB6C962A4C6E6100DA6B15 /* fmod_dsp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_dsp.h; sourceTree = "<group>"; };
 		34EB6C972A4C6E6100DA6B15 /* fmod_errors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_errors.h; sourceTree = "<group>"; };
@@ -935,10 +928,10 @@
 		34EB6F5C2A4C6E6200DA6B15 /* rotate_normalized_axis.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = rotate_normalized_axis.hpp; sourceTree = "<group>"; };
 		34EB6F5D2A4C6E6200DA6B15 /* projection.inl */ = {isa = PBXFileReference; lastKnownFileType = text; path = projection.inl; sourceTree = "<group>"; };
 		34EB6F5E2A4C6E6200DA6B15 /* type_aligned.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = type_aligned.hpp; sourceTree = "<group>"; };
-		34EB6F952A4C706C00DA6B15 /* render_apple.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = render_apple.cpp; sourceTree = "<group>"; };
-		34EB6F972A4C721B00DA6B15 /* input_apple.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = input_apple.cpp; sourceTree = "<group>"; };
-		34EB6F9F2A4CCC2700DA6B15 /* device_apple.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = device_apple.cpp; sourceTree = "<group>"; };
-		34EB6FA32A4CCD2000DA6B15 /* account_apple.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = account_apple.cpp; sourceTree = "<group>"; };
+		34EB6F952A4C706C00DA6B15 /* render_apple.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = render_apple.mm; sourceTree = "<group>"; };
+		34EB6F972A4C721B00DA6B15 /* input_apple.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = input_apple.mm; sourceTree = "<group>"; };
+		34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = device_apple.mm; sourceTree = "<group>"; };
+		34EB6FA32A4CCD2000DA6B15 /* account_apple.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = account_apple.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1028,10 +1021,10 @@
 				346E73622A4A29D5006ECAD5 /* shared */,
 				346E73682A4A29D5006ECAD5 /* ios */,
 				346E73722A4A29D5006ECAD5 /* tvos */,
-				34EB6F952A4C706C00DA6B15 /* render_apple.cpp */,
-				34EB6F972A4C721B00DA6B15 /* input_apple.cpp */,
-				34EB6F9F2A4CCC2700DA6B15 /* device_apple.cpp */,
-				34EB6FA32A4CCD2000DA6B15 /* account_apple.cpp */,
+				34EB6F952A4C706C00DA6B15 /* render_apple.mm */,
+				34EB6F972A4C721B00DA6B15 /* input_apple.mm */,
+				34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */,
+				34EB6FA32A4CCD2000DA6B15 /* account_apple.mm */,
 			);
 			path = apple;
 			sourceTree = "<group>";
@@ -1098,7 +1091,6 @@
 				346EBF972A49F33C00771230 /* shared */,
 				346EBFA32A49F33D00771230 /* ios */,
 				346EBFB72A49F33D00771230 /* tvos */,
-				346EBFCB2A49F33D00771230 /* macos */,
 				346EBFA22A49F33D00771230 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -1154,21 +1146,6 @@
 			);
 			name = tvos;
 			path = code/source/apple/tvos;
-			sourceTree = "<group>";
-		};
-		346EBFCB2A49F33D00771230 /* macos */ = {
-			isa = PBXGroup;
-			children = (
-				346EBFCC2A49F33D00771230 /* AppDelegate.h */,
-				346EBFCD2A49F33D00771230 /* AppDelegate.m */,
-				346EBFCF2A49F33D00771230 /* GameViewController.h */,
-				346EBFD02A49F33D00771230 /* GameViewController.m */,
-				346EBFD22A49F33D00771230 /* Main.storyboard */,
-				346EBFD52A49F33D00771230 /* main.m */,
-				346EBFD72A49F33D00771230 /* xs_macOS.entitlements */,
-			);
-			name = macos;
-			path = code/source/apple/macos;
 			sourceTree = "<group>";
 		};
 		34EB6C932A4C6E6100DA6B15 /* external */ = {
@@ -2284,7 +2261,7 @@
 				346E73E32A4A29D5006ECAD5 /* script.cpp in Sources */,
 				34EB6F692A4C6EE900DA6B15 /* wren_core.c in Sources */,
 				34EB6F682A4C6EE900DA6B15 /* wren_utils.c in Sources */,
-				34EB6FA42A4CCD2000DA6B15 /* account_apple.cpp in Sources */,
+				34EB6FA42A4CCD2000DA6B15 /* account_apple.mm in Sources */,
 				346E74132A4A29D5006ECAD5 /* tools.cpp in Sources */,
 				34EB6F7F2A4C6F2300DA6B15 /* imgui_tables.cpp in Sources */,
 				34EB6F802A4C6F2300DA6B15 /* imgui_draw.cpp in Sources */,
@@ -2306,7 +2283,7 @@
 				346E73C52A4A29D5006ECAD5 /* AppDelegate.m in Sources */,
 				346EBFD82A49F33D00771230 /* Renderer.m in Sources */,
 				34EB6F622A4C6EDA00DA6B15 /* wren_opt_random.c in Sources */,
-				34EB6FA02A4CCC2700DA6B15 /* device_apple.cpp in Sources */,
+				34EB6FA02A4CCC2700DA6B15 /* device_apple.mm in Sources */,
 				346E73B62A4A29D5006ECAD5 /* Renderer.m in Sources */,
 				346E73C82A4A29D5006ECAD5 /* GameViewController.m in Sources */,
 				34EB6F7D2A4C6F2300DA6B15 /* implot_demo.cpp in Sources */,
@@ -2315,7 +2292,7 @@
 				346E73DA2A4A29D5006ECAD5 /* render_gl.cpp in Sources */,
 				34EB6FA72A4CD00900DA6B15 /* imgui_stdlib.cpp in Sources */,
 				34EB6F662A4C6EE900DA6B15 /* wren_vm.c in Sources */,
-				34EB6F962A4C706C00DA6B15 /* render_apple.cpp in Sources */,
+				34EB6F962A4C706C00DA6B15 /* render_apple.mm in Sources */,
 				346EBFA92A49F33D00771230 /* GameViewController.m in Sources */,
 				346E73C22A4A29D5006ECAD5 /* main.m in Sources */,
 				346E741F2A4A29D5006ECAD5 /* main.cpp in Sources */,
@@ -2325,7 +2302,7 @@
 				34EB6F7E2A4C6F2300DA6B15 /* imgui_demo.cpp in Sources */,
 				34EB6F9B2A4CCBCC00DA6B15 /* imgui_impl.cpp in Sources */,
 				346E73FE2A4A29D5006ECAD5 /* audio.cpp in Sources */,
-				34EB6F982A4C721B00DA6B15 /* input_apple.cpp in Sources */,
+				34EB6F982A4C721B00DA6B15 /* input_apple.mm in Sources */,
 				346E73D12A4A29D5006ECAD5 /* main.m in Sources */,
 				346EBFDB2A49F33D00771230 /* Shaders.metal in Sources */,
 				346E73D72A4A29D5006ECAD5 /* render.cpp in Sources */,
@@ -2354,7 +2331,7 @@
 				346E73DE2A4A29D5006ECAD5 /* log.cpp in Sources */,
 				34EB6F6C2A4C6EEA00DA6B15 /* wren_value.c in Sources */,
 				34EB6FA82A4CD00900DA6B15 /* imgui_stdlib.cpp in Sources */,
-				34EB6F992A4C721B00DA6B15 /* input_apple.cpp in Sources */,
+				34EB6F992A4C721B00DA6B15 /* input_apple.mm in Sources */,
 				346E73BA2A4A29D5006ECAD5 /* GameViewController.m in Sources */,
 				34EB6F712A4C6EEA00DA6B15 /* wren_debug.c in Sources */,
 				346E74112A4A29D5006ECAD5 /* configuration.cpp in Sources */,
@@ -2373,7 +2350,7 @@
 				34EB6F9D2A4CCBCE00DA6B15 /* imgui_impl.cpp in Sources */,
 				34EB6F6D2A4C6EEA00DA6B15 /* wren_vm.c in Sources */,
 				346EBFBD2A49F33D00771230 /* GameViewController.m in Sources */,
-				34EB6FA12A4CCC2700DA6B15 /* device_apple.cpp in Sources */,
+				34EB6FA12A4CCC2700DA6B15 /* device_apple.mm in Sources */,
 				346E73C32A4A29D5006ECAD5 /* main.m in Sources */,
 				346E74202A4A29D5006ECAD5 /* main.cpp in Sources */,
 				346EBFC52A49F33D00771230 /* main.m in Sources */,
@@ -2382,7 +2359,7 @@
 				34EB6F872A4C6F2400DA6B15 /* imgui_demo.cpp in Sources */,
 				346E73FF2A4A29D5006ECAD5 /* audio.cpp in Sources */,
 				346E73D22A4A29D5006ECAD5 /* main.m in Sources */,
-				34EB6FA52A4CCD2000DA6B15 /* account_apple.cpp in Sources */,
+				34EB6FA52A4CCD2000DA6B15 /* account_apple.mm in Sources */,
 				346EBFDC2A49F33D00771230 /* Shaders.metal in Sources */,
 				346E73D82A4A29D5006ECAD5 /* render.cpp in Sources */,
 				346E74052A4A29D5006ECAD5 /* fileio.cpp in Sources */,
@@ -2401,7 +2378,7 @@
 				34EB6F612A4C6ED600DA6B15 /* wren_opt_meta.c in Sources */,
 				346E740F2A4A29D5006ECAD5 /* inspector.cpp in Sources */,
 				346E740C2A4A29D5006ECAD5 /* opengl.cpp in Sources */,
-				34EB6F9A2A4C721B00DA6B15 /* input_apple.cpp in Sources */,
+				34EB6F9A2A4C721B00DA6B15 /* input_apple.mm in Sources */,
 				346E73E22A4A29D5006ECAD5 /* profiler.cpp in Sources */,
 				346E73B52A4A29D5006ECAD5 /* Shaders.metal in Sources */,
 				346E73DF2A4A29D5006ECAD5 /* log.cpp in Sources */,
@@ -2413,7 +2390,7 @@
 				34EB6F792A4C6EEA00DA6B15 /* wren_compiler.c in Sources */,
 				34EB6F8D2A4C6F2500DA6B15 /* implot.cpp in Sources */,
 				346E74032A4A29D5006ECAD5 /* device.cpp in Sources */,
-				34EB6FA22A4CCC2700DA6B15 /* device_apple.cpp in Sources */,
+				34EB6FA22A4CCC2700DA6B15 /* device_apple.mm in Sources */,
 				346EBFDA2A49F33D00771230 /* Renderer.m in Sources */,
 				346E74092A4A29D5006ECAD5 /* data.cpp in Sources */,
 				34EB6F762A4C6EEA00DA6B15 /* wren_utils.c in Sources */,
@@ -2423,7 +2400,7 @@
 				34EB6F8C2A4C6F2500DA6B15 /* implot_items.cpp in Sources */,
 				346E73A62A4A29D5006ECAD5 /* GameViewController.m in Sources */,
 				34EB6F752A4C6EEA00DA6B15 /* wren_primitive.c in Sources */,
-				34EB6FA62A4CCD2000DA6B15 /* account_apple.cpp in Sources */,
+				34EB6FA62A4CCD2000DA6B15 /* account_apple.mm in Sources */,
 				34EB6F8E2A4C6F2500DA6B15 /* imgui.cpp in Sources */,
 				346E74212A4A29D5006ECAD5 /* main.cpp in Sources */,
 				34EB6F742A4C6EEA00DA6B15 /* wren_vm.c in Sources */,
@@ -2510,14 +2487,6 @@
 				346EBFC22A49F33D00771230 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-		346EBFD22A49F33D00771230 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				346EBFD32A49F33D00771230 /* Base */,
-			);
-			name = Main.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
