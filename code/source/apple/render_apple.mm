@@ -2,8 +2,32 @@
 #include "configuration.h"
 #include "profiler.h"
 
+#import <MetalKit/MetalKit.h>
+
+#import <simd/simd.h>
+#import <ModelIO/ModelIO.h>
+
+static const NSUInteger MaxBuffersInFlight = 3;
+
 namespace xs::render::internal
 {
+    dispatch_semaphore_t _inFlightSemaphore;
+    id <MTLDevice> _device;
+    id <MTLCommandQueue> _commandQueue;
+
+    id <MTLBuffer> _dynamicUniformBuffer[MaxBuffersInFlight];
+    id <MTLRenderPipelineState> _pipelineState;
+    id <MTLDepthStencilState> _depthState;
+    id <MTLTexture> _colorMap;
+    MTLVertexDescriptor *_mtlVertexDescriptor;
+
+    uint8_t _uniformBufferIndex;
+
+    matrix_float4x4 _projectionMatrix;
+
+    float _rotation;
+
+    MTKMesh *_mesh;
 }
 
 using namespace xs;
