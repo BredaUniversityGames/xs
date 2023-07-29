@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 #elif defined(PLATFORM_APPLE)
 int main(int argc, char* argv[])
 {
-    return  xs::main(argc, argv);
+    static_assert(false);
 }
 #endif
 
@@ -94,7 +94,7 @@ int xs::main(int argc, char* argv[])
     inspector::shutdown();
     audio::shutdown();
     input::shutdown();
-    //render::shutdown();
+    render::shutdown();
     device::shutdown();
     script::shutdown();
     account::shutdown();
