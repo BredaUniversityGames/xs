@@ -5,10 +5,27 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "GameViewController.h"
-//#import "Renderer.h"
 
 #import <MetalKit/MetalKit.h>
+
+#if TARGET_OS_IOS
+#import <UIKit/UIKit.h>
+
+// Our iOS view controller
+@interface GameViewController : UIViewController
+@end
+
+#define IView UIView
+
+#elif defined(PLATFORM_APPLE_MACOS)
+
+@interface GameViewController : NSViewController
+@end
+
+#define IView NSView
+
+#endif
+
 
 // Our platform independent renderer class.   Implements the MTKViewDelegate protocol which
 //   allows it to accept per-frame update and drawable resize callbacks.
@@ -60,6 +77,8 @@ using namespace xs::device::internal;
 
 - (void)viewDidLoad
 {
+    // Initialize everything
+    
     [super viewDidLoad];
 
     _view = (MTKView *)self.view;
@@ -69,7 +88,7 @@ using namespace xs::device::internal;
     if(!_view.device)
     {
         NSLog(@"Metal is not supported on this device");
-        self.view = [[NSView alloc] initWithFrame:self.view.frame];
+        self.view = [[IView alloc] initWithFrame:self.view.frame];
         return;
     }
 

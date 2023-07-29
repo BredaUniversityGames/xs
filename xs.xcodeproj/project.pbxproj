@@ -17,25 +17,14 @@
 		346E73B32A4A29D5006ECAD5 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 346E73652A4A29D5006ECAD5 /* Shaders.metal */; };
 		346E73B42A4A29D5006ECAD5 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 346E73652A4A29D5006ECAD5 /* Shaders.metal */; };
 		346E73B52A4A29D5006ECAD5 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 346E73652A4A29D5006ECAD5 /* Shaders.metal */; };
-		346E73B92A4A29D5006ECAD5 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E736A2A4A29D5006ECAD5 /* GameViewController.m */; };
-		346E73BA2A4A29D5006ECAD5 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E736A2A4A29D5006ECAD5 /* GameViewController.m */; };
 		346E73BC2A4A29D5006ECAD5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E736B2A4A29D5006ECAD5 /* LaunchScreen.storyboard */; };
-		346E73BD2A4A29D5006ECAD5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E736B2A4A29D5006ECAD5 /* LaunchScreen.storyboard */; };
 		346E73BF2A4A29D5006ECAD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E736D2A4A29D5006ECAD5 /* Main.storyboard */; };
-		346E73C02A4A29D5006ECAD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E736D2A4A29D5006ECAD5 /* Main.storyboard */; };
 		346E73C22A4A29D5006ECAD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E736F2A4A29D5006ECAD5 /* main.m */; };
-		346E73C32A4A29D5006ECAD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E736F2A4A29D5006ECAD5 /* main.m */; };
 		346E73C52A4A29D5006ECAD5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E73702A4A29D5006ECAD5 /* AppDelegate.m */; };
-		346E73C62A4A29D5006ECAD5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E73702A4A29D5006ECAD5 /* AppDelegate.m */; };
-		346E73C82A4A29D5006ECAD5 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E73742A4A29D5006ECAD5 /* GameViewController.m */; };
 		346E73C92A4A29D5006ECAD5 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E73742A4A29D5006ECAD5 /* GameViewController.m */; };
-		346E73CB2A4A29D5006ECAD5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E73752A4A29D5006ECAD5 /* LaunchScreen.storyboard */; };
 		346E73CC2A4A29D5006ECAD5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E73752A4A29D5006ECAD5 /* LaunchScreen.storyboard */; };
-		346E73CE2A4A29D5006ECAD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E73772A4A29D5006ECAD5 /* Main.storyboard */; };
 		346E73CF2A4A29D5006ECAD5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E73772A4A29D5006ECAD5 /* Main.storyboard */; };
-		346E73D12A4A29D5006ECAD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E73792A4A29D5006ECAD5 /* main.m */; };
 		346E73D22A4A29D5006ECAD5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E73792A4A29D5006ECAD5 /* main.m */; };
-		346E73D42A4A29D5006ECAD5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E737A2A4A29D5006ECAD5 /* AppDelegate.m */; };
 		346E73D52A4A29D5006ECAD5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E737A2A4A29D5006ECAD5 /* AppDelegate.m */; };
 		346E73D72A4A29D5006ECAD5 /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E737C2A4A29D5006ECAD5 /* render.cpp */; };
 		346E73D82A4A29D5006ECAD5 /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E737C2A4A29D5006ECAD5 /* render.cpp */; };
@@ -76,24 +65,6 @@
 		346E74132A4A29D5006ECAD5 /* tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73952A4A29D5006ECAD5 /* tools.cpp */; };
 		346E74142A4A29D5006ECAD5 /* tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73952A4A29D5006ECAD5 /* tools.cpp */; };
 		346E74152A4A29D5006ECAD5 /* tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73952A4A29D5006ECAD5 /* tools.cpp */; };
-		346E74222A4A2CAF006ECAD5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346EBF9C2A49F33D00771230 /* Assets.xcassets */; };
-		346EBFA62A49F33D00771230 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBFA52A49F33D00771230 /* AppDelegate.m */; };
-		346EBFA92A49F33D00771230 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBFA82A49F33D00771230 /* GameViewController.m */; };
-		346EBFAC2A49F33D00771230 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346EBFAA2A49F33D00771230 /* Main.storyboard */; };
-		346EBFAF2A49F33D00771230 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346EBFAD2A49F33D00771230 /* LaunchScreen.storyboard */; };
-		346EBFB12A49F33D00771230 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBFB02A49F33D00771230 /* main.m */; };
-		346EBFBA2A49F33D00771230 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBFB92A49F33D00771230 /* AppDelegate.m */; };
-		346EBFBD2A49F33D00771230 /* GameViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBFBC2A49F33D00771230 /* GameViewController.m */; };
-		346EBFC02A49F33D00771230 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346EBFBE2A49F33D00771230 /* Main.storyboard */; };
-		346EBFC32A49F33D00771230 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346EBFC12A49F33D00771230 /* LaunchScreen.storyboard */; };
-		346EBFC52A49F33D00771230 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBFC42A49F33D00771230 /* main.m */; };
-		346EBFD82A49F33D00771230 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBF992A49F33C00771230 /* Renderer.m */; };
-		346EBFD92A49F33D00771230 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBF992A49F33C00771230 /* Renderer.m */; };
-		346EBFDA2A49F33D00771230 /* Renderer.m in Sources */ = {isa = PBXBuildFile; fileRef = 346EBF992A49F33C00771230 /* Renderer.m */; };
-		346EBFDB2A49F33D00771230 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 346EBF9B2A49F33C00771230 /* Shaders.metal */; };
-		346EBFDC2A49F33D00771230 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 346EBF9B2A49F33C00771230 /* Shaders.metal */; };
-		346EBFDE2A49F33D00771230 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346EBF9C2A49F33D00771230 /* Assets.xcassets */; };
-		346EBFDF2A49F33D00771230 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346EBF9C2A49F33D00771230 /* Assets.xcassets */; };
 		34EB6F5F2A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D292A4C6E6200DA6B15 /* wren_opt_meta.c */; };
 		34EB6F602A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D292A4C6E6200DA6B15 /* wren_opt_meta.c */; };
 		34EB6F612A4C6ED600DA6B15 /* wren_opt_meta.c in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D292A4C6E6200DA6B15 /* wren_opt_meta.c */; };
@@ -182,11 +153,9 @@
 		346E73522A4A29D5006ECAD5 /* render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = render.h; sourceTree = "<group>"; };
 		346E735A2A4A29D5006ECAD5 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		346E735B2A4A29D5006ECAD5 /* xs_macOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = xs_macOS.entitlements; sourceTree = "<group>"; };
-		346E735C2A4A29D5006ECAD5 /* GameViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
 		346E735E2A4A29D5006ECAD5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		346E735F2A4A29D5006ECAD5 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		346E73602A4A29D5006ECAD5 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		346E73612A4A29D5006ECAD5 /* GameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
 		346E73632A4A29D5006ECAD5 /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
 		346E73642A4A29D5006ECAD5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		346E73652A4A29D5006ECAD5 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
@@ -221,27 +190,8 @@
 		346E73942A4A29D5006ECAD5 /* configuration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = configuration.cpp; sourceTree = "<group>"; };
 		346E73952A4A29D5006ECAD5 /* tools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tools.cpp; sourceTree = "<group>"; };
 		346E739A2A4A29D5006ECAD5 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		346EBF982A49F33C00771230 /* Renderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
-		346EBF992A49F33C00771230 /* Renderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Renderer.m; sourceTree = "<group>"; };
-		346EBF9A2A49F33C00771230 /* ShaderTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
-		346EBF9B2A49F33C00771230 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
-		346EBF9C2A49F33D00771230 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		346EBFA12A49F33D00771230 /* xs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xs.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		346EBFA42A49F33D00771230 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		346EBFA52A49F33D00771230 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		346EBFA72A49F33D00771230 /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
-		346EBFA82A49F33D00771230 /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
-		346EBFAB2A49F33D00771230 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		346EBFAE2A49F33D00771230 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		346EBFB02A49F33D00771230 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		346EBFB62A49F33D00771230 /* xs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xs.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		346EBFB82A49F33D00771230 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		346EBFB92A49F33D00771230 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		346EBFBB2A49F33D00771230 /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
-		346EBFBC2A49F33D00771230 /* GameViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GameViewController.m; sourceTree = "<group>"; };
-		346EBFBF2A49F33D00771230 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		346EBFC22A49F33D00771230 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		346EBFC42A49F33D00771230 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		346EBFCA2A49F33D00771230 /* xs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xs.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		34EB6C952A4C6E6100DA6B15 /* fmod_output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_output.h; sourceTree = "<group>"; };
 		34EB6C962A4C6E6100DA6B15 /* fmod_dsp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_dsp.h; sourceTree = "<group>"; };
@@ -1028,11 +978,9 @@
 			children = (
 				346E735A2A4A29D5006ECAD5 /* AppDelegate.h */,
 				346E735B2A4A29D5006ECAD5 /* xs_macOS.entitlements */,
-				346E735C2A4A29D5006ECAD5 /* GameViewController.m */,
 				346E735D2A4A29D5006ECAD5 /* Main.storyboard */,
 				346E735F2A4A29D5006ECAD5 /* main.m */,
 				346E73602A4A29D5006ECAD5 /* AppDelegate.m */,
-				346E73612A4A29D5006ECAD5 /* GameViewController.h */,
 			);
 			path = macos;
 			sourceTree = "<group>";
@@ -1082,24 +1030,8 @@
 			children = (
 				34EB6C932A4C6E6100DA6B15 /* external */,
 				346E733F2A4A29D5006ECAD5 /* code */,
-				346EBF972A49F33C00771230 /* shared */,
-				346EBFA32A49F33D00771230 /* ios */,
-				346EBFB72A49F33D00771230 /* tvos */,
 				346EBFA22A49F33D00771230 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		346EBF972A49F33C00771230 /* shared */ = {
-			isa = PBXGroup;
-			children = (
-				346EBF982A49F33C00771230 /* Renderer.h */,
-				346EBF992A49F33C00771230 /* Renderer.m */,
-				346EBF9A2A49F33C00771230 /* ShaderTypes.h */,
-				346EBF9B2A49F33C00771230 /* Shaders.metal */,
-				346EBF9C2A49F33D00771230 /* Assets.xcassets */,
-			);
-			name = shared;
-			path = code/source/apple/shared;
 			sourceTree = "<group>";
 		};
 		346EBFA22A49F33D00771230 /* Products */ = {
@@ -1110,36 +1042,6 @@
 				346EBFCA2A49F33D00771230 /* xs.app */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		346EBFA32A49F33D00771230 /* ios */ = {
-			isa = PBXGroup;
-			children = (
-				346EBFA42A49F33D00771230 /* AppDelegate.h */,
-				346EBFA52A49F33D00771230 /* AppDelegate.m */,
-				346EBFA72A49F33D00771230 /* GameViewController.h */,
-				346EBFA82A49F33D00771230 /* GameViewController.m */,
-				346EBFAA2A49F33D00771230 /* Main.storyboard */,
-				346EBFAD2A49F33D00771230 /* LaunchScreen.storyboard */,
-				346EBFB02A49F33D00771230 /* main.m */,
-			);
-			name = ios;
-			path = code/source/apple/ios;
-			sourceTree = "<group>";
-		};
-		346EBFB72A49F33D00771230 /* tvos */ = {
-			isa = PBXGroup;
-			children = (
-				346EBFB82A49F33D00771230 /* AppDelegate.h */,
-				346EBFB92A49F33D00771230 /* AppDelegate.m */,
-				346EBFBB2A49F33D00771230 /* GameViewController.h */,
-				346EBFBC2A49F33D00771230 /* GameViewController.m */,
-				346EBFBE2A49F33D00771230 /* Main.storyboard */,
-				346EBFC12A49F33D00771230 /* LaunchScreen.storyboard */,
-				346EBFC42A49F33D00771230 /* main.m */,
-			);
-			name = tvos;
-			path = code/source/apple/tvos;
 			sourceTree = "<group>";
 		};
 		34EB6C932A4C6E6100DA6B15 /* external */ = {
@@ -2208,12 +2110,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				346E73BF2A4A29D5006ECAD5 /* Main.storyboard in Resources */,
-				346E73CB2A4A29D5006ECAD5 /* LaunchScreen.storyboard in Resources */,
-				346EBFAC2A49F33D00771230 /* Main.storyboard in Resources */,
-				346EBFDE2A49F33D00771230 /* Assets.xcassets in Resources */,
-				346EBFAF2A49F33D00771230 /* LaunchScreen.storyboard in Resources */,
 				346E73BC2A4A29D5006ECAD5 /* LaunchScreen.storyboard in Resources */,
-				346E73CE2A4A29D5006ECAD5 /* Main.storyboard in Resources */,
 				346E73A72A4A29D5006ECAD5 /* Main.storyboard in Resources */,
 				346E73B02A4A29D5006ECAD5 /* Assets.xcassets in Resources */,
 			);
@@ -2223,12 +2120,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				346E73C02A4A29D5006ECAD5 /* Main.storyboard in Resources */,
 				346E73CC2A4A29D5006ECAD5 /* LaunchScreen.storyboard in Resources */,
-				346EBFC02A49F33D00771230 /* Main.storyboard in Resources */,
-				346EBFDF2A49F33D00771230 /* Assets.xcassets in Resources */,
-				346EBFC32A49F33D00771230 /* LaunchScreen.storyboard in Resources */,
-				346E73BD2A4A29D5006ECAD5 /* LaunchScreen.storyboard in Resources */,
 				346E73CF2A4A29D5006ECAD5 /* Main.storyboard in Resources */,
 				346E73A82A4A29D5006ECAD5 /* Main.storyboard in Resources */,
 				346E73B12A4A29D5006ECAD5 /* Assets.xcassets in Resources */,
@@ -2239,7 +2131,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				346E74222A4A2CAF006ECAD5 /* Assets.xcassets in Resources */,
 				346E73A92A4A29D5006ECAD5 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2259,7 +2150,6 @@
 				346E74132A4A29D5006ECAD5 /* tools.cpp in Sources */,
 				34EB6F7F2A4C6F2300DA6B15 /* imgui_tables.cpp in Sources */,
 				34EB6F802A4C6F2300DA6B15 /* imgui_draw.cpp in Sources */,
-				346E73D42A4A29D5006ECAD5 /* AppDelegate.m in Sources */,
 				34EB6F7C2A4C6F2300DA6B15 /* imgui.cpp in Sources */,
 				346E740D2A4A29D5006ECAD5 /* inspector.cpp in Sources */,
 				346E740A2A4A29D5006ECAD5 /* opengl.cpp in Sources */,
@@ -2268,17 +2158,14 @@
 				346E73B32A4A29D5006ECAD5 /* Shaders.metal in Sources */,
 				346E73DD2A4A29D5006ECAD5 /* log.cpp in Sources */,
 				34EB6F652A4C6EE900DA6B15 /* wren_value.c in Sources */,
-				346E73B92A4A29D5006ECAD5 /* GameViewController.m in Sources */,
 				34EB6F6A2A4C6EE900DA6B15 /* wren_debug.c in Sources */,
 				346E74102A4A29D5006ECAD5 /* configuration.cpp in Sources */,
 				34EB6F5F2A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */,
 				346E74012A4A29D5006ECAD5 /* device.cpp in Sources */,
 				34EB6F672A4C6EE900DA6B15 /* wren_primitive.c in Sources */,
 				346E73C52A4A29D5006ECAD5 /* AppDelegate.m in Sources */,
-				346EBFD82A49F33D00771230 /* Renderer.m in Sources */,
 				34EB6F622A4C6EDA00DA6B15 /* wren_opt_random.c in Sources */,
 				34EB6FA02A4CCC2700DA6B15 /* device_apple.mm in Sources */,
-				346E73C82A4A29D5006ECAD5 /* GameViewController.m in Sources */,
 				34EB6F7D2A4C6F2300DA6B15 /* implot_demo.cpp in Sources */,
 				346E74072A4A29D5006ECAD5 /* data.cpp in Sources */,
 				34EB6F6B2A4C6EE900DA6B15 /* wren_compiler.c in Sources */,
@@ -2286,17 +2173,12 @@
 				34EB6FA72A4CD00900DA6B15 /* imgui_stdlib.cpp in Sources */,
 				34EB6F662A4C6EE900DA6B15 /* wren_vm.c in Sources */,
 				34EB6F962A4C706C00DA6B15 /* render_apple.mm in Sources */,
-				346EBFA92A49F33D00771230 /* GameViewController.m in Sources */,
 				346E73C22A4A29D5006ECAD5 /* main.m in Sources */,
-				346EBFB12A49F33D00771230 /* main.m in Sources */,
 				34EB6F7B2A4C6F2300DA6B15 /* implot.cpp in Sources */,
-				346EBFA62A49F33D00771230 /* AppDelegate.m in Sources */,
 				34EB6F7E2A4C6F2300DA6B15 /* imgui_demo.cpp in Sources */,
 				34EB6F9B2A4CCBCC00DA6B15 /* imgui_impl.cpp in Sources */,
 				346E73FE2A4A29D5006ECAD5 /* audio.cpp in Sources */,
 				34EB6F982A4C721B00DA6B15 /* input_apple.mm in Sources */,
-				346E73D12A4A29D5006ECAD5 /* main.m in Sources */,
-				346EBFDB2A49F33D00771230 /* Shaders.metal in Sources */,
 				346E73D72A4A29D5006ECAD5 /* render.cpp in Sources */,
 				346E74042A4A29D5006ECAD5 /* fileio.cpp in Sources */,
 			);
@@ -2324,14 +2206,11 @@
 				34EB6F6C2A4C6EEA00DA6B15 /* wren_value.c in Sources */,
 				34EB6FA82A4CD00900DA6B15 /* imgui_stdlib.cpp in Sources */,
 				34EB6F992A4C721B00DA6B15 /* input_apple.mm in Sources */,
-				346E73BA2A4A29D5006ECAD5 /* GameViewController.m in Sources */,
 				34EB6F712A4C6EEA00DA6B15 /* wren_debug.c in Sources */,
 				346E74112A4A29D5006ECAD5 /* configuration.cpp in Sources */,
 				34EB6F602A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */,
 				346E74022A4A29D5006ECAD5 /* device.cpp in Sources */,
 				34EB6F6E2A4C6EEA00DA6B15 /* wren_primitive.c in Sources */,
-				346E73C62A4A29D5006ECAD5 /* AppDelegate.m in Sources */,
-				346EBFD92A49F33D00771230 /* Renderer.m in Sources */,
 				34EB6F632A4C6EDB00DA6B15 /* wren_opt_random.c in Sources */,
 				346E73C92A4A29D5006ECAD5 /* GameViewController.m in Sources */,
 				34EB6F862A4C6F2400DA6B15 /* implot_demo.cpp in Sources */,
@@ -2340,17 +2219,12 @@
 				346E73DB2A4A29D5006ECAD5 /* render_gl.cpp in Sources */,
 				34EB6F9D2A4CCBCE00DA6B15 /* imgui_impl.cpp in Sources */,
 				34EB6F6D2A4C6EEA00DA6B15 /* wren_vm.c in Sources */,
-				346EBFBD2A49F33D00771230 /* GameViewController.m in Sources */,
 				34EB6FA12A4CCC2700DA6B15 /* device_apple.mm in Sources */,
-				346E73C32A4A29D5006ECAD5 /* main.m in Sources */,
-				346EBFC52A49F33D00771230 /* main.m in Sources */,
 				34EB6F842A4C6F2400DA6B15 /* implot.cpp in Sources */,
-				346EBFBA2A49F33D00771230 /* AppDelegate.m in Sources */,
 				34EB6F872A4C6F2400DA6B15 /* imgui_demo.cpp in Sources */,
 				346E73FF2A4A29D5006ECAD5 /* audio.cpp in Sources */,
 				346E73D22A4A29D5006ECAD5 /* main.m in Sources */,
 				34EB6FA52A4CCD2000DA6B15 /* account_apple.mm in Sources */,
-				346EBFDC2A49F33D00771230 /* Shaders.metal in Sources */,
 				346E73D82A4A29D5006ECAD5 /* render.cpp in Sources */,
 				346E74052A4A29D5006ECAD5 /* fileio.cpp in Sources */,
 			);
@@ -2381,7 +2255,6 @@
 				34EB6F8D2A4C6F2500DA6B15 /* implot.cpp in Sources */,
 				346E74032A4A29D5006ECAD5 /* device.cpp in Sources */,
 				34EB6FA22A4CCC2700DA6B15 /* device_apple.mm in Sources */,
-				346EBFDA2A49F33D00771230 /* Renderer.m in Sources */,
 				346E74092A4A29D5006ECAD5 /* data.cpp in Sources */,
 				34EB6F762A4C6EEA00DA6B15 /* wren_utils.c in Sources */,
 				34EB6F9E2A4CCBCF00DA6B15 /* imgui_impl.cpp in Sources */,
@@ -2443,38 +2316,6 @@
 				346E73782A4A29D5006ECAD5 /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		346EBFAA2A49F33D00771230 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				346EBFAB2A49F33D00771230 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		346EBFAD2A49F33D00771230 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				346EBFAE2A49F33D00771230 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-		346EBFBE2A49F33D00771230 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				346EBFBF2A49F33D00771230 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		346EBFC12A49F33D00771230 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				346EBFC22A49F33D00771230 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -2610,6 +2451,11 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3JY2438PPJ;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"PLATFORM_APPLE=1",
+					PLATFORM_APPLE_IOS,
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -2639,6 +2485,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3JY2438PPJ;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					PLATFORM_APPLE,
+					PLATFORM_APPLE_IOS,
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -2727,6 +2577,11 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3JY2438PPJ;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"PLATFORM_APPLE=1",
+					PLATFORM_APPLE_MACOS,
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -2758,6 +2613,10 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3JY2438PPJ;
 				ENABLE_HARDENED_RUNTIME = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					PLATFORM_APPLE,
+					PLATFORM_APPLE_MACOS,
+				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
