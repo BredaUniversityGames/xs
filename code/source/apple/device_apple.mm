@@ -1,11 +1,17 @@
 #include <device.h>
 #include <log.h>
-#include <opengl.h>
 #include <configuration.h>
-
-#import <Cocoa/Cocoa.h>
-
-
+#include "fileio.h"
+#include "device.h"
+#include "device_apple.h"
+#include "input.h"
+#include "log.h"
+#include "render.h"
+#include "script.h"
+#include "audio.h"
+#include "account.h"
+#include "data.h"
+#include "inspector.h"
 #import <MetalKit/MetalKit.h>
 
 #if TARGET_OS_IOS
@@ -18,6 +24,7 @@
 #define IView UIView
 
 #elif defined(PLATFORM_APPLE_MACOS)
+#import <Cocoa/Cocoa.h>
 
 @interface GameViewController : NSViewController
 @end
@@ -62,7 +69,7 @@ using namespace xs::device::internal;
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
-    int g = 0;
+    render::render();
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
@@ -97,6 +104,18 @@ using namespace xs::device::internal;
     [_renderer mtkView:_view drawableSizeWillChange:_view.bounds.size];
 
     _view.delegate = _renderer;
+    
+    //log::initialize();
+    //account::initialize();
+    //fileio::initialize();
+    //data::initialize();
+    //script::configure();
+    //device::initialize();
+    render::initialize();
+    //input::initialize();
+    //audio::initialize();
+    //inspector::initialize();
+    //script::initialize();
 }
 
 @end
@@ -140,4 +159,9 @@ int device::get_width()
 int device::get_height()
 {
     return 0;
+}
+
+MTKView* device::get_view()
+{
+    return _view;
 }
