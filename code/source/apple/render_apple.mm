@@ -3,6 +3,7 @@
 #include "configuration.h"
 #include "profiler.h"
 #include "device_apple.h"
+#include "device.h"
 
 #import <MetalKit/MetalKit.h>
 
@@ -189,7 +190,7 @@ void xs::render::initialize()
                                                bundle:nil
                                               options:textureLoaderOptions
                                                 error:&error];
-
+        
         if(!_colorMap || error)
         {
             NSLog(@"Error creating texture %@", error.localizedDescription);
@@ -227,6 +228,9 @@ void xs::render::render()
         /// Update any game state before encoding renderint commands to our drawable
 
         Uniforms * uniforms = (Uniforms*)_dynamicUniformBuffer[_uniformBufferIndex].contents;
+        
+        float aspect = device::get_width() / (float)device::get_height();
+        _projectionMatrix = matrix_perspective_right_hand(65.0f * (M_PI / 180.0f), aspect, 0.1f, 100.0f);
 
         uniforms->projectionMatrix = _projectionMatrix;
 

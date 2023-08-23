@@ -153,12 +153,12 @@ bool device::should_close()
 
 int device::get_width()
 {
-    return 0;
+    return _width;
 }
 
 int device::get_height()
 {
-    return 0;
+    return _height;
 }
 
 MTKView* device::get_view()
