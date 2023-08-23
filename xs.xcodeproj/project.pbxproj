@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		34011A392A7DB12600521FCD /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34011A382A7DB12600521FCD /* Metal.framework */; };
+		34011A3B2A7DB16B00521FCD /* ModelIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34011A3A2A7DB16B00521FCD /* ModelIO.framework */; };
 		3406B6342A7460A300989AB9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E735F2A4A29D5006ECAD5 /* main.m */; };
 		34123BE22A75C1EF00750619 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E735D2A4A29D5006ECAD5 /* Main.storyboard */; };
 		346184202A78525C0014B43C /* shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3461841F2A78525C0014B43C /* shaders.metal */; };
@@ -125,9 +127,12 @@
 		34EB6FA72A4CD00900DA6B15 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D112A4C6E6200DA6B15 /* imgui_stdlib.cpp */; };
 		34EB6FA82A4CD00900DA6B15 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D112A4C6E6200DA6B15 /* imgui_stdlib.cpp */; };
 		34EB6FA92A4CD00A00DA6B15 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D112A4C6E6200DA6B15 /* imgui_stdlib.cpp */; };
+		34F823952A9352E1003F362C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346E73642A4A29D5006ECAD5 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		34011A382A7DB12600521FCD /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		34011A3A2A7DB16B00521FCD /* ModelIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ModelIO.framework; path = System/Library/Frameworks/ModelIO.framework; sourceTree = SDKROOT; };
 		3461841D2A784EBE0014B43C /* device_apple.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = device_apple.h; sourceTree = "<group>"; };
 		3461841E2A7852080014B43C /* shader_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shader_types.h; sourceTree = "<group>"; };
 		3461841F2A78525C0014B43C /* shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = shaders.metal; sourceTree = "<group>"; };
@@ -887,6 +892,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34011A3B2A7DB16B00521FCD /* ModelIO.framework in Frameworks */,
+				34011A392A7DB12600521FCD /* Metal.framework in Frameworks */,
 				346184272A7867A90014B43C /* MetalKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -897,6 +904,8 @@
 		346184252A7867A90014B43C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				34011A3A2A7DB16B00521FCD /* ModelIO.framework */,
+				34011A382A7DB12600521FCD /* Metal.framework */,
 				3461842C2A7868710014B43C /* MetalFX.framework */,
 				3461842A2A7867F60014B43C /* Metal.framework */,
 				346184282A7867B70014B43C /* MetalKit.framework */,
@@ -2112,6 +2121,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34F823952A9352E1003F362C /* Assets.xcassets in Resources */,
 				34123BE22A75C1EF00750619 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
