@@ -33,6 +33,8 @@
 
 #endif
 
+using namespace std;
+
 
 // Our platform independent renderer class.   Implements the MTKViewDelegate protocol which
 //   allows it to accept per-frame update and drawable resize callbacks.
@@ -48,6 +50,7 @@ namespace xs::device::internal
     XSRenderer* _renderer;
     int _width = -1;
     int _height = -1;
+    // auto prev_time = chrono::high_resolution_clock::now();
 }
 using namespace xs;
 using namespace xs::device::internal;
@@ -69,7 +72,24 @@ using namespace xs::device::internal;
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
+    
     render::render();
+    
+    // auto current_time = chrono::high_resolution_clock::now();
+    // auto elapsed = current_time - prev_time;
+    // prev_time = current_time;
+    // auto dt = std::chrono::duration<double>(elapsed).count();
+    // if (dt > 0.03333) dt = 0.03333;
+
+    auto dt = 0.0666;
+    device::poll_events();
+    input::update(dt);
+    render::clear();
+    script::update(dt);
+    script::render();
+    render::render();
+    // inspector::render(float(dt));
+    device::swap_buffers();
 }
 
 - (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
@@ -105,17 +125,17 @@ using namespace xs::device::internal;
 
     _view.delegate = _renderer;
     
-    //log::initialize();
-    //account::initialize();
-    //fileio::initialize();
-    //data::initialize();
-    //script::configure();
-    //device::initialize();
+    log::initialize();
+    account::initialize();
+    fileio::initialize();
+    data::initialize();
+    script::configure();
+    device::initialize();
     render::initialize();
-    //input::initialize();
+    input::initialize();
     //audio::initialize();
-    //inspector::initialize();
-    //script::initialize();
+    inspector::initialize();
+    script::initialize();
 }
 
 @end
