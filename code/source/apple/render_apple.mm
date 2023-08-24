@@ -301,8 +301,6 @@ void xs::render::render()
     }
 
     [commandBuffer commit];
-
-    
 }
 
 void xs::render::clear()

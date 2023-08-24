@@ -17,6 +17,10 @@
 #include <filesystem>
 #endif
 
+#if defined(PLTFORM_APPLE)
+#import <Foundation/Foundation.h>
+#endif
+
 namespace xs::fileio::internal
 {
 	std::map<std::string, std::string> wildcards;
@@ -26,15 +30,14 @@ using namespace xs;
 using namespace fileio::internal;
 using namespace std;
 
-#define XS_PLATFORM_MACOS
+#if !defined(PLATFORM_APPLE)
 
 void fileio::initialize(/* const std::string& main_script*/)
 {
 #if defined(PLATFORM_PC)
 	add_wildcard("[games]", "./games");
     
-#elif defined(XS_PLATFORM_MACOS)
-    add_wildcard("[games]", "./games");
+#elif defined(PLATFORM_APPLE)
     
 #elif defined(PLATFORM_SWITCH)
 	nn::Result result;
@@ -140,6 +143,8 @@ void fileio::initialize(/* const std::string& main_script*/)
 	// add_wildcard("[save]", save_path);
 #endif
 }
+
+#endif
 
 vector<char> fileio::read_binary_file(const std::string& filename)
 {

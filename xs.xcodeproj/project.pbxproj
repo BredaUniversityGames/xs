@@ -11,6 +11,12 @@
 		34011A3B2A7DB16B00521FCD /* ModelIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 34011A3A2A7DB16B00521FCD /* ModelIO.framework */; };
 		3406B6342A7460A300989AB9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E735F2A4A29D5006ECAD5 /* main.m */; };
 		34123BE22A75C1EF00750619 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 346E735D2A4A29D5006ECAD5 /* Main.storyboard */; };
+		3435D9ED2A968ADA00335383 /* fileio_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3435D9EC2A968ADA00335383 /* fileio_apple.mm */; };
+		3435D9EE2A968ADA00335383 /* fileio_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3435D9EC2A968ADA00335383 /* fileio_apple.mm */; };
+		3435D9EF2A968ADA00335383 /* fileio_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3435D9EC2A968ADA00335383 /* fileio_apple.mm */; };
+		3435D9F12A96924700335383 /* games in Resources */ = {isa = PBXBuildFile; fileRef = 3435D9F02A96924700335383 /* games */; };
+		3435D9F22A96924700335383 /* games in Resources */ = {isa = PBXBuildFile; fileRef = 3435D9F02A96924700335383 /* games */; };
+		3435D9F32A96924700335383 /* games in Resources */ = {isa = PBXBuildFile; fileRef = 3435D9F02A96924700335383 /* games */; };
 		346184202A78525C0014B43C /* shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3461841F2A78525C0014B43C /* shaders.metal */; };
 		346184212A78525C0014B43C /* shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3461841F2A78525C0014B43C /* shaders.metal */; };
 		346184222A78525C0014B43C /* shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3461841F2A78525C0014B43C /* shaders.metal */; };
@@ -133,6 +139,8 @@
 /* Begin PBXFileReference section */
 		34011A382A7DB12600521FCD /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		34011A3A2A7DB16B00521FCD /* ModelIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ModelIO.framework; path = System/Library/Frameworks/ModelIO.framework; sourceTree = SDKROOT; };
+		3435D9EC2A968ADA00335383 /* fileio_apple.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = fileio_apple.mm; sourceTree = "<group>"; };
+		3435D9F02A96924700335383 /* games */ = {isa = PBXFileReference; lastKnownFileType = folder; path = games; sourceTree = "<group>"; };
 		3461841D2A784EBE0014B43C /* device_apple.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = device_apple.h; sourceTree = "<group>"; };
 		3461841E2A7852080014B43C /* shader_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shader_types.h; sourceTree = "<group>"; };
 		3461841F2A78525C0014B43C /* shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = shaders.metal; sourceTree = "<group>"; };
@@ -980,6 +988,7 @@
 				34EB6FA32A4CCD2000DA6B15 /* account_apple.mm */,
 				3461841E2A7852080014B43C /* shader_types.h */,
 				3461841F2A78525C0014B43C /* shaders.metal */,
+				3435D9EC2A968ADA00335383 /* fileio_apple.mm */,
 			);
 			path = apple;
 			sourceTree = "<group>";
@@ -1021,6 +1030,7 @@
 		346EBF922A49F33C00771230 = {
 			isa = PBXGroup;
 			children = (
+				3435D9F02A96924700335383 /* games */,
 				34EB6C932A4C6E6100DA6B15 /* external */,
 				346E733F2A4A29D5006ECAD5 /* code */,
 				346EBFA22A49F33D00771230 /* Products */,
@@ -2105,6 +2115,7 @@
 			files = (
 				346E73BF2A4A29D5006ECAD5 /* Main.storyboard in Resources */,
 				346E73BC2A4A29D5006ECAD5 /* LaunchScreen.storyboard in Resources */,
+				3435D9F12A96924700335383 /* games in Resources */,
 				346E73B02A4A29D5006ECAD5 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2113,6 +2124,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3435D9F22A96924700335383 /* games in Resources */,
 				346E73B12A4A29D5006ECAD5 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2121,6 +2133,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3435D9F32A96924700335383 /* games in Resources */,
 				34F823952A9352E1003F362C /* Assets.xcassets in Resources */,
 				34123BE22A75C1EF00750619 /* Main.storyboard in Resources */,
 			);
@@ -2165,6 +2178,7 @@
 				346E73C22A4A29D5006ECAD5 /* main.m in Sources */,
 				34EB6F7B2A4C6F2300DA6B15 /* implot.cpp in Sources */,
 				34EB6F7E2A4C6F2300DA6B15 /* imgui_demo.cpp in Sources */,
+				3435D9ED2A968ADA00335383 /* fileio_apple.mm in Sources */,
 				34EB6F9B2A4CCBCC00DA6B15 /* imgui_impl.cpp in Sources */,
 				346E73FE2A4A29D5006ECAD5 /* audio.cpp in Sources */,
 				34EB6F982A4C721B00DA6B15 /* input_apple.mm in Sources */,
@@ -2195,6 +2209,7 @@
 				346184212A78525C0014B43C /* shaders.metal in Sources */,
 				34EB6F712A4C6EEA00DA6B15 /* wren_debug.c in Sources */,
 				346E74112A4A29D5006ECAD5 /* configuration.cpp in Sources */,
+				3435D9EE2A968ADA00335383 /* fileio_apple.mm in Sources */,
 				34EB6F602A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */,
 				346E74022A4A29D5006ECAD5 /* device.cpp in Sources */,
 				34EB6F6E2A4C6EEA00DA6B15 /* wren_primitive.c in Sources */,
@@ -2251,6 +2266,7 @@
 				34EB6F732A4C6EEA00DA6B15 /* wren_value.c in Sources */,
 				34EB6F932A4C6F2500DA6B15 /* imgui_widgets.cpp in Sources */,
 				34EB6F782A4C6EEA00DA6B15 /* wren_debug.c in Sources */,
+				3435D9EF2A968ADA00335383 /* fileio_apple.mm in Sources */,
 				346E74002A4A29D5006ECAD5 /* audio.cpp in Sources */,
 				346E73D92A4A29D5006ECAD5 /* render.cpp in Sources */,
 				34EB6F642A4C6EDB00DA6B15 /* wren_opt_random.c in Sources */,
@@ -2327,6 +2343,7 @@
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_INPUT_FILETYPE = automatic;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2390,6 +2407,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_INPUT_FILETYPE = automatic;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = PLATFORM_APPLE;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
