@@ -71,10 +71,7 @@ using namespace xs::device::internal;
 
 
 - (void)drawInMTKView:(nonnull MTKView *)view
-{
-    
-    render::render();
-    
+{    
     // auto current_time = chrono::high_resolution_clock::now();
     // auto elapsed = current_time - prev_time;
     // prev_time = current_time;
