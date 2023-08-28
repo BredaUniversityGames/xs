@@ -21,5 +21,8 @@
         "stbi",
         "stbtt",
         "Wunused"
-    ]
+    ],
+    "files.associations": {
+        "iosfwd": "cpp"
+    }
 }
