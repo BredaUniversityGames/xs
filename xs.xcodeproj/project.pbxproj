@@ -23,9 +23,6 @@
 		346184232A7852C80014B43C /* render_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F952A4C706C00DA6B15 /* render_apple.mm */; };
 		346184242A7852C80014B43C /* render_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F952A4C706C00DA6B15 /* render_apple.mm */; };
 		346184272A7867A90014B43C /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 346184262A7867A90014B43C /* MetalKit.framework */; };
-		346184292A7867B70014B43C /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 346184282A7867B70014B43C /* MetalKit.framework */; };
-		3461842B2A7867F60014B43C /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3461842A2A7867F60014B43C /* Metal.framework */; };
-		3461842D2A7868710014B43C /* MetalFX.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3461842C2A7868710014B43C /* MetalFX.framework */; };
 		346E73AF2A4A29D5006ECAD5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 346E73602A4A29D5006ECAD5 /* AppDelegate.m */; };
 		346E73B02A4A29D5006ECAD5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346E73642A4A29D5006ECAD5 /* Assets.xcassets */; };
 		346E73B12A4A29D5006ECAD5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346E73642A4A29D5006ECAD5 /* Assets.xcassets */; };
@@ -177,7 +174,7 @@
 		346E736F2A4A29D5006ECAD5 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		346E73702A4A29D5006ECAD5 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		346E73712A4A29D5006ECAD5 /* GameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
-		346E737C2A4A29D5006ECAD5 /* render.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render.cpp; sourceTree = "<group>"; };
+		346E737C2A4A29D5006ECAD5 /* render.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = render.cpp; sourceTree = "<group>"; };
 		346E737E2A4A29D5006ECAD5 /* log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = log.cpp; sourceTree = "<group>"; };
 		346E737F2A4A29D5006ECAD5 /* profiler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = profiler.cpp; sourceTree = "<group>"; };
 		346E73802A4A29D5006ECAD5 /* render_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = render_internal.h; sourceTree = "<group>"; };
@@ -879,16 +876,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		346EBF9E2A49F33D00771230 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3461842D2A7868710014B43C /* MetalFX.framework in Frameworks */,
-				3461842B2A7867F60014B43C /* Metal.framework in Frameworks */,
-				346184292A7867B70014B43C /* MetalKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		346EBFB32A49F33D00771230 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -2022,7 +2009,6 @@
 			buildConfigurationList = 346EBFE32A49F33D00771230 /* Build configuration list for PBXNativeTarget "ios" */;
 			buildPhases = (
 				346EBF9D2A49F33D00771230 /* Sources */,
-				346EBF9E2A49F33D00771230 /* Frameworks */,
 				346EBF9F2A49F33D00771230 /* Resources */,
 			);
 			buildRules = (

@@ -9,8 +9,12 @@
 #if defined(PLATFORM_PS5)
 	#include <agc.h>	
 	using textureType = sce::Agc::Core::Texture;
-#elif defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(__APPLE__)
-	using textureType = unsigned int;
+#elif defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+    using textureType = unsigned int;
+#elif defined(__APPLE__)
+    #import <Foundation/Foundation.h>
+    #import <MetalKit/MetalKit.h>
+    typedef id<MTLTexture> textureType;
 #endif
 
 namespace xs::render::internal

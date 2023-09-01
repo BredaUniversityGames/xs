@@ -127,7 +127,18 @@ vertex vertex_to_fragment vertex_shader(
     return vtf;
 }
 
-fragment float4 fragment_shader(vertex_to_fragment vtf [[stage_in]])
+fragment float4 fragment_shader(
+    vertex_to_fragment vtf [[stage_in]],
+    texture2d<ushort> sprite_texture [[texture(index_sprite_texture)]])
 {
-    return float4(1.0, 1.0, 1.0, 1.0);
+    constexpr sampler sprite_sampler (mag_filter::nearest,
+                                      min_filter::nearest);
+    // Sample the texture to obtain a color
+    const ushort4 sprite_sample = sprite_texture.sample(sprite_sampler, vtf.texture);
+    
+    float4 f_sample = float4(sprite_sample);
+    f_sample /= 255.0;
+    //f_sample = pow(f_sample, float4(1.0 / 2.2));
+
+    return float4(f_sample);
 }

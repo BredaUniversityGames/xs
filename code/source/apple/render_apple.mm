@@ -519,17 +519,20 @@ void xs::render::render()
         {
             // Pass in the parameter data.
             [render_encoder setVertexBytes:sprite_trigs_array
-                                   length:sizeof(sprite_vtx_format) * count
-                                  atIndex:index_vertices];
+                length:sizeof(sprite_vtx_format) * count
+                atIndex:index_vertices];
             
             [render_encoder setVertexBytes:&vp
-                                   length:sizeof(mat4)
-                                  atIndex:index_wvp];
+                length:sizeof(mat4)
+                atIndex:index_wvp];
+            
+            [render_encoder setFragmentTexture:image.texture
+                atIndex:index_sprite_texture];
 
             // Draw the triangle.
             [render_encoder drawPrimitives:MTLPrimitiveTypeTriangle
-                              vertexStart:0
-                              vertexCount:count];
+                vertexStart:0
+                vertexCount:count];
             
             count = 0;
         }
@@ -543,70 +546,12 @@ void xs::render::render()
     // Finalize rendering here & push the command buffer to the GPU.
     [command_buffer commit];
 
-    /*
-    static const AAPLVertex triangleVertices[] =
-    {
-        // 2D positions,    RGBA colors
-        { {  250,  -250 }, { 1, 0, 0, 1 } },
-        { { -250,  -250 }, { 0, 1, 0, 1 } },
-        { {    0,   250 }, { 0, 0, 1, 1 } },
-    };
-    
-    // Create a new command buffer for each render pass to the current drawable.
-    id<MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
-    commandBuffer.label = @"MyCommand";
-
-    // Obtain a renderPassDescriptor generated from the view's drawable textures.
-    MTLRenderPassDescriptor *renderPassDescriptor = view.currentRenderPassDescriptor;
-
-    if(renderPassDescriptor != nil)
-    {
-        // Create a render command encoder.
-        id<MTLRenderCommandEncoder> renderEncoder =
-        [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-        renderEncoder.label = @"MyRenderEncoder";
-
-        // Set the region of the drawable to draw into.
-        [renderEncoder setViewport:(MTLViewport){0, 0, static_cast<double>(_viewportSize.x), static_cast<double>(_viewportSize.y), 0.0, 1.0 }];
-        
-        [renderEncoder setRenderPipelineState:_pipelineState];
-
-        // Pass in the parameter data.
-        [renderEncoder setVertexBytes:triangleVertices
-                               length:sizeof(triangleVertices)
-                              atIndex:AAPLVertexInputIndexVertices];
-        
-        [renderEncoder setVertexBytes:&_viewportSize
-                               length:sizeof(_viewportSize)
-                              atIndex:AAPLVertexInputIndexViewportSize];
-
-        // Draw the triangle.
-        [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
-                          vertexStart:0
-                          vertexCount:3];
-
-        [renderEncoder endEncoding];
-
-        // Schedule a present once the framebuffer is complete using the current drawable.
-        [commandBuffer presentDrawable:view.currentDrawable];
-    }
-
-    // Finalize rendering here & push the command buffer to the GPU.
-    [commandBuffer commit];
-     */
-    
     sprite_queue.clear();
 }
 
 void xs::render::clear()
 {
 }
-
-/*
-void xs::render::internal::create_texture_with_data(xs::render::internal::image& img, uchar* data)
-{
-}
- */
 
 void xs::render::begin(primitive p)
 {
@@ -634,5 +579,25 @@ void xs::render::line(double x0, double y0, double x1, double y1)
 void xs::render::text(const std::string& text, double x, double y, double size)
 {}
 
-void xs::render::internal::create_texture_with_data(xs::render::internal::image& img, uchar* data)
-{}
+void xs::render::internal::create_texture_with_data(
+    xs::render::internal::image& img,
+    uchar* data)
+{
+    MTLTextureDescriptor* texture_descriptor = [[MTLTextureDescriptor alloc] init];
+    texture_descriptor.pixelFormat = MTLPixelFormatRGBA8Uint; // 0-255 RGBA
+    //texture_descriptor.pixelFormat = MTLPixelFormatRGBA8; // 0-255 RGBA
+    texture_descriptor.width = img.width;
+    texture_descriptor.height= img.height;
+    img.texture = [_device newTextureWithDescriptor:texture_descriptor];
+    
+    MTLRegion region = {
+        { 0, 0, 0 },                                                // MTLOrigin
+        {texture_descriptor.width, texture_descriptor.height, 1}    // MTLSize
+    };
+    
+    [img.texture
+     replaceRegion:region
+     mipmapLevel:0
+     withBytes:data
+     bytesPerRow:texture_descriptor.width * 4];
+}
