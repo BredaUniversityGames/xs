@@ -78,7 +78,7 @@ using namespace xs::device::internal;
     // auto dt = std::chrono::duration<double>(elapsed).count();
     // if (dt > 0.03333) dt = 0.03333;
 
-    auto dt = 0.0666;
+    auto dt = 0.01666;
     device::poll_events();
     input::update(dt);
     render::clear();

@@ -81,6 +81,10 @@ typedef enum input_index
     index_wvp       = 1,
 } input_index;
 
+typedef enum input_texture_index
+{
+    index_sprite_texture  = 0,
+} input_texture_index;
 
 
 // Buffer index values shared between shader and C code to ensure Metal shader buffer inputs
