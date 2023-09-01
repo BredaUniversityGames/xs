@@ -63,6 +63,7 @@ namespace xs::render::internal
 
 	inline glm::vec4 to_vec4(color c) { return glm::vec4(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f); }
 	inline void rotate_vector3d(glm::vec3& vec, float radians);
+	inline void rotate_vector2d(glm::vec2& vec, float radians);
 	void create_texture_with_data(xs::render::internal::image& img, uchar* data);
 }
 
@@ -74,3 +75,10 @@ inline void xs::render::internal::rotate_vector3d(glm::vec3& vec, float radians)
 	vec.y = y;
 }
 
+inline void xs::render::internal::rotate_vector2d(glm::vec2& vec, float radians)
+{
+	const float x = cos(radians) * vec.x - sin(radians) * vec.y;
+	const float y = sin(radians) * vec.x + cos(radians) * vec.y;
+	vec.x = x;
+	vec.y = y;
+}

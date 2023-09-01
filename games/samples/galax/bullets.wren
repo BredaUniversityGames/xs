@@ -39,7 +39,7 @@ class Bullet is Component {
         var v = Vec2.new(0, speed)
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.Player, damage)
-        var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
+        var s = AnimatedSprite.new("[game]/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
         s.layer = 1.9
         s.flags = Render.spriteCenter
         s.addAnimation("anim", [0,1,2])
@@ -101,7 +101,7 @@ class Missile is Bullet {
         var bd = Body.new(5, v)
         var bl = Missile.new(Team.Computer, speed)
         var u = Unit.new(Team.Computer, 1.0)
-        var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
+        var s = AnimatedSprite.new("[game]/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
         s.layer = 1.9
         s.flags = Render.spriteCenter
         s.addAnimation("anim", [0,1,2])
