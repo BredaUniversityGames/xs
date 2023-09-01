@@ -53,7 +53,7 @@ using namespace sce::Vectormath::Simd::Aos;
 
 namespace xs::render::internal
 {
-	struct Vert
+	struct sprite_vtx_format
 	{
 		vec2 position;
 		vec2 texture;
@@ -79,9 +79,15 @@ namespace xs::render::internal
 	sce::Agc::CxBlendControl blend_control;
 	int frame = 0;
 
+	unsigned int			sprite_program = 0;
+	int const				sprite_trigs_max = 21800;
+	int						sprite_trigs_count = 0;
+	sprite_vtx_format		sprite_trigs_array[sprite_trigs_max * 3];
+
 	uint8_t* alloc_direct_mem(sce::Agc::SizeAlign sizeAlign);
 	int create_scanout_buffers(const sce::Agc::CxRenderTarget* rts, uint32_t count);
 	int load_png(const std::string& filename, sce::Agc::Core::Texture& out_texture);
+	void rotate_vector3d(Vector3& vec, float radians);
 }
 
 using namespace xs::render::internal;
@@ -169,6 +175,14 @@ int xs::render::internal::create_scanout_buffers(const sce::Agc::CxRenderTarget*
 	free(addresses);
 
 	return videoHandle;
+}
+
+void xs::render::internal::rotate_vector3d(Vector3& vec, float radians)
+{
+	const float x = cos(radians) * vec.getX() - sin(radians) * vec.getY();
+	const float y = sin(radians) * vec.getX() + cos(radians) * vec.getY();
+	vec.setX(x);
+	vec.setX(y);
 }
 
 void create_render_targets(sce::Agc::CxRenderTarget* rts, sce::Agc::Core::RenderTargetSpec* spec, uint32_t count)
@@ -437,6 +451,16 @@ void xs::render::render()
 		.setXyFilterMode(sce::Agc::Core::Sampler::FilterMode::kPoint)
 		.setWrapMode(sce::Agc::Core::Sampler::WrapMode::kClampLastTexel);
 
+	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
+		[](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
+			return lhs.z < rhs.z;
+		});
+
+
+	unsigned short indices[6] = { 0, 1, 2, 3, 2, 1 };
+	unsigned short* indexData = (unsigned short*)alloc_direct_mem({ sizeof(unsigned short) * 6, sce::Agc::Alignment::kBuffer });
+	memcpy(indexData, indices, sizeof(unsigned short) * 6);
+
 	std::vector<sce::Agc::Core::Buffer> vertBuffers;
 	for (const auto& spe : sprite_queue)
 	{
@@ -465,7 +489,7 @@ void xs::render::render()
 		// Allocate on the dcb
 		vertBuffers.push_back({});
 		sce::Agc::Core::Buffer& vertBuffer = vertBuffers.back();
-		Vert* verData = (Vert*)ctx.m_dcb.allocateTopDown({ sizeof(Vert) * 4, sce::Agc::Alignment::kBuffer });
+		sprite_vtx_format* verData = (sprite_vtx_format*)ctx.m_dcb.allocateTopDown({ sizeof(sprite_vtx_format) * 4, sce::Agc::Alignment::kBuffer });
 		// Position
 		verData[0].position = { from_x, from_y	}; 
 		verData[1].position = { from_x, to_y	};
@@ -473,7 +497,7 @@ void xs::render::render()
 		verData[3].position = { to_x, to_y		};
 
 		// Texture
-		verData[0].texture = { from_u, to_v	};
+		verData[0].texture = { from_u, to_v		};
 		verData[1].texture = { from_u, from_v	};
 		verData[2].texture = { to_u, to_v		};
 		verData[3].texture = { to_u, from_v		};
@@ -489,8 +513,17 @@ void xs::render::render()
 		verData[2].mul_color = mul_color;
 		verData[3].mul_color = mul_color;
 		
-		vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
+		// vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
+
+		vec3 anchor(0.0f, 0.0f, 0.0f);
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
+			anchor.x = (float)((to_x - from_x) * 0.5);
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
+			anchor.y = (float)((to_y - from_y) * 0.5);
+		else if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
+			anchor.y = (float)(to_y - from_y);
+
+		if (anchor.x != 0.0f || anchor.y != 0.0f)
 		{
 			for (int i = 0; i < 4; i++)
 			{
@@ -499,13 +532,11 @@ void xs::render::render()
 			}
 		}
 
-		/*
 		if (spe.rotation != 0.0)
 		{
 			for (int i = 0; i < 6; i++)
-				rotate_vector3d(sprite_trigs_array[i].position, (float)spe.rotation);
+				rotate_vector2d(verData[i].position, (float)spe.rotation);
 		}
-		*/
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -513,7 +544,7 @@ void xs::render::render()
 			verData[i].position.y += (float)spe.y;
 		}
 
-		sce::Agc::Core::initializeRegularBuffer(&vertBuffer, verData, sizeof(Vert), 4);
+		sce::Agc::Core::initializeRegularBuffer(&vertBuffer, verData, sizeof(sprite_vtx_format), 4);
 
 		camera_srt* camera = (camera_srt*)ctx.m_dcb.allocateTopDown(sizeof(camera_srt), sce::Agc::Alignment::kBuffer);
 		camera->x = 0.0f;
@@ -535,7 +566,29 @@ void xs::render::render()
 		// In this example, we're actually drawing two triangles. The state only differs in what is in
 		// frame_reg. Because we're not calling into the Binder or StateBuffer in between these draws, they will 
 		// not write anything to the DCB and thus will incur no GPU cost.
-		ctx.drawIndexAuto(4);
+		// ctx.drawIndexAuto(4);
+
+
+		// Create the index buffer
+
+
+		/*
+		sce::Agc::Core::Buffer indexBuffer = {};
+		memcpy(indexData, indices, sizeof(unsigned int) * 4);
+		auto err = sce::Agc::Core::initializeVertexBuffer(
+			&indexBuffer,
+			indexData,
+			{ sce::Agc::Core::TypedFormat::k32UInt, sce::Agc::Core::Swizzle::k0000 },
+			sizeof(uint32_t),
+			6);
+		assert(err == SCE_OK);
+		*/
+
+		// sce::Agc::Core::registerResource(&mesh.m_indexBuffer, "Index Buffer");
+
+		ctx.drawIndex(6, indexData);
+
+		//ctx.drawIndexAuto()
 	}
 
 	// Submit a flip via the GPU.

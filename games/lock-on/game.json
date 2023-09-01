@@ -1,0 +1,10 @@
+{
+    "Portal Debug Color": {
+        "type": "color",
+        "value": 2883583
+    },
+    "Portal Size": {
+        "type": "number",
+        "value": 20.0
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "Always on top": {
+        "type": "bool",
+        "value": true
+    },
+    "Height": {
+        "type": "number",
+        "value": 360.0
+    },
+    "Multiplier": {
+        "type": "number",
+        "value": 1.0
+    },
+    "Title": {
+        "type": "string",
+        "value": "JumpCore"
+    },
+    "Width": {
+        "type": "number",
+        "value": 640.0
+    }
+}

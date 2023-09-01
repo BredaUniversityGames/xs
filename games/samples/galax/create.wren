@@ -105,7 +105,7 @@ class Create {
         var v = dir
         var bd = Body.new(5, v)
         var bl = Bullet.new(Team.Player, damage)
-        var s = AnimatedSprite.new("[games]/seedwave/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
+        var s = AnimatedSprite.new("[game]/assets/images/projectiles/projectile-06-02.png", 3, 1, 15)
         s.layer = 1.9
         s.flags = Render.spriteCenter
         s.scale = 1.5
