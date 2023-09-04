@@ -108,6 +108,8 @@ class Player is Component {
         ship.addComponent(s)
         ship.name = "Player"
         ship.tag = (Tag.player | Tag.unit)
+
+        // Create the thrusters
         for(i in 0...2) {
             var thrust = Entity.new()
             var t = Transform.new(Vec2.new(0, 0))
@@ -127,6 +129,22 @@ class Player is Component {
             thrust.addComponent(t)
             thrust.addComponent(s)
             thrust.addComponent(r)
+        }
+
+        // Create a reticle for the player
+        {
+            var reticle = Entity.new()
+            var t = Transform.new(Vec2.new(0, 0))
+            var s = AnimatedSprite.new("[game]/images/ui/03.png", 5, 3, 10)
+            s.addAnimation("rotate", [0, 1, 2, 3, 4])
+            s.playAnimation("rotate")
+            s.layer = 0.999
+            s.flags = Render.spriteCenter
+            var r = Relation.new(ship)
+            r.offset = Vec2.new(200, 0)
+            reticle.addComponent(t)
+            reticle.addComponent(s)
+            reticle.addComponent(r)
         }
 
         return ship
