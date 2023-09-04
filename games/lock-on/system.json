@@ -9,7 +9,7 @@
     },
     "Multiplier": {
         "type": "number",
-        "value": 3.0
+        "value": 2.0
     },
     "Title": {
         "type": "string",
