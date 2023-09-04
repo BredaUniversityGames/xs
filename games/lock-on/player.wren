@@ -2,6 +2,7 @@ import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
+import "xs_tools" for Tools
 import "globals" for Globals
 import "tags" for Team, Tag
 import "debug" for DebugColor
@@ -124,7 +125,7 @@ class Player is Component {
                 r.offset = Vec2.new(-20, -8)            
             } else {
                 r.offset = Vec2.new(-20, 4)
-                s.flags = s.flags | Render.spriteFlipY
+                s.flags = s.flags | Render.spriteFlipY // |
             }
             thrust.addComponent(t)
             thrust.addComponent(s)
@@ -135,8 +136,8 @@ class Player is Component {
         {
             var reticle = Entity.new()
             var t = Transform.new(Vec2.new(0, 0))
-            var s = AnimatedSprite.new("[game]/images/ui/03.png", 5, 3, 10)
-            s.addAnimation("rotate", [0, 1, 2, 3, 4])
+            var s = AnimatedSprite.new("[game]/images/ui/reticle.png", 32, 1, 60)
+            s.addAnimation("rotate", Tools.rangeToList(0...32))
             s.playAnimation("rotate")
             s.layer = 0.999
             s.flags = Render.spriteCenter

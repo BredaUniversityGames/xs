@@ -155,6 +155,10 @@ int xs::render::load_font(const std::string& font_file, double size)
 #endif
 	free(bitmap);
 
+#if defined(PLATFORM_PC)
+	last_write_times.push_back(0);
+#endif
+
 	return font_id;
 }
 
@@ -355,7 +359,12 @@ void xs::render::reload_images()
 {
 	for (int i = 0; i < images.size(); i++) {
 		auto& image = images[i];
+
+		if (image.file.empty())
+			continue;
+
 		auto last_time = last_write_times[i];
+		
 		auto new_time = xs::fileio::last_write(image.file);
 
 		if (new_time > last_time) {
