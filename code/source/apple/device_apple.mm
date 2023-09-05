@@ -115,10 +115,13 @@ using namespace xs::device::internal;
         self.view = [[IView alloc] initWithFrame:self.view.frame];
         return;
     }
-
+    
     _renderer = [[XSRenderer alloc] initWithMetalKitView:_view];
 
     [_renderer mtkView:_view drawableSizeWillChange:_view.bounds.size];
+    
+    // CGFloat w = configuration::width();
+    // GLfloat h = configuration::height();
 
     _view.delegate = _renderer;
     
@@ -127,7 +130,11 @@ using namespace xs::device::internal;
     fileio::initialize();
     data::initialize();
     script::configure();
+    
     device::initialize();
+    
+    // [_view setFrameSize:{1200, 200}];
+    
     render::initialize();
     input::initialize();
     //audio::initialize();
@@ -139,6 +146,11 @@ using namespace xs::device::internal;
 
 void device::initialize()
 {
+    CGFloat w = configuration::width();
+    GLfloat h = configuration::height();
+    // [_view setBoundsSize:{w, h}];
+    // [_view setDrawableSize:{w, h}];
+    [_view setFrameSize:{w, h}];
 }
 
 void device::shutdown()
