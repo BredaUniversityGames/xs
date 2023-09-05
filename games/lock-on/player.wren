@@ -135,6 +135,7 @@ class Player is Component {
         // Create a reticle for the player
         {
             var reticle = Entity.new()
+            reticle.tag = Tag.reticle
             var t = Transform.new(Vec2.new(0, 0))
             var s = AnimatedSprite.new("[game]/images/ui/reticle.png", 32, 1, 60)
             s.addAnimation("rotate", Tools.rangeToList(0...32))

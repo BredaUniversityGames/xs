@@ -4,9 +4,9 @@ class Globals {
     static PlayerSize { 6 }    
     static PlayerSpeed { 500 }
     static PlayerHealth { 300 }
-    static PlayerHackWidth { 200 }
-    static PlayerHackHeight { 60 }
-    static PlayerSpeedWhenHacking { 250 }
+    static PlayerLockWidth { 200 }
+    static PlayerLockHeight { 60 }
+    static PlayerSpeedWhenLocking { 250 }
     static PlayerBulletSpeed { 1000 }
     static PlayerBulletDamage { 10 }
     static PlayerBulletTimer { 0.1 }

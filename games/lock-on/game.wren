@@ -174,6 +174,34 @@ class Game {
         Game.collide(computerBullets, playerUnits)
         Game.collide(playerBullets, computerUnits)
 
+        // Lock on to enemies
+        var reticle = Entity.withTag(Tag.reticle)
+        if(reticle.count > 0) {
+            var rt = reticle[0].getComponent(Transform)
+            var rb = reticle[0].getComponent(Body)
+            for (cu in computerUnits) {
+                var ct = cu.getComponent(Transform)
+                var cb = cu.getComponent(Body)
+                var dis = rt.position - ct.position
+                dis = dis.magnitude
+                if(dis < 20) {
+                    var enemy = cu.getComponent(Enemy)
+                    if(enemy == null) {
+                        continue
+                    }
+                    System.print("Enemy %(enemy)")
+                    enemy.lock(dt)
+                    Render.arc(ct.position.x, ct.position.y, 20, enemy.lock * Math.pi, 24)
+                    // var unit = cu.getComponent(Unit)
+                    // System.print("Unit %(unit)")             
+                    // reticle[0].delete()
+                    // Render.disk(uT.position.x, uT.position.y, 2, 24)
+                }            
+            }
+        }
+                    
+
+
         if(computerUnits.count == 0) {
             __waveTimer = __waveTimer + dt            
         }
