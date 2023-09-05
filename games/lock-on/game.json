@@ -6,5 +6,9 @@
     "Portal Size": {
         "type": "number",
         "value": 20.0
+    },
+    "Speed": {
+        "type": "number",
+        "value": 2.0
     }
 }

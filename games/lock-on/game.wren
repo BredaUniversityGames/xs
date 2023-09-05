@@ -287,55 +287,25 @@ class Game {
     }
 
     static createEnemyShips() {
-        var x = Game.random.float(0, 200)
-        var y = Game.random.float(-100, 100)
-        var pos = Vec2.new(x, y)
-        var tilt = Game.random.float(0, 5.0)
-
-        var bulletType = Game.random.int(1, 4)
-        var core = createEnemyCore(pos, tilt)
-        var orbitor = core.getComponent(Orbitor)
-        for(i in 0..6) {
-            var ship = createEnemyShip(i, tilt, core, bulletType)
-            orbitor.add(ship)
+        for(i in 0..3) {
+            var x = Game.random.float(0, 200)
+            var y = Game.random.float(-100, 100)
+            var bulletType = Game.random.int(1, 4) 
+            var ship = createEnemyShip(x, y, bulletType)
         }
     }
 
-    static createEnemyCore(pos, tilt) {
-        var core = Entity.new()
-        var p = Vec2.new(0, 0)
-        var t = Transform.new(p) 
-        var v = Vec2.new(0, 0)
-        var b = Body.new(Globals.EnemyCoreSize, v)
-        var e = EnemyCore.new(pos, tilt)
-        var u = Unit.new(Team.computer, Globals.EnemyCoreHealth)
-        var c = DebugColor.new(Globals.EnemyColor)
-        var o = Orbitor.new(core)
-        var s = Sprite.new("[game]/images/ships/Enemies-6b.png")
-        s.layer = 0.9
-        s.flags = Render.spriteCenter
-        core.addComponent(t)
-        core.addComponent(b)
-        core.addComponent(e)
-        core.addComponent(u)
-        core.addComponent(c)
-        core.addComponent(o)
-        core.addComponent(s)
-        core.name = "Enemy Core"
-        core.tag = (Tag.computer | Tag.unit)
-        return core
-    }
 
-    static createEnemyShip(idx, tilt, core, bulletType) {
+    static createEnemyShip(x, y, bulletType) {
         var ship = Entity.new()
-        var p = Vec2.new(240, 0)
+        var p = Vec2.new(x, y)
         var t = Transform.new(p)    
         var v = Vec2.new(0, 0)
         var b = Body.new(Globals.EnemySize, v)
-        var e = Enemy.new(idx, tilt, core, bulletType)
+        var e = Enemy.new(bulletType)
         var u = Unit.new(Team.computer, Globals.EnemyHealth)
         var c = DebugColor.new(Globals.EnemyColor)
-        var s = Sprite.new("[game]/images/ships/Enemies-10b.png")
+        var s = Sprite.new("[game]/images/ships/Enemies-5b.png")
         s.layer = 0.9
         s.flags = Render.spriteCenter
         ship.addComponent(t)
@@ -524,7 +494,7 @@ class Game {
     }
 }
 
-import "ships" for Orbitor, Shield, EnemyCore, Enemy
+import "ships" for Enemy
 import "unit" for Unit
 import "player" for Player
 import "ui" for MainMenu, ScoreMenu
