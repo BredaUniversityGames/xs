@@ -138,7 +138,7 @@ fragment float4 fragment_shader(
     
     float4 f_sample = float4(sprite_sample);
     f_sample /= 255.0;
-    //f_sample = pow(f_sample, float4(1.0 / 2.2));
+    f_sample.a = pow(f_sample.a, 1.0 / 2.2);
 
     return float4(f_sample);
 }

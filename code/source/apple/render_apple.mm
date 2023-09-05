@@ -138,6 +138,13 @@ void xs::render::initialize()
     pipelineStateDescriptor.vertexFunction = vertexFunction;
     pipelineStateDescriptor.fragmentFunction = fragmentFunction;
     pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
+    
+    MTLRenderPipelineColorAttachmentDescriptor *rb_attachment = pipelineStateDescriptor.colorAttachments[0];
+    rb_attachment.blendingEnabled = YES;
+    rb_attachment.rgbBlendOperation = MTLBlendOperationAdd;
+    rb_attachment.alphaBlendOperation = MTLBlendOperationAdd;
+    rb_attachment.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+    rb_attachment.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
 
     _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
     
@@ -380,8 +387,8 @@ void xs::render::render()
         
     MTKView* view = device::get_view();
 
-    auto w = device::get_width() / 2.0f;
-    auto h = device::get_height() / 2.0f;
+    auto w = device::get_width() / 4.0f;
+    auto h = device::get_height() / 4.0f;
     glm::mat4 p = glm::ortho(-w, w, -h, h, -100.0f, 100.0f);
     glm::mat4 v = glm::lookAt(vec3(0.0f, 0.0f, 100.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 vp = p * v;
