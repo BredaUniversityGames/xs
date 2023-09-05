@@ -16,8 +16,9 @@ class Parallax is Component {
     }
 
     update(dt) {        
+        var globalSpeed = Data.getNumber("Speed", Data.game)
         var t = owner.getComponent(Transform)
-        t.position.x = t.position.x - dt * _speed
+        t.position.x = t.position.x - dt * _speed * globalSpeed
 
         if(t.position.x < Data.getNumber("Width", Data.system) * -0.5 -_width) {
             t.position.x = t.position.x + _width * _repeat

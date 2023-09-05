@@ -96,7 +96,6 @@ class Player is Component {
         var b = Body.new( Globals.PlayerSize , v)
         var u = Unit.new(Team.player, Globals.PlayerHealth)
         var c = DebugColor.new(0x8BEC46FF)
-        var o = Orbitor.new(ship)
         var s = GridSprite.new("[game]/images/ships/darkgrey-ship-spritesheet.png", 5, 1)
         s.layer = 1.0
         s.flags = Render.spriteCenter
@@ -105,7 +104,6 @@ class Player is Component {
         ship.addComponent(b)
         ship.addComponent(u)
         ship.addComponent(c)
-        ship.addComponent(o)
         ship.addComponent(s)
         ship.name = "Player"
         ship.tag = (Tag.player | Tag.unit)
@@ -155,5 +153,5 @@ class Player is Component {
 }
 
 import "game" for Game
-import "ships" for Orbitor, Shield, EnemyCore, Enemy
+import "ships" for Enemy
 import "unit" for Unit

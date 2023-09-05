@@ -4,6 +4,8 @@ import "xs_components" for Transform, Body
 import "game" for Game, BulletType
 import "globals" for Globals
 
+/*
+
 class Orbitor is Component {
 
     construct new(parent) {
@@ -127,13 +129,13 @@ class EnemyCore is Component {
     }
 }
 
+*/
+
 class Enemy is Component {
-    construct new(idx, tilt, parent, bulletType) {
+    construct new(bulletType) {
         super()        
-        _parent = parent
-        _time = idx * 0.4
+        _time = 0.0
         _shootTime = _time
-        _tilt = tilt
         _lock = 0
         _bulletType = bulletType
     }
@@ -178,8 +180,6 @@ class Enemy is Component {
             _shootTime = 0
         }
     }
-
-    parent { _parent }
 
     lock(dt) { _lock = _lock + dt }
     lock { _lock }
