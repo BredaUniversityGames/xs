@@ -134,7 +134,7 @@ class Enemy is Component {
         _time = idx * 0.4
         _shootTime = _time
         _tilt = tilt
-        _hack = 0
+        _lock = 0
         _bulletType = bulletType
     }
 
@@ -181,7 +181,8 @@ class Enemy is Component {
 
     parent { _parent }
 
-    hack(dt) { _hack = _hack + dt }
-    hacked { _hack > 0.3 }
+    lock(dt) { _lock = _lock + dt }
+    lock { _lock }
+    locked { _lock > 1.0 }
 }
 
