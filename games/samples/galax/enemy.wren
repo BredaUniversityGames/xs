@@ -76,6 +76,12 @@ class Ship is Component {
     static plasma   { 1 }
     static fire     { 2 }
     static cannon   { 3 }
+    static missile  { 4 }
+    static laser    { 5 }
+    static rocket   { 6 }
+    static bomb     { 7 }
+    static mine     { 8 }
+    static torpedo  { 9 }    
  }
 
  class Waves {

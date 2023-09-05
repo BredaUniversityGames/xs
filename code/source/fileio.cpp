@@ -112,6 +112,7 @@ void fileio::initialize(/* const std::string& main_script*/)
 			}
 		}
 	}
+	assert(success);
 
 #if defined(PLATFORM_PC)
 	if(!success)

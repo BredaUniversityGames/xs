@@ -41,23 +41,24 @@
 #include <agc/toolkit/toolkit.h>
 #include <libsysmodule.h>
 
-#include "Camera.h"
-#include "Instance.h"
+#include "shaders/camera_srt.h"
 
 const uint32_t BUFFERING = 2;
 const uint32_t SCREEN_WIDTH = 1920;
 const uint32_t SCREEN_HEIGHT = 1080;
 
 using namespace glm;
+using namespace sce::Agc::Core;
+using namespace sce::Vectormath::Simd::Aos;
 
 namespace xs::render::internal
 {
-
-	struct Vert
+	struct sprite_vtx_format
 	{
-		float x, y;
-		float s, t;
-		float r, g, b;
+		vec2 position;
+		vec2 texture;
+		vec3 mul_color;
+		vec3 add_color;
 	};
 
 	int width = -1;
@@ -75,11 +76,18 @@ namespace xs::render::internal
 	sce::Agc::Core::Encoder::EncoderValue clearColor;
 	sce::Agc::Shader* gs = nullptr;	// TODO: Why pointer?
 	sce::Agc::Shader* ps = nullptr;	// TODO: Why pointer?
+	sce::Agc::CxBlendControl blend_control;
 	int frame = 0;
+
+	unsigned int			sprite_program = 0;
+	int const				sprite_trigs_max = 21800;
+	int						sprite_trigs_count = 0;
+	sprite_vtx_format		sprite_trigs_array[sprite_trigs_max * 3];
 
 	uint8_t* alloc_direct_mem(sce::Agc::SizeAlign sizeAlign);
 	int create_scanout_buffers(const sce::Agc::CxRenderTarget* rts, uint32_t count);
 	int load_png(const std::string& filename, sce::Agc::Core::Texture& out_texture);
+	void rotate_vector3d(Vector3& vec, float radians);
 }
 
 using namespace xs::render::internal;
@@ -88,12 +96,12 @@ using namespace xs::render::internal;
 // They are declared inside the shader code. For example, the Shader::ps_header and Shader::ps_text symbols
 // were declared in the shader by putting the attribute [CxxSymbol("Shader::ps")] in front of the pixel 
 // shader's entry point.
-namespace Shader
+namespace shaders
 {
-	extern char  ps_header[];
-	extern const char  ps_text[];
-	extern char  gs_header[];
-	extern const char  gs_text[];
+	extern char  sprite_ps_header[];
+	extern const char  sprite_ps_text[];
+	extern char  sprite_gs_header[];
+	extern const char  sprite_gs_text[];
 }
 
 // This is a temporary utility function to allocate direct memory. It's not important to understand how this works.
@@ -169,6 +177,14 @@ int xs::render::internal::create_scanout_buffers(const sce::Agc::CxRenderTarget*
 	return videoHandle;
 }
 
+void xs::render::internal::rotate_vector3d(Vector3& vec, float radians)
+{
+	const float x = cos(radians) * vec.getX() - sin(radians) * vec.getY();
+	const float y = sin(radians) * vec.getX() + cos(radians) * vec.getY();
+	vec.setX(x);
+	vec.setX(y);
+}
+
 void create_render_targets(sce::Agc::CxRenderTarget* rts, sce::Agc::Core::RenderTargetSpec* spec, uint32_t count)
 {
 	// First, retrieve the size of the render target. We can of course do this before we have any pointers.
@@ -237,44 +253,6 @@ void xs::render::internal::create_texture_with_data(xs::render::internal::image&
 		return;
 	}
 }
-
-/*
-
-int xs::render::internal::load_png(const std::string& filename, sce::Agc::Core::Texture& out_texture)
-{
-	// Find image first
-	auto id = std::hash<std::string>{}(filename);
-	for (int i = 0; i < images.size(); i++)
-		if (images[i].string_id == id)
-			return i;
-
-	auto buffer = fileio::read_binary_file(filename);
-	internal::image img;
-	img.string_id = id;
-	auto data = stbi_load_from_memory(
-		reinterpret_cast<unsigned char*>(buffer.data()),
-		static_cast<int>(buffer.size()),
-		&img.width,
-		&img.height,
-		&img.channels,
-		4);
-
-	if (data == nullptr)
-	{
-		log::error("Image {} could not be loaded!", filename);
-		return -1;
-	}
-
-
-	{
-
-		const auto i = images.size();
-		images.push_back(img);
-		return static_cast<int>(i);
-	}	
-}
-*/
-
 
 void xs::render::initialize()
 {
@@ -366,12 +344,19 @@ void xs::render::initialize()
 	frame_reg.init();
 
 	// First, we load the shaders, since the size of the shader's register blocks is not known.	
-	error = sce::Agc::createShader(&gs, Shader::gs_header, Shader::gs_text);
+	error = sce::Agc::createShader(&gs, shaders::sprite_gs_header, shaders::sprite_gs_text);
 	SCE_AGC_ASSERT(error == SCE_OK);
-	sce::Agc::Core::registerResource(gs, "Shader::gs");
-	error = sce::Agc::createShader(&ps, Shader::ps_header, Shader::ps_text);
+	sce::Agc::Core::registerResource(gs, "shaders::sprite_gs");
+	error = sce::Agc::createShader(&ps, shaders::sprite_ps_header, shaders::sprite_ps_text);
 	SCE_AGC_ASSERT(error == SCE_OK);
-	sce::Agc::Core::registerResource(ps, "Shader::ps");
+	sce::Agc::Core::registerResource(ps, "shaders::sprite_ps");
+
+	blend_control
+		.init()
+		.setBlend(sce::Agc::CxBlendControl::Blend::kEnable)
+		.setColorSourceMultiplier(sce::Agc::CxBlendControl::ColorSourceMultiplier::kSrcAlpha)
+		.setColorBlendFunc(sce::Agc::CxBlendControl::ColorBlendFunc::kAdd)
+		.setColorDestMultiplier(sce::Agc::CxBlendControl::ColorDestMultiplier::kOneMinusSrcAlpha);
 }
 
 void xs::render::shutdown()
@@ -433,7 +418,7 @@ void xs::render::render()
 	ctx.m_sb.setState(vport);
 	ctx.m_sb.setState(rts[buffer]);
 
-	sce::Agc::Core::VertexAttribute attributes[3] =
+	sce::Agc::Core::VertexAttribute attributes[4] =
 	{
 		{
 			0, // m_vbTableIndex
@@ -453,12 +438,28 @@ void xs::render::render()
 			sizeof(float) * 4, // m_offset
 			sce::Agc::Core::VertexAttribute::Index::kVertexId
 		},
+		{
+			0, // m_vbTableIndex
+			sce::Agc::Core::VertexAttribute::Format::k32_32_32Float,
+			sizeof(float) * 7, // m_offset
+			sce::Agc::Core::VertexAttribute::Index::kVertexId
+		}
 	};
 
 	sampler
 		.init()
 		.setXyFilterMode(sce::Agc::Core::Sampler::FilterMode::kPoint)
 		.setWrapMode(sce::Agc::Core::Sampler::WrapMode::kClampLastTexel);
+
+	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
+		[](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
+			return lhs.z < rhs.z;
+		});
+
+
+	unsigned short indices[6] = { 0, 1, 2, 3, 2, 1 };
+	unsigned short* indexData = (unsigned short*)alloc_direct_mem({ sizeof(unsigned short) * 6, sce::Agc::Alignment::kBuffer });
+	memcpy(indexData, indices, sizeof(unsigned short) * 6);
 
 	std::vector<sce::Agc::Core::Buffer> vertBuffers;
 	for (const auto& spe : sprite_queue)
@@ -488,58 +489,75 @@ void xs::render::render()
 		// Allocate on the dcb
 		vertBuffers.push_back({});
 		sce::Agc::Core::Buffer& vertBuffer = vertBuffers.back();
-		Vert* verData = (Vert*)ctx.m_dcb.allocateTopDown({ sizeof(Vert) * 4, sce::Agc::Alignment::kBuffer });
-		verData[0] = { from_x, from_y,	from_u, to_v, 	1.0f, 0.0f, 0.0f };
-		verData[1] = { from_x, to_y,	from_u, from_v, 	0.0f, 1.0f, 0.0f };
-		verData[2] = { to_x, from_y,	to_u, to_v, 	0.0f, 1.0f, 0.0f };
-		verData[3] = { to_x, to_y,		to_u, from_v, 	0.0f, 0.0f, 1.0f };
+		sprite_vtx_format* verData = (sprite_vtx_format*)ctx.m_dcb.allocateTopDown({ sizeof(sprite_vtx_format) * 4, sce::Agc::Alignment::kBuffer });
+		// Position
+		verData[0].position = { from_x, from_y	}; 
+		verData[1].position = { from_x, to_y	};
+		verData[2].position = { to_x, from_y	};
+		verData[3].position = { to_x, to_y		};
 
-		vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center))
+		// Texture
+		verData[0].texture = { from_u, to_v		};
+		verData[1].texture = { from_u, from_v	};
+		verData[2].texture = { to_u, to_v		};
+		verData[3].texture = { to_u, from_v		};
+
+		// Colors
+		verData[0].add_color = add_color;
+		verData[1].add_color = add_color;
+		verData[2].add_color = add_color;
+		verData[3].add_color = add_color;
+
+		verData[0].mul_color = mul_color;
+		verData[1].mul_color = mul_color;
+		verData[2].mul_color = mul_color;
+		verData[3].mul_color = mul_color;
+		
+		// vec3 anchor((to_x - from_x) * 0.5f, (to_y - from_y) * 0.5f, 0.0f);
+
+		vec3 anchor(0.0f, 0.0f, 0.0f);
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
+			anchor.x = (float)((to_x - from_x) * 0.5);
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
+			anchor.y = (float)((to_y - from_y) * 0.5);
+		else if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
+			anchor.y = (float)(to_y - from_y);
+
+		if (anchor.x != 0.0f || anchor.y != 0.0f)
 		{
 			for (int i = 0; i < 4; i++)
 			{
-				verData[i].x -= anchor.x;
-				verData[i].y -= anchor.y;
+				verData[i].position.x -= anchor.x;
+				verData[i].position.y -= anchor.y;
 			}
 		}
 
-		/*
 		if (spe.rotation != 0.0)
 		{
 			for (int i = 0; i < 6; i++)
-				rotate_vector3d(sprite_trigs_array[i].position, (float)spe.rotation);
+				rotate_vector2d(verData[i].position, (float)spe.rotation);
 		}
-		*/
 
 		for (int i = 0; i < 4; i++)
 		{
-			verData[i].x += (float)spe.x;
-			verData[i].y += (float)spe.y;
+			verData[i].position.x += (float)spe.x;
+			verData[i].position.y += (float)spe.y;
 		}
 
-		sce::Agc::Core::initializeRegularBuffer(&vertBuffer, verData, sizeof(Vert), 4);
+		sce::Agc::Core::initializeRegularBuffer(&vertBuffer, verData, sizeof(sprite_vtx_format), 4);
 
-		Camera* camera = (Camera*)ctx.m_dcb.allocateTopDown(sizeof(Camera), sce::Agc::Alignment::kBuffer);
+		camera_srt* camera = (camera_srt*)ctx.m_dcb.allocateTopDown(sizeof(camera_srt), sce::Agc::Alignment::kBuffer);
 		camera->x = 0.0f;
 		camera->y = 0.0f;
-		camera->res_x = 640.0f * 0.5f;
-		camera->res_y = 360.0f * 0.5f;
+		camera->res_x = 640.0f * 0.5f; // TODO: Get from somewhere
+		camera->res_y = 360.0f * 0.5f; // TODO: Get from somewhere
 
-		ctx.m_sb.setState(sce::Agc::CxBlendControl().init()
-			.setSlot(0)
-			.setBlend(sce::Agc::CxBlendControl::Blend::kEnable)
-			.setAlphaSourceMultiplier(sce::Agc::CxBlendControl::AlphaSourceMultiplier::kOne)
-			.setAlphaBlendFunc(sce::Agc::CxBlendControl::AlphaBlendFunc::kAdd)
-			.setAlphaDestMultiplier(sce::Agc::CxBlendControl::AlphaDestMultiplier::kOne)
-			.setColorSourceMultiplier(sce::Agc::CxBlendControl::ColorSourceMultiplier::kOne)
-			.setColorBlendFunc(sce::Agc::CxBlendControl::ColorBlendFunc::kAdd)
-			.setColorDestMultiplier(sce::Agc::CxBlendControl::ColorDestMultiplier::kOneMinusSrcAlpha));
+		ctx.m_sb.setState(blend_control);
 
 		ctx.m_bdr.getStage(sce::Agc::ShaderType::kGs)
 			.setVertexBuffers(0, 1, &vertBuffer)
-			.setVertexAttributes(0, 3, attributes)
-			.setUserSrtBuffer(&camera, sizeof(camera));
+			.setVertexAttributes(0, 4, attributes)
+			.setUserSrtBuffer(&camera, sizeof(camera_srt));
 
 		ctx.m_bdr.getStage(sce::Agc::ShaderType::kPs)
 			.setTextures(0, 1, &image.texture)
@@ -548,7 +566,29 @@ void xs::render::render()
 		// In this example, we're actually drawing two triangles. The state only differs in what is in
 		// frame_reg. Because we're not calling into the Binder or StateBuffer in between these draws, they will 
 		// not write anything to the DCB and thus will incur no GPU cost.
-		ctx.drawIndexAuto(4);
+		// ctx.drawIndexAuto(4);
+
+
+		// Create the index buffer
+
+
+		/*
+		sce::Agc::Core::Buffer indexBuffer = {};
+		memcpy(indexData, indices, sizeof(unsigned int) * 4);
+		auto err = sce::Agc::Core::initializeVertexBuffer(
+			&indexBuffer,
+			indexData,
+			{ sce::Agc::Core::TypedFormat::k32UInt, sce::Agc::Core::Swizzle::k0000 },
+			sizeof(uint32_t),
+			6);
+		assert(err == SCE_OK);
+		*/
+
+		// sce::Agc::Core::registerResource(&mesh.m_indexBuffer, "Index Buffer");
+
+		ctx.drawIndex(6, indexData);
+
+		//ctx.drawIndexAuto()
 	}
 
 	// Submit a flip via the GPU.

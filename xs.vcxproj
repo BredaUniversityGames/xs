@@ -238,9 +238,21 @@
     </ClCompile>
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="external\imgui\implot.cpp" />
-    <ClCompile Include="external\imgui\implot_demo.cpp" />
-    <ClCompile Include="external\imgui\implot_items.cpp" />
+    <ClCompile Include="external\imgui\implot.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="external\imgui\implot_demo.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="external\imgui\implot_items.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="external\wren\optional\wren_opt_meta.c" />
     <ClCompile Include="external\wren\optional\wren_opt_random.c" />
     <ClCompile Include="external\wren\vm\wren_compiler.c" />
@@ -284,8 +296,9 @@
     <ClInclude Include="code\include\tools.h" />
     <ClInclude Include="code\include\version.h" />
     <ClInclude Include="code\source\ps5\address_sanitizer_utils.h" />
-    <ClInclude Include="code\source\ps5\Camera.h" />
-    <ClInclude Include="code\source\ps5\Instance.h" />
+    <ClInclude Include="code\source\ps5\shaders\camera_srt.h" />
+    <ClInclude Include="code\source\ps5\shaders\shader_types.h" />
+    <ClInclude Include="code\source\ps5\shaders\vertex_format.h" />
     <ClInclude Include="code\source\render_internal.h" />
     <ClInclude Include="external\fmod\fmod.h" />
     <ClInclude Include="external\fmod\fmod.hpp" />
@@ -340,10 +353,10 @@
     <None Include="external\wren\vm\wren_core.wren.inc" />
   </ItemGroup>
   <ItemGroup>
-    <WavePsslc Include="code\source\ps5\pixel_shader_p.pssl">
+    <WavePsslc Include="code\source\ps5\shaders\sprite_p.pssl">
       <FileType>Document</FileType>
     </WavePsslc>
-    <WavePsslc Include="code\source\ps5\vertex_shader_vv.pssl">
+    <WavePsslc Include="code\source\ps5\shaders\sprite_vv.pssl">
       <FileType>Document</FileType>
     </WavePsslc>
   </ItemGroup>
@@ -560,7 +573,7 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)external/fmod/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>-lSceSysmodule_stub_weak;-lScePngDec_stub_weak;-lScePad_stub_weak;-lSceUserService_stub_weak;-lSceAgcDriver_stub_weak;-lSceAgc_stub_weak;-lSceVideoOut_stub_weak;-lSceAgc_debug_nosubmission;-lSceAgcCore_debug_nosubmission;-lSceAgcGpuAddress_debug_nosubmission;libfmodL_stub_weak.a;libfmodstudioL_stub_weak.a;%(AdditionalDependencies)</AdditionalDependencies>
-      <Addressing>NonAslr</Addressing>
+      <Addressing>Aslr</Addressing>
     </Link>
     <WavePsslc>
       <SymbolCacheFile>true</SymbolCacheFile>

@@ -40,6 +40,7 @@ void fileio::initialize()
     if (exists("[games]/.ini"))
     {
         auto game_str = read_text_file("[games]/.ini");
+        game_str.erase(std::remove(game_str.begin(), game_str.end(), '\n'), game_str.cend());
         if (!game_str.empty())
         {
             string cwd = "[games]/" + game_str;

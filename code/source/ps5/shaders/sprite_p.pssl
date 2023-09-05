@@ -1,0 +1,13 @@
+#include "vertex_format.h"
+
+SamplerState samp : register(s0);
+Texture2D color : register(t0);
+
+[CxxSymbol("shaders::sprite_ps")]
+float4 main(vs_output input) : S_TARGET_OUTPUT0
+{	
+	float4 diffuse = color.Sample(samp, input.texture);
+	diffuse.rgb = pow(diffuse.rgb, 2.0);
+	diffuse.rgb = diffuse.rgb * input.mul_color + input.add_color;
+	return diffuse;
+}

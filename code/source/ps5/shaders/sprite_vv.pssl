@@ -1,0 +1,27 @@
+#include "camera_srt.h"
+#include "vertex_format.h"
+
+camera_srt* camera : S_SRT_DATA;
+
+struct vs_input
+{
+	float2 position		: POSITION0;	
+	float2 texture;			// @1
+	float3 mul_color;		// @2
+	float3 add_color;		// @3
+};
+
+[CxxSymbol("shaders::sprite_gs")]
+vs_output main(vs_input input)
+{
+	vs_output output;
+	output.position = float4(input.position, 0.0, 1.0);
+	output.position.x += camera->x; 
+	output.position.y += camera->y;
+	output.position.x /= camera->res_x; 
+	output.position.y /= camera->res_y;
+	output.mul_color = input.mul_color;
+	output.add_color = input.add_color;
+	output.texture = input.texture;
+	return output;
+}

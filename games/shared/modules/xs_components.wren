@@ -135,7 +135,7 @@ class Label is Sprite {
         _font = font
         _text = text
         sprite_ = null
-        rotation = 0.0
+        // rotation = 0.0
         scale = 1.0
         mul = 0xFFFFFFFF        
         add = 0x00000000
