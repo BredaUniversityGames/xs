@@ -8,18 +8,21 @@
 
 namespace 
 {
+	enum KeyAction { Release = 0, Press = 1, None = 2 };
+
 	GLFWgamepadstate gamepad_state;
 	GLFWgamepadstate prev_gamepad_state;
 
 	constexpr int nr_keys = 350;
 	bool keys_down[nr_keys];
 	bool prev_keys_down[nr_keys];
-	bool keys_down_changed[nr_keys];
+	KeyAction keys_action[nr_keys];
 	
 	constexpr int nr_mousebuttons = 8;
 	bool mousebuttons_down[nr_mousebuttons];
 	bool prev_mousebuttons_down[nr_mousebuttons];
-	bool mousebuttons_down_changed[nr_keys];
+	bool mousebuttons_down_changed[nr_mousebuttons];
+	KeyAction mousebuttons_action[nr_mousebuttons];
 
 	float mousepos[2];
 	bool gamepad_connected;
@@ -37,13 +40,13 @@ namespace
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		if (action == GLFW_PRESS || action == GLFW_RELEASE)
-			keys_down_changed[key] = true;
+			keys_action[key] = static_cast<KeyAction>(action);
 	}
 
 	void mousebutton_callback(GLFWwindow* window, int button, int action, int mods)
 	{
 		if (action == GLFW_PRESS || action == GLFW_RELEASE)
-			mousebuttons_down_changed[button] = true;
+			mousebuttons_action[button] = static_cast<KeyAction>(action);
 	}
 
 }
@@ -69,21 +72,25 @@ void xs::input::update(double dt)
 	for (int i = 0; i < nr_keys; ++i)
 	{
 		prev_keys_down[i] = keys_down[i];
-		if (keys_down_changed[i])
-		{
-			keys_down[i] = !keys_down[i];
-			keys_down_changed[i] = false;
-		}
+
+		if (keys_action[i] == KeyAction::Press)
+			keys_down[i] = true;
+		else if (keys_action[i] == KeyAction::Release)
+			keys_down[i] = false;
+
+		keys_action[i] = KeyAction::None;
 	}
 
 	for (int i = 0; i < nr_mousebuttons; ++i)
 	{
 		prev_mousebuttons_down[i] = mousebuttons_down[i];
-		if (mousebuttons_down_changed[i])
-		{
-			mousebuttons_down[i] = !mousebuttons_down[i];
-			mousebuttons_down_changed[i] = false;
-		}
+
+		if (mousebuttons_action[i] == KeyAction::Press)
+			mousebuttons_down[i] = true;
+		else if (mousebuttons_action[i] == KeyAction::Release)
+			mousebuttons_down[i] = false;
+
+		mousebuttons_action[i] = KeyAction::None;
 	}
 
 	prev_gamepad_state = gamepad_state;

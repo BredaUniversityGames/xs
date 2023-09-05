@@ -57,18 +57,25 @@ void xs::profiler::end_section(const std::string& name)
 
 void xs::profiler::begin_timing()
 {
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
     timer = std::chrono::high_resolution_clock::now();
+#endif // defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
 }
 
 double xs::profiler::end_timing()
 {
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
     auto time = std::chrono::high_resolution_clock::now();
     auto elapsed = time - timer;
     return (double)elapsed.count() / 1000000.0;
+#else
+    return 0.0;
+#endif // defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
 }
 
 void xs::profiler::inspect(bool& show)
 {
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
     ImGui::Begin("Profiler", &show, ImGuiWindowFlags_NoCollapse);
 
     for (auto& itr : times)
@@ -113,6 +120,7 @@ void xs::profiler::inspect(bool& show)
 
     for (auto& itr : times)
         itr.second.accum = {};
+#endif
 }
 
 
