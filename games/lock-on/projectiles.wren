@@ -3,6 +3,13 @@ import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 
+class BulletType {
+    static straight     { 1 }
+    static spread       { 2 }
+    static directed     { 3 }
+    static follow       { 4 }
+}
+
 class Bullet is Component {
     construct new(team, damage) {
         super()
@@ -12,15 +19,15 @@ class Bullet is Component {
 
     update(dt) {
         var t = owner.getComponent(Transform)
-        var w = Data.getNumber("Width", Data.system) * 0.51
-        var h = Data.getNumber("Height", Data.system) * 0.51
 
+        var w = Data.getNumber("Width", Data.system) * 0.5
         if (t.position.x < -w) {
             owner.delete()
         } else if (t.position.x > w) {
             owner.delete()
         }
-        
+
+        var h = Data.getNumber("Height", Data.system) * 0.5
         if (t.position.y < -h) {
             owner.delete()
         } else if (t.position.y > h) {
@@ -30,34 +37,41 @@ class Bullet is Component {
 
     damage { _damage }
     team { _team }
+
     toString { "[Bullet team:%(_team) damage:%(_damage)]" }
 }
 
+
 class Missile is Bullet {
-    construct new(team, speed) {
+    construct new(team, target, speed) {
         super(team, Data.getNumber("Missle Damage"))
         _speed = speed
-        _targeting = 3.0
+        _targeting = Data.getNumber("Missle Targeting")
         _time  = 0
+        _target = target
     }
 
     update(dt) {        
+        /*
         if(_targeting > 0) {
             _targeting = _targeting - dt * 2.0
         } else {
             _targeting = 0
         }
+        */
         
         //_speed = Math.damp(_speed, Data.getNumber("Missle Max Speed"), 0.5, dt)        
 
-        var p = Game.player
         var b = owner.getComponent(Body)
-        var d = p.getComponent(Transform).position - owner.getComponent(Transform).position
+        var d =  _target.getComponent(Transform).position - owner.getComponent(Transform).position
         d = d.normal
         var dv = d * Data.getNumber("Missle Max Speed")
         dv = dv - b.velocity
             
+        
         b.velocity = Math.damp(b.velocity, dv, _targeting, dt)                
+
+        /*
 
         if(b.velocity.magnitude < Data.getNumber("Missle Max Speed") * 0.4) {
            b.velocity = b.velocity.normal
@@ -66,8 +80,9 @@ class Missile is Bullet {
 
         // b.velocity = Math.damp(b.velocity, d, 5, dt) 
         // b.velocity = b.velocity * b.velocity.normal.dot(d)
+        */
 
-        var alpha = b.velocity.atan2 + Math.pi * 0.5
+        var alpha = b.velocity.atan2 - Math.pi * 0.5
         owner.getComponent(Transform).rotation = alpha
 
         _time = _time + dt
@@ -75,15 +90,8 @@ class Missile is Bullet {
             owner.delete()
         }
         
-        super.update(dt)
+        //super.update(dt)
     }
 
-    toString { "[Missile speed %(speed) time%(time) targeting%(_targeting) ] ->" + super.toString }
+    toString { "[Missile speed %(_speed) time%(_time) targeting%(_targeting) ] ->" + super.toString }
 }
-
-import "game" for Game
-import "unit" for Unit
-import "tags" for Team, Tag
-import "debug" for DebugColor
-import "components" for SlowRelation, TurnToVelocity
-import "random" for Random

@@ -280,3 +280,20 @@ class Relation is Component {
 
     toString { "[Relation parent:%(_parent) offset:%(_offset) ]" }
 }
+
+class Ownership is Component {
+    construct new(parent) {
+        _parent = parent
+    }
+
+    update(dt) {    
+        if(_parent.deleted) {
+            owner.delete()
+        }
+    }
+
+    parent { _parent }
+
+    toString { "[Ownership parent:%(_parent) ]" }
+}
+

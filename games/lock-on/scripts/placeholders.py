@@ -44,7 +44,7 @@ def lock(radius):
     colorCtx.set_antialias(cairo.Antialias.NONE)
     (r, g, b) = (1,1,1)        
     colorCtx.set_source_rgb(r, g, b)    
-    colorCtx.set_line_width(3.0)
+    colorCtx.set_line_width(2.5)
     for i in range(0, number + 1):
         x = i * next_p2 + next_p2 * 0.5
         y = next_p2 * 0.5
@@ -53,6 +53,7 @@ def lock(radius):
         colorCtx.arc(x, y, radius, 0.0, angle)        
         colorCtx.stroke()
                 
+        '''
         progress = float(i) / number * 100.0
         progress_str = "{:.0f}%".format(progress)
         colorCtx.set_font_size(radius * 0.4)
@@ -62,6 +63,7 @@ def lock(radius):
         colorCtx.move_to(x + next_p2 * 0.25, next_p2 * 0.15)
         colorCtx.show_text(progress_str)
         colorCtx.fill()
+        '''
     colorSurf.write_to_png("games/lock-on/images/ui/lock.png")
 
 reticle(12)

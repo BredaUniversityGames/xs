@@ -32,7 +32,6 @@ class Math {
 	    return Vec2.new(CS, SN).atan2
     }
     static sdamp(a, b, lambda, dt) { slerp(a, b, 1.0 - (-lambda * dt).exp) }    
-    
 }
 
 class Bits {
