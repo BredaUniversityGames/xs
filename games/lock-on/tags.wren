@@ -10,4 +10,5 @@ class Tag {
     static player           { 1 << 3 }
     static computer         { 1 << 4 }
     static reticle          { 1 << 5 }
+    static missile          { 1 << 6 }
 }

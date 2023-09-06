@@ -1,7 +1,7 @@
 import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
-import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
+import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation, Ownership
 import "xs_tools" for Tools
 import "globals" for Globals
 import "tags" for Team, Tag
@@ -32,12 +32,19 @@ class Player is Component {
 
         _shootTime = _shootTime + dt
         if((Input.getButton(0) || Input.getKeyOnce(Input.keySpace)) && _shootTime > 0.1) {
-            Game.createBullet(owner, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
+
+            Game.createMissilesForAllTargets()
+
+            //Game.createBullet(owner, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
+
+            /*
             for(d in _drones) {
                 if(!d.deleted) {
                     Game.createBullet(d, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
                 }
             }
+            */
+             
             _shootTime = 0
         }
 
@@ -65,7 +72,6 @@ class Player is Component {
             s.idx = 2
         } else if(vel.y < -0.2) {
             s.idx = 1
-            System.print("down")
         } else {
             s.idx = 0
         }
@@ -138,13 +144,12 @@ class Player is Component {
             var s = AnimatedSprite.new("[game]/images/ui/reticle.png", 32, 1, 60)
             s.addAnimation("rotate", Tools.rangeToList(0...32))
             s.playAnimation("rotate")
-            s.layer = 0.999
+            s.layer = 10.999
             s.flags = Render.spriteCenter
-            var r = Relation.new(ship)
-            r.offset = Vec2.new(200, 0)
+            var o = Ownership.new(ship)
             reticle.addComponent(t)
             reticle.addComponent(s)
-            reticle.addComponent(r)
+            reticle.addComponent(o)
         }
 
         return ship
