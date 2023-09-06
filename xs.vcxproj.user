@@ -24,7 +24,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <NXTargetName>Default</NXTargetName>
-    <NXTargetSerialNumber>XJL05100029685</NXTargetSerialNumber>
+    <NXTargetSerialNumber>XAL03100084871</NXTargetSerialNumber>
     <RemoteDebuggerCommandArguments>
     </RemoteDebuggerCommandArguments>
     <DebuggerFlavor>OasisNXDebugger</DebuggerFlavor>
