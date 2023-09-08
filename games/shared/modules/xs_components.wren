@@ -122,6 +122,7 @@ class Sprite is Renderable {
     //rotation=(r) { _rotation = r }
 
     sprite_=(s) { _sprite = s }
+    sprite { _sprite }
 
     toString { "[Sprite sprite:%(_sprite)] -> " + super.toString }
 }

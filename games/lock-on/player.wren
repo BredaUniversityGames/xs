@@ -6,6 +6,7 @@ import "xs_tools" for Tools
 import "globals" for Globals
 import "tags" for Team, Tag
 import "debug" for DebugColor
+import "vfx" for ParticleTrail
 
 class Player is Component {
     construct new() {
@@ -134,6 +135,12 @@ class Player is Component {
             thrust.addComponent(t)
             thrust.addComponent(s)
             thrust.addComponent(r)
+
+            // Create the thruster particles
+            var trailImage = Render.loadImage("[game]/images/vfx/trail.png")
+            var trailSprite = Render.createSprite(trailImage, 0, 0, 1, 1)
+            var trail = ParticleTrail.new(Game.particles, trailSprite)
+            thrust.addComponent(trail)
         }
 
         // Create a reticle for the player
