@@ -136,11 +136,17 @@ class Player is Component {
             thrust.addComponent(s)
             thrust.addComponent(r)
 
+            /*
             // Create the thruster particles
+            var offset = Vec2.new(-10, 3)
+            if (i == 0) {
+                offset.y = -offset.y
+            }
             var trailImage = Render.loadImage("[game]/images/vfx/trail.png")
-            var trailSprite = Render.createSprite(trailImage, 0, 0, 1, 1)
-            var trail = ParticleTrail.new(Game.particles, trailSprite)
+            var trailSprite = Render.createSprite(trailImage, 0, 0, 1, 1)            
+            var trail = ParticleTrail.new(Game.particles, trailSprite, offset)
             thrust.addComponent(trail)
+            */
         }
 
         // Create a reticle for the player

@@ -23,7 +23,7 @@ class ImGui is Renderable {
         _dy = size * 1.2
         _active = 0
         _guard = 0
-        _font = Render.loadFont("[games]/jump-core/fonts/FutilePro.ttf", 18)
+        _font = Render.loadFont("[game]/fonts/FutilePro.ttf", 18)
     }
 
     begin() { 
@@ -130,7 +130,7 @@ class MainMenu is Component {
         { // Main menu
             var t = Transform.new(Vec2.new(0,0))
             var mm = MainMenu.new()
-            var imgui = ImGui.new("[games]/jump-core/fonts/FutilePro.ttf", 18)
+            var imgui = ImGui.new("[game]/fonts/FutilePro.ttf", 18)
             imgui.layer = 12.0
             mainMenu.name = "Main Menu"
             mainMenu.addComponent(t)
@@ -141,7 +141,7 @@ class MainMenu is Component {
             var e = Entity.new()
             var t = Transform.new(Vec2.new(0,0))
             var r = Relation.new(mainMenu)
-            var s = Sprite.new("[games]/jump-core/images/backgrounds/small-title.png")
+            var s = Sprite.new("[game]/images/backgrounds/small-title.png")
             s.layer = 10.0
             s.flags = Render.spriteCenter            
             e.name = "Title"
@@ -154,7 +154,7 @@ class MainMenu is Component {
             var t = Transform.new(Vec2.new(0, 0))
             var r = Relation.new(mainMenu)
             r.offset = Vec2.new(29, 52)
-            var s = AnimatedSprite.new("[games]/jump-core/images/vfx/Electric_Effect_05_small.png", 4, 4, 15)
+            var s = AnimatedSprite.new("[game]/images/vfx/Electric_Effect_05_small.png", 4, 4, 15)
             s.layer = 10.1
             s.flags = Render.spriteCenter
             s.addAnimation("play", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
@@ -196,7 +196,7 @@ class ScoreMenu is Component {
         { // Main menu
             var t = Transform.new(Vec2.new(0,0))
             var sm = ScoreMenu.new()
-            var imgui = ImGui.new("[games]/jump-core/fonts/FutilePro.ttf", 18)
+            var imgui = ImGui.new("[game]/fonts/FutilePro.ttf", 18)
             imgui.layer = 12.0
             scoreMenu.name = "Score Menu"
             scoreMenu.addComponent(t)
@@ -207,7 +207,7 @@ class ScoreMenu is Component {
             var e = Entity.new()
             var t = Transform.new(Vec2.new(0,0))
             var r = Relation.new(scoreMenu)
-            var s = Sprite.new("[games]/jump-core/images/backgrounds/sCore.png")
+            var s = Sprite.new("[game]/images/backgrounds/sCore.png")
             s.layer = 10.0
             s.flags = Render.spriteCenter            
             e.name = "ScoreBg"
@@ -220,7 +220,7 @@ class ScoreMenu is Component {
             var t = Transform.new(Vec2.new(0, 0))
             var r = Relation.new(scoreMenu)
             r.offset = Vec2.new(1.5, 52)
-            var s = AnimatedSprite.new("[games]/jump-core/images/vfx/Electric_Effect_05_small.png", 4, 4, 15)
+            var s = AnimatedSprite.new("[game]/images/vfx/Electric_Effect_05_small.png", 4, 4, 15)
             s.layer = 10.1
             s.flags = Render.spriteCenter
             s.addAnimation("play", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])

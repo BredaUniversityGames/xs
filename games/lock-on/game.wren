@@ -7,7 +7,7 @@ import "globals" for Globals
 import "tags" for Team, Tag
 import "debug" for DebugColor
 import "background" for Background
-import "projectiles" for Bullet, Missile, BulletType
+import "projectiles" for Bullet, BulletType, Missile
 import "vfx" for ParticleSystem, ParticleTrail 
 
 class Explosion is Component {
@@ -54,6 +54,7 @@ class Game {
         __random = Random.new()
         __state = GameState.Title        
         __score = 0
+        __multiplier = 1
         __waveTimer = 0
         __wave = 0
         __shakeOffset = Vec2.new(0, 0)
@@ -63,11 +64,16 @@ class Game {
         __levels = ["daytime", "night", "abandoned", "snow-rain", "sunset"]
         __particles = ParticleSystem.new()
 
+        if(Data.getBool("Skip Title", Data.debug)) {
+            startMenu()
+            startPlay()
+        }
+
         // var song = Audio.load("[game]/Blast_2019.flac", Audio.groupMusic)
         // var sound = Audio.play(song)
     }        
     
-    static update(dt) {        
+    static update(dt) {  
         Entity.update(dt)
         if(__state == GameState.Title) {
             updateTitle(dt)
@@ -93,7 +99,7 @@ class Game {
             Render.setOffset(0, 0)
             var pu = playerShip.getComponent(Unit)
 
-            var text = "SCORE %(__score)   :  WAVE %(__wave)  :  HEALTH %(pu.health)"
+            var text = "SCORE %(__score)   :  WAVE %(__wave)  :  HEALTH %(pu.health) :  MULTIPLIER %(__multiplier)"
             Render.text(__font, text, 0, 150, 0xFFFFFFFF, 0x00000000, Render.spriteCenter)
         }
     }
@@ -144,7 +150,7 @@ class Game {
         var computerBullets = Entity.withTag(Tag.computer | Tag.bullet)
 
         Game.collide(computerBullets, playerUnits)
-        Game.collide(playerBullets, computerUnits)
+        Game.collide(playerBullets, computerUnits)        
 
         // Lock on to enemies
         var reticle = Entity.withTag(Tag.reticle)
@@ -185,7 +191,21 @@ class Game {
 
             var reticleDampLambda = Data.getNumber("Reticle Damp Lambda", Data.game)
             rt.position = Math.damp(rt.position, rtPosition, reticleDampLambda, dt)
-        }                
+        }        
+
+        var targets = Entity.withTag(Tag.computer | Tag.unit)
+        var multiplier = 0
+        for(t in targets) {
+            var target = t.getComponent(Target)
+            if(target.locked) {
+                multiplier = multiplier + 1                
+            }
+        }
+        if(multiplier > 1) {
+            __multiplier = multiplier
+        } else {
+            __multiplier = 1
+        }
 
         if(computerUnits.count == 0) {
             __waveTimer = __waveTimer + dt            
@@ -390,7 +410,7 @@ class Game {
     static random { __random }
 
     static addScore(s) {
-        __score = __score + s
+        __score = __score + s * __multiplier
     }
 
     static particles { __particles }
@@ -429,7 +449,7 @@ class Game {
         v = v.normal
         v = v * spd
         var bd = Body.new(5, v)
-        var bl = Missile.new(Team.player, target, 10.0)
+        var bl = Missile.new(Team.player, target, 10.0, owt.position)
         var s = AnimatedSprite.new("[game]/images/projectiles/missile-02.png", 3, 1, 20)
         s.layer = 0.9
         s.flags = Render.spriteCenter
@@ -444,6 +464,10 @@ class Game {
         bullet.tag = Tag.player | Tag.bullet | Tag.missile // |
         bullet.addComponent(DebugColor.new(0xEC468BFF))
 
+        var trailImage = Render.loadImage("[game]/images/vfx/trail.png")
+        var trailSprite = Render.createSprite(trailImage, 0, 0, 1, 1)            
+        var trail = ParticleTrail.new(Game.particles, trailSprite, Vec2.new(-20,0))
+        bullet.addComponent(trail)
     }
 
     static createMissilesForAllTargets() {
