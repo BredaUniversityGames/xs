@@ -389,7 +389,7 @@ void xs::render::reload_images()
 			{
 				log::info("Image {} reloaded!", image.file);
 			}
-
+			last_write_times[i] = new_time;
 			create_texture_with_data(image, data);
 			stbi_image_free(data);
 		}
