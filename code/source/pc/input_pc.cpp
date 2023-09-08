@@ -1,6 +1,9 @@
 #include "input.h"
 #include <cassert>
+#include <array>
 #include <GLFW/glfw3.h>
+
+#include <isteaminput.h>
 
 #include "device.h"
 #include "device_pc.h"
@@ -48,7 +51,6 @@ namespace
 		if (action == GLFW_PRESS || action == GLFW_RELEASE)
 			mousebuttons_action[button] = static_cast<KeyAction>(action);
 	}
-
 }
 
 void xs::input::initialize()
@@ -59,12 +61,16 @@ void xs::input::initialize()
 	glfwSetMouseButtonCallback(device::get_window(), mousebutton_callback);
 
 	update(0.0f);
+
+	bool success = SteamInput()->Init(false);
 }
 
 void xs::input::shutdown()
 {
 	glfwSetJoystickCallback(NULL);
 	glfwSetCursorPosCallback(device::get_window(), NULL);
+
+	bool success = SteamInput()->Shutdown();
 }
 
 void xs::input::update(double dt)
@@ -94,6 +100,14 @@ void xs::input::update(double dt)
 	}
 
 	prev_gamepad_state = gamepad_state;
+
+
+	std::array<InputHandle_t, STEAM_INPUT_MAX_COUNT> inputHandles{};
+	int connectedControllers = SteamInput()->GetConnectedControllers(&inputHandles[0]);
+	if (connectedControllers > 0)
+	{
+		int g = 0;
+	}
 
 	if (glfwJoystickPresent(0) && glfwJoystickIsGamepad(0))
 		gamepad_connected = glfwGetGamepadState(0, &gamepad_state);

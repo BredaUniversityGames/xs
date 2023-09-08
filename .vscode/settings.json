@@ -21,5 +21,6 @@
         "stbi",
         "stbtt",
         "Wunused"
-    ]
+    ],
+    "cmake.configureOnOpen": false
 }
