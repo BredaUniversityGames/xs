@@ -8,6 +8,7 @@ import "tags" for Team, Tag
 import "debug" for DebugColor
 import "background" for Background
 import "projectiles" for Bullet, Missile, BulletType
+import "vfx" for ParticleSystem, ParticleTrail 
 
 class Explosion is Component {
     construct new(duration) {
@@ -60,6 +61,7 @@ class Game {
         __time = 0.0
         __font = Render.loadFont("[game]/fonts/FutilePro.ttf", 18)
         __levels = ["daytime", "night", "abandoned", "snow-rain", "sunset"]
+        __particles = ParticleSystem.new()
 
         // var song = Audio.load("[game]/Blast_2019.flac", Audio.groupMusic)
         // var sound = Audio.play(song)
@@ -79,11 +81,13 @@ class Game {
         __shakeOffset.x = __random.float(-1.0, 1.0)
         __shakeOffset.y = __random.float(-1.0, 1.0)
         __shakeIntesity = Math.damp(__shakeIntesity, 0, dt, 10)
+        __particles.update(dt)
     }
 
     static render() {
         Render.setOffset(__shakeOffset.x * __shakeIntesity, __shakeOffset.y * __shakeIntesity)
         Renderable.render()        
+        __particles.render()
 
         if(__state == GameState.Play) {
             Render.setOffset(0, 0)
@@ -272,12 +276,12 @@ class Game {
             var x = Game.random.float(0, 200)
             var y = Game.random.float(-100, 100)
             var bulletType = Game.random.int(1, 4) 
-            var ship = createEnemyShip(x, y, bulletType)
+            var ship = createEnemyShip(x, y, bulletType, i, 3)
         }
     }
 
 
-    static createEnemyShip(x, y, bulletType) {
+    static createEnemyShip(x, y, bulletType, idx, waveSize) {
         var ship = Entity.new()
 
         { // Ship
@@ -285,7 +289,7 @@ class Game {
             var t = Transform.new(p)    
             var v = Vec2.new(0, 0)
             var b = Body.new(Globals.EnemySize, v)
-            var e = Enemy.new(bulletType)
+            var e = Enemy.new(bulletType, idx, waveSize)
             var u = Unit.new(Team.computer, Globals.EnemyHealth)
             var c = DebugColor.new(Globals.EnemyColor)
             var s = null
@@ -388,6 +392,8 @@ class Game {
     static addScore(s) {
         __score = __score + s
     }
+
+    static particles { __particles }
 
     static createBullet(owner, speed, damage) {        
         var owt = owner.getComponent(Transform)

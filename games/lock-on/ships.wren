@@ -5,12 +5,14 @@ import "game" for Game, BulletType
 import "globals" for Globals
 
 class Enemy is Component {
-    construct new(bulletType) {
+    construct new(bulletType, index, waveSize) {
         super()        
-        _time = Game.random.float(0.0, Math.pi)
-        _shootTime = _time
         _lock = 0
         _bulletType = bulletType
+        //_index = index
+        //_waveSize = waveSize
+        _time = index / waveSize * 2 * Math.pi
+        _shootTime = _time
     }
 
     finalize() {
