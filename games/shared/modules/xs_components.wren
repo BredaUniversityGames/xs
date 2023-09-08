@@ -192,11 +192,12 @@ class AnimatedSprite is GridSprite {
         super(image, columns, rows)
         _animations = {}
         _time = 0.0
-        _flipFrames = (60.0 / fps).round
+        _flipFrames = 1.0 / fps
+        _frameTime = 0.0
         _currentName = ""
         _currentFrame = 0
-        _frame = 0
-        _mode = AnimatedSprite.loop
+        // _frame = 0
+        _mode = AnimatedSprite.loop        
     }
 
     update(dt) {
@@ -206,8 +207,11 @@ class AnimatedSprite is GridSprite {
 
         var currentAnimation = _animations[_currentName]
 
-        _frame = _frame + 1
-        if(_frame >= _flipFrames) {
+        // _frame = _frame + 1
+
+        _frameTime = _frameTime + dt
+
+        if(_frameTime >= _flipFrames) {
             if(_mode == AnimatedSprite.once) {
                 _currentFrame = (_currentFrame + 1)
                 if(_currentFrame >= currentAnimation.count) {
@@ -222,7 +226,7 @@ class AnimatedSprite is GridSprite {
                     return
                 }
             }
-            _frame = 0
+            _frameTime = 0.0
         }
 
         idx = currentAnimation[_currentFrame]
