@@ -16,7 +16,7 @@ class Enemy is Component {
     }
 
     finalize() {
-        Game.addScore(10)
+        Game.addScore(1)
     }
 
     update(dt) {

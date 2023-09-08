@@ -43,55 +43,40 @@ class Bullet is Component {
 
 
 class Missile is Bullet {
-    construct new(team, target, speed) {
+    construct new(team, target, speed, position) {
         super(team, Data.getNumber("Missle Damage"))
-        _speed = speed
-        _targeting = Data.getNumber("Missle Targeting")
+        _speed = Data.getNumber("Missle Speed")
         _time  = 0
         _target = target
+        
+        _P0 = position
+        _P1 = _P0 + Vec2.new(-100, 100)
+        var P2 = _target.getComponent(Transform).position
+
+        var dist01 = _P1 - _P0
+        var dist12 = P2 - _P1
+        var d = dist01.magnitude + dist12.magnitude
+        _life = d / _speed
     }
 
-    update(dt) {        
-        /*
-        if(_targeting > 0) {
-            _targeting = _targeting - dt * 2.0
-        } else {
-            _targeting = 0
-        }
-        */
-        
-        //_speed = Math.damp(_speed, Data.getNumber("Missle Max Speed"), 0.5, dt)        
-
-        var b = owner.getComponent(Body)
-        var d =  _target.getComponent(Transform).position - owner.getComponent(Transform).position
-        d = d.normal
-        var dv = d * Data.getNumber("Missle Max Speed")
-        dv = dv - b.velocity
-            
-        
-        b.velocity = Math.damp(b.velocity, dv, _targeting, dt)                
-
-        /*
-
-        if(b.velocity.magnitude < Data.getNumber("Missle Max Speed") * 0.4) {
-           b.velocity = b.velocity.normal
-           b.velocity = b.velocity * Data.getNumber("Missle Max Speed") * 0.4
-        }
-
-        // b.velocity = Math.damp(b.velocity, d, 5, dt) 
-        // b.velocity = b.velocity * b.velocity.normal.dot(d)
-        */
-
-        var alpha = b.velocity.atan2 - Math.pi * 0.5
-        owner.getComponent(Transform).rotation = alpha
-
+    update(dt) {
+        var t = owner.getComponent(Transform)
         _time = _time + dt
-        if(_time > 5.0) {
+        var P2 = _target.getComponent(Transform).position
+
+        var param = _time / _life
+        var pos = Math.quadraticBezier(_P0, _P1, P2, param)
+        var predPos = Math.quadraticBezier(_P0, _P1, P2, param + 0.1)
+        var d = predPos - pos
+        d = d.normal
+        var alpha = d.atan2 - Math.pi * 0.5
+        t.rotation = alpha
+        t.position = pos
+        
+        if(param > 1.2) {
             owner.delete()
         }
-        
-        //super.update(dt)
     }
 
-    toString { "[Missile speed %(_speed) time%(_time) targeting%(_targeting) ] ->" + super.toString }
+    toString { "[Missile speed %(_speed) time%(_time) ] ->" + super.toString }
 }
