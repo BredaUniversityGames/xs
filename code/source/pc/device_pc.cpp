@@ -87,7 +87,7 @@ void device::initialize()
 	}
 
 	glfwMakeContextCurrent(internal::window);
-	// glfwSwapInterval(1);
+	//glfwSwapInterval(1); <- vsync by default, but more reliable when not explicitly set?
 
 	int major = glfwGetWindowAttrib(internal::window, GLFW_CONTEXT_VERSION_MAJOR);
 	int minor = glfwGetWindowAttrib(internal::window, GLFW_CONTEXT_VERSION_MINOR);

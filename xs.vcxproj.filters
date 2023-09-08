@@ -336,6 +336,9 @@
     <ClInclude Include="code\source\ps5\shaders\vertex_format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="code\include\pc\account_pc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="external\wren\optional\wren_opt_meta.wren" />
