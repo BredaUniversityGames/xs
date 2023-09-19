@@ -820,6 +820,54 @@ void audio_set_channel_volume(WrenVM* vm)
 	xs::audio::set_channel_volume(static_cast<int>(channel_id), volume);
 }
 
+void audio_load_bank(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	CHECK_TYPE(vm, 1, WREN_TYPE_STRING);
+	const auto filename = wrenGetSlotString(vm, 1);
+	xs::audio::load_bank(filename);
+}
+
+void audio_unload_bank(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	CHECK_TYPE(vm, 1, WREN_TYPE_NUM);
+	const auto bank_id = wrenGetSlotDouble(vm, 1);
+	xs::audio::unload_bank(static_cast<int>(bank_id));
+}
+
+void audio_start_event(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 2);
+	CHECK_TYPE(vm, 1, WREN_TYPE_STRING);
+	const auto eventname = wrenGetSlotString(vm, 1);
+	xs::audio::start_event(eventname);
+}
+
+void audio_set_parameter_number(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 4);
+	CHECK_TYPE(vm, 1, WREN_TYPE_NUM);
+	CHECK_TYPE(vm, 2, WREN_TYPE_STRING);
+	CHECK_TYPE(vm, 3, WREN_TYPE_NUM);
+	const auto event_id = wrenGetSlotDouble(vm, 1);
+	const auto paramname = wrenGetSlotString(vm, 2);
+	const auto value = wrenGetSlotDouble(vm, 3);
+	xs::audio::set_parameter_number(static_cast<int>(event_id), paramname, value);
+}
+
+void audio_set_parameter_label(WrenVM* vm)
+{
+	wrenEnsureSlots(vm, 4);
+	CHECK_TYPE(vm, 1, WREN_TYPE_NUM);
+	CHECK_TYPE(vm, 2, WREN_TYPE_STRING);
+	CHECK_TYPE(vm, 3, WREN_TYPE_STRING);
+	const auto event_id = wrenGetSlotDouble(vm, 1);
+	const auto paramname = wrenGetSlotString(vm, 2);
+	const auto value = wrenGetSlotString(vm, 3);
+	xs::audio::set_parameter_label(static_cast<int>(event_id), paramname, value);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Data
 ///////////////////////////////////////////////////////////////////////////////////////////////////
