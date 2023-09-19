@@ -1062,6 +1062,11 @@ void xs::script::bind_api()
 	bind("xs", "Audio", true, "setGroupVolume(_,_)", audio_set_group_volume);
 	bind("xs", "Audio", true, "getChannelVolume(_)", audio_get_channel_volume);
 	bind("xs", "Audio", true, "setChannelVolume(_,_)", audio_set_channel_volume);
+	bind("xs", "Audio", true, "loadBank(_)", audio_load_bank);
+	bind("xs", "Audio", true, "unloadBank(_)", audio_unload_bank);
+	bind("xs", "Audio", true, "startEvent(_)", audio_start_event);
+	bind("xs", "Audio", true, "setParameterNumber(_,_,_)", audio_set_parameter_number);
+	bind("xs", "Audio", true, "setParameterLabel(_,_,_)", audio_set_parameter_label);
 
 	// Data
 	bind("xs", "Data", true, "getNumber(_,_)", data_get_number);

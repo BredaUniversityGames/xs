@@ -289,6 +289,11 @@ class Audio {
     foreign static setGroupVolume(groupId, volume)
     foreign static getChannelVolume(channelId)
     foreign static setChannelVolume(channelId, volume)
+    foreign static loadBank(bankId)
+    foreign static unloadBank(bankId)
+    foreign static startEvent(eventName)
+    foreign static setParameterNumber(eventId, paramName, newValue)
+    foreign static setParameterLabel(eventId, paramName, newValue)
 
     static groupSFX    { 1 }
     static groupMusic  { 2 }
