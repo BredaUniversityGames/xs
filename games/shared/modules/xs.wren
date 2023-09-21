@@ -3,18 +3,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 class Render {
-    foreign static setColor(r, g, b, a)
     foreign static setColor(color)
     foreign static line(x0, y0, x1, y1)
     foreign static shapeText(text, x, y, size)
-
+    
+    static lines { 0 }
     static triangles { 1 }
-    static lines { 2 }
     foreign static begin(primitive)
     foreign static end()
     foreign static vertex(x, y)
-
-    static setColor(r, g, b) { Render.setColor(r, g, b, 1.0) }
 
     static rect(fromX, fromY, toX, toY) {
         Render.begin(Render.triangles)
