@@ -443,42 +443,42 @@ template<> void wrenSetReturnValue<string>(WrenVM* vm, const string& value)
 }
 
 template <typename T>
-void bindFunction_args(WrenVM* vm, std::function<void(T)> func)
+void callFunction_args(WrenVM* vm, std::function<void(T)> func)
 {
     wrenEnsureSlots(vm, 2);
     func(wrenGetParameter<T>(vm, 1));
 }
 
 template <typename T1, typename T2>
-void bindFunction_args(WrenVM* vm, std::function<void(T1, T2)> func)
+void callFunction_args(WrenVM* vm, std::function<void(T1, T2)> func)
 {
     wrenEnsureSlots(vm, 3);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2));
 }
 
 template <typename T1, typename T2, typename T3>
-void bindFunction_args(WrenVM* vm, std::function<void(T1, T2, T3)> func)
+void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3)> func)
 {
     wrenEnsureSlots(vm, 4);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3));
 }
 
 template <typename T1, typename T2, typename T3, typename T4>
-void bindFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4)> func)
+void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4)> func)
 {
     wrenEnsureSlots(vm, 5);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4));
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
-void bindFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5)> func)
+void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5)> func)
 {
     wrenEnsureSlots(vm, 6);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5));
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
-void bindFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6)> func)
+void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6)> func)
 {
     wrenEnsureSlots(vm, 7);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5),
@@ -486,7 +486,7 @@ void bindFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6)> f
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
-void bindFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7)> func)
+void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7)> func)
 {
     wrenEnsureSlots(vm, 8);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5),
@@ -494,7 +494,7 @@ void bindFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
-void bindFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7, T8)> func)
+void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7, T8)> func)
 {
     wrenEnsureSlots(vm, 9);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5),
@@ -502,7 +502,7 @@ void bindFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
-void bindFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7, T8, T9)> func)
+void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7, T8, T9)> func)
 {
     wrenEnsureSlots(vm, 10);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5),
@@ -510,42 +510,42 @@ void bindFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7
 }
 
 template <typename ReturnType>
-void bindFunction_returnType(WrenVM* vm, std::function<ReturnType(void)> func)
+void callFunction_returnType(WrenVM* vm, std::function<ReturnType(void)> func)
 {
     wrenEnsureSlots(vm, 1);
     wrenSetReturnValue<ReturnType>(vm, func());
 }
 
 template <typename ReturnType, typename T>
-void bindFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T)> func)
+void callFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T)> func)
 {
     wrenEnsureSlots(vm, 2);
     wrenSetReturnValue<ReturnType>(vm, func(wrenGetParameter<T>(vm, 1)));
 }
 
 template <typename ReturnType, typename T1, typename T2>
-void bindFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2)> func)
+void callFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2)> func)
 {
     wrenEnsureSlots(vm, 3);
     wrenSetReturnValue<ReturnType>(vm, func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2)));
 }
 
 template <typename ReturnType, typename T1, typename T2, typename T3>
-void bindFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2, T3)> func)
+void callFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2, T3)> func)
 {
     wrenEnsureSlots(vm, 4);
     wrenSetReturnValue<ReturnType>(vm, func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3)));
 }
 
 template <typename ReturnType, typename T1, typename T2, typename T3, typename T4>
-void bindFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2, T3, T4)> func)
+void callFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2, T3, T4)> func)
 {
     wrenEnsureSlots(vm, 5);
     wrenSetReturnValue<ReturnType>(vm, func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4)));
 }
 
 template <typename ReturnType, typename T1, typename T2, typename T3, typename T4, typename T5>
-void bindFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2, T3, T4, T5)> func)
+void callFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2, T3, T4, T5)> func)
 {
     wrenEnsureSlots(vm, 6);
     wrenSetReturnValue<ReturnType>(vm, func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5)));
@@ -557,83 +557,83 @@ void bindFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2, T
 
 void input_get_axis(WrenVM* vm)
 {
-    bindFunction_returnType_args<double, xs::input::gamepad_axis>(vm, xs::input::get_axis);
+    callFunction_returnType_args<double, xs::input::gamepad_axis>(vm, xs::input::get_axis);
 }
 
 void input_get_button(WrenVM* vm)
 {
-    bindFunction_returnType_args<bool, xs::input::gamepad_button>(vm, xs::input::get_button);
+    callFunction_returnType_args<bool, xs::input::gamepad_button>(vm, xs::input::get_button);
 }
 
 void input_get_button_once(WrenVM* vm)
 {
-    bindFunction_returnType_args<bool, xs::input::gamepad_button>(vm, xs::input::get_button_once);
+    callFunction_returnType_args<bool, xs::input::gamepad_button>(vm, xs::input::get_button_once);
 }
 
 void input_get_key(WrenVM* vm)
 {
-    bindFunction_returnType_args<bool, int>(vm, xs::input::get_key);
+    callFunction_returnType_args<bool, int>(vm, xs::input::get_key);
 }
 
 void input_get_key_once(WrenVM* vm)
 {
-    bindFunction_returnType_args<bool, int>(vm, xs::input::get_key_once);
+    callFunction_returnType_args<bool, int>(vm, xs::input::get_key_once);
 }
 
 void input_get_mouse(WrenVM* vm)
 {
-    bindFunction_returnType<bool>(vm, xs::input::get_mouse);
+    callFunction_returnType<bool>(vm, xs::input::get_mouse);
 }
 
 void input_get_mousebutton(WrenVM* vm)
 {
-    bindFunction_returnType_args<bool, xs::input::mouse_button>(vm, xs::input::get_mousebutton);
+    callFunction_returnType_args<bool, xs::input::mouse_button>(vm, xs::input::get_mousebutton);
 }
 
 void input_get_mousebutton_once(WrenVM* vm)
 {
-    bindFunction_returnType_args<bool, xs::input::mouse_button>(vm, xs::input::get_mousebutton_once);
+    callFunction_returnType_args<bool, xs::input::mouse_button>(vm, xs::input::get_mousebutton_once);
 }
 
 void input_get_mouse_x(WrenVM* vm)
 {
-    bindFunction_returnType<double>(vm, xs::input::get_mouse_x);
+    callFunction_returnType<double>(vm, xs::input::get_mouse_x);
 }
 
 void input_get_mouse_y(WrenVM* vm)
 {
-    bindFunction_returnType<double>(vm, xs::input::get_mouse_y);
+    callFunction_returnType<double>(vm, xs::input::get_mouse_y);
 }
 
 void input_get_nr_touches(WrenVM* vm)
 {
-    bindFunction_returnType<int>(vm, xs::input::get_nr_touches);
+    callFunction_returnType<int>(vm, xs::input::get_nr_touches);
 }
 
 void input_get_touch_id(WrenVM* vm)
 {
-    bindFunction_returnType_args<int, int>(vm, xs::input::get_touch_id);
+    callFunction_returnType_args<int, int>(vm, xs::input::get_touch_id);
 }
 
 void input_get_touch_x(WrenVM* vm)
 {
-    bindFunction_returnType_args<double, int>(vm, xs::input::get_touch_x);
+    callFunction_returnType_args<double, int>(vm, xs::input::get_touch_x);
 }
 
 void input_get_touch_y(WrenVM* vm)
 {
-    bindFunction_returnType_args<double, int>(vm, xs::input::get_touch_y);
+    callFunction_returnType_args<double, int>(vm, xs::input::get_touch_y);
 }
 
 void input_set_gamepad_vibration(WrenVM* vm)
 {
-    bindFunction_args<int,int>(vm, xs::input::set_gamepad_vibration);
+    callFunction_args<int,int>(vm, xs::input::set_gamepad_vibration);
 }
 
 void input_set_lightbar_color(WrenVM* vm)
 {
     // TODO: change argument, use the same color type everywhere?
-    bindFunction_args<double,double,double>(vm, xs::input::set_lightbar_color);
+    callFunction_args<double,double,double>(vm, xs::input::set_lightbar_color);
 }
 
 void input_reset_lightbar(WrenVM* vm)
@@ -647,7 +647,7 @@ void input_reset_lightbar(WrenVM* vm)
 
 void render_begin(WrenVM* vm)
 {
-    bindFunction_args<xs::render::primitive>(vm, xs::render::begin);
+    callFunction_args<xs::render::primitive>(vm, xs::render::begin);
 }
 
 void render_end(WrenVM* vm)
@@ -657,62 +657,62 @@ void render_end(WrenVM* vm)
 
 void render_vertex(WrenVM* vm)
 {
-    bindFunction_args<double, double>(vm, xs::render::vertex);
+    callFunction_args<double, double>(vm, xs::render::vertex);
 }
 
 void render_set_color(WrenVM* vm)
 {
-    bindFunction_args<xs::render::color>(vm, xs::render::set_color);
+    callFunction_args<xs::render::color>(vm, xs::render::set_color);
 }
 
 void render_line(WrenVM* vm)
 {
-    bindFunction_args<double,double,double,double>(vm, xs::render::line);
+    callFunction_args<double,double,double,double>(vm, xs::render::line);
 }
 
 void render_text(WrenVM* vm)
 {
-    bindFunction_args<string,double,double,double>(vm, xs::render::text);
+    callFunction_args<string,double,double,double>(vm, xs::render::text);
 }
 
 void render_load_image(WrenVM* vm)
 {
-    bindFunction_returnType_args<int, string>(vm, xs::render::load_image);
+    callFunction_returnType_args<int, string>(vm, xs::render::load_image);
 }
 
 void render_get_image_width(WrenVM* vm)
 {
-    bindFunction_returnType_args<int, int>(vm, xs::render::get_image_width);
+    callFunction_returnType_args<int, int>(vm, xs::render::get_image_width);
 }
 
 void render_get_image_height(WrenVM* vm)
 {
-    bindFunction_returnType_args<int, int>(vm, xs::render::get_image_height);
+    callFunction_returnType_args<int, int>(vm, xs::render::get_image_height);
 }
 
 void render_create_sprite(WrenVM* vm)
 {
-    bindFunction_returnType_args<int,int,double,double,double,double>(vm, xs::render::create_sprite);
+    callFunction_returnType_args<int,int,double,double,double,double>(vm, xs::render::create_sprite);
 }
 
 void render_sprite_ex(WrenVM* vm)
 {
-    bindFunction_args<int,double,double,double,double,double,xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite);
+    callFunction_args<int,double,double,double,double,double,xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite);
 }
 
 void render_set_offset(WrenVM* vm)
 {
-    bindFunction_args<double, double>(vm, xs::render::set_offset);
+    callFunction_args<double, double>(vm, xs::render::set_offset);
 }
 
 void render_load_font(WrenVM* vm)
 {
-    bindFunction_returnType_args<int, string, double>(vm, xs::render::load_font);
+    callFunction_returnType_args<int, string, double>(vm, xs::render::load_font);
 }
 
 void render_render_text(WrenVM* vm)
 {
-    bindFunction_args<int, string, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_text);
+    callFunction_args<int, string, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_text);
 }
 
 
@@ -722,57 +722,57 @@ void render_render_text(WrenVM* vm)
 
 void audio_load(WrenVM* vm)
 {
-    bindFunction_returnType_args<int, string, int>(vm, xs::audio::load);
+    callFunction_returnType_args<int, string, int>(vm, xs::audio::load);
 }
 
 void audio_play(WrenVM* vm)
 {
-    bindFunction_returnType_args<int, int>(vm, xs::audio::play);
+    callFunction_returnType_args<int, int>(vm, xs::audio::play);
 }
 
 void audio_get_group_volume(WrenVM* vm)
 {
-    bindFunction_returnType_args<double, int>(vm, xs::audio::get_group_volume);
+    callFunction_returnType_args<double, int>(vm, xs::audio::get_group_volume);
 }
 
 void audio_set_group_volume(WrenVM* vm)
 {
-    bindFunction_args<int, double>(vm, xs::audio::set_group_volume);
+    callFunction_args<int, double>(vm, xs::audio::set_group_volume);
 }
 
 void audio_get_channel_volume(WrenVM* vm)
 {
-    bindFunction_returnType_args<double, int>(vm, xs::audio::get_channel_volume);
+    callFunction_returnType_args<double, int>(vm, xs::audio::get_channel_volume);
 }
 
 void audio_set_channel_volume(WrenVM* vm)
 {
-    bindFunction_args<int, double>(vm, xs::audio::set_channel_volume);
+    callFunction_args<int, double>(vm, xs::audio::set_channel_volume);
 }
 
 void audio_load_bank(WrenVM* vm)
 {
-    bindFunction_returnType_args<int, string>(vm, xs::audio::load_bank);
+    callFunction_returnType_args<int, string>(vm, xs::audio::load_bank);
 }
 
 void audio_unload_bank(WrenVM* vm)
 {
-    bindFunction_args<int>(vm, xs::audio::unload_bank);
+    callFunction_args<int>(vm, xs::audio::unload_bank);
 }
 
 void audio_start_event(WrenVM* vm)
 {
-    bindFunction_returnType_args<int, string>(vm, xs::audio::start_event);
+    callFunction_returnType_args<int, string>(vm, xs::audio::start_event);
 }
 
 void audio_set_parameter_number(WrenVM* vm)
 {
-    bindFunction_args<int, string, double>(vm, xs::audio::set_parameter_number);
+    callFunction_args<int, string, double>(vm, xs::audio::set_parameter_number);
 }
 
 void audio_set_parameter_label(WrenVM* vm)
 {
-    bindFunction_args<int, string, string>(vm, xs::audio::set_parameter_label);
+    callFunction_args<int, string, string>(vm, xs::audio::set_parameter_label);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -781,42 +781,42 @@ void audio_set_parameter_label(WrenVM* vm)
 
 void data_get_number(WrenVM* vm)
 {
-    bindFunction_returnType_args<double, string, xs::data::type>(vm, xs::data::get_number);
+    callFunction_returnType_args<double, string, xs::data::type>(vm, xs::data::get_number);
 }
 
 void data_get_bool(WrenVM* vm)
 {
-    bindFunction_returnType_args<bool, string, xs::data::type>(vm, xs::data::get_bool);
+    callFunction_returnType_args<bool, string, xs::data::type>(vm, xs::data::get_bool);
 }
 
 void data_get_color(WrenVM* vm)
 {
-    bindFunction_returnType_args<uint32_t, string, xs::data::type>(vm, xs::data::get_color);
+    callFunction_returnType_args<uint32_t, string, xs::data::type>(vm, xs::data::get_color);
 }
 
 void data_get_string(WrenVM* vm)
 {
-    bindFunction_returnType_args<string, string, xs::data::type>(vm, xs::data::get_string);
+    callFunction_returnType_args<string, string, xs::data::type>(vm, xs::data::get_string);
 }
 
 void data_set_bool(WrenVM* vm)
 {
-    bindFunction_args<string, bool, xs::data::type>(vm, xs::data::set_bool);
+    callFunction_args<string, bool, xs::data::type>(vm, xs::data::set_bool);
 }
 
 void data_set_number(WrenVM* vm)
 {
-    bindFunction_args<string, double, xs::data::type>(vm, xs::data::set_number);
+    callFunction_args<string, double, xs::data::type>(vm, xs::data::set_number);
 }
 
 void data_set_color(WrenVM* vm)
 {
-    bindFunction_args<string, uint32_t, xs::data::type>(vm, xs::data::set_color);
+    callFunction_args<string, uint32_t, xs::data::type>(vm, xs::data::set_color);
 }
 
 void data_set_string(WrenVM* vm)
 {
-    bindFunction_args<string, string, xs::data::type>(vm, xs::data::set_string);
+    callFunction_args<string, string, xs::data::type>(vm, xs::data::set_string);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -825,17 +825,17 @@ void data_set_string(WrenVM* vm)
 
 void file_read(WrenVM* vm)
 {
-    bindFunction_returnType_args<string, string>(vm, xs::fileio::read_text_file);
+    callFunction_returnType_args<string, string>(vm, xs::fileio::read_text_file);
 }
 
 void file_write(WrenVM* vm)
 {
-    bindFunction_returnType_args<bool, string, string>(vm, xs::fileio::write_text_file);
+    callFunction_returnType_args<bool, string, string>(vm, xs::fileio::write_text_file);
 }
 
 void file_exists(WrenVM* vm)
 {
-    bindFunction_returnType_args<bool, string>(vm, xs::fileio::exists);
+    callFunction_returnType_args<bool, string>(vm, xs::fileio::exists);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -844,17 +844,17 @@ void file_exists(WrenVM* vm)
 
 void device_get_platform(WrenVM* vm)
 {
-    bindFunction_returnType<xs::device::platform>(vm, xs::device::get_platform);
+    callFunction_returnType<xs::device::platform>(vm, xs::device::get_platform);
 }
 
 void device_can_close(WrenVM* vm)
 {
-    bindFunction_returnType<bool>(vm, xs::device::can_close);
+    callFunction_returnType<bool>(vm, xs::device::can_close);
 }
 
 void device_request_close(WrenVM* vm)
 {
-    bindFunction_returnType<bool>(vm, xs::device::request_close);
+    callFunction_returnType<bool>(vm, xs::device::request_close);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
