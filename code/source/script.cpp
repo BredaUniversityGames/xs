@@ -34,10 +34,10 @@ namespace xs::script::internal
 	WrenHandle* update_method = nullptr;
 	WrenHandle* render_method = nullptr;
 	std::unordered_map<size_t, WrenForeignMethodFn> foreign_methods;
-	std::unordered_map<size_t, std::string> modules;
+	std::unordered_map<size_t, string> modules;
 	bool initialized = false;
-	std::string main;
-	std::string main_module;
+	string main;
+	string main_module;
 	bool error = false;
 	
 	void writeFn(WrenVM* vm, const char* text)
@@ -85,10 +85,10 @@ namespace xs::script::internal
 	}
 
 	size_t get_method_id(
-		const std::string& module,
-		const std::string& class_name,
+		const string& module,
+		const string& class_name,
 		bool is_static,
-		const std::string& signature)
+		const string& signature)
 	{
 		const string dot = is_static ? "::" : ".";
 		const string concat = module + "::" + class_name + dot + signature;
@@ -191,7 +191,7 @@ void xs::script::configure()
 	auto l_dot = main_module.find_last_of(".");
 	main_module.erase(l_dot, main_module.length());
 
-	const std::string script_file = fileio::read_text_file(internal::main);
+	const string& script_file = fileio::read_text_file(internal::main);
 	const WrenInterpretResult result = wrenInterpret(vm, main_module.c_str(), script_file.c_str());
 	
 	switch (result)
@@ -320,10 +320,10 @@ void xs::script::clear_error()
 }
 
 void xs::script::bind(
-	const std::string& module,
-	const std::string& class_name,
+	const string& module,
+	const string& class_name,
 	bool is_static,
-	const std::string& signature,
+	const string& signature,
 	WrenForeignMethodFn func)
 {
 	const auto id = get_method_id(module, class_name, is_static, signature);
@@ -349,7 +349,7 @@ void xs::script::bind(
 #define CHECK_TYPE(vm, slot, type) 
 #endif
 
-std::string get_type_name(WrenType type)
+string get_type_name(WrenType type)
 {
 	switch (type)
 	{
@@ -374,7 +374,7 @@ std::string get_type_name(WrenType type)
 	}
 }
 
-bool checkType(WrenVM* vm, int slot, WrenType type, const std::string& function)
+bool checkType(WrenVM* vm, int slot, WrenType type, const string& function)
 {
 	if (wrenGetSlotType(vm, slot) == type)
 		return true;
