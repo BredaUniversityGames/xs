@@ -92,7 +92,6 @@ namespace xs::render
 	enum class primitive { lines, triangles, none };
 	void begin(primitive p);
 	void vertex(double x, double y);
-	void set_color(double r, double g, double b, double a);
 	void set_color(color c);
 	void end();	
 	void line(double x0, double y0, double x1, double y1);

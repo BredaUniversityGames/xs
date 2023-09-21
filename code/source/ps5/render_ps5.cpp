@@ -751,10 +751,6 @@ void xs::render::end()
 {
 }
 
-void xs::render::set_color(double r, double g, double b, double a)
-{
-}
-
 void xs::render::set_color(color c)
 {
 }
