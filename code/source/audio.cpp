@@ -92,7 +92,18 @@ namespace xs::audio
 	{
 		system->update();
 
-		// TODO: remove released events from the hashmap?
+		// remove released events from the hashmap?
+		std::vector<int> eventsToRemove;
+		for (auto eventInstance : events)
+		{
+			FMOD_STUDIO_PLAYBACK_STATE state;
+			eventInstance.second->getPlaybackState(&state);
+			if (state == FMOD_STUDIO_PLAYBACK_STOPPED)
+				eventsToRemove.push_back(eventInstance.first);
+		}
+
+		for (auto id : eventsToRemove)
+			events.erase(id);
 	}
 
 	int load(const std::string& filename, int group_id)
@@ -229,6 +240,18 @@ namespace xs::audio
 		return hash;
 	}
 
+	void unload_bank(int id)
+	{
+		if (banks.find(id) == banks.end())
+		{
+			log::error("FMOD bank with ID {} does not exist!", id);
+			return;
+		}
+
+		banks[id]->unload();
+		banks.erase(id);
+	}
+
 	int start_event(const std::string& name)
 	{
 		// get the event description
@@ -260,19 +283,6 @@ namespace xs::audio
 		result = evi->release();
 
 		return eventID;
-	}
-
-	void unload_bank(int id)
-	{
-		if (banks.find(id) == banks.end())
-		{
-			log::error("FMOD bank with ID {} does not exist!", id);
-			return;
-		}
-
-		//banks[id]->unloadSampleData(); // should be covered by Bank::unload()
-		banks[id]->unload();
-		banks.erase(id);
 	}
 
 	void set_parameter_number(int eventID, const std::string& name, double value)
