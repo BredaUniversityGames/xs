@@ -213,6 +213,34 @@ namespace xs::audio
 		channel->setVolume(static_cast<float>(value));
 	}
 
+	double get_bus_volume(const std::string& name)
+	{
+		FMOD::Studio::Bus* bus;
+		auto result = system->getBus(name.c_str(), &bus);
+		if (result != FMOD_OK)
+		{
+			log::error("FMOD Studio Bus with name {} does not exist!", name);
+			return -1;
+		}
+
+		float vol;
+		bus->getVolume(&vol);
+		return static_cast<double>(vol);
+	}
+
+	void set_bus_volume(const std::string& name, double value)
+	{
+		FMOD::Studio::Bus* bus;
+		auto result = system->getBus(name.c_str(), &bus);
+		if (result != FMOD_OK)
+		{
+			log::error("FMOD Studio Bus with name {} does not exist!", name);
+			return;
+		}
+
+		bus->setVolume(static_cast<float>(value));
+	}
+
 	int load_bank(const std::string& filename)
 	{
 		// check if the bank already exists
