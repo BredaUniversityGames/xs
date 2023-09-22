@@ -750,6 +750,16 @@ void audio_set_channel_volume(WrenVM* vm)
     callFunction_args<int, double>(vm, xs::audio::set_channel_volume);
 }
 
+void audio_get_bus_volume(WrenVM* vm)
+{
+    callFunction_returnType_args<double, string>(vm, xs::audio::get_bus_volume);
+}
+
+void audio_set_bus_volume(WrenVM* vm)
+{
+    callFunction_args<string, double>(vm, xs::audio::set_bus_volume);
+}
+
 void audio_load_bank(WrenVM* vm)
 {
     callFunction_returnType_args<int, string>(vm, xs::audio::load_bank);
@@ -906,6 +916,8 @@ void xs::script::bind_api()
     bind("xs", "Audio", true, "setGroupVolume(_,_)", audio_set_group_volume);
     bind("xs", "Audio", true, "getChannelVolume(_)", audio_get_channel_volume);
     bind("xs", "Audio", true, "setChannelVolume(_,_)", audio_set_channel_volume);
+    bind("xs", "Audio", true, "getBusVolume(_)", audio_get_bus_volume);
+    bind("xs", "Audio", true, "setBusVolume(_,_)", audio_set_bus_volume);
     bind("xs", "Audio", true, "loadBank(_)", audio_load_bank);
     bind("xs", "Audio", true, "unloadBank(_)", audio_unload_bank);
     bind("xs", "Audio", true, "startEvent(_)", audio_start_event);
