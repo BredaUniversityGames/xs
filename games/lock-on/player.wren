@@ -31,6 +31,7 @@ class Player is Component {
             t.position.y = h
         }
 
+        /*
         _shootTime = _shootTime + dt
         if((Input.getButton(0) || Input.getKeyOnce(Input.keySpace)) && _shootTime > 0.1) {
 
@@ -46,6 +47,19 @@ class Player is Component {
             }
             */
              
+            _shootTime = 0
+        }
+
+        */
+
+        _shootTime = _shootTime + dt
+        if((Input.getButton(0) || Input.getKeyOnce(Input.keySpace)) && _shootTime > 0.1) {        
+            Game.createBullet(owner, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)             
+            _shootTime = 0
+        }
+
+        if((Input.getButton(1) || Input.getKeyOnce(Input.keySpace)) && _shootTime > 0.1) {
+            Game.createMissilesForAllTargets()                         
             _shootTime = 0
         }
 

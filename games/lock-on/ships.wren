@@ -13,6 +13,7 @@ class Enemy is Component {
         //_waveSize = waveSize
         _time = index / waveSize * 2 * Math.pi
         _shootTime = _time
+        _offset = 300.0
     }
 
     finalize() {
@@ -21,10 +22,14 @@ class Enemy is Component {
 
     update(dt) {
         _time = _time + dt * 1.0
+        if(_offset > 0.0) {
+            _offset = _offset - dt * 100.0
+        }
 
         var pos = Vec2.new(30 * _time.sin + 120, 80 * _time.cos)
-        //var position = owner.getComponent(Transform).position
-        owner.getComponent(Transform).position = pos
+        pos.x = pos.x + _offset 
+        var transform = owner.getComponent(Transform)
+        transform.position = pos    
 
         _shootTime = _shootTime + dt
         if(_shootTime > 0.99) {
