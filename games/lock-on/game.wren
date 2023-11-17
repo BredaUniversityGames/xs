@@ -373,7 +373,7 @@ class Game {
     }
 
     static collide(bullets, units) {
-        Render.setColor(1.0, 0, 0)
+        Render.setColor(0xFF0000FF)
         for(u in units) {
             for(b in bullets) {            
                 var uT = u.getComponent(Transform)
