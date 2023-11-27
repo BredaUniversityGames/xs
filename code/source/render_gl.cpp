@@ -1,10 +1,4 @@
 #include "opengl.h"
-
-#include <OpenGL/gl.h>
-#include <OpenGL/gl3.h>
-#include <OpenGL/glext.h>
-#include <OpenGL/gl3ext.h>
-
 #include "render.h"
 #include "render_internal.h"
 #include <ios>

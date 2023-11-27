@@ -66,7 +66,7 @@ int xs::main(int argc, char* argv[])
     render::initialize();
     input::initialize();
     audio::initialize();
-    //inspector::initialize();
+    inspector::initialize();
     script::initialize();
 
     auto prev_time = chrono::high_resolution_clock::now();
@@ -80,14 +80,14 @@ int xs::main(int argc, char* argv[])
 
         device::poll_events();
         input::update(dt);
-        //if (!inspector::paused())
+        if (!inspector::paused())
         {
-            //render::clear();
+            render::clear();
             script::update(dt);
             script::render();
         }
-        //render::render();
-        //inspector::render(float(dt));
+        render::render();
+        inspector::render(float(dt));
         device::swap_buffers();
 	}
 
