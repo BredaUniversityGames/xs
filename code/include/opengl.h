@@ -10,8 +10,6 @@
 #include <glad/include/glad/glad.h>
 #endif
 
-#include <OpenGL/gl.h>
-
 #ifdef DEBUG
 #define XS_DEBUG_ONLY(x) (x)
 namespace xs { void init_debug_messages(); }

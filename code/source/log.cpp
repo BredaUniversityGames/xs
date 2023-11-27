@@ -32,7 +32,7 @@ void xs::log::initialize()
     log::info(" |__|__|_____| " + xs::version::version_string);
     log::info("Made with love at Breda University of Applied Sciences");
     log::info("");
-#elif
+#else
     log::info("\033[33m  __ __ _____  \033[0m");
     log::info("\033[33m |  |  |   __| \033[0m");
     log::info("\033[33m |-   -|__   | \033[0m");
