@@ -21,12 +21,16 @@ namespace xs::fileio::internal
 
 void fileio::initialize()
 {
-    NSString* games_path_oc = [[NSBundle mainBundle] resourcePath];
     NSArray* docs_paths_oc = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString* docs_path_oc  = [docs_paths_oc objectAtIndex:0];
     
-    
-    auto games_path_c = [games_path_oc UTF8String];
+#ifdef DEBUG
+    NSString* games_path_oc = PROJECT_DIR;  // Define from a macro
+#else
+    NSString* games_path_oc = [[NSBundle mainBundle] resourcePath];
+#endif
+        
+    auto games_path_c = [games_path_oc UTF8String];        
     string games_path = string(games_path_c) + "/games";
     
     auto docs_path_c = [docs_path_oc UTF8String];

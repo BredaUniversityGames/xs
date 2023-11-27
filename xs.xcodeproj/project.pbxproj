@@ -2553,6 +2553,7 @@
 					"DEBUG=1",
 					"PLATFORM_APPLE=1",
 					PLATFORM_APPLE_MACOS,
+					"PROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -2588,6 +2589,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					PLATFORM_APPLE,
 					PLATFORM_APPLE_MACOS,
+					"PROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"",
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
