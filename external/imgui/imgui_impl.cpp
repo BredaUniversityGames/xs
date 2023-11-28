@@ -86,21 +86,23 @@ void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
 
 #elif defined(PLATFORM_APPLE)
 
+#include "imgui_impl_osx.h"
+#include "imgui_impl_metal.h"
+#include "device_apple.h"
+
 bool ImGui_Impl_Init()
 {
-    return false;
+    return ImGui_ImplOSX_Init(xs::device::get_view());
 }
 
 void ImGui_Impl_Shutdown()
 {
+    ImGui_ImplOSX_Shutdown();
 }
 
 void ImGui_Impl_NewFrame()
 {
-}
-
-void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
-{
+    ImGui::NewFrame();
 }
 
 #endif

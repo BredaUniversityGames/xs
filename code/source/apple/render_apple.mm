@@ -5,6 +5,8 @@
 #include "device_apple.h"
 #include "device.h"
 #include "tools.h"
+#include "imgui/imgui_impl_osx.h"
+#include "imgui/imgui_impl_metal.h"
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
@@ -16,50 +18,6 @@
 #import <ModelIO/ModelIO.h>
 #import "shader_types.h"
 
-/*
-static const NSUInteger MaxBuffersInFlight = 3;
-
-matrix_float4x4 matrix4x4_translation(float tx, float ty, float tz)
-{
-    return (matrix_float4x4) {{
-        { 1,   0,  0,  0 },
-        { 0,   1,  0,  0 },
-        { 0,   0,  1,  0 },
-        { tx, ty, tz,  1 }
-    }};
-}
-
-static matrix_float4x4 matrix4x4_rotation(float radians, vector_float3 axis)
-{
-    axis = vector_normalize(axis);
-    float ct = cosf(radians);
-    float st = sinf(radians);
-    float ci = 1 - ct;
-    float x = axis.x, y = axis.y, z = axis.z;
-
-    return (matrix_float4x4) {{
-        { ct + x * x * ci,     y * x * ci + z * st, z * x * ci - y * st, 0},
-        { x * y * ci - z * st,     ct + y * y * ci, z * y * ci + x * st, 0},
-        { x * z * ci + y * st, y * z * ci - x * st,     ct + z * z * ci, 0},
-        {                   0,                   0,                   0, 1}
-    }};
-}
-
-matrix_float4x4 matrix_perspective_right_hand(float fovyRadians, float aspect, float nearZ, float farZ)
-{
-    float ys = 1 / tanf(fovyRadians * 0.5);
-    float xs = ys / aspect;
-    float zs = farZ / (nearZ - farZ);
-
-    return (matrix_float4x4) {{
-        { xs,   0,          0,  0 },
-        {  0,  ys,          0,  0 },
-        {  0,   0,         zs, -1 },
-        {  0,   0, nearZ * zs,  0 }
-    }};
-}
-*/
-
 using namespace xs;
 using namespace xs::render::internal;
 using namespace glm;
@@ -67,7 +25,6 @@ using namespace std;
 
 namespace xs::render::internal
 {
-
     id<MTLDevice> _device;
 
     // The render pipeline generated from the vertex and fragment shaders in the .metal shader file.
@@ -79,41 +36,15 @@ namespace xs::render::internal
     // The current size of the view, used as an input to the vertex shader.
     vector_uint2 _viewportSize;
 
-    /*
-    struct sprite_vtx_format
-    {
-        vec3 position;
-        vec2 texture;
-        vec4 add_color;
-        vec4 mul_color;
-    };
-    */
+    MTLRenderPipelineDescriptor* _pipelineStateDescriptor;
 
     int const                sprite_trigs_max = 21800;
     int                      sprite_trigs_count = 0;
     sprite_vtx_format        sprite_trigs_array[sprite_trigs_max * 3];
 
-/*
-
-    dispatch_semaphore_t _inFlightSemaphore;
-    id <MTLDevice> _device;
-    id <MTLCommandQueue> _commandQueue;
-
-    id <MTLBuffer> _dynamicUniformBuffer[MaxBuffersInFlight];
-    id <MTLRenderPipelineState> _pipelineState;
-    id <MTLDepthStencilState> _depthState;
-    id <MTLTexture> _colorMap;
-    MTLVertexDescriptor *_mtlVertexDescriptor;
-
-    uint8_t _uniformBufferIndex;
-
-    matrix_float4x4 _projectionMatrix;
-
-    float _rotation;
-
-    MTKMesh *_mesh;
- 
-*/
+    MTLRenderPassDescriptor* imgui_render_pass_sescriptor = nullptr;
+    id<MTLCommandBuffer> imgui_command_buffer;
+    id<MTLRenderCommandEncoder> imgui_command_encoder;
 }
 
 void xs::render::initialize()
@@ -133,20 +64,20 @@ void xs::render::initialize()
     id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertex_shader"];
     id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragment_shader"];
     
-    MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    pipelineStateDescriptor.label = @"xs sprite pipeline";
-    pipelineStateDescriptor.vertexFunction = vertexFunction;
-    pipelineStateDescriptor.fragmentFunction = fragmentFunction;
-    pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
+    _pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+    _pipelineStateDescriptor.label = @"xs sprite pipeline";
+    _pipelineStateDescriptor.vertexFunction = vertexFunction;
+    _pipelineStateDescriptor.fragmentFunction = fragmentFunction;
+    _pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
     
-    MTLRenderPipelineColorAttachmentDescriptor *rb_attachment = pipelineStateDescriptor.colorAttachments[0];
+    MTLRenderPipelineColorAttachmentDescriptor *rb_attachment = _pipelineStateDescriptor.colorAttachments[0];
     rb_attachment.blendingEnabled = YES;
     rb_attachment.rgbBlendOperation = MTLBlendOperationAdd;
     rb_attachment.alphaBlendOperation = MTLBlendOperationAdd;
     rb_attachment.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     rb_attachment.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
 
-    _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+    _pipelineState = [_device newRenderPipelineStateWithDescriptor:_pipelineStateDescriptor error:&error];
     
     // Pipeline State creation could fail if the pipeline descriptor isn't set up properly.
     //  If the Metal API validation is enabled, you can find out more information about what
@@ -156,233 +87,15 @@ void xs::render::initialize()
 
     // Create the command queue
     _commandQueue = [_device newCommandQueue];
-
-    /*
-    _inFlightSemaphore = dispatch_semaphore_create(MaxBuffersInFlight);
-    
-    
-    /// Load Metal state objects and initialize renderer dependent view properties
-
-    view.depthStencilPixelFormat = MTLPixelFormatDepth32Float_Stencil8;
-    view.colorPixelFormat = MTLPixelFormatBGRA8Unorm_sRGB;
-    view.sampleCount = 1;
-
-    _mtlVertexDescriptor = [[MTLVertexDescriptor alloc] init];
-
-    _mtlVertexDescriptor.attributes[VertexAttributePosition].format = MTLVertexFormatFloat3;
-    _mtlVertexDescriptor.attributes[VertexAttributePosition].offset = 0;
-    _mtlVertexDescriptor.attributes[VertexAttributePosition].bufferIndex = BufferIndexMeshPositions;
-
-    _mtlVertexDescriptor.attributes[VertexAttributeTexcoord].format = MTLVertexFormatFloat2;
-    _mtlVertexDescriptor.attributes[VertexAttributeTexcoord].offset = 0;
-    _mtlVertexDescriptor.attributes[VertexAttributeTexcoord].bufferIndex = BufferIndexMeshGenerics;
-
-    _mtlVertexDescriptor.layouts[BufferIndexMeshPositions].stride = 12;
-    _mtlVertexDescriptor.layouts[BufferIndexMeshPositions].stepRate = 1;
-    _mtlVertexDescriptor.layouts[BufferIndexMeshPositions].stepFunction = MTLVertexStepFunctionPerVertex;
-
-    _mtlVertexDescriptor.layouts[BufferIndexMeshGenerics].stride = 8;
-    _mtlVertexDescriptor.layouts[BufferIndexMeshGenerics].stepRate = 1;
-    _mtlVertexDescriptor.layouts[BufferIndexMeshGenerics].stepFunction = MTLVertexStepFunctionPerVertex;
-
-    id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
-
-    id <MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertexShader"];
-
-    id <MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragmentShader"];
-
-    MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    pipelineStateDescriptor.label = @"MyPipeline";
-    pipelineStateDescriptor.rasterSampleCount = view.sampleCount;
-    pipelineStateDescriptor.vertexFunction = vertexFunction;
-    pipelineStateDescriptor.fragmentFunction = fragmentFunction;
-    pipelineStateDescriptor.vertexDescriptor = _mtlVertexDescriptor;
-    pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
-    pipelineStateDescriptor.depthAttachmentPixelFormat = view.depthStencilPixelFormat;
-    pipelineStateDescriptor.stencilAttachmentPixelFormat = view.depthStencilPixelFormat;
-
-    NSError *error = NULL;
-    _pipelineState = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-    if (!_pipelineState)
-    {
-        NSLog(@"Failed to created pipeline state, error %@", error);
-    }
-
-    MTLDepthStencilDescriptor *depthStateDesc = [[MTLDepthStencilDescriptor alloc] init];
-    depthStateDesc.depthCompareFunction = MTLCompareFunctionLess;
-    depthStateDesc.depthWriteEnabled = YES;
-    _depthState = [_device newDepthStencilStateWithDescriptor:depthStateDesc];
-
-    for(NSUInteger i = 0; i < MaxBuffersInFlight; i++)
-    {
-        _dynamicUniformBuffer[i] = [_device newBufferWithLength:sizeof(Uniforms)
-                                                        options:MTLResourceStorageModeShared];
-
-        _dynamicUniformBuffer[i].label = @"UniformBuffer";
-    }
-
-    _commandQueue = [_device newCommandQueue];
-    
-    
-    
-    { // Load assets
-        NSError *error;
-
-        MTKMeshBufferAllocator *metalAllocator = [[MTKMeshBufferAllocator alloc]
-                                                  initWithDevice: _device];
-
-        MDLMesh *mdlMesh = [MDLMesh newBoxWithDimensions:(vector_float3){4, 4, 4}
-                                                segments:(vector_uint3){2, 2, 2}
-                                            geometryType:MDLGeometryTypeTriangles
-                                           inwardNormals:NO
-                                               allocator:metalAllocator];
-
-        MDLVertexDescriptor *mdlVertexDescriptor =
-        MTKModelIOVertexDescriptorFromMetal(_mtlVertexDescriptor);
-
-        mdlVertexDescriptor.attributes[VertexAttributePosition].name  = MDLVertexAttributePosition;
-        mdlVertexDescriptor.attributes[VertexAttributeTexcoord].name  = MDLVertexAttributeTextureCoordinate;
-
-        mdlMesh.vertexDescriptor = mdlVertexDescriptor;
-
-        _mesh = [[MTKMesh alloc] initWithMesh:mdlMesh
-                                       device:_device
-                                        error:&error];
-
-        if(!_mesh || error)
-        {
-            NSLog(@"Error creating MetalKit mesh %@", error.localizedDescription);
-        }
-
-        MTKTextureLoader* textureLoader = [[MTKTextureLoader alloc] initWithDevice:_device];
-
-        NSDictionary *textureLoaderOptions =
-        @{
-          MTKTextureLoaderOptionTextureUsage       : @(MTLTextureUsageShaderRead),
-          MTKTextureLoaderOptionTextureStorageMode : @(MTLStorageModePrivate)
-          };
-
-        _colorMap = [textureLoader newTextureWithName:@"ColorMap"
-                                          scaleFactor:1.0
-                                               bundle:nil
-                                              options:textureLoaderOptions
-                                                error:&error];
-        
-        if(!_colorMap || error)
-        {
-            NSLog(@"Error creating texture %@", error.localizedDescription);
-        }
-        
-    }
-     */
 }
 
 void xs::render::shutdown()
 {
+    ImGui_ImplMetal_Shutdown();
 }
 
 void xs::render::render()
 {
-    /*
-    XS_PROFILE_SECTION("xs::render::render");
-    
-    MTKView* view = device::get_view();
-    
-    /// Per frame updates here
-
-    dispatch_semaphore_wait(_inFlightSemaphore, DISPATCH_TIME_FOREVER);
-
-    _uniformBufferIndex = (_uniformBufferIndex + 1) % MaxBuffersInFlight;
-
-    id <MTLCommandBuffer> commandBuffer = [_commandQueue commandBuffer];
-    commandBuffer.label = @"MyCommand";
-
-    __block dispatch_semaphore_t block_sema = _inFlightSemaphore;
-    [commandBuffer addCompletedHandler:^(id<MTLCommandBuffer> buffer)
-     {
-         dispatch_semaphore_signal(block_sema);
-     }];
-
-    {
-        /// Update any game state before encoding renderint commands to our drawable
-
-        Uniforms * uniforms = (Uniforms*)_dynamicUniformBuffer[_uniformBufferIndex].contents;
-        
-        float aspect = device::get_width() / (float)device::get_height();
-        _projectionMatrix = matrix_perspective_right_hand(65.0f * (M_PI / 180.0f), aspect, 0.1f, 100.0f);
-
-        uniforms->projectionMatrix = _projectionMatrix;
-
-        vector_float3 rotationAxis = {1, 1, 0};
-        matrix_float4x4 modelMatrix = matrix4x4_rotation(_rotation, rotationAxis);
-        matrix_float4x4 viewMatrix = matrix4x4_translation(0.0, 0.0, -8.0);
-
-        uniforms->modelViewMatrix = matrix_multiply(viewMatrix, modelMatrix);
-
-        _rotation += .01;
-    }
-
-    /// Delay getting the currentRenderPassDescriptor until absolutely needed. This avoids
-    ///   holding onto the drawable and blocking the display pipeline any longer than necessary
-    MTLRenderPassDescriptor* renderPassDescriptor = view.currentRenderPassDescriptor;
-
-    if(renderPassDescriptor != nil)
-    {
-        /// Final pass rendering code here
-
-        id <MTLRenderCommandEncoder> renderEncoder =
-        [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-        renderEncoder.label = @"MyRenderEncoder";
-
-        [renderEncoder pushDebugGroup:@"DrawBox"];
-
-        [renderEncoder setFrontFacingWinding:MTLWindingCounterClockwise];
-        [renderEncoder setCullMode:MTLCullModeBack];
-        [renderEncoder setRenderPipelineState:_pipelineState];
-        [renderEncoder setDepthStencilState:_depthState];
-
-        [renderEncoder setVertexBuffer:_dynamicUniformBuffer[_uniformBufferIndex]
-                                offset:0
-                               atIndex:BufferIndexUniforms];
-
-        [renderEncoder setFragmentBuffer:_dynamicUniformBuffer[_uniformBufferIndex]
-                                  offset:0
-                                 atIndex:BufferIndexUniforms];
-
-        for (NSUInteger bufferIndex = 0; bufferIndex < _mesh.vertexBuffers.count; bufferIndex++)
-        {
-            MTKMeshBuffer *vertexBuffer = _mesh.vertexBuffers[bufferIndex];
-            if((NSNull*)vertexBuffer != [NSNull null])
-            {
-                [renderEncoder setVertexBuffer:vertexBuffer.buffer
-                                        offset:vertexBuffer.offset
-                                       atIndex:bufferIndex];
-            }
-        }
-
-        [renderEncoder setFragmentTexture:_colorMap
-                                  atIndex:TextureIndexColor];
-
-        for(MTKSubmesh *submesh in _mesh.submeshes)
-        {
-            [renderEncoder drawIndexedPrimitives:submesh.primitiveType
-                                      indexCount:submesh.indexCount
-                                       indexType:submesh.indexType
-                                     indexBuffer:submesh.indexBuffer.buffer
-                               indexBufferOffset:submesh.indexBuffer.offset];
-        }
-
-        [renderEncoder popDebugGroup];
-
-        [renderEncoder endEncoding];
-
-        [commandBuffer presentDrawable:view.currentDrawable];
-    }
-
-    [commandBuffer commit];
-     */
-    
-    
     XS_PROFILE_SECTION("xs::render::render");
         
     MTKView* view = device::get_view();
@@ -446,17 +159,6 @@ void xs::render::render()
 
         vec4 add_color = to_vec4(spe.add_color);
         vec4 mul_color = to_vec4(spe.mul_color);
-
-        // TODO: Set texture
-
-        /*
-        sprite_trigs_array[count + 0].position = { from_x, from_y, 0.0 };
-        sprite_trigs_array[count + 1].position = { from_x, to_y, 0.0 };
-        sprite_trigs_array[count + 2].position = { to_x, to_y, 0.0 };
-        sprite_trigs_array[count + 3].position = { to_x, to_y, 0.0 };
-        sprite_trigs_array[count + 4].position = { to_x, from_y, 0.0 };
-        sprite_trigs_array[count + 5].position = { from_x, from_y, 0.0 };
-        */
         
         sprite_trigs_array[count + 0].position = { from_x, from_y, 0.0, 1.0f };
         sprite_trigs_array[count + 1].position = { from_x, to_y, 0.0, 1.0f };
@@ -505,20 +207,6 @@ void xs::render::render()
             sprite_trigs_array[count + i].position.y += (float)spe.y;
         }
         count += 6;
-
-        /*
-        bool render_batch = false;
-        if (i < sprite_queue.size() - 1 && count < 32)
-        {
-            const auto& nspe = sprite_queue[i + 1];
-            const auto& nsprite = sprites[nspe.sprite_id];
-            render_batch = nsprite.image_id != sprite.image_id;
-        }
-        else
-        {
-            render_batch = true;
-        }
-        */
         
         bool render_batch = true;
         
@@ -607,4 +295,61 @@ void xs::render::internal::create_texture_with_data(
      mipmapLevel:0
      withBytes:data
      bytesPerRow:texture_descriptor.width * 4];
+}
+
+void xs::render::internal::imgui_init()
+{
+    auto osx = ImGui_ImplOSX_Init(xs::device::get_view());
+    auto metal = ImGui_ImplMetal_Init(_device);
+    assert(osx);
+    assert(metal);
+}
+
+void xs::render::internal::imgui_shutdown()
+{
+    /*
+    ImGui_ImplMetal_Shutdown();
+    ImGui_ImplOSX_Shutdown();
+     */
+}
+
+void xs::render::internal::imgui_new_frame()
+{
+    MTKView* view = device::get_view();
+    ImGui_ImplOSX_NewFrame(xs::device::get_view());
+    
+    // Create a new command buffer for each render pass to the current drawable.
+    imgui_command_buffer = [_commandQueue commandBuffer];
+    imgui_command_buffer.label = @"imgui command buffer";
+    
+    // Obtain a renderPassDescriptor generated from the view's drawable textures.
+    imgui_render_pass_sescriptor = view.currentRenderPassDescriptor;
+    ImGui_ImplMetal_NewFrame(imgui_render_pass_sescriptor);
+}
+
+void xs::render::internal::imgui_render(ImDrawData* data)
+{
+    /*
+    MTKView* view = device::get_view();
+    
+    // Create a render command encoder.
+    id<MTLRenderCommandEncoder> render_encoder =
+    [imgui_command_buffer renderCommandEncoderWithDescriptor:imgui_render_pass_sescriptor];
+    render_encoder.label = @"imgui render encoder";
+    
+    // Set the region of the drawable to draw into.
+    [render_encoder setViewport:(MTLViewport){0, 0, static_cast<double>(_viewportSize.x), static_cast<double>(_viewportSize.y), 0.0, 1.0 }];
+    
+    [render_encoder setRenderPipelineState:_pipelineState];
+    
+    ImGui_ImplMetal_RenderDrawData(data, imgui_command_buffer, render_encoder);
+    
+    [render_encoder endEncoding];
+
+    // Schedule a present once the framebuffer is complete using the current drawable.
+    [imgui_command_buffer presentDrawable:view.currentDrawable];
+
+    // Finalize rendering here & push the command buffer to the GPU.
+    [imgui_command_buffer commit];
+     */
 }

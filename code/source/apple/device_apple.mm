@@ -37,7 +37,7 @@ using namespace std;
 
 
 // Our platform independent renderer class.   Implements the MTKViewDelegate protocol which
-//   allows it to accept per-frame update and drawable resize callbacks.
+// allows it to accept per-frame update and drawable resize callbacks.
 @interface XSRenderer : NSObject <MTKViewDelegate>
 
 -(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
@@ -85,7 +85,7 @@ using namespace xs::device::internal;
     script::update(dt);
     script::render();
     render::render();
-    // inspector::render(float(dt));
+    inspector::render(float(dt));
     device::swap_buffers();
 }
 
@@ -120,9 +120,6 @@ using namespace xs::device::internal;
 
     [_renderer mtkView:_view drawableSizeWillChange:_view.bounds.size];
     
-    // CGFloat w = configuration::width();
-    // GLfloat h = configuration::height();
-
     _view.delegate = _renderer;
     
     log::initialize();
@@ -130,11 +127,8 @@ using namespace xs::device::internal;
     fileio::initialize();
     data::initialize();
     script::configure();
-    
     device::initialize();
-    
     // [_view setFrameSize:{1200, 200}];
-    
     render::initialize();
     input::initialize();
     //audio::initialize();
@@ -155,6 +149,13 @@ void device::initialize()
 
 void device::shutdown()
 {
+    script::shutdown();
+    inspector::shutdown();
+    audio::shutdown();
+    input::shutdown();
+    render::shutdown();
+    data::shutdown();
+    account::shutdown();
 }
 
 void device::swap_buffers()
