@@ -27,6 +27,8 @@ namespace xs::render::internal
 {
     id<MTLDevice> _device;
 
+    //id<MTLRenderPipelineState> _pipelineStateDescriptor;
+
     // The render pipeline generated from the vertex and fragment shaders in the .metal shader file.
     id<MTLRenderPipelineState> _pipelineState;
 
@@ -35,6 +37,15 @@ namespace xs::render::internal
 
     // The current size of the view, used as an input to the vertex shader.
     vector_uint2 _viewportSize;
+
+    // Texture to render to and then sample from.
+    id<MTLTexture> _renderTargetTexture;
+
+    // Render pass descriptor to draw to the texture
+    MTLRenderPassDescriptor* _renderToTextureRenderPassDescriptor;
+
+    // A pipeline object to render to the offscreen texture.
+    id<MTLRenderPipelineState> _renderToTextureRenderPipeline;
 
     MTLRenderPipelineDescriptor* _pipelineStateDescriptor;
 
@@ -45,6 +56,9 @@ namespace xs::render::internal
     MTLRenderPassDescriptor* imgui_render_pass_sescriptor = nullptr;
     id<MTLCommandBuffer> imgui_command_buffer;
     id<MTLRenderCommandEncoder> imgui_command_encoder;
+
+
+    void render_to_view();
 }
 
 void xs::render::initialize()
@@ -55,8 +69,8 @@ void xs::render::initialize()
     _device = view.device;
     
     // Save the size of the drawable to pass to the vertex shader.
-    _viewportSize.x = device::get_width();
-    _viewportSize.y = device::get_height();
+    _viewportSize.x = configuration::width();
+    _viewportSize.y = configuration::height();
     
     // Load all the shader files with a .metal file extension in the project.
     id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
@@ -64,19 +78,65 @@ void xs::render::initialize()
     id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertex_shader"];
     id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragment_shader"];
     
-    _pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-    _pipelineStateDescriptor.label = @"xs sprite pipeline";
-    _pipelineStateDescriptor.vertexFunction = vertexFunction;
-    _pipelineStateDescriptor.fragmentFunction = fragmentFunction;
-    _pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
+    // Render to texture
+    {
+        NSError *error;
+        // Set up a texture for rendering to and sampling from
+        MTLTextureDescriptor *texDescriptor = [MTLTextureDescriptor new];
+        texDescriptor.textureType = MTLTextureType2D;
+        texDescriptor.width = device::get_width();
+        texDescriptor.height = device::get_height();
+        texDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
+        texDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+        
+        _renderTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
+
+        // Set up a render pass descriptor for the render pass to render into
+        // _renderTargetTexture.
+
+        _renderToTextureRenderPassDescriptor = [MTLRenderPassDescriptor new];
+        _renderToTextureRenderPassDescriptor.colorAttachments[0].texture = _renderTargetTexture;
+        _renderToTextureRenderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+        _renderToTextureRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1);
+        _renderToTextureRenderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+        
+        MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+        pipelineStateDescriptor.label = @"xs render to texture pipeline";
+        pipelineStateDescriptor.rasterSampleCount = 1;
+        pipelineStateDescriptor.vertexFunction = vertexFunction;
+        pipelineStateDescriptor.fragmentFunction = fragmentFunction;
+        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _renderTargetTexture.pixelFormat;
+        pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
+        pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+        pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        
+        _renderToTextureRenderPipeline = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
+        assert(_renderToTextureRenderPipeline);
+    }
     
+    // Render to view
+    {
+        _pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+        _pipelineStateDescriptor.label = @"xs sprite pipeline";
+        _pipelineStateDescriptor.vertexFunction = vertexFunction;
+        _pipelineStateDescriptor.fragmentFunction = fragmentFunction;
+        _pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
+
+    }
+    
+    
+    /*
     MTLRenderPipelineColorAttachmentDescriptor *rb_attachment = _pipelineStateDescriptor.colorAttachments[0];
     rb_attachment.blendingEnabled = YES;
     rb_attachment.rgbBlendOperation = MTLBlendOperationAdd;
     rb_attachment.alphaBlendOperation = MTLBlendOperationAdd;
     rb_attachment.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     rb_attachment.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+     */
 
+    /*
     _pipelineState = [_device newRenderPipelineStateWithDescriptor:_pipelineStateDescriptor error:&error];
     
     // Pipeline State creation could fail if the pipeline descriptor isn't set up properly.
@@ -84,6 +144,7 @@ void xs::render::initialize()
     //  went wrong.  (Metal API validation is enabled by default when a debug build is run
     //  from Xcode.)
     assert(_pipelineState);
+    */
 
     // Create the command queue
     _commandQueue = [_device newCommandQueue];
@@ -118,22 +179,12 @@ void xs::render::render()
     id<MTLCommandBuffer> command_buffer = [_commandQueue commandBuffer];
     command_buffer.label = @"xs command buffer";
     
-    // Obtain a renderPassDescriptor generated from the view's drawable textures.
-    MTLRenderPassDescriptor *render_pass_descriptor = view.currentRenderPassDescriptor;
-
-    if(render_pass_descriptor == nil)
-        return;
     
-    // Create a render command encoder.
     id<MTLRenderCommandEncoder> render_encoder =
-    [command_buffer renderCommandEncoderWithDescriptor:render_pass_descriptor];
-    render_encoder.label = @"xs render encoder";
-
-    // Set the region of the drawable to draw into.
-    [render_encoder setViewport:(MTLViewport){0, 0, static_cast<double>(_viewportSize.x), static_cast<double>(_viewportSize.y), 0.0, 1.0 }];
+            [command_buffer renderCommandEncoderWithDescriptor:_renderToTextureRenderPassDescriptor];
+    render_encoder.label = @"Offscreen Render Pass";
+    [render_encoder setRenderPipelineState:_renderToTextureRenderPipeline];
     
-    [render_encoder setRenderPipelineState:_pipelineState];
-
     int count = 0;
     for (auto i = 0; i < sprite_queue.size(); i++)
     {
@@ -233,43 +284,32 @@ void xs::render::render()
         }
     }
     
+    sprite_queue.clear();
+    
     [render_encoder endEncoding];
+    
+    
 
     // Schedule a present once the framebuffer is complete using the current drawable.
     [command_buffer presentDrawable:view.currentDrawable];
 
     // Finalize rendering here & push the command buffer to the GPU.
     [command_buffer commit];
-
-    sprite_queue.clear();
 }
 
-void xs::render::clear()
-{
-}
+void xs::render::clear() {}
 
-void xs::render::begin(primitive p)
-{
-}
+void xs::render::begin(primitive p) {}
 
-void xs::render::vertex(double x, double y)
-{
-}
+void xs::render::vertex(double x, double y) {}
 
-void xs::render::end()
-{
-}
+void xs::render::end() {}
 
-void xs::render::set_color(double r, double g, double b, double a)
-{
-}
+void xs::render::set_color(double r, double g, double b, double a) {}
 
-void xs::render::set_color(color c)
-{
-}
+void xs::render::set_color(color c) {}
 
-void xs::render::line(double x0, double y0, double x1, double y1)
-{}
+void xs::render::line(double x0, double y0, double x1, double y1) {}
 
 void xs::render::text(const std::string& text, double x, double y, double size)
 {}
@@ -283,6 +323,8 @@ void xs::render::internal::create_texture_with_data(
     //texture_descriptor.pixelFormat = MTLPixelFormatRGBA8; // 0-255 RGBA
     texture_descriptor.width = img.width;
     texture_descriptor.height= img.height;
+    texture_descriptor.usage = MTLTextureUsageShaderRead;
+    texture_descriptor.storageMode = MTLStorageModeShared;
     img.texture = [_device newTextureWithDescriptor:texture_descriptor];
     
     MTLRegion region = {
@@ -297,6 +339,7 @@ void xs::render::internal::create_texture_with_data(
      bytesPerRow:texture_descriptor.width * 4];
 }
 
+/*
 void xs::render::internal::imgui_init()
 {
     auto osx = ImGui_ImplOSX_Init(xs::device::get_view());
@@ -304,15 +347,17 @@ void xs::render::internal::imgui_init()
     assert(osx);
     assert(metal);
 }
+ */
 
+/*
 void xs::render::internal::imgui_shutdown()
 {
-    /*
     ImGui_ImplMetal_Shutdown();
     ImGui_ImplOSX_Shutdown();
-     */
 }
+*/
 
+/*
 void xs::render::internal::imgui_new_frame()
 {
     MTKView* view = device::get_view();
@@ -326,30 +371,31 @@ void xs::render::internal::imgui_new_frame()
     imgui_render_pass_sescriptor = view.currentRenderPassDescriptor;
     ImGui_ImplMetal_NewFrame(imgui_render_pass_sescriptor);
 }
+ */
 
-void xs::render::internal::imgui_render(ImDrawData* data)
-{
-    /*
-    MTKView* view = device::get_view();
-    
-    // Create a render command encoder.
-    id<MTLRenderCommandEncoder> render_encoder =
-    [imgui_command_buffer renderCommandEncoderWithDescriptor:imgui_render_pass_sescriptor];
-    render_encoder.label = @"imgui render encoder";
-    
-    // Set the region of the drawable to draw into.
-    [render_encoder setViewport:(MTLViewport){0, 0, static_cast<double>(_viewportSize.x), static_cast<double>(_viewportSize.y), 0.0, 1.0 }];
-    
-    [render_encoder setRenderPipelineState:_pipelineState];
-    
-    ImGui_ImplMetal_RenderDrawData(data, imgui_command_buffer, render_encoder);
-    
-    [render_encoder endEncoding];
-
-    // Schedule a present once the framebuffer is complete using the current drawable.
-    [imgui_command_buffer presentDrawable:view.currentDrawable];
-
-    // Finalize rendering here & push the command buffer to the GPU.
-    [imgui_command_buffer commit];
-     */
-}
+/*
+ void xs::render::internal::imgui_render(ImDrawData* data)
+ {
+ MTKView* view = device::get_view();
+ 
+ // Create a render command encoder.
+ id<MTLRenderCommandEncoder> render_encoder =
+ [imgui_command_buffer renderCommandEncoderWithDescriptor:imgui_render_pass_sescriptor];
+ render_encoder.label = @"imgui render encoder";
+ 
+ // Set the region of the drawable to draw into.
+ [render_encoder setViewport:(MTLViewport){0, 0, static_cast<double>(_viewportSize.x), static_cast<double>(_viewportSize.y), 0.0, 1.0 }];
+ 
+ [render_encoder setRenderPipelineState:_pipelineState];
+ 
+ ImGui_ImplMetal_RenderDrawData(data, imgui_command_buffer, render_encoder);
+ 
+ [render_encoder endEncoding];
+ 
+ // Schedule a present once the framebuffer is complete using the current drawable.
+ [imgui_command_buffer presentDrawable:view.currentDrawable];
+ 
+ // Finalize rendering here & push the command buffer to the GPU.
+ [imgui_command_buffer commit];
+ }
+ */

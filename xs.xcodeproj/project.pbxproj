@@ -54,9 +54,6 @@
 		346E74072A4A29D5006ECAD5 /* data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73912A4A29D5006ECAD5 /* data.cpp */; };
 		346E74082A4A29D5006ECAD5 /* data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73912A4A29D5006ECAD5 /* data.cpp */; };
 		346E74092A4A29D5006ECAD5 /* data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73912A4A29D5006ECAD5 /* data.cpp */; };
-		346E740D2A4A29D5006ECAD5 /* inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73932A4A29D5006ECAD5 /* inspector.cpp */; };
-		346E740E2A4A29D5006ECAD5 /* inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73932A4A29D5006ECAD5 /* inspector.cpp */; };
-		346E740F2A4A29D5006ECAD5 /* inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73932A4A29D5006ECAD5 /* inspector.cpp */; };
 		346E74102A4A29D5006ECAD5 /* configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73942A4A29D5006ECAD5 /* configuration.cpp */; };
 		346E74112A4A29D5006ECAD5 /* configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73942A4A29D5006ECAD5 /* configuration.cpp */; };
 		346E74122A4A29D5006ECAD5 /* configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73942A4A29D5006ECAD5 /* configuration.cpp */; };
@@ -2156,7 +2153,6 @@
 				3474D63A2B14DFC000441451 /* imgui_draw.cpp in Sources */,
 				3474D62B2B14DFC000441451 /* imgui_impl_osx.mm in Sources */,
 				346E74132A4A29D5006ECAD5 /* tools.cpp in Sources */,
-				346E740D2A4A29D5006ECAD5 /* inspector.cpp in Sources */,
 				3474D6372B14DFC000441451 /* imgui_demo.cpp in Sources */,
 				346184202A78525C0014B43C /* shaders.metal in Sources */,
 				346E73E02A4A29D5006ECAD5 /* profiler.cpp in Sources */,
@@ -2199,7 +2195,6 @@
 				34EB6F702A4C6EEA00DA6B15 /* wren_core.c in Sources */,
 				34EB6F6F2A4C6EEA00DA6B15 /* wren_utils.c in Sources */,
 				346E74142A4A29D5006ECAD5 /* tools.cpp in Sources */,
-				346E740E2A4A29D5006ECAD5 /* inspector.cpp in Sources */,
 				3474D62C2B14DFC000441451 /* imgui_impl_osx.mm in Sources */,
 				346E73E12A4A29D5006ECAD5 /* profiler.cpp in Sources */,
 				346E73DE2A4A29D5006ECAD5 /* log.cpp in Sources */,
@@ -2242,7 +2237,6 @@
 				346E73E52A4A29D5006ECAD5 /* script.cpp in Sources */,
 				346E74152A4A29D5006ECAD5 /* tools.cpp in Sources */,
 				34EB6F612A4C6ED600DA6B15 /* wren_opt_meta.c in Sources */,
-				346E740F2A4A29D5006ECAD5 /* inspector.cpp in Sources */,
 				3474D63C2B14DFC000441451 /* imgui_draw.cpp in Sources */,
 				3474D62D2B14DFC000441451 /* imgui_impl_osx.mm in Sources */,
 				34EB6F9A2A4C721B00DA6B15 /* input_apple.mm in Sources */,

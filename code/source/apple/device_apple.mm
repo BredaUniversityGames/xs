@@ -85,7 +85,7 @@ using namespace xs::device::internal;
     script::update(dt);
     script::render();
     render::render();
-    inspector::render(float(dt));
+    // inspector::render(float(dt));
     device::swap_buffers();
 }
 
@@ -131,8 +131,8 @@ using namespace xs::device::internal;
     // [_view setFrameSize:{1200, 200}];
     render::initialize();
     input::initialize();
-    //audio::initialize();
-    inspector::initialize();
+    // audio::initialize();
+    // inspector::initialize();
     script::initialize();
 }
 
@@ -150,7 +150,7 @@ void device::initialize()
 void device::shutdown()
 {
     script::shutdown();
-    inspector::shutdown();
+    // inspector::shutdown();
     audio::shutdown();
     input::shutdown();
     render::shutdown();
