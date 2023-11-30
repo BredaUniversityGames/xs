@@ -172,6 +172,12 @@ void xs::device::initialize()
 		NN_ASSERT(false);
 	}
 
+	if (eglResult == EGL_FALSE)
+	{
+		xs::log::error("Failed to initialize EGL");
+		xs::device::shutdown();
+	}
+
 	logOpenGLVersionInfo();
 	
 #if defined(DEBUG)	
@@ -189,6 +195,9 @@ void xs::device::shutdown()
 	NN_ASSERT(eglResult, "eglTerminate failed.");
 	eglResult = ::eglReleaseThread();
 	NN_ASSERT(eglResult, "eglReleaseThread failed.");
+
+	if (eglResult == EGL_FALSE)
+		xs::log::error("Failed to terminate EGL");
 
 	nn::vi::DestroyLayer(layer);
 	nn::vi::CloseDisplay(nnDisplay);

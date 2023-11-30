@@ -12,9 +12,21 @@
 #include "device.h"
 #include "profiler.h"
 
-// Include STB
+// Include stb_image 
+#ifdef PLATFORM_SWITCH
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#pragma clang diagnostic pop
+#else
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+#endif
+
+// Include stb_truetype
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb/stb_truetype.h>
 #ifdef PLATFORM_SWITCH

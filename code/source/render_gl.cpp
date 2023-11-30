@@ -7,6 +7,20 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <stb/stb_image.h>
+
+// Include stb_image 
+#ifdef PLATFORM_SWITCH
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#include <stb/stb_image.h>
+#pragma clang diagnostic pop
+#else
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+#endif
+
 #ifdef PLATFORM_SWITCH
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wunused-function"
@@ -15,7 +29,6 @@
 #else
 	#include <stb/stb_easy_font.h>
 	#include <filesystem>
-	//#include <time>
 #endif
 
 #include "configuration.h"

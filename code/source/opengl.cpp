@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include <log.h>
 
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWTICH)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
 
 static void APIENTRY debug_callback_func(
 	GLenum source,
