@@ -261,7 +261,7 @@ void xs::input::update(double dt)
 			nn::hid::NpadStyleSet style = nn::hid::GetNpadStyleSet(joy);
 			if (style.Test<nn::hid::NpadStyleJoyLeft>())
 			{
-				connected++;
+				// connected++;
 				FillJoystickState(state, leftState.buttons, gamepadMapping_leftJoycon);
 				state.Axes[xs::input::gamepad_axis::STICK_LEFT_X] = -NormalizeStickInput(leftState.analogStickL.y);
 				state.Axes[xs::input::gamepad_axis::STICK_LEFT_Y] = -NormalizeStickInput(leftState.analogStickL.x);
@@ -385,6 +385,9 @@ void xs::input::update(double dt)
 	_touches_gameCoordinates.resize(_touchScreenState.count);
 	for (auto i = 0; i < _touchScreenState.count; ++i)
 		xs::configuration::scale_to_game(_touchScreenState.touches[i].x, _touchScreenState.touches[i].y, internal::touchScreenToGame, _touches_gameCoordinates[i].first, _touches_gameCoordinates[i].second);
+
+	if (connected == 0)
+		xs::log::warn("No controllers connected!");
 	
 	// Check if there are any new controllers this frame
 	//AddJoystick(nn::hid::NpadId::No1);
