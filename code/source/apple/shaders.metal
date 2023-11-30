@@ -5,6 +5,10 @@ using namespace metal;
 
 #import "shader_types.h"
 
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Sprite rendering
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct vertex_to_fragment
 {
     vec4 position [[position]];
@@ -45,4 +49,37 @@ fragment float4 fragment_shader(
     //f_sample.a = pow(f_sample.a, 1.0 / 2.2);
 
     return float4(f_sample);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// Render to screen
+////////////////////////////////////////////////////////////////////////////////////////////////////
+struct screen_to_fragment
+{
+    vec4 position [[position]];
+    vec2 texture;
+};
+
+vertex screen_to_fragment vertex_shader_screen(
+    uint vertexID [[vertex_id]],
+    constant screen_vtx_format* vertices [[buffer(index_vertices)]])
+{
+    screen_to_fragment stf;
+    stf.position = float4(0.0, 0.0, 0.0, 1.0);
+    stf.position.x = vertices[vertexID].position.x;
+    stf.position.y = vertices[vertexID].position.y;
+    stf.texture = vertices[vertexID].texcoord;
+    return stf;
+}
+
+fragment float4 fragment_shader_screen(
+    screen_to_fragment stf [[stage_in]],
+    texture2d<float> sprite_texture [[texture(index_sprite_texture)]])
+{
+    constexpr sampler sprite_sampler (mag_filter::nearest,
+                                      min_filter::nearest,
+                                      address::clamp_to_edge,
+                                      coord::normalized);
+    const float4 sprite_sample = sprite_texture.sample(sprite_sampler, stf.texture);
+    return sprite_sample;
 }
