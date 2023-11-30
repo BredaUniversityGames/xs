@@ -75,24 +75,25 @@ void xs::render::initialize()
     // Load all the shader files with a .metal file extension in the project.
     id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
 
-    id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertex_shader"];
-    id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragment_shader"];
+    
     
     // Render to texture
     {
         NSError *error;
+        
+        id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertex_shader"];
+        id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragment_shader"];
+        
         // Set up a texture for rendering to and sampling from
         MTLTextureDescriptor *texDescriptor = [MTLTextureDescriptor new];
         texDescriptor.textureType = MTLTextureType2D;
-        texDescriptor.width = device::get_width();
-        texDescriptor.height = device::get_height();
+        texDescriptor.width = configuration::width();
+        texDescriptor.height = configuration::height();
         texDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
         texDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
         
         _renderTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
-
-        // Set up a render pass descriptor for the render pass to render into
-        // _renderTargetTexture.
+        assert(_renderTargetTexture);
 
         _renderToTextureRenderPassDescriptor = [MTLRenderPassDescriptor new];
         _renderToTextureRenderPassDescriptor.colorAttachments[0].texture = _renderTargetTexture;
@@ -110,7 +111,11 @@ void xs::render::initialize()
         pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
         pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
         pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        
+        pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        
+        
+        // pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
         
         _renderToTextureRenderPipeline = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
         assert(_renderToTextureRenderPipeline);
@@ -118,34 +123,19 @@ void xs::render::initialize()
     
     // Render to view
     {
+        id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertex_shader_screen"];
+        id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragment_shader_screen"];
+
         _pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-        _pipelineStateDescriptor.label = @"xs sprite pipeline";
+        _pipelineStateDescriptor.label = @"xs render to screen pipeline";
         _pipelineStateDescriptor.vertexFunction = vertexFunction;
         _pipelineStateDescriptor.fragmentFunction = fragmentFunction;
         _pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
-
+        
+        _pipelineState = [_device newRenderPipelineStateWithDescriptor:_pipelineStateDescriptor error:&error];
+        assert(_pipelineState);
     }
     
-    
-    /*
-    MTLRenderPipelineColorAttachmentDescriptor *rb_attachment = _pipelineStateDescriptor.colorAttachments[0];
-    rb_attachment.blendingEnabled = YES;
-    rb_attachment.rgbBlendOperation = MTLBlendOperationAdd;
-    rb_attachment.alphaBlendOperation = MTLBlendOperationAdd;
-    rb_attachment.destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-    rb_attachment.destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-     */
-
-    /*
-    _pipelineState = [_device newRenderPipelineStateWithDescriptor:_pipelineStateDescriptor error:&error];
-    
-    // Pipeline State creation could fail if the pipeline descriptor isn't set up properly.
-    //  If the Metal API validation is enabled, you can find out more information about what
-    //  went wrong.  (Metal API validation is enabled by default when a debug build is run
-    //  from Xcode.)
-    assert(_pipelineState);
-    */
-
     // Create the command queue
     _commandQueue = [_device newCommandQueue];
 }
@@ -167,8 +157,6 @@ void xs::render::render()
     glm::mat4 v = glm::lookAt(vec3(0.0f, 0.0f, 100.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 vp = p * v;
     
-    // TODO: Enable alpha blending
-    
     // Sort by depth
     std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
         [](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
@@ -182,7 +170,7 @@ void xs::render::render()
     
     id<MTLRenderCommandEncoder> render_encoder =
             [command_buffer renderCommandEncoderWithDescriptor:_renderToTextureRenderPassDescriptor];
-    render_encoder.label = @"Offscreen Render Pass";
+    render_encoder.label = @"xs offscreen render pass";
     [render_encoder setRenderPipelineState:_renderToTextureRenderPipeline];
     
     int count = 0;
@@ -288,7 +276,43 @@ void xs::render::render()
     
     [render_encoder endEncoding];
     
-    
+    {
+        
+        MTLRenderPassDescriptor *drawableRenderPassDescriptor = view.currentRenderPassDescriptor;
+        if(drawableRenderPassDescriptor != nil)
+        {
+            static const screen_vtx_format quadVertices[] =
+            {
+                // Positions     , Texture coordinates
+                { {  1.0,  -1.0 },  { 1.0, 1.0 } },
+                { { -1.0,  -1.0 },  { 0.0, 1.0 } },
+                { { -1.0,   1.0 },  { 0.0, 0.0 } },
+
+                { {  1.0,  -1.0 },  { 1.0, 1.0 } },
+                { { -1.0,   1.0 },  { 0.0, 0.0 } },
+                { {  1.0,   1.0 },  { 1.0, 0.0 } },
+            };
+            id<MTLRenderCommandEncoder> renderEncoder =
+                [command_buffer renderCommandEncoderWithDescriptor:drawableRenderPassDescriptor];
+            renderEncoder.label = @"xs to screen render pass";
+
+            [renderEncoder setRenderPipelineState:_pipelineState];
+
+            [renderEncoder setVertexBytes:&quadVertices
+                                   length:sizeof(quadVertices)
+                                  atIndex:index_vertices];
+
+            // Set the offscreen texture as the source texture.
+            [renderEncoder setFragmentTexture:_renderTargetTexture atIndex:index_sprite_texture];
+
+            // Draw quad with rendered texture.
+            [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
+                              vertexStart:0
+                              vertexCount:6];
+
+            [renderEncoder endEncoding];
+        }
+    }    
 
     // Schedule a present once the framebuffer is complete using the current drawable.
     [command_buffer presentDrawable:view.currentDrawable];
