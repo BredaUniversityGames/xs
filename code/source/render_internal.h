@@ -72,11 +72,6 @@ namespace xs::render::internal
     inline void rotate_vector3d(glm::vec4& vec, float radians);
 	inline void rotate_vector2d(glm::vec2& vec, float radians);
 	void create_texture_with_data(xs::render::internal::image& img, uchar* data);
-
-    void imgui_init();
-    void imgui_shutdown();
-    void imgui_new_frame();
-    void imgui_render(ImDrawData* data);
 }
 
 inline void xs::render::internal::rotate_vector3d(glm::vec3& vec, float radians)
