@@ -1,27 +1,25 @@
 #include "render.h"
+#include "render_appple.h"
 #include "render_internal.h"
 #include "configuration.h"
 #include "profiler.h"
 #include "device_apple.h"
 #include "device.h"
 #include "tools.h"
-#include "imgui/imgui_impl_osx.h"
-#include "imgui/imgui_impl_metal.h"
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #import <MetalKit/MetalKit.h>
-
 #import <simd/simd.h>
 #import <ModelIO/ModelIO.h>
 #import "shader_types.h"
 
-using namespace xs;
-using namespace xs::render::internal;
 using namespace glm;
 using namespace std;
+using namespace xs;
+using namespace xs::render::internal;
 
 namespace xs::render::internal
 {
@@ -33,7 +31,7 @@ namespace xs::render::internal
     id<MTLRenderPipelineState> _pipelineState;
 
     // The command queue used to pass commands to the device.
-    id<MTLCommandQueue> _commandQueue;
+    // id<MTLCommandQueue> _commandQueue;
 
     // The current size of the view, used as an input to the vertex shader.
     vector_uint2 _viewportSize;
@@ -53,10 +51,9 @@ namespace xs::render::internal
     int                      sprite_trigs_count = 0;
     sprite_vtx_format        sprite_trigs_array[sprite_trigs_max * 3];
 
-    MTLRenderPassDescriptor* imgui_render_pass_sescriptor = nullptr;
-    id<MTLCommandBuffer> imgui_command_buffer;
-    id<MTLRenderCommandEncoder> imgui_command_encoder;
-
+    // MTLRenderPassDescriptor* imgui_render_pass_sescriptor = nullptr;
+    // id<MTLCommandBuffer> imgui_command_buffer;
+    // id<MTLRenderCommandEncoder> imgui_command_encoder;
 
     void render_to_view();
 }
@@ -65,7 +62,7 @@ void xs::render::initialize()
 {
     NSError *error;
     
-    MTKView* view = device::get_view();
+    MTKView* view = device::internal::get_view();
     _device = view.device;
     
     // Save the size of the drawable to pass to the vertex shader.
@@ -75,8 +72,6 @@ void xs::render::initialize()
     // Load all the shader files with a .metal file extension in the project.
     id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
 
-    
-    
     // Render to texture
     {
         NSError *error;
@@ -111,8 +106,17 @@ void xs::render::initialize()
         pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
         pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
         pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        
         pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        
+        /*
+         descriptor.colorAttachments[0].blendingEnabled = YES;
+         descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+         descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+         descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+         descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
+         descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
+         descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOne;
+         */
         
         
         // pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
@@ -135,21 +139,18 @@ void xs::render::initialize()
         _pipelineState = [_device newRenderPipelineStateWithDescriptor:_pipelineStateDescriptor error:&error];
         assert(_pipelineState);
     }
-    
-    // Create the command queue
-    _commandQueue = [_device newCommandQueue];
 }
 
 void xs::render::shutdown()
 {
-    ImGui_ImplMetal_Shutdown();
+    // ImGui_ImplMetal_Shutdown();
 }
 
 void xs::render::render()
 {
     XS_PROFILE_SECTION("xs::render::render");
         
-    MTKView* view = device::get_view();
+    MTKView* view = device::internal::get_view();
 
     auto w = device::get_width() / 4.0f;
     auto h = device::get_height() / 4.0f;
@@ -164,9 +165,7 @@ void xs::render::render()
         });
     
     // Create a new command buffer for each render pass to the current drawable.
-    id<MTLCommandBuffer> command_buffer = [_commandQueue commandBuffer];
-    command_buffer.label = @"xs command buffer";
-    
+    id<MTLCommandBuffer> command_buffer = device::internal::get_command_buffer();
     
     id<MTLRenderCommandEncoder> render_encoder =
             [command_buffer renderCommandEncoderWithDescriptor:_renderToTextureRenderPassDescriptor];
@@ -273,52 +272,46 @@ void xs::render::render()
     }
     
     sprite_queue.clear();
-    
     [render_encoder endEncoding];
+}
+
+void xs::render::composite()
+{
+    MTKView* view = device::internal::get_view();
     
+    MTLRenderPassDescriptor *drawableRenderPassDescriptor = view.currentRenderPassDescriptor;
+    if(drawableRenderPassDescriptor != nil)
     {
-        
-        MTLRenderPassDescriptor *drawableRenderPassDescriptor = view.currentRenderPassDescriptor;
-        if(drawableRenderPassDescriptor != nil)
+        static const screen_vtx_format quadVertices[] =
         {
-            static const screen_vtx_format quadVertices[] =
-            {
-                // Positions     , Texture coordinates
-                { {  1.0,  -1.0 },  { 1.0, 1.0 } },
-                { { -1.0,  -1.0 },  { 0.0, 1.0 } },
-                { { -1.0,   1.0 },  { 0.0, 0.0 } },
-
-                { {  1.0,  -1.0 },  { 1.0, 1.0 } },
-                { { -1.0,   1.0 },  { 0.0, 0.0 } },
-                { {  1.0,   1.0 },  { 1.0, 0.0 } },
-            };
-            id<MTLRenderCommandEncoder> renderEncoder =
-                [command_buffer renderCommandEncoderWithDescriptor:drawableRenderPassDescriptor];
-            renderEncoder.label = @"xs to screen render pass";
-
-            [renderEncoder setRenderPipelineState:_pipelineState];
-
-            [renderEncoder setVertexBytes:&quadVertices
-                                   length:sizeof(quadVertices)
-                                  atIndex:index_vertices];
-
-            // Set the offscreen texture as the source texture.
-            [renderEncoder setFragmentTexture:_renderTargetTexture atIndex:index_sprite_texture];
-
-            // Draw quad with rendered texture.
-            [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
-                              vertexStart:0
-                              vertexCount:6];
-
-            [renderEncoder endEncoding];
-        }
-    }    
-
-    // Schedule a present once the framebuffer is complete using the current drawable.
-    [command_buffer presentDrawable:view.currentDrawable];
-
-    // Finalize rendering here & push the command buffer to the GPU.
-    [command_buffer commit];
+            // Positions     , Texture coordinates
+            { {  1.0,  -1.0 },  { 1.0, 1.0 } },
+            { { -1.0,  -1.0 },  { 0.0, 1.0 } },
+            { { -1.0,   1.0 },  { 0.0, 0.0 } },
+            
+            { {  1.0,  -1.0 },  { 1.0, 1.0 } },
+            { { -1.0,   1.0 },  { 0.0, 0.0 } },
+            { {  1.0,   1.0 },  { 1.0, 0.0 } },
+        };
+        
+        id<MTLRenderCommandEncoder> renderEncoder = device::internal::get_render_encoder();
+        
+        [renderEncoder setRenderPipelineState:_pipelineState];
+        
+        [renderEncoder setVertexBytes:&quadVertices
+                               length:sizeof(quadVertices)
+                              atIndex:index_vertices];
+        
+        // Set the offscreen texture as the source texture.
+        [renderEncoder setFragmentTexture:_renderTargetTexture atIndex:index_sprite_texture];
+        
+        // Draw quad with rendered texture.
+        [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
+                          vertexStart:0
+                          vertexCount:6];
+        
+        // End encoding will be called by the device on the "default" encoder
+    }
 }
 
 void xs::render::clear() {}
@@ -343,8 +336,8 @@ void xs::render::internal::create_texture_with_data(
     uchar* data)
 {
     MTLTextureDescriptor* texture_descriptor = [[MTLTextureDescriptor alloc] init];
-    texture_descriptor.pixelFormat = MTLPixelFormatRGBA8Uint; // 0-255 RGBA
-    //texture_descriptor.pixelFormat = MTLPixelFormatRGBA8; // 0-255 RGBA
+    texture_descriptor.pixelFormat = MTLPixelFormatRGBA8Uint;   // 0-255 RGBA
+    //texture_descriptor.pixelFormat = MTLPixelFormatRGBA8;     // 0-255 RGBA
     texture_descriptor.width = img.width;
     texture_descriptor.height= img.height;
     texture_descriptor.usage = MTLTextureUsageShaderRead;
@@ -362,64 +355,3 @@ void xs::render::internal::create_texture_with_data(
      withBytes:data
      bytesPerRow:texture_descriptor.width * 4];
 }
-
-/*
-void xs::render::internal::imgui_init()
-{
-    auto osx = ImGui_ImplOSX_Init(xs::device::get_view());
-    auto metal = ImGui_ImplMetal_Init(_device);
-    assert(osx);
-    assert(metal);
-}
- */
-
-/*
-void xs::render::internal::imgui_shutdown()
-{
-    ImGui_ImplMetal_Shutdown();
-    ImGui_ImplOSX_Shutdown();
-}
-*/
-
-/*
-void xs::render::internal::imgui_new_frame()
-{
-    MTKView* view = device::get_view();
-    ImGui_ImplOSX_NewFrame(xs::device::get_view());
-    
-    // Create a new command buffer for each render pass to the current drawable.
-    imgui_command_buffer = [_commandQueue commandBuffer];
-    imgui_command_buffer.label = @"imgui command buffer";
-    
-    // Obtain a renderPassDescriptor generated from the view's drawable textures.
-    imgui_render_pass_sescriptor = view.currentRenderPassDescriptor;
-    ImGui_ImplMetal_NewFrame(imgui_render_pass_sescriptor);
-}
- */
-
-/*
- void xs::render::internal::imgui_render(ImDrawData* data)
- {
- MTKView* view = device::get_view();
- 
- // Create a render command encoder.
- id<MTLRenderCommandEncoder> render_encoder =
- [imgui_command_buffer renderCommandEncoderWithDescriptor:imgui_render_pass_sescriptor];
- render_encoder.label = @"imgui render encoder";
- 
- // Set the region of the drawable to draw into.
- [render_encoder setViewport:(MTLViewport){0, 0, static_cast<double>(_viewportSize.x), static_cast<double>(_viewportSize.y), 0.0, 1.0 }];
- 
- [render_encoder setRenderPipelineState:_pipelineState];
- 
- ImGui_ImplMetal_RenderDrawData(data, imgui_command_buffer, render_encoder);
- 
- [render_encoder endEncoding];
- 
- // Schedule a present once the framebuffer is complete using the current drawable.
- [imgui_command_buffer presentDrawable:view.currentDrawable];
- 
- // Finalize rendering here & push the command buffer to the GPU.
- [imgui_command_buffer commit];
- }
- */

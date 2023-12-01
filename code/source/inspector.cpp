@@ -44,13 +44,8 @@ void xs::inspector::initialize()
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
 	ImPlot::CreateContext();
 #endif
-
-    xs::render::internal::imgui_init();
-    
-    
-	// ImGui_Impl_Init();
-	// ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
+    ImGui_Impl_Init();
+	
 #if defined(PLATFORM_PC)
 	float ys;
 	float xs;
@@ -100,10 +95,7 @@ void xs::inspector::initialize()
 
 void xs::inspector::shutdown()
 {
-	// ImGui_Impl_Shutdown();
-    
-    xs::render::internal::imgui_shutdown();
-    
+	ImGui_Impl_Shutdown();
 	ImGui::DestroyContext();
 }
 
@@ -121,15 +113,22 @@ void xs::inspector::render(float dt)
 {
 #ifdef PLATFORM_PS5
 	return;
-#endif // PLATFORM_PS5
+#endif
 	
-	// ImGui_Impl_NewFrame();
+	ImGui_Impl_NewFrame();
 	// ImGui::ShowDemoWindow();
     
-    xs::render::internal::imgui_new_frame();
     ImGui::NewFrame();
 
 	internal::ok_timer -= dt;
+    
+    // Assorted hacks
+    float top = 0.0f;
+    float width = xs::device::get_width();
+#ifdef PLATFORM_APPLE
+    top += 30.0f;
+    width /= 2.0f;
+#endif
 
 	if (xs::script::has_error() ||
 		internal::show_registry ||
@@ -146,11 +145,9 @@ void xs::inspector::render(float dt)
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoSavedSettings |
 			ImGuiWindowFlags_NoScrollWithMouse);
-		ImGui::SetWindowPos({ 0,0 });		
-		ImGui::SetWindowSize({(float)(xs::device::get_width()), -1 });
-
-		// double hue = 0.0;
-		// double dhue = 60.0;
+		ImGui::SetWindowPos({ 0, top });
+		ImGui::SetWindowSize({-1, -1 });
+        
 		ImGuiStyle& style = ImGui::GetStyle();
 		ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_WindowBg]);
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
@@ -164,8 +161,6 @@ void xs::inspector::render(float dt)
 		}		
 		Tooltip("Reload Game");		
 	
-		//chue += dhue;		
-
 		ImGui::SameLine();
 		if (internal::paused)
 		{
@@ -184,7 +179,6 @@ void xs::inspector::render(float dt)
 			Tooltip("Pause");
 		}		
 
-		// hue += dhue;
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_DATABASE))
 		{
@@ -195,7 +189,6 @@ void xs::inspector::render(float dt)
 
 		
 		ImGui::SameLine();
-		// hue += dhue;
 		if (ImGui::Button(ICON_FA_CHART_BAR))
 		{
 			internal::show_profiler = !internal::show_profiler;
@@ -203,7 +196,6 @@ void xs::inspector::render(float dt)
 		Tooltip("Profiler");
 
 		ImGui::SameLine();
-		// hue += dhue;
 		if (ImGui::Button(ICON_FA_IMAGES))
 		{
 			render::reload_images();	
@@ -211,9 +203,7 @@ void xs::inspector::render(float dt)
 		}
 		Tooltip("Reload Art");
 
-
 		ImGui::SameLine();
-		// hue += dhue;
 		if (ImGui::Button(ICON_FA_ADJUST))
 		{
 			internal::theme = !internal::theme;
@@ -284,11 +274,8 @@ void xs::inspector::render(float dt)
 	}
 
 
-	ImGui::Render();
-    auto data = ImGui::GetDrawData();
-    xs::render::internal::imgui_render(data);
-    
-	// ImGui_Impl_RenderDrawData(ImGui::GetDrawData());
+	ImGui::Render();    
+	ImGui_Impl_RenderDrawData(ImGui::GetDrawData());
 
 #if defined(PLATFORM_SWITCH)
 	// Commit updated content to the specified mount name
