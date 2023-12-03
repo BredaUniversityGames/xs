@@ -137,9 +137,11 @@ void device::initialize()
 {
     command_queue = [_view.device newCommandQueue];
     CGFloat w = configuration::width();
-    GLfloat h = configuration::height();
-    // [_view setBoundsSize:{w, h}];
-    // [_view setDrawableSize:{w, h}];
+    CGFloat h = configuration::height();
+    
+    //[_view setBoundsSize:{w, h}];
+    //[_view setDrawableSize:{w, h}];
+    
     [_view setFrameSize:{w, h}];
 }
 
