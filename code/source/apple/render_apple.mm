@@ -152,8 +152,8 @@ void xs::render::render()
         
     MTKView* view = device::internal::get_view();
 
-    auto w = device::get_width() / 4.0f;
-    auto h = device::get_height() / 4.0f;
+    auto w = configuration::width() * 0.5f;
+    auto h = configuration::height() * 0.5f;
     glm::mat4 p = glm::ortho(-w, w, -h, h, -100.0f, 100.0f);
     glm::mat4 v = glm::lookAt(vec3(0.0f, 0.0f, 100.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 vp = p * v;
@@ -282,16 +282,23 @@ void xs::render::composite()
     MTLRenderPassDescriptor *drawableRenderPassDescriptor = view.currentRenderPassDescriptor;
     if(drawableRenderPassDescriptor != nil)
     {
-        static const screen_vtx_format quadVertices[] =
+        const float dw = device::get_width();
+        const float dh = device::get_height();
+        const float cw = configuration::width();
+        const float ch = configuration::height();
+        const float aspect = (cw / ch) / (dw / dh);
+        const float w = aspect;
+        const float h = 1.0f;
+        const screen_vtx_format quadVertices[] =
         {
             // Positions     , Texture coordinates
-            { {  1.0,  -1.0 },  { 1.0, 1.0 } },
-            { { -1.0,  -1.0 },  { 0.0, 1.0 } },
-            { { -1.0,   1.0 },  { 0.0, 0.0 } },
+            { {  w,  -h },  { 1.0, 1.0 } },
+            { { -w,  -h },  { 0.0, 1.0 } },
+            { { -w,   h },  { 0.0, 0.0 } },
             
-            { {  1.0,  -1.0 },  { 1.0, 1.0 } },
-            { { -1.0,   1.0 },  { 0.0, 0.0 } },
-            { {  1.0,   1.0 },  { 1.0, 0.0 } },
+            { {  w,  -h },  { 1.0, 1.0 } },
+            { { -w,   h },  { 0.0, 0.0 } },
+            { {  w,   h },  { 1.0, 0.0 } },
         };
         
         id<MTLRenderCommandEncoder> renderEncoder = device::internal::get_render_encoder();

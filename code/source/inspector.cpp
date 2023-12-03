@@ -1,4 +1,6 @@
 #include "inspector.h"
+
+#ifdef INSPECTOR
 #include <imgui.h>
 #include <imgui_impl.h>
 #include <imgui_internal.h>
@@ -522,3 +524,12 @@ void xs::inspector::internal::go_gray()
 	style.TabRounding = 4;
 	style.FrameBorderSize = 0;
 }
+
+#else
+
+void xs::inspector::initialize() {}
+void xs::inspector::shutdown() {}
+void xs::inspector::render(float dt) {}
+bool xs::inspector::paused() { return false; }
+
+#endif

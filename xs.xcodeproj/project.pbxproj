@@ -18,6 +18,9 @@
 		3435D9F22A96924700335383 /* games in Resources */ = {isa = PBXBuildFile; fileRef = 3435D9F02A96924700335383 /* games */; };
 		3435D9F32A96924700335383 /* games in Resources */ = {isa = PBXBuildFile; fileRef = 3435D9F02A96924700335383 /* games */; };
 		344B22752B19016B004B1EA2 /* inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73932A4A29D5006ECAD5 /* inspector.cpp */; };
+		344B22792B1D15DD004B1EA2 /* inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73932A4A29D5006ECAD5 /* inspector.cpp */; };
+		344B227A2B1D15DE004B1EA2 /* inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73932A4A29D5006ECAD5 /* inspector.cpp */; };
+		344B227D2B1D174E004B1EA2 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 344B227C2B1D174E004B1EA2 /* GameController.framework */; };
 		346184202A78525C0014B43C /* shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3461841F2A78525C0014B43C /* shaders.metal */; };
 		346184212A78525C0014B43C /* shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3461841F2A78525C0014B43C /* shaders.metal */; };
 		346184222A78525C0014B43C /* shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3461841F2A78525C0014B43C /* shaders.metal */; };
@@ -88,20 +91,14 @@
 		3474D6132B14DFC000441451 /* implot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C62B14DFC000441451 /* implot.cpp */; };
 		3474D6142B14DFC000441451 /* implot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C62B14DFC000441451 /* implot.cpp */; };
 		3474D6152B14DFC000441451 /* implot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C62B14DFC000441451 /* implot.cpp */; };
-		3474D6162B14DFC000441451 /* imgui_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C72B14DFC000441451 /* imgui_impl.cpp */; };
-		3474D6172B14DFC000441451 /* imgui_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C72B14DFC000441451 /* imgui_impl.cpp */; };
 		3474D6182B14DFC000441451 /* imgui_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C72B14DFC000441451 /* imgui_impl.cpp */; };
 		3474D61C2B14DFC000441451 /* implot_items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5CD2B14DFC000441451 /* implot_items.cpp */; };
 		3474D61D2B14DFC000441451 /* implot_items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5CD2B14DFC000441451 /* implot_items.cpp */; };
 		3474D61E2B14DFC000441451 /* implot_items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5CD2B14DFC000441451 /* implot_items.cpp */; };
-		3474D61F2B14DFC000441451 /* imgui_impl_metal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5CF2B14DFC000441451 /* imgui_impl_metal.mm */; };
-		3474D6202B14DFC000441451 /* imgui_impl_metal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5CF2B14DFC000441451 /* imgui_impl_metal.mm */; };
 		3474D6212B14DFC000441451 /* imgui_impl_metal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5CF2B14DFC000441451 /* imgui_impl_metal.mm */; };
 		3474D6222B14DFC000441451 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5D02B14DFC000441451 /* imgui.cpp */; };
 		3474D6232B14DFC000441451 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5D02B14DFC000441451 /* imgui.cpp */; };
 		3474D6242B14DFC000441451 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5D02B14DFC000441451 /* imgui.cpp */; };
-		3474D62B2B14DFC000441451 /* imgui_impl_osx.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5D72B14DFC000441451 /* imgui_impl_osx.mm */; };
-		3474D62C2B14DFC000441451 /* imgui_impl_osx.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5D72B14DFC000441451 /* imgui_impl_osx.mm */; };
 		3474D62D2B14DFC000441451 /* imgui_impl_osx.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5D72B14DFC000441451 /* imgui_impl_osx.mm */; };
 		3474D62E2B14DFC000441451 /* imgui_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5D92B14DFC000441451 /* imgui_tables.cpp */; };
 		3474D62F2B14DFC000441451 /* imgui_tables.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5D92B14DFC000441451 /* imgui_tables.cpp */; };
@@ -159,6 +156,7 @@
 		3435D9EC2A968ADA00335383 /* fileio_apple.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = fileio_apple.mm; sourceTree = "<group>"; };
 		3435D9F02A96924700335383 /* games */ = {isa = PBXFileReference; lastKnownFileType = folder; path = games; sourceTree = "<group>"; };
 		344B22782B1A784D004B1EA2 /* render_appple.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = render_appple.h; path = code/source/apple/render_appple.h; sourceTree = SOURCE_ROOT; };
+		344B227C2B1D174E004B1EA2 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS17.0.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
 		3461841D2A784EBE0014B43C /* device_apple.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = device_apple.h; sourceTree = "<group>"; };
 		3461841E2A7852080014B43C /* shader_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shader_types.h; sourceTree = "<group>"; };
 		3461841F2A78525C0014B43C /* shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = shaders.metal; sourceTree = "<group>"; };
@@ -885,6 +883,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		344B227B2B1D1742004B1EA2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				344B227D2B1D174E004B1EA2 /* GameController.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		346EBFB32A49F33D00771230 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -910,6 +916,7 @@
 			isa = PBXGroup;
 			children = (
 				3474D63D2B14E91100441451 /* GameController.framework */,
+				344B227C2B1D174E004B1EA2 /* GameController.framework */,
 				34011A3A2A7DB16B00521FCD /* ModelIO.framework */,
 				34011A382A7DB12600521FCD /* Metal.framework */,
 				3461842C2A7868710014B43C /* MetalFX.framework */,
@@ -2009,6 +2016,7 @@
 			buildPhases = (
 				346EBF9D2A49F33D00771230 /* Sources */,
 				346EBF9F2A49F33D00771230 /* Resources */,
+				344B227B2B1D1742004B1EA2 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2151,10 +2159,10 @@
 			files = (
 				346E73E32A4A29D5006ECAD5 /* script.cpp in Sources */,
 				34EB6F692A4C6EE900DA6B15 /* wren_core.c in Sources */,
+				344B22792B1D15DD004B1EA2 /* inspector.cpp in Sources */,
 				34EB6F682A4C6EE900DA6B15 /* wren_utils.c in Sources */,
 				34EB6FA42A4CCD2000DA6B15 /* account_apple.mm in Sources */,
 				3474D63A2B14DFC000441451 /* imgui_draw.cpp in Sources */,
-				3474D62B2B14DFC000441451 /* imgui_impl_osx.mm in Sources */,
 				346E74132A4A29D5006ECAD5 /* tools.cpp in Sources */,
 				3474D6372B14DFC000441451 /* imgui_demo.cpp in Sources */,
 				346184202A78525C0014B43C /* shaders.metal in Sources */,
@@ -2163,7 +2171,6 @@
 				3474D5F52B14DFC000441451 /* imgui_stdlib.cpp in Sources */,
 				3474D6222B14DFC000441451 /* imgui.cpp in Sources */,
 				34EB6F652A4C6EE900DA6B15 /* wren_value.c in Sources */,
-				3474D6162B14DFC000441451 /* imgui_impl.cpp in Sources */,
 				34EB6F6A2A4C6EE900DA6B15 /* wren_debug.c in Sources */,
 				346E74102A4A29D5006ECAD5 /* configuration.cpp in Sources */,
 				34EB6F5F2A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */,
@@ -2177,7 +2184,6 @@
 				34EB6FA02A4CCC2700DA6B15 /* device_apple.mm in Sources */,
 				346E74072A4A29D5006ECAD5 /* data.cpp in Sources */,
 				34EB6F6B2A4C6EE900DA6B15 /* wren_compiler.c in Sources */,
-				3474D61F2B14DFC000441451 /* imgui_impl_metal.mm in Sources */,
 				34EB6F662A4C6EE900DA6B15 /* wren_vm.c in Sources */,
 				34EB6F962A4C706C00DA6B15 /* render_apple.mm in Sources */,
 				346E73C22A4A29D5006ECAD5 /* main.m in Sources */,
@@ -2196,14 +2202,13 @@
 			files = (
 				346E73E42A4A29D5006ECAD5 /* script.cpp in Sources */,
 				34EB6F702A4C6EEA00DA6B15 /* wren_core.c in Sources */,
+				344B227A2B1D15DE004B1EA2 /* inspector.cpp in Sources */,
 				34EB6F6F2A4C6EEA00DA6B15 /* wren_utils.c in Sources */,
 				346E74142A4A29D5006ECAD5 /* tools.cpp in Sources */,
-				3474D62C2B14DFC000441451 /* imgui_impl_osx.mm in Sources */,
 				346E73E12A4A29D5006ECAD5 /* profiler.cpp in Sources */,
 				346E73DE2A4A29D5006ECAD5 /* log.cpp in Sources */,
 				34EB6F6C2A4C6EEA00DA6B15 /* wren_value.c in Sources */,
 				34EB6F992A4C721B00DA6B15 /* input_apple.mm in Sources */,
-				3474D6172B14DFC000441451 /* imgui_impl.cpp in Sources */,
 				346184212A78525C0014B43C /* shaders.metal in Sources */,
 				3474D62F2B14DFC000441451 /* imgui_tables.cpp in Sources */,
 				3474D6142B14DFC000441451 /* implot.cpp in Sources */,
@@ -2226,7 +2231,6 @@
 				346E73FF2A4A29D5006ECAD5 /* audio.cpp in Sources */,
 				34EB6FA52A4CCD2000DA6B15 /* account_apple.mm in Sources */,
 				3474D63B2B14DFC000441451 /* imgui_draw.cpp in Sources */,
-				3474D6202B14DFC000441451 /* imgui_impl_metal.mm in Sources */,
 				3474D61D2B14DFC000441451 /* implot_items.cpp in Sources */,
 				346E73D82A4A29D5006ECAD5 /* render.cpp in Sources */,
 				346E74052A4A29D5006ECAD5 /* fileio.cpp in Sources */,
@@ -2451,8 +2455,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2484,8 +2487,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2570,8 +2572,9 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"PLATFORM_APPLE=1",
-					PLATFORM_APPLE_MACOS,
+					PLATFORM_MACOS,
 					"PROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"",
+					INSPECTOR,
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -2606,7 +2609,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					PLATFORM_APPLE,
-					PLATFORM_APPLE_MACOS,
+					PLATFORM_MACOS,
 					"PROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"",
 				);
 				GENERATE_INFOPLIST_FILE = YES;

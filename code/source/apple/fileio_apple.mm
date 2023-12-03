@@ -24,7 +24,7 @@ void fileio::initialize()
     NSArray* docs_paths_oc = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString* docs_path_oc  = [docs_paths_oc objectAtIndex:0];
     
-#ifdef DEBUG
+#if defined(DEBUG) && defined(PLATFORM_MAC)
     NSString* games_path_oc = PROJECT_DIR;  // Define from a macro
 #else
     NSString* games_path_oc = [[NSBundle mainBundle] resourcePath];
