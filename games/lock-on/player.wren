@@ -1,11 +1,12 @@
 import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2
-import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
+import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation, Ownership
 import "xs_tools" for Tools
 import "globals" for Globals
 import "tags" for Team, Tag
 import "debug" for DebugColor
+import "vfx" for ParticleTrail
 
 class Player is Component {
     construct new() {
@@ -30,14 +31,35 @@ class Player is Component {
             t.position.y = h
         }
 
+        /*
         _shootTime = _shootTime + dt
         if((Input.getButton(0) || Input.getKeyOnce(Input.keySpace)) && _shootTime > 0.1) {
-            Game.createBullet(owner, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
+
+            Game.createMissilesForAllTargets()
+
+            //Game.createBullet(owner, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
+
+            /*
             for(d in _drones) {
                 if(!d.deleted) {
                     Game.createBullet(d, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)
                 }
             }
+            */
+             
+            _shootTime = 0
+        }
+
+        */
+
+        _shootTime = _shootTime + dt
+        if((Input.getButton(0) || Input.getKeyOnce(Input.keySpace)) && _shootTime > 0.1) {        
+            Game.createBullet(owner, Globals.PlayerBulletSpeed, Globals.PlayerBulletDamage)             
+            _shootTime = 0
+        }
+
+        if((Input.getButton(1) || Input.getKeyOnce(Input.keySpace)) && _shootTime > 0.1) {
+            Game.createMissilesForAllTargets()                         
             _shootTime = 0
         }
 
@@ -65,7 +87,6 @@ class Player is Component {
             s.idx = 2
         } else if(vel.y < -0.2) {
             s.idx = 1
-            System.print("down")
         } else {
             s.idx = 0
         }
@@ -96,7 +117,6 @@ class Player is Component {
         var b = Body.new( Globals.PlayerSize , v)
         var u = Unit.new(Team.player, Globals.PlayerHealth)
         var c = DebugColor.new(0x8BEC46FF)
-        var o = Orbitor.new(ship)
         var s = GridSprite.new("[game]/images/ships/darkgrey-ship-spritesheet.png", 5, 1)
         s.layer = 1.0
         s.flags = Render.spriteCenter
@@ -105,7 +125,6 @@ class Player is Component {
         ship.addComponent(b)
         ship.addComponent(u)
         ship.addComponent(c)
-        ship.addComponent(o)
         ship.addComponent(s)
         ship.name = "Player"
         ship.tag = (Tag.player | Tag.unit)
@@ -130,22 +149,34 @@ class Player is Component {
             thrust.addComponent(t)
             thrust.addComponent(s)
             thrust.addComponent(r)
+
+            /*
+            // Create the thruster particles
+            var offset = Vec2.new(-10, 3)
+            if (i == 0) {
+                offset.y = -offset.y
+            }
+            var trailImage = Render.loadImage("[game]/images/vfx/trail.png")
+            var trailSprite = Render.createSprite(trailImage, 0, 0, 1, 1)            
+            var trail = ParticleTrail.new(Game.particles, trailSprite, offset)
+            thrust.addComponent(trail)
+            */
         }
 
         // Create a reticle for the player
         {
             var reticle = Entity.new()
+            reticle.tag = Tag.reticle
             var t = Transform.new(Vec2.new(0, 0))
             var s = AnimatedSprite.new("[game]/images/ui/reticle.png", 32, 1, 60)
             s.addAnimation("rotate", Tools.rangeToList(0...32))
             s.playAnimation("rotate")
-            s.layer = 0.999
+            s.layer = 10.999
             s.flags = Render.spriteCenter
-            var r = Relation.new(ship)
-            r.offset = Vec2.new(200, 0)
+            var o = Ownership.new(ship)
             reticle.addComponent(t)
             reticle.addComponent(s)
-            reticle.addComponent(r)
+            reticle.addComponent(o)
         }
 
         return ship
@@ -154,5 +185,5 @@ class Player is Component {
 }
 
 import "game" for Game
-import "ships" for Orbitor, Shield, EnemyCore, Enemy
+import "ships" for Enemy
 import "unit" for Unit

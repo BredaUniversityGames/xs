@@ -7,8 +7,8 @@ import json
 import shutil
 from shutil import copytree, ignore_patterns
 
-game_dir = "rogue-masterclass"
-itch_name = "Roguealot"
+game_dir = "lock-on"
+itch_name = "Lock-On"
 
 os.system('MSBuild xs.sln /p:Platform=PC /p:Configuration=Test')
 
@@ -25,7 +25,7 @@ print(output_dir)
 
 current_dir = os.getcwd()
 if os.path.exists(source_dir):
-    shutil.copytree(source_dir, output_dir, False, ignore=ignore_patterns('*.pdb', '*.ipdb', '*.iobj', '*.cap' , "*.bnvib", 'steam_appid.txt'))
+    shutil.copytree(source_dir, output_dir, False, ignore=ignore_patterns('*.pdb', '*.ipdb', '*.iobj', '*.cap' , "*.bnvib", '*.ilk' , 'steam_appid.txt'))
 
     asset_dir = current_dir + "\\games\\" + game_dir
     output_dir = current_dir + "\\build\\games\\" + game_dir

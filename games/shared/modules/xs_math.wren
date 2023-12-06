@@ -32,7 +32,12 @@ class Math {
 	    return Vec2.new(CS, SN).atan2
     }
     static sdamp(a, b, lambda, dt) { slerp(a, b, 1.0 - (-lambda * dt).exp) }    
-    
+
+    static quadraticBezier(a, b, c, t) {
+        var ab = lerp(a, b, t)
+        var bc = lerp(b, c, t)
+        return lerp(ab, bc, t)
+    }
 }
 
 class Bits {
@@ -184,6 +189,16 @@ class Color {
     r=(v) { _r = v }
     g=(v) { _g = v }
     b=(v) { _b = v }
+
+    +(other) { Color.new(r + other.r, g + other.g, b + other.b, a + other.a) }
+    -(other) { Color.new(r - other.r, g - other.g, b - other.b, a - other.a) }
+    *(other) {
+        if(other is Color) {
+            return Color.new(r * other.r, g * other.g, b * other.b, a * other.a)
+        } else {
+            return Color.new(r * other, g * other, b * other, a * other)
+        }
+    }
 
     toNum { r << 24 | g << 16 | b << 8 | a }
     static fromNum(v) {
