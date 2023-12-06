@@ -86,9 +86,10 @@ int xs::main(int argc, char* argv[])
             script::update(dt);
             script::render();
         }
+        device::begin_frame();
         render::render();
         inspector::render(float(dt));
-        device::swap_buffers();
+        device::end_frame();
 	}
 
     inspector::shutdown();

@@ -17,7 +17,6 @@
 #include <stb/stb_image.h>
 #pragma clang diagnostic pop
 #else
-#define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 #endif
 
