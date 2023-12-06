@@ -86,21 +86,41 @@ void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
 
 #elif defined(PLATFORM_APPLE)
 
+#include "imgui_impl_osx.h"
+#include "imgui_impl_metal.h"
+#include "device_apple.h"
+
+
+using namespace xs;
+
 bool ImGui_Impl_Init()
 {
-    return false;
+    MTKView* view = device::internal::get_view();
+    auto osx = ImGui_ImplOSX_Init(device::internal::get_view());
+    auto metal = ImGui_ImplMetal_Init(view.device);
+    assert(osx);
+    assert(metal);
+    return osx && metal;
 }
 
 void ImGui_Impl_Shutdown()
 {
+    ImGui_ImplOSX_Shutdown();
+    ImGui_ImplMetal_Shutdown();
 }
 
 void ImGui_Impl_NewFrame()
 {
+    MTKView* view = device::internal::get_view();
+    ImGui_ImplOSX_NewFrame(view);
+    ImGui_ImplMetal_NewFrame(view.currentRenderPassDescriptor);
 }
 
 void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
 {
+    ImGui_ImplMetal_RenderDrawData(draw_data,
+                                   device::internal::get_command_buffer(),
+                                   device::internal::get_render_encoder());
 }
 
 #endif

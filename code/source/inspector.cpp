@@ -1,4 +1,6 @@
 #include "inspector.h"
+
+#ifdef INSPECTOR
 #include <imgui.h>
 #include <imgui_impl.h>
 #include <imgui_internal.h>
@@ -14,6 +16,7 @@
 #include "device.h"
 #include "render.h"
 #include "tools.h"
+#include "render_internal.h"
 #if defined(PLATFORM_PC)
 #include <GLFW/glfw3.h>
 #include "device_pc.h"
@@ -39,15 +42,12 @@ using namespace xs::inspector::internal;
 
 void xs::inspector::initialize()
 {
-	ImGui::CreateContext();
-
+    ImGui::CreateContext();
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
 	ImPlot::CreateContext();
 #endif
-
-	ImGui_Impl_Init();
-	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
+    ImGui_Impl_Init();
+	
 #if defined(PLATFORM_PC)
 	float ys;
 	float xs;
@@ -115,13 +115,22 @@ void xs::inspector::render(float dt)
 {
 #ifdef PLATFORM_PS5
 	return;
-#endif // PLATFORM_PS5
+#endif
 	
 	ImGui_Impl_NewFrame();
-
 	// ImGui::ShowDemoWindow();
+    
+    ImGui::NewFrame();
 
 	internal::ok_timer -= dt;
+    
+    // Assorted hacks
+    float top = 0.0f;
+    float width = xs::device::get_width();
+#ifdef PLATFORM_APPLE
+    top += 30.0f;
+    width /= 2.0f;
+#endif
 
 	if (xs::script::has_error() ||
 		internal::show_registry ||
@@ -138,12 +147,9 @@ void xs::inspector::render(float dt)
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoSavedSettings |
 			ImGuiWindowFlags_NoScrollWithMouse);
-		ImGui::SetWindowPos({ 0,0 });		
-		ImGui::SetWindowSize({(float)(xs::device::get_width()), -1 });
-
-
-		// double hue = 0.0;
-		// double dhue = 60.0;
+		ImGui::SetWindowPos({ 0, top });
+		ImGui::SetWindowSize({-1, -1 });
+        
 		ImGuiStyle& style = ImGui::GetStyle();
 		ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_WindowBg]);
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
@@ -157,8 +163,6 @@ void xs::inspector::render(float dt)
 		}		
 		Tooltip("Reload Game");		
 	
-		//chue += dhue;		
-
 		ImGui::SameLine();
 		if (internal::paused)
 		{
@@ -177,7 +181,6 @@ void xs::inspector::render(float dt)
 			Tooltip("Pause");
 		}		
 
-		// hue += dhue;
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_DATABASE))
 		{
@@ -188,7 +191,6 @@ void xs::inspector::render(float dt)
 
 		
 		ImGui::SameLine();
-		// hue += dhue;
 		if (ImGui::Button(ICON_FA_CHART_BAR))
 		{
 			internal::show_profiler = !internal::show_profiler;
@@ -196,7 +198,6 @@ void xs::inspector::render(float dt)
 		Tooltip("Profiler");
 
 		ImGui::SameLine();
-		// hue += dhue;
 		if (ImGui::Button(ICON_FA_IMAGES))
 		{
 			render::reload_images();	
@@ -204,9 +205,7 @@ void xs::inspector::render(float dt)
 		}
 		Tooltip("Reload Art");
 
-
 		ImGui::SameLine();
-		// hue += dhue;
 		if (ImGui::Button(ICON_FA_ADJUST))
 		{
 			internal::theme = !internal::theme;
@@ -277,7 +276,7 @@ void xs::inspector::render(float dt)
 	}
 
 
-	ImGui::Render();
+	ImGui::Render();    
 	ImGui_Impl_RenderDrawData(ImGui::GetDrawData());
 
 #if defined(PLATFORM_SWITCH)
@@ -335,8 +334,8 @@ void xs::inspector::internal::embrace_the_darkness()
 	colors[ImGuiCol_TabActive] = ImVec4(0.20f, 0.20f, 0.20f, 0.36f);
 	colors[ImGuiCol_TabUnfocused] = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
 	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-	colors[ImGuiCol_DockingPreview] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-	colors[ImGuiCol_DockingEmptyBg] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	//colors[ImGuiCol_DockingPreview] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
+	//colors[ImGuiCol_DockingEmptyBg] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
 	colors[ImGuiCol_PlotLines] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
 	colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
 	colors[ImGuiCol_PlotHistogram] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
@@ -420,8 +419,8 @@ void xs::inspector::internal::follow_the_light()
 	colors[ImGuiCol_TabActive] = ImVec4(0.60f, 0.73f, 0.88f, 1.00f);
 	colors[ImGuiCol_TabUnfocused] = ImVec4(0.92f, 0.93f, 0.94f, 0.99f);
 	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.74f, 0.82f, 0.91f, 1.00f);
-	colors[ImGuiCol_DockingPreview] = ImVec4(0.26f, 0.59f, 0.98f, 0.22f);
-	colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+	//colors[ImGuiCol_DockingPreview] = ImVec4(0.26f, 0.59f, 0.98f, 0.22f);
+	//colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
 	colors[ImGuiCol_PlotLines] = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
 	colors[ImGuiCol_PlotLinesHovered] = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
 	colors[ImGuiCol_PlotHistogram] = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
@@ -482,8 +481,8 @@ void xs::inspector::internal::go_gray()
 	colors[ImGuiCol_TabActive] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
 	colors[ImGuiCol_TabUnfocused] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
 	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-	colors[ImGuiCol_DockingPreview] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-	colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
+	//colors[ImGuiCol_DockingPreview] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
+	//colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
 	colors[ImGuiCol_PlotLines] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
 	colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
 	colors[ImGuiCol_PlotHistogram] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
@@ -525,3 +524,12 @@ void xs::inspector::internal::go_gray()
 	style.TabRounding = 4;
 	style.FrameBorderSize = 0;
 }
+
+#else
+
+void xs::inspector::initialize() {}
+void xs::inspector::shutdown() {}
+void xs::inspector::render(float dt) {}
+bool xs::inspector::paused() { return false; }
+
+#endif
