@@ -78,7 +78,7 @@ class Missile is Bullet {
         super.update(dt)
     }
 
-    toString { "[Missile] ->" + super.toString }
+    toString { "[Missile speed %(speed) time%(time) targeting%(_targeting) ] ->" + super.toString }
 }
 
 import "game" for Game

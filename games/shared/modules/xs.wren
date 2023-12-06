@@ -3,18 +3,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 class Render {
-    foreign static setColor(r, g, b, a)
     foreign static setColor(color)
     foreign static line(x0, y0, x1, y1)
     foreign static shapeText(text, x, y, size)
-
+    
+    static lines { 0 }
     static triangles { 1 }
-    static lines { 2 }
     foreign static begin(primitive)
     foreign static end()
     foreign static vertex(x, y)
-
-    static setColor(r, g, b) { Render.setColor(r, g, b, 1.0) }
 
     static rect(fromX, fromY, toX, toY) {
         Render.begin(Render.triangles)
@@ -289,6 +286,13 @@ class Audio {
     foreign static setGroupVolume(groupId, volume)
     foreign static getChannelVolume(channelId)
     foreign static setChannelVolume(channelId, volume)
+    foreign static getBusVolume(busName)
+    foreign static setBusVolume(busName, volume)
+    foreign static loadBank(bankId)
+    foreign static unloadBank(bankId)
+    foreign static startEvent(eventName)
+    foreign static setParameterNumber(eventId, paramName, newValue)
+    foreign static setParameterLabel(eventId, paramName, newValue)
 
     static groupSFX    { 1 }
     static groupMusic  { 2 }

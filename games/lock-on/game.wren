@@ -7,44 +7,8 @@ import "globals" for Globals
 import "tags" for Team, Tag
 import "debug" for DebugColor
 import "background" for Background
-
-class BulletType {
-    static straight     { 1 }
-    static spread       { 2 }
-    static directed     { 3 }
-    static follow       { 4 }
-}
-
-class Bullet is Component {
-    construct new(team, damage) {
-        super()
-        _team = team
-        _damage = damage
-    }
-
-    update(dt) {
-        var t = owner.getComponent(Transform)
-
-        var w = Data.getNumber("Width", Data.system) * 0.5
-        if (t.position.x < -w) {
-            owner.delete()
-        } else if (t.position.x > w) {
-            owner.delete()
-        }
-
-        var h = Data.getNumber("Height", Data.system) * 0.5
-        if (t.position.y < -h) {
-            owner.delete()
-        } else if (t.position.y > h) {
-            owner.delete()
-        }
-    }
-
-    damage { _damage }
-    team { _team }
-
-    toString { "[Bullet team:%(_team) damage:%(_damage)]" }
-}
+import "projectiles" for Bullet, BulletType, Missile
+import "vfx" for ParticleSystem, ParticleTrail 
 
 class Explosion is Component {
     construct new(duration) {
@@ -75,9 +39,9 @@ class GameState {
 
 class Game {
     static config() {        
-        // Data.setNumber("Width", 640, Data.system)
-        // Data.setNumber("Height", 360, Data.system)
-        // Data.setNumber("Multiplier", 1, Data.system)
+        Data.setNumber("Width", 640, Data.system)
+        Data.setNumber("Height", 360, Data.system)
+        //Data.setNumber("Multiplier", 1, Data.system)
         Data.setString("Title", "JumpCore", Data.system)        
     }
 
@@ -90,6 +54,7 @@ class Game {
         __random = Random.new()
         __state = GameState.Title        
         __score = 0
+        __multiplier = 1
         __waveTimer = 0
         __wave = 0
         __shakeOffset = Vec2.new(0, 0)
@@ -97,12 +62,18 @@ class Game {
         __time = 0.0
         __font = Render.loadFont("[game]/fonts/FutilePro.ttf", 18)
         __levels = ["daytime", "night", "abandoned", "snow-rain", "sunset"]
+        __particles = ParticleSystem.new()
+
+        if(Data.getBool("Skip Title", Data.debug)) {
+            startMenu()
+            startPlay()
+        }
 
         // var song = Audio.load("[game]/Blast_2019.flac", Audio.groupMusic)
         // var sound = Audio.play(song)
     }        
     
-    static update(dt) {        
+    static update(dt) {  
         Entity.update(dt)
         if(__state == GameState.Title) {
             updateTitle(dt)
@@ -116,17 +87,19 @@ class Game {
         __shakeOffset.x = __random.float(-1.0, 1.0)
         __shakeOffset.y = __random.float(-1.0, 1.0)
         __shakeIntesity = Math.damp(__shakeIntesity, 0, dt, 10)
+        __particles.update(dt)
     }
 
     static render() {
         Render.setOffset(__shakeOffset.x * __shakeIntesity, __shakeOffset.y * __shakeIntesity)
         Renderable.render()        
+        __particles.render()
 
         if(__state == GameState.Play) {
             Render.setOffset(0, 0)
             var pu = playerShip.getComponent(Unit)
 
-            var text = "SCORE %(__score)   :  WAVE %(__wave)  :  HEALTH %(pu.health)"
+            var text = "SCORE %(__score)   :  WAVE %(__wave)  :  HEALTH %(pu.health) :  MULTIPLIER %(__multiplier)"
             Render.text(__font, text, 0, 150, 0xFFFFFFFF, 0x00000000, Render.spriteCenter)
         }
     }
@@ -165,6 +138,11 @@ class Game {
                 }
             }
         }
+
+        if(Data.getBool("Print Entities", Data.debug)) {
+            Entity.print()
+            Data.setBool("Print Entities", false, Data.debug)            
+        }
  
         var playerUnits = Entity.withTag(Tag.player | Tag.unit)
         var playerBullets = Entity.withTag(Tag.player | Tag.bullet)
@@ -172,16 +150,71 @@ class Game {
         var computerBullets = Entity.withTag(Tag.computer | Tag.bullet)
 
         Game.collide(computerBullets, playerUnits)
-        Game.collide(playerBullets, computerUnits)
+        Game.collide(playerBullets, computerUnits)        
+
+        // Lock on to enemies
+        var reticle = Entity.withTag(Tag.reticle)
+        if(reticle.count > 0) {
+            reticle = reticle[0]
+            var rt = reticle.getComponent(Transform)            
+            var closest = null
+            var closestDis = 999999999.9            
+            var shipTransform = __ship.getComponent(Transform)
+            var reticlePosition = shipTransform.position + Vec2.new(200, 0)
+
+            for (cu in computerUnits) {
+                var ct = cu.getComponent(Transform)
+                var cb = cu.getComponent(Body)
+                var dis = reticlePosition - ct.position
+                dis = dis.magnitude
+                if(dis < closestDis) {
+                    closest = cu
+                    closestDis = dis
+                }
+            }
+
+            var reticleSnapDist = Data.getNumber("Reticle Snap Distance", Data.game)
+            var rtPosition = null
+            if(closest != null) {
+                if(closestDis < reticleSnapDist) {
+                    var target = closest.getComponent(Target)
+                    target.lock(dt)
+                    var ct = closest.getComponent(Transform)
+                    Render.arc(ct.position.x, ct.position.y, 20, target.lock * Math.pi, 24)
+                    rtPosition = ct.position
+                } else {
+                    rtPosition = reticlePosition
+                }
+            } else {
+                rtPosition = reticlePosition
+            }
+
+            var reticleDampLambda = Data.getNumber("Reticle Damp Lambda", Data.game)
+            rt.position = Math.damp(rt.position, rtPosition, reticleDampLambda, dt)
+        }        
+
+        var targets = Entity.withTag(Tag.computer | Tag.unit)
+        var multiplier = 0
+        for(t in targets) {
+            var target = t.getComponent(Target)
+            if(target.locked) {
+                multiplier = multiplier + 1                
+            }
+        }
+        if(multiplier > 1) {
+            __multiplier = multiplier
+        } else {
+            __multiplier = 1
+        }
 
         if(computerUnits.count == 0) {
             __waveTimer = __waveTimer + dt            
         }
 
         if(__waveTimer >= 1.5) {
-            for(w in 0..__wave) {
+            //for(w in 0..__wave) {
                 createEnemyShips()
-            }
+            //}
             __waveTimer= 0
             __wave = __wave + 1
         }
@@ -259,66 +292,50 @@ class Game {
     }
 
     static createEnemyShips() {
-        var x = Game.random.float(0, 200)
-        var y = Game.random.float(-100, 100)
-        var pos = Vec2.new(x, y)
-        var tilt = Game.random.float(0, 5.0)
-
-        var bulletType = Game.random.int(1, 4)
-        var core = createEnemyCore(pos, tilt)
-        var orbitor = core.getComponent(Orbitor)
-        for(i in 0..6) {
-            var ship = createEnemyShip(i, tilt, core, bulletType)
-            orbitor.add(ship)
+        for(i in 0...3) {
+            var x = Game.random.float(0, 200)
+            var y = Game.random.float(-100, 100)
+            var bulletType = Game.random.int(1, 4) 
+            var ship = createEnemyShip(x, y, bulletType, i, 3)
         }
     }
 
-    static createEnemyCore(pos, tilt) {
-        var core = Entity.new()
-        var p = Vec2.new(0, 0)
-        var t = Transform.new(p) 
-        var v = Vec2.new(0, 0)
-        var b = Body.new(Globals.EnemyCoreSize, v)
-        var e = EnemyCore.new(pos, tilt)
-        var u = Unit.new(Team.computer, Globals.EnemyCoreHealth)
-        var c = DebugColor.new(Globals.EnemyColor)
-        var o = Orbitor.new(core)
-        var s = Sprite.new("[game]/images/ships/Enemies-6b.png")
-        s.layer = 0.9
-        s.flags = Render.spriteCenter
-        core.addComponent(t)
-        core.addComponent(b)
-        core.addComponent(e)
-        core.addComponent(u)
-        core.addComponent(c)
-        core.addComponent(o)
-        core.addComponent(s)
-        core.name = "Enemy Core"
-        core.tag = (Tag.computer | Tag.unit)
-        return core
-    }
 
-    static createEnemyShip(idx, tilt, core, bulletType) {
+    static createEnemyShip(x, y, bulletType, idx, waveSize) {
         var ship = Entity.new()
-        var p = Vec2.new(240, 0)
-        var t = Transform.new(p)    
-        var v = Vec2.new(0, 0)
-        var b = Body.new(Globals.EnemySize, v)
-        var e = Enemy.new(idx, tilt, core, bulletType)
-        var u = Unit.new(Team.computer, Globals.EnemyHealth)
-        var c = DebugColor.new(Globals.EnemyColor)
-        var s = Sprite.new("[game]/images/ships/Enemies-10b.png")
-        s.layer = 0.9
-        s.flags = Render.spriteCenter
-        ship.addComponent(t)
-        ship.addComponent(b)
-        ship.addComponent(e)
-        ship.addComponent(u)
-        ship.addComponent(c)
-        ship.addComponent(s)
-        ship.name = "Enemy"
-        ship.tag = (Tag.computer | Tag.unit)
-        {
+
+        { // Ship
+            var p = Vec2.new(x, y)
+            var t = Transform.new(p)    
+            var v = Vec2.new(0, 0)
+            var b = Body.new(Globals.EnemySize, v)
+            var e = Enemy.new(bulletType, idx, waveSize)
+            var u = Unit.new(Team.computer, Globals.EnemyHealth)
+            var c = DebugColor.new(Globals.EnemyColor)
+            var s = null
+            if(bulletType == BulletType.directed) {
+                s = Sprite.new("[game]/images/ships/Enemies-5b.png")
+            } else if(bulletType == BulletType.spread) {
+                s = Sprite.new("[game]/images/ships/Enemies-6b.png")
+            } else if(bulletType == BulletType.straight) {
+                s = Sprite.new("[game]/images/ships/Enemies-1b.png")
+            } else if(bulletType == BulletType.missile) {
+            } else {
+            }
+            
+            s.layer = 0.9
+            s.flags = Render.spriteCenter
+            ship.addComponent(t)
+            ship.addComponent(b)
+            ship.addComponent(e)
+            ship.addComponent(u)
+            ship.addComponent(c)
+            ship.addComponent(s)
+            ship.name = "Enemy"
+            ship.tag = (Tag.computer | Tag.unit) // |
+        }
+
+        { // Thrust
             var thrust = Entity.new()
             var t = Transform.new(Vec2.new(0, 0))
             var s = AnimatedSprite.new("[game]/images/ships/thrusters.png", 4, 2, 15)            
@@ -334,11 +351,29 @@ class Game {
             thrust.addComponent(s)
             thrust.addComponent(r)
         }
+
+        var lockSprite = null 
+        { // Target animation
+            var target = Entity.new()
+            var t = Transform.new(Vec2.new(0, 0))
+            lockSprite = GridSprite.new("[game]/images/ui/lock.png", 33, 1)
+            lockSprite.layer = 10.0
+            lockSprite.flags = Render.spriteCenter
+            var r = Relation.new(ship)
+            r.offset = Vec2.new(0, 0)
+            target.addComponent(t)
+            target.addComponent(lockSprite)
+            target.addComponent(r)
+        }
+
+        var target = Target.new(lockSprite)
+        ship.addComponent(target)
+
         return ship
     }
 
     static collide(bullets, units) {
-        Render.setColor(1.0, 0, 0)
+        Render.setColor(0xFF0000FF)
         for(u in units) {
             for(b in bullets) {            
                 var uT = u.getComponent(Transform)
@@ -350,11 +385,10 @@ class Game {
                 if(dis < (uB.size + bB.size)) {
                     var unit = u.getComponent(Unit)
                     System.print("Unit %(unit)")             
-                    var bullet = b.getComponent(Bullet)
+                    var bullet = b.getComponentSuper(Bullet)
                     System.print("Bullet %(bullet)")
                     unit.damage(bullet.damage)
                     b.delete()
-                    // Render.disk(uT.position.x, uT.position.y, 2, 24)
                 }
             }
         }
@@ -376,10 +410,12 @@ class Game {
     static random { __random }
 
     static addScore(s) {
-        __score = __score + s
+        __score = __score + s * __multiplier
     }
 
-    static createBullet(owner, speed, damage) {
+    static particles { __particles }
+
+    static createBullet(owner, speed, damage) {        
         var owt = owner.getComponent(Transform)
         var bullet = Entity.new()
         var t = Transform.new(owt.position)
@@ -400,6 +436,55 @@ class Game {
         bullet.addComponent(DebugColor.new(0x8BEC46FF))
     }
 
+    static createMissile(target) {
+        var owner = __ship
+        var owt = owner.getComponent(Transform)
+
+        var bullet = Entity.new()
+        var t = Transform.new(owt.position)
+        var targetPos = target.getComponent(Transform).position
+        var dir = targetPos - owt.position
+        var spd = Data.getNumber("Missile Launch Speed", Data.game)
+        var v = Vec2.new(-1.0, Game.random.float(-1.0, 1.0))
+        v = v.normal
+        v = v * spd
+        var bd = Body.new(5, v)
+        var bl = Missile.new(Team.player, target, 10.0, owt.position)
+        var s = AnimatedSprite.new("[game]/images/projectiles/missile-02.png", 3, 1, 20)
+        s.layer = 0.9
+        s.flags = Render.spriteCenter
+        s.addAnimation("fly", [0, 1, 2])
+        s.playAnimation("fly")
+        s.idx = Game.random.int(0, 2)
+        bullet.addComponent(t)
+        bullet.addComponent(bd)
+        bullet.addComponent(bl)
+        bullet.addComponent(s)
+        bullet.name = "Missile"
+        bullet.tag = Tag.player | Tag.bullet | Tag.missile // |
+        bullet.addComponent(DebugColor.new(0xEC468BFF))
+
+        var trailImage = Render.loadImage("[game]/images/vfx/trail.png")
+        var trailSprite = Render.createSprite(trailImage, 0, 0, 1, 1)            
+        var trail = ParticleTrail.new(Game.particles, trailSprite, Vec2.new(-20,0))
+        bullet.addComponent(trail)
+    }
+
+    static createMissilesForAllTargets() {
+        var missiles = Entity.withTag(Tag.player | Tag.missile)
+        if(missiles.count > 0) {
+            return
+        }
+
+        var targets = Entity.withTag(Tag.computer | Tag.unit)
+        for(t in targets) {
+            var target = t.getComponent(Target)
+            if(target.locked) {
+                Game.createMissile(t)
+            }
+        }
+    }
+
     static createBulletDirectedEnemy(owner, speed, damage) {
         var owt = owner.getComponent(Transform)
         var owu = owner.getComponent(Unit)
@@ -410,12 +495,12 @@ class Game {
         var v = dir.normal * speed
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
-        var s = AnimatedSprite.new("[game]/images/projectiles/projectile-02.png", 2, 1, 10)
+        var s = AnimatedSprite.new("[game]/images/vfx/blue_effects.png", 20, 16, 20)
         s.layer = 0.9
         s.flags = Render.spriteCenter
-        s.addAnimation("fly", [0,1])
+        s.addAnimation("fly", [71, 72, 73, 74])
         s.playAnimation("fly")
-        s.idx = 0
+        s.idx = Game.random.int(71, 74)
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)
@@ -433,12 +518,11 @@ class Game {
         var v = Vec2.new(-speed, 0)
         var bd = Body.new(5, v)
         var bl = Bullet.new(owu.team, damage)
-        var s = AnimatedSprite.new("[game]/images/projectiles/projectile-06-02.png", 1, 3, 10)
+        var s = AnimatedSprite.new("[game]/images/vfx/blue_effects.png", 20, 16, 20)
         s.layer = 0.9
         s.flags = Render.spriteCenter
-        s.addAnimation("fly", [0,1,2])
+        s.addAnimation("fly", [71 + 40, 72 + 40, 73 + 40, 74 + 40])
         s.playAnimation("fly")
-        s.idx = 0
         bullet.addComponent(t)
         bullet.addComponent(bd)
         bullet.addComponent(bl)
@@ -464,7 +548,6 @@ class Game {
             s.flags = Render.spriteCenter
             s.addAnimation("fly", [0,1])
             s.playAnimation("fly")
-            s.idx = 0
             bullet.addComponent(t)
             bullet.addComponent(bd)
             bullet.addComponent(bl)
@@ -496,7 +579,7 @@ class Game {
     }
 }
 
-import "ships" for Orbitor, Shield, EnemyCore, Enemy
+import "ships" for Enemy, Target
 import "unit" for Unit
 import "player" for Player
 import "ui" for MainMenu, ScoreMenu

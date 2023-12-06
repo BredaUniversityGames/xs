@@ -310,12 +310,15 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 		return -1;
 	}
 
+	const auto epsilon = 0.001;
 	for(int i = 0; i < sprites.size(); i++)
 	{
 		const auto& s = sprites[i];
 		if (s.image_id == image_id &&
-			s.from.x == x0 && s.from.y == y0 &&
-			s.to.x == x1 && s.to.y == y1)
+			abs(s.from.x - x0) < epsilon &&
+			abs(s.from.y - y0) < epsilon &&
+			abs(s.to.x - x1) < epsilon &&
+			abs(s.to.y - y1) < epsilon)
 			return i;
 	}
 
@@ -397,7 +400,7 @@ void xs::render::reload_images()
 			{
 				log::info("Image {} reloaded!", image.file);
 			}
-
+			last_write_times[i] = new_time;
 			create_texture_with_data(image, data);
 			stbi_image_free(data);
 		}

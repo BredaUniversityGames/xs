@@ -84,6 +84,7 @@ int xs::main(int argc, char* argv[])
         {
             render::clear();
             script::update(dt);
+            audio::update(dt);
             script::render();
         }
         device::begin_frame();

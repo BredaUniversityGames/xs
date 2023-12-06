@@ -1,10 +1,38 @@
 {
-    "Portal Debug Color": {
-        "type": "color",
-        "value": 2883583
-    },
-    "Portal Size": {
+    "Missile Launch Speed": {
         "type": "number",
-        "value": 20.0
+        "value": 800.0
+    },
+    "Missile Lunch Speed": {
+        "type": "number",
+        "value": 800.0
+    },
+    "Missle Damage": {
+        "type": "number",
+        "value": 100.0
+    },
+    "Missle Max Speed": {
+        "type": "number",
+        "value": 1200.0
+    },
+    "Missle Speed": {
+        "type": "number",
+        "value": 450.0
+    },
+    "Missle Targeting": {
+        "type": "number",
+        "value": 1.2599999904632568
+    },
+    "Reticle Damp Lambda": {
+        "type": "number",
+        "value": 30.0
+    },
+    "Reticle Snap Distance": {
+        "type": "number",
+        "value": 30.0
+    },
+    "Speed": {
+        "type": "number",
+        "value": 2.0
     }
 }
