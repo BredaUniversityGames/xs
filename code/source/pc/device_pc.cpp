@@ -125,7 +125,9 @@ void device::shutdown()
 	glfwTerminate();
 }
 
-void device::swap_buffers()
+void device::begin_frame() {}
+
+void device::end_frame()
 {
 	XS_PROFILE_FUNCTION();
 	glfwSwapBuffers(internal::window);

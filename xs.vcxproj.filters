@@ -169,6 +169,9 @@
     <ClCompile Include="code\source\render_gl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="external\imgui\misc\cpp\imgui_stdlib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="nintendo\xs.aarch64.nmeta" />
@@ -334,6 +337,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\source\ps5\shaders\vertex_format.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\misc\cpp\imgui_stdlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,10 +1,16 @@
 #include <string>
-#define GLFW_INCLUDE_NONE
 #include <opengl.h>
 #include <GLFW/glfw3.h>
 #include <log.h>
 
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC) && defined(DEBUG)
+
+#ifdef PLATFORM_PC
+#ifdef APIENTRY
+#undef APIENTRY
+#endif
+#include <Windows.h>
+#endif
 
 static void APIENTRY debug_callback_func(
 	GLenum source,
