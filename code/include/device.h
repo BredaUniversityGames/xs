@@ -4,9 +4,12 @@ namespace xs::device
 {
 	void initialize();
 	void shutdown();
-	void swap_buffers();
+    void begin_frame();
+    void end_frame();
+	// void swap_buffers();
 	void poll_events();
-
+    void start_frame();
+    void end_frame();
 	bool should_close();
 	int get_width();
 	int get_height();
