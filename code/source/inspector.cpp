@@ -118,7 +118,6 @@ void xs::inspector::render(float dt)
 #endif
 	
 	ImGui_Impl_NewFrame();
-	// ImGui::ShowDemoWindow();
     
     ImGui::NewFrame();
 
@@ -126,7 +125,7 @@ void xs::inspector::render(float dt)
     
     // Assorted hacks
     float top = 0.0f;
-    float width = xs::device::get_width();
+    float width = (float)xs::device::get_width();
 #ifdef PLATFORM_APPLE
     top += 30.0f;
     width /= 2.0f;

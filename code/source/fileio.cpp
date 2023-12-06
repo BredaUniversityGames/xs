@@ -66,7 +66,7 @@ void fileio::initialize(/* const std::string& main_script*/)
 
 	// Mount save data
 	{
-		spdlog::info("Mount save data");
+		log::info("Mount save data");
 
 		// Get the user identifier from the account
 		nn::account::Uid user = nn::account::InvalidUid;

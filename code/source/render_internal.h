@@ -17,8 +17,6 @@
     typedef id<MTLTexture> textureType;
 #endif
 
-class ImDrawData;
-
 namespace xs::render::internal
 {	
 	struct image
