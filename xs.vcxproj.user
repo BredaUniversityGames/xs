@@ -4,10 +4,12 @@
     <ShowAllFiles>true</ShowAllFiles>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <NXTargetName>Default</NXTargetName>
     <LocalDebuggerCommandArguments>
     </LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <NintendoTargetName>Default</NintendoTargetName>
+    <NXTargetSerialNumber>$(NintendoTargetSerialNumber)</NXTargetSerialNumber>
+    <NXTargetName>$(NintendoTargetName)</NXTargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NXTargetName>Default</NXTargetName>
@@ -16,23 +18,29 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">
-    <NXTargetName>Default</NXTargetName>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)/games</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>ProsperoDebugger</DebuggerFlavor>
     <LocalDebuggerCommandArguments>
     </LocalDebuggerCommandArguments>
+    <NintendoTargetName>Default</NintendoTargetName>
+    <NXTargetSerialNumber>$(NintendoTargetSerialNumber)</NXTargetSerialNumber>
+    <NXTargetName>$(NintendoTargetName)</NXTargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
-    <NXTargetName>Default</NXTargetName>
-    <NXTargetSerialNumber>XAL03100084871</NXTargetSerialNumber>
     <RemoteDebuggerCommandArguments>
     </RemoteDebuggerCommandArguments>
     <DebuggerFlavor>OasisNXDebugger</DebuggerFlavor>
+    <NintendoTargetSerialNumber>XAL03100084871</NintendoTargetSerialNumber>
+    <NintendoTargetName>Default</NintendoTargetName>
+    <NXTargetSerialNumber>$(NintendoTargetSerialNumber)</NXTargetSerialNumber>
+    <NXTargetName>$(NintendoTargetName)</NXTargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <NXTargetName>Default</NXTargetName>
     <LocalDebuggerCommandArguments>[games]/seedwave/game.wren</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <NintendoTargetName>Default</NintendoTargetName>
+    <NXTargetSerialNumber>$(NintendoTargetSerialNumber)</NXTargetSerialNumber>
+    <NXTargetName>$(NintendoTargetName)</NXTargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NXTargetName>Default</NXTargetName>
@@ -44,29 +52,37 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">
-    <NXTargetName>Default</NXTargetName>
     <LocalDebuggerCommandArguments>
     </LocalDebuggerCommandArguments>
     <DebuggerFlavor>ProsperoDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)/games</LocalDebuggerWorkingDirectory>
+    <NintendoTargetName>Default</NintendoTargetName>
+    <NXTargetSerialNumber>$(NintendoTargetSerialNumber)</NXTargetSerialNumber>
+    <NXTargetName>$(NintendoTargetName)</NXTargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">
-    <NXTargetName>Default</NXTargetName>
     <RemoteDebuggerCommandArguments>[games]/seedwave/game.wren</RemoteDebuggerCommandArguments>
     <DebuggerFlavor>OasisNXDebugger</DebuggerFlavor>
-    <NXTargetSerialNumber>XJL05100029685</NXTargetSerialNumber>
+    <NintendoTargetName>Default</NintendoTargetName>
+    <NintendoTargetSerialNumber>XAL03100084871</NintendoTargetSerialNumber>
+    <NXTargetSerialNumber>$(NintendoTargetSerialNumber)</NXTargetSerialNumber>
+    <NXTargetName>$(NintendoTargetName)</NXTargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
     <RemoteDebuggerCommandArguments>[games]/seedwave/game.wren</RemoteDebuggerCommandArguments>
     <DebuggerFlavor>OasisNXDebugger</DebuggerFlavor>
-    <NXTargetName>Default</NXTargetName>
-    <NXTargetSerialNumber>XJL05100029685</NXTargetSerialNumber>
+    <NintendoTargetName>Default</NintendoTargetName>
+    <NintendoTargetSerialNumber>XAL03100084871</NintendoTargetSerialNumber>
+    <NXTargetSerialNumber>$(NintendoTargetSerialNumber)</NXTargetSerialNumber>
+    <NXTargetName>$(NintendoTargetName)</NXTargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
-    <NXTargetName>Default</NXTargetName>
     <LocalDebuggerCommandArguments>[games]/seedwave/game.wren</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <NintendoTargetName>Default</NintendoTargetName>
+    <NXTargetSerialNumber>$(NintendoTargetSerialNumber)</NXTargetSerialNumber>
+    <NXTargetName>$(NintendoTargetName)</NXTargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|Win32'">
     <NXTargetName>Default</NXTargetName>
@@ -74,8 +90,10 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">
-    <NXTargetName>Default</NXTargetName>
     <LocalDebuggerWorkingDirectory>$(ProjectDir)/games</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>ProsperoDebugger</DebuggerFlavor>
+    <NintendoTargetName>Default</NintendoTargetName>
+    <NXTargetSerialNumber>$(NintendoTargetSerialNumber)</NXTargetSerialNumber>
+    <NXTargetName>$(NintendoTargetName)</NXTargetName>
   </PropertyGroup>
 </Project>

@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <log.h>
 
-#if defined(PLATFORM_PC) && defined(DEBUG)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) && defined(DEBUG)
 
 #ifdef PLATFORM_PC
 #ifdef APIENTRY
@@ -199,9 +199,9 @@ void xs::init_debug_messages()
 		GL_FALSE);
 }
 
-#elif defined(PLATFORM_SWITCH)
+#elif defined(PLATFORM_SWITCH) && defined(DEBUG)
 
-void init_debug_messages()
+void init_debug_messages()  
 {
 	glDebugMessageCallback(debug_callback_func, NULL);
 }
