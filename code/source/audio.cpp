@@ -1,3 +1,5 @@
+
+
 #include "audio.h"
 #include "fileio.h"
 #include "log.h"
@@ -8,6 +10,8 @@
 #if defined(PLATFORM_PS5)
 #include <kernel.h>
 #endif
+
+#ifndef PLATFORM_APPLE
 
 namespace xs::audio
 {
@@ -351,3 +355,88 @@ namespace xs::audio
 		}
 	}
 }
+
+#else
+
+namespace xs::audio
+{
+    void addSoundGroup(const std::string& name, int group_id)
+    {
+    }
+
+    void initialize()
+    {
+    }
+
+    void shutdown()
+    {
+    }
+
+    void update(double dt)
+    {
+    }
+
+    int load(const std::string& filename, int group_id)
+    {
+        return 0;
+    }
+
+    int play(int sound_id)
+    {
+        return 0;
+    }
+
+    double get_group_volume(int group_id)
+    {
+        return 0.0;
+    }
+
+    void set_group_volume(int group_id, double value)
+    {
+    }
+
+    double get_channel_volume(int channel_id)
+    {
+        return 0.0;
+    }
+
+    void set_channel_volume(int channel_id, double value)
+    {
+    }
+
+    double get_bus_volume(const std::string& name)
+    {
+        return 0.0;
+    }
+
+    void set_bus_volume(const std::string& name, double value)
+    {
+    }
+
+    int load_bank(const std::string& filename)
+    {
+        return 0;
+    }
+
+    void unload_bank(int id)
+    {
+    }
+
+    int start_event(const std::string& name)
+    {
+        return 0;
+    }
+
+    void set_parameter_number(int eventID, const std::string& name, double value)
+    {
+    }
+
+    void set_parameter_label(int eventID, const std::string& name, const std::string& label)
+    {
+    }
+}
+
+#endif
+
+
+

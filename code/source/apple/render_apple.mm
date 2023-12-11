@@ -329,8 +329,6 @@ void xs::render::vertex(double x, double y) {}
 
 void xs::render::end() {}
 
-void xs::render::set_color(double r, double g, double b, double a) {}
-
 void xs::render::set_color(color c) {}
 
 void xs::render::line(double x0, double y0, double x1, double y1) {}
