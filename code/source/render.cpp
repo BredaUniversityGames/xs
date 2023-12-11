@@ -90,7 +90,7 @@ int xs::render::load_font(const std::string& font_file, double size)
 #endif
 	if (!success)
 	{
-		log::error("Could not open font file {}\n", path);
+		log::error("Could not open font file {}", path);
 		return -1;
 	}
 
@@ -105,12 +105,12 @@ int xs::render::load_font(const std::string& font_file, double size)
 	const size_t result = fread(reinterpret_cast<void*>(font.buffer), 1, lSize, file);
 
 	if (result)
-		log::info("Number of characters read from font = {}\n", result);
+		log::info("Number of characters read from font = {}", result);
 	fclose(file);
 
 	// Get font info
 	if (!stbtt_InitFont(&font.info, font.buffer, 0))
-		log::info("initializing font has failed\n");
+		log::info("initializing font has failed");
 	
 	// calculate by what factor to scale the font at render time
 	int ascent;
