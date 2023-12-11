@@ -54,7 +54,8 @@ namespace xs::device::internal
     id<MTLCommandQueue> command_queue;      // The queue tied to the view
     id<MTLCommandBuffer> command_buffer;    // The buffer tied to the view
     id<MTLRenderCommandEncoder> render_encoder; // The encoder tied to the view
-    // auto prev_time = chrono::high_resolution_clock::now();
+    auto prev_time = chrono::high_resolution_clock::now();
+    
 }
 using namespace xs;
 using namespace xs::device::internal;
@@ -70,13 +71,17 @@ using namespace xs::device::internal;
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
-    // auto current_time = chrono::high_resolution_clock::now();
-    // auto elapsed = current_time - prev_time;
-    // prev_time = current_time;
-    // auto dt = std::chrono::duration<double>(elapsed).count();
-    // if (dt > 0.03333) dt = 0.03333;
+    auto current_time = chrono::high_resolution_clock::now();
+    auto elapsed = current_time - prev_time;
+    prev_time = current_time;
+    auto dt = std::chrono::duration<double>(elapsed).count();
+    if (dt > 0.03333)
+    {
+        log::warn("Running under than 30 fps. Time per frame:{}. Game will be slowed down.", dt);
+        dt = 0.03333;
+    }
+        
     
-    auto dt = 0.01666;    
     input::update(dt);
     // render::clear();
     script::update(dt);
@@ -149,7 +154,7 @@ void device::shutdown()
 {
     script::shutdown();
     inspector::shutdown();
-    audio::shutdown();
+    //audio::shutdown();
     input::shutdown();
     render::shutdown();
     data::shutdown();
