@@ -7,7 +7,7 @@
 #include "input.h"
 #include "log.h"
 #include "render.h"
-#include "render_appple.h"
+#include "render_apple.h"
 #include "script.h"
 #include "audio.h"
 #include "account.h"

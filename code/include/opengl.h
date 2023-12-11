@@ -3,9 +3,7 @@
 #undef APIENTRY
 #endif
 
-#if defined(__APPLE__)
-#include <OpenGL/gl.h>
-#else
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
 // This should be only place glad is included
 #include <glad/include/glad/glad.h>
 #endif

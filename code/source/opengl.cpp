@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <log.h>
 
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) && defined(DEBUG)
+#if (defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)) && defined(DEBUG)
 
 #ifdef PLATFORM_PC
 #ifdef APIENTRY
