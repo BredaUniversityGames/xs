@@ -11,7 +11,7 @@
 #include <kernel.h>
 #endif
 
-#ifndef PLATFORM_APPLE
+#ifndef PLATFORM_XBOX
 
 namespace xs::audio
 {

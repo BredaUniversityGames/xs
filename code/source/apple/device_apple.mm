@@ -77,7 +77,7 @@ using namespace xs::device::internal;
     auto dt = std::chrono::duration<double>(elapsed).count();
     if (dt > 0.03333)
     {
-        log::warn("Running under than 30 fps. Time per frame:{}. Game will be slowed down.", dt);
+        log::warn("Running under than 30 fps. Time per frame:{}", dt);
         dt = 0.03333;
     }
         
