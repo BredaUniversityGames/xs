@@ -107,6 +107,10 @@
 		3474D63B2B14DFC000441451 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5DF2B14DFC000441451 /* imgui_draw.cpp */; };
 		3474D63C2B14DFC000441451 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5DF2B14DFC000441451 /* imgui_draw.cpp */; };
 		3474D63E2B14E91100441451 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3474D63D2B14E91100441451 /* GameController.framework */; };
+		34866F5C2B28933E0025F40C /* libfmodstudioL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */; };
+		34866F5D2B28933E0025F40C /* libfmodstudioL.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		34866F5E2B28933E0025F40C /* libfmodL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmodL.dylib */; };
+		34866F5F2B28933E0025F40C /* libfmodL.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmodL.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		348FE4262B275C1A000C1F11 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E738E2A4A29D5006ECAD5 /* audio.cpp */; };
 		348FE4272B275C1B000C1F11 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E738E2A4A29D5006ECAD5 /* audio.cpp */; };
 		348FE4282B275C1B000C1F11 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E738E2A4A29D5006ECAD5 /* audio.cpp */; };
@@ -149,6 +153,21 @@
 		34EB6FA62A4CCD2000DA6B15 /* account_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6FA32A4CCD2000DA6B15 /* account_apple.mm */; };
 		34F823952A9352E1003F362C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 346E73642A4A29D5006ECAD5 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		34866F602B28933E0025F40C /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				34866F5D2B28933E0025F40C /* libfmodstudioL.dylib in Embed Libraries */,
+				34866F5F2B28933E0025F40C /* libfmodL.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		34011A382A7DB12600521FCD /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
@@ -240,6 +259,8 @@
 		3474D5DE2B14DFC000441451 /* implot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = implot.h; sourceTree = "<group>"; };
 		3474D5DF2B14DFC000441451 /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
 		3474D63D2B14E91100441451 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
+		34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmodstudioL.dylib; path = external/fmod/lib/mac/libfmodstudioL.dylib; sourceTree = "<group>"; };
+		34866F5B2B28933E0025F40C /* libfmodL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmodL.dylib; path = external/fmod/lib/mac/libfmodL.dylib; sourceTree = "<group>"; };
 		34EB6C952A4C6E6100DA6B15 /* fmod_output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_output.h; sourceTree = "<group>"; };
 		34EB6C962A4C6E6100DA6B15 /* fmod_dsp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_dsp.h; sourceTree = "<group>"; };
 		34EB6C972A4C6E6100DA6B15 /* fmod_errors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_errors.h; sourceTree = "<group>"; };
@@ -813,9 +834,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				3474D63E2B14E91100441451 /* GameController.framework in Frameworks */,
+				34866F5E2B28933E0025F40C /* libfmodL.dylib in Frameworks */,
 				34011A3B2A7DB16B00521FCD /* ModelIO.framework in Frameworks */,
 				34011A392A7DB12600521FCD /* Metal.framework in Frameworks */,
 				346184272A7867A90014B43C /* MetalKit.framework in Frameworks */,
+				34866F5C2B28933E0025F40C /* libfmodstudioL.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -825,6 +848,8 @@
 		346184252A7867A90014B43C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				34866F5B2B28933E0025F40C /* libfmodL.dylib */,
+				34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */,
 				3474D63D2B14E91100441451 /* GameController.framework */,
 				344B227C2B1D174E004B1EA2 /* GameController.framework */,
 				34011A3A2A7DB16B00521FCD /* ModelIO.framework */,
@@ -1823,6 +1848,7 @@
 				346EBFC62A49F33D00771230 /* Sources */,
 				346EBFC72A49F33D00771230 /* Frameworks */,
 				346EBFC82A49F33D00771230 /* Resources */,
+				34866F602B28933E0025F40C /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -2358,6 +2384,10 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/external/fmod/lib/mac",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = BoyanEndrovski.xs;
@@ -2393,6 +2423,10 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/external/fmod/lib/mac",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
