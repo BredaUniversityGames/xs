@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <log.h>
 
-#if (defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)) && defined(DEBUG)
+#if defined(DEBUG)
 
 #ifdef PLATFORM_PC
 #ifdef APIENTRY
@@ -128,9 +128,7 @@ static void APIENTRY debug_callback_func(
 	// ASSERT(type != GL_DEBUG_TYPE_ERROR, "GL Error occurs.");
 }
 
-#endif
-
-#if defined(PLATFORM_PC) && defined(DEBUG)
+#if defined(PLATFORM_PC)
 static void APIENTRY DebugCallbackFuncAMD(
 	GLuint id,
 	GLenum category,
@@ -199,14 +197,16 @@ void xs::init_debug_messages()
 		GL_FALSE);
 }
 
-#elif defined(PLATFORM_SWITCH) && defined(DEBUG)
+#elif defined(PLATFORM_SWITCH)
 
 void init_debug_messages()  
 {
 	glDebugMessageCallback(debug_callback_func, NULL);
 }
 
-#elif defined(__APPLE__)
+#endif
+
+#else
 
 void xs::init_debug_messages() {}
 
