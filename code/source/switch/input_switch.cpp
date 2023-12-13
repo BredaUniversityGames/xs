@@ -261,7 +261,7 @@ void xs::input::update(double dt)
 			nn::hid::NpadStyleSet style = nn::hid::GetNpadStyleSet(joy);
 			if (style.Test<nn::hid::NpadStyleJoyLeft>())
 			{
-				// connected++;
+				connected++;
 				FillJoystickState(state, leftState.buttons, gamepadMapping_leftJoycon);
 				state.Axes[xs::input::gamepad_axis::STICK_LEFT_X] = -NormalizeStickInput(leftState.analogStickL.y);
 				state.Axes[xs::input::gamepad_axis::STICK_LEFT_Y] = -NormalizeStickInput(leftState.analogStickL.x);
