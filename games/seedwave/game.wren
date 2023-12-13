@@ -66,7 +66,7 @@ class Game {
             Game.nextBoss()
         }
 
-        Render.setColor(1, 1, 1, 1)
+        Render.setColor(0xFFFFFFFF)
         var y = 140
         var x = -310
         Render.shapeText("DNA:%(Evolver.currentDna)", x, y, 1)
