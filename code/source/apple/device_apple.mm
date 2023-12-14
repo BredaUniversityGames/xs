@@ -79,13 +79,15 @@ using namespace xs::device::internal;
     {
         log::warn("Running under than 30 fps. Time per frame:{}", dt);
         dt = 0.03333;
-    }
-        
-    
+    }    
     input::update(dt);
-    // render::clear();
-    script::update(dt);
-    script::render();
+    if (!inspector::paused())
+    {
+        render::clear();
+        script::update(dt);
+        //audio::update(dt);
+        script::render();
+    }
     device::start_frame();
     render::render(); // render to texture
     device::internal::create_render_encoder();
