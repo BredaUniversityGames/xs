@@ -108,19 +108,6 @@ void xs::render::initialize()
         pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
         pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
         
-        /*
-         descriptor.colorAttachments[0].blendingEnabled = YES;
-         descriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-         descriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-         descriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-         descriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
-         descriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOne;
-         descriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOne;
-         */
-        
-        
-        // pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        
         _renderToTextureRenderPipeline = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
         assert(_renderToTextureRenderPipeline);
     }
@@ -271,7 +258,6 @@ void xs::render::render()
         }
     }
     
-    sprite_queue.clear();
     [render_encoder endEncoding];
 }
 
@@ -321,7 +307,10 @@ void xs::render::composite()
     }
 }
 
-void xs::render::clear() {}
+void xs::render::clear()
+{
+    sprite_queue.clear();
+}
 
 void xs::render::begin(primitive p) {}
 
