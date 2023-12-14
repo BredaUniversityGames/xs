@@ -46,16 +46,17 @@ namespace xs::script::internal
         if (strcmp(text, "\n") == 0)
             return;
 
+        
+        
+#if defined(PLATFORM_PC)
         static auto magenta = "\033[35m";
         static auto reset = "\033[0m";
-
-#if defined(PLATFORM_PC)
         auto t = std::time(nullptr);
         auto tm = *std::localtime(&t);
         const auto time = std::put_time(&tm, "[%Y-%m-%d %T.%e0] ");
         std::cout << time << "[" << magenta << "script" << reset << "] " << text << endl;
 #else
-        std::cout << "[" << magenta << "script" << reset << "] " << text << endl;
+        std::cout << "[script] " << text << endl;
 #endif
     }
 
