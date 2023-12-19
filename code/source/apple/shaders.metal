@@ -55,6 +55,33 @@ fragment float4 fragment_shader(
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// Debug rendering
+////////////////////////////////////////////////////////////////////////////////////////////////////
+struct debug_to_fragment
+{
+    vec4 position [[position]];
+    vec4 color;
+};
+
+vertex debug_to_fragment vertex_shader_debug(
+   uint vertexID [[vertex_id]],
+   constant debug_vtx_format* vertices [[buffer(index_vertices)]],
+   constant mat4* p_worldviewproj [[buffer(index_wvp)]])
+{
+    mat4 worldviewproj = mat4(*p_worldviewproj);
+    debug_to_fragment dtf;
+    //vec4 h_position = , 1.0);
+    dtf.position = vertices[vertexID].position * worldviewproj;
+    dtf.color = vertices[vertexID].color;
+    return dtf;
+}
+
+fragment float4 fragment_shader_debug(debug_to_fragment dtf [[stage_in]])
+{
+    return dtf.color;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 // Render to screen
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 struct screen_to_fragment
