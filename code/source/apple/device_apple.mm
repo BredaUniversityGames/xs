@@ -24,7 +24,7 @@
 
 #define IView UIView
 
-#elif defined(PLATFORM_MACOS)
+#elif defined(PLATFORM_MAC)
 #import <Cocoa/Cocoa.h>
 
 @interface GameViewController : NSViewController
@@ -143,9 +143,9 @@ using namespace xs::device::internal;
 void device::initialize()
 {
     command_queue = [_view.device newCommandQueue];
-#if defined(PLATFORM_MACOS)
-    CGFloat w = configuration::width();
-    CGFloat h = configuration::height();
+#if defined(PLATFORM_MAC)
+    CGFloat w = configuration::width() * configuration::multiplier();
+    CGFloat h = configuration::height() * configuration::multiplier();;
     //[_view setBoundsSize:{w, h}];
     //[_view setDrawableSize:{w, h}];
     [_view setFrameSize:{w, h}];
