@@ -1,11 +1,8 @@
-//
 //  Header containing types and enum constants shared between Metal shaders and ObjC++ source
-//
-
 
 #pragma once
 
-#ifdef __METAL_VERSION__
+#ifdef __METAL_VERSION__    // Metal
 
 #define NS_ENUM(_type, _name) enum _name : _type _name; enum _name : _type
 typedef metal::int32_t EnumBackingType;
@@ -14,7 +11,7 @@ typedef vector_float3 vec3;
 typedef vector_float4 vec4;
 typedef matrix_float4x4 mat4;
 
-#else
+#else                       // C++
 
 #include <glm/glm.hpp>
 #import <Foundation/Foundation.h>
@@ -51,3 +48,9 @@ typedef enum input_texture_index
 {
     index_sprite_texture  = 0,
 } input_texture_index;
+
+typedef struct
+{
+    vec4 position;
+    vec4 color;    
+} debug_vtx_format;

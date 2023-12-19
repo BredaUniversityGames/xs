@@ -6,6 +6,7 @@
 #include "device_apple.h"
 #include "device.h"
 #include "tools.h"
+#include "log.h"
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
@@ -45,15 +46,27 @@ namespace xs::render::internal
     // A pipeline object to render to the offscreen texture.
     id<MTLRenderPipelineState> _renderToTextureRenderPipeline;
 
+    id<MTLRenderPipelineState> _debugRenderPipeline;
+
     MTLRenderPipelineDescriptor* _pipelineStateDescriptor;
 
     int const                sprite_trigs_max = 21800;
     int                      sprite_trigs_count = 0;
     sprite_vtx_format        sprite_trigs_array[sprite_trigs_max * 3];
 
-    // MTLRenderPassDescriptor* imgui_render_pass_sescriptor = nullptr;
-    // id<MTLCommandBuffer> imgui_command_buffer;
-    // id<MTLRenderCommandEncoder> imgui_command_encoder;
+
+    int const                lines_max = 16000;
+    int                      lines_count = 0;
+    int                      lines_begin_count = 0;
+    debug_vtx_format         lines_array[lines_max * 2];
+
+    int const                triangles_max = 21800;
+    int                      triangles_count = 0;
+    int                      triangles_begin_count = 0;
+    debug_vtx_format         triangles_array[triangles_max * 3];
+
+    primitive               current_primitive = primitive::none;
+    vec4                    current_color = {1.0, 1.0, 1.0, 1.0};
 
     void render_to_view();
 }
@@ -110,6 +123,24 @@ void xs::render::initialize()
         
         _renderToTextureRenderPipeline = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
         assert(_renderToTextureRenderPipeline);
+        
+        id<MTLFunction> vertexDebugFunction = [defaultLibrary newFunctionWithName:@"vertex_shader_debug"];
+        id<MTLFunction> fragmentDebugFunction = [defaultLibrary newFunctionWithName:@"fragment_shader_debug"];
+                
+        MTLRenderPipelineDescriptor *debugStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+        debugStateDescriptor.label = @"xs debug render pipeline";
+        debugStateDescriptor.rasterSampleCount = 1;
+        debugStateDescriptor.vertexFunction = vertexDebugFunction;
+        debugStateDescriptor.fragmentFunction = fragmentDebugFunction;
+        debugStateDescriptor.colorAttachments[0].pixelFormat = _renderTargetTexture.pixelFormat;
+        debugStateDescriptor.colorAttachments[0].blendingEnabled = YES;
+        debugStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        debugStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+        debugStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        debugStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        
+        _debugRenderPipeline = [_device newRenderPipelineStateWithDescriptor:debugStateDescriptor error:&error];
+        assert(_debugRenderPipeline);
     }
     
     // Render to view
@@ -130,14 +161,14 @@ void xs::render::initialize()
 
 void xs::render::shutdown()
 {
-    // ImGui_ImplMetal_Shutdown();
+    // TODO: Cleanup as needed
 }
 
 void xs::render::render()
 {
     XS_PROFILE_SECTION("xs::render::render");
         
-    MTKView* view = device::internal::get_view();
+    // MTKView* view = device::internal::get_view();
 
     auto w = configuration::width() * 0.5f;
     auto h = configuration::height() * 0.5f;
@@ -249,13 +280,43 @@ void xs::render::render()
             [render_encoder setFragmentTexture:image.texture
                 atIndex:index_sprite_texture];
 
-            // Draw the triangle.
+            // Draw the triangles
             [render_encoder drawPrimitives:MTLPrimitiveTypeTriangle
                 vertexStart:0
                 vertexCount:count];
             
             count = 0;
         }
+    }
+        
+    if(triangles_count > 0)
+    {
+        [render_encoder setRenderPipelineState:_debugRenderPipeline];
+                
+        int to_draw = triangles_count;
+        int idx = 0;
+        while(to_draw > 0)
+        {
+            int count = std::min(to_draw, 32);
+            to_draw -= count;
+            
+            [render_encoder setVertexBytes:&triangles_array[idx]
+                length:sizeof(debug_vtx_format) * count * 3
+                atIndex:index_vertices];
+                        
+            [render_encoder setVertexBytes:&vp
+                length:sizeof(mat4)
+                atIndex:index_wvp];
+            
+            // Draw the triangles
+            [render_encoder drawPrimitives:MTLPrimitiveTypeTriangle
+                vertexStart:0
+                vertexCount:count * 3];
+            
+            idx += count * 3;
+        }
+        
+        triangles_count = 0;
     }
     
     [render_encoder endEncoding];
@@ -312,15 +373,98 @@ void xs::render::clear()
     sprite_queue.clear();
 }
 
-void xs::render::begin(primitive p) {}
+void xs::render::begin(primitive p)
+{
+    if (current_primitive == primitive::none)
+    {
+        current_primitive = p;
+        triangles_begin_count = 0;
+        lines_begin_count = 0;
+    }
+    else
+    {
+        xs::log::error("Renderer begin()/end() mismatch! Primitive already active in begin().");
+    }
+}
 
-void xs::render::vertex(double x, double y) {}
+void xs::render::vertex(double x, double y)
+{
+    if (current_primitive == primitive::triangles && triangles_count < triangles_max - 1)
+    {
+        const uint idx = triangles_count * 3;
+        triangles_array[idx + triangles_begin_count].position = { x, y, 0.0f, 1.0f };
+        triangles_array[idx + triangles_begin_count].color = current_color;
+        triangles_begin_count++;
+        if (triangles_begin_count == 3)
+        {
+            triangles_begin_count = 0;
+            triangles_count++;
+        }
+    }
+    else if (current_primitive == primitive::lines && lines_count < lines_max)
+    {
+        if (lines_begin_count == 0)
+        {
+            lines_array[lines_count * 2].position = { x, y, 0.0f, 1.0f };
+            lines_array[lines_count * 2].color = current_color;
+            lines_begin_count++;
+        }
+        else if(lines_begin_count == 1)
+        {
+            lines_array[lines_count * 2 + 1].position = { x, y, 0.0f, 1.0f };
+            lines_array[lines_count * 2 + 1].color = current_color;
+            lines_begin_count++;
+            lines_count++;
+        }
+        else
+        {
+            // assert(lines_begin_count > 1 && lines_count > 1);
+            lines_array[lines_count * 2].position = lines_array[lines_count * 2 - 1].position;
+            lines_array[lines_count * 2].color = lines_array[lines_count * 2 - 1].color;
+            lines_array[lines_count * 2 + 1].position = { x, y, 0.0f, 1.0f };
+            lines_array[lines_count * 2 + 1].color = current_color;
+            lines_begin_count++;
+            lines_count++;
+        }
+    }
+}
 
-void xs::render::end() {}
+void xs::render::end()
+{
+    if(current_primitive == primitive::none)
+    {
+        log::error("Renderer begin()/end() mismatch! No primitive active in end().");
+        return;
+    }
+    
+    current_primitive = primitive::none;
+    if (triangles_begin_count != 0 /* TODO: lines */)
+    {
+        log::error("Renderer vertex()/end() mismatch!");
+    }
 
-void xs::render::set_color(color c) {}
+}
 
-void xs::render::line(double x0, double y0, double x1, double y1) {}
+void xs::render::set_color(color c)
+{
+    current_color.r = c.r / 255.0f;
+    current_color.g = c.g / 255.0f;
+    current_color.b = c.b / 255.0f;
+    current_color.a = c.a / 255.0f;
+}
+
+void xs::render::line(double x0, double y0, double x1, double y1)
+{
+    if (lines_count < lines_max)
+    {
+        lines_array[lines_count * 2].position = {x0, y0, 0.0f, 1.0f};
+        lines_array[lines_count * 2 + 1].position = {x1, y1, 0.0f, 1.0f};
+        lines_array[lines_count * 2].color = current_color;
+        lines_array[lines_count * 2 + 1].color = current_color;
+        ++lines_count;
+    }
+
+}
 
 void xs::render::text(const std::string& text, double x, double y, double size)
 {}
