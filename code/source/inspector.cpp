@@ -124,10 +124,8 @@ void xs::inspector::render(float dt)
 	internal::ok_timer -= dt;
     
     // Assorted hacks
-    float top = 0.0f;
     float width = (float)xs::device::get_width();
 #ifdef PLATFORM_APPLE
-    top += 30.0f;
     width /= 2.0f;
 #endif
 
@@ -146,7 +144,7 @@ void xs::inspector::render(float dt)
 			ImGuiWindowFlags_NoCollapse |
 			ImGuiWindowFlags_NoSavedSettings |
 			ImGuiWindowFlags_NoScrollWithMouse);
-		ImGui::SetWindowPos({ 0, top });
+		ImGui::SetWindowPos({ 0, 0 });
 		ImGui::SetWindowSize({-1, -1 });
         
 		ImGuiStyle& style = ImGui::GetStyle();
