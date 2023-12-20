@@ -30,7 +30,7 @@
     <RemoteDebuggerCommandArguments>
     </RemoteDebuggerCommandArguments>
     <DebuggerFlavor>OasisNXDebugger</DebuggerFlavor>
-    <NintendoTargetSerialNumber>XAL03100084871</NintendoTargetSerialNumber>
+    <NintendoTargetSerialNumber>XJL05100029685</NintendoTargetSerialNumber>
     <NintendoTargetName>Default</NintendoTargetName>
     <NXTargetSerialNumber>$(NintendoTargetSerialNumber)</NXTargetSerialNumber>
     <NXTargetName>$(NintendoTargetName)</NXTargetName>
