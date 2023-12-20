@@ -206,9 +206,5 @@ void init_debug_messages()
 
 #endif
 
-#else
-
-void xs::init_debug_messages() {}
-
 #endif
 
