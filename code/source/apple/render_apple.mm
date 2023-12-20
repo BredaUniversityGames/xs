@@ -54,6 +54,7 @@ namespace xs::render::internal
     int                      sprite_trigs_count = 0;
     sprite_vtx_format        sprite_trigs_array[sprite_trigs_max * 3];
 
+    /*
 
     int const                lines_max = 16000;
     int                      lines_count = 0;
@@ -67,6 +68,7 @@ namespace xs::render::internal
 
     primitive               current_primitive = primitive::none;
     vec4                    current_color = {1.0, 1.0, 1.0, 1.0};
+     */
 
     void render_to_view();
 }
@@ -372,102 +374,6 @@ void xs::render::clear()
 {
     sprite_queue.clear();
 }
-
-void xs::render::begin(primitive p)
-{
-    if (current_primitive == primitive::none)
-    {
-        current_primitive = p;
-        triangles_begin_count = 0;
-        lines_begin_count = 0;
-    }
-    else
-    {
-        xs::log::error("Renderer begin()/end() mismatch! Primitive already active in begin().");
-    }
-}
-
-void xs::render::vertex(double x, double y)
-{
-    if (current_primitive == primitive::triangles && triangles_count < triangles_max - 1)
-    {
-        const uint idx = triangles_count * 3;
-        triangles_array[idx + triangles_begin_count].position = { x, y, 0.0f, 1.0f };
-        triangles_array[idx + triangles_begin_count].color = current_color;
-        triangles_begin_count++;
-        if (triangles_begin_count == 3)
-        {
-            triangles_begin_count = 0;
-            triangles_count++;
-        }
-    }
-    else if (current_primitive == primitive::lines && lines_count < lines_max)
-    {
-        if (lines_begin_count == 0)
-        {
-            lines_array[lines_count * 2].position = { x, y, 0.0f, 1.0f };
-            lines_array[lines_count * 2].color = current_color;
-            lines_begin_count++;
-        }
-        else if(lines_begin_count == 1)
-        {
-            lines_array[lines_count * 2 + 1].position = { x, y, 0.0f, 1.0f };
-            lines_array[lines_count * 2 + 1].color = current_color;
-            lines_begin_count++;
-            lines_count++;
-        }
-        else
-        {
-            // assert(lines_begin_count > 1 && lines_count > 1);
-            lines_array[lines_count * 2].position = lines_array[lines_count * 2 - 1].position;
-            lines_array[lines_count * 2].color = lines_array[lines_count * 2 - 1].color;
-            lines_array[lines_count * 2 + 1].position = { x, y, 0.0f, 1.0f };
-            lines_array[lines_count * 2 + 1].color = current_color;
-            lines_begin_count++;
-            lines_count++;
-        }
-    }
-}
-
-void xs::render::end()
-{
-    if(current_primitive == primitive::none)
-    {
-        log::error("Renderer begin()/end() mismatch! No primitive active in end().");
-        return;
-    }
-    
-    current_primitive = primitive::none;
-    if (triangles_begin_count != 0 /* TODO: lines */)
-    {
-        log::error("Renderer vertex()/end() mismatch!");
-    }
-
-}
-
-void xs::render::set_color(color c)
-{
-    current_color.r = c.r / 255.0f;
-    current_color.g = c.g / 255.0f;
-    current_color.b = c.b / 255.0f;
-    current_color.a = c.a / 255.0f;
-}
-
-void xs::render::line(double x0, double y0, double x1, double y1)
-{
-    if (lines_count < lines_max)
-    {
-        lines_array[lines_count * 2].position = {x0, y0, 0.0f, 1.0f};
-        lines_array[lines_count * 2 + 1].position = {x1, y1, 0.0f, 1.0f};
-        lines_array[lines_count * 2].color = current_color;
-        lines_array[lines_count * 2 + 1].color = current_color;
-        ++lines_count;
-    }
-
-}
-
-void xs::render::text(const std::string& text, double x, double y, double size)
-{}
 
 void xs::render::internal::create_texture_with_data(
     xs::render::internal::image& img,
