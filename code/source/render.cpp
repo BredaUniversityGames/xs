@@ -56,6 +56,19 @@ namespace xs::render::internal
 	std::vector<image>				images = {};
 	glm::vec2						offset = glm::vec2(0.0f, 0.0f);
 
+    // int const                        lines_max = 16000;
+    int                              lines_count = 0;
+    int                              lines_begin_count = 0;
+    debug_vertex_format              lines_array[lines_max * 2];
+
+    //int const                        triangles_max = 21800;
+    int                              triangles_count = 0;
+    int                              triangles_begin_count = 0;
+    debug_vertex_format              triangles_array[triangles_max * 3];
+
+    primitive                        current_primitive = primitive::none;
+    glm::vec4                        current_color = {1.0, 1.0, 1.0, 1.0};
+
 	const int FONT_ATLAS_MIN_CHARACTER = 32;
 	const int FONT_ATLAS_NR_CHARACTERS = 96;
 
@@ -366,6 +379,150 @@ void xs::render::set_offset(double x, double y)
 {
 	xs::render::internal::offset = vec2((float)x, (float)y);
 }
+
+void xs::render::begin(primitive p)
+{
+    if (current_primitive == primitive::none)
+    {
+        current_primitive = p;
+        triangles_begin_count = 0;
+        lines_begin_count = 0;
+    }
+    else
+    {
+        xs::log::error("Renderer begin()/end() mismatch! Primitive already active in begin().");
+    }
+}
+
+void xs::render::vertex(double x, double y)
+{
+    if (current_primitive == primitive::triangles && triangles_count < triangles_max - 1)
+    {
+        const uint idx = triangles_count * 3;
+        triangles_array[idx + triangles_begin_count].position = { x, y, 0.0f, 1.0f };
+        triangles_array[idx + triangles_begin_count].color = current_color;
+        triangles_begin_count++;
+        if (triangles_begin_count == 3)
+        {
+            triangles_begin_count = 0;
+            triangles_count++;
+        }
+    }
+    else if (current_primitive == primitive::lines && lines_count < lines_max)
+    {
+        if (lines_begin_count == 0)
+        {
+            lines_array[lines_count * 2].position = { x, y, 0.0f, 1.0f };
+            lines_array[lines_count * 2].color = current_color;
+            lines_begin_count++;
+        }
+        else if(lines_begin_count == 1)
+        {
+            lines_array[lines_count * 2 + 1].position = { x, y, 0.0f, 1.0f };
+            lines_array[lines_count * 2 + 1].color = current_color;
+            lines_begin_count++;
+            lines_count++;
+        }
+        else
+        {
+            // assert(lines_begin_count > 1 && lines_count > 1);
+            lines_array[lines_count * 2].position = lines_array[lines_count * 2 - 1].position;
+            lines_array[lines_count * 2].color = lines_array[lines_count * 2 - 1].color;
+            lines_array[lines_count * 2 + 1].position = { x, y, 0.0f, 1.0f };
+            lines_array[lines_count * 2 + 1].color = current_color;
+            lines_begin_count++;
+            lines_count++;
+        }
+    }
+}
+
+void xs::render::end()
+{
+    if(current_primitive == primitive::none)
+    {
+        log::error("Renderer begin()/end() mismatch! No primitive active in end().");
+        return;
+    }
+    
+    current_primitive = primitive::none;
+    if (triangles_begin_count != 0 /* TODO: lines */)
+    {
+        log::error("Renderer vertex()/end() mismatch!");
+    }
+
+}
+
+void xs::render::set_color(color c)
+{
+    current_color.r = c.r / 255.0f;
+    current_color.g = c.g / 255.0f;
+    current_color.b = c.b / 255.0f;
+    current_color.a = c.a / 255.0f;
+}
+
+void xs::render::line(double x0, double y0, double x1, double y1)
+{
+    if (lines_count < lines_max)
+    {
+        lines_array[lines_count * 2].position = {x0, y0, 0.0f, 1.0f};
+        lines_array[lines_count * 2 + 1].position = {x1, y1, 0.0f, 1.0f};
+        lines_array[lines_count * 2].color = current_color;
+        lines_array[lines_count * 2 + 1].color = current_color;
+        ++lines_count;
+    }
+
+}
+
+void xs::render::text(const std::string& text, double x, double y, double size)
+{
+    struct stbVec
+    {
+        float x;
+        float y;
+        float z;
+        unsigned char color[4];
+    };
+
+    static stbVec vertexBuffer[2048];
+
+    const auto n = text.length();
+    char* asChar = new char[n + 1];
+    strcpy(asChar, text.c_str());
+    const int numQuads = stb_easy_font_print(0, 0, asChar, nullptr, vertexBuffer, sizeof(vertexBuffer));
+    delete[] asChar;
+
+    const vec4 origin(x, y, 0.0f, 0.0f);
+    const auto s = static_cast<float>(size);
+    for (int i = 0; i < numQuads; i++)
+    {
+        const auto& v0 = vertexBuffer[i * 4 + 0];
+        const auto& v1 = vertexBuffer[i * 4 + 1];
+        const auto& v2 = vertexBuffer[i * 4 + 2];
+        const auto& v3 = vertexBuffer[i * 4 + 3];
+
+        const uint idx = triangles_count * 3;
+        triangles_array[idx + 0].position = s * vec4(v0.x, -v0.y, v0.z, 1.0f) + origin;
+        triangles_array[idx + 2].position = s * vec4(v1.x, -v1.y, v1.z, 1.0f) + origin;
+        triangles_array[idx + 1].position = s * vec4(v2.x, -v2.y, v2.z, 1.0f) + origin;
+        triangles_array[idx + 3].position = s * vec4(v2.x, -v2.y, v2.z, 1.0f) + origin;
+        triangles_array[idx + 4].position = s * vec4(v3.x, -v3.y, v3.z, 1.0f) + origin;
+        triangles_array[idx + 5].position = s * vec4(v0.x, -v0.y, v0.z, 1.0f) + origin;
+
+        triangles_array[idx + 0].color = current_color;
+        triangles_array[idx + 1].color = current_color;
+        triangles_array[idx + 2].color = current_color;
+
+        triangles_array[idx + 3].color = current_color;
+        triangles_array[idx + 4].color = current_color;
+        triangles_array[idx + 5].color = current_color;
+
+        triangles_count += 2;
+
+        if (triangles_count >= triangles_max)
+            return;
+    }
+}
+
 
 #if defined(PLATFORM_PC)
 
