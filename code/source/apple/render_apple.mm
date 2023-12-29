@@ -321,6 +321,35 @@ void xs::render::render()
         triangles_count = 0;
     }
     
+    if(lines_count > 0)
+    {
+        [render_encoder setRenderPipelineState:_debugRenderPipeline];
+        int to_draw = lines_count;
+        int idx = 0;
+        while(to_draw > 0)
+        {
+            int count = std::min(to_draw, 32);
+            to_draw -= count;
+            
+            [render_encoder setVertexBytes:&lines_array[idx]
+                length:sizeof(debug_vtx_format) * count * 2
+                atIndex:index_vertices];
+                        
+            [render_encoder setVertexBytes:&vp
+                length:sizeof(mat4)
+                atIndex:index_wvp];
+            
+            // Draw the triangles
+            [render_encoder drawPrimitives:MTLPrimitiveTypeLine
+                vertexStart:0
+                vertexCount:count * 2];
+            
+            idx += count * 2;
+        }
+        
+        lines_count = 0;
+    }
+    
     [render_encoder endEncoding];
 }
 
