@@ -112,7 +112,6 @@ void fileio::initialize(/* const std::string& main_script*/)
 			}
 		}
 	}
-	assert(success);
 
 #if defined(PLATFORM_PC)
 	if(!success)
@@ -142,6 +141,9 @@ void fileio::initialize(/* const std::string& main_script*/)
 	}
 #elif defined(PLATFORM_PS5)	
 	// add_wildcard("[save]", save_path);
+#elif defined(PLATFORM_SWITCH)
+	if(!success)
+		log::info("Please provide a valid game folder in the games/.ini file!");
 #endif
 }
 
