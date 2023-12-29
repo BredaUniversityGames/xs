@@ -3,11 +3,8 @@
 #include <nn/hid/hid_KeyboardKey.h>
 #include <nn/hid/hid_Mouse.h>
 #include <opengl.h>
-//#include <Core/Engine.h>
-//#include <Core/Device.h>
 #include <cfloat>
 
-//static double       g_Time = 0.0f;
 static GLuint       g_FontTexture = 0;
 static int          g_ShaderHandle = 0, g_VertHandle = 0, g_FragHandle = 0;
 static int          g_AttribLocationTex = 0, g_AttribLocationProjMtx = 0;
@@ -233,29 +230,6 @@ IMGUI_API bool ImGui_Impl_Switch_Init()
 	//io.RenderDrawListsFn = ImGui_Impl_Switch_RenderDrawLists;       // Alternatively you can set this to NULL and call ImGui::GetDrawData() after ImGui::Render() to get the same ImDrawData pointer.
 	io.MouseDrawCursor = true;	
 
-	/*	
-	io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;                         // Keyboard mapping. ImGui will use those indices to peek into the io.KeyDown[] array.
-	io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-	io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-	io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-	io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-	io.KeyMap[ImGuiKey_PageUp] = GLFW_KEY_PAGE_UP;
-	io.KeyMap[ImGuiKey_PageDown] = GLFW_KEY_PAGE_DOWN;
-	io.KeyMap[ImGuiKey_Home] = GLFW_KEY_HOME;
-	io.KeyMap[ImGuiKey_End] = GLFW_KEY_END;
-	io.KeyMap[ImGuiKey_Insert] = GLFW_KEY_INSERT;
-	io.KeyMap[ImGuiKey_Delete] = GLFW_KEY_DELETE;
-	io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-	io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-	io.KeyMap[ImGuiKey_Escape] = GLFW_KEY_ESCAPE;
-	io.KeyMap[ImGuiKey_A] = GLFW_KEY_A;
-	io.KeyMap[ImGuiKey_C] = GLFW_KEY_C;
-	io.KeyMap[ImGuiKey_V] = GLFW_KEY_V;
-	io.KeyMap[ImGuiKey_X] = GLFW_KEY_X;
-	io.KeyMap[ImGuiKey_Y] = GLFW_KEY_Y;
-	io.KeyMap[ImGuiKey_Z] = GLFW_KEY_Z;
-	*/
-
 	nn::hid::InitializeMouse();
 	nn::hid::InitializeKeyboard();	
 
@@ -286,12 +260,6 @@ void ImGui_Impl_Switch_NewFrame()
 	io.DisplaySize = ImVec2((float)w, (float)h);
 	io.DisplayFramebufferScale = ImVec2(w > 0 ? ((float)display_w / w) : 0, h > 0 ? ((float)display_h / h) : 0);
 
-	// TODO: Get the actual time Osm::Engine.Device().GetTime();
-	// Setup time step
-	//float current_time = 0.016f; 
-	//io.DeltaTime = g_Time > 0.0 ? (float)(current_time - g_Time) : (float)(1.0f / 60.0f);
-	//g_Time = current_time;
-
 	nn::hid::GetKeyboardState(&g_KeyboardState);
 	nn::hid::GetMouseState(&g_MouseState);
 
@@ -313,41 +281,6 @@ void ImGui_Impl_Switch_NewFrame()
 	{
 		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
 	}
-
-	/*
-	// Setup inputs
-	// (we already got mouse wheel, keyboard keys & characters from glfw callbacks polled in glfwPollEvents())
-	if (glfwGetWindowAttrib(g_Window, GLFW_FOCUSED))
-	{
-		if (io.WantMoveMouse)
-		{
-			glfwSetCursorPos(g_Window, (double)io.MousePos.x, (double)io.MousePos.y);   // Set mouse position if requested by io.WantMoveMouse flag (used when io.NavMovesTrue is enabled by user and using directional navigation)
-		}
-		else
-		{
-			double mouse_x, mouse_y;
-			glfwGetCursorPos(g_Window, &mouse_x, &mouse_y);
-			io.MousePos = ImVec2((float)mouse_x, (float)mouse_y);
-		}
-	}
-	else
-	{
-		io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX);
-	}
-
-	for (int i = 0; i < 3; i++)
-	{
-		// If a mouse press event came, always pass it as "mouse held this frame", so we don't miss click-release events that are shorter than 1 frame.
-		io.MouseDown[i] = g_MouseJustPressed[i] || glfwGetMouseButton(g_Window, i) != 0;
-		g_MouseJustPressed[i] = false;
-	}
-
-	// Hide OS mouse cursor if ImGui is drawing it
-	glfwSetInputMode(g_Window, GLFW_CURSOR, io.MouseDrawCursor ? GLFW_CURSOR_HIDDEN : GLFW_CURSOR_NORMAL);
-	*/
-
-	// Start the frame. This call will update the io.WantCaptureMouse, io.WantCaptureKeyboard flag that you can use to dispatch inputs (or not) to your application.
-	ImGui::NewFrame();
 }
 
 void ImGui_Impl_Switch_RenderDrawData(ImDrawData* data)

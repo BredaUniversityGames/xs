@@ -122,12 +122,6 @@ void xs::inspector::render(float dt)
     ImGui::NewFrame();
 
 	internal::ok_timer -= dt;
-    
-    // Assorted hacks
-    float width = (float)xs::device::get_width();
-#ifdef PLATFORM_APPLE
-    width /= 2.0f;
-#endif
 
     auto mousePos = ImGui::GetMousePos();
 	if (xs::script::has_error() ||
