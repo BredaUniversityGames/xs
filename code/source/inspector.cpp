@@ -129,12 +129,17 @@ void xs::inspector::render(float dt)
     width /= 2.0f;
 #endif
 
+    auto mousePos = ImGui::GetMousePos();
 	if (xs::script::has_error() ||
 		internal::show_registry ||
 		internal::show_profiler ||
-		(ImGui::IsMousePosValid() && ImGui::GetMousePos().y < 100.0f))
+		(ImGui::IsMousePosValid() &&
+         mousePos.y < 100.0f &&
+         mousePos.y >= 0.0f &&
+         mousePos.y <= device::get_height() &&
+         mousePos.x >= 0.0f &&
+         mousePos.x <= device::get_width()))
 	{
-
 		bool true_that = true;
 		ImGui::Begin("Window", &true_that,
 			ImGuiWindowFlags_NoScrollbar |
