@@ -225,7 +225,7 @@ bool xs::fileio::exists(const std::string& filename)
 	return good;
 }
 
-#if defined(PLATFORM_PC) && (defined(DEBUG) || defined(PROFILE))
+#if (defined(PLATFORM_PC) || defined(PLATFORM_MAC)) && (defined(DEBUG) || defined(PROFILE))
 
 uint64_t xs::fileio::last_write(const std::string& filename)
 {

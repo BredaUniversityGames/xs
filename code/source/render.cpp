@@ -46,6 +46,12 @@
 #include <stb/stb_image_write.h>
 #endif
 
+#if defined(PLATFORM_PC) || defined(PLATFORM_MAC)
+#define CAN_RELOAD_IMAGES 1
+#endif
+
+
+
 using namespace glm;
 
 namespace xs::render::internal
@@ -56,12 +62,10 @@ namespace xs::render::internal
 	std::vector<image>				images = {};
 	glm::vec2						offset = glm::vec2(0.0f, 0.0f);
 
-    // int const                        lines_max = 16000;
     int                              lines_count = 0;
     int                              lines_begin_count = 0;
     debug_vertex_format              lines_array[lines_max * 2];
 
-    //int const                        triangles_max = 21800;
     int                              triangles_count = 0;
     int                              triangles_begin_count = 0;
     debug_vertex_format              triangles_array[triangles_max * 3];
@@ -72,7 +76,7 @@ namespace xs::render::internal
 	const int FONT_ATLAS_MIN_CHARACTER = 32;
 	const int FONT_ATLAS_NR_CHARACTERS = 96;
 
-#ifdef PLATFORM_PC
+#ifdef CAN_RELOAD_IMAGES
 	std::vector<uint64_t> last_write_times;
 #endif
 }
@@ -179,7 +183,7 @@ int xs::render::load_font(const std::string& font_file, double size)
 #endif
 	free(bitmap);
 
-#if defined(PLATFORM_PC)
+#if CAN_RELOAD_IMAGES
 	last_write_times.push_back(0);
 #endif
 
@@ -308,7 +312,7 @@ int xs::render::load_image(const std::string& image_file)
 	images.push_back(img);	
 
 
-#if defined(PLATFORM_PC)
+#ifdef CAN_RELOAD_IMAGES
 	auto tm = xs::fileio::last_write(image_file);
 	last_write_times.push_back(tm);
 #endif
@@ -524,7 +528,7 @@ void xs::render::text(const std::string& text, double x, double y, double size)
 }
 
 
-#if defined(PLATFORM_PC)
+#ifdef CAN_RELOAD_IMAGES
 
 void xs::render::reload_images()
 {
