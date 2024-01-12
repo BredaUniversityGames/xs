@@ -5,7 +5,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "opengl.h"
 #include "configuration.h"
 #include "fileio.h"
 #include "log.h"
@@ -13,9 +12,21 @@
 #include "device.h"
 #include "profiler.h"
 
-// Include STB
+// Include stb_image 
+#ifdef PLATFORM_SWITCH
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#pragma clang diagnostic pop
+#else
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+#endif
+
+// Include stb_truetype
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <stb/stb_truetype.h>
 #ifdef PLATFORM_SWITCH
@@ -35,6 +46,12 @@
 #include <stb/stb_image_write.h>
 #endif
 
+#if defined(PLATFORM_PC) || defined(PLATFORM_MAC)
+#define CAN_RELOAD_IMAGES 1
+#endif
+
+
+
 using namespace glm;
 
 namespace xs::render::internal
@@ -45,10 +62,21 @@ namespace xs::render::internal
 	std::vector<image>				images = {};
 	glm::vec2						offset = glm::vec2(0.0f, 0.0f);
 
+    int                              lines_count = 0;
+    int                              lines_begin_count = 0;
+    debug_vertex_format              lines_array[lines_max * 2];
+
+    int                              triangles_count = 0;
+    int                              triangles_begin_count = 0;
+    debug_vertex_format              triangles_array[triangles_max * 3];
+
+    primitive                        current_primitive = primitive::none;
+    glm::vec4                        current_color = {1.0, 1.0, 1.0, 1.0};
+
 	const int FONT_ATLAS_MIN_CHARACTER = 32;
 	const int FONT_ATLAS_NR_CHARACTERS = 96;
 
-#ifdef PLATFORM_PC
+#ifdef CAN_RELOAD_IMAGES
 	std::vector<uint64_t> last_write_times;
 #endif
 }
@@ -79,7 +107,7 @@ int xs::render::load_font(const std::string& font_file, double size)
 #endif
 	if (!success)
 	{
-		log::error("Could not open font file {}\n", path);
+		log::error("Could not open font file {}", path);
 		return -1;
 	}
 
@@ -94,12 +122,12 @@ int xs::render::load_font(const std::string& font_file, double size)
 	const size_t result = fread(reinterpret_cast<void*>(font.buffer), 1, lSize, file);
 
 	if (result)
-		log::info("Number of characters read from font = {}\n", result);
+		log::info("Number of characters read from font = {}", result);
 	fclose(file);
 
 	// Get font info
 	if (!stbtt_InitFont(&font.info, font.buffer, 0))
-		log::info("initializing font has failed\n");
+		log::info("initializing font has failed");
 	
 	// calculate by what factor to scale the font at render time
 	int ascent;
@@ -155,7 +183,7 @@ int xs::render::load_font(const std::string& font_file, double size)
 #endif
 	free(bitmap);
 
-#if defined(PLATFORM_PC)
+#if CAN_RELOAD_IMAGES
 	last_write_times.push_back(0);
 #endif
 
@@ -284,7 +312,7 @@ int xs::render::load_image(const std::string& image_file)
 	images.push_back(img);	
 
 
-#if defined(PLATFORM_PC)
+#ifdef CAN_RELOAD_IMAGES
 	auto tm = xs::fileio::last_write(image_file);
 	last_write_times.push_back(tm);
 #endif
@@ -356,7 +384,151 @@ void xs::render::set_offset(double x, double y)
 	xs::render::internal::offset = vec2((float)x, (float)y);
 }
 
-#if defined(PLATFORM_PC)
+void xs::render::begin(primitive p)
+{
+    if (current_primitive == primitive::none)
+    {
+        current_primitive = p;
+        triangles_begin_count = 0;
+        lines_begin_count = 0;
+    }
+    else
+    {
+        xs::log::error("Renderer begin()/end() mismatch! Primitive already active in begin().");
+    }
+}
+
+void xs::render::vertex(double x, double y)
+{
+    if (current_primitive == primitive::triangles && triangles_count < triangles_max - 1)
+    {
+        const uint idx = triangles_count * 3;
+        triangles_array[idx + triangles_begin_count].position = { x, y, 0.0f, 1.0f };
+        triangles_array[idx + triangles_begin_count].color = current_color;
+        triangles_begin_count++;
+        if (triangles_begin_count == 3)
+        {
+            triangles_begin_count = 0;
+            triangles_count++;
+        }
+    }
+    else if (current_primitive == primitive::lines && lines_count < lines_max)
+    {
+        if (lines_begin_count == 0)
+        {
+            lines_array[lines_count * 2].position = { x, y, 0.0f, 1.0f };
+            lines_array[lines_count * 2].color = current_color;
+            lines_begin_count++;
+        }
+        else if(lines_begin_count == 1)
+        {
+            lines_array[lines_count * 2 + 1].position = { x, y, 0.0f, 1.0f };
+            lines_array[lines_count * 2 + 1].color = current_color;
+            lines_begin_count++;
+            lines_count++;
+        }
+        else
+        {
+            // assert(lines_begin_count > 1 && lines_count > 1);
+            lines_array[lines_count * 2].position = lines_array[lines_count * 2 - 1].position;
+            lines_array[lines_count * 2].color = lines_array[lines_count * 2 - 1].color;
+            lines_array[lines_count * 2 + 1].position = { x, y, 0.0f, 1.0f };
+            lines_array[lines_count * 2 + 1].color = current_color;
+            lines_begin_count++;
+            lines_count++;
+        }
+    }
+}
+
+void xs::render::end()
+{
+    if(current_primitive == primitive::none)
+    {
+        log::error("Renderer begin()/end() mismatch! No primitive active in end().");
+        return;
+    }
+    
+    current_primitive = primitive::none;
+    if (triangles_begin_count != 0 /* TODO: lines */)
+    {
+        log::error("Renderer vertex()/end() mismatch!");
+    }
+
+}
+
+void xs::render::set_color(color c)
+{
+    current_color.r = c.r / 255.0f;
+    current_color.g = c.g / 255.0f;
+    current_color.b = c.b / 255.0f;
+    current_color.a = c.a / 255.0f;
+}
+
+void xs::render::line(double x0, double y0, double x1, double y1)
+{
+    if (lines_count < lines_max)
+    {
+        lines_array[lines_count * 2].position = {x0, y0, 0.0f, 1.0f};
+        lines_array[lines_count * 2 + 1].position = {x1, y1, 0.0f, 1.0f};
+        lines_array[lines_count * 2].color = current_color;
+        lines_array[lines_count * 2 + 1].color = current_color;
+        ++lines_count;
+    }
+
+}
+
+void xs::render::text(const std::string& text, double x, double y, double size)
+{
+    struct stbVec
+    {
+        float x;
+        float y;
+        float z;
+        unsigned char color[4];
+    };
+
+    static stbVec vertexBuffer[2048];
+
+    const auto n = text.length();
+    char* asChar = new char[n + 1];
+    strcpy(asChar, text.c_str());
+    const int numQuads = stb_easy_font_print(0, 0, asChar, nullptr, vertexBuffer, sizeof(vertexBuffer));
+    delete[] asChar;
+
+    const vec4 origin(x, y, 0.0f, 0.0f);
+    const auto s = static_cast<float>(size);
+    for (int i = 0; i < numQuads; i++)
+    {
+        const auto& v0 = vertexBuffer[i * 4 + 0];
+        const auto& v1 = vertexBuffer[i * 4 + 1];
+        const auto& v2 = vertexBuffer[i * 4 + 2];
+        const auto& v3 = vertexBuffer[i * 4 + 3];
+
+        const uint idx = triangles_count * 3;
+        triangles_array[idx + 0].position = s * vec4(v0.x, -v0.y, v0.z, 1.0f) + origin;
+        triangles_array[idx + 2].position = s * vec4(v1.x, -v1.y, v1.z, 1.0f) + origin;
+        triangles_array[idx + 1].position = s * vec4(v2.x, -v2.y, v2.z, 1.0f) + origin;
+        triangles_array[idx + 3].position = s * vec4(v2.x, -v2.y, v2.z, 1.0f) + origin;
+        triangles_array[idx + 4].position = s * vec4(v3.x, -v3.y, v3.z, 1.0f) + origin;
+        triangles_array[idx + 5].position = s * vec4(v0.x, -v0.y, v0.z, 1.0f) + origin;
+
+        triangles_array[idx + 0].color = current_color;
+        triangles_array[idx + 1].color = current_color;
+        triangles_array[idx + 2].color = current_color;
+
+        triangles_array[idx + 3].color = current_color;
+        triangles_array[idx + 4].color = current_color;
+        triangles_array[idx + 5].color = current_color;
+
+        triangles_count += 2;
+
+        if (triangles_count >= triangles_max)
+            return;
+    }
+}
+
+
+#ifdef CAN_RELOAD_IMAGES
 
 void xs::render::reload_images()
 {

@@ -157,9 +157,6 @@
     <ClCompile Include="code\source\device.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\imgui\cpp\imgui_stdlib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="code\source\configuration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -167,6 +164,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\source\render_gl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\misc\cpp\imgui_stdlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -336,7 +336,7 @@
     <ClInclude Include="code\source\ps5\shaders\vertex_format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\include\pc\account_pc.h">
+    <ClInclude Include="external\imgui\misc\cpp\imgui_stdlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -368,8 +368,5 @@
   <ItemGroup>
     <WavePsslc Include="code\source\ps5\shaders\sprite_p.pssl" />
     <WavePsslc Include="code\source\ps5\shaders\sprite_vv.pssl" />
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="external\imgui\debuggers\imgui.natvis" />
   </ItemGroup>
 </Project>

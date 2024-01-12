@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <queue>
 #include "log.h"
 #include <nn/hid/hid_Npad.h>
@@ -385,6 +386,9 @@ void xs::input::update(double dt)
 	_touches_gameCoordinates.resize(_touchScreenState.count);
 	for (auto i = 0; i < _touchScreenState.count; ++i)
 		xs::configuration::scale_to_game(_touchScreenState.touches[i].x, _touchScreenState.touches[i].y, internal::touchScreenToGame, _touches_gameCoordinates[i].first, _touches_gameCoordinates[i].second);
+
+	if (connected == 0)
+		xs::log::warn("No controllers connected!");
 	
 	// Check if there are any new controllers this frame
 	//AddJoystick(nn::hid::NpadId::No1);

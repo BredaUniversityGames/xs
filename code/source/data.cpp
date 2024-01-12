@@ -11,7 +11,7 @@
 #include "json/json.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
-#include "imgui/cpp/imgui_stdlib.h"
+#include "imgui/misc/cpp/imgui_stdlib.h"
 #include "imgui/IconsFontAwesome5.h"
 
 using namespace xs;
@@ -126,7 +126,7 @@ void xs::data::inspect(bool& show)
 		history.push_back(r);
 	}
 
-	ImGui::Begin(u8"\U0000f1c0  Data", &show, ImGuiWindowFlags_NoCollapse);
+	ImGui::Begin((const char*)u8"\U0000f1c0  Data", &show, ImGuiWindowFlags_NoCollapse);
 
 
 	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
@@ -195,22 +195,22 @@ std::string xs::data::get_string(const std::string& name, type type)
 
 void xs::data::set_number(const std::string& name, double value, type tp)
 {
-	set<double>(name, value, tp);
+	xs::data::internal::set<double>(name, value, tp);
 }
 
 void xs::data::set_color(const std::string& name, uint32_t value, type tp)
 {
-	set<uint32_t>(name, value, tp);
+    xs::data::internal::set<uint32_t>(name, value, tp);
 }
 
 void xs::data::set_bool(const std::string& name, bool value, type tp)
 {
-	set<bool>(name, value, tp);
+    xs::data::internal::set<bool>(name, value, tp);
 }
 
 void xs::data::set_string(const std::string& name, const std::string& value, type tp)
 {
-	set<string>(name, value, tp);
+    xs::data::internal::set<string>(name, value, tp);
 }
 
 
@@ -428,7 +428,7 @@ bool xs::data::internal::inspect_entry(
 
 		ImGui::SameLine(ImGui::GetWindowWidth() - 40);
 		ImGui::PushID(itr.first.c_str());
-		if (ImGui::Button(u8"\U0000f1f8"))
+		if (ImGui::Button((const char*)u8"\U0000f1f8"))
 		{
 			reg.erase(itr.first);
 		}
