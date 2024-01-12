@@ -36,6 +36,7 @@ if os.path.exists(source_dir):
     shutil.copytree(asset_dir, output_dir, False, ignore=ignore_patterns('*.obj', ".bnvib", "*.py"))    
     
     shutil.copy(current_dir + "\\games\\.ini", current_dir + "/build/games/.ini")
+    
     #shutil.copy(current_dir + "/tools/.itch.toml", current_dir + "/build/.itch.toml")
 
     #butler_command = "butler push build bojan/" + itch_name + ":windows-beta"
