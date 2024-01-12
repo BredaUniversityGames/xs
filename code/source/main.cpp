@@ -48,8 +48,12 @@ int main(int argc, char* argv[])
     return  xs::main(argc, argv);
 }
 
+#elif defined(PLATFORM_APPLE)
+int main(int argc, char* argv[])
+{
+    static_assert(false);
+}
 #endif
-
 
 int xs::main(int argc, char* argv[])
 {	
@@ -83,9 +87,10 @@ int xs::main(int argc, char* argv[])
             audio::update(dt);
             script::render();
         }
+        device::begin_frame();
         render::render();
         inspector::render(float(dt));
-        device::swap_buffers();
+        device::end_frame();
 	}
 
     inspector::shutdown();
@@ -99,4 +104,3 @@ int xs::main(int argc, char* argv[])
 
 	return 0;
 }
-

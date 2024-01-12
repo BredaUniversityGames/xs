@@ -18,7 +18,11 @@ void device::shutdown()
 {
 }
 
-void device::swap_buffers()
+void device::begin_frame()
+{
+}
+
+void device::end_frame()
 {
 }
 

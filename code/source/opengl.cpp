@@ -1,8 +1,16 @@
 #include <string>
-#define GLFW_INCLUDE_NONE
 #include <opengl.h>
 #include <GLFW/glfw3.h>
 #include <log.h>
+
+#if defined(DEBUG)
+
+#ifdef PLATFORM_PC
+#ifdef APIENTRY
+#undef APIENTRY
+#endif
+#include <Windows.h>
+#endif
 
 static void APIENTRY debug_callback_func(
 	GLenum source,
@@ -120,7 +128,7 @@ static void APIENTRY debug_callback_func(
 	// ASSERT(type != GL_DEBUG_TYPE_ERROR, "GL Error occurs.");
 }
 
-#if defined(PLATFORM_PC) && defined(DEBUG)
+#if defined(PLATFORM_PC)
 static void APIENTRY DebugCallbackFuncAMD(
 	GLuint id,
 	GLenum category,
@@ -191,9 +199,12 @@ void xs::init_debug_messages()
 
 #elif defined(PLATFORM_SWITCH)
 
-void init_debug_messages()
+void init_debug_messages()  
 {
 	glDebugMessageCallback(debug_callback_func, NULL);
 }
+
+#endif
+
 #endif
 

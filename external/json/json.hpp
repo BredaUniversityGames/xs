@@ -2386,6 +2386,13 @@ using is_detected_convertible =
     #endif
 #endif
 
+#ifdef PLATFORM_SWITCH
+    #undef JSON_HAS_FILESYSTEM
+    #define JSON_HAS_FILESYSTEM 0
+	#undef JSON_HAS_EXPERIMENTAL_FILESYSTEM
+    #define JSON_HAS_EXPERIMENTAL_FILESYSTEM 0
+#endif
+
 #ifndef JSON_HAS_EXPERIMENTAL_FILESYSTEM
     #define JSON_HAS_EXPERIMENTAL_FILESYSTEM 0
 #endif
@@ -2393,6 +2400,7 @@ using is_detected_convertible =
 #ifndef JSON_HAS_FILESYSTEM
     #define JSON_HAS_FILESYSTEM 0
 #endif
+
 
 // disable documentation warnings on clang
 #if defined(__clang__)

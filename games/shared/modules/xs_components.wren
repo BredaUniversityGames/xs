@@ -118,8 +118,8 @@ class Sprite is Renderable {
     scale { _scale }
     scale=(s) { _scale = s }
 
-    //rotation { _rotation }
-    //rotation=(r) { _rotation = r }
+    rotation { _rotation }
+    rotation=(r) { _rotation = r }
 
     sprite_=(s) { _sprite = s }
     sprite { _sprite }
@@ -147,6 +147,9 @@ class Label is Sprite {
         var t = owner.getComponent(Transform)
         Render.text(_font, _text, t.position.x, t.position.y, mul, add, flags)
     }
+
+    text { _text }
+    text=(t) { _text = t }
 
     //toString { "[Sprite sprite:%(_sprite)] -> " + super.toString }
 }

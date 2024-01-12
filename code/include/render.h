@@ -78,8 +78,6 @@ namespace xs::render
 		color z_offests[],
 		unsigned int flags);
 
-
-
 	void render_text(
 		int font_id,
 		const std::string& text,

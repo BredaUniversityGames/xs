@@ -3,8 +3,10 @@
 #undef APIENTRY
 #endif
 
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
 // This should be only place glad is included
 #include <glad/include/glad/glad.h>
+#endif
 
 #ifdef DEBUG
 #define XS_DEBUG_ONLY(x) (x)

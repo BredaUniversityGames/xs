@@ -17,6 +17,10 @@
 #include <filesystem>
 #endif
 
+#if defined(PLTFORM_APPLE)
+#import <Foundation/Foundation.h>
+#endif
+
 namespace xs::fileio::internal
 {
 	std::map<std::string, std::string> wildcards;
@@ -26,11 +30,15 @@ using namespace xs;
 using namespace fileio::internal;
 using namespace std;
 
+#if !defined(PLATFORM_APPLE)
+
 void fileio::initialize(/* const std::string& main_script*/)
 {
 #if defined(PLATFORM_PC)
 	add_wildcard("[games]", "./games");
-
+    
+#elif defined(PLATFORM_APPLE)
+    
 #elif defined(PLATFORM_SWITCH)
 	nn::Result result;
 	size_t cacheSize = 0;
@@ -58,7 +66,7 @@ void fileio::initialize(/* const std::string& main_script*/)
 
 	// Mount save data
 	{
-		spdlog::info("Mount save data");
+		log::info("Mount save data");
 
 		// Get the user identifier from the account
 		nn::account::Uid user = nn::account::InvalidUid;
@@ -104,7 +112,6 @@ void fileio::initialize(/* const std::string& main_script*/)
 			}
 		}
 	}
-	assert(success);
 
 #if defined(PLATFORM_PC)
 	if(!success)
@@ -132,10 +139,13 @@ void fileio::initialize(/* const std::string& main_script*/)
 			filesystem::create_directory(save_path);
  		add_wildcard("[save]", save_path);
 	}
-#elif defined(PLATFORM_PS5)	
-	// add_wildcard("[save]", save_path);
+#elif defined(PLATFORM_SWITCH) || defined(PLATFORM_PS5)
+	if(!success)
+		log::info("Please provide a valid game folder in the games/.ini file!");
 #endif
 }
+
+#endif
 
 vector<char> fileio::read_binary_file(const std::string& filename)
 {
@@ -213,7 +223,7 @@ bool xs::fileio::exists(const std::string& filename)
 	return good;
 }
 
-#if defined(PLATFORM_PC) && (defined(DEBUG) || defined(PROFILE))
+#if (defined(PLATFORM_PC) || defined(PLATFORM_MAC)) && (defined(DEBUG) || defined(PROFILE))
 
 uint64_t xs::fileio::last_write(const std::string& filename)
 {

@@ -168,8 +168,14 @@ void xs::device::initialize()
 
 	if (!gladLoadGLLoader(GLADloadproc(eglGetProcAddress)))
 	{
-		spdlog::critical("Failed to initialize OpenGL context");
+		log::critical("Failed to initialize OpenGL context");
 		NN_ASSERT(false);
+	}
+
+	if (eglResult == EGL_FALSE)
+	{
+		xs::log::error("Failed to initialize EGL");
+		xs::device::shutdown();
 	}
 
 	logOpenGLVersionInfo();
@@ -190,6 +196,9 @@ void xs::device::shutdown()
 	eglResult = ::eglReleaseThread();
 	NN_ASSERT(eglResult, "eglReleaseThread failed.");
 
+	if (eglResult == EGL_FALSE)
+		xs::log::error("Failed to terminate EGL");
+
 	nn::vi::DestroyLayer(layer);
 	nn::vi::CloseDisplay(nnDisplay);
 	nn::vi::Finalize();
@@ -197,7 +206,9 @@ void xs::device::shutdown()
 	nv::FinalizeGraphics();
 }
 
-void xs::device::swap_buffers()
+void xs::device::begin_frame() {}
+
+void xs::device::end_frame()
 {
 	XS_PROFILE_FUNCTION();
 	::eglSwapBuffers(display, surface);

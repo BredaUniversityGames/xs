@@ -1,3 +1,4 @@
+#include "opengl.h"
 #include "render.h"
 #include "render_internal.h"
 #include <ios>
@@ -6,6 +7,19 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <stb/stb_image.h>
+
+// Include stb_image 
+#ifdef PLATFORM_SWITCH
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+#pragma clang diagnostic ignored "-Wunused-variable"
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#include <stb/stb_image.h>
+#pragma clang diagnostic pop
+#else
+#include <stb/stb_image.h>
+#endif
+
 #ifdef PLATFORM_SWITCH
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wunused-function"
@@ -14,10 +28,8 @@
 #else
 	#include <stb/stb_easy_font.h>
 	#include <filesystem>
-	//#include <time>
 #endif
 
-#include "opengl.h"
 #include "configuration.h"
 #include "fileio.h"
 #include "log.h"
@@ -42,25 +54,12 @@ namespace xs::render::internal
 	unsigned int render_fbo;
 	unsigned int render_texture;
 	
-	vec4					current_color;
-	struct vertex_format { vec3 position; vec4 color; };
-
 	unsigned int			shader_program = 0;
-	int const				lines_max = 16000;
-	int						lines_count = 0;
-	int						lines_begin_count = 0;
-	vertex_format			vertex_array[lines_max * 2];
 	unsigned int			lines_vao = 0;
 	unsigned int			lines_vbo = 0;
 
-	int const				triangles_max = 21800;
-	int						triangles_count = 0;
-	int						triangles_begin_count = 0;
-	vertex_format			triangles_array[triangles_max * 3];
 	unsigned int			triangles_vao = 0;
 	unsigned int			triangles_vbo = 0;
-
-	primitive				current_primitive = primitive::none;
 
 	struct sprite_vtx_format
 	{
@@ -91,7 +90,8 @@ void xs::render::initialize()
 	internal::compile_sprite_shader();
 
 	///////// Trigs //////////////////////
-	glCreateVertexArrays(1, &lines_vao);
+	//glCreateVertexArrays(1, &lines_vao);
+    glGenVertexArrays(1, &lines_vao);
 	glBindVertexArray(lines_vao);
 
 	// Allocate VBO
@@ -101,18 +101,18 @@ void xs::render::initialize()
 	glBindBuffer(GL_ARRAY_BUFFER, lines_vbo);
 
 	// Allocate into VBO
-	const auto size = sizeof(vertex_array);
-	glBufferData(GL_ARRAY_BUFFER, size, &vertex_array[0], GL_STREAM_DRAW);
+	const auto size = sizeof(lines_array);
+	glBufferData(GL_ARRAY_BUFFER, size, &lines_array[0], GL_STREAM_DRAW);
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(
-		1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_format),
-		reinterpret_cast<void*>(offsetof(vertex_format, position)));
+		1, 4, GL_FLOAT, GL_FALSE, sizeof(debug_vertex_format),
+		reinterpret_cast<void*>(offsetof(debug_vertex_format, position)));
 
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(
-		2, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_format),
-		reinterpret_cast<void*>(offsetof(vertex_format, color)));
+		2, 4, GL_FLOAT, GL_FALSE, sizeof(debug_vertex_format),
+		reinterpret_cast<void*>(offsetof(debug_vertex_format, color)));
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
@@ -133,13 +133,13 @@ void xs::render::initialize()
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(
-		1, 3, GL_FLOAT, GL_FALSE, sizeof(vertex_format),
-		reinterpret_cast<void*>(offsetof(vertex_format, position)));
+		1, 3, GL_FLOAT, GL_FALSE, sizeof(debug_vertex_format),
+		reinterpret_cast<void*>(offsetof(debug_vertex_format, position)));
 
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(
-		2, 4, GL_FLOAT, GL_FALSE, sizeof(vertex_format),
-		reinterpret_cast<void*>(offsetof(vertex_format, color)));
+		2, 4, GL_FLOAT, GL_FALSE, sizeof(debug_vertex_format),
+		reinterpret_cast<void*>(offsetof(debug_vertex_format, color)));
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
@@ -320,7 +320,7 @@ void xs::render::render()
 	{
 		glBindVertexArray(triangles_vao);
 		glBindBuffer(GL_ARRAY_BUFFER, triangles_vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_format) * triangles_count * 3, &triangles_array[0], GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(debug_vertex_format) * triangles_count * 3, &triangles_array[0], GL_DYNAMIC_DRAW);
 		glDrawArrays(GL_TRIANGLES, 0, triangles_count * 3);
 		XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
@@ -329,7 +329,7 @@ void xs::render::render()
 	{
 		glBindVertexArray(lines_vao);
 		glBindBuffer(GL_ARRAY_BUFFER, lines_vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_format) * lines_count * 2, &vertex_array[0], GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(debug_vertex_format) * lines_count * 2, &lines_array[0], GL_DYNAMIC_DRAW);
 		glDrawArrays(GL_LINES, 0, lines_count * 2);
 		XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
@@ -401,150 +401,10 @@ void xs::render::internal::create_texture_with_data(xs::render::internal::image&
 		data);								// Data
 }
 
-void xs::render::begin(primitive p)
-{
-	if (current_primitive == primitive::none)
-	{
-		current_primitive = p;
-		triangles_begin_count = 0;
-		lines_begin_count = 0;
-	}
-	else
-	{
-		log::error("Renderer begin()/end() mismatch! Primitive already active in begin().");
-	}
-}
-
-void xs::render::vertex(double x, double y)
-{
-	if (current_primitive == primitive::triangles && triangles_count < triangles_max - 1)
-	{
-		const uint idx = triangles_count * 3;
-		triangles_array[idx + triangles_begin_count].position = { x, y, 0.0f };
-		triangles_array[idx + triangles_begin_count].color = current_color;
-		triangles_begin_count++;
-		if (triangles_begin_count == 3)
-		{
-			triangles_begin_count = 0;
-			triangles_count++;
-		}
-	}
-	else if (current_primitive == primitive::lines && lines_count < lines_max)
-	{
-		if (lines_begin_count == 0)
-		{
-			vertex_array[lines_count * 2].position = { x, y, 0.0f };
-			vertex_array[lines_count * 2].color = current_color;
-			lines_begin_count++;
-		}
-		else if(lines_begin_count == 1)
-		{
-			vertex_array[lines_count * 2 + 1].position = { x, y, 0.0f };
-			vertex_array[lines_count * 2 + 1].color = current_color;
-			lines_begin_count++;
-			lines_count++;
-		}
-		else 
-		{
-			// assert(lines_begin_count > 1 && lines_count > 1);
-			vertex_array[lines_count * 2].position = vertex_array[lines_count * 2 - 1].position;
-			vertex_array[lines_count * 2].color = vertex_array[lines_count * 2 - 1].color;
-			vertex_array[lines_count * 2 + 1].position = { x, y, 0.0f };
-			vertex_array[lines_count * 2 + 1].color = current_color;
-			lines_begin_count++;
-			lines_count++;
-		}
-	}
-}
-
-void xs::render::end()
-{
-	if(current_primitive == primitive::none)
-	{
-		log::error("Renderer begin()/end() mismatch! No primitive active in end().");
-		return;
-	}
-	
-	current_primitive = primitive::none;
-	if (triangles_begin_count != 0 /* TODO: lines */)
-	{
-		log::error("Renderer vertex()/end() mismatch!");
-	}
-}
-
-void xs::render::set_color(color c)
-{
-	current_color.r = c.r / 255.0f;
-	current_color.g = c.g / 255.0f;
-	current_color.b = c.b / 255.0f;
-	current_color.a = c.a / 255.0f;
-}
-
-void xs::render::line(double x0, double y0, double x1, double y1)
-{
-	if (lines_count < lines_max)
-	{
-		vertex_array[lines_count * 2].position = {x0, y0, 0.0f};
-		vertex_array[lines_count * 2 + 1].position = {x1, y1, 0.0f};
-		vertex_array[lines_count * 2].color = current_color;
-		vertex_array[lines_count * 2 + 1].color = current_color;
-		++lines_count;
-	}
-}
-
-void xs::render::text(const std::string& text, double x, double y, double size)
-{
-	struct stbVec
-	{
-		float x;
-		float y;
-		float z;
-		unsigned char color[4];
-	};
-
-	static stbVec vertexBuffer[2048];
-
-	const auto n = text.length();
-	char* asChar = new char[n + 1];
-	strcpy(asChar, text.c_str());
-	const int numQuads = stb_easy_font_print(0, 0, asChar, nullptr, vertexBuffer, sizeof(vertexBuffer));
-	delete[] asChar;
-
-	const vec3 origin(x, y, 0.0f);
-	const auto s = static_cast<float>(size);
-	for (int i = 0; i < numQuads; i++)
-	{
-		const auto& v0 = vertexBuffer[i * 4 + 0];
-		const auto& v1 = vertexBuffer[i * 4 + 1];
-		const auto& v2 = vertexBuffer[i * 4 + 2];
-		const auto& v3 = vertexBuffer[i * 4 + 3];
-
-		const uint idx = triangles_count * 3;
-		triangles_array[idx + 0].position = s * vec3(v0.x, -v0.y, v0.z) + origin;
-		triangles_array[idx + 2].position = s * vec3(v1.x, -v1.y, v1.z) + origin;
-		triangles_array[idx + 1].position = s * vec3(v2.x, -v2.y, v2.z) + origin;
-		triangles_array[idx + 3].position = s * vec3(v2.x, -v2.y, v2.z) + origin;
-		triangles_array[idx + 4].position = s * vec3(v3.x, -v3.y, v3.z) + origin;
-		triangles_array[idx + 5].position = s * vec3(v0.x, -v0.y, v0.z) + origin;
-
-		triangles_array[idx + 0].color = current_color;
-		triangles_array[idx + 1].color = current_color;
-		triangles_array[idx + 2].color = current_color;
-
-		triangles_array[idx + 3].color = current_color;
-		triangles_array[idx + 4].color = current_color;
-		triangles_array[idx + 5].color = current_color;
-
-		triangles_count += 2;
-
-		if (triangles_count >= triangles_max)
-			return;
-	}
-}
-
 void xs::render::internal::create_frame_buffers()
 {
-	glCreateFramebuffers(1, &render_fbo);
+	//glCreateFramebuffers(1, &render_fbo);
+    glGenFramebuffers(1, &render_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
 	glGenTextures(1, &render_texture);
 	glBindTexture(GL_TEXTURE_2D, render_texture);
@@ -606,7 +466,7 @@ void xs::render::internal::compile_draw_shader()
 {
 	const auto* const vs_source =
 		"#version 460 core												\n\
-		layout (location = 1) in vec3 a_position;						\n\
+		layout (location = 1) in vec4 a_position;						\n\
 		layout (location = 2) in vec4 a_color;							\n\
 		layout (location = 1) uniform mat4 u_worldviewproj;				\n\
 		out vec4 v_color;												\n\
@@ -614,7 +474,7 @@ void xs::render::internal::compile_draw_shader()
 		void main()														\n\
 		{																\n\
 			v_color = a_color;											\n\
-			gl_Position = u_worldviewproj * vec4(a_position, 1.0);		\n\
+			gl_Position = u_worldviewproj * a_position, 1.0;			\n\
 		}";
 
 	const auto* const fs_source =
