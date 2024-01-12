@@ -139,9 +139,7 @@ void fileio::initialize(/* const std::string& main_script*/)
 			filesystem::create_directory(save_path);
  		add_wildcard("[save]", save_path);
 	}
-#elif defined(PLATFORM_PS5)	
-	// add_wildcard("[save]", save_path);
-#elif defined(PLATFORM_SWITCH)
+#elif defined(PLATFORM_SWITCH) || defined(PLATFORM_PS5)
 	if(!success)
 		log::info("Please provide a valid game folder in the games/.ini file!");
 #endif
