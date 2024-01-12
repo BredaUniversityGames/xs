@@ -53,23 +53,6 @@ namespace xs::render::internal
     int const                sprite_trigs_max = 21800;
     int                      sprite_trigs_count = 0;
     sprite_vtx_format        sprite_trigs_array[sprite_trigs_max * 3];
-
-    /*
-
-    int const                lines_max = 16000;
-    int                      lines_count = 0;
-    int                      lines_begin_count = 0;
-    debug_vtx_format         lines_array[lines_max * 2];
-
-    int const                triangles_max = 21800;
-    int                      triangles_count = 0;
-    int                      triangles_begin_count = 0;
-    debug_vtx_format         triangles_array[triangles_max * 3];
-
-    primitive               current_primitive = primitive::none;
-    vec4                    current_color = {1.0, 1.0, 1.0, 1.0};
-     */
-
     void render_to_view();
 }
 
