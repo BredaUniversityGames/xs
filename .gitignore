@@ -70,3 +70,4 @@ games/hex-master-jam/
 xs.xcodeproj/xcuserdata/
 *.xcuserstate
 games/peperuga/
+xs.vcxproj.user
