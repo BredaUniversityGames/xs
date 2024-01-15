@@ -43,7 +43,7 @@ void fileio::initialize(/* const std::string& main_script*/)
 	nn::Result result;
 	size_t cacheSize = 0;
 
-	char* cacheBuffer = nullptr;
+	char8* cacheBuffer = nullptr;
 
 	// Mounts the file system.
 	// Mounting requires a cache buffer.
@@ -54,7 +54,7 @@ void fileio::initialize(/* const std::string& main_script*/)
 		// No error handling is needed. An abort occurs within the library when getting fails.
 		(void)nn::fs::QueryMountRomCacheSize(&cacheSize);
 
-		cacheBuffer = new char[cacheSize];
+		cacheBuffer = new char8[cacheSize];
 		assert(cacheBuffer);
 
 		// Mounts the file system.
@@ -123,7 +123,7 @@ void fileio::initialize(/* const std::string& main_script*/)
 		add_wildcard("[game]", "[games]/hello");
 	}
 
-	char* pValue;
+	char8* pValue;
 	size_t len;
 	_dupenv_s(&pValue, &len, "APPDATA");
 	if (pValue != nullptr)
@@ -149,22 +149,22 @@ void fileio::initialize(/* const std::string& main_script*/)
 
 #endif
 
-vector<char> fileio::read_binary_file(const std::string& filename)
+Blob fileio::read_binary_file(const std::string& filename)
 {
 	const auto path = get_path(filename);
 	ifstream file(path, std::ios::binary | std::ios::ate);
 	if (!file.is_open())
 	{
 		log::error("File {} with full path {} was not found!", filename, path);
-		return vector<char>();	
+		return {};
 	}
 	const streamsize size = file.tellg();
 	file.seekg(0, std::ios::beg);
-	std::vector<char> buffer(size);
-	if (file.read(buffer.data(), size))
-		return  buffer;
+	Blob buffer(size);
+	if (file.read((char8*)buffer.data(), size))
+		return buffer;
 	assert(false);
-	return vector<char>();
+	return {};
 }
 
 string fileio::read_text_file(const string& filename)
@@ -182,6 +182,20 @@ string fileio::read_text_file(const string& filename)
 	file.seekg(0);
 	file.read(&buffer[0], size);
 	return buffer;
+}
+
+bool xs::fileio::write_binary_file(const Blob& blob, const std::string& filename)
+{
+	auto fullpath = fileio::get_path(filename);
+	std::ofstream ofs;
+	ofs.open(fullpath);
+	if (ofs.is_open())
+	{
+		ofs.write((char8*)&blob[0], blob.size() * sizeof(char8));;
+		ofs.close();
+		return true;
+	}
+	return false;
 }
 
 bool xs::fileio::write_text_file(const std::string& text, const std::string& filename)
