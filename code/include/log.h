@@ -40,7 +40,7 @@ namespace xs::log
 }
 
 template<typename FormatString, typename ...Args>
-inline void log::info(const FormatString& format, const Args & ...args)
+inline void xs::log::info(const FormatString& format, const Args & ...args)
 {
 	printf("[%sinfo%s] ", green, reset);
 	fmt::print(fmt::runtime(format), args...);
@@ -48,7 +48,7 @@ inline void log::info(const FormatString& format, const Args & ...args)
 }
 
 template<typename FormatString, typename ...Args>
-inline void log::warn(const FormatString& format, const Args & ...args)
+inline void xs::log::warn(const FormatString& format, const Args & ...args)
 {
 	printf("[%swarn%s] ", magenta, reset);
 	fmt::print(fmt::runtime(format), args...);
@@ -56,7 +56,7 @@ inline void log::warn(const FormatString& format, const Args & ...args)
 }
 
 template<typename FormatString, typename ...Args>
-inline void log::error(const FormatString& format, const Args & ...args)
+inline void xs::log::error(const FormatString& format, const Args & ...args)
 {
 	printf("[%serror%s] ", red, reset);
 	fmt::print(fmt::runtime(format), args...);
@@ -64,7 +64,7 @@ inline void log::error(const FormatString& format, const Args & ...args)
 }
 
 template<typename FormatString, typename ...Args>
-inline void log::critical(const FormatString& format, const Args & ...args)
+inline void xs::log::critical(const FormatString& format, const Args & ...args)
 {
 	printf("[%serror%s] ", red, reset);
 	fmt::print(fmt::runtime(format), args...);
