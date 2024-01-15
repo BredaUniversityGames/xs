@@ -4,6 +4,7 @@ System.print("Wren just got compiled to bytecode")
 
 // The xs module is 
 import "xs" for Render, Data
+import "xs_math" for Color
 
 // The game class it the entry point to your game
 class Game {
@@ -45,13 +46,14 @@ class Game {
 
     // The render method is called once per tick, right after update.
     static render() {
-        Render.setColor(
-            (__time * 10 + 1).sin.abs,
-            (__time * 10 + 2).sin.abs,
-            (__time * 10 + 3).sin.abs)
+        var c = Color.new(
+            (__time * 10 + 1).sin.abs * 255,
+            (__time * 10 + 2).sin.abs * 255,
+            (__time * 10 + 3).sin.abs * 255)
+        Render.setColor(c.toNum)
         Render.shapeText("xs", -100, 100, 20)
         Render.shapeText("Made with love at Games@BUas", -100, -50, 1)
-        Render.setColor(0.5, 0.5, 0.5)
+        Render.setColor(0xAAAAAAFF)
         Render.shapeText("Time: %(__time)", -300, -160, 1)
 
         Render.sprite(__sprite, 180, -152, 0, 0.16, 0.0, 0xFFFFFFFF, 0x00000000, 0)
