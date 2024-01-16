@@ -4,8 +4,8 @@
 
 namespace xs::resource_pipeline
 {
-    namespace internal
-    {
+	namespace internal
+	{
 		// ------------------------------------------------------------------------
 		std::string make_name(const std::vector<std::string>& subDirs)
 		{
@@ -30,31 +30,33 @@ namespace xs::resource_pipeline
 
 			return stream.str();
 		}
-    }
+	}
 
 	// ------------------------------------------------------------------------
-    ContentHeader::ContentHeader()
-        : file_size(0)
-        , file_path()
-    {
+	ContentHeader::ContentHeader()
+		: file_size(0)
+		, file_path()
+		, is_text(0)
+	{
 
-    }
+	}
 
 	// ------------------------------------------------------------------------
-    ContentHeader::ContentHeader(const std::string& path, u64 fileSize)
-        : file_size(fileSize)
-        , file_path()
-    {
-        size_t filePathLength = std::min(path.size(), static_cast<size_t>(s_max_path - 1));
-        std::copy(path.begin(), path.begin() + filePathLength, file_path);
-        file_path[filePathLength] = '\0'; // Null-terminate the file path
-    }
+	ContentHeader::ContentHeader(const std::string& path, u64 fileSize, char8 isText)
+		: file_size(fileSize)
+		, file_path()
+		, is_text(isText)
+	{
+		size_t filePathLength = std::min(path.size(), static_cast<size_t>(s_max_path - 1));
+		std::copy(path.begin(), path.begin() + filePathLength, file_path);
+		file_path[filePathLength] = '\0'; // Null-terminate the file path
+	}
 
 	// ------------------------------------------------------------------------
 	CompressedArchive::CompressedArchive()
 		:src_len(0)
-		,cmp_len(0)
-		,data()
+		, cmp_len(0)
+		, data()
 	{}
 
 	// ------------------------------------------------------------------------
@@ -66,7 +68,7 @@ namespace xs::resource_pipeline
 	// ------------------------------------------------------------------------
 	Archive::Archive()
 		:src_len(0)
-		,data()
+		, data()
 	{}
 
 	// ------------------------------------------------------------------------
@@ -90,17 +92,27 @@ namespace xs::resource_pipeline
 	}
 
 	// ------------------------------------------------------------------------
-	const std::unordered_set<std::string>& supported_file_formats()
+	const std::unordered_set<std::string>& supported_text_file_formats()
+	{
+		static std::unordered_set<std::string> file_formats =
+		{
+			".wren",		// scripting
+			".frag",		// shaders
+			".vert",		// shaders
+			".json",		// text
+		};
+
+		return file_formats;
+	}
+
+	// ------------------------------------------------------------------------
+	const std::unordered_set<std::string>& supported_binary_file_formats()
 	{
 		static std::unordered_set<std::string> file_formats =
 		{
 			".ttf",			// fonts
 			".otf",			// fonts
 			".png",			// images
-			".wren",		// scripting
-			".frag",		// shaders
-			".vert",		// shaders
-			".json",		// text
 			".bank",		// audio
 			".wav"			// audio
 		};
@@ -109,8 +121,20 @@ namespace xs::resource_pipeline
 	}
 
 	// ------------------------------------------------------------------------
+	bool is_text_file(const std::string& extension)
+	{
+		return supported_text_file_formats().find(extension) != supported_text_file_formats().end();
+	}
+
+	// ------------------------------------------------------------------------
+	bool is_binary_file(const std::string& extension)
+	{
+		return supported_binary_file_formats().find(extension) != supported_binary_file_formats().end();
+	}
+
+	// ------------------------------------------------------------------------
 	bool is_supported_file_format(const std::string& extension)
 	{
-		return supported_file_formats().find(extension) != supported_file_formats().end();
+		return is_text_file(extension) || is_binary_file(extension);
 	}
 }

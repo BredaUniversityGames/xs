@@ -56,6 +56,7 @@ namespace xs::resources
             log::info("Decompressing file entry: {0}", fs::path(archive_element.header.file_path).filename().string());
             log::info("\tFile Path: {}", archive_element.header.file_path);
             log::info("\tFile Size: {} bytes", archive_element.header.file_size);
+            log::info("\tIs Text: {}", archive_element.header.is_text);
 
             // Copy content data from archive
             Blob content;
@@ -81,21 +82,53 @@ namespace xs::resources
     public:
         // ------------------------------------------------------------------------
         // Add a resource to the pool
-        void add(const std::string& filepath, Blob&& blob)
+        void add_binary(const std::string& filepath, Blob&& blob)
         {
-            if (_resources.find(filepath) == _resources.cend())
+            if (_binary_resources.find(filepath) == _binary_resources.cend())
             {
-                _resources.emplace(filepath, std::move(blob));
+                _binary_resources.emplace(filepath, std::move(blob));
+            }
+        }
+
+        // ------------------------------------------------------------------------
+        // Add a text resource to the pool
+        void add_text(const std::string& filepath, Blob&& blob)
+        {
+            if (_text_resources.find(filepath) == _text_resources.cend())
+            {
+                std::string str;
+                
+                str.reserve(blob.size());
+
+                std::transform(blob.begin(), blob.end(), std::back_inserter(str),
+                    [](std::byte b) 
+                {
+                    return static_cast<char>(b); 
+                });
+
+                _text_resources.emplace(filepath, str);
             }
         }
 
         // ------------------------------------------------------------------------
         // Get a resource from the pool by filepath
-        const Blob* get(const std::string& filepath) const
+        const Blob* get_binary(const std::string& filepath) const
         {
-            if (_resources.find(filepath) != _resources.cend())
+            if (_binary_resources.find(filepath) != _binary_resources.cend())
             {
-                return &_resources.at(filepath);
+                return &_binary_resources.at(filepath);
+            }
+
+            return nullptr;
+        }
+
+        // ------------------------------------------------------------------------
+        // Get a resource from the pool by filepath
+        const std::string* get_text(const std::string& filepath) const
+        {
+            if (_text_resources.find(filepath) != _text_resources.cend())
+            {
+                return &_text_resources.at(filepath);
             }
 
             return nullptr;
@@ -105,18 +138,20 @@ namespace xs::resources
         // Clear all resources from the pool
         void clear()
         {
-            _resources.clear();
+            _binary_resources.clear();
+            _text_resources.clear();
         }
 
         // ------------------------------------------------------------------------
         // Get the number of resources in the pool
         size_t count() const
         {
-            return _resources.size();
+            return _binary_resources.size() + _text_resources.size();
         }
 
     private:
-        std::unordered_map<std::string, Blob> _resources;
+        std::unordered_map<std::string, Blob> _binary_resources;
+        std::unordered_map<std::string, std::string> _text_resources;
     };
 
     // Global resource pool instance
@@ -132,7 +167,14 @@ namespace xs::resources
             ArchiveElement element = parser.next();
 
             // Add the decompressed content to the global resource pool
-            g_resources.add(element.header.file_path, std::move(element.content));
+            if (element.header.is_text)
+            {
+                g_resources.add_text(element.header.file_path, std::move(element.content));
+            }
+            else
+            {
+                g_resources.add_binary(element.header.file_path, std::move(element.content));
+            }
         }
     }
 

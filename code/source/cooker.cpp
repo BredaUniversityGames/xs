@@ -110,7 +110,8 @@ namespace xs
 				}
 
 				// Unsupported file format.
-				if (resource_pipeline::is_supported_file_format(entry.path().extension().string()) == false)
+				std::string extension = entry.path().extension().string();
+				if (resource_pipeline::is_supported_file_format(extension) == false)
 				{
 					continue;
 				}
@@ -118,7 +119,7 @@ namespace xs
 				log::info("Compressing file entry: {0}", entry.path().filename().string());
 
 				// Each file entry has a header to store file path and file size.
-				resource_pipeline::ContentHeader h(entry.path().string(), entry.file_size());
+				resource_pipeline::ContentHeader h(entry.path().string(), entry.file_size(), (char8)resource_pipeline::is_text_file(extension));
 				builder->add_data(&h, sizeof(resource_pipeline::ContentHeader));
 
 				// The actual data of the content file
