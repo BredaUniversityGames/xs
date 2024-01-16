@@ -112,26 +112,40 @@ namespace xs::resources
 
         // ------------------------------------------------------------------------
         // Get a resource from the pool by filepath
-        const Blob* get_binary(const std::string& filepath) const
+        const Blob& get_binary(const std::string& filepath) const
         {
             if (_binary_resources.find(filepath) != _binary_resources.cend())
             {
-                return &_binary_resources.at(filepath);
+                return _binary_resources.at(filepath);
             }
 
-            return nullptr;
+            return EMPTY_BINARY;
         }
 
         // ------------------------------------------------------------------------
         // Get a resource from the pool by filepath
-        const std::string* get_text(const std::string& filepath) const
+        const std::string& get_text(const std::string& filepath) const
         {
             if (_text_resources.find(filepath) != _text_resources.cend())
             {
-                return &_text_resources.at(filepath);
+                return _text_resources.at(filepath);
             }
 
-            return nullptr;
+            return EMPTY_TEXT;
+        }
+
+        // ------------------------------------------------------------------------
+        // Has a specific resource available
+        bool has_binary(const std::string& filepath) const
+        {
+            return _binary_resources.find(filepath) != _binary_resources.cend();
+        }
+
+        // ------------------------------------------------------------------------
+        // Has a specific resource available
+        bool has_text(const std::string& filepath) const
+        {
+            return _text_resources.find(filepath) != _text_resources.cend();
         }
 
         // ------------------------------------------------------------------------
@@ -150,9 +164,15 @@ namespace xs::resources
         }
 
     private:
+        static Blob EMPTY_BINARY;
+        static std::string EMPTY_TEXT;
+
         std::unordered_map<std::string, Blob> _binary_resources;
         std::unordered_map<std::string, std::string> _text_resources;
     };
+
+    Blob ResourcePool::EMPTY_BINARY = {};
+    std::string ResourcePool::EMPTY_TEXT = {};
 
     // Global resource pool instance
     ResourcePool g_resources;
@@ -286,5 +306,27 @@ namespace xs::resources
     {
         // Clear the global resource pool
         g_resources.clear();
+    }
+
+    // ------------------------------------------------------------------------
+    // Check availability for a binary resource
+    const Blob& get_binary_resource(const std::string& filename)
+    {
+        const auto path = fileio::get_path(filename);
+
+        assert(g_resources.has_binary(path));
+
+        return g_resources.get_binary(path);
+    }
+
+    // ------------------------------------------------------------------------
+    // Check availability for a text resource
+    const std::string& get_text_resource(const std::string& filename)
+    {
+        const auto path = fileio::get_path(filename);
+
+        assert(g_resources.has_text(path));
+
+        return g_resources.get_text(path);
     }
 }
