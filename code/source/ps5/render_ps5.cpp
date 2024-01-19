@@ -738,27 +738,3 @@ int xs::render::get_image_width(int image_id)
 	return img.width;
 }
 */
-
-void xs::render::begin(primitive p)
-{
-}
-
-void xs::render::vertex(double x, double y)
-{
-}
-
-void xs::render::end()
-{
-}
-
-void xs::render::set_color(color c)
-{
-}
-
-void xs::render::line(double x0, double y0, double x1, double y1)
-{
-}
-
-void xs::render::text(const std::string& text, double x, double y, double size)
-{
-}
