@@ -169,6 +169,24 @@
     <ClCompile Include="external\imgui\misc\cpp\imgui_stdlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="code\source\cooker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\source\resource_pipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\miniz\src\miniz.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\miniz\src\miniz_tdef.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\miniz\src\miniz_tinfl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\miniz\src\miniz_zip.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="nintendo\xs.aarch64.nmeta" />
@@ -337,6 +355,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\imgui\misc\cpp\imgui_stdlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\cooker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\miniz\include\miniz\miniz.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\miniz\include\miniz\miniz_common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\miniz\include\miniz\miniz_export.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\miniz\include\miniz\miniz_tdef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\miniz\include\miniz\miniz_tinfl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\miniz\include\miniz\miniz_zip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\resource_pipeline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\include\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
