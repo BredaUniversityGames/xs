@@ -19,39 +19,15 @@ namespace xs
         struct ContentHeader
         {
             ContentHeader();
-            ContentHeader(const std::string& path, u64 fileSize, char8 isText);
+            ContentHeader(const std::string& path, u64 fileOffset, u64 fileSize, u64 fileSizeCompressed = 0);
 
-            char8 file_path[s_max_path];
-            u64 file_size;
-            char8 is_text;
-        };
+            char8   file_path[s_max_path];
+            u64     file_offset;
+            u64     file_size;
+            u64     file_size_compressed;
 
-        // ------------------------------------------------------------------------
-        // Structure representing a compressed archive
-        struct CompressedArchive
-        {
-            CompressedArchive();
-
-            operator bool() const;
-
-            ulong src_len;
-            ulong cmp_len;
-
-            Blob data;
-        };
-
-        // ------------------------------------------------------------------------
-        // Structure representing an archive
-        struct Archive
-        {
-            Archive();
-            Archive(ulong totalSize);
-
-            operator bool() const;
-
-            ulong src_len;
-
-            Blob data;
+            bool operator==(const ContentHeader& other) const;
+            bool operator!=(const ContentHeader& other) const;
         };
 
         // Function to generate an archive path based on the root and subdirectories
@@ -70,4 +46,16 @@ namespace xs
         // Function that checks if a file is a text file
         bool is_text_file(const std::string& extension);
 	}
+}
+
+namespace std
+{
+    template <>
+    struct hash<xs::resource_pipeline::ContentHeader>
+    {
+        size_t operator()(const xs::resource_pipeline::ContentHeader& header) const
+        {
+            return std::hash<std::string> {}(header.file_path);
+        }
+    };
 }

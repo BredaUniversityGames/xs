@@ -34,55 +34,42 @@ namespace xs::resource_pipeline
 
 	// ------------------------------------------------------------------------
 	ContentHeader::ContentHeader()
-		: file_size(0)
-		, file_path()
-		, is_text(0)
+		: file_path()
+		, file_offset(0)
+		, file_size(0)
+		, file_size_compressed(0)
 	{
 
 	}
 
 	// ------------------------------------------------------------------------
-	ContentHeader::ContentHeader(const std::string& path, u64 fileSize, char8 isText)
-		: file_size(fileSize)
-		, file_path()
-		, is_text(isText)
+	ContentHeader::ContentHeader(const std::string& path, u64 fileOffset, u64 fileSize, u64 fileSizeCompressed)
+		: file_path()
+		, file_offset(fileOffset)
+		, file_size(fileSize)
+		, file_size_compressed(fileSizeCompressed)
 	{
 		size_t filePathLength = std::min(path.size(), static_cast<size_t>(s_max_path - 1));
 		std::copy(path.begin(), path.begin() + filePathLength, file_path);
 		file_path[filePathLength] = '\0'; // Null-terminate the file path
+
+		for (int i = 0; file_path[i] != '\0'; i++) 
+		{
+			if (file_path[i] == '\\') 
+				file_path[i] = '/';
+		}
 	}
 
 	// ------------------------------------------------------------------------
-	CompressedArchive::CompressedArchive()
-		:src_len(0)
-		, cmp_len(0)
-		, data()
-	{}
-
-	// ------------------------------------------------------------------------
-	CompressedArchive::operator bool() const
+	bool ContentHeader::operator==(const ContentHeader& other) const
 	{
-		return src_len != 0 && cmp_len != 0 && data.data() != nullptr;
+		return file_size == other.file_size && file_offset == other.file_offset && file_path == other.file_path && file_size_compressed == other.file_size_compressed;
 	}
 
 	// ------------------------------------------------------------------------
-	Archive::Archive()
-		:src_len(0)
-		, data()
-	{}
-
-	// ------------------------------------------------------------------------
-	Archive::Archive(ulong totalSize)
-		: src_len(totalSize)
-		, data()
+	bool ContentHeader::operator!=(const ContentHeader& other) const
 	{
-		data.reserve(totalSize);
-	}
-
-	// ------------------------------------------------------------------------
-	Archive::operator bool() const
-	{
-		return src_len != 0 && data.data() != nullptr;
+		return (*this) == other;
 	}
 
 	// ------------------------------------------------------------------------
