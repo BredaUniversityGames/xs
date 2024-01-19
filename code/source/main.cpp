@@ -9,6 +9,8 @@
 #include "account.h"
 #include "data.h"
 #include "inspector.h"
+#include "cooker.h"
+#include "tools.h"
 #include <glm/glm.hpp>
 #include <chrono>
 
@@ -55,9 +57,93 @@ int main(int argc, char* argv[])
 }
 #endif
 
+// The type of execution the engine is used for
+// 
+// Parsing arguments
+// Running a game
+enum class EngineExecution
+{
+    DEFAULT,
+    ARUGMENTS_PARSED,
+    ARGUMENTS_PARSED_ERROR
+};
+
+EngineExecution argument_parser(int argc, char* argv[])
+{
+#if defined(PLATFORM_PC)
+    if (argc == 2)
+    {
+        // First argument path of the executable
+        // So starting from 1 already
+
+        int p = 1;
+        while (p < argc)
+        {
+            if (argv[p][0] == '-')
+            {
+                switch (argv[p][1])
+                {
+                case 'c':
+                {
+                    std::vector<std::string> split = xs::tools::string_split(argv[p], "=");
+
+                    if (split.size() != 2)
+                    {
+                        xs::log::error("Unknown game to cook, cooking argument usage: -c=name_of_game");
+                        return EngineExecution::ARGUMENTS_PARSED_ERROR;
+                    }
+
+                    xs::log::info("Start cooking content for ./games/{0}", "shared");
+                    xs::log::info("Start cooking content for ./games/{0}", split[1]);
+
+                    if (xs::cooker::cook_content("./games", { "shared", split[1] }) == false)
+                    {
+                        xs::log::error("Failed to cook content!");
+                        return EngineExecution::ARGUMENTS_PARSED_ERROR;
+                    }
+
+                    xs::log::info("Content cooked");
+
+                    break;
+                }
+                default:
+                {
+                    xs::log::error("Invalid option: {0}", argv[p]);
+                    return EngineExecution::ARGUMENTS_PARSED_ERROR;
+                }
+                }
+            }
+
+            p++;
+        }
+
+        return EngineExecution::ARUGMENTS_PARSED;
+    }
+#endif
+
+    return EngineExecution::DEFAULT;
+}
+
 int xs::main(int argc, char* argv[])
 {	
-	log::initialize();    
+    // We always like to have some debug logging available
+    log::initialize();
+
+    // When arguments have been parsed the engine can be in 2 states
+    // Either the arguments have been parsed successfully and we can close the engine
+    // A parsing error has occured and the engine will close down with error code 1
+    // If there are no arguments to be parsed we continue with the default behaviour which is run the game
+    EngineExecution execution = argument_parser(argc, argv);
+    switch (execution)
+    {
+    case EngineExecution::ARGUMENTS_PARSED_ERROR: return 1;
+    case EngineExecution::ARUGMENTS_PARSED: return 0;
+    case EngineExecution::DEFAULT:
+        // pass through
+        break;
+    }
+
+    // Default engine initialization
     account::initialize();
     fileio::initialize();
     data::initialize();
@@ -69,6 +155,7 @@ int xs::main(int argc, char* argv[])
     inspector::initialize();
     script::initialize();
 
+    // Run
     auto prev_time = chrono::high_resolution_clock::now();
     while (!device::should_close())
 	{
@@ -93,6 +180,7 @@ int xs::main(int argc, char* argv[])
         device::end_frame();
 	}
 
+    // Close down the engine
     inspector::shutdown();
     audio::shutdown();
     input::shutdown();
