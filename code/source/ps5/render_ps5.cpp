@@ -592,7 +592,7 @@ void xs::render::render()
 	}
 
 	// Submit a flip via the GPU.
-	// Note: on PlayStation®5, RenderTargets write into the GL2 cache, but the scan-out
+	// Note: on PlayStationï¿½5, RenderTargets write into the GL2 cache, but the scan-out
 	// does not snoop any GPU caches. As such, it is necessary to flush these writes to memory before they can
 	// be displayed. This flush is performed internally by setFlip() so we don't need to do it 
 	// on the application side.
