@@ -8,8 +8,7 @@
 #include "log.h"
 #include "tools.h"
 #include "resource_pipeline.h"
-
-#include "miniz/miniz.h"
+#include "miniz.h"
 
 #if defined(PLATFORM_SWITCH)
 #include <nn/fs.h>
@@ -24,7 +23,7 @@
 namespace fs = std::filesystem;
 #endif
 
-#if defined(PLTFORM_APPLE)
+#if defined(PLATFORM_APPLE)
 #import <Foundation/Foundation.h>
 #endif
 

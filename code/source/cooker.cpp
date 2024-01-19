@@ -3,7 +3,7 @@
 #include "resource_pipeline.h"
 #include "log.h"
 #include "types.h"
-#include "miniz/miniz.h"
+#include "miniz.h"
 #include <filesystem>
 #include <fstream>
 #include <functional>
