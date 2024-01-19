@@ -9,7 +9,6 @@
 #include "account.h"
 #include "data.h"
 #include "inspector.h"
-#include "resources.h"
 #include "cooker.h"
 #include "tools.h"
 #include <glm/glm.hpp>
@@ -139,12 +138,14 @@ int xs::main(int argc, char* argv[])
     {
     case EngineExecution::ARGUMENTS_PARSED_ERROR: return 1;
     case EngineExecution::ARUGMENTS_PARSED: return 0;
+    case EngineExecution::DEFAULT:
+        // pass through
+        break;
     }
 
     // Default engine initialization
     account::initialize();
     fileio::initialize();
-    resources::initialize();
     data::initialize();
     script::configure();
     device::initialize();
@@ -188,7 +189,6 @@ int xs::main(int argc, char* argv[])
     script::shutdown();
     account::shutdown();
     data::shutdown();
-    resources::shutdown();
 
 	return 0;
 }
