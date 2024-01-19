@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
 #include <queue>
 #include "log.h"
 #include <nn/hid/hid_Npad.h>
