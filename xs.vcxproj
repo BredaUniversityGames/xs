@@ -48,7 +48,11 @@
     <CustomBuild Include="nintendo\icon.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\source\cooker.cpp" />
+    <ClCompile Include="code\source\cooker.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="code\source\render_gl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
@@ -68,7 +72,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\resources.cpp" />
     <ClCompile Include="code\source\resource_pipeline.cpp" />
     <ClCompile Include="code\source\switch\account_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
@@ -284,7 +287,11 @@
     </ClInclude>
     <ClInclude Include="code\include\audio.h" />
     <ClInclude Include="code\include\configuration.h" />
-    <ClInclude Include="code\include\cooker.h" />
+    <ClInclude Include="code\include\cooker.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="code\include\defines.h" />
     <ClInclude Include="code\include\device.h" />
     <ClInclude Include="code\include\device_pc.h" />
@@ -296,7 +303,6 @@
     <ClInclude Include="code\include\profiler.h" />
     <ClInclude Include="code\include\data.h" />
     <ClInclude Include="code\include\render.h" />
-    <ClInclude Include="code\include\resources.h" />
     <ClInclude Include="code\include\resource_pipeline.h" />
     <ClInclude Include="code\include\script.h" />
     <ClInclude Include="code\include\tools.h" />
@@ -707,12 +713,12 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
     <Link>
       <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
-      <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;%(ProjectDir)external/miniz/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;miniz.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>INSPECTOR;PLATFORM_SWITCH;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod;$(ProjectDir)external/miniz/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CPPExceptions>true</CPPExceptions>
       <WarningsAsErrors>true</WarningsAsErrors>
     </ClCompile>
@@ -721,12 +727,12 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
     <Link>
       <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
-      <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;%(ProjectDir)external/miniz/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;miniz.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>INSPECTOR;PLATFORM_SWITCH;NN_SDK_BUILD_DEVELOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod;$(ProjectDir)external/miniz/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CPPExceptions>true</CPPExceptions>
       <WarningsAsErrors>true</WarningsAsErrors>
     </ClCompile>
@@ -736,12 +742,12 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
       <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
       <Profile>true</Profile>
-      <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;%(ProjectDir)external/miniz/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;miniz.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>PLATFORM_SWITCH;NN_SDK_BUILD_RELEASE;%(PreprocessorDefinitions);PLATFORM_SWITCH</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod;$(ProjectDir)external/miniz/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CPPExceptions>true</CPPExceptions>
       <WarningsAsErrors>true</WarningsAsErrors>
     </ClCompile>

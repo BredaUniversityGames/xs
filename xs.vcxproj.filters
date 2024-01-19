@@ -169,9 +169,6 @@
     <ClCompile Include="external\imgui\misc\cpp\imgui_stdlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\resources.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="code\source\cooker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -346,9 +343,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\imgui\misc\cpp\imgui_stdlib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\include\cooker.h">
