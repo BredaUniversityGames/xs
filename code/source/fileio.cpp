@@ -131,7 +131,7 @@ void fileio::initialize(/* const string& main_script*/)
 	nn::Result result;
 	size_t cacheSize = 0;
 
-	char8* cacheBuffer = nullptr;
+	char* cacheBuffer = nullptr;
 
 	// Mounts the file system.
 	// Mounting requires a cache buffer.
@@ -142,7 +142,7 @@ void fileio::initialize(/* const string& main_script*/)
 		// No error handling is needed. An abort occurs within the library when getting fails.
 		(void)nn::fs::QueryMountRomCacheSize(&cacheSize);
 
-		cacheBuffer = new char8[cacheSize];
+		cacheBuffer = new char[cacheSize];
 		assert(cacheBuffer);
 
 		// Mounts the file system.
