@@ -98,29 +98,13 @@ bool xs::input::get_key_once(int key)
     return false;
 }
 
-double xs::input::get_mouse_x()
-{
-    return 0.0;
-}
-
-double xs::input::get_mouse_y()
-{
-    return 0.0;
-}
-
 bool xs::input::get_mouse()
 {
+#if defined(PLATFORM_MAC)
+    return true;
+#else
     return false;
-}
-
-bool xs::input::get_mousebutton(mouse_button button)
-{
-    return false;
-}
-
-bool xs::input::get_mousebutton_once(mouse_button button)
-{
-    return false;
+#endif
 }
 
 int xs::input::get_nr_touches()

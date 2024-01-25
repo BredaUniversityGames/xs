@@ -57,8 +57,16 @@ namespace xs::device::internal
     auto prev_time = chrono::high_resolution_clock::now();
     
 }
+namespace xs::input
+{
+    NSPoint mouse_pos;
+    bool clicked = false;
+    bool clicked_last_frame = false;
+}
+
 using namespace xs;
 using namespace xs::device::internal;
+using namespace xs::input;
 
 @implementation XSRenderer {}
 
@@ -71,6 +79,8 @@ using namespace xs::device::internal;
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
+    _view.window.acceptsMouseMovedEvents = true;
+    
     auto current_time = chrono::high_resolution_clock::now();
     auto elapsed = current_time - prev_time;
     prev_time = current_time;
@@ -110,7 +120,7 @@ using namespace xs::device::internal;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
     _view = (MTKView *)self.view;
     _view.device = MTLCreateSystemDefaultDevice();
     
@@ -124,7 +134,6 @@ using namespace xs::device::internal;
     _renderer = [[XSRenderer alloc] initWithMetalKitView:_view];
     [_renderer mtkView:_view drawableSizeWillChange:_view.bounds.size];
     _view.delegate = _renderer;
-    
     log::initialize();
     account::initialize();
     fileio::initialize();
@@ -136,6 +145,25 @@ using namespace xs::device::internal;
     // audio::initialize();
     inspector::initialize();
     script::initialize();
+}
+
+- (void)mouseUp:(NSEvent *)event
+{
+    input::mouse_pos = [event locationInWindow];
+    input::clicked = false;
+}
+
+
+
+- (void)mouseDown:(NSEvent *)event
+{
+    input::mouse_pos = [event locationInWindow];
+    input::clicked = true;
+}
+
+- (void)mouseMoved:(NSEvent*) event
+{
+    input::mouse_pos = [event locationInWindow];
 }
 
 @end
@@ -167,6 +195,8 @@ void device::start_frame()
 {
     command_buffer = [command_queue commandBuffer];
     command_buffer.label = @"xs command buffer";
+    input::clicked_last_frame = input::clicked;
+    
 }
 
 void device::end_frame()
@@ -227,3 +257,24 @@ void device::internal::create_render_encoder()
     render_encoder = [command_buffer renderCommandEncoderWithDescriptor:screen_rpd];
     render_encoder.label = @"xs screen render pass";
 }
+
+double xs::input::get_mouse_x()
+{
+    return (input::mouse_pos.x / 2.0) - (_width / 8.0);
+}
+
+double xs::input::get_mouse_y()
+{
+    return (-input::mouse_pos.y / 2.0) + (_height / 8.0);
+}
+
+bool xs::input::get_mousebutton(mouse_button button)
+{
+    return input::clicked;
+}
+
+bool xs::input::get_mousebutton_once(mouse_button button)
+{
+    return input::clicked && !input::clicked_last_frame;
+}
+
