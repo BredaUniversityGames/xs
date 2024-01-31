@@ -51,6 +51,7 @@ namespace xs::device::internal
     XSRenderer* _renderer;
     int _width = -1;
     int _height = -1;
+    float _scaling = 1.0f;
     id<MTLCommandQueue> command_queue;      // The queue tied to the view
     id<MTLCommandBuffer> command_buffer;    // The buffer tied to the view
     id<MTLRenderCommandEncoder> render_encoder; // The encoder tied to the view
@@ -110,6 +111,7 @@ using namespace xs::input;
 {
     _width = size.width;
     _height = size.height;
+    _scaling = _width / (configuration::width() * configuration::multiplier());
 }
 
 @end
@@ -260,12 +262,16 @@ void device::internal::create_render_encoder()
 
 double xs::input::get_mouse_x()
 {
-    return (input::mouse_pos.x / 2.0) - (_width / 8.0);
+    float m = configuration::multiplier();
+    float s = _scaling;
+    return (input::mouse_pos.x / m) - (_width / (m * s * 2.0f));
 }
 
 double xs::input::get_mouse_y()
 {
-    return (-input::mouse_pos.y / 2.0) + (_height / 8.0);
+    float m = configuration::multiplier();
+    float s = _scaling;
+    return (input::mouse_pos.y / m) - (_height / (m * s * 2.0f));
 }
 
 bool xs::input::get_mousebutton(mouse_button button)
