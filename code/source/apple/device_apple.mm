@@ -17,6 +17,7 @@
 
 #if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
+typedef  CGPoint XsPoint;
 
 // Our iOS view controller
 @interface GameViewController : UIViewController
@@ -26,6 +27,7 @@
 
 #elif defined(PLATFORM_MAC)
 #import <Cocoa/Cocoa.h>
+typedef  NSPoint XsPoint;
 
 @interface GameViewController : NSViewController
 @end
@@ -56,11 +58,10 @@ namespace xs::device::internal
     id<MTLCommandBuffer> command_buffer;    // The buffer tied to the view
     id<MTLRenderCommandEncoder> render_encoder; // The encoder tied to the view
     auto prev_time = chrono::high_resolution_clock::now();
-    
 }
 namespace xs::input
 {
-    NSPoint mouse_pos;
+    XsPoint mouse_pos = {0, 0};
     bool clicked = false;
     bool clicked_last_frame = false;
 }
@@ -80,7 +81,9 @@ using namespace xs::input;
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
-    _view.window.acceptsMouseMovedEvents = true;
+#if defined(PLATFORM_MAC)
+     _view.window.acceptsMouseMovedEvents = true;
+#endif
     
     auto current_time = chrono::high_resolution_clock::now();
     auto elapsed = current_time - prev_time;
@@ -149,13 +152,13 @@ using namespace xs::input;
     script::initialize();
 }
 
+#if defined(PLATFORM_MAC)
+
 - (void)mouseUp:(NSEvent *)event
 {
     input::mouse_pos = [event locationInWindow];
     input::clicked = false;
 }
-
-
 
 - (void)mouseDown:(NSEvent *)event
 {
@@ -167,6 +170,54 @@ using namespace xs::input;
 {
     input::mouse_pos = [event locationInWindow];
 }
+
+
+#elif TARGET_OS_IOS
+
+-(bool)prefersHomeIndicatorAutoHidden{
+    return YES;
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    for (UITouch *t in touches)
+    {
+        mouse_pos.x = [t locationInView:t.view].x;
+        mouse_pos.y = configuration::height() - [t locationInView:t.view].y;
+    }
+    input::clicked = true;
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    for (UITouch *t in touches)
+    {
+        mouse_pos.x = [t locationInView:t.view].x;
+        mouse_pos.y = configuration::height() - [t locationInView:t.view].y;
+    }
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    for (UITouch *t in touches)
+    {
+        mouse_pos.x = [t locationInView:t.view].x;
+        mouse_pos.y = configuration::height() - [t locationInView:t.view].y;
+    }
+    input::clicked = false;
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    for (UITouch *t in touches)
+    {
+        mouse_pos.x = -1000000.0f;
+        mouse_pos.y = -1000000.0f;
+    }
+    input::clicked = false;
+}
+
+#endif
 
 @end
 
