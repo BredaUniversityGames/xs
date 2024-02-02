@@ -365,6 +365,9 @@ void xs::render::render_sprite(
 		x += offset.x;
 		y += offset.y;
 	}
+    
+    x = round(x);
+    y = round(y);
 
 	sprite_queue.push_back({
 		sprite_id,
