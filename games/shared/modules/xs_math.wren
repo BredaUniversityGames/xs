@@ -75,8 +75,9 @@ class Vec2 {
     dot(other) { (x * other.x + y * other.y) }
 	cross(other) { }
     rotate(a) {
+        var x = _x
         _x = a.cos * _x - a.sin * _y
-        _y = a.sin * _x + a.cos * _y
+        _y = a.sin * x + a.cos * _y
     }
     rotated(a) {
         return Vec2.new(a.cos * _x - a.sin * _y,
