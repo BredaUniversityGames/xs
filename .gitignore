@@ -69,6 +69,7 @@ games/hex-master-jam/
 
 xs.xcodeproj/xcuserdata/
 *.xcuserstate
-games/peperuga/
 *.unrealvs
 *.DATA
+games/peperuga/
+xs.vcxproj.user

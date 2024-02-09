@@ -12,50 +12,26 @@ namespace xs
 	{
         // ------------------------------------------------------------------------
         // Maximum length for file paths
-        constexpr s16 s_max_path = 260;
+        constexpr short s_max_path = 260;
 
         // ------------------------------------------------------------------------
         // Structure representing the header information for content
-        struct ContentHeader
+        struct content_header
         {
-            ContentHeader();
-            ContentHeader(const std::string& path, u64 fileSize, char8 isText);
+            content_header();
+            content_header(const std::string& path, unsigned long long file_offset, unsigned long long file_size, unsigned long long file_size_compressed = 0);
 
-            char8 file_path[s_max_path];
-            u64 file_size;
-            char8 is_text;
-        };
+            char                    file_path[s_max_path];
+            unsigned long long      file_offset;
+            unsigned long long      file_size;
+            unsigned long long      file_size_compressed;
 
-        // ------------------------------------------------------------------------
-        // Structure representing a compressed archive
-        struct CompressedArchive
-        {
-            CompressedArchive();
-
-            operator bool() const;
-
-            ulong src_len;
-            ulong cmp_len;
-
-            Blob data;
-        };
-
-        // ------------------------------------------------------------------------
-        // Structure representing an archive
-        struct Archive
-        {
-            Archive();
-            Archive(ulong totalSize);
-
-            operator bool() const;
-
-            ulong src_len;
-
-            Blob data;
+            bool operator==(const content_header& other) const;
+            bool operator!=(const content_header& other) const;
         };
 
         // Function to generate an archive path based on the root and subdirectories
-        std::string make_archive_path(const std::string& root, const std::vector<std::string>& subDirs = {});
+        std::string make_archive_path(const std::string& root, const std::vector<std::string>& sub_dirs = {});
 
         // Function to get the set of supported text file formats
         const std::unordered_set<std::string>& supported_text_file_formats();
@@ -70,4 +46,16 @@ namespace xs
         // Function that checks if a file is a text file
         bool is_text_file(const std::string& extension);
 	}
+}
+
+namespace std
+{
+    template <>
+    struct hash<xs::resource_pipeline::content_header>
+    {
+        size_t operator()(const xs::resource_pipeline::content_header& header) const
+        {
+            return std::hash<std::string> {}(header.file_path);
+        }
+    };
 }
