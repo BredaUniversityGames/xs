@@ -17,4 +17,4 @@ jobs:
         msbuild-architecture: x64
 
     - name: Build the solution
-      run: msbuild xs.sln t:rebuild -verbosity:diag -property:Configuration=Release 
+      run: msbuild xs.sln /t:rebuild /verbosity:diag /p:Configuration=Release 
