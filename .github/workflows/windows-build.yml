@@ -18,3 +18,15 @@ jobs:
 
     - name: Build the solution
       run: msbuild xs.sln /t:rebuild /verbosity:diag /p:Configuration=Release 
+
+    - name: Package Artifacts
+      run: |
+        Compress-Archive -Path executable\x64\Release\* -DestinationPath Release.zip
+      shell: pwsh
+      # Packages the Release build files into a zip archive
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: release-artifacts
+        path: Release.zip
+      # Uploads the packaged artifacts for later use or download
