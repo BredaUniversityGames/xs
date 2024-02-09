@@ -606,6 +606,11 @@ void input_get_mouse_y(WrenVM* vm)
     callFunction_returnType<double>(vm, xs::input::get_mouse_y);
 }
 
+void input_get_mouse_wheel(WrenVM* vm)
+{
+    callFunction_returnType<double>(vm, xs::input::get_mouse_wheel);
+}
+
 void input_get_nr_touches(WrenVM* vm)
 {
     callFunction_returnType<int>(vm, xs::input::get_nr_touches);
@@ -886,6 +891,7 @@ void xs::script::bind_api()
     bind("xs", "Input", true, "getMouseButtonOnce(_)", input_get_mousebutton_once);
     bind("xs", "Input", true, "getMouseX()", input_get_mouse_x);
     bind("xs", "Input", true, "getMouseY()", input_get_mouse_y);
+    bind("xs", "Input", true, "getMouseWheel()", input_get_mouse_wheel);
     bind("xs", "Input", true, "getNrTouches()", input_get_nr_touches);
     bind("xs", "Input", true, "getTouchId(_)", input_get_touch_id);
     bind("xs", "Input", true, "getTouchX(_)", input_get_touch_x);
