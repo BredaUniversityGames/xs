@@ -1,0 +1,28 @@
+name: Windows CI
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0 # Fetches all history for all tags and branches
+
+    - name: Setup MSBuild path
+      uses: microsoft/setup-msbuild@v1.1
+
+    - name: List VS and MSBuild versions
+      run: |
+        # List all instances of Visual Studio
+        "& 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' -all -prerelease -format list"
+        # List the location of MSBuild
+        "& 'C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe' -latest -products * -requires Microsoft.Component.MSBuild -property installationPath"
+        $msbuildPath = Join-Path -Path (Get-Content -Path "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath) -ChildPath "\MSBuild\Current\Bin\MSBuild.exe"
+        "& $msbuildPath -version
+      shell: pwsh
+
+    - name: Build the solution
+      run: msbuild xs.sln /p:Configuration=Release /p:Platform="x64"
