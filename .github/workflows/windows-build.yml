@@ -17,16 +17,17 @@ jobs:
         msbuild-architecture: x64
 
     - name: Build the solution
-      run: msbuild xs.sln /t:rebuild /verbosity:diag /p:Configuration=Release 
+      run: msbuild xs.sln /t:rebuild /verbosity:diag /p:Configuration=Develop 
 
-    - name: Package Artifacts
+    - name: Move games folders
       run: |
-        Compress-Archive -Path executable\x64\Release\* -DestinationPath Release.zip
+        Move-Item -Path games\shared -Destination executable\x64\Develop\shared -Force
+        Move-Item -Path games\hello -Destination executable\x64\Develop\hello -Force
       shell: pwsh
-      # Packages the Release build files into a zip archive
+      # Moves the specified folders into the target directory
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
-        name: release-artifacts
-        path: Release.zip
+        name: executable-with-games
+        path: executable\x64\Develop\
       # Uploads the packaged artifacts for later use or download
