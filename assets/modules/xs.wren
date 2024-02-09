@@ -260,6 +260,7 @@ class Input {
     foreign static getMouseButtonOnce(button)
     foreign static getMouseX()
     foreign static getMouseY()
+    foreign static getMouseWheel()
 
     foreign static getNrTouches()
     foreign static getTouchId(index)
