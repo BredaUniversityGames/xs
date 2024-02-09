@@ -169,13 +169,22 @@
     <ClCompile Include="external\imgui\misc\cpp\imgui_stdlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\source\resources.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="code\source\cooker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\source\resource_pipeline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\miniz\src\miniz.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\miniz\src\miniz_tdef.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\miniz\src\miniz_tinfl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\miniz\src\miniz_zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -346,9 +355,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\imgui\misc\cpp\imgui_stdlib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\include\resources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\include\cooker.h">

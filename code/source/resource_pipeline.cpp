@@ -7,21 +7,21 @@ namespace xs::resource_pipeline
 	namespace internal
 	{
 		// ------------------------------------------------------------------------
-		std::string make_name(const std::vector<std::string>& subDirs)
+		std::string make_name(const std::vector<std::string>& sub_dirs)
 		{
 			// Names that should not be included into the archive name when exported
 			static std::unordered_set<std::string> blacklist = { "shared" };
 
 			std::stringstream stream;
 
-			for (s32 i = 0; i < subDirs.size(); ++i)
+			for (int i = 0; i < sub_dirs.size(); ++i)
 			{
-				if (blacklist.find(subDirs[i]) == blacklist.end())
+				if (blacklist.find(sub_dirs[i]) == blacklist.end())
 				{
-					stream << subDirs[i];
+					stream << sub_dirs[i];
 
 					// If we are NOT processing the last element then add a "_"
-					if (i != subDirs.size() - 1)
+					if (i != sub_dirs.size() - 1)
 					{
 						stream << "_";
 					}
@@ -33,62 +33,49 @@ namespace xs::resource_pipeline
 	}
 
 	// ------------------------------------------------------------------------
-	ContentHeader::ContentHeader()
-		: file_size(0)
-		, file_path()
-		, is_text(0)
+	content_header::content_header()
+		: file_path()
+		, file_offset(0)
+		, file_size(0)
+		, file_size_compressed(0)
 	{
 
 	}
 
 	// ------------------------------------------------------------------------
-	ContentHeader::ContentHeader(const std::string& path, u64 fileSize, char8 isText)
-		: file_size(fileSize)
-		, file_path()
-		, is_text(isText)
+	content_header::content_header(const std::string& path, unsigned long long file_offset, unsigned long long file_size, unsigned long long file_size_compressed)
+		: file_path()
+		, file_offset(file_offset)
+		, file_size(file_size)
+		, file_size_compressed(file_size_compressed)
 	{
 		size_t filePathLength = std::min(path.size(), static_cast<size_t>(s_max_path - 1));
 		std::copy(path.begin(), path.begin() + filePathLength, file_path);
 		file_path[filePathLength] = '\0'; // Null-terminate the file path
+
+		for (int i = 0; file_path[i] != '\0'; i++) 
+		{
+			if (file_path[i] == '\\') 
+				file_path[i] = '/';
+		}
 	}
 
 	// ------------------------------------------------------------------------
-	CompressedArchive::CompressedArchive()
-		:src_len(0)
-		, cmp_len(0)
-		, data()
-	{}
-
-	// ------------------------------------------------------------------------
-	CompressedArchive::operator bool() const
+	bool content_header::operator==(const content_header& other) const
 	{
-		return src_len != 0 && cmp_len != 0 && data.data() != nullptr;
+		return file_size == other.file_size && file_offset == other.file_offset && file_path == other.file_path && file_size_compressed == other.file_size_compressed;
 	}
 
 	// ------------------------------------------------------------------------
-	Archive::Archive()
-		:src_len(0)
-		, data()
-	{}
-
-	// ------------------------------------------------------------------------
-	Archive::Archive(ulong totalSize)
-		: src_len(totalSize)
-		, data()
+	bool content_header::operator!=(const content_header& other) const
 	{
-		data.reserve(totalSize);
+		return (*this) == other;
 	}
 
 	// ------------------------------------------------------------------------
-	Archive::operator bool() const
+	std::string make_archive_path(const std::string& root, const std::vector<std::string>& sub_dirs)
 	{
-		return src_len != 0 && data.data() != nullptr;
-	}
-
-	// ------------------------------------------------------------------------
-	std::string make_archive_path(const std::string& root, const std::vector<std::string>& subDirs)
-	{
-		return root + "/" + internal::make_name(subDirs) + ".DATA";
+		return root + "/" + internal::make_name(sub_dirs) + ".DATA";
 	}
 
 	// ------------------------------------------------------------------------
