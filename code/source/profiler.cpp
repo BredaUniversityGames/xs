@@ -17,6 +17,7 @@ namespace xs::profiler::internal
 	    time_t start{};
 	    time_t end{};
 	    span_t accum{};
+        int count = 0;
 	    float avg = 0.0f;
 	    std::deque<float> history;
     };
@@ -42,7 +43,7 @@ void xs::profiler::begin_section(const std::string& name)
 {
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
     times[name].start = std::chrono::high_resolution_clock::now();
-#endif // defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#endif
 }
 
 void xs::profiler::end_section(const std::string& name)
@@ -52,14 +53,15 @@ void xs::profiler::end_section(const std::string& name)
     e.end = std::chrono::high_resolution_clock::now();
     auto elapsed = e.end - e.start;
     e.accum += elapsed;
-#endif // defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+    e.count++;
+#endif
 }
 
 void xs::profiler::begin_timing()
 {
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
     timer = std::chrono::high_resolution_clock::now();
-#endif // defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#endif
 }
 
 double xs::profiler::end_timing()
@@ -70,7 +72,7 @@ double xs::profiler::end_timing()
     return (double)elapsed.count() / 1000000.0;
 #else
     return 0.0;
-#endif // defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#endif
 }
 
 void xs::profiler::inspect(bool& show)
@@ -114,12 +116,15 @@ void xs::profiler::inspect(bool& show)
     }
 
     for (auto& itr : times)
-        ImGui::LabelText(itr.first.c_str(), "%f ms", itr.second.avg);
+        ImGui::LabelText(itr.first.c_str(), "%fms count:%d", itr.second.avg, itr.second.count);
 
     ImGui::End();
 
     for (auto& itr : times)
+    {
         itr.second.accum = {};
+        itr.second.count = 0;
+    }
 #endif
 }
 
