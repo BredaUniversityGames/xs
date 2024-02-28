@@ -171,8 +171,8 @@ void xs::script::configure()
         log::error("Please restart with a valid script file!", internal::main);
         return;
     }
-
-    log::info("Wren script set to {}", internal::main);
+    
+    log::info("Wren script set to {}", fileio::get_path(internal::main));
     bind_api();
 
     WrenConfiguration config;
@@ -869,6 +869,19 @@ void device_request_close(WrenVM* vm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Profiler
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void profiler_begin_section(WrenVM* vm)
+{
+	callFunction_args<string>(vm, xs::profiler::begin_section);
+}
+
+void profiler_end_section(WrenVM* vm)
+{
+	callFunction_args<string>(vm, xs::profiler::end_section);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 //											Bind xs API
 // 
@@ -944,4 +957,8 @@ void xs::script::bind_api()
     bind("xs", "Device", true, "getPlatform()", device_get_platform);
     bind("xs", "Device", true, "canClose()", device_can_close);
     bind("xs", "Device", true, "requestClose()", device_request_close);
+
+    // Profiler
+    bind("xs", "Profiler", true, "begin(_)", profiler_begin_section);
+    bind("xs", "Profiler", true, "end(_)", profiler_end_section);
 }
