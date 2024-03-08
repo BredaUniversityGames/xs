@@ -100,7 +100,7 @@ class Sprite is Renderable {
             t.position.y,
             layer,
             _scale,            
-            t.rotation,         // _rotation,
+            t.rotation,
             _mul,
             _add,
             _flags)
@@ -117,9 +117,6 @@ class Sprite is Renderable {
 
     scale { _scale }
     scale=(s) { _scale = s }
-
-    rotation { _rotation }
-    rotation=(r) { _rotation = r }
 
     sprite_=(s) { _sprite = s }
     sprite { _sprite }
