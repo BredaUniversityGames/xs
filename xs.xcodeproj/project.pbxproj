@@ -117,6 +117,26 @@
 		34866F5D2B28933E0025F40C /* libfmodstudioL.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		34866F5E2B28933E0025F40C /* libfmodL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmodL.dylib */; };
 		34866F5F2B28933E0025F40C /* libfmodL.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmodL.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		3486CA662B94CC3200E9A3B8 /* cooker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA632B94CC3200E9A3B8 /* cooker.cpp */; };
+		3486CA682B94CC3200E9A3B8 /* resource_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */; };
+		3486CA6D2B94DF8B00E9A3B8 /* resource_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */; };
+		3486CA6E2B94DF8C00E9A3B8 /* resource_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */; };
+		3486CA6F2B94DF9000E9A3B8 /* cooker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA632B94CC3200E9A3B8 /* cooker.cpp */; };
+		3486CA702B94DF9000E9A3B8 /* cooker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA632B94CC3200E9A3B8 /* cooker.cpp */; };
+		3486CA8B2B94DFCF00E9A3B8 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 3486CA722B94DFCF00E9A3B8 /* LICENSE */; };
+		3486CA8C2B94DFCF00E9A3B8 /* readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 3486CA7B2B94DFCF00E9A3B8 /* readme.md */; };
+		3486CA932B94DFCF00E9A3B8 /* miniz.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA872B94DFCF00E9A3B8 /* miniz.c */; };
+		3486CA942B94DFCF00E9A3B8 /* miniz_tdef.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA882B94DFCF00E9A3B8 /* miniz_tdef.c */; };
+		3486CA952B94DFCF00E9A3B8 /* miniz_zip.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA892B94DFCF00E9A3B8 /* miniz_zip.c */; };
+		3486CA962B94DFCF00E9A3B8 /* miniz_tinfl.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA8A2B94DFCF00E9A3B8 /* miniz_tinfl.c */; };
+		3486CA972B94DFFE00E9A3B8 /* miniz.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA872B94DFCF00E9A3B8 /* miniz.c */; };
+		3486CA982B94DFFE00E9A3B8 /* miniz_zip.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA892B94DFCF00E9A3B8 /* miniz_zip.c */; };
+		3486CA992B94DFFE00E9A3B8 /* miniz_tinfl.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA8A2B94DFCF00E9A3B8 /* miniz_tinfl.c */; };
+		3486CA9A2B94DFFE00E9A3B8 /* miniz_tdef.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA882B94DFCF00E9A3B8 /* miniz_tdef.c */; };
+		3486CA9B2B94DFFF00E9A3B8 /* miniz.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA872B94DFCF00E9A3B8 /* miniz.c */; };
+		3486CA9C2B94DFFF00E9A3B8 /* miniz_zip.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA892B94DFCF00E9A3B8 /* miniz_zip.c */; };
+		3486CA9D2B94DFFF00E9A3B8 /* miniz_tinfl.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA8A2B94DFCF00E9A3B8 /* miniz_tinfl.c */; };
+		3486CA9E2B94DFFF00E9A3B8 /* miniz_tdef.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA882B94DFCF00E9A3B8 /* miniz_tdef.c */; };
 		348FE4262B275C1A000C1F11 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E738E2A4A29D5006ECAD5 /* audio.cpp */; };
 		348FE4272B275C1B000C1F11 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E738E2A4A29D5006ECAD5 /* audio.cpp */; };
 		348FE4282B275C1B000C1F11 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E738E2A4A29D5006ECAD5 /* audio.cpp */; };
@@ -232,7 +252,7 @@
 		346E73812A4A29D5006ECAD5 /* script.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = script.cpp; sourceTree = "<group>"; };
 		346E738E2A4A29D5006ECAD5 /* audio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio.cpp; sourceTree = "<group>"; };
 		346E738F2A4A29D5006ECAD5 /* device.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = device.cpp; sourceTree = "<group>"; };
-		346E73902A4A29D5006ECAD5 /* fileio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fileio.cpp; sourceTree = "<group>"; };
+		346E73902A4A29D5006ECAD5 /* fileio.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = fileio.cpp; sourceTree = "<group>"; };
 		346E73912A4A29D5006ECAD5 /* data.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = data.cpp; sourceTree = "<group>"; };
 		346E73932A4A29D5006ECAD5 /* inspector.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = inspector.cpp; sourceTree = "<group>"; };
 		346E73942A4A29D5006ECAD5 /* configuration.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = configuration.cpp; sourceTree = "<group>"; };
@@ -275,6 +295,24 @@
 		3474D63D2B14E91100441451 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmodstudioL.dylib; path = external/fmod/lib/mac/libfmodstudioL.dylib; sourceTree = "<group>"; };
 		34866F5B2B28933E0025F40C /* libfmodL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmodL.dylib; path = external/fmod/lib/mac/libfmodL.dylib; sourceTree = "<group>"; };
+		3486CA632B94CC3200E9A3B8 /* cooker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cooker.cpp; sourceTree = "<group>"; };
+		3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resource_pipeline.cpp; sourceTree = "<group>"; };
+		3486CA692B94CCD900E9A3B8 /* resources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resources.h; sourceTree = "<group>"; };
+		3486CA6A2B94CCD900E9A3B8 /* resource_pipeline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = resource_pipeline.h; sourceTree = "<group>"; };
+		3486CA6B2B94CCD900E9A3B8 /* cooker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cooker.h; sourceTree = "<group>"; };
+		3486CA6C2B94CCD900E9A3B8 /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		3486CA722B94DFCF00E9A3B8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		3486CA752B94DFCF00E9A3B8 /* miniz_zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miniz_zip.h; sourceTree = "<group>"; };
+		3486CA762B94DFCF00E9A3B8 /* miniz_tinfl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miniz_tinfl.h; sourceTree = "<group>"; };
+		3486CA772B94DFCF00E9A3B8 /* miniz_export.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miniz_export.h; sourceTree = "<group>"; };
+		3486CA782B94DFCF00E9A3B8 /* miniz.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miniz.h; sourceTree = "<group>"; };
+		3486CA792B94DFCF00E9A3B8 /* miniz_tdef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miniz_tdef.h; sourceTree = "<group>"; };
+		3486CA7A2B94DFCF00E9A3B8 /* miniz_common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miniz_common.h; sourceTree = "<group>"; };
+		3486CA7B2B94DFCF00E9A3B8 /* readme.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = readme.md; sourceTree = "<group>"; };
+		3486CA872B94DFCF00E9A3B8 /* miniz.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = miniz.c; sourceTree = "<group>"; };
+		3486CA882B94DFCF00E9A3B8 /* miniz_tdef.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = miniz_tdef.c; sourceTree = "<group>"; };
+		3486CA892B94DFCF00E9A3B8 /* miniz_zip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = miniz_zip.c; sourceTree = "<group>"; };
+		3486CA8A2B94DFCF00E9A3B8 /* miniz_tinfl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = miniz_tinfl.c; sourceTree = "<group>"; };
 		34EB6C952A4C6E6100DA6B15 /* fmod_output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_output.h; sourceTree = "<group>"; };
 		34EB6C962A4C6E6100DA6B15 /* fmod_dsp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_dsp.h; sourceTree = "<group>"; };
 		34EB6C972A4C6E6100DA6B15 /* fmod_errors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_errors.h; sourceTree = "<group>"; };
@@ -902,6 +940,10 @@
 		346E73402A4A29D5006ECAD5 /* include */ = {
 			isa = PBXGroup;
 			children = (
+				3486CA6B2B94CCD900E9A3B8 /* cooker.h */,
+				3486CA6A2B94CCD900E9A3B8 /* resource_pipeline.h */,
+				3486CA692B94CCD900E9A3B8 /* resources.h */,
+				3486CA6C2B94CCD900E9A3B8 /* types.h */,
 				346E73412A4A29D5006ECAD5 /* input.h */,
 				346E73432A4A29D5006ECAD5 /* version.h */,
 				346E73442A4A29D5006ECAD5 /* script.h */,
@@ -926,6 +968,8 @@
 			isa = PBXGroup;
 			children = (
 				346E73582A4A29D5006ECAD5 /* apple */,
+				3486CA632B94CC3200E9A3B8 /* cooker.cpp */,
+				3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */,
 				346E737C2A4A29D5006ECAD5 /* render.cpp */,
 				346E737E2A4A29D5006ECAD5 /* log.cpp */,
 				346E737F2A4A29D5006ECAD5 /* profiler.cpp */,
@@ -1078,9 +1122,53 @@
 			path = fonts;
 			sourceTree = "<group>";
 		};
+		3486CA712B94DFCF00E9A3B8 /* miniz */ = {
+			isa = PBXGroup;
+			children = (
+				3486CA722B94DFCF00E9A3B8 /* LICENSE */,
+				3486CA732B94DFCF00E9A3B8 /* include */,
+				3486CA7B2B94DFCF00E9A3B8 /* readme.md */,
+				3486CA862B94DFCF00E9A3B8 /* src */,
+			);
+			path = miniz;
+			sourceTree = "<group>";
+		};
+		3486CA732B94DFCF00E9A3B8 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				3486CA742B94DFCF00E9A3B8 /* miniz */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		3486CA742B94DFCF00E9A3B8 /* miniz */ = {
+			isa = PBXGroup;
+			children = (
+				3486CA752B94DFCF00E9A3B8 /* miniz_zip.h */,
+				3486CA762B94DFCF00E9A3B8 /* miniz_tinfl.h */,
+				3486CA772B94DFCF00E9A3B8 /* miniz_export.h */,
+				3486CA782B94DFCF00E9A3B8 /* miniz.h */,
+				3486CA792B94DFCF00E9A3B8 /* miniz_tdef.h */,
+				3486CA7A2B94DFCF00E9A3B8 /* miniz_common.h */,
+			);
+			path = miniz;
+			sourceTree = "<group>";
+		};
+		3486CA862B94DFCF00E9A3B8 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				3486CA872B94DFCF00E9A3B8 /* miniz.c */,
+				3486CA882B94DFCF00E9A3B8 /* miniz_tdef.c */,
+				3486CA892B94DFCF00E9A3B8 /* miniz_zip.c */,
+				3486CA8A2B94DFCF00E9A3B8 /* miniz_tinfl.c */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		34EB6C932A4C6E6100DA6B15 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				3486CA712B94DFCF00E9A3B8 /* miniz */,
 				3474D5A52B14DFC000441451 /* imgui */,
 				34EB6C942A4C6E6100DA6B15 /* fmod */,
 				34EB6CB22A4C6E6100DA6B15 /* steam */,
@@ -1937,10 +2025,12 @@
 				3474D60A2B14DFC000441451 /* Karla-Regular.ttf in Resources */,
 				3474D6072B14DFC000441451 /* Cousine-Regular.ttf in Resources */,
 				346E73BC2A4A29D5006ECAD5 /* LaunchScreen.storyboard in Resources */,
+				3486CA8B2B94DFCF00E9A3B8 /* LICENSE in Resources */,
 				3474D6042B14DFC000441451 /* ProggyClean.ttf in Resources */,
 				3435D9F12A96924700335383 /* games in Resources */,
 				3474D5FE2B14DFC000441451 /* DroidSans.ttf in Resources */,
 				3474D5FB2B14DFC000441451 /* Roboto-Medium.ttf in Resources */,
+				3486CA8C2B94DFCF00E9A3B8 /* readme.md in Resources */,
 				346E73B02A4A29D5006ECAD5 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1983,11 +2073,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3486CA662B94CC3200E9A3B8 /* cooker.cpp in Sources */,
 				346E73E32A4A29D5006ECAD5 /* script.cpp in Sources */,
 				34EB6F692A4C6EE900DA6B15 /* wren_core.c in Sources */,
 				344B22792B1D15DD004B1EA2 /* inspector.cpp in Sources */,
 				34EB6F682A4C6EE900DA6B15 /* wren_utils.c in Sources */,
 				348FE4282B275C1B000C1F11 /* audio.cpp in Sources */,
+				3486CA952B94DFCF00E9A3B8 /* miniz_zip.c in Sources */,
 				34EB6FA42A4CCD2000DA6B15 /* account_apple.mm in Sources */,
 				3474D63A2B14DFC000441451 /* imgui_draw.cpp in Sources */,
 				346E74132A4A29D5006ECAD5 /* tools.cpp in Sources */,
@@ -2012,13 +2104,17 @@
 				346E74072A4A29D5006ECAD5 /* data.cpp in Sources */,
 				34EB6F6B2A4C6EE900DA6B15 /* wren_compiler.c in Sources */,
 				34EB6F662A4C6EE900DA6B15 /* wren_vm.c in Sources */,
+				3486CA932B94DFCF00E9A3B8 /* miniz.c in Sources */,
 				34EB6F962A4C706C00DA6B15 /* render_apple.mm in Sources */,
+				3486CA682B94CC3200E9A3B8 /* resource_pipeline.cpp in Sources */,
 				346E73C22A4A29D5006ECAD5 /* main.m in Sources */,
 				3435D9ED2A968ADA00335383 /* fileio_apple.mm in Sources */,
 				34EB6F982A4C721B00DA6B15 /* input_apple.mm in Sources */,
 				346E73D72A4A29D5006ECAD5 /* render.cpp in Sources */,
 				3474D62E2B14DFC000441451 /* imgui_tables.cpp in Sources */,
+				3486CA942B94DFCF00E9A3B8 /* miniz_tdef.c in Sources */,
 				346E74042A4A29D5006ECAD5 /* fileio.cpp in Sources */,
+				3486CA962B94DFCF00E9A3B8 /* miniz_tinfl.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2027,6 +2123,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				346E73E42A4A29D5006ECAD5 /* script.cpp in Sources */,
+				3486CA6D2B94DF8B00E9A3B8 /* resource_pipeline.cpp in Sources */,
+				3486CA992B94DFFE00E9A3B8 /* miniz_tinfl.c in Sources */,
 				34EB6F702A4C6EEA00DA6B15 /* wren_core.c in Sources */,
 				344B227A2B1D15DE004B1EA2 /* inspector.cpp in Sources */,
 				34EB6F6F2A4C6EEA00DA6B15 /* wren_utils.c in Sources */,
@@ -2037,6 +2135,7 @@
 				34EB6F992A4C721B00DA6B15 /* input_apple.mm in Sources */,
 				346184212A78525C0014B43C /* shaders.metal in Sources */,
 				3474D62F2B14DFC000441451 /* imgui_tables.cpp in Sources */,
+				3486CA972B94DFFE00E9A3B8 /* miniz.c in Sources */,
 				3474D6142B14DFC000441451 /* implot.cpp in Sources */,
 				34EB6F712A4C6EEA00DA6B15 /* wren_debug.c in Sources */,
 				3474D6112B14DFC000441451 /* imgui_widgets.cpp in Sources */,
@@ -2051,14 +2150,17 @@
 				34EB6F632A4C6EDB00DA6B15 /* wren_opt_random.c in Sources */,
 				346184232A7852C80014B43C /* render_apple.mm in Sources */,
 				346E74082A4A29D5006ECAD5 /* data.cpp in Sources */,
+				3486CA6F2B94DF9000E9A3B8 /* cooker.cpp in Sources */,
 				34EB6F722A4C6EEA00DA6B15 /* wren_compiler.c in Sources */,
 				34EB6F6D2A4C6EEA00DA6B15 /* wren_vm.c in Sources */,
 				34EB6FA12A4CCC2700DA6B15 /* device_apple.mm in Sources */,
 				348FE4272B275C1B000C1F11 /* audio.cpp in Sources */,
 				34EB6FA52A4CCD2000DA6B15 /* account_apple.mm in Sources */,
+				3486CA982B94DFFE00E9A3B8 /* miniz_zip.c in Sources */,
 				3474D63B2B14DFC000441451 /* imgui_draw.cpp in Sources */,
 				3474D61D2B14DFC000441451 /* implot_items.cpp in Sources */,
 				346E73D82A4A29D5006ECAD5 /* render.cpp in Sources */,
+				3486CA9A2B94DFFE00E9A3B8 /* miniz_tdef.c in Sources */,
 				346E74052A4A29D5006ECAD5 /* fileio.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2070,6 +2172,7 @@
 				346E73E52A4A29D5006ECAD5 /* script.cpp in Sources */,
 				348FE4262B275C1A000C1F11 /* audio.cpp in Sources */,
 				346E74152A4A29D5006ECAD5 /* tools.cpp in Sources */,
+				3486CA9E2B94DFFF00E9A3B8 /* miniz_tdef.c in Sources */,
 				344B22752B19016B004B1EA2 /* inspector.cpp in Sources */,
 				34EB6F612A4C6ED600DA6B15 /* wren_opt_meta.c in Sources */,
 				3474D63C2B14DFC000441451 /* imgui_draw.cpp in Sources */,
@@ -2078,20 +2181,25 @@
 				346E73E22A4A29D5006ECAD5 /* profiler.cpp in Sources */,
 				3474D6392B14DFC000441451 /* imgui_demo.cpp in Sources */,
 				346E73DF2A4A29D5006ECAD5 /* log.cpp in Sources */,
+				3486CA6E2B94DF8C00E9A3B8 /* resource_pipeline.cpp in Sources */,
 				346E73AF2A4A29D5006ECAD5 /* AppDelegate.m in Sources */,
 				346E74122A4A29D5006ECAD5 /* configuration.cpp in Sources */,
 				3474D5F72B14DFC000441451 /* imgui_stdlib.cpp in Sources */,
+				3486CA9B2B94DFFF00E9A3B8 /* miniz.c in Sources */,
 				3474D6242B14DFC000441451 /* imgui.cpp in Sources */,
 				3406B6342A7460A300989AB9 /* main.m in Sources */,
 				3474D6182B14DFC000441451 /* imgui_impl.cpp in Sources */,
 				34EB6F772A4C6EEA00DA6B15 /* wren_core.c in Sources */,
 				346184242A7852C80014B43C /* render_apple.mm in Sources */,
+				3486CA9C2B94DFFF00E9A3B8 /* miniz_zip.c in Sources */,
 				34EB6F792A4C6EEA00DA6B15 /* wren_compiler.c in Sources */,
 				346E74032A4A29D5006ECAD5 /* device.cpp in Sources */,
 				3474D6152B14DFC000441451 /* implot.cpp in Sources */,
 				34EB6FA22A4CCC2700DA6B15 /* device_apple.mm in Sources */,
+				3486CA702B94DF9000E9A3B8 /* cooker.cpp in Sources */,
 				346E74092A4A29D5006ECAD5 /* data.cpp in Sources */,
 				3474D6122B14DFC000441451 /* imgui_widgets.cpp in Sources */,
+				3486CA9D2B94DFFF00E9A3B8 /* miniz_tinfl.c in Sources */,
 				3474D61E2B14DFC000441451 /* implot_items.cpp in Sources */,
 				34EB6F762A4C6EEA00DA6B15 /* wren_utils.c in Sources */,
 				34EB6F752A4C6EEA00DA6B15 /* wren_primitive.c in Sources */,
@@ -2197,6 +2305,7 @@
 					"$(PROJECT_DIR)/external/wren/include",
 					"$(PROJECT_DIR)/external/wren/optional",
 					"$(PROJECT_DIR)/external/wren/vm",
+					"$(PROJECT_DIR)/external/miniz/include/miniz",
 					"$(PROJECT_DIR)/external/fmt/include",
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -2258,6 +2367,7 @@
 					"$(PROJECT_DIR)/external/wren/include",
 					"$(PROJECT_DIR)/external/wren/optional",
 					"$(PROJECT_DIR)/external/wren/vm",
+					"$(PROJECT_DIR)/external/miniz/include/miniz",
 					"$(PROJECT_DIR)/external/fmt/include",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2292,6 +2402,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/external/fmod/lib/ios",
+					"$(PROJECT_DIR)/external/miniz/lib",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = BoyanEndrovski.xs;
@@ -2328,6 +2439,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/external/fmod/lib/ios",
+					"$(PROJECT_DIR)/external/miniz/lib",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = BoyanEndrovski.xs;
