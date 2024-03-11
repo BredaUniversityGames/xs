@@ -68,8 +68,12 @@ namespace xs::fileio::internal
 
 		log::info("Loading archive: {}", archive_path);
 
-		// Read binary content from the created archive path
-		return fileio::read_binary_file(archive_path);
+		// Check if the archive exists
+		if (fileio::exists(archive_path))
+			// Read binary content from the created archive path
+			return fileio::read_binary_file(archive_path);
+			
+		return {};
 	}
 	// ------------------------------------------------------------------------
 	// Load compressed game archive
@@ -80,7 +84,7 @@ namespace xs::fileio::internal
 
 		if (game_content.empty())
 		{
-			log::error("Unable to load game content");
+			log::info("Game arhive not found loading.");
 			return;
 		}
 
