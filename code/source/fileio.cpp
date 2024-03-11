@@ -4,6 +4,7 @@
 #include <fstream>
 #include <map>
 #include <unordered_map>
+#include <filesystem>
 
 #include "log.h"
 #include "tools.h"
@@ -19,13 +20,13 @@
 #include "account_switch.h"
 #elif defined(PLATFORM_PC)
 #include <filesystem>
-
-namespace fs = std::filesystem;
 #endif
 
 #if defined(PLATFORM_APPLE)
 #import <Foundation/Foundation.h>
 #endif
+
+namespace fs = std::filesystem;
 
 using namespace std;
 
