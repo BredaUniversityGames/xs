@@ -96,18 +96,20 @@ namespace xs::fileio::internal
 		{
 			resource_pipeline::content_header header;
 			offset += read_from_archive(&header, game_content.data() + offset, sizeof(resource_pipeline::content_header));
+			auto path = get_path(header.file_path);
+
 
 			if (header.file_size_compressed != 0)
 			{
 				log::info("Text entry loaded: {0}", header.file_path);
-				text_content_headers.emplace(header.file_path, header);
+				text_content_headers.emplace(path, header);
 				// Offset with the content data itself so we can jump to the next content_header
 				offset += header.file_size_compressed; 
 			}
 			else
 			{
 				log::info("Binary entry loaded: {0}", header.file_path);
-				binary_content_headers.emplace(header.file_path, header);
+				binary_content_headers.emplace(path, header);
 				// Offset with the content data itself so we can jump to the next content_header
 				offset += header.file_size; 
 			}
@@ -184,6 +186,10 @@ void fileio::initialize(/* const string& main_script*/)
 	add_wildcard("[games]", "/app0");
 #endif
 
+#if NDEBUG
+	load_game_content_headers();
+#endif
+
 	// All platforms
 	bool success = false;
 	if (exists("[games]/.ini"))
@@ -205,7 +211,7 @@ void fileio::initialize(/* const string& main_script*/)
 	if(!success)
 	{
 		log::info("Please provide a valid game folder in the games/.ini file!");
-		log::info("A valid game folder contanins a valid game.wren script.");
+		log::info("A valid game folder contains a valid game.wren script.");
 		log::info("Check the documentation and the example that was just created.");
 		fileio::write_text_file("hello", "[games]/.ini");
 		add_wildcard("[game]", "[games]/hello");
@@ -230,10 +236,6 @@ void fileio::initialize(/* const string& main_script*/)
 #elif defined(PLATFORM_SWITCH) || defined(PLATFORM_PS5)
 	if(!success)
 		log::info("Please provide a valid game folder in the games/.ini file!");
-#endif
-
-#if NDEBUG
-	load_game_content_headers();
 #endif
 }
 
@@ -390,7 +392,14 @@ string fileio::get_path(const string& filename)
 
 bool fileio::exists(const string& filename)
 {
+	// Expand wildcards
 	const auto path = get_path(filename);
+
+	// Check if the file is stored in the archive
+	if (binary_content_headers.find(path) != binary_content_headers.cend() || text_content_headers.find(path) != text_content_headers.cend())
+		return true;
+
+	// Check if the file exists
 	ifstream f(path.c_str());
 	auto good = f.good();
 	f.close();

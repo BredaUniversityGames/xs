@@ -96,37 +96,15 @@ int xs::render::load_font(const std::string& font_file, double size)
 	fonts.push_back(font_atlas());
 	auto& font = fonts.back();
 
-
-	const std::string path = fileio::get_path(font_file);
-	FILE* file;
-#ifdef _WIN32
-	bool success = fopen_s(&file, path.c_str(), "rb") == 0;
-#else 
-	file = fopen(path.c_str(), "rb");
-	bool success = file != nullptr;
-#endif
-	if (!success)
-	{
-		log::error("Could not open font file {}", path);
+	font.buffer = fileio::read_binary_file(font_file);
+	if (font.buffer.empty()) {
+		log::error("Font file {} could not be loaded!", font_file);
 		return -1;
 	}
-
-	long lSize;
-	fseek(file, 0, SEEK_END);		// obtain file size
-	lSize = ftell(file);
-	rewind(file);
-
-	// Allocate memory to contain the whole file
-	font.buffer = static_cast<unsigned char*>(malloc(sizeof(char) * lSize));
-	// read the font into that data
-	const size_t result = fread(reinterpret_cast<void*>(font.buffer), 1, lSize, file);
-
-	if (result)
-		log::info("Number of characters read from font = {}", result);
-	fclose(file);
+	font.buffer_ptr = reinterpret_cast<const unsigned char*>(font.buffer.data());
 
 	// Get font info
-	if (!stbtt_InitFont(&font.info, font.buffer, 0))
+	if (!stbtt_InitFont(&font.info, font.buffer_ptr, 0))
 		log::info("initializing font has failed");
 	
 	// calculate by what factor to scale the font at render time
@@ -145,6 +123,7 @@ int xs::render::load_font(const std::string& font_file, double size)
 	img.width = dimension;
 	img.height = dimension;
 	auto bitmap = static_cast<unsigned char*>(malloc(img.width * img.height));
+	assert(bitmap != nullptr);
 
 	// pack font
 	font.packed_chars.resize(FONT_ATLAS_NR_CHARACTERS);
@@ -152,7 +131,13 @@ int xs::render::load_font(const std::string& font_file, double size)
 	// pack font
 	stbtt_pack_context pc;
 	stbtt_PackBegin(&pc, bitmap, img.width, img.height, 0, 2, nullptr);
-	stbtt_PackFontRange(&pc, font.buffer, 0, (float)size, FONT_ATLAS_MIN_CHARACTER, FONT_ATLAS_NR_CHARACTERS, &font.packed_chars[0]);
+	stbtt_PackFontRange(
+		&pc,
+		font.buffer_ptr,
+		0, (float)size,
+		FONT_ATLAS_MIN_CHARACTER,
+		FONT_ATLAS_NR_CHARACTERS,
+		&font.packed_chars[0]);
 	stbtt_PackEnd(&pc);
 
 	// make the image monochrome; preserve alpha
@@ -366,8 +351,8 @@ void xs::render::render_sprite(
 		y += offset.y;
 	}
     
-    x = round(x);
-    y = round(y);
+    //x = round(x);
+    //y = round(y);
 
 	sprite_queue.push_back({
 		sprite_id,
