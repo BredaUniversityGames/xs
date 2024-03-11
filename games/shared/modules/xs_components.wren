@@ -194,7 +194,7 @@ class AnimatedSprite is GridSprite {
         super(image, columns, rows)
         _animations = {}
         _time = 0.0
-        _flipFrames = 1.0 / fps
+        _flipFrames = 1.0 / (fps + 1)
         _frameTime = 0.0
         _currentName = ""
         _currentFrame = 0
