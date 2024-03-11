@@ -84,6 +84,10 @@ class Vec2 {
                         a.sin * _x + a.cos * _y)
     }
     perp { Vec2.new(-y, x) }
+    clear() {
+        _x = 0
+        _y = 0
+    }
 
     toString { "[%(_x), %(_y)]" }
 
