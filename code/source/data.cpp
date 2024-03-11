@@ -313,27 +313,33 @@ void xs::data::internal::save_of_type(type type)
 
 void xs::data::internal::load_of_type(type type)
 {	
-	auto filename = fileio::get_path(get_file_path(type));
-	std::ifstream ifs;
-	ifs.open(filename);
-	if (ifs.is_open())
+	auto filename = get_file_path(type);	
+	if(fileio::exists(filename))
 	{
-		nlohmann::json j = nlohmann::json::parse(ifs);
-		for (auto it = j.begin(); it != j.end(); ++it)
+		auto file = fileio::read_text_file(filename);
+		if (!file.empty())
 		{
-			auto name = it.key();
-			auto entry = it.value();
-			auto value = entry["value"];
-			auto etype = entry["type"];
-			if (etype == "color")
-				set_color(name, (uint32_t)value, type);
-			else if(etype == "bool")
-				set_bool(name, (bool)value, type);
-			else if(etype == "number")
-				set_number(name, (double)value, type);
-			else if (etype == "string")
-				set_string(name, value, type);
+			nlohmann::json j = nlohmann::json::parse(file);
+			for (auto it = j.begin(); it != j.end(); ++it)
+			{
+				auto name = it.key();
+				auto entry = it.value();
+				auto value = entry["value"];
+				auto etype = entry["type"];
+				if (etype == "color")
+					set_color(name, (uint32_t)value, type);
+				else if (etype == "bool")
+					set_bool(name, (bool)value, type);
+				else if (etype == "number")
+					set_number(name, (double)value, type);
+				else if (etype == "string")
+					set_string(name, value, type);
+			}
 		}
+	}
+	else
+	{
+		xs::log::info("No data file '{}' found.", filename);
 	}
 }
 

@@ -62,26 +62,30 @@ namespace xs::fileio::internal
 
 	// ------------------------------------------------------------------------
 	// Load game content from a file
-	Blob load_game_content()
+	blob load_game_content()
 	{
 		// Create archive path from game content
 		string archive_path = game_content_path();
 
 		log::info("Loading archive: {}", archive_path);
 
-		// Read binary content from the created archive path
-		return fileio::read_binary_file(archive_path);
+		// Check if the archive exists
+		if (fileio::exists(archive_path))
+			// Read binary content from the created archive path
+			return fileio::read_binary_file(archive_path);
+			
+		return {};
 	}
 	// ------------------------------------------------------------------------
 	// Load compressed game archive
 	void load_game_content_headers()
 	{
 		// Load game content from file
-		Blob game_content = load_game_content();
+		blob game_content = load_game_content();
 
 		if (game_content.empty())
 		{
-			log::error("Unable to load game content");
+			log::info("Game arhive not found loading.");
 			return;
 		}
 
@@ -97,18 +101,20 @@ namespace xs::fileio::internal
 		{
 			resource_pipeline::content_header header;
 			offset += read_from_archive(&header, game_content.data() + offset, sizeof(resource_pipeline::content_header));
+			auto path = get_path(header.file_path);
+
 
 			if (header.file_size_compressed != 0)
 			{
 				log::info("Text entry loaded: {0}", header.file_path);
-				text_content_headers.emplace(header.file_path, header);
+				text_content_headers.emplace(path, header);
 				// Offset with the content data itself so we can jump to the next content_header
 				offset += header.file_size_compressed; 
 			}
 			else
 			{
 				log::info("Binary entry loaded: {0}", header.file_path);
-				binary_content_headers.emplace(header.file_path, header);
+				binary_content_headers.emplace(path, header);
 				// Offset with the content data itself so we can jump to the next content_header
 				offset += header.file_size; 
 			}
@@ -185,6 +191,10 @@ void fileio::initialize(/* const string& main_script*/)
 	add_wildcard("[games]", "/app0");
 #endif
 
+#if NDEBUG
+	load_game_content_headers();
+#endif
+
 	// All platforms
 	bool success = false;
 	if (exists("[games]/.ini"))
@@ -206,7 +216,7 @@ void fileio::initialize(/* const string& main_script*/)
 	if(!success)
 	{
 		log::info("Please provide a valid game folder in the games/.ini file!");
-		log::info("A valid game folder contanins a valid game.wren script.");
+		log::info("A valid game folder contains a valid game.wren script.");
 		log::info("Check the documentation and the example that was just created.");
 		fileio::write_text_file("hello", "[games]/.ini");
 		add_wildcard("[game]", "[games]/hello");
@@ -232,15 +242,11 @@ void fileio::initialize(/* const string& main_script*/)
 	if(!success)
 		log::info("Please provide a valid game folder in the games/.ini file!");
 #endif
-
-#if NDEBUG
-	load_game_content_headers();
-#endif
 }
 
 #endif
 
-Blob fileio::read_binary_file(const string& filename)
+blob fileio::read_binary_file(const string& filename)
 {
 	const auto path = get_path(filename);
 
@@ -260,7 +266,7 @@ Blob fileio::read_binary_file(const string& filename)
 
 		const resource_pipeline::content_header& header = binary_content_headers.at(path);
 		file.seekg(header.file_offset, ios::beg);
-		Blob buffer(header.file_size);
+		blob buffer(header.file_size);
 		if (file.read((char*)buffer.data(), header.file_size))
 			return buffer;
 	}
@@ -275,7 +281,7 @@ Blob fileio::read_binary_file(const string& filename)
 
 		const streamsize size = file.tellg();
 		file.seekg(0, ios::beg);
-		Blob buffer(size);
+		blob buffer(size);
 		if (file.read((char*)buffer.data(), size))
 			return buffer;
 	}
@@ -305,7 +311,7 @@ string fileio::read_text_file(const string& filename)
 		const resource_pipeline::content_header& header = text_content_headers.at(path);
 
 		file.seekg(header.file_offset, ios::beg);
-		Blob compressed_buffer(header.file_size_compressed);
+		blob compressed_buffer(header.file_size_compressed);
 		if (file.read((char*)compressed_buffer.data(), header.file_size_compressed))
 		{
 			unsigned long size = (unsigned long)header.file_size;
@@ -343,7 +349,7 @@ string fileio::read_text_file(const string& filename)
 	return {};
 }
 
-bool fileio::write_binary_file(const Blob& blob, const string& filename)
+bool fileio::write_binary_file(const blob& blob, const string& filename)
 {
 	auto fullpath = fileio::get_path(filename);
 	ofstream ofs;
@@ -391,7 +397,14 @@ string fileio::get_path(const string& filename)
 
 bool fileio::exists(const string& filename)
 {
+	// Expand wildcards
 	const auto path = get_path(filename);
+
+	// Check if the file is stored in the archive
+	if (binary_content_headers.find(path) != binary_content_headers.cend() || text_content_headers.find(path) != text_content_headers.cend())
+		return true;
+
+	// Check if the file exists
 	ifstream f(path.c_str());
 	auto good = f.good();
 	f.close();
