@@ -497,15 +497,15 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="ImportNintendoSdk.props" Condition="exists('ImportNintendoSdk.props')" />
+    <Import Project="nintendo\ImportNintendoSdk.props" Condition="exists('nintendo\ImportNintendoSdk.props')" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="ImportNintendoSdk.props" Condition="exists('ImportNintendoSdk.props')" />
+    <Import Project="nintendo\ImportNintendoSdk.props" Condition="exists('nintendo\ImportNintendoSdk.props')" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="ImportNintendoSdk.props" Condition="exists('ImportNintendoSdk.props')" />
+    <Import Project="nintendo\ImportNintendoSdk.props" Condition="exists('nintendo\ImportNintendoSdk.props')" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <LinkIncremental>true</LinkIncremental>
