@@ -1,9 +1,10 @@
 #pragma once
-
 #include "render.h"
 #include <glm/glm.hpp>
 #include <vector>
 #include <stb/stb_truetype.h>
+#include "types.h"
+
 
 
 #if defined(PLATFORM_PS5)
@@ -54,8 +55,9 @@ namespace xs::render::internal
 		int								image_id		= -1;
 		std::size_t						string_id		= 0;
 		std::vector<stbtt_packedchar>	packed_chars	= {};
-		stbtt_fontinfo					info			= {};
-		unsigned char*					buffer			= nullptr;
+		stbtt_fontinfo					info			= {};		
+		Blob							buffer			= {};
+		const unsigned char*			buffer_ptr		= nullptr;
 		double							scale			= 0;
 	};
 

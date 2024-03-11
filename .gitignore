@@ -74,3 +74,4 @@ xs.xcodeproj/xcuserdata/
 games/peperuga/
 xs.vcxproj.user
 /.cache
+*.xs
