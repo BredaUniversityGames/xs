@@ -110,11 +110,6 @@ class Vec2 {
         return a
     }
 
-    clear() {
-     _x = 0
-     _y = 0
-    }
-
     static distance(a, b) {
         var xdiff = a.x - b.x
         var ydiff = a.y - b.y
