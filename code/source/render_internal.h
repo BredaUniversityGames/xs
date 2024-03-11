@@ -56,7 +56,7 @@ namespace xs::render::internal
 		std::size_t						string_id		= 0;
 		std::vector<stbtt_packedchar>	packed_chars	= {};
 		stbtt_fontinfo					info			= {};		
-		Blob							buffer			= {};
+		blob							buffer			= {};
 		const unsigned char*			buffer_ptr		= nullptr;
 		double							scale			= 0;
 	};

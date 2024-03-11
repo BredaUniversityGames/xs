@@ -61,7 +61,7 @@ namespace xs::fileio::internal
 
 	// ------------------------------------------------------------------------
 	// Load game content from a file
-	Blob load_game_content()
+	blob load_game_content()
 	{
 		// Create archive path from game content
 		string archive_path = game_content_path();
@@ -76,7 +76,7 @@ namespace xs::fileio::internal
 	void load_game_content_headers()
 	{
 		// Load game content from file
-		Blob game_content = load_game_content();
+		blob game_content = load_game_content();
 
 		if (game_content.empty())
 		{
@@ -241,7 +241,7 @@ void fileio::initialize(/* const string& main_script*/)
 
 #endif
 
-Blob fileio::read_binary_file(const string& filename)
+blob fileio::read_binary_file(const string& filename)
 {
 	const auto path = get_path(filename);
 
@@ -261,7 +261,7 @@ Blob fileio::read_binary_file(const string& filename)
 
 		const resource_pipeline::content_header& header = binary_content_headers.at(path);
 		file.seekg(header.file_offset, ios::beg);
-		Blob buffer(header.file_size);
+		blob buffer(header.file_size);
 		if (file.read((char*)buffer.data(), header.file_size))
 			return buffer;
 	}
@@ -276,7 +276,7 @@ Blob fileio::read_binary_file(const string& filename)
 
 		const streamsize size = file.tellg();
 		file.seekg(0, ios::beg);
-		Blob buffer(size);
+		blob buffer(size);
 		if (file.read((char*)buffer.data(), size))
 			return buffer;
 	}
@@ -306,7 +306,7 @@ string fileio::read_text_file(const string& filename)
 		const resource_pipeline::content_header& header = text_content_headers.at(path);
 
 		file.seekg(header.file_offset, ios::beg);
-		Blob compressed_buffer(header.file_size_compressed);
+		blob compressed_buffer(header.file_size_compressed);
 		if (file.read((char*)compressed_buffer.data(), header.file_size_compressed))
 		{
 			unsigned long size = (unsigned long)header.file_size;
@@ -344,7 +344,7 @@ string fileio::read_text_file(const string& filename)
 	return {};
 }
 
-bool fileio::write_binary_file(const Blob& blob, const string& filename)
+bool fileio::write_binary_file(const blob& blob, const string& filename)
 {
 	auto fullpath = fileio::get_path(filename);
 	ofstream ofs;

@@ -18,12 +18,12 @@ namespace archive_generator
 {
 	struct archive
 	{
-		archive(std::unique_ptr<Blob>&& b, size_t s)
+		archive(std::unique_ptr<blob>&& b, size_t s)
 			:blob(std::move(b))
 			,size(s)
 		{}
 
-		std::unique_ptr<Blob> blob;
+		std::unique_ptr<blob> blob;
 		size_t size;
 	};
 
@@ -31,8 +31,8 @@ namespace archive_generator
 	class blob_builder
 	{
 	public:
-		// Constructor for blob_builder, takes a pointer to Blob and an initial offset.
-		blob_builder(Blob* blob_data, size_t initial_offset = 0)
+		// Constructor for blob_builder, takes a pointer to blob and an initial offset.
+		blob_builder(blob* blob_data, size_t initial_offset = 0)
 			: _blob_data(blob_data)
 			, _offset(initial_offset)
 		{}
@@ -51,7 +51,7 @@ namespace archive_generator
 		}
 
 	private:
-		Blob* _blob_data;
+		blob* _blob_data;
 		size_t _offset;
 	};
 
@@ -237,11 +237,11 @@ namespace archive_generator
 			unsigned long cmp_len = static_cast<unsigned long>(resource_pipeline::is_text_file(s_entry_path_extension) ? compressBound(src_len) : 0);
 
 			// The actual data of the content file
-			Blob f = fileio::read_binary_file(s_entry_path);
+			blob f = fileio::read_binary_file(s_entry_path);
 
 			if (cmp_len != 0)
 			{
-				Blob data;
+				blob data;
 				data.reserve(cmp_len);
 
 				// Compress the data.
@@ -317,7 +317,7 @@ namespace archive_generator
  		log::info("Calculated content size for cooking process: {} bytes", total_size);
 
 		// Create the archive with the calculated total size.
-		std::unique_ptr<Blob> blob = std::make_unique<Blob>();
+		std::unique_ptr<blob> blob = std::make_unique<xs::blob>();
 		blob->reserve(total_size);
 
 		blob_builder builder = blob_builder(blob.get());
