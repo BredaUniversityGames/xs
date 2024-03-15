@@ -91,6 +91,7 @@ const std::unordered_set<std::string>& supported_text_file_formats()
 		".frag",		// shaders
 		".vert",		// shaders
 		".json",		// text
+		".txt"			// text
 	};
 
 	return file_formats;
@@ -104,7 +105,8 @@ const std::unordered_set<std::string>& supported_binary_file_formats()
 		".otf",			// fonts
 		".png",			// images
 		".bank",		// audio
-		".wav"			// audio
+		".wav",			// audio
+		".mp3"			// audio
 	};
 
 	return file_formats;

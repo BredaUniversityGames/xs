@@ -85,7 +85,7 @@ namespace xs::fileio::internal
 
 		if (game_content.empty())
 		{
-			log::info("Game arhive not found loading.");
+			log::info("Game archive not found loading.");
 			return;
 		}
 
