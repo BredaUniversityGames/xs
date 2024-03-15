@@ -123,10 +123,14 @@ namespace xs::audio
 		}
 		
 		// try to load the sound file
-		FMOD_MODE mode = (group_id == GROUP_SFX) ? FMOD_DEFAULT : (FMOD_CREATESTREAM | FMOD_LOOP_NORMAL);
+		FMOD_MODE mode = FMOD_OPENMEMORY | FMOD_CREATESAMPLE;
+		if (group_id == GROUP_MUSIC) mode = mode | FMOD_LOOP_NORMAL;
 		FMOD::Sound* sound; 
-		const std::string& real_filename = fileio::get_path(filename);
-		FMOD_RESULT result = core_system->createSound(real_filename.c_str(), mode, nullptr, &sound);
+		const blob& sound_data = fileio::read_binary_file(filename);
+		FMOD_CREATESOUNDEXINFO info{};
+		info.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
+		info.length = (int)sound_data.size();
+		FMOD_RESULT result = core_system->createSound(reinterpret_cast<const char*>(sound_data.data()), mode, &info, &sound);
 		if (result != FMOD_OK)
 		{
 			log::error("Sound with filename {} could not be loaded!", filename);
@@ -252,8 +256,8 @@ namespace xs::audio
 		
 		// try to load the bank
 		FMOD::Studio::Bank* bank;
-		const std::string& real_filename = fileio::get_path(filename);
-		auto result = system->loadBankFile(real_filename.c_str(), FMOD_STUDIO_LOAD_BANK_NORMAL, &bank);
+		const blob& bank_data = fileio::read_binary_file(filename);
+		auto result = system->loadBankMemory(reinterpret_cast<const char*>(bank_data.data()), (int)bank_data.size(), FMOD_STUDIO_LOAD_MEMORY, FMOD_STUDIO_LOAD_BANK_NORMAL, &bank);
 		if (result != FMOD_OK)
 		{
 			log::error("FMOD bank with filename {} could not be loaded!", filename);
