@@ -4,7 +4,6 @@
 #include <fstream>
 #include <map>
 #include <unordered_map>
-#include <filesystem>
 
 #include "log.h"
 #include "tools.h"
@@ -20,9 +19,7 @@
 #include "account_switch.h"
 #elif defined(PLATFORM_PC)
 #include <filesystem>
-#endif
-
-#if defined(PLATFORM_APPLE)
+#elif defined(PLATFORM_APPLE)
 #import <Foundation/Foundation.h>
 #endif
 
