@@ -188,7 +188,7 @@ void fileio::initialize(/* const string& main_script*/)
 	add_wildcard("[games]", "/app0");
 #endif
 
-#if NDEBUG
+#if !defined DEBUG
 	load_game_content_headers();
 #endif
 
