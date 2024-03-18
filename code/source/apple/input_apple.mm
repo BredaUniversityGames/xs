@@ -16,6 +16,10 @@ namespace xs::input::internal
     GCExtendedGamepad* gamepad = nil;
     GCExtendedGamepad* gamepad_prev_frame = nil;
     bool get_button_pressed(GCExtendedGamepad* pad, gamepad_button button);
+
+    GCKeyboardInput* keyboard = nil;
+    GCKeyboardInput* keyboard_prev_frame = nil;
+    bool get_key_pressed(GCKeyboardInput* keyboardInput, int key);
 }
 
 using namespace xs::input::internal;
@@ -40,10 +44,19 @@ void xs::input::update(double dt)
         gamepad_prev_frame = gamepad.capture;
     
     gamepad = nil;
-    if(controllers.count > 0) {
+    if(controllers.count > 0)
+    {
         GCController* controller = controllers[0];
         gamepad = controller.extendedGamepad.capture;
     }
+    
+    if(keyboard)
+        keyboard_prev_frame = keyboard.capture;
+    
+    keyboard = nil;
+    auto ckeyboard = [GCKeyboard coalescedKeyboard];
+    if(ckeyboard != nil)
+        keyboard = ckeyboard.keyboardInput.capture;
 }
 
 double xs::input::get_axis(gamepad_axis axis)
@@ -90,37 +103,23 @@ bool xs::input::get_button_once(gamepad_button button)
 
 bool xs::input::get_key(int key)
 {
-    return false;
+    if(keyboard == nil)
+        return false;
+    return get_key_pressed(keyboard, key);
 }
 
 bool xs::input::get_key_once(int key)
 {
-    return false;
-}
-
-double xs::input::get_mouse_x()
-{
-    return 0.0;
-}
-
-double xs::input::get_mouse_y()
-{
-    return 0.0;
+    if(keyboard == nil)
+        return false;
+    bool cur = get_key_pressed(keyboard, key);
+    bool prv = get_key_pressed(keyboard_prev_frame, key);
+    return cur && !prv;
 }
 
 bool xs::input::get_mouse()
 {
-    return false;
-}
-
-bool xs::input::get_mousebutton(mouse_button button)
-{
-    return false;
-}
-
-bool xs::input::get_mousebutton_once(mouse_button button)
-{
-    return false;
+    return true;
 }
 
 int xs::input::get_nr_touches()
@@ -189,4 +188,58 @@ bool xs::input::internal::get_button_pressed(GCExtendedGamepad* pad, gamepad_but
         default:
             return false;
     }
+}
+
+bool xs::input::internal::get_key_pressed(GCKeyboardInput* keyboardInput, int key)
+{
+    GCKeyCode keyCode = 0;
+
+    // Convert from xs key (GLFW_KEY_SOMETHING) to GCKeyCode
+    switch(key)
+    {
+        case 32: keyCode = GCKeyCodeSpacebar; break;
+        case 65: keyCode = GCKeyCodeKeyA; break;
+        case 66: keyCode = GCKeyCodeKeyB; break;
+        case 67: keyCode = GCKeyCodeKeyC; break;
+        case 68: keyCode = GCKeyCodeKeyD; break;
+        case 69: keyCode = GCKeyCodeKeyE; break;
+        case 70: keyCode = GCKeyCodeKeyF; break;
+        case 71: keyCode = GCKeyCodeKeyG; break;
+        case 72: keyCode = GCKeyCodeKeyH; break;
+        case 73: keyCode = GCKeyCodeKeyI; break;
+        case 74: keyCode = GCKeyCodeKeyJ; break;
+        case 75: keyCode = GCKeyCodeKeyK; break;
+        case 76: keyCode = GCKeyCodeKeyL; break;
+        case 77: keyCode = GCKeyCodeKeyM; break;
+        case 78: keyCode = GCKeyCodeKeyN; break;
+        case 79: keyCode = GCKeyCodeKeyO; break;
+        case 80: keyCode = GCKeyCodeKeyP; break;
+        case 81: keyCode = GCKeyCodeKeyQ; break;
+        case 82: keyCode = GCKeyCodeKeyR; break;
+        case 83: keyCode = GCKeyCodeKeyS; break;
+        case 84: keyCode = GCKeyCodeKeyT; break;
+        case 85: keyCode = GCKeyCodeKeyU; break;
+        case 86: keyCode = GCKeyCodeKeyV; break;
+        case 87: keyCode = GCKeyCodeKeyW; break;
+        case 88: keyCode = GCKeyCodeKeyX; break;
+        case 89: keyCode = GCKeyCodeKeyY; break;
+        case 90: keyCode = GCKeyCodeKeyZ; break;
+        case 92: keyCode = GCKeyCodeBackslash; break;
+        case 256: keyCode = GCKeyCodeEscape; break;
+        case 258: keyCode = GCKeyCodeTab; break;
+        case 260: keyCode = GCKeyCodeInsert; break;
+        case 262: keyCode = GCKeyCodeRightArrow; break;
+        case 263: keyCode = GCKeyCodeLeftArrow; break;
+        case 264: keyCode = GCKeyCodeDownArrow; break;
+        case 265: keyCode = GCKeyCodeUpArrow; break;
+        case 266: keyCode = GCKeyCodePageUp; break;
+        case 267: keyCode = GCKeyCodePageDown; break;
+        case 268: keyCode = GCKeyCodeHome; break;
+        case 269: keyCode = GCKeyCodeEnd; break;
+        case 280: keyCode = GCKeyCodeCapsLock; break;
+        case 281: keyCode = GCKeyCodeScrollLock; break;
+    }
+    
+    GCControllerButtonInput* button = [keyboardInput buttonForKeyCode: keyCode];
+    return button.pressed;
 }

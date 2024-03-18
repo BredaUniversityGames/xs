@@ -100,7 +100,7 @@ class Sprite is Renderable {
             t.position.y,
             layer,
             _scale,            
-            t.rotation,         // _rotation,
+            t.rotation,
             _mul,
             _add,
             _flags)
@@ -118,9 +118,6 @@ class Sprite is Renderable {
     scale { _scale }
     scale=(s) { _scale = s }
 
-    rotation { _rotation }
-    rotation=(r) { _rotation = r }
-
     sprite_=(s) { _sprite = s }
     sprite { _sprite }
 
@@ -136,7 +133,6 @@ class Label is Sprite {
         _font = font
         _text = text
         sprite_ = null
-        // rotation = 0.0
         scale = 1.0
         mul = 0xFFFFFFFF        
         add = 0x00000000
@@ -195,7 +191,7 @@ class AnimatedSprite is GridSprite {
         super(image, columns, rows)
         _animations = {}
         _time = 0.0
-        _flipFrames = 1.0 / fps
+        _flipFrames = 1.0 / (fps + 1)
         _frameTime = 0.0
         _currentName = ""
         _currentFrame = 0

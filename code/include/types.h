@@ -4,5 +4,5 @@
 
 namespace xs
 {
-	using Blob = std::vector<std::byte>;
+	using blob = std::vector<std::byte>;
 }
