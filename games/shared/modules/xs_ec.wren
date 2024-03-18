@@ -182,6 +182,15 @@ class Entity {
     // All the entities active in the system
     static entities { __entities }
 
+    toString {
+        var s = "{ Name: %(name) Tag: %(tag)"
+            for(c in _components) {
+                s = s + "     %(c)"
+            }
+            s = s + "  }"
+        return s
+    }
+
     // Does a formated print of all the entities and their componenets
     static print() {
         System.print("<<<<<<<<<< ecs stats >>>>>>>>>>")

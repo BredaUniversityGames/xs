@@ -329,3 +329,8 @@ class Device {
     static PlatformPS5     { 1 }
     static PlatformSwitch  { 2 }
 }
+
+class Profiler {
+    foreign static begin(name)
+    foreign static end(name)
+}

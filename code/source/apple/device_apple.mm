@@ -17,6 +17,7 @@
 
 #if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
+typedef  CGPoint XsPoint;
 
 // Our iOS view controller
 @interface GameViewController : UIViewController
@@ -26,6 +27,7 @@
 
 #elif defined(PLATFORM_MAC)
 #import <Cocoa/Cocoa.h>
+typedef  NSPoint XsPoint;
 
 @interface GameViewController : NSViewController
 @end
@@ -51,14 +53,22 @@ namespace xs::device::internal
     XSRenderer* _renderer;
     int _width = -1;
     int _height = -1;
+    float _scaling = 1.0f;
     id<MTLCommandQueue> command_queue;      // The queue tied to the view
     id<MTLCommandBuffer> command_buffer;    // The buffer tied to the view
     id<MTLRenderCommandEncoder> render_encoder; // The encoder tied to the view
     auto prev_time = chrono::high_resolution_clock::now();
-    
 }
+namespace xs::input
+{
+    XsPoint mouse_pos = {0, 0};
+    bool clicked = false;
+    bool clicked_last_frame = false;
+}
+
 using namespace xs;
 using namespace xs::device::internal;
+using namespace xs::input;
 
 @implementation XSRenderer {}
 
@@ -71,6 +81,10 @@ using namespace xs::device::internal;
 
 - (void)drawInMTKView:(nonnull MTKView *)view
 {
+#if defined(PLATFORM_MAC)
+     _view.window.acceptsMouseMovedEvents = true;
+#endif
+    
     auto current_time = chrono::high_resolution_clock::now();
     auto elapsed = current_time - prev_time;
     prev_time = current_time;
@@ -100,6 +114,7 @@ using namespace xs::device::internal;
 {
     _width = size.width;
     _height = size.height;
+    _scaling = _width / (configuration::width() * configuration::multiplier());
 }
 
 @end
@@ -110,7 +125,7 @@ using namespace xs::device::internal;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
+    
     _view = (MTKView *)self.view;
     _view.device = MTLCreateSystemDefaultDevice();
     
@@ -124,7 +139,6 @@ using namespace xs::device::internal;
     _renderer = [[XSRenderer alloc] initWithMetalKitView:_view];
     [_renderer mtkView:_view drawableSizeWillChange:_view.bounds.size];
     _view.delegate = _renderer;
-    
     log::initialize();
     account::initialize();
     fileio::initialize();
@@ -137,6 +151,73 @@ using namespace xs::device::internal;
     inspector::initialize();
     script::initialize();
 }
+
+#if defined(PLATFORM_MAC)
+
+- (void)mouseUp:(NSEvent *)event
+{
+    input::mouse_pos = [event locationInWindow];
+    input::clicked = false;
+}
+
+- (void)mouseDown:(NSEvent *)event
+{
+    input::mouse_pos = [event locationInWindow];
+    input::clicked = true;
+}
+
+- (void)mouseMoved:(NSEvent*) event
+{
+    input::mouse_pos = [event locationInWindow];
+}
+
+
+#elif TARGET_OS_IOS
+
+-(bool)prefersHomeIndicatorAutoHidden{
+    return YES;
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    for (UITouch *t in touches)
+    {
+        mouse_pos.x = [t locationInView:t.view].x;
+        mouse_pos.y = configuration::height() - [t locationInView:t.view].y;
+    }
+    input::clicked = true;
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    for (UITouch *t in touches)
+    {
+        mouse_pos.x = [t locationInView:t.view].x;
+        mouse_pos.y = configuration::height() - [t locationInView:t.view].y;
+    }
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    for (UITouch *t in touches)
+    {
+        mouse_pos.x = [t locationInView:t.view].x;
+        mouse_pos.y = configuration::height() - [t locationInView:t.view].y;
+    }
+    input::clicked = false;
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    for (UITouch *t in touches)
+    {
+        mouse_pos.x = -1000000.0f;
+        mouse_pos.y = -1000000.0f;
+    }
+    input::clicked = false;
+}
+
+#endif
 
 @end
 
@@ -167,6 +248,8 @@ void device::start_frame()
 {
     command_buffer = [command_queue commandBuffer];
     command_buffer.label = @"xs command buffer";
+    input::clicked_last_frame = input::clicked;
+    
 }
 
 void device::end_frame()
@@ -227,3 +310,28 @@ void device::internal::create_render_encoder()
     render_encoder = [command_buffer renderCommandEncoderWithDescriptor:screen_rpd];
     render_encoder.label = @"xs screen render pass";
 }
+
+double xs::input::get_mouse_x()
+{
+    float m = configuration::multiplier();
+    float s = _scaling;
+    return (input::mouse_pos.x / m) - (_width / (m * s * 2.0f));
+}
+
+double xs::input::get_mouse_y()
+{
+    float m = configuration::multiplier();
+    float s = _scaling;
+    return (input::mouse_pos.y / m) - (_height / (m * s * 2.0f));
+}
+
+bool xs::input::get_mousebutton(mouse_button button)
+{
+    return input::clicked;
+}
+
+bool xs::input::get_mousebutton_once(mouse_button button)
+{
+    return input::clicked && !input::clicked_last_frame;
+}
+
