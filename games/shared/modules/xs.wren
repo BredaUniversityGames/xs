@@ -13,6 +13,10 @@ class Render {
     foreign static end()
     foreign static vertex(x, y)
 
+    static line(a, b) {
+        line(a.x, a.y, b.x, b.y)
+    }
+
     static rect(fromX, fromY, toX, toY) {
         Render.begin(Render.triangles)
             Render.vertex(fromX, fromY)

@@ -171,6 +171,11 @@ using namespace xs::input;
     input::mouse_pos = [event locationInWindow];
 }
 
+- (void)mouseDragged:(NSEvent *)event
+{
+    input::mouse_pos = [event locationInWindow];
+}
+
 
 #elif TARGET_OS_IOS
 

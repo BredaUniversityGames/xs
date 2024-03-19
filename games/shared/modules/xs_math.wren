@@ -10,7 +10,7 @@ class Math {
     static damp(a, b, lambda, dt) { lerp(a, b, 1.0 - (-lambda * dt).exp) }    
     static min(l, r) { l < r ? l : r }
     static max(l, r) { l > r ? l : r }
-
+    static atan2(y, x) { y.atan(x) }    
     static invLerp(a, b, v) {
 	    var  t = (v - a) / (b - a)
 	    t = max(0.0, min(t, 1.0))
@@ -25,11 +25,27 @@ class Math {
     static radians(deg) { deg / 180.0 * 3.14159265359 }
     static degrees(rad) { rad * 180.0 / 3.14159265359 }
     static mod(x, m)    { (x % m + m) % m }   
+    static fmod(x, m)   { x - m * (x / m).floor }
     static clamp(a, f, t) { max(min(a, t), f) }
     static slerp(a,  b,  t) {
 	    var CS = (1 - t) * (a.cos) + t * (b.cos)
 	    var SN = (1 - t) * (a.sin) + t * (b.sin)
 	    return Vec2.new(CS, SN).atan2
+    }
+    static vslerp(a, b, t) {
+        var omega = a.dot(b).acos
+        var ta = ((1-t) * omega).sin / omega.sin
+        var tb = (t * omega).sin / omega.sin
+        return a * ta +  b * tb
+    }
+    static arc(a, b) {
+        var diff = b - a
+        if(diff > Math.pi) {
+            diff = diff - Math.pi * 2
+        } else if(diff < -Math.pi) {
+            diff = diff + Math.pi * 2
+        }
+        return diff
     }
     static sdamp(a, b, lambda, dt) { slerp(a, b, 1.0 - (-lambda * dt).exp) }    
 
@@ -73,7 +89,7 @@ class Vec2 {
     magnitude { (x * x + y * y).sqrt }
     normal { this / this.magnitude }
     dot(other) { (x * other.x + y * other.y) }
-	cross(other) { }
+	cross(other) { (x * other.y - y * other.x) }
     rotate(a) {
         var x = _x
         _x = a.cos * _x - a.sin * _y
