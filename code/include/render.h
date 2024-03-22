@@ -3,7 +3,7 @@
 
 namespace xs::render
 {	
-	using  uchar = unsigned char;
+	using uchar = unsigned char;
 	struct color
 	{ 
 		union
@@ -33,13 +33,25 @@ namespace xs::render
 	void reload();
 	void reload_images();
 	void set_offset(double x, double y);
+	void set_3d_projection(const float* projection);
+	void set_3d_view(const float* view);
 
 	int load_image(const std::string& image_file);
 	int load_font(const std::string& font_file, double size);
+	int load_mesh(const std::string& mesh_file);
 	int get_image_width(int image_id);
 	int get_image_height(int image_id);
 	
 	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
+	int create_mesh(
+		const unsigned int* indices,
+		unsigned int index_count,
+		const float* positions,
+		const float* normals,
+		const float* texture_coordinates,
+		const float* colors,
+		unsigned int vertex_count);
+
 	void render_sprite(
 		int sprite_id,
 		double x,
@@ -51,33 +63,6 @@ namespace xs::render
 		color add,
 		unsigned int flags);
 
-	/*
-	void render_grid(
-		int sprite_id,
-		double x,
-		double y,
-		double z,
-		double size,
-		double rotation,
-		color mutiply,
-		color add,
-		unsigned int flags);
-	*/
-	void render_grid(
-		int image_id,
-		int rows,
-		int columns,
-		double x,
-		double y,
-		double z,
-		double sx,
-		double sy,
-		int indices[],		
-		color mutiplies[],
-		color adds[],
-		color z_offests[],
-		unsigned int flags);
-
 	void render_text(
 		int font_id,
 		const std::string& text,
@@ -86,6 +71,13 @@ namespace xs::render
 		color mutiply,
 		color add,
 		unsigned int flags);
+
+	void render_mesh(
+		int mesh_id,
+		int image_id,
+		const float* transform,
+		color mutiply,
+		color add);
 
 	enum class primitive { lines, triangles, none };
 	void begin(primitive p);

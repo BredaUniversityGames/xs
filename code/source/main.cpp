@@ -124,6 +124,36 @@ EngineExecution argument_parser(int argc, char* argv[])
     return EngineExecution::DEFAULT;
 }
 
+
+
+//////////////////////////////////////////////////////////////////////////
+//// C++ game hack
+//////////////////////////////////////////////////////////////////////////
+class Game
+{
+public:
+    Game() {
+        mesh = xs::render::load_mesh("[games]/samples/xs3d/assets/vespa/vespa.obj");
+        image = xs::render::load_image("[games]/samples/xs3d/assets/vespa/vespa.png");
+    }
+    ~Game() {}
+
+    void update(double dt)
+	{
+		// Update game
+	}
+
+    void render()
+	{
+		// Render game
+	}
+
+    int mesh;
+    int image;
+};
+
+
+
 int xs::main(int argc, char* argv[])
 {	
     // We always like to have some debug logging available
@@ -131,8 +161,8 @@ int xs::main(int argc, char* argv[])
 
     // When arguments have been parsed the engine can be in 2 states
     // Either the arguments have been parsed successfully and we can close the engine
-    // A parsing error has occured and the engine will close down with error code 1
-    // If there are no arguments to be parsed we continue with the default behaviour which is run the game
+    // A parsing error has occurred and the engine will close down with error code 1
+    // If there are no arguments to be parsed we continue with the default behavior which is run the game
     EngineExecution execution = argument_parser(argc, argv);
     switch (execution)
     {
@@ -155,6 +185,10 @@ int xs::main(int argc, char* argv[])
     inspector::initialize();
     script::initialize();
 
+    // Game
+    Game game;
+
+
     // Run
     auto prev_time = chrono::high_resolution_clock::now();
     while (!device::should_close())
@@ -171,6 +205,7 @@ int xs::main(int argc, char* argv[])
         {
             render::clear();
             script::update(dt);
+            game.update(dt);
             audio::update(dt);
             script::render();
         }
