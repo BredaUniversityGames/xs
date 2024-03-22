@@ -5,8 +5,6 @@
 #include <stb/stb_truetype.h>
 #include "types.h"
 
-
-
 #if defined(PLATFORM_PS5)
 	#include <agc.h>	
 	using textureType = sce::Agc::Core::Texture;
@@ -67,11 +65,38 @@ namespace xs::render::internal
         glm::vec4 color;
     };
 
-	extern std::vector<sprite_queue_entry>	sprite_queue;
+	struct mesh_queue_entry
+	{		
+		int mesh = -1;
+		int texture = -1;
+		glm::mat4 transform = glm::mat4(1.0f);
+		glm::vec4 mul_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		glm::vec4 add_color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	};
+
+	struct directional_light
+	{
+		glm::vec3 direction;
+		glm::vec3 color;
+	};
+
+	struct point_light
+	{
+		glm::vec3 position;
+		float range;
+		glm::vec3 color;
+	};	
+	
 	extern std::vector<sprite>				sprites;
-	extern std::vector<font_atlas>			fonts;
 	extern std::vector<image>				images;
+	extern std::vector<font_atlas>			fonts;
 	extern glm::vec2						offset;
+	extern glm::mat4						view;
+	extern glm::mat4						projection;
+
+	extern std::vector<sprite_queue_entry>	sprite_queue;
+	extern std::vector<mesh_queue_entry>	mesh_queue;
+
 
     static int const                        lines_max = 16000;
     extern int                              lines_count;

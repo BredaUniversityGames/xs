@@ -2,6 +2,9 @@
 #include "render.h"
 #include "render_internal.h"
 #include <ios>
+#include <array>
+#include <unordered_map>
+#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -41,10 +44,19 @@ using namespace glm;
 
 namespace xs::render::internal
 {
+	struct mesh
+	{
+		unsigned int				vao = 0;
+		unsigned int				ebo = 0;
+		std::array<unsigned int, 4>	vbos;
+		uint32_t					count = 0;
+	};
+
 	void create_frame_buffers();
 	//TODO: void delete_frame_buffers();
 	void compile_draw_shader();
 	void compile_sprite_shader();
+	void compile_3d_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
 
@@ -67,7 +79,7 @@ namespace xs::render::internal
 		vec2 texture;
 		vec4 add_color;
 		vec4 mul_color;
-	};
+	};	
 	
 	unsigned int			sprite_program = 0;
 	int const				sprite_trigs_max = 21800;
@@ -75,6 +87,14 @@ namespace xs::render::internal
 	sprite_vtx_format		sprite_trigs_array[sprite_trigs_max * 3];
 	unsigned int			sprite_trigs_vao = 0;
 	unsigned int			sprite_trigs_vbo = 0;
+
+	//	std::unordered_map<int, mesh>	meshes; TODO: Implement this
+	std::vector<mesh>		meshes;
+	unsigned int			mesh_program = 0;
+
+	glm::mat4						view;
+	glm::mat4						projection;
+	std::vector<mesh_queue_entry>	mesh_queue;
 }
 
 using namespace xs;
@@ -88,6 +108,7 @@ void xs::render::initialize()
 	internal::create_frame_buffers();
 	internal::compile_draw_shader();
 	internal::compile_sprite_shader();
+	internal::compile_3d_shader();
 
 	///////// Trigs //////////////////////
 	//glCreateVertexArrays(1, &lines_vao);
@@ -420,6 +441,101 @@ void xs::render::internal::create_frame_buffers()
 
 }
 
+int xs::render::create_mesh(
+	const unsigned int* indices,
+	unsigned int index_count,
+	const float* positions,
+	const float* normals,
+	const float* texture_coordinates,
+	const float* colors,
+	unsigned int vertex_count)
+{
+	// Create an OpenGL mesh
+	internal::mesh mesh;
+	glGenVertexArrays(1, &mesh.vao);
+	glBindVertexArray(mesh.vao);
+
+	// Create the index buffer
+	glGenBuffers(1, &mesh.ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(int), indices, GL_STATIC_DRAW);
+	mesh.count = index_count;
+
+	// Create the vertex buffers	
+	glGenBuffers((GLsizei)mesh.vbos.size(), mesh.vbos.data());
+	//glGenBuffers(1, mesh.vbos.data());
+
+	// Create the position buffer
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[0]);
+	glBufferData(GL_ARRAY_BUFFER, vertex_count * 3 * sizeof(float), positions, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	// Create the normal buffer
+	if (normals)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[1]);
+		glBufferData(GL_ARRAY_BUFFER, vertex_count * 3 * sizeof(float), normals, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	}
+
+	// Create the texture coordinate buffer
+	if (texture_coordinates)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[2]);
+		glBufferData(GL_ARRAY_BUFFER, vertex_count * 2 * sizeof(float), texture_coordinates, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+	}
+
+	// Create the color buffer
+	if (colors)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[3]);
+		glBufferData(GL_ARRAY_BUFFER, vertex_count * 3 * sizeof(float), colors, GL_STATIC_DRAW);
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	}
+
+	// Unbind the vertex array
+	glBindVertexArray(0);
+
+	// Store the mesh
+	internal::meshes.push_back(mesh);
+	return (int)internal::meshes.size();
+}
+
+void xs::render::render_mesh(
+	int mesh_id,
+	int image_id,
+	const float* transform,
+	color mutiply,
+	color add)
+{
+	// Check that the mesh handle is valid
+	if (mesh_id <= 0 || mesh_id > (int)meshes.size())
+		return;
+
+	// Check that the texture handle is valid
+	if (image_id <= 0 || image_id > (int)images.size())
+		return;
+
+	// Add to the list of meshes to render
+	mesh_queue_entry  instance;
+	instance.transform = glm::make_mat4(transform);
+	instance.mesh = mesh_id;
+	instance.texture = image_id;
+
+	/*
+		instance.mul_color = glm::make_vec4(mul_color);
+	if (add_color)
+		instance.add_color = glm::make_vec4(add_color);
+	entries.push_back(instance);
+	return true;
+	*/
+}
+
 void xs::render::internal::compile_sprite_shader()
 {
 	auto vs_str = xs::fileio::read_text_file("[games]/shared/shaders/sprite.vert");
@@ -460,6 +576,49 @@ void xs::render::internal::compile_sprite_shader()
 
 	glDeleteShader(vert_shader);
 	glDeleteShader(frag_shader);
+}
+
+void xs::render::internal::compile_3d_shader()
+{
+	auto vs_str = xs::fileio::read_text_file("[games]/shared/shaders/standard.vert");
+	auto fs_str = xs::fileio::read_text_file("[games]/shared/shaders/standard.frag");
+	const char* const vs_source = vs_str.c_str();
+	const char* const fs_source = fs_str.c_str();
+
+	GLuint vert_shader = 0;
+	GLuint frag_shader = 0;
+
+	mesh_program = glCreateProgram();
+
+	GLboolean res = compile_shader(&vert_shader, GL_VERTEX_SHADER, vs_source);
+	if (!res)
+	{
+		log::error("Renderer failed to compile standard vertex shader");
+		return;
+	}
+
+	res = compile_shader(&frag_shader, GL_FRAGMENT_SHADER, fs_source);
+	if (!res)
+	{
+		log::error("Renderer failed to compile standard fragment shader");
+		return;
+	}
+
+	glAttachShader(mesh_program, vert_shader);
+	glAttachShader(mesh_program, frag_shader);
+
+	if (!link_program(mesh_program))
+	{
+		glDeleteShader(vert_shader);
+		glDeleteShader(frag_shader);
+		glDeleteProgram(mesh_program);
+		log::error("Renderer failed to link standard shader program");
+		return;
+	}
+
+	glDeleteShader(vert_shader);
+	glDeleteShader(frag_shader);
+
 }
 
 void xs::render::internal::compile_draw_shader()
