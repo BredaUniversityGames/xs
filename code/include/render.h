@@ -72,6 +72,15 @@ namespace xs::render
 		color add,
 		unsigned int flags);
 
+	void render_directional_light(
+		const float* direction,
+		const float* color_and_intensity);
+
+	void render_point_light(
+		const float* position,
+		float radius,
+		const float* color_and_intensity);
+
 	void render_mesh(
 		int mesh_id,
 		int image_id,
