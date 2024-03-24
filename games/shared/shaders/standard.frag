@@ -75,5 +75,5 @@ void main()
 
 	// Set output color
 	frag_color = v_color * diffuse_color + u_add_color;
-	//frag_color = texture_color;
+	// frag_color = texture_color;
 } 

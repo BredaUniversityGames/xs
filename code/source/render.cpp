@@ -64,16 +64,19 @@ namespace xs::render::internal
 	std::vector<image>				images = {};
 	glm::vec2						offset = glm::vec2(0.0f, 0.0f);
 
-    int                              lines_count = 0;
-    int                              lines_begin_count = 0;
-    debug_vertex_format              lines_array[lines_max * 2];
+    int                             lines_count = 0;
+    int                             lines_begin_count = 0;
+    debug_vertex_format             lines_array[lines_max * 2];
 
-    int                              triangles_count = 0;
-    int                              triangles_begin_count = 0;
-    debug_vertex_format              triangles_array[triangles_max * 3];
+    int                             triangles_count = 0;
+    int                             triangles_begin_count = 0;
+    debug_vertex_format             triangles_array[triangles_max * 3];
 
-    primitive                        current_primitive = primitive::none;
-    glm::vec4                        current_color = {1.0, 1.0, 1.0, 1.0};
+    primitive                       current_primitive = primitive::none;
+    glm::vec4                       current_color = {1.0, 1.0, 1.0, 1.0};
+
+	std::vector<directional_light>	dir_lights;
+	std::vector<point_light>		point_lights;
 
 	const int FONT_ATLAS_MIN_CHARACTER = 32;
 	const int FONT_ATLAS_NR_CHARACTERS = 96;
@@ -425,6 +428,36 @@ void xs::render::render_text(
 			s.x -= (width * 0.5f);
 		}
 	}
+}
+
+void xs::render::render_directional_light(
+	const float* direction,
+	const float* color_and_intensity)
+{
+	if (internal::dir_lights.size() >= 4)
+		return;	// TODO : Log error
+
+	// Add to the list of active directional lights	
+	internal::dir_lights.push_back({
+		{direction[0], direction[1], direction[2]},
+		{color_and_intensity[0],color_and_intensity[1], color_and_intensity[2]}
+	});
+}
+
+void xs::render::render_point_light(
+	const float* position,
+	float radius,
+	const float* color_and_intensity)
+{
+	if (internal::point_lights.size() >= 4)
+		return;	// TODO : Log error
+
+	// Add to the list of active point lights	
+	point_lights.push_back({
+		{position[0], position[1], position[2]},
+		radius,
+		{color_and_intensity[0],color_and_intensity[1], color_and_intensity[2]}
+	});
 }
 
 void xs::render::reload()

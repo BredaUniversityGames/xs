@@ -8,7 +8,6 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
 #include <stb/stb_image.h>
 
 // Include stb_image 
@@ -59,6 +58,8 @@ namespace xs::render::internal
 	void compile_3d_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
+
+	void render_3d();
 
 	int width = -1;
 	int height = -1;	
@@ -216,6 +217,9 @@ void xs::render::shutdown()
 void xs::render::render()
 {	
 	XS_PROFILE_SECTION("xs::render::render");
+	render_3d();
+
+	/*
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
 	mat4 p = ortho(-w, w, -h, h, -100.0f, 100.0f);
@@ -354,7 +358,7 @@ void xs::render::render()
 		glDrawArrays(GL_LINES, 0, lines_count * 2);
 		XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
-
+	*/
 
 	XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	XS_DEBUG_ONLY(glUseProgram(0));
@@ -433,6 +437,14 @@ void xs::render::internal::create_frame_buffers()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, render_texture, 0);
+
+	// Create the depth buffer
+	unsigned int depth_buffer;
+	glGenRenderbuffers(1, &depth_buffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
+
 	unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
 	glDrawBuffers(1, attachments);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
@@ -526,12 +538,13 @@ void xs::render::render_mesh(
 	instance.transform = glm::make_mat4(transform);
 	instance.mesh = mesh_id;
 	instance.texture = image_id;
+	mesh_queue.push_back(instance);
 
 	/*
-		instance.mul_color = glm::make_vec4(mul_color);
+	instance.mul_color = glm::make_vec4(mul_color);
 	if (add_color)
 		instance.add_color = glm::make_vec4(add_color);
-	entries.push_back(instance);
+	
 	return true;
 	*/
 }
@@ -741,4 +754,81 @@ bool xs::render::internal::link_program(GLuint program)
 
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	return status != 0;
+}
+
+void xs::render::internal::render_3d()
+{
+	// Clear the screen
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClearDepth(1.0);
+	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+	// Enable depth testing and set the depth function
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+
+	// Activate the standard program
+	const auto program = internal::mesh_program;
+	glUseProgram(program);
+
+	// Send the view and projection matrices to the standard program
+	glUniformMatrix4fv(glGetUniformLocation(program, "u_view"), 1, GL_FALSE, glm::value_ptr(internal::view));
+	glUniformMatrix4fv(glGetUniformLocation(program, "u_projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	auto texture_location = glGetUniformLocation(program, "u_texture");
+
+	// Send the directional lights to the standard program
+	glUniform1i(glGetUniformLocation(program, "u_num_directional_lights"), (int)internal::dir_lights.size());
+	for (int i = 0; i < internal::dir_lights.size(); ++i)
+	{
+		std::string name = "u_directional_lights[" + std::to_string(i) + "].direction";
+		glUniform3fv(glGetUniformLocation(program, name.c_str()), 1, &internal::dir_lights[i].direction.x);
+		name = "u_directional_lights[" + std::to_string(i) + "].color";
+		glUniform3fv(glGetUniformLocation(program, name.c_str()), 1, &internal::dir_lights[i].color.x);
+	}
+
+	/*
+	// Send the point lights to the standard program	
+	glUniform1i(glGetUniformLocation(internal::standard_program, "u_num_point_lights"), (int)internal::point_lights.size());
+	for (int i = 0; i < internal::point_lights.size(); ++i)
+	{
+		std::string name = "u_point_lights[" + std::to_string(i) + "]";
+		glUniform3fv(glGetUniformLocation(internal::standard_program, (name + ".position").c_str()),
+			1, &internal::point_lights[i].position.x);
+		glUniform1f(glGetUniformLocation(internal::standard_program, (name + ".radius").c_str()),
+			internal::point_lights[i].range);
+		glUniform3fv(glGetUniformLocation(internal::standard_program, (name + ".color").c_str()),
+			1, &internal::point_lights[i].color.x);
+	}
+	*/
+
+	// Render each entry
+	for (const auto& entry : internal::mesh_queue)
+	{
+		const auto& mesh = internal::meshes[entry.mesh - 1];
+		const auto& image = internal::images[entry.texture];
+		const auto& transform = entry.transform;
+
+		// Bind the vertex array
+		glBindVertexArray(mesh.vao);
+
+		// Bind the texture
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, image.texture);
+		// texture_location
+		glUniform1i(texture_location, 0);
+
+		// Send the model matrix to the standard program
+		glUniformMatrix4fv(glGetUniformLocation(program, "u_model"), 1, GL_FALSE, value_ptr(entry.transform));
+
+		// Send the multiply and add colors to the standard program
+		glUniform4fv(glGetUniformLocation(program, "u_mul_color"), 1, value_ptr(entry.mul_color));
+		glUniform4fv(glGetUniformLocation(program, "u_add_color"), 1, value_ptr(entry.add_color));
+
+		// Draw the mesh
+		glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_INT, 0);
+	}
+
+	mesh_queue.clear();
+	dir_lights.clear();
+	point_lights.clear();
 }

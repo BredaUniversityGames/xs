@@ -96,6 +96,9 @@ namespace xs::render::internal
 
 	extern std::vector<sprite_queue_entry>	sprite_queue;
 	extern std::vector<mesh_queue_entry>	mesh_queue;
+	extern std::vector<directional_light>	dir_lights;
+	extern std::vector<point_light>			point_lights;
+
 
 
     static int const                        lines_max = 16000;

@@ -12,6 +12,8 @@
 #include "cooker.h"
 #include "tools.h"
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <chrono>
 
 using namespace std;
@@ -31,6 +33,7 @@ extern "C"
 
 #include <nn/os.h>
 #include <version.h>
+#include <glm/gtc/type_ptr.hpp>
 extern "C" void nnMain()
 {
 	const auto argc = nn::os::GetHostArgc();
@@ -140,6 +143,29 @@ public:
 
     void update(double dt)
 	{
+        xs::render::color white;
+        white.integer_value = 0xFFFFFFFF;
+        xs::render::color black;
+        black.integer_value = 0x000000FF;
+        xs::render::render_directional_light(
+            glm::value_ptr(glm::normalize(glm::vec3(-1.0f, -1.0f, -1.0f))),
+            glm::value_ptr(glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)))
+        );
+
+        xs::render::render_mesh(
+            mesh,
+            image,
+            glm::value_ptr(glm::mat4(1.0f)),
+            white, black);
+
+        static float angle = 0.0f;
+        angle += 1.0f * (float)dt;
+        float r = 15.0f;
+        glm::vec3 eye(cos(angle) * r, sin(angle) * r, 10);
+        glm::mat4 view = glm::lookAt(eye, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
+        xs::render::set_3d_view(glm::value_ptr(view));
+        xs::render::set_3d_projection(glm::value_ptr(projection));
 		// Update game
 	}
 

@@ -16,6 +16,7 @@ void main()
 {
     v_normal = (u_model * vec4(a_normal, 0.0)).xyz;
     v_texture_coordinate = a_texture_coordinate;
+    v_texture_coordinate.y = 1.0 - v_texture_coordinate.y;
     v_color = vec4(a_color, 1.0) * u_mul_color;
     v_position = (u_model * vec4(a_position, 1.0)).xyz;
     gl_Position = u_projection * u_view * u_model * vec4(a_position, 1.0);
