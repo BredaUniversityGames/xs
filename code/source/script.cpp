@@ -35,6 +35,7 @@ namespace xs::script::internal
     WrenHandle* update_method = nullptr;
     WrenHandle* render_method = nullptr;
     std::unordered_map<size_t, WrenForeignMethodFn> foreign_methods;
+    std::unordered_map<size_t, WrenForeignClassMethods> foreign_classes;
     std::unordered_map<size_t, string> modules;
     bool initialized = false;
     string main;
@@ -97,6 +98,14 @@ namespace xs::script::internal
         return hash<string>{}(concat);
     }
 
+    size_t get_class_id(
+        const string& module,
+        const string& class_name)
+    {
+        const string concat = module + "::" + class_name;
+        return hash<string>{}(concat);
+    }
+
     WrenForeignMethodFn bindForeignMethod(
         WrenVM* vm,
         const char* module,
@@ -122,7 +131,12 @@ namespace xs::script::internal
         if (strcmp(module, "random") == 0)
             return wrenRandomBindForeignClass(vm, module, className);
 
-        WrenForeignClassMethods res{};
+        const auto id = get_class_id(module, className);
+        const auto itr = foreign_classes.find(id);
+        if (itr != foreign_classes.end())
+            return itr->second;
+
+        WrenForeignClassMethods res{ NULL, NULL };
         return res;
     }
 
@@ -332,6 +346,15 @@ void xs::script::bind(
     foreign_methods[id] = func;
 }
 
+void xs::script::bind(
+    const std::string& module,
+    const std::string& class_name,
+    WrenForeignMethodFn allocate_fn,
+    WrenFinalizerFn finalize_fn)
+{
+    const auto id = get_class_id(module, class_name);
+    foreign_classes[id] = WrenForeignClassMethods{ allocate_fn, finalize_fn };
+}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
