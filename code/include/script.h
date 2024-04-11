@@ -3,6 +3,7 @@
 
 typedef struct WrenVM WrenVM;
 typedef void (*WrenForeignMethodFn)(WrenVM* vm);
+typedef void (*WrenFinalizerFn)(void* data);
 
 namespace xs::script
 {
@@ -20,4 +21,9 @@ namespace xs::script
 		bool is_static,
 		const std::string& signature,
 		WrenForeignMethodFn func);
+	void bind(
+		const std::string& module,
+		const std::string& class_name,
+		WrenForeignMethodFn allocate_fn,
+		WrenFinalizerFn finalize_fn = NULL);
 }
