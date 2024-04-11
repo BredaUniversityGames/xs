@@ -204,9 +204,6 @@ void xs::script::configure()
     config.bindForeignMethodFn = &bindForeignMethod;
     config.bindForeignClassFn = &bindForeignClass;
     config.loadModuleFn = &loadModule;
-    //config.initialHeapSize = 1024 * 1024 * 32;
-    //config.minHeapSize = 1024 * 1024 * 16;
-    //config.heapGrowthPercent = 80;
 
     vm = wrenNewVM(&config);
     main_module = string(internal::main);
