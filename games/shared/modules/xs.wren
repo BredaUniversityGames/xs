@@ -115,6 +115,14 @@ class Render {
     foreign static loadFont(font,size)
     foreign static text(fontId, txt, x, y, mul, add, flags)
 
+    // 3D API
+    foreign static loadModel(path)
+    foreign static renderModel(modelId, imageId, transform, mul, add)
+    //foreign static setCamera()
+    //foreign static setProjection()
+
+
+
     static sprite(spriteId, x, y) {
         sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }

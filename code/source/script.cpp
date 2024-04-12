@@ -716,6 +716,34 @@ void render_render_text(WrenVM* vm)
     callFunction_args<int, string, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_text);
 }
 
+void render_load_mesh(WrenVM* vm)
+{
+	callFunction_returnType_args<int, string>(vm, xs::render::load_mesh);
+}
+
+void render_render_mesh(WrenVM* vm)
+{
+    // Manual unpacking of arguments
+    wrenEnsureSlots(vm, 7);
+    auto mesh_id = wrenGetParameter<int>(vm, 1);
+    auto image_id = wrenGetParameter<int>(vm, 2);
+    // Load the model matrix packed as an array
+    wrenGetListCount(vm, 3);
+    auto count = wrenGetParameter<int>(vm, 0);
+    float model[16];
+    for (int i = 0; i < count; i++)
+	{
+		wrenGetListElement(vm, 3, i, 0);
+		model[i] = wrenGetParameter<double>(vm, 0);
+	}
+    // Load the color packed as an integer
+	auto add_color = wrenGetParameter<double>(vm, 4);
+    xs::render::color add = { add_color };
+	auto mul_color = wrenGetParameter<double>(vm, 5);
+    xs::render::color mul = { mul_color };
+	xs::render::render_mesh(mesh_id, image_id, model, add, mul);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Audio
@@ -922,6 +950,9 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
     bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
+    // 3D
+    bind("xs", "Render", true, "loadMesh(_)", render_load_mesh);
+    bind("xs", "Render", true, "renderMesh(_,_,_,_,_,_)", render_render_mesh);
 
     // Audio
     bind("xs", "Audio", true, "load(_,_)", audio_load);
