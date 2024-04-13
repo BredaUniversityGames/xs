@@ -23,6 +23,7 @@
 extern "C" {
 #include "wren/optional/wren_opt_random.h"
 #include "wren/optional/wren_opt_meta.h"
+#include "wren_vm.h"
 }
 
 using namespace std;
@@ -48,8 +49,6 @@ namespace xs::script::internal
         if (strcmp(text, "\n") == 0)
             return;
 
-        
-        
 #if defined(PLATFORM_PC)
         static auto magenta = "\033[35m";
         static auto reset = "\033[0m";
@@ -359,6 +358,10 @@ void xs::script::bind(
 {
     const auto id = get_class_id(module, class_name);
     foreign_classes[id] = WrenForeignClassMethods{ allocate_fn, finalize_fn };
+}
+
+unsigned long xs::script::get_bytes_allocated() {
+    return vm->bytesAllocated;
 }
 
 

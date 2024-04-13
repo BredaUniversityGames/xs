@@ -39,11 +39,13 @@ namespace xs::inspector::internal
 }
 
 using namespace xs::inspector::internal;
+using namespace xs;
+using namespace std;
 
 void xs::inspector::initialize()
 {
     ImGui::CreateContext();
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
 	ImPlot::CreateContext();
 #endif
     ImGui_Impl_Init();
@@ -118,7 +120,6 @@ void xs::inspector::render(float dt)
 #endif
 	
 	ImGui_Impl_NewFrame();
-    
     ImGui::NewFrame();
 
 	internal::ok_timer -= dt;
@@ -184,7 +185,6 @@ void xs::inspector::render(float dt)
 		}
 		Tooltip("Data");
 		
-
 		
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_CHART_BAR))
@@ -212,17 +212,21 @@ void xs::inspector::render(float dt)
 				
 		}
 		Tooltip("Theme");		
-		
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));		
+				
+        ImGui::SameLine();
+        auto mb = script::get_bytes_allocated() / (1024.0 * 1024.0);
+        auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
+        ImGui::Text("| %s MB |", mem_str.c_str());
+        
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
-		{
-		}
+		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE)) {}
 		Tooltip("About");
 		ImGui::SameLine();
 		ImGui::Text("| xs %s |", xs::version::version_string.c_str());
 		ImGui::PopStyleColor();
 		Tooltip("Engine Version");
+        
 
 		ImGui::SameLine();
 		if (internal::ok_timer > 0.0f) {

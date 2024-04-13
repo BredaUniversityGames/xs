@@ -33,4 +33,6 @@ namespace xs::tools
 
 		return v;
 	}
+
+    std::string float_to_str_with_precision(float f, int precision);
 }
