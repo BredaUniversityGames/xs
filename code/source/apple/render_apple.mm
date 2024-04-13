@@ -76,13 +76,23 @@ void xs::render::initialize()
         
         id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertex_shader"];
         id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragment_shader"];
-        
+				
         // Set up a texture for rendering to and sampling from
+		NSUInteger scale = 1;
+		if(!configuration::snap_to_pixels())
+		{
+			scale *= configuration::multiplier();
+			if(configuration::window_size_in_points())
+			{
+				scale *= device::hdpi_scaling();
+			}
+		}
+									
         MTLTextureDescriptor *texDescriptor = [MTLTextureDescriptor new];
         texDescriptor.textureType = MTLTextureType2D;
-        texDescriptor.width = configuration::width();
-        texDescriptor.height = configuration::height();
         texDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
+		texDescriptor.width = configuration::width() * scale;
+		texDescriptor.height = configuration::height() * scale;
         texDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
         
         _renderTargetTexture = [_device newTextureWithDescriptor:texDescriptor];

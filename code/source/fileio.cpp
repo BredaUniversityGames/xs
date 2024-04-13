@@ -371,7 +371,7 @@ bool fileio::write_text_file(const string& text, const string& filename)
 		ofs.close();
 		return true;
 	}
-	return false;
+	return false;   // TODO: Warning?
 }
 
 void fileio::add_wildcard(const string& wildcard, const string& value)
