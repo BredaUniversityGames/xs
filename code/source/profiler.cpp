@@ -6,6 +6,8 @@
 #include <imgui/imgui.h>
 #include <imgui/implot.h>
 
+#warning "Create a macro to turn profiling on/off"
+
 namespace xs::profiler::internal
 {
 
@@ -41,14 +43,14 @@ profiler_section::~profiler_section()
 
 void xs::profiler::begin_section(const std::string& name)
 {
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
     times[name].start = std::chrono::high_resolution_clock::now();
 #endif
 }
 
 void xs::profiler::end_section(const std::string& name)
 {
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
     auto& e = times[name];
     e.end = std::chrono::high_resolution_clock::now();
     auto elapsed = e.end - e.start;
@@ -59,14 +61,14 @@ void xs::profiler::end_section(const std::string& name)
 
 void xs::profiler::begin_timing()
 {
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
     timer = std::chrono::high_resolution_clock::now();
 #endif
 }
 
 double xs::profiler::end_timing()
 {
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
     auto time = std::chrono::high_resolution_clock::now();
     auto elapsed = time - timer;
     return (double)elapsed.count() / 1000000.0;
@@ -77,7 +79,7 @@ double xs::profiler::end_timing()
 
 void xs::profiler::inspect(bool& show)
 {
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
     ImGui::Begin("Profiler", &show, ImGuiWindowFlags_NoCollapse);
 
     for (auto& itr : times)
