@@ -115,6 +115,10 @@ class Render {
     foreign static loadFont(font,size)
     foreign static text(fontId, txt, x, y, mul, add, flags)
 
+    static vertex(v) {
+        Render.vertex(v.x, v.y)
+    }
+
     static sprite(spriteId, x, y) {
         sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }
