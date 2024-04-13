@@ -238,5 +238,21 @@ class Color {
         return Color.new(r, g, b, a)
     }
 
+    // Add two color represented as 32-bit integers
+    static add(x, y) {
+        var r = (x >> 16) + (y >> 16)
+        var g = (x >> 8 & 0xFF) + (y >> 8 & 0xFF)
+        var b = (x & 0xFF) + (y & 0xFF)
+        return (r << 16) | (g << 8) | b
+    }
+
+    // Multiply two color represented as 32-bit integers
+    static mul(x, y) {
+        var r = (x >> 16) * (y >> 16) / 255
+        var g = (x >> 8 & 0xFF) * (y >> 8 & 0xFF) / 255
+        var b = (x & 0xFF) * (y & 0xFF) / 255
+        return (r << 16) | (g << 8) | b
+    }
+
     toString { "[r:%(_r) g:%(_g) b:%(_b) a:%(_a)]" }
 }
