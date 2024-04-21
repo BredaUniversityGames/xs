@@ -238,20 +238,32 @@ class Color {
         return Color.new(r, g, b, a)
     }
 
-    // Add two color represented as 32-bit integers
+    // Add two color represented as 32-bit integers (including alpha channel)
     static add(x, y) {
-        var r = (x >> 16) + (y >> 16)
-        var g = (x >> 8 & 0xFF) + (y >> 8 & 0xFF)
-        var b = (x & 0xFF) + (y & 0xFF)
-        return (r << 16) | (g << 8) | b
+        var r = (x >> 24) + (y >> 24)
+        var g = (x >> 16 & 0xFF) + (y >> 16 & 0xFF)
+        var b = (x >> 8 & 0xFF) + (y >> 8 & 0xFF)
+        var a = (x & 0xFF) + (y & 0xFF)
+        r = r > 255 ? 255 : r
+        g = g > 255 ? 255 : g
+        b = b > 255 ? 255 : b
+        a = a > 255 ? 255 : a
+        return (r << 24) | (g << 16) | (b << 8) | a
     }
 
-    // Multiply two color represented as 32-bit integers
+    // Multiply two color represented as 32-bit integers (including alpha channel)
     static mul(x, y) {
-        var r = (x >> 16) * (y >> 16) / 255
-        var g = (x >> 8 & 0xFF) * (y >> 8 & 0xFF) / 255
-        var b = (x & 0xFF) * (y & 0xFF) / 255
-        return (r << 16) | (g << 8) | b
+        var r = (x >> 24) * (y >> 24)
+        var g = (x >> 16 & 0xFF) * (y >> 16 & 0xFF)
+        var b = (x >> 8 & 0xFF) * (y >> 8 & 0xFF)
+        var a = (x & 0xFF) * (y & 0xFF)
+        //a = 255
+        //r = r > 255 ? 255 : r
+        //g = g > 255 ? 255 : g
+        //b = b > 255 ? 255 : b
+        //a = a > 255 ? 255 : a
+        //return (r << 24) | (g << 16) | (b << 8) | a
+        return a << 24 | b << 16 | g << 8 | r
     }
 
     toString { "[r:%(_r) g:%(_g) b:%(_b) a:%(_a)]" }

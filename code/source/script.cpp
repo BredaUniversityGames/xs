@@ -364,7 +364,6 @@ unsigned long xs::script::get_bytes_allocated() {
     return vm->bytesAllocated;
 }
 
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 //										All xs API
@@ -477,42 +476,36 @@ template<> void wrenSetReturnValue<string>(WrenVM* vm, const string& value)
 template <typename T>
 void callFunction_args(WrenVM* vm, std::function<void(T)> func)
 {
-    wrenEnsureSlots(vm, 2);
     func(wrenGetParameter<T>(vm, 1));
 }
 
 template <typename T1, typename T2>
 void callFunction_args(WrenVM* vm, std::function<void(T1, T2)> func)
 {
-    wrenEnsureSlots(vm, 3);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2));
 }
 
 template <typename T1, typename T2, typename T3>
 void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3)> func)
 {
-    wrenEnsureSlots(vm, 4);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3));
 }
 
 template <typename T1, typename T2, typename T3, typename T4>
 void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4)> func)
 {
-    wrenEnsureSlots(vm, 5);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4));
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5>
 void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5)> func)
 {
-    wrenEnsureSlots(vm, 6);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5));
 }
 
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6)> func)
 {
-    wrenEnsureSlots(vm, 7);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5),
         wrenGetParameter<T6>(vm, 6));
 }
@@ -520,7 +513,6 @@ void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6)> f
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7)> func)
 {
-    wrenEnsureSlots(vm, 8);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5),
         wrenGetParameter<T6>(vm, 6), wrenGetParameter<T7>(vm, 7));
 }
@@ -528,7 +520,6 @@ void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7, T8)> func)
 {
-    wrenEnsureSlots(vm, 9);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5),
         wrenGetParameter<T6>(vm, 6), wrenGetParameter<T7>(vm, 7), wrenGetParameter<T8>(vm, 8));
 }
@@ -536,7 +527,6 @@ void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7
 template <typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
 void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7, T8, T9)> func)
 {
-    wrenEnsureSlots(vm, 10);
     func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5),
         wrenGetParameter<T6>(vm, 6), wrenGetParameter<T7>(vm, 7), wrenGetParameter<T8>(vm, 8), wrenGetParameter<T9>(vm, 9));
 }
@@ -544,42 +534,36 @@ void callFunction_args(WrenVM* vm, std::function<void(T1, T2, T3, T4, T5, T6, T7
 template <typename ReturnType>
 void callFunction_returnType(WrenVM* vm, std::function<ReturnType(void)> func)
 {
-    wrenEnsureSlots(vm, 1);
     wrenSetReturnValue<ReturnType>(vm, func());
 }
 
 template <typename ReturnType, typename T>
 void callFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T)> func)
 {
-    wrenEnsureSlots(vm, 2);
     wrenSetReturnValue<ReturnType>(vm, func(wrenGetParameter<T>(vm, 1)));
 }
 
 template <typename ReturnType, typename T1, typename T2>
 void callFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2)> func)
 {
-    wrenEnsureSlots(vm, 3);
     wrenSetReturnValue<ReturnType>(vm, func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2)));
 }
 
 template <typename ReturnType, typename T1, typename T2, typename T3>
 void callFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2, T3)> func)
 {
-    wrenEnsureSlots(vm, 4);
     wrenSetReturnValue<ReturnType>(vm, func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3)));
 }
 
 template <typename ReturnType, typename T1, typename T2, typename T3, typename T4>
 void callFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2, T3, T4)> func)
 {
-    wrenEnsureSlots(vm, 5);
     wrenSetReturnValue<ReturnType>(vm, func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4)));
 }
 
 template <typename ReturnType, typename T1, typename T2, typename T3, typename T4, typename T5>
 void callFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2, T3, T4, T5)> func)
 {
-    wrenEnsureSlots(vm, 6);
     wrenSetReturnValue<ReturnType>(vm, func(wrenGetParameter<T1>(vm, 1), wrenGetParameter<T2>(vm, 2), wrenGetParameter<T3>(vm, 3), wrenGetParameter<T4>(vm, 4), wrenGetParameter<T5>(vm, 5)));
 }
 
@@ -745,6 +729,41 @@ void render_load_font(WrenVM* vm)
 void render_render_text(WrenVM* vm)
 {
     callFunction_args<int, string, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_text);
+}
+
+void render_create_shape(WrenVM* vm)
+{
+	auto pcount = wrenGetListCount(vm, 1);
+	auto ccount = wrenGetListCount(vm, 2);
+	
+	if(pcount != ccount * 2) {
+		// TODO: Print error
+	}
+	
+	vector<double> points(pcount);
+	for(int i = 0; i < pcount; i++)
+	{
+		wrenGetListElement(vm, 1, i, 0);		// Check data first
+		points[i] = wrenGetSlotDouble(vm, 0);
+	}
+	
+	vector<xs::render::color> colors(ccount);
+	for(int i = 0; i < ccount; i++)
+	{
+		wrenGetListElement(vm, 2, i, 0);
+		xs::render::color c;
+		auto dc = wrenGetSlotDouble(vm, 0);
+		c.integer_value = static_cast<unsigned int>(dc);
+		colors[i] = c;
+	}
+	
+	auto id = xs::render::create_shape(points, colors);
+	wrenSetSlotDouble(vm, 0, id);
+}
+
+void render_render_shape(WrenVM* vm)
+{
+	callFunction_args<int, double, double, double, double, xs::render::color, xs::render::color>(vm, xs::render::render_shape);
 }
 
 
@@ -953,6 +972,8 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
     bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
+	bind("xs", "Render", true, "createShape(_,_)", render_create_shape);
+	bind("xs", "Render", true, "shape(_,_,_,_,_,_,_)", render_render_shape);
 
     // Audio
     bind("xs", "Audio", true, "load(_,_)", audio_load);

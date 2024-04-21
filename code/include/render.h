@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 namespace xs::render
 {	
@@ -40,6 +41,7 @@ namespace xs::render
 	int get_image_height(int image_id);
 	
 	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
+
 	void render_sprite(
 		int sprite_id,
 		double x,
@@ -51,18 +53,6 @@ namespace xs::render
 		color add,
 		unsigned int flags);
 
-	/*
-	void render_grid(
-		int sprite_id,
-		double x,
-		double y,
-		double z,
-		double size,
-		double rotation,
-		color mutiply,
-		color add,
-		unsigned int flags);
-	*/
 	void render_grid(
 		int image_id,
 		int rows,
@@ -94,4 +84,15 @@ namespace xs::render
 	void end();	
 	void line(double x0, double y0, double x1, double y1);
 	void text(const std::string& text, double x, double y, double size);
+
+	int create_shape(std::vector<double>& points, std::vector<color>& colors);
+	// void delete_shape(int shape_id);
+	void render_shape(
+		int shape_id,
+		double x,
+		double y,
+		double size,
+		double rotation,
+		color mutiply,
+		color add);
 }

@@ -1,6 +1,7 @@
 #include "render.h"
 #include "render_internal.h"
 #include <ios>
+#include <unordered_map>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -50,9 +51,8 @@
 #define CAN_RELOAD_IMAGES 1
 #endif
 
-
-
 using namespace glm;
+using namespace std;
 
 namespace xs::render::internal
 {
@@ -72,6 +72,15 @@ namespace xs::render::internal
 
     primitive                        current_primitive = primitive::none;
     glm::vec4                        current_color = {1.0, 1.0, 1.0, 1.0};
+
+	struct shape
+	{
+		std::vector<double>	points = {};
+		std::vector<color>	colors = {};
+	};
+
+	std::unordered_map<int, shape>	shapes = {};
+	int 							next_shape_id = 1;
 
 	const int FONT_ATLAS_MIN_CHARACTER = 32;
 	const int FONT_ATLAS_NR_CHARACTERS = 96;
@@ -515,6 +524,35 @@ void xs::render::text(const std::string& text, double x, double y, double size)
     }
 }
 
+int xs::render::create_shape(vector<double>& points, vector<color>& colors)
+{
+	//shape s = { std::move(points), std::move(colors) };
+	shape s = { points, colors };
+	shapes[++internal::next_shape_id] = s;
+	return internal::next_shape_id;
+}
+
+void xs::render::render_shape(
+	int shape_id,
+	double x,
+	double y,
+	double size,
+	double rotation,
+	color mutiply,
+	color add)
+{
+	const auto& s = shapes[shape_id];
+	begin(primitive::triangles);
+	for(int i = 0; i < s.colors.size(); i++)
+	{
+		auto px = s.points[2*i] * size + x;
+		auto py = s.points[2*i+1] * size + y;
+		const auto& c = s.colors[i];
+		set_color(c);
+		vertex(px, py);
+	}
+	end();
+}
 
 #ifdef CAN_RELOAD_IMAGES
 

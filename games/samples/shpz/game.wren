@@ -10,13 +10,9 @@ class Game {
     static init() {
         Entity.init()
         __random = Random.new()
-        var size = 100
-        __quad = Shapes.quad(
-            Vec2.new(0, 0),
-            Vec2.new(size, 0),
-            Vec2.new(size, size),
-            Vec2.new(0, size),
-            0xFFFFFFFF)
+        var w = 1920 / 2
+        var h = 1080 / 2
+        __quad = Shapes.rectangle(Vec2.new(-w, -h), Vec2.new(w, h), 0xfafd01ff)
 
         __disk = Shapes.disk(   Vec2.new(100, 100),
                                 50, 32, 0xFF00FFFF)
@@ -31,7 +27,7 @@ class Game {
             var y = a.sin * r
             __randomConvexPoly.add(Vec2.new(x, y))
         }
-        __fill = Shapes.fill(__randomConvexPoly, 0xFF00FFFF)
+        __fill = Shapes.fill(__randomConvexPoly, 0x550d9eff)
         __stroke = Shapes.stroke(__randomConvexPoly, 5.0, 0xFFFFFFFF)    
 
         __hex = Shapes.polygon(
@@ -43,6 +39,12 @@ class Game {
 
         __hfill = Shapes.fill(__hex, 0x00FFFFFF)
         __hstroke = Shapes.stroke(__hex, 5.0, 0xFFFFFFFF)
+
+        {   // Font entity
+            var font = Font.load("assets/")
+
+        }
+
     }
 
     static config() { }
@@ -60,7 +62,6 @@ class Game {
         __hfill.render(Vec2.new(0, 0), 1.0, 0.2)
         __hstroke.render(Vec2.new(0, 0), 1.0, 0.2)
 
-
         var points = [
             Vec2.new(100, 100),
             Vec2.new(200, 100),
@@ -71,6 +72,25 @@ class Game {
         Game.drawLines(points, 0xFF0000FF)
         Game.drawLines(__randomConvexPoly, 0x00FF00FF)     
         Game.drawLines(__hex, 0x00FFFFFF)
+
+        { // Huge hexagon
+            var hexPoints = Shapes.polygon(
+                Vec2.new(0, 0),  // Center
+                400,                 // Radius
+                6,                  // Sides
+                90,                 // Rouding radius
+                2)                  // Rotation per rounding
+            for(p in hexPoints) {
+                // Draw a circle at each point
+                Shapes.disk(p, 10, 16, 0xFF00FFFF).render(Vec2.new(0, 0), 1.0, 0.0) 
+            }
+            var hex = Shapes.stroke(hexPoints, 3.0, 0xFFFFFFFF)
+            hex.render(Vec2.new(0, 0), 1.0, 0.0)
+        }
+
+        {
+
+        }
     }
 
     static drawLines(points, color) {
