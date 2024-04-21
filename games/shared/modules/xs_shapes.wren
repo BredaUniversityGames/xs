@@ -4,69 +4,27 @@
 /// xs engine and the svg Python tools.
 ///
 
-import "xs" for Render, File
+import "xs" for Render, File, Profiler
 import "xs_math" for Vec2
 import "xs_ec" for Entity, Component
 import "xs_components" for Transform
 import "xs_math" for Math, Color
 
-/* TODO: Consider if this should be in this module
-class Relation is Component {
-    construct new(parent) {
-        _parent = parent
-        _offset = Vec2.new(0.0, 0.0)
-        _layerOffset = 0.0
-    }
-
-    initialize() {
-        _transform = owner.getComponent(Transform)        
-        if(_transform == null) {
-            _transform = owner.addComponent(Transform)
-        }
-
-        _shapeRenderer = owner.getComponent(ShapeRenderer)
-    }
-
-    update(dt) {
-        var pt = _parent.getComponent(Transform)
-        _transform.position = _pt.position + _offset
-        _transform.rotation = _pt.rotation
-
-        var psr = _parent.getComponent(ShapeRenderer)
-        _shapeRenderer.layer = psr.layer + _layerOffset
-    }
-
-    parent { _parent }
-    parent=(value) { _parent = value }
-
-    offset { _offset }
-    offset=(value) { _offset = value }
-
-    layerOffset { _layerOffset }
-    layerOffset=(value) { _layerOffset = value }
-}
-*/
-
 class Shape {
-
     construct new() {
-        _vertices = []
+        _points = []
         _colors = []
-    }
-
-    construct new(vertices, colors) {        
-        _vertices = vertices
-        _colors = colors
+        _shape = null
     }
 
     construct load(filename) {
-        _vertices = []
-        _colors = []
+        // _vertices = []
+        // _colors = []
         var data = File.read(filename)        
         var lines = data.split("\n")        
         for(line in lines) {
             var parts = line.split(",")
-            System.print("Parts: %(parts.count)")
+            // System.print("Parts: %(parts.count)")
             if(parts.count == 3) {
                 var x = Num.fromString(parts[0])
                 var y = Num.fromString(parts[1])
@@ -77,23 +35,32 @@ class Shape {
     }
 
     vertex(pos, color) {
-        _vertices.add(pos)
+        vertex(pos.x, pos.y, color)
+    }
+
+    vertex(x, y, color) {
+        _points.add(x)
+        _points.add(y)
         _colors.add(color)
     }
 
     clear() {
-        _vertices.clear()
+        _points.clear()
         _colors.clear()
+        // TODO: Delete shape
+        _shape = null
     }
 
-    +(other) {
+    +(other) {         
         var shape = Shape.new()
+        /*
         for(i in 0..._vertices.count) {
             shape.vertex(_vertices[i], _colors[i])
         }
         for(i in 0...other.vertices.count) {
             shape.vertex(other.vertices[i], other.colors[i])
         }
+        */
         return shape
     }
 
@@ -102,34 +69,23 @@ class Shape {
     }
 
     render(position, scale, rotation) {
-        Render.begin(Render.triangles)
-        for(i in 0..._vertices.count) {
-            var vertex = _vertices[i]
-            var color = _colors[i]
-            var pos = vertex.rotated(rotation)
-            pos =  pos * scale + position
-            Render.setColor(color)
-            Render.vertex(pos)
-        }
-        Render.end()
+        render(position, scale, rotation, 0x00000000, 0xffffffff)
     }
 
-    render(position, scale, rotation, addColor, mulColor) {
-        Render.begin(Render.triangles)
-        for(i in 0..._vertices.count) {
-            var vertex = _vertices[i]
-            var color =  _colors[i]
-            var pos = vertex.rotated(rotation)
-            pos =  pos * scale + position
-            Render.setColor(Color.add(Color.mul(color, mulColor), addColor))
-            //Render.setColor(Color.add(color, addColor))
-            Render.vertex(pos)
-        }
-        Render.end()
+    render(position, scale, rotation, addColor, mulColor) {        
+        if(!_shape) _shape = Render.createShape(_points, _colors)
+        Render.shape(
+            _shape,
+            position.x,
+            position.y,
+            scale,
+            rotation,
+            addColor,
+            mulColor)
     }
 
 
-    vertices { _vertices }
+    //vertices { _vertices }
     colors { _colors }
 }
 
@@ -413,7 +369,7 @@ class Shapes {
 
             var a = angle - step * 0.5
             var da = step / segments
-            for(j in 0...segments) {
+            for(j in 0..segments) {
                 var x = cx + a.cos * rounding
                 var y = cy + a.sin * rounding
                 var p = Vec2.new(x, y)

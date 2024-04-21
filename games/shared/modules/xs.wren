@@ -13,6 +13,11 @@ class Render {
     foreign static end()
     foreign static vertex(x, y)
 
+    /// Create a shape from a list of points and a color.
+    /// The points are a list of floats where each pair of floats represent a point.
+    foreign static createShape(points, colors)
+    foreign static shape(shapeId, x, y, scale, rotation, mul, add)
+
     static line(a, b) {
         line(a.x, a.y, b.x, b.y)
     }
