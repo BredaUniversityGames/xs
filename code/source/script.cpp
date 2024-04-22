@@ -6,7 +6,6 @@
 #include <string>
 #include <unordered_map>
 #include <array>
-#include <wren.hpp>
 #include "fileio.h"
 #include "log.h"
 #include "profiler.h"
@@ -20,11 +19,23 @@
 #include "audio.h"
 #include "device.h"
 
+// Check if we are running MSVC
+#ifdef _MSC_VER
+// Disable warning about zero-sized arrays in structs
+#pragma warning(disable:4200)
+#endif
+
+#include <wren.hpp>
 extern "C" {
 #include "wren/optional/wren_opt_random.h"
 #include "wren/optional/wren_opt_meta.h"
 #include "wren_vm.h"
 }
+
+// Re-enable the warning if we are running MSVC
+#ifdef _MSC_VER
+#pragma warning(default:4200)
+#endif
 
 using namespace std;
 
@@ -360,7 +371,7 @@ void xs::script::bind(
     foreign_classes[id] = WrenForeignClassMethods{ allocate_fn, finalize_fn };
 }
 
-unsigned long xs::script::get_bytes_allocated() {
+size_t xs::script::get_bytes_allocated() {
     return vm->bytesAllocated;
 }
 
