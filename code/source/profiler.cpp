@@ -6,11 +6,10 @@
 #include <imgui/imgui.h>
 #include <imgui/implot.h>
 
-#warning "Create a macro to turn profiling on/off"
+//TODO: Create a macro to turn profiling on/off
 
 namespace xs::profiler::internal
 {
-
     using time_t = std::chrono::time_point<std::chrono::steady_clock>;
     using span_t = std::chrono::nanoseconds;
 

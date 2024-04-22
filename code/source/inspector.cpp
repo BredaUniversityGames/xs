@@ -214,7 +214,7 @@ void xs::inspector::render(float dt)
 		Tooltip("Theme");		
 				
         ImGui::SameLine();
-        auto mb = script::get_bytes_allocated() / (1024.0 * 1024.0);
+        auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
         auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
         ImGui::Text("| %s MB |", mem_str.c_str());
         
