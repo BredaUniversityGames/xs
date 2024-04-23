@@ -538,16 +538,28 @@ void xs::render::render_shape(
 	double y,
 	double size,
 	double rotation,
-	color mutiply,
+	color multiply,
 	color add)
 {
 	const auto& s = shapes[shape_id];
 	begin(primitive::triangles);
 	for(int i = 0; i < s.colors.size(); i++)
 	{
-		auto px = s.points[2*i] * size + x;
-		auto py = s.points[2*i+1] * size + y;
-		const auto& c = s.colors[i];
+		auto px = s.points[2 * i] * size; 
+		auto py = s.points[2*i+1] * size;
+		if(rotation != 0.0)
+		{
+			const auto c = cos(rotation);
+			const auto s = sin(rotation);
+			const auto x = px * c - py * s;
+			const auto y = px * s + py * c;
+			px = x;
+			py = y;
+		}
+		px += x;
+		py += y;
+		auto c = s.colors[i];
+		c = c * multiply + add;
 		set_color(c);
 		vertex(px, py);
 	}
