@@ -69,10 +69,10 @@ class Shape {
     }
 
     render(position, scale, rotation) {
-        render(position, scale, rotation, 0x00000000, 0xffffffff)
+        render(position, scale, rotation, 0xffffffff, 0x00000000)
     }
 
-    render(position, scale, rotation, addColor, mulColor) {        
+    render(position, scale, rotation, mulColor, addColor) {
         if(!_shape) _shape = Render.createShape(_points, _colors)
         Render.shape(
             _shape,
@@ -80,8 +80,8 @@ class Shape {
             position.y,
             scale,
             rotation,
-            addColor,
-            mulColor)
+            mulColor,
+            addColor)
     }
 
 
@@ -359,7 +359,7 @@ class Shapes {
                     rounding, segments) {
         //  Create the polygon points
         var points = []
-        var r = radius - rounding
+        var r = radius - rounding * 2.sqrt
         var step = 2 * Math.pi / sides
 
         for(i in 0...sides) {
