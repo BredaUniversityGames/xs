@@ -47,12 +47,16 @@ namespace xs::render::internal
 	void compile_sprite_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
+	void gl_label(GLenum type, GLuint name, const std::string& label);
 
 	int width = -1;
 	int height = -1;	
 
 	unsigned int render_fbo;
 	unsigned int render_texture;
+
+	unsigned int msaa_fbo;
+	unsigned int msaa_texture;
 	
 	unsigned int			shader_program = 0;
 	unsigned int			lines_vao = 0;
@@ -192,9 +196,51 @@ void xs::render::shutdown()
 	// TODO: Delete frame buffer
 }
 
+void xs::render::internal::create_frame_buffers()
+{
+	// MSAA Framebuffer /////////////////////////////////////////////////
+	glGenFramebuffers(1, &msaa_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
+	gl_label(GL_FRAMEBUFFER, msaa_fbo, "MSAA FBO");
+	// Create a MSAA texture
+	glGenTextures(1, &msaa_texture);
+	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, msaa_texture);
+	gl_label(GL_TEXTURE, msaa_texture, "MSAA Texture");
+	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 16, GL_RGBA, width, height, GL_TRUE);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, msaa_texture, 0);
+	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		assert(false);
+	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+	// Resolve Framebuffer /////////////////////////////////////////////////
+	glGenFramebuffers(1, &render_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
+	gl_label(GL_FRAMEBUFFER, render_fbo, "Render FBO");
+	// Create a render texture
+	glGenTextures(1, &render_texture);
+	glBindTexture(GL_TEXTURE_2D, render_texture);
+	gl_label(GL_TEXTURE, render_texture, "Render Texture");
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, render_texture, 0);
+	unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, attachments);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		assert(false);
+	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}
+
 void xs::render::render()
 {	
 	XS_PROFILE_SECTION("xs::render::render");
+
+	// Bind MSAA framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
+	glViewport(0, 0, width, height);
+	glClearColor(0.0, 0.0, 0.0, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
 	mat4 p = ortho(-w, w, -h, h, -100.0f, 100.0f);
@@ -339,13 +385,18 @@ void xs::render::render()
 	XS_DEBUG_ONLY(glUseProgram(0));
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, msaa_fbo);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, render_fbo);
+	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	// Blit render result screen
 	const auto& screen_to_game = xs::configuration::get_scale_to_game(xs::device::get_width(), xs::device::get_height());
-
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, render_fbo);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glBlitFramebuffer(0, 0, width, height, screen_to_game.xmin, screen_to_game.ymin, screen_to_game.xmax, screen_to_game.ymax, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 }
 
 void xs::render::clear()
@@ -399,25 +450,6 @@ void xs::render::internal::create_texture_with_data(xs::render::internal::image&
 		usage,								// Format (how to use)
 		GL_UNSIGNED_BYTE,					// Type   (how to interpret)
 		data);								// Data
-}
-
-void xs::render::internal::create_frame_buffers()
-{
-	//glCreateFramebuffers(1, &render_fbo);
-    glGenFramebuffers(1, &render_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
-	glGenTextures(1, &render_texture);
-	glBindTexture(GL_TEXTURE_2D, render_texture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, render_texture, 0);
-	unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, attachments);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		assert(false);
-	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
 }
 
 void xs::render::internal::compile_sprite_shader()
@@ -582,4 +614,52 @@ bool xs::render::internal::link_program(GLuint program)
 
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	return status != 0;
+}
+
+void xs::render::internal::gl_label(GLenum type, GLuint name, const std::string& label)
+{
+	std::string typeString;
+	switch (type)
+	{
+	case GL_BUFFER:
+		typeString = "GL_BUFFER";
+		break;
+	case GL_SHADER:
+		typeString = "GL_SHADER";
+		break;
+	case GL_PROGRAM:
+		typeString = "GL_PROGRAM";
+		break;
+	case GL_VERTEX_ARRAY:
+		typeString = "GL_VERTEX_ARRAY";
+		break;
+	case GL_QUERY:
+		typeString = "GL_QUERY";
+		break;
+	case GL_PROGRAM_PIPELINE:
+		typeString = "GL_PROGRAM_PIPELINE";
+		break;
+	case GL_TRANSFORM_FEEDBACK:
+		typeString = "GL_TRANSFORM_FEEDBACK";
+		break;
+	case GL_SAMPLER:
+		typeString = "GL_SAMPLER";
+		break;
+	case GL_TEXTURE:
+		typeString = "GL_TEXTURE";
+		break;
+	case GL_RENDERBUFFER:
+		typeString = "GL_RENDERBUFFER";
+		break;
+	case GL_FRAMEBUFFER:
+		typeString = "GL_FRAMEBUFFER";
+		break;
+	default:
+		typeString = "UNKNOWN";
+		break;
+	}
+
+	const std::string temp = "[" + typeString + ":" + std::to_string(name) + "] " + label;
+	glObjectLabel(type, name, static_cast<GLsizei>(temp.length()), temp.c_str());
+
 }
