@@ -108,8 +108,16 @@ class Font {
             // Early out if the line is empty
             if(line.count == 0) continue
 
-            var parts = line.split("~")
-            
+            // Check if the first character is the delimiter ':':            
+            var parts = []
+            if(line[0] == ":") {                                
+                parts = line.split(":")
+                parts.removeAt(0)       // Skip the first character
+                parts[0] = ":"
+            } else {
+                parts = line.split(":")                
+            }
+
             var letter = parts[0]
             var advance = Num.fromString(parts[1])
             var shape = Shape.new()
@@ -137,7 +145,6 @@ class ShapeRenderer is Component {
         _shape = shape
         _addColor = 0
         _mulColor = 0xFFFFFFFF
-
     }
 
     construct new(shape, layer) {
@@ -159,9 +166,9 @@ class ShapeRenderer is Component {
         _shape.render(
             _transform.position,
             1.0,
-            _transform.rotation,
-            _addColor,
-            _mulColor)
+            _transform.rotation,            
+            _mulColor,
+            _addColor)
     }
 
     layer { _layer }
@@ -227,7 +234,7 @@ class FontRenderer is ShapeRenderer {
 
 class Shapes {
     /// Render all shapes in the scene
-    static render() {
+    static render() {        
         var entities = Entity.entities
         var shapes = []
         for (entity in entities) {
@@ -238,6 +245,21 @@ class Shapes {
         shapes.sort()
         for (shape in shapes) {
             shape.render()
+        }
+    }
+
+    static renderText(text, font, position, size) {
+        var x = position.x
+        var y = position.y
+        for(i in 0...text.count) {
+            var c = text[i]
+            var glyph = font.glyphs[c]
+            if(glyph) {
+                var pos = Vec2.new(x, y)
+                var shape = glyph.shape
+                shape.render(pos, size, 0)
+                x = x + glyph.advance * size
+            }
         }
     }
 
