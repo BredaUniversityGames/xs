@@ -13,12 +13,10 @@ class Game {
         __identity = Matrix.new()
         __x = 0
         __y = 0
-        __vZero = Vector.new()
-        __vZero.set(0, 0, 0, 0)
-        __vWhite = Vector.new()
-        __vWhite.set(1, 1, 1, 1)
-        __vRed = Vector.new()
-        __vRed.set(1, 0, 0, 1)
+        var v = Vector.new(1,1,1,1)
+        __vZero = Vector.new(0, 0, 0, 0)
+        __vWhite = Vector.new(1, 1, 1, 1)
+        __vRed = Vector.new(1, 0, 0, 1)
     }
 
     static update(dt) {

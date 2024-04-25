@@ -378,8 +378,9 @@ class Profiler {
 /// A 4D vector
 foreign class Vector {
     construct new() {}
+    construct new(x, y, z, w) {}
     foreign set(x, y, z, w)
-    //foreign +(other)
+    foreign +(other)
     //foreign -(other)
     //foreign *(scalar)
     //foreign /(scalar)
