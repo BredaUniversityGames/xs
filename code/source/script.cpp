@@ -967,10 +967,19 @@ void matrix_translate(WrenVM* vm)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void vector_allocate(WrenVM* vm)
 {
-    auto count = wrenGetSlotCount(vm);
 	void* data = wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
 	auto vec = new (data) glm::vec4();
-	*vec = glm::vec4(0.0f);
+    auto count = wrenGetSlotCount(vm);
+    if(count == 5)
+	{
+		auto x = wrenGetParameter<double>(vm, 1);
+		auto y = wrenGetParameter<double>(vm, 2);
+		auto z = wrenGetParameter<double>(vm, 3);
+		auto w = wrenGetParameter<double>(vm, 4);
+		*vec = glm::vec4(x, y, z, w);
+	} else {
+        *vec = glm::vec4(0.0f);
+    }
 }
 
 void vector_finalize(void* data) {}
@@ -983,6 +992,15 @@ void vector_set(WrenVM* vm)
 	auto z = wrenGetParameter<double>(vm, 3);
 	auto w = wrenGetParameter<double>(vm, 4);
 	*vec = glm::vec4(x, y, z, w);
+}
+
+void vector_plus(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+    auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+    *vec += *other;
+    auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+    *data = *vec;
 }
 
 
@@ -1084,4 +1102,5 @@ void xs::script::bind_api()
     vector_methods.finalize = vector_finalize;
     bind_class("xs", "Vector", vector_methods);
     bind("xs", "Vector", false, "set(_,_,_,_)", vector_set);
+    bind("xs", "Vector", false, "+", vector_plus);
 }
