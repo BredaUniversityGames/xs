@@ -724,9 +724,10 @@ void render_load_mesh(WrenVM* vm)
 void render_render_mesh(WrenVM* vm)
 {
     // Manual unpacking of arguments
-    wrenEnsureSlots(vm, 7);
     auto mesh_id = wrenGetParameter<int>(vm, 1);
     auto image_id = wrenGetParameter<int>(vm, 2);
+
+    /*
     // Load the model matrix packed as an array
     wrenGetListCount(vm, 3);
     auto count = wrenGetParameter<int>(vm, 0);
@@ -734,14 +735,28 @@ void render_render_mesh(WrenVM* vm)
     for (int i = 0; i < count; i++)
 	{
 		wrenGetListElement(vm, 3, i, 0);
-		model[i] = wrenGetParameter<double>(vm, 0);
+		model[i] = (float)wrenGetParameter<double>(vm, 0);
 	}
     // Load the color packed as an integer
-	auto add_color = wrenGetParameter<double>(vm, 4);
-    xs::render::color add = { add_color };
-	auto mul_color = wrenGetParameter<double>(vm, 5);
-    xs::render::color mul = { mul_color };
-	xs::render::render_mesh(mesh_id, image_id, model, add, mul);
+	auto mul_color = (uint32_t)wrenGetParameter<double>(vm, 4);
+    xs::render::color mul;
+    mul.integer_value = mul_color;
+    auto add_color = (uint32_t)wrenGetParameter<double>(vm, 5);
+    xs::render::color add;
+    add.integer_value = add_color;
+	xs::render::render_mesh(mesh_id, image_id, model, mul, add);
+    */
+
+
+    float model[16] = { 1.0f, 0.0f, 0.0f, 0.0f,
+    						0.0f, 1.0f, 0.0f, 0.0f,
+    						0.0f, 0.0f, 1.0f, 0.0f,
+    						0.0f, 0.0f, 0.0f, 1.0f };
+    xs::render::color mul;
+    mul.integer_value = 0xFFFFFFFF;
+    xs::render::color add;
+    add.integer_value = 0x00000000;
+    xs::render::render_mesh(mesh_id, image_id, model, mul, add);
 }
 
 
@@ -952,7 +967,7 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
     // 3D
     bind("xs", "Render", true, "loadMesh(_)", render_load_mesh);
-    bind("xs", "Render", true, "renderMesh(_,_,_,_,_,_)", render_render_mesh);
+    bind("xs", "Render", true, "mesh(_,_,_,_,_,_)", render_render_mesh);
 
     // Audio
     bind("xs", "Audio", true, "load(_,_)", audio_load);

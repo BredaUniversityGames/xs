@@ -526,11 +526,11 @@ void xs::render::render_mesh(
 	color add)
 {
 	// Check that the mesh handle is valid
-	if (mesh_id <= 0 || mesh_id > (int)meshes.size())
+	if (mesh_id < 0 || mesh_id > (int)meshes.size())
 		return;
 
 	// Check that the texture handle is valid
-	if (image_id <= 0 || image_id > (int)images.size())
+	if (image_id < 0 || image_id > (int)images.size())
 		return;
 
 	// Add to the list of meshes to render

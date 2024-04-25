@@ -5,15 +5,16 @@ class Game {
     }
 
     static init() {
-        var plane = Render.loadMesh("[game]/assets/plane.obj")
-        var white = Render.loadTexture("[game]/assets/white.png")
-        var box = Render.loadMesh("[game]/assets/box.obj")        
+        __plane = Render.loadMesh("[game]/assets/plane.obj")
+        __white = Render.loadImage("[game]/assets/white.png")
+        __box = Render.loadMesh("[game]/assets/box.obj")
     }
 
     static update(dt) {
     }
 
     static render() {
-        //Render.s
+        Render.mesh(__plane, __white, 0, 0, 0, 0)
+        Render.mesh(__box, __white, 0, 0, 0, 0)
     }
 }

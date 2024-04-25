@@ -184,8 +184,18 @@ int xs::render::load_mesh(const std::string& mesh_file)
 {
 	// auto id = std::hash<std::string>{}(mesh_file); TODO: Implement
 
-	auto data = fileio::read_text_file(mesh_file);
+	if(fileio::exists(mesh_file) == false)
+	{
+		log::error("Mesh file {} does not exist!", mesh_file);
+		return -1;
+	}
 
+	auto data = fileio::read_text_file(mesh_file);
+	if (data.empty())
+	{
+		log::error("Mesh file {} could not be loaded!", mesh_file);
+		return -1;
+	}
 
 	std::stringstream ss(data);
 

@@ -230,9 +230,10 @@ void fileio::initialize(/* const string& main_script*/)
 		string save_path = string(pValue) + string("\\xs\\");
 		if (!fs::exists(save_path))
 			fs::create_directory(save_path);
+		auto parent_path = save_path;
 		save_path.append(game_str);
 		if (!fs::exists(save_path))
-			fs::create_directory(save_path);
+			fs::create_directory(save_path, parent_path);
  		add_wildcard("[save]", save_path);
 	}
 #elif defined(PLATFORM_SWITCH) || defined(PLATFORM_PS5)
