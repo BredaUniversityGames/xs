@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <glm/fwd.hpp>
 
 namespace xs::render
 {	
@@ -84,9 +85,9 @@ namespace xs::render
 	void render_mesh(
 		int mesh_id,
 		int image_id,
-		const float* transform,
-		color mutiply,
-		color add);
+		const glm::mat4& transform,
+		const glm::vec4& mul_color,
+		const glm::vec4& add_color);
 
 	enum class primitive { lines, triangles, none };
 	void begin(primitive p);

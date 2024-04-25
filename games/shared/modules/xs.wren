@@ -46,6 +46,8 @@ class Render {
     foreign static loadMesh(path)
 
     /// Render a mesh with a image (as diffuse texture) at a position, with scale, rotation, color, and flags
+    /// transform is a Matrix
+    /// mul and add are Vectors
     foreign static mesh(modelId, imageId, transform, mul, add, flags)
 
     //foreign static setCamera()
@@ -371,4 +373,30 @@ class Device {
 class Profiler {
     foreign static begin(name)
     foreign static end(name)
+}
+
+/// A 4D vector
+foreign class Vector {
+    construct new() {}
+    foreign set(x, y, z, w)
+    //foreign +(other)
+    //foreign -(other)
+    //foreign *(scalar)
+    //foreign /(scalar)
+    //foreign dot(other)
+    //foreign cross(other)
+    //foreign length()
+    //foreign normalize()
+}
+
+/// A 3D transformation matrix
+foreign class Matrix {
+    construct new() {}
+    foreign identity()
+    foreign translate(x, y, z)
+//    foreign rotateX(angle)
+//    foreign rotateY(angle)
+//    foreign rotateZ(angle)
+//    foreign scale(x, y, z)
+//    foreign *(other)
 }
