@@ -3,6 +3,56 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 class Render {
+
+    /// Sprite native API /////////////////////////////////////////////////////
+
+    /// Load an image from a file and return an image id
+    foreign static loadImage(path)
+
+    /// Get the width of an image
+    foreign static getImageWidth(imageId)
+
+    /// Get the height of an image
+    foreign static getImageHeight(imageId)
+
+    /// Create a sprite from section of an image
+    foreign static createSprite(imageId, x0, y0, x1, y1)
+
+    /// Set the offset for the next sprite(s) to be drawn
+    foreign static setOffset(x, y)
+
+    /// Load a font from a file into a font atlas and return a font id
+    foreign static loadFont(font, size)
+
+    /// Draw a sprite at a position, sorted by z, with scale, rotation, color, and flags
+    foreign static sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)
+
+    /// Draw text at a position, with scale, rotation, color, and flags
+    foreign static text(fontId, txt, x, y, mul, add, flags) // TODO: add z for sorting
+
+    /// Flags for sprite rendering
+    static spriteBottom     { 1 << 1 }
+    static spriteTop        { 1 << 2 }
+    static spriteCenterX    { 1 << 3 }
+    static spriteCenterY    { 1 << 4 }
+    static spriteFlipX      { 1 << 5 }
+    static spriteFlipY      { 1 << 6 }
+    static spriteOverlay    { 1 << 7 }
+    static spriteCenter     { spriteCenterX | spriteCenterY }
+
+    /// 3D native API /////////////////////////////////////////////////////////
+
+    /// Load a mesh from a file and return a mesh id
+    foreign static loadMesh(path)
+
+    /// Render a mesh with a image (as diffuse texture) at a position, with scale, rotation, color, and flags
+    foreign static mesh(modelId, imageId, transform, mul, add, flags)
+
+    //foreign static setCamera()
+    //foreign static setProjection()
+
+    /// Debug native API //////////////////////////////////////////////////////
+
     foreign static setColor(color)
     foreign static line(x0, y0, x1, y1)
     foreign static shapeText(text, x, y, size)
@@ -12,6 +62,12 @@ class Render {
     foreign static begin(primitive)
     foreign static end()
     foreign static vertex(x, y)
+
+    /// Helper functions //////////////////////////////////////////////////////
+
+    static text(fontId, txt, x, y, z, mul, add, flags) {
+        text(fontId, txt, x, y, mul, add, flags)
+    }
 
     static line(a, b) {
         line(a.x, a.y, b.x, b.y)
@@ -106,23 +162,6 @@ class Render {
         Render.end()
     }
 
-    foreign static loadImage(path)
-    foreign static getImageWidth(imageId)
-    foreign static getImageHeight(imageId)
-    foreign static createSprite(imageId, x0, y0, x1, y1)
-    foreign static sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)
-    foreign static setOffset(x, y)    
-    foreign static loadFont(font,size)
-    foreign static text(fontId, txt, x, y, mul, add, flags)
-
-    // 3D API
-    foreign static loadModel(path)
-    foreign static renderModel(modelId, imageId, transform, mul, add)
-    //foreign static setCamera()
-    //foreign static setProjection()
-
-
-
     static sprite(spriteId, x, y) {
         sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }
@@ -154,19 +193,6 @@ class Render {
         System.print("c: %(c), r:%(r), s:%(s),  t:%(t)")
         return createSprite(imageId, s, t, s + ds, t + dt)
     }
-
-    static text(fontId, txt, x, y, z, mul, add, flags) {
-        text(fontId, txt, x, y, mul, add, flags)
-    }
-
-    static spriteBottom     { 1 << 1 }
-    static spriteTop        { 1 << 2 }
-	static spriteCenterX    { 1 << 3 }
-    static spriteCenterY    { 1 << 4 }
-	static spriteFlipX      { 1 << 5 }
-	static spriteFlipY      { 1 << 6 }
-    static spriteOverlay    { 1 << 7 }
-    static spriteCenter     { spriteCenterX | spriteCenterY }
 }
 
 class File {
