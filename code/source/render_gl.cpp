@@ -521,32 +521,26 @@ int xs::render::create_mesh(
 void xs::render::render_mesh(
 	int mesh_id,
 	int image_id,
-	const float* transform,
-	color mutiply,
-	color add)
+	const glm::mat4& transform,
+	const glm::vec4& mul_color,
+	const glm::vec4& add_color)
 {
 	// Check that the mesh handle is valid
-	if (mesh_id < 0 || mesh_id > (int)meshes.size())
+	if (mesh_id < 0 || mesh_id >(int)meshes.size())
 		return;
 
 	// Check that the texture handle is valid
-	if (image_id < 0 || image_id > (int)images.size())
+	if (image_id < 0 || image_id >(int)images.size())
 		return;
 
 	// Add to the list of meshes to render
-	mesh_queue_entry  instance;
-	instance.transform = glm::make_mat4(transform);
+	mesh_queue_entry instance;
+	instance.transform = transform;
 	instance.mesh = mesh_id;
 	instance.texture = image_id;
+	instance.mul_color = mul_color;
+	instance.add_color = add_color;
 	mesh_queue.push_back(instance);
-
-	/*
-	instance.mul_color = glm::make_vec4(mul_color);
-	if (add_color)
-		instance.add_color = glm::make_vec4(add_color);
-	
-	return true;
-	*/
 }
 
 void xs::render::internal::compile_sprite_shader()

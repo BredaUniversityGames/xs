@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <array>
 #include <wren.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "fileio.h"
 #include "log.h"
 #include "profiler.h"
@@ -35,6 +37,7 @@ namespace xs::script::internal
     WrenHandle* update_method = nullptr;
     WrenHandle* render_method = nullptr;
     std::unordered_map<size_t, WrenForeignMethodFn> foreign_methods;
+    std::unordered_map<size_t, WrenForeignClassMethods> foreign_classes;
     std::unordered_map<size_t, string> modules;
     bool initialized = false;
     string main;
@@ -46,8 +49,6 @@ namespace xs::script::internal
         if (strcmp(text, "\n") == 0)
             return;
 
-        
-        
 #if defined(PLATFORM_PC)
         static auto magenta = "\033[35m";
         static auto reset = "\033[0m";
@@ -97,6 +98,12 @@ namespace xs::script::internal
         return hash<string>{}(concat);
     }
 
+    size_t get_class_id(const string& module, const string& class_name)
+    {
+		const string concat = module + "::" + class_name;
+		return hash<string>{}(concat);
+	}   
+
     WrenForeignMethodFn bindForeignMethod(
         WrenVM* vm,
         const char* module,
@@ -122,8 +129,12 @@ namespace xs::script::internal
         if (strcmp(module, "random") == 0)
             return wrenRandomBindForeignClass(vm, module, className);
 
-        WrenForeignClassMethods res{};
-        return res;
+        const auto id = get_class_id(module, className);
+        const auto itr = foreign_classes.find(id);
+        if (itr != foreign_classes.end())
+			return itr->second;
+
+        return {};
     }
 
     WrenLoadModuleResult loadModule(WrenVM* vm, const char* name)
@@ -332,7 +343,14 @@ void xs::script::bind(
     foreign_methods[id] = func;
 }
 
-
+void bind_class(
+    const string& module,
+    const string& class_name,
+    WrenForeignClassMethods methods)
+{
+	const auto id = get_class_id(module, class_name);
+	foreign_classes[id] = methods;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // 
@@ -727,36 +745,29 @@ void render_render_mesh(WrenVM* vm)
     auto mesh_id = wrenGetParameter<int>(vm, 1);
     auto image_id = wrenGetParameter<int>(vm, 2);
 
-    /*
-    // Load the model matrix packed as an array
-    wrenGetListCount(vm, 3);
-    auto count = wrenGetParameter<int>(vm, 0);
-    float model[16];
-    for (int i = 0; i < count; i++)
-	{
-		wrenGetListElement(vm, 3, i, 0);
-		model[i] = (float)wrenGetParameter<double>(vm, 0);
+    // Load the matrix as a foreign object
+    auto transform = static_cast<glm::mat4*>(wrenGetSlotForeign(vm, 3));
+    if (!transform)
+    {
+		xs::log::error("Invalid transform matrix passed to render_mesh");
+		return;
 	}
-    // Load the color packed as an integer
-	auto mul_color = (uint32_t)wrenGetParameter<double>(vm, 4);
-    xs::render::color mul;
-    mul.integer_value = mul_color;
-    auto add_color = (uint32_t)wrenGetParameter<double>(vm, 5);
-    xs::render::color add;
-    add.integer_value = add_color;
-	xs::render::render_mesh(mesh_id, image_id, model, mul, add);
-    */
 
+    auto mul = static_cast<glm::vec4*>(wrenGetSlotForeign(vm, 4));
+    if (!mul)
+    {
+        xs::log::error("Invalid mul color passed to render_mesh");
+        return;
+    }
 
-    float model[16] = { 1.0f, 0.0f, 0.0f, 0.0f,
-    						0.0f, 1.0f, 0.0f, 0.0f,
-    						0.0f, 0.0f, 1.0f, 0.0f,
-    						0.0f, 0.0f, 0.0f, 1.0f };
-    xs::render::color mul;
-    mul.integer_value = 0xFFFFFFFF;
-    xs::render::color add;
-    add.integer_value = 0x00000000;
-    xs::render::render_mesh(mesh_id, image_id, model, mul, add);
+    auto add = static_cast<glm::vec4*>(wrenGetSlotForeign(vm, 5));
+    if (!add)
+    {
+		xs::log::error("Invalid add color passed to render_mesh");
+		return;
+	}
+    
+    xs::render::render_mesh(mesh_id, image_id, *transform, *mul, *add);
 }
 
 
@@ -925,6 +936,57 @@ void profiler_end_section(WrenVM* vm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Matrix
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void matrix_allocate(WrenVM* vm)
+{
+    void* data = wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::mat4));
+    auto matrix = new (data) glm::mat4();
+    *matrix = glm::mat4(1.0f);
+}
+
+void matrix_finalize(void* data) {}
+
+void matrix_identity(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	*matrix = glm::mat4(1.0f);
+}
+
+void matrix_translate(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto x = wrenGetParameter<double>(vm, 1);
+	auto y = wrenGetParameter<double>(vm, 2);
+	auto z = wrenGetParameter<double>(vm, 3);
+    *matrix = glm::translate(*matrix, glm::vec3(x, y, z));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Vector
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void vector_allocate(WrenVM* vm)
+{
+    auto count = wrenGetSlotCount(vm);
+	void* data = wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+	auto vec = new (data) glm::vec4();
+	*vec = glm::vec4(0.0f);
+}
+
+void vector_finalize(void* data) {}
+
+void vector_set(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	auto x = wrenGetParameter<double>(vm, 1);
+	auto y = wrenGetParameter<double>(vm, 2);
+	auto z = wrenGetParameter<double>(vm, 3);
+	auto w = wrenGetParameter<double>(vm, 4);
+	*vec = glm::vec4(x, y, z, w);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 //											Bind xs API
 // 
@@ -1007,4 +1069,19 @@ void xs::script::bind_api()
     // Profiler
     bind("xs", "Profiler", true, "begin(_)", profiler_begin_section);
     bind("xs", "Profiler", true, "end(_)", profiler_end_section);
+
+    // Matrix
+    WrenForeignClassMethods matrix_methods {};
+    matrix_methods.allocate = matrix_allocate;
+    matrix_methods.finalize = matrix_finalize;
+    bind_class("xs", "Matrix", matrix_methods);
+    bind("xs", "Matrix", false, "identity()", matrix_identity);
+    bind("xs", "Matrix", false, "translate(_,_,_)", matrix_translate);
+
+    // Vector
+    WrenForeignClassMethods vector_methods {};
+    vector_methods.allocate = vector_allocate;
+    vector_methods.finalize = vector_finalize;
+    bind_class("xs", "Vector", vector_methods);
+    bind("xs", "Vector", false, "set(_,_,_,_)", vector_set);
 }
