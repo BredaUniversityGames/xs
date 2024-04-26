@@ -400,6 +400,10 @@
   <ItemGroup>
     <Image Include="resources\xs.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="external\glm\util\glm.natvis" />
+    <Natvis Include="external\imgui\misc\debuggers\imgui.natvis" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4F1FCE22-25BA-46E4-A479-385F1667DEF0}</ProjectGuid>
   </PropertyGroup>

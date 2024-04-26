@@ -440,17 +440,24 @@ void xs::render::render_text(
 	}
 }
 
-void xs::render::render_directional_light(
-	const float* direction,
-	const float* color_and_intensity)
+void xs::render::directional_light(
+	const glm::vec4& direction,
+	const glm::vec4& position,
+	const glm::vec4& shadow_volume,
+	const glm::vec4& color_and_intensity)
 {
 	if (internal::dir_lights.size() >= 4)
-		return;	// TODO : Log error
+	{
+		log::warn("xs supports up to 4 directional lights!");
+		return;
+	}		
 
 	// Add to the list of active directional lights	
 	internal::dir_lights.push_back({
-		{direction[0], direction[1], direction[2]},
-		{color_and_intensity[0],color_and_intensity[1], color_and_intensity[2]}
+		direction,
+		position,
+		shadow_volume,		
+		vec3(color_and_intensity)
 	});
 }
 

@@ -766,8 +766,8 @@ void xs::render::internal::render_3d()
 	glUseProgram(program);
 
 	// Send the view and projection matrices to the standard program
-	glUniformMatrix4fv(glGetUniformLocation(program, "u_view"), 1, GL_FALSE, glm::value_ptr(internal::view));
-	glUniformMatrix4fv(glGetUniformLocation(program, "u_projection"), 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(glGetUniformLocation(program, "u_view"), 1, GL_FALSE, value_ptr(internal::view));
+	glUniformMatrix4fv(glGetUniformLocation(program, "u_projection"), 1, GL_FALSE, value_ptr(projection));
 	auto texture_location = glGetUniformLocation(program, "u_texture");
 
 	// Send the directional lights to the standard program
@@ -775,7 +775,7 @@ void xs::render::internal::render_3d()
 	for (int i = 0; i < internal::dir_lights.size(); ++i)
 	{
 		std::string name = "u_directional_lights[" + std::to_string(i) + "].direction";
-		glUniform3fv(glGetUniformLocation(program, name.c_str()), 1, &internal::dir_lights[i].direction.x);
+		glUniform3fv(glGetUniformLocation(program, name.c_str()), 1, value_ptr(internal::dir_lights[i].direction));
 		name = "u_directional_lights[" + std::to_string(i) + "].color";
 		glUniform3fv(glGetUniformLocation(program, name.c_str()), 1, &internal::dir_lights[i].color.x);
 	}
@@ -800,7 +800,7 @@ void xs::render::internal::render_3d()
 	{
 		const auto& mesh = internal::meshes[entry.mesh - 1];
 		const auto& image = internal::images[entry.texture];
-		const auto& transform = entry.transform;
+		// const auto& transform = entry.transform;
 
 		// Bind the vertex array
 		glBindVertexArray(mesh.vao);

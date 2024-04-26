@@ -76,8 +76,10 @@ namespace xs::render::internal
 
 	struct directional_light
 	{
-		glm::vec3 direction;
-		glm::vec3 color;
+		glm::vec4 direction;
+		glm::vec4 position;
+		glm::vec4 shadow_volume;
+		glm::vec3 color;	// TODO: Keep this as a vec4
 	};
 
 	struct point_light
