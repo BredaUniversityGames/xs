@@ -14,6 +14,19 @@ class Game {
         __white = Render.loadImage("[game]/assets/white.png")
         __box = Render.loadMesh("[game]/assets/box.obj")
 
+
+
+        // Load mini-arena assets
+        __colormap = Render.loadImage("[game]/assets/mini-arena/colormap.png")
+        __column = Render.loadMesh("[game]/assets/mini-arena/column.obj")
+        __column_damaged = Render.loadMesh("[game]/assets/mini-arena/column-damaged.obj")
+        __floor = Render.loadMesh("[game]/assets/mini-arena/floor.obj")
+        __floor_detail = Render.loadMesh("[game]/assets/mini-arena/floor-detail.obj")
+        __tree = Render.loadMesh("[game]/assets/mini-arena/tree.obj")
+        __trophy = Render.loadMesh("[game]/assets/mini-arena/trophy.obj")
+        __bricks = Render.loadMesh("[game]/assets/mini-arena/bricks.obj")
+
+
         __transform = Matrix.new()
         __identity = Matrix.new()
         __x = 0
@@ -22,6 +35,7 @@ class Game {
         __vZero = Vector.new(0, 0, 0, 0)
         __vWhite = Vector.new(1, 1, 1, 1)
         __vRed = Vector.new(1, 0, 0, 1)  
+    
 
         __angle = 0      
     }
@@ -44,9 +58,9 @@ class Game {
         var lightColor = Vector.new(1, 1, 1, 1)
         Render.directionalLight(lightDir, lightColor)
 
-        __angle = __angle + dt
-        var r = 15.0
-        var eye = Vector.new(r * __angle.cos, r * __angle.sin, 10, 0)
+        __angle = __angle + dt * 0.5
+        var r = 8.0
+        var eye = Vector.new(r * __angle.cos, r * __angle.sin, 6, 0)
         var center = Vector.new(0, 0, 0, 0)
         var up = Vector.new(0, 0, 1, 0)
         var view = Matrix.new()
@@ -57,9 +71,46 @@ class Game {
         Render.setProjection(projection)
     }
 
-    static render() {        
+    static rand2(x, y) {
+        return Math.fmod(((x * 12.9898 + y * 78.233).sin * 43758.5453).abs, 1.0)
+    }
+
+    static render() {
+
+        // Render the mini-arena
+        var trns = Matrix.new()
+        for(x in -3..3) {
+            for(y in -3..3) {
+                trns.identity()
+                trns.translate(x, y, 0)
+                trns.rotateX(Math.radians(90))
+
+                if(rand2(x, y) > 0.8) {
+                    Render.mesh(__floor_detail, __colormap, trns, __vWhite, __vZero, 0)
+                } else {
+                    Render.mesh(__floor, __colormap, trns, __vWhite, __vZero, 0)
+                }                
+
+                if(x.abs == 2 && y.abs == 2) {
+                    if(x == 2 && y == 2) {
+                        Render.mesh(__column_damaged, __colormap, trns, __vWhite, __vZero, 0)
+                    } else {
+                        Render.mesh(__column, __colormap, trns, __vWhite, __vZero, 0)
+                    }
+                } else if(x == 0 && y == 0) {
+                    Render.mesh(__trophy, __colormap, trns, __vWhite, __vZero, 0)
+                } else if(rand2(x, y) < 0.2) {
+                    Render.mesh(__tree, __colormap, trns, __vWhite, __vZero, 0)
+                } else if(rand2(x, y) < 0.3) {
+                    Render.mesh(__bricks, __colormap, trns, __vWhite, __vZero, 0)
+                }                
+            }
+        }
+
+        /*
         Render.mesh(__plane, __white, __identity, __vWhite, __vZero, 0)
-        Render.mesh(__box, __white, __transform, __vRed, __vZero, 0)
+        Render.mesh(__box, __colormap, __transform, __vWhite, __vZero, 0)
+        */
     }
 
     static testVector() {

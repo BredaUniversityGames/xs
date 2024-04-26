@@ -424,8 +424,15 @@ foreign class Matrix {
     // foreign ortho(left, right, bottom, top, near, far)
     foreign list
 
-//    foreign rotateX(angle)
-//    foreign rotateY(angle)
-//    foreign rotateZ(angle)   
-//    foreign *(other)
+    rotateX(angle) {
+        rotate(angle, 1, 0, 0)
+    }
+
+    rotateY(angle) {
+        rotate(angle, 0, 1, 0)
+    }
+
+    rotateZ(angle) {
+        rotate(angle, 0, 0, 1)
+    }
 }
