@@ -1011,7 +1011,7 @@ void matrix_rotate(WrenVM* vm)
 	auto x = wrenGetParameter<double>(vm, 2);
 	auto y = wrenGetParameter<double>(vm, 3);
 	auto z = wrenGetParameter<double>(vm, 4);
-	*matrix = glm::rotate(*matrix, glm::radians((float)angle), glm::vec3(x, y, z));
+	*matrix = glm::rotate(*matrix, (float)angle, glm::vec3(x, y, z));
 }
 
 void matrix_scale(WrenVM* vm)
