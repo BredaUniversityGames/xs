@@ -55,7 +55,7 @@ namespace xs::script::internal
         auto t = std::time(nullptr);
         auto tm = *std::localtime(&t);
         const auto time = std::put_time(&tm, "[%Y-%m-%d %T.%e0] ");
-        std::cout << time << "[" << magenta << "script" << reset << "] " << text << endl;
+        std::cout << "[" << magenta << "script" << reset << "] " << text << endl;
 #else
         std::cout << "[script] " << text << endl;
 #endif
@@ -998,9 +998,125 @@ void vector_plus(WrenVM* vm)
 {
 	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
     auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
-    *vec += *other;
+    *vec += *other;    
+    wrenGetVariable(vm, "xs", "Vector", 0);
     auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
     *data = *vec;
+}
+
+void vector_minus(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+	*vec -= *other;
+    wrenGetVariable(vm, "xs", "Vector", 0);
+	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+	*data = *vec;
+}
+
+void vector_multiply(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+    if (wrenGetSlotType(vm, 1) == WREN_TYPE_NUM)
+    {
+		auto other = wrenGetParameter<double>(vm, 1);
+		*vec *= (float)other;
+    }
+    else if(wrenGetSlotType(vm, 1) == WREN_TYPE_FOREIGN)
+    {
+		auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+		*vec *= *other;
+	}
+	wrenGetVariable(vm, "xs", "Vector", 0);
+	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+	*data = *vec;
+}
+
+void vector_divide(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+    if (wrenGetSlotType(vm, 1) == WREN_TYPE_NUM)
+    {
+        auto other = wrenGetParameter<double>(vm, 1);
+        *vec /= (float)other;
+    }
+    else if (wrenGetSlotType(vm, 1) == WREN_TYPE_FOREIGN)
+    {
+		auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+		*vec /= *other;
+	}
+
+	wrenGetVariable(vm, "xs", "Vector", 0);
+	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+	*data = *vec;
+}
+
+void vector_dot(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+	wrenSetReturnValue<double>(vm, glm::dot(*vec, *other));
+}
+
+void vector_cross(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+	auto result = glm::cross(glm::vec3(*vec), glm::vec3(*other));
+	wrenGetVariable(vm, "xs", "Vector", 0);
+	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+	*data = glm::vec4(result, 0.0f);
+}
+
+void vector_length(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenSetReturnValue<double>(vm, glm::length(*vec));
+}
+
+void vector_normalize(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	*vec = glm::normalize(*vec);
+}
+
+void vector_list(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenEnsureSlots(vm, 5);
+    wrenSetSlotNewList(vm, 0);    
+    wrenSetSlotDouble(vm, 1, vec->x);
+    wrenSetSlotDouble(vm, 2, vec->y);
+    wrenSetSlotDouble(vm, 3, vec->z);
+    wrenSetSlotDouble(vm, 4, vec->w);
+    wrenInsertInList(vm, 0, 0, 1);
+    wrenInsertInList(vm, 0, 1, 2);
+    wrenInsertInList(vm, 0, 2, 3);
+    wrenInsertInList(vm, 0, 3, 4);
+}
+
+void vector_get_x(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenSetReturnValue<double>(vm, vec->x);
+}
+
+void vector_get_y(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenSetReturnValue<double>(vm, vec->y);
+}
+
+void vector_get_z(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenSetReturnValue<double>(vm, vec->z);
+}
+
+void vector_get_w(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenSetReturnValue<double>(vm, vec->w);
 }
 
 
@@ -1102,5 +1218,17 @@ void xs::script::bind_api()
     vector_methods.finalize = vector_finalize;
     bind_class("xs", "Vector", vector_methods);
     bind("xs", "Vector", false, "set(_,_,_,_)", vector_set);
-    bind("xs", "Vector", false, "+", vector_plus);
+    bind("xs", "Vector", false, "+(_)", vector_plus);
+    bind("xs", "Vector", false, "-(_)", vector_minus);
+    bind("xs", "Vector", false, "*(_)", vector_multiply);
+    bind("xs", "Vector", false, "/(_)", vector_divide);
+    bind("xs", "Vector", false, "dot(_)", vector_dot);
+    bind("xs", "Vector", false, "cross(_)", vector_cross);    
+    bind("xs", "Vector", false, "normalize()", vector_normalize);
+    bind("xs", "Vector", false, "length", vector_length);
+    bind("xs", "Vector", false, "list", vector_list);
+    bind("xs", "Vector", false, "x", vector_get_x);
+    bind("xs", "Vector", false, "y", vector_get_y);
+    bind("xs", "Vector", false, "z", vector_get_z);
+    bind("xs", "Vector", false, "w", vector_get_w);
 }
