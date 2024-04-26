@@ -381,13 +381,18 @@ foreign class Vector {
     construct new(x, y, z, w) {}
     foreign set(x, y, z, w)
     foreign +(other)
-    //foreign -(other)
-    //foreign *(scalar)
-    //foreign /(scalar)
-    //foreign dot(other)
-    //foreign cross(other)
-    //foreign length()
-    //foreign normalize()
+    foreign -(other)
+    foreign *(value) // scalar or vector
+    foreign /(value) // scalar or vector    
+    foreign dot(other)
+    foreign cross(other)    
+    foreign normalize()
+    foreign length
+    foreign list
+    foreign x
+    foreign y
+    foreign z
+    foreign w
 }
 
 /// A 3D transformation matrix

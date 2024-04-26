@@ -5,6 +5,9 @@ class Game {
     }
 
     static init() {
+
+        testVector()
+
         __plane = Render.loadMesh("[game]/assets/plane.obj")
         __white = Render.loadImage("[game]/assets/white.png")
         __box = Render.loadMesh("[game]/assets/box.obj")
@@ -12,11 +15,69 @@ class Game {
         __transform = Matrix.new()
         __identity = Matrix.new()
         __x = 0
-        __y = 0
-        var v = Vector.new(1,1,1,1)
+        __y = 0        
+
         __vZero = Vector.new(0, 0, 0, 0)
         __vWhite = Vector.new(1, 1, 1, 1)
         __vRed = Vector.new(1, 0, 0, 1)
+    }
+
+    static testVector() {
+        // Test Vector
+
+        // Test + operator
+        var v = Vector.new(1,1,1,1) + Vector.new(1,2,3,4)
+        System.print("Test + operator")
+        System.print(v.list.toString)
+
+        // Test - operator
+        v = Vector.new(1,1,1,1) - Vector.new(1,2,3,4)
+        System.print("Test - operator")
+        System.print(v.list.toString)
+
+
+        // Test * operator
+        System.print("Test * operator")
+        v = Vector.new(2,2,2,2) * Vector.new(1,2,3,4)   // Element-wise multiplication
+        System.print(v.list.toString)
+        v = Vector.new(2,2,2,2) * 2                      // Scalar multiplication
+        System.print(v.list.toString)
+
+        // Test / operator
+        System.print("Test / operator")
+        v = Vector.new(2,2,2,2) / Vector.new(1,2,3,4)   // Element-wise division
+        System.print(v.list.toString)
+        v = Vector.new(2,2,2,2) / 2                      // Scalar division
+        System.print(v.list.toString)
+
+        // Test dot product
+        System.print("Test dot product")
+        v = Vector.new(1,2,3,4)
+        System.print(v.dot(Vector.new(1,2,3,4)))
+
+        // Test cross product
+        System.print("Test cross product")
+        v = Vector.new(0,1,0,0)
+        System.print(v.cross(Vector.new(4,2,3,1)).list.toString)
+
+        // Test length
+        System.print("Test length")
+        v = Vector.new(1,2,3,4)
+        System.print(v.length)
+
+        // Test normalize
+        System.print("Test normalize")
+        v = Vector.new(1,2,3,4)
+        System.print(v.normalize().list.toString)
+        System.print(v.length)        
+
+        // Test the element access
+        v = Vector.new(1,2,3,4)
+        System.print("Test the element access")
+        System.print(v.x)
+        System.print(v.y)
+        System.print(v.z)
+        System.print(v.w)
     }
 
     static update(dt) {
