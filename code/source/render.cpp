@@ -581,17 +581,17 @@ void xs::render::render_sprite(
 
 void xs::render::set_offset(double x, double y)
 {
-	xs::render::internal::offset = vec2((float)x, (float)y);
+	internal::offset = vec2((float)x, (float)y);
 }
 
-void xs::render::set_3d_projection(const float* projection)
+void xs::render::set_3d_projection(const glm::mat4& projection)
 {
-	xs::render::internal::projection = glm::make_mat4(projection);
+	internal::projection = projection;
 }
 
-void xs::render::set_3d_view(const float* view)
+void xs::render::set_3d_view(const glm::mat4& view)
 {
-	xs::render::internal::view = glm::make_mat4(view);
+	internal::view = view;
 }
 
 void xs::render::begin(primitive p)
