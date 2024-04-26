@@ -44,14 +44,12 @@ class Render {
 
     /// Load a mesh from a file and return a mesh id
     foreign static loadMesh(path)
+    foreign static setView(matrix)
+    foreign static setProjection(matrix)
 
     /// Render a mesh with a image (as diffuse texture) at a position, with scale, rotation, color, and flags
-    /// transform is a Matrix
-    /// mul and add are Vectors
+    /// transform is a matrix, mul and add are vectors
     foreign static mesh(modelId, imageId, transform, mul, add, flags)
-
-    //foreign static setCamera()
-    //foreign static setProjection()
 
     /// Debug native API //////////////////////////////////////////////////////
 
@@ -400,9 +398,16 @@ foreign class Matrix {
     construct new() {}
     foreign identity()
     foreign translate(x, y, z)
+    foreign rotate(angle, x, y, z)
+    foreign scale(x, y, z)
+    foreign lookAt(eye, target, up)
+    //foreign *(other)    
+    foreign perspective(fov, aspect, near, far)
+    // foreign ortho(left, right, bottom, top, near, far)
+    foreign list
+
 //    foreign rotateX(angle)
 //    foreign rotateY(angle)
-//    foreign rotateZ(angle)
-//    foreign scale(x, y, z)
+//    foreign rotateZ(angle)   
 //    foreign *(other)
 }

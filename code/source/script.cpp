@@ -770,6 +770,30 @@ void render_render_mesh(WrenVM* vm)
     xs::render::render_mesh(mesh_id, image_id, *transform, *mul, *add);
 }
 
+void render_set_3d_projection(WrenVM* vm)
+{
+    auto matrix = static_cast<glm::mat4*>(wrenGetSlotForeign(vm, 1));
+    if (!matrix)
+    {
+		xs::log::error("Invalid matrix passed to set_3d_projection");
+		return;
+    }
+
+    xs::render::set_3d_projection(*matrix);
+}
+
+void render_set_3d_view(WrenVM* vm)
+{
+	auto matrix = static_cast<glm::mat4*>(wrenGetSlotForeign(vm, 1));
+    if (!matrix)
+    {
+		xs::log::error("Invalid matrix passed to set_3d_view");
+		return;
+	}
+
+	xs::render::set_3d_view(*matrix);
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Audio
@@ -962,6 +986,75 @@ void matrix_translate(WrenVM* vm)
     *matrix = glm::translate(*matrix, glm::vec3(x, y, z));
 }
 
+void matrix_rotate(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto angle = wrenGetParameter<double>(vm, 1);
+	auto x = wrenGetParameter<double>(vm, 2);
+	auto y = wrenGetParameter<double>(vm, 3);
+	auto z = wrenGetParameter<double>(vm, 4);
+	*matrix = glm::rotate(*matrix, glm::radians((float)angle), glm::vec3(x, y, z));
+}
+
+void matrix_scale(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto x = wrenGetParameter<double>(vm, 1);
+	auto y = wrenGetParameter<double>(vm, 2);
+	auto z = wrenGetParameter<double>(vm, 3);
+	*matrix = glm::scale(*matrix, glm::vec3(x, y, z));
+}
+
+void matrix_multiply(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto other = (glm::mat4*)wrenGetSlotForeign(vm, 1);
+	*matrix = *matrix * *other;
+}
+
+void matrix_perspective(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto fov = wrenGetParameter<double>(vm, 1);
+	auto aspect = wrenGetParameter<double>(vm, 2);
+	auto near = wrenGetParameter<double>(vm, 3);
+	auto far = wrenGetParameter<double>(vm, 4);
+	*matrix = glm::perspective((float)fov, (float)aspect, (float)near, (float)far);
+}
+
+void matrix_ortho(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto left = wrenGetParameter<double>(vm, 1);
+	auto right = wrenGetParameter<double>(vm, 2);
+	auto bottom = wrenGetParameter<double>(vm, 3);
+	auto top = wrenGetParameter<double>(vm, 4);
+	auto near = wrenGetParameter<double>(vm, 5);
+	auto far = wrenGetParameter<double>(vm, 6);
+	*matrix = glm::ortho((float)left, (float)right, (float)bottom, (float)top, (float)near, (float)far);
+}
+
+void matrix_lookat(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto eye = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+	auto center = (glm::vec4*)wrenGetSlotForeign(vm, 2);
+	auto up = (glm::vec4*)wrenGetSlotForeign(vm, 3);
+	*matrix = glm::lookAt(glm::vec3(*eye), glm::vec3(*center), glm::vec3(*up));
+}
+
+void matrix_list(WrenVM* vm)
+{
+    auto matrix = (float*)wrenGetSlotForeign(vm, 0);
+    wrenEnsureSlots(vm, 2);
+    wrenSetSlotNewList(vm, 0);
+    for (int i = 0; i < 16; i++)
+    {
+		wrenSetSlotDouble(vm, 1, matrix[i]);
+		wrenInsertInList(vm, 0, i, 1);
+	}	
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Vector
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1084,7 +1177,7 @@ void vector_list(WrenVM* vm)
 {
 	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
 	wrenEnsureSlots(vm, 5);
-    wrenSetSlotNewList(vm, 0);    
+    wrenSetSlotNewList(vm, 0);
     wrenSetSlotDouble(vm, 1, vec->x);
     wrenSetSlotDouble(vm, 2, vec->y);
     wrenSetSlotDouble(vm, 3, vec->z);
@@ -1164,6 +1257,8 @@ void xs::script::bind_api()
     // 3D
     bind("xs", "Render", true, "loadMesh(_)", render_load_mesh);
     bind("xs", "Render", true, "mesh(_,_,_,_,_,_)", render_render_mesh);
+    bind("xs", "Render", true, "setProjection(_)", render_set_3d_projection);
+    bind("xs", "Render", true, "setView(_)", render_set_3d_view);
 
     // Audio
     bind("xs", "Audio", true, "load(_,_)", audio_load);
@@ -1211,6 +1306,14 @@ void xs::script::bind_api()
     bind_class("xs", "Matrix", matrix_methods);
     bind("xs", "Matrix", false, "identity()", matrix_identity);
     bind("xs", "Matrix", false, "translate(_,_,_)", matrix_translate);
+    bind("xs", "Matrix", false, "rotate(_,_,_,_)", matrix_rotate);
+    bind("xs", "Matrix", false, "scale(_,_,_)", matrix_scale);
+    bind("xs", "Matrix", false, "multiply(_)", matrix_multiply);
+    bind("xs", "Matrix", false, "perspective(_,_,_,_)", matrix_perspective);
+    // bind("xs", "Matrix", false, "ortho(_,_,_,_,_,_)", matrix_ortho);
+    bind("xs", "Matrix", false, "lookAt(_,_,_)", matrix_lookat);
+    bind("xs", "Matrix", false, "list", matrix_list);
+
 
     // Vector
     WrenForeignClassMethods vector_methods {};

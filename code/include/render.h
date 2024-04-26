@@ -34,9 +34,6 @@ namespace xs::render
 	void reload();
 	void reload_images();
 	void set_offset(double x, double y);
-	void set_3d_projection(const float* projection);
-	void set_3d_view(const float* view);
-
 	int load_image(const std::string& image_file);
 	int load_font(const std::string& font_file, double size);
 	int load_mesh(const std::string& mesh_file);
@@ -72,6 +69,11 @@ namespace xs::render
 		color mutiply,
 		color add,
 		unsigned int flags);
+
+
+	void set_3d_projection(const glm::mat4& projection);
+	void set_3d_view(const glm::mat4& view);
+
 
 	void render_directional_light(
 		const float* direction,

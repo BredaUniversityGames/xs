@@ -174,17 +174,17 @@ public:
             white,
             glm::value_ptr(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0))),
             wht, blck);
-        */
-
+        
         static float angle = 0.0f;
         // angle += 1.0f * (float)dt;
         float r = 15.0f;
         glm::vec3 eye(sin(angle) * r, cos(angle) * r, 10);
         glm::mat4 view = glm::lookAt(eye, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
         glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
-        xs::render::set_3d_view(glm::value_ptr(view));
-        xs::render::set_3d_projection(glm::value_ptr(projection));
+        xs::render::set_3d_view(view);
+        xs::render::set_3d_projection(projection);
 		// Update game
+        */
 	}
 
     void render()
