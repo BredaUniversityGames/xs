@@ -74,10 +74,11 @@ namespace xs::render
 	void set_3d_projection(const glm::mat4& projection);
 	void set_3d_view(const glm::mat4& view);
 
-
-	void render_directional_light(
-		const float* direction,
-		const float* color_and_intensity);
+	void directional_light(
+		const glm::vec4& direction,
+		const glm::vec4& position,
+		const glm::vec4& shadow_volume,
+		const glm::vec4& color_and_intensity);
 
 	void render_point_light(
 		const float* position,

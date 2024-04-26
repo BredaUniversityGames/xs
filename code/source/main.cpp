@@ -127,81 +127,6 @@ EngineExecution argument_parser(int argc, char* argv[])
     return EngineExecution::DEFAULT;
 }
 
-
-
-//////////////////////////////////////////////////////////////////////////
-//// C++ game hack
-//////////////////////////////////////////////////////////////////////////
-class Game
-{
-public:
-    Game() {
-        //mesh = xs::render::load_mesh("[games]/samples/xs3d/assets/vespa/vespa.obj");
-        //image = xs::render::load_image("[games]/samples/xs3d/assets/vespa/vespa.png");
-
-        //plane = xs::render::load_mesh("[games]/samples/xs3d/assets/plane.obj");
-        //white = xs::render::load_image("[games]/samples/xs3d/assets/white.png");
-        //box = xs::render::load_mesh("[games]/samples/xs3d/assets/box.obj");
-    }
-    ~Game() {}
-
-    void update(double dt)
-	{
-        xs::render::color wht;
-        wht.integer_value = 0xFFFFFFFF;
-        xs::render::color blck;
-        blck.integer_value = 0x000000FF;
-        xs::render::render_directional_light(
-            glm::value_ptr(glm::normalize(glm::vec3(-1.0f, -2.0f, -3.0f))),
-            glm::value_ptr(glm::normalize(glm::vec3(10.0f, 10.0f, 10.0f)))
-        );
-
-        /*
-        xs::render::render_mesh(
-            mesh,
-            image,
-            glm::value_ptr(glm::mat4(1.0f)),
-            white, black);
-
-        xs::render::render_mesh(
-			plane,
-			white,
-			glm::value_ptr(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0))),
-			wht, blck);
-
-        xs::render::render_mesh(
-            box,
-            white,
-            glm::value_ptr(glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 0))),
-            wht, blck);
-        
-        static float angle = 0.0f;
-        // angle += 1.0f * (float)dt;
-        float r = 15.0f;
-        glm::vec3 eye(sin(angle) * r, cos(angle) * r, 10);
-        glm::mat4 view = glm::lookAt(eye, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
-        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
-        xs::render::set_3d_view(view);
-        xs::render::set_3d_projection(projection);
-		// Update game
-        */
-	}
-
-    void render()
-	{
-		// Render game
-	}
-
-    int mesh;
-    int image;
-
-    int plane;
-    int box;
-    int white;
-};
-
-
-
 int xs::main(int argc, char* argv[])
 {	
     // We always like to have some debug logging available
@@ -233,9 +158,6 @@ int xs::main(int argc, char* argv[])
     inspector::initialize();
     script::initialize();
 
-    // Game
-    Game game;
-
     // Run
     auto prev_time = chrono::high_resolution_clock::now();
     while (!device::should_close())
@@ -252,7 +174,6 @@ int xs::main(int argc, char* argv[])
         {
             render::clear();
             script::update(dt);
-            game.update(dt);
             audio::update(dt);
             script::render();
         }

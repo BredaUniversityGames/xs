@@ -40,6 +40,10 @@ class Game {
         __transform.identity()
         __transform.translate(__x, __y, 0)
 
+        var lightDir = Vector.new(-1, -3, -2, 0)
+        var lightColor = Vector.new(1, 1, 1, 1)
+        Render.directionalLight(lightDir, lightColor)
+
         __angle = __angle + dt
         var r = 15.0
         var eye = Vector.new(r * __angle.cos, r * __angle.sin, 10, 0)

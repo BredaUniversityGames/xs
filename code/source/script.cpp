@@ -444,6 +444,13 @@ template<> xs::data::type wrenGetParameter<xs::data::type>(WrenVM* vm, int slot)
     return xs::data::type::none;
 }
 
+template<> glm::vec4 wrenGetParameter<glm::vec4>(WrenVM* vm, int slot)
+{
+    if(checkType(vm, slot, WREN_TYPE_FOREIGN, __func__))
+		return *static_cast<glm::vec4*>(wrenGetSlotForeign(vm, slot));
+    return glm::vec4(0.0f);
+}
+
 template <typename T> void wrenSetReturnValue(WrenVM* vm, const T& value)
 {
     wrenSetSlotDouble(vm, 0, (double)value);
@@ -792,6 +799,17 @@ void render_set_3d_view(WrenVM* vm)
 	}
 
 	xs::render::set_3d_view(*matrix);
+}
+
+void render_directional_light(WrenVM* vm)
+{
+    // Direction as vec4
+    auto direction = wrenGetParameter<glm::vec4>(vm, 1);
+    auto position = wrenGetParameter<glm::vec4>(vm, 2);
+    auto shadow_volume = wrenGetParameter<glm::vec4>(vm, 3);
+    auto color_and_intensity = wrenGetParameter<glm::vec4>(vm, 4);	
+
+    xs::render::directional_light(direction, position, shadow_volume, color_and_intensity);
 }
 
 
@@ -1259,6 +1277,7 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "mesh(_,_,_,_,_,_)", render_render_mesh);
     bind("xs", "Render", true, "setProjection(_)", render_set_3d_projection);
     bind("xs", "Render", true, "setView(_)", render_set_3d_view);
+    bind("xs", "Render", true, "directionalLight(_,_,_,_)", render_directional_light);
 
     // Audio
     bind("xs", "Audio", true, "load(_,_)", audio_load);
@@ -1313,7 +1332,6 @@ void xs::script::bind_api()
     // bind("xs", "Matrix", false, "ortho(_,_,_,_,_,_)", matrix_ortho);
     bind("xs", "Matrix", false, "lookAt(_,_,_)", matrix_lookat);
     bind("xs", "Matrix", false, "list", matrix_list);
-
 
     // Vector
     WrenForeignClassMethods vector_methods {};
