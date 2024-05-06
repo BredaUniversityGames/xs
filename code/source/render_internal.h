@@ -101,8 +101,6 @@ namespace xs::render::internal
 	extern std::vector<directional_light>	dir_lights;
 	extern std::vector<point_light>			point_lights;
 
-
-
     static int const                        lines_max = 16000;
     extern int                              lines_count;
     extern int                              lines_begin_count ;
