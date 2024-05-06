@@ -4,7 +4,6 @@ in vec4 v_color;
 in vec2 v_texture_coordinate;
 in vec3 v_normal;
 out vec4 frag_color;
-uniform sampler2D u_texture;
 uniform int u_num_directional_lights;
 uniform int u_num_point_lights;
 uniform vec4 u_add_color;
@@ -13,20 +12,25 @@ const int MAX_DIR_LIGHTS = 4;
 const int MAX_POINT_LIGHTS = 4;
 
 struct directional_light
-{
+{	
 	vec3 direction;
 	vec3 color;
+	bool cast_shadow;
+	mat4 shadow_matrix;
 };
 
 struct point_light
 {
-	vec3 position;
+	vec3 position;	
 	vec3 color;
-	float radius;
+	float radius;	
 };
 
 uniform directional_light u_directional_lights[MAX_DIR_LIGHTS];
 uniform point_light u_point_lights[MAX_POINT_LIGHTS];
+
+layout(location = 1)	uniform sampler2D u_texture;
+layout(location = 10)  	uniform sampler2DShadow[4] s_shadow_maps;
 
 void main()
 {
@@ -35,21 +39,27 @@ void main()
 	
 	// Initialize diffuse color
 	vec4 diffuse_color = vec4(0.0, 0.0, 0.0, 1.0);
-	// diffuse_color.rgb = pow(texture_color.rgb, vec3(1.0 / 2.2));
+
+	//diffuse_color.rgb = pow(texture_color.rgb, vec3(1.0 / 2.2));
 	
 	// calculate diffuse light intensity for directional lights		 
 	for (int i = 0; i < u_num_directional_lights; i++)
-	{
+	{		
 		directional_light light = u_directional_lights[i];
 		float intensity = max(dot(normalize(v_normal), normalize(-light.direction)), 0.0);
-		diffuse_color += vec4(intensity) * vec4(light.color, 1.0);
-	}
 
-	/*
-	frag_color = diffuse_color;
-	frag_color = vec4(pow(v_normal, vec3(1.0 / 2.2)), 1.0);
-	return;
-	*/
+		// Get shadow map
+		float shadow = 1.0;
+		if(light.cast_shadow)
+		{
+			vec4 pos_light_space = light.shadow_matrix * vec4(v_position, 1.0);
+			vec3 proj_coords = pos_light_space.xyz / pos_light_space.w;
+			proj_coords = proj_coords * 0.5 + 0.5;
+			proj_coords.z -= 0.001; // bias
+			shadow = texture(s_shadow_maps[i], proj_coords);
+		}
+		diffuse_color += vec4(intensity) * vec4(light.color, 1.0) * shadow;
+	}
 
 	// calculate diffuse light intensity for point lights
 	for (int i = 0; i < u_num_point_lights; i++)
@@ -75,5 +85,4 @@ void main()
 
 	// Set output color
 	frag_color = v_color * diffuse_color + u_add_color;
-	// frag_color = texture_color;
 } 
