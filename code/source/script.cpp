@@ -451,41 +451,6 @@ template<> glm::vec4 wrenGetParameter<glm::vec4>(WrenVM* vm, int slot)
     return glm::vec4(0.0f);
 }
 
-/*
-template<> std::vector<float> wrenGetParameter<std::vector<float>>(WrenVM* vm, int slot)
-{
-	std::vector<float> values;
-    if (checkType(vm, slot, WREN_TYPE_LIST, __func__))
-    {
-		auto count = wrenGetListCount(vm, slot);
-        values.resize(count);   
-        for (int i = 0; i < count; i++)
-        {
-			wrenGetListElement(vm, slot, i, 0);
-            values[i] = wrenGetParameter<float>(vm, 0);
-		}
-	}
-	return values;
-}
-
-template<> std::vector<unsigned int> wrenGetParameter<std::vector<unsigned int>>(WrenVM* vm, int slot)
-{
-    std::vector<unsigned int> values;
-    if (checkType(vm, slot, WREN_TYPE_LIST, __func__))
-    {
-        auto count = wrenGetListCount(vm, slot);
-        values.resize(count);
-        for (int i = 0; i < count; i++)
-        {
-            wrenGetListElement(vm, slot, i, 0);
-            values[i] = wrenGetParameter<unsigned int>(vm, 0);
-        }
-    }
-    return values;
-}
-*/
-
-
 template <typename T> std::vector<T> wrenGetListParameter(WrenVM* vm, int slot)
 {
     std::vector<T> values;
