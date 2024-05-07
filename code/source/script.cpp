@@ -451,6 +451,57 @@ template<> glm::vec4 wrenGetParameter<glm::vec4>(WrenVM* vm, int slot)
     return glm::vec4(0.0f);
 }
 
+/*
+template<> std::vector<float> wrenGetParameter<std::vector<float>>(WrenVM* vm, int slot)
+{
+	std::vector<float> values;
+    if (checkType(vm, slot, WREN_TYPE_LIST, __func__))
+    {
+		auto count = wrenGetListCount(vm, slot);
+        values.resize(count);   
+        for (int i = 0; i < count; i++)
+        {
+			wrenGetListElement(vm, slot, i, 0);
+            values[i] = wrenGetParameter<float>(vm, 0);
+		}
+	}
+	return values;
+}
+
+template<> std::vector<unsigned int> wrenGetParameter<std::vector<unsigned int>>(WrenVM* vm, int slot)
+{
+    std::vector<unsigned int> values;
+    if (checkType(vm, slot, WREN_TYPE_LIST, __func__))
+    {
+        auto count = wrenGetListCount(vm, slot);
+        values.resize(count);
+        for (int i = 0; i < count; i++)
+        {
+            wrenGetListElement(vm, slot, i, 0);
+            values[i] = wrenGetParameter<unsigned int>(vm, 0);
+        }
+    }
+    return values;
+}
+*/
+
+
+template <typename T> std::vector<T> wrenGetListParameter(WrenVM* vm, int slot)
+{
+    std::vector<T> values;
+    if (checkType(vm, slot, WREN_TYPE_LIST, __func__))
+    {
+        auto count = wrenGetListCount(vm, slot);
+        values.resize(count);
+        for (int i = 0; i < count; i++)
+        {
+            wrenGetListElement(vm, slot, i, 0);
+            values[i] = wrenGetParameter<T>(vm, 0);
+        }
+    }
+    return values;
+}
+
 template <typename T> void wrenSetReturnValue(WrenVM* vm, const T& value)
 {
     wrenSetSlotDouble(vm, 0, (double)value);
@@ -744,6 +795,26 @@ void render_render_text(WrenVM* vm)
 void render_load_mesh(WrenVM* vm)
 {
 	callFunction_returnType_args<int, string>(vm, xs::render::load_mesh);
+}
+
+void render_create_mesh(WrenVM* vm)
+{
+    auto indices = wrenGetListParameter<unsigned int>(vm, 1);
+    auto positions = wrenGetListParameter<float>(vm, 2);
+    auto normals = wrenGetListParameter<float>(vm, 3);
+    auto uvs = wrenGetListParameter<float>(vm, 4);
+    auto colors = wrenGetListParameter<float>(vm, 5);
+    
+    auto mesh_id = xs::render::create_mesh(
+        indices.data(),
+        (unsigned int)indices.size(),
+        positions.data(),
+        normals.data(),
+        uvs.data(),
+        colors.data(),
+        (unsigned int)positions.size());
+
+    wrenSetReturnValue<int>(vm, mesh_id);
 }
 
 void render_render_mesh(WrenVM* vm)
@@ -1274,6 +1345,7 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
     // 3D
     bind("xs", "Render", true, "loadMesh(_)", render_load_mesh);
+    bind("xs", "Render", true, "createMesh(_,_,_,_,_)", render_create_mesh);
     bind("xs", "Render", true, "mesh(_,_,_,_,_,_)", render_render_mesh);
     bind("xs", "Render", true, "setProjection(_)", render_set_3d_projection);
     bind("xs", "Render", true, "setView(_)", render_set_3d_view);

@@ -1,5 +1,6 @@
 import "xs" for Input, Render, Data, File, Audio, Matrix, Vector
 import "xs_math" for Math
+import "xs_tools" for MeshBuilder
 
 class Game {
     static config() {
@@ -15,7 +16,6 @@ class Game {
         __box = Render.loadMesh("[game]/assets/box.obj")
 
 
-
         // Load mini-arena assets
         __colormap = Render.loadImage("[game]/assets/mini-arena/colormap.png")
         __column = Render.loadMesh("[game]/assets/mini-arena/column.obj")
@@ -26,7 +26,6 @@ class Game {
         __trophy = Render.loadMesh("[game]/assets/mini-arena/trophy.obj")
         __bricks = Render.loadMesh("[game]/assets/mini-arena/bricks.obj")
 
-
         __transform = Matrix.new()
         __identity = Matrix.new()
         __x = 0
@@ -36,8 +35,37 @@ class Game {
         __vWhite = Vector.new(1, 1, 1, 1)
         __vRed = Vector.new(1, 0, 0, 1)  
     
+        __angle = 0
 
-        __angle = 0      
+        createPlane()
+    }
+
+    static createPlane() {
+        var size = 20
+        var mesh = MeshBuilder.new()
+        mesh.addPosition(-size, -size, 0)
+        mesh.addPosition(size, -size, 0)
+        mesh.addPosition(size, size, 0)
+        mesh.addPosition(-size, size, 0)
+        mesh.addNormal(0, 0, 1)
+        mesh.addNormal(0, 0, 1)
+        mesh.addNormal(0, 0, 1)
+        mesh.addNormal(0, 0, 1)
+        mesh.addUV(0, 0)
+        mesh.addUV(1, 0)
+        mesh.addUV(1, 1)
+        mesh.addUV(0, 1)
+        mesh.addColor(1, 1, 1, 1)
+        mesh.addColor(1, 1, 1, 1)
+        mesh.addColor(1, 1, 1, 1)
+        mesh.addColor(1, 1, 1, 1)
+        mesh.addIndex(0)
+        mesh.addIndex(1)
+        mesh.addIndex(2)
+        mesh.addIndex(0)
+        mesh.addIndex(2)
+        mesh.addIndex(3)
+        __planeTwo = mesh.build()
     }
 
     static update(dt) {
@@ -76,9 +104,11 @@ class Game {
     }
 
     static render() {
-
         // Render the mini-arena
         var trns = Matrix.new()
+        trns.translate(0, 0, -1)
+        Render.mesh(__planeTwo, __white, trns, __vRed, __vZero, 0)
+
         for(x in -3..3) {
             for(y in -3..3) {
                 trns.identity()
