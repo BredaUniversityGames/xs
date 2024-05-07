@@ -55,6 +55,14 @@ class Render {
     /// transform is a matrix, mul and add are vectors
     foreign static mesh(modelId, imageId, transform, mul, add, flags)
 
+    /// Create a mesh from a set of vertices, normals, uvs, colors, and indices
+    /// positions, normals, uvs, and colors are lists of floats
+    /// positions and normals are vectors of 3 floats
+    /// uvs are vectors of 2 floats
+    /// colors are vectors of 4 floats
+    /// indices is a list of integers
+    foreign static createMesh(positions, normals, uvs, colors, indices)
+
     /// Add a directional light to the scene with a direction, position, shadow, color
     /// direction is a vector
     /// position is a vector used for shadow calculation
