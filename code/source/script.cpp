@@ -777,7 +777,7 @@ void render_create_mesh(WrenVM* vm)
         normals.data(),
         uvs.data(),
         colors.data(),
-        (unsigned int)positions.size());
+        (unsigned int)positions.size() / 3);
 
     wrenSetReturnValue<int>(vm, mesh_id);
 }

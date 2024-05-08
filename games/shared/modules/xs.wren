@@ -400,9 +400,9 @@ class Profiler {
 }
 
 /// A 4D vector
-foreign class Vector {
-    construct new() {}
+foreign class Vector {    
     construct new(x, y, z, w) {}
+    construct new() {}
     foreign set(x, y, z, w)
     foreign +(other)
     foreign -(other)
@@ -443,4 +443,26 @@ foreign class Matrix {
     rotateZ(angle) {
         rotate(angle, 0, 0, 1)
     }
+
+    /// Shortcut for creating a new matrix and setting it to identity
+    static identity() {
+        var m = Matrix.new()
+        m.identity()
+        return m
+    }
+
+    /// Vector shorthand methods
+    translate(v) {
+        translate(v.x, v.y, v.z)
+    }
+
+    rotate(angle, v) {
+        rotate(angle, v.x, v.y, v.z)
+    }
+
+    scale(v) {
+        scale(v.x, v.y, v.z)
+    }
+
+
 }
