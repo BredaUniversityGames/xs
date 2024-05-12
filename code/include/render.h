@@ -41,6 +41,7 @@ namespace xs::render
 	int get_image_height(int image_id);
 	
 	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
+	int create_sprite2(int image_id, double x0, double y0, double x1, double y1);
 	int create_mesh(
 		const unsigned int* indices,
 		unsigned int index_count,
@@ -54,6 +55,17 @@ namespace xs::render
 		int sprite_id,
 		double x,
 		double y,		
+		double z,
+		double size,
+		double rotation,
+		color mutiply,
+		color add,
+		unsigned int flags);
+
+	void render_sprite2(
+		int sprite_id,
+		double x,
+		double y,
 		double z,
 		double size,
 		double rotation,

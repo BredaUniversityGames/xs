@@ -734,12 +734,14 @@ void render_get_image_height(WrenVM* vm)
 
 void render_create_sprite(WrenVM* vm)
 {
-    callFunction_returnType_args<int,int,double,double,double,double>(vm, xs::render::create_sprite);
+    callFunction_returnType_args<int, int, double, double, double, double>(vm, xs::render::create_sprite2);
+    //callFunction_returnType_args<int,int,double,double,double,double>(vm, xs::render::create_sprite);
 }
 
 void render_sprite_ex(WrenVM* vm)
 {
-    callFunction_args<int,double,double,double,double,double,xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite);
+    callFunction_args<int, double, double, double, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite2);
+    //callFunction_args<int,double,double,double,double,double,xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite);
 }
 
 void render_set_offset(WrenVM* vm)
