@@ -14,9 +14,9 @@ namespace xs::tools
 
 	inline bool check_bit_flag(unsigned int flags, unsigned int bit) { return (flags & bit) == bit; }
 	inline bool check_bit_flag_overlap(unsigned int flag0, unsigned int flag1) { return (flag0 & flag1) != 0; }
-	
+
 	inline float saturate(float f) { return (f < 0.0f) ? 0.0f : (f > 1.0f) ? 1.0f : f; }
-	
+
 	inline uint32_t f32_to_uint8(float val) { return (uint32_t)(saturate(val) * 255.0f + 0.5f); }
 	inline uint32_t next_power_of_two(uint32_t val)
 	{
@@ -32,5 +32,21 @@ namespace xs::tools
 		v++;
 
 		return v;
+	}
+
+	template <typename T>
+	inline void hash_combine(std::size_t& seed, const T& v)
+	{
+		std::hash<T> hasher;
+		seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+	}
+
+	template <typename T>
+	inline std::size_t hash_combine(std::initializer_list<T> list)
+	{
+		std::size_t seed = 0;
+		for (const auto& v : list)
+			hash_combine(seed, v);
+		return seed;
 	}
 }

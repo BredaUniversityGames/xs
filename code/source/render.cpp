@@ -423,8 +423,8 @@ void xs::render::render_text(
 			kerning = (float)kern * (float)font.scale;
 		}
 
-		auto sprite = create_sprite(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
-		render_sprite(sprite, begin + bearing, y - quad.y1, 100000, 1, 0, multiply, add, 0);
+		auto sprite = create_sprite2(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
+		render_sprite2(sprite, begin + bearing, y - quad.y1, 100000, 1, 0, multiply, add, 0);
 
 		begin += advance + kerning;		
 	}
