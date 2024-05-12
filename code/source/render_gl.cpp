@@ -92,6 +92,56 @@ namespace xs::render::internal
 	unsigned int			sprite_trigs_vao = 0;
 	unsigned int			sprite_trigs_vbo = 0;
 
+	struct aabb
+	{
+		glm::vec2 min = glm::vec2(numeric_limits<float>::max(), numeric_limits<float>::max());
+		glm::vec2 max = glm::vec2(numeric_limits<float>::min(), numeric_limits<float>::min());
+
+		aabb() = default;
+
+		aabb(const glm::vec2& min, const glm::vec2& max) : min(min), max(max) {}
+
+		bool is_valid() const { return min.x <= max.x && min.y <= max.y; }
+
+		void expand(const glm::vec2& point) { min = glm::min(min, point); max = glm::max(max, point); }
+
+		static bool overlap(const aabb& a, const aabb& b)
+		{ return a.min.x <= b.max.x && a.max.x >= b.min.x && a.min.y <= b.max.y && a.max.y >= b.min.y; }
+
+		aabb transform(const glm::mat4& m) const
+		{
+			glm::vec2 p[4] = {
+				glm::vec2(m * glm::vec4(min.x, min.y, 1.0f, 1.0f)),
+				glm::vec2(m * glm::vec4(min.x, max.y, 1.0f, 1.0f)),
+				glm::vec2(m * glm::vec4(max.x, max.y, 1.0f, 1.0f)),
+				glm::vec2(m * glm::vec4(max.x, min.y, 1.0f, 1.0f))
+			};
+			aabb result(p[0], p[0]);
+			for (int i = 1; i < 4; i++)
+				result.expand(p[i]);
+			return result;
+		}
+
+		void debug_draw()
+		{
+			color c = { 255, 255, 255, 255 };
+			xs::render::set_color(c);
+
+			// Draw the AABB as a line loop
+			debug_vertex_format verts[4] = {
+				{glm::vec4(min.x, min.y, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},
+				{glm::vec4(min.x, max.y, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},
+				{glm::vec4(max.x, max.y, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},
+				{glm::vec4(max.x, min.y, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)}
+			};
+
+			// Draw the AABB
+			for (int i = 0; i < 4; i++)
+			{
+				xs::render::line(verts[i].position.x, verts[i].position.y, verts[(i + 1) % 4].position.x, verts[(i + 1) % 4].position.y);
+			}
+		}
+	};
 
 	struct directional_light_shadow
 	{
@@ -115,7 +165,8 @@ namespace xs::render::internal
 		std::array<unsigned int, 4>	vbos = { 0, 0, 0, 0 };
 		uint32_t					count = 0;
 		int							image_id = 0;
-		glm::vec4					extents = glm::vec4(0.0f);
+		//glm::vec4					extents = glm::vec4(0.0f);
+		aabb						extents;
 	};
 
 	struct sprite_mesh_instance
@@ -241,7 +292,6 @@ void xs::render::initialize()
 		2, 2, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
 		reinterpret_cast<void*>(offsetof(sprite_vtx_format, texture)));
 
-
 	glEnableVertexAttribArray(3);
 	glVertexAttribPointer(
 		3, 4, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
@@ -322,33 +372,85 @@ void xs::render::render()
 		glBindTexture(GL_TEXTURE_2D, img.texture);
 
 		// Set the model matrix
+		float dx = mesh.extents.max.x - mesh.extents.min.x;
+		float dy = mesh.extents.max.y - mesh.extents.min.y;
 		mat4 model = identity<mat4>();
+		model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
+
 		if(tools::check_bit_flag_overlap(spe.flags, xs::render::flip_x))
 			model = scale(model, vec3(-1.0f, 1.0f, 1.0f));
 		if (tools::check_bit_flag_overlap(spe.flags, xs::render::flip_y))
 			model = scale(model, vec3(1.0f, -1.0f, 1.0f));
+
 		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
-			model = translate(model, vec3(-mesh.extents.z * 0.5f, 0.0f, 0.0f));
+			model = translate(model, vec3(-dx * 0.5f, 0.0f, 0.0f));
 		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
-			model = translate(model, vec3(0.0f, -mesh.extents.w * 0.5f, 0.0f));
-		model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
+			model = translate(model, vec3(0.0f, -dy * 0.5f, 0.0f));
+
 		model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
 		model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
 		mat4 mvp = vp * model;
+		mat4 mv = v * model;
 
-		// Set the uniforms
-		glUniformMatrix4fv(1, 1, false, value_ptr(mvp));
-		glUniform4fv(2, 1, value_ptr(spe.mul_color));
-		glUniform4fv(3, 1, value_ptr(spe.add_color));
+		// Get the AABB in view space
+		static aabb view_aabb({-1,-1},{1,1});
+		aabb bb = mesh.extents.transform(mvp);
+		// aabb bb2 = mesh.extents.transform(mv);
+		// bb2.debug_draw();
+		
+		// Check if the sprite is outside the screen
+		if (aabb::overlap(bb, view_aabb))
+		{
+			glUniformMatrix4fv(1, 1, false, value_ptr(mvp));
+			glUniform4fv(2, 1, value_ptr(spe.mul_color));
+			glUniform4fv(3, 1, value_ptr(spe.add_color));
 
-		// Bind the vertex array
-		glBindVertexArray(mesh.vao);
+			// Bind the vertex array
+			glBindVertexArray(mesh.vao);
 
-		// Draw the mesh
-		glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr);
+			// Draw the mesh
+			glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr);
 
-		// Unbind the vertex array
-		glBindVertexArray(0);
+			// Unbind the vertex array
+			glBindVertexArray(0);
+		}	
+
+
+		/*
+		// Create the AABB
+		vec2 min = vec2(mesh.extents.x, mesh.extents.y);
+		vec2 max = vec2(mesh.extents.z, mesh.extents.w);
+
+		// Transform the AABB
+		vec4 minp = mvp * vec4(min.x, min.y, 1.0f, 1.0f);
+		vec4 maxp = mvp * vec4(max.x, min.y, 1.0f, 1.0f);
+		minp /= minp.w;
+		maxp /= maxp.w;
+		if (minp.x > maxp.x)
+			std::swap(minp.x, maxp.x);
+		if (minp.y > maxp.y)
+			std::swap(minp.y, maxp.y);
+
+		// Check if the sprite is outside the screen
+		float aperture = 1.1f;
+		if ((abs(minp.x) <= aperture && abs(minp.y) <= aperture) ||
+			(abs(maxp.x) <= aperture && abs(maxp.y) <= aperture))
+		{
+			// Set the uniforms
+			glUniformMatrix4fv(1, 1, false, value_ptr(mvp));
+			glUniform4fv(2, 1, value_ptr(spe.mul_color));
+			glUniform4fv(3, 1, value_ptr(spe.add_color));
+
+			// Bind the vertex array
+			glBindVertexArray(mesh.vao);
+
+			// Draw the mesh
+			glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr);
+
+			// Unbind the vertex array
+			glBindVertexArray(0);
+		}
+		*/
 	}
 
 	/*
@@ -509,6 +611,9 @@ int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, do
 	if (it != sprite_meshes.end())
 		return it->first;
 
+	// Create the sprite mesh
+	sprite_mesh mesh;
+
 	// Index of the vertices
 	unsigned short sprite_indices[] = { 0, 1, 2, 2, 3, 0 };
 
@@ -522,6 +627,7 @@ int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, do
 	float from_y = 0.0f;
 	float to_x = float(w * (x1 - x0));
 	float to_y = float(h * (y1 - y0));
+	mesh.extents = aabb(vec2(from_x, from_y), vec2(to_x, to_y));
 	std::swap(from_y, to_y);
 
 	// Vertex positions just
@@ -540,7 +646,6 @@ int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, do
 		(float)x1, (float)y0
 	};
 
-	sprite_mesh mesh;
 	glGenVertexArrays(1, &mesh.vao);
 	glBindVertexArray(mesh.vao);
 
@@ -570,7 +675,6 @@ int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, do
 
 	// Store the mesh
 	mesh.image_id = image_id;
-	mesh.extents = vec4(from_x, from_y, to_x, to_y);
 	sprite_meshes[key] = mesh;
 	return key;
 }
