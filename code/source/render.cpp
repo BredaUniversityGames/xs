@@ -429,6 +429,8 @@ void xs::render::render_text(
 		begin += advance + kerning;		
 	}
 
+	// Center text
+	/*
 	if (tools::check_bit_flag_overlap(flags, xs::render::sprite_flags::center))
 	{
 		double width = begin - x;
@@ -438,6 +440,7 @@ void xs::render::render_text(
 			s.x -= (width * 0.5f);
 		}
 	}
+	*/
 }
 
 void xs::render::directional_light(
