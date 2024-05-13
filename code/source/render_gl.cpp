@@ -103,7 +103,7 @@ namespace xs::render::internal
 
 		bool is_valid() const { return min.x <= max.x && min.y <= max.y; }
 
-		void expand(const glm::vec2& point) { min = glm::min(min, point); max = glm::max(max, point); }
+		void add_point(const glm::vec2& point) { min = glm::min(min, point); max = glm::max(max, point); }
 
 		static bool overlap(const aabb& a, const aabb& b)
 		{ return a.min.x <= b.max.x && a.max.x >= b.min.x && a.min.y <= b.max.y && a.max.y >= b.min.y; }
@@ -118,7 +118,7 @@ namespace xs::render::internal
 			};
 			aabb result(p[0], p[0]);
 			for (int i = 1; i < 4; i++)
-				result.expand(p[i]);
+				result.add_point(p[i]);
 			return result;
 		}
 
@@ -931,6 +931,13 @@ int xs::render::create_shape(
 	auto it = sprite_meshes.find(key);
 	if (it != sprite_meshes.end())
 		return it->first;
+
+	// Calculate the extents
+	for (unsigned int i = 0; i < vertex_count; i++)
+	{
+		vec2 p(positions[i * 2 + 0], positions[i * 3 + 1]);
+		mesh.extents.add_point(p);
+	}
 
 
 	/*
