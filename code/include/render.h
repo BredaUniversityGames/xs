@@ -51,6 +51,14 @@ namespace xs::render
 		const float* colors,
 		unsigned int vertex_count);
 
+	int create_shape(
+		int image_id,
+		const float* positions,
+		const float* texture_coordinates,
+		unsigned int vertex_count,
+		const unsigned int* indices,
+		unsigned int index_count);
+
 	void render_sprite(
 		int sprite_id,
 		double x,
@@ -64,6 +72,17 @@ namespace xs::render
 
 	void render_sprite2(
 		int sprite_id,
+		double x,
+		double y,
+		double z,
+		double size,
+		double rotation,
+		color mutiply,
+		color add,
+		unsigned int flags);
+
+	void render_shape(
+		int shape_id,
 		double x,
 		double y,
 		double z,

@@ -738,6 +738,24 @@ void render_create_sprite(WrenVM* vm)
     //callFunction_returnType_args<int,int,double,double,double,double>(vm, xs::render::create_sprite);
 }
 
+void render_create_shape(WrenVM* vm)
+{
+    auto image_id = wrenGetParameter<int>(vm, 1);
+	auto positions = wrenGetListParameter<float>(vm, 2);
+	auto texture_coordinates = wrenGetListParameter<float>(vm, 3);
+	auto indices = wrenGetListParameter<unsigned int>(vm, 4);
+
+    auto shape_id = xs::render::create_shape(
+		image_id,
+		positions.data(),
+		texture_coordinates.data(),
+		(unsigned int)positions.size() / 2,
+		indices.data(),
+		(unsigned int)indices.size());
+
+	wrenSetReturnValue<int>(vm, shape_id);
+}
+
 void render_sprite_ex(WrenVM* vm)
 {
     callFunction_args<int, double, double, double, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite2);
@@ -1306,6 +1324,7 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "getImageWidth(_)", render_get_image_width);
     bind("xs", "Render", true, "getImageHeight(_)", render_get_image_height);
     bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
+    bind("xs", "Render", true, "createShape(_,_,_,_)", render_create_shape);
     bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
     bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);

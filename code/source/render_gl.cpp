@@ -598,6 +598,7 @@ void xs::render::render()
 
 int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, double y1)
 {
+	// Precision for the texture coordinates 
 	double precision = 10000.0;
 	int xh0 = (int)(x0 * precision);
 	int yh0 = (int)(y0 * precision);
@@ -605,7 +606,6 @@ int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, do
 	int yh1 = (int)(y1 * precision);
 
 	// Check if the sprite already exists
-	auto key = (int)tools::hash_combine({ image_id, xh0, yh0, xh1, yh1 });
 	auto key = (int)tools::hash_combine(image_id, xh0, yh0, xh1, yh1);
 	auto it = sprite_meshes.find(key);
 	if (it != sprite_meshes.end())
@@ -713,6 +713,20 @@ void xs::render::render_sprite2(
 	sprite_queue2.push_back(instance);
 }
 
+void xs::render::render_shape(
+	int shape_id,
+	double x,
+	double y,
+	double z,
+	double size,
+	double rotation,
+	color mutiply,
+	color add,
+	unsigned int flags)
+{
+	render_sprite2(shape_id, x, y, z, size, rotation, mutiply, add, flags);
+}
+
 void xs::render::clear()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
@@ -724,7 +738,6 @@ void xs::render::clear()
 	triangles_count = 0;
 	sprite_queue.clear();
 	sprite_queue2.clear();
-
 }
 
 void xs::render::internal::create_texture_with_data(xs::render::internal::image& img, uchar* data)
@@ -890,6 +903,99 @@ int xs::render::create_mesh(
 	// Store the mesh
 	internal::meshes.push_back(mesh);
 	return (int)internal::meshes.size();
+}
+
+int xs::render::create_shape(
+	int image_id,
+	const float* positions,
+	const float* texture_coordinates,
+	unsigned int vertex_count,
+	const unsigned int* indices,
+	unsigned int index_count)
+{
+	// Create the sprite mesh
+	sprite_mesh mesh;
+
+	auto key = (int)tools::hash_combine(image_id, positions, texture_coordinates, vertex_count, indices, index_count);
+
+		/*
+	// Check if the sprite already exists
+	auto key = (int)tools::hash_combine({
+		image_id,
+		reinterpret_cast<int>(positions),
+		reinterpret_cast<int>(texture_coordinates),
+		(int)(vertex_count),
+		reinterpret_cast<int>(indices),
+		(int)(index_count) });
+		*/
+	auto it = sprite_meshes.find(key);
+	if (it != sprite_meshes.end())
+		return it->first;
+
+
+	/*
+
+	// Get the image size
+	auto& img = images[image_id];
+	auto w = (float)img.width;
+	auto h = (float)img.height;
+
+	// Scale the sprite to make sure each pixel is 1.0 units
+	float from_x = 0.0f;
+	float from_y = 0.0f;
+	float to_x = float(w * (x1 - x0));
+	float to_y = float(h * (y1 - y0));
+	mesh.extents = aabb(vec2(from_x, from_y), vec2(to_x, to_y));
+	std::swap(from_y, to_y);
+
+	// Vertex positions just
+	float sprite_positions[] = {
+		from_x, from_y, 0.0f,
+		from_x, to_y, 0.0f,
+		to_x, to_y, 0.0f,
+		to_x, from_y, 0.0f
+	};
+
+	// Texture coordinates
+	float sprite_texture_coordinates[] = {
+		(float)x0, (float)y0,
+		(float)x0, (float)y1,
+		(float)x1, (float)y1,
+		(float)x1, (float)y0
+	};
+	*/
+
+	glGenVertexArrays(1, &mesh.vao);
+	glBindVertexArray(mesh.vao);
+
+	// Create the index buffer
+	glGenBuffers(1, &mesh.ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(short), indices, GL_STATIC_DRAW);
+	mesh.count = index_count;
+
+	// Create the vertex buffers
+	glGenBuffers(2, mesh.vbos.data());
+
+	// Create the position buffer
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[0]);
+	glBufferData(GL_ARRAY_BUFFER, vertex_count * 3 * sizeof(float), positions, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	// Create the texture coordinate buffer
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[1]);
+	glBufferData(GL_ARRAY_BUFFER, vertex_count * 2 * sizeof(float), texture_coordinates, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	// Unbind the vertex array
+	glBindVertexArray(0);
+
+	// Store the mesh
+	mesh.image_id = image_id;
+	sprite_meshes[key] = mesh;
+	return key;
 }
 
 void xs::render::render_mesh(
