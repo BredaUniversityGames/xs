@@ -380,7 +380,6 @@ int xs::render::get_image_width(int image_id)
 	return img.width;
 }
 
-
 void xs::render::render_text(
 	int font_id,
 	const std::string& text,
@@ -395,6 +394,26 @@ void xs::render::render_text(
 
 	double begin = x;	
 	auto last_idx = sprite_queue.size();
+
+	// Do a first pass to calculate the width of the text
+	if (tools::check_bit_flag_overlap(flags, xs::render::sprite_flags::center))
+	{
+		for (size_t i = 0; i < text.size(); i++)
+		{
+			const int charIndex = text[i] - FONT_ATLAS_MIN_CHARACTER;
+			stbtt_aligned_quad quad;
+			float tx = 0;
+			float ty = 0;
+			stbtt_GetPackedQuad(&font.packed_chars[0], img.width, img.height, charIndex, &tx, &ty, &quad, 0);
+			const int glyphIndex = stbtt_FindGlyphIndex(&font.info, text[i]);
+			int advance_i = 0, bearing_i = 0;
+			stbtt_GetGlyphHMetrics(&font.info, glyphIndex, &advance_i, &bearing_i);
+			double advance = advance_i * font.scale;
+			begin -= advance * 0.5;
+		}
+	}
+
+	// Render text
 	for (size_t i = 0; i < text.size(); i++)
 	{
 		const int charIndex = text[i] - FONT_ATLAS_MIN_CHARACTER;
@@ -428,19 +447,6 @@ void xs::render::render_text(
 
 		begin += advance + kerning;		
 	}
-
-	// Center text
-	/*
-	if (tools::check_bit_flag_overlap(flags, xs::render::sprite_flags::center))
-	{
-		double width = begin - x;
-		for (auto i = last_idx; i < sprite_queue.size(); i++)
-		{
-			auto& s = sprite_queue[i];
-			s.x -= (width * 0.5f);
-		}
-	}
-	*/
 }
 
 void xs::render::directional_light(
