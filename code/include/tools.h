@@ -35,18 +35,17 @@ namespace xs::tools
 	}
 
 	template <typename T>
-	inline void hash_combine(std::size_t& seed, const T& v)
+	inline std::size_t hash_combine(const T& v)
 	{
 		std::hash<T> hasher;
-		seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+		return hasher(v);
 	}
 
-	template <typename T>
-	inline std::size_t hash_combine(std::initializer_list<T> list)
+	template <typename T, typename... Rest>
+	inline std::size_t hash_combine(const T& first, const Rest&... rest)
 	{
-		std::size_t seed = 0;
-		for (const auto& v : list)
-			hash_combine(seed, v);
+		std::size_t seed = hash_combine(first);
+		((seed ^= hash_combine(rest) + 0x9e3779b9 + (seed << 6) + (seed >> 2)), ...);
 		return seed;
 	}
 }

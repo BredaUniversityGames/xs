@@ -598,7 +598,6 @@ void xs::render::render()
 
 int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, double y1)
 {
-	// Precesion for the texture coordinates 
 	double precision = 10000.0;
 	int xh0 = (int)(x0 * precision);
 	int yh0 = (int)(y0 * precision);
@@ -607,6 +606,7 @@ int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, do
 
 	// Check if the sprite already exists
 	auto key = (int)tools::hash_combine({ image_id, xh0, yh0, xh1, yh1 });
+	auto key = (int)tools::hash_combine(image_id, xh0, yh0, xh1, yh1);
 	auto it = sprite_meshes.find(key);
 	if (it != sprite_meshes.end())
 		return it->first;
