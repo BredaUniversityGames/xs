@@ -18,6 +18,9 @@ class Render {
     /// Create a sprite from section of an image
     foreign static createSprite(imageId, x0, y0, x1, y1)
 
+    /// Create a mesh
+    foreign static createShape(imageId, vertices, uvs, indices)
+
     /// Set the offset for the next sprite(s) to be drawn
     foreign static setOffset(x, y)
 
