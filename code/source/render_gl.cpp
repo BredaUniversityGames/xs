@@ -39,6 +39,8 @@
 #include "device.h"
 #include "profiler.h"
 
+#define XS_DEBUG_EXTENTS 1
+
 using namespace glm;
 using namespace std;
 
@@ -165,7 +167,6 @@ namespace xs::render::internal
 		std::array<unsigned int, 4>	vbos = { 0, 0, 0, 0 };
 		uint32_t					count = 0;
 		int							image_id = 0;
-		//glm::vec4					extents = glm::vec4(0.0f);
 		aabb						extents;
 	};
 
@@ -213,8 +214,7 @@ void xs::render::initialize()
 	internal::compile_3d_shader();
 	internal::compile_shadow_shader();
 
-	///////// Trigs //////////////////////
-	//glCreateVertexArrays(1, &lines_vao);
+	///////// Lines //////////////////////
     glGenVertexArrays(1, &lines_vao);
 	glBindVertexArray(lines_vao);
 
@@ -319,15 +319,8 @@ void xs::render::render()
 {	
 	XS_PROFILE_SECTION("xs::render::render");
 
-	// render_shadows_maps();
-	// render_3d();
-
-	// Setthe render target
-	// glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 	// set the viewport to the screen size
 	glViewport(0, 0, width, height);
-
 
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
@@ -358,8 +351,6 @@ void xs::render::render()
 	for (auto i = 0; i < sprite_queue2.size(); i++)
 	{
 		const auto& spe = sprite_queue2[i];
-		//const auto& sprite = sprite_meshes[spe.sprite_id];
-		//const auto& image = images[sprite.image_id];
 
 		auto& mesh = sprite_meshes[spe.sprite_id];
 		auto& img = images[mesh.image_id];
@@ -395,8 +386,10 @@ void xs::render::render()
 		// Get the AABB in view space
 		static aabb view_aabb({-1,-1},{1,1});
 		aabb bb = mesh.extents.transform(mvp);
-		// aabb bb2 = mesh.extents.transform(mv);
-		// bb2.debug_draw();
+#if		XS_DEBUG_EXTENTS
+		aabb bb2 = mesh.extents.transform(mv);
+		bb2.debug_draw();
+#endif
 		
 		// Check if the sprite is outside the screen
 		if (aabb::overlap(bb, view_aabb))
@@ -415,152 +408,7 @@ void xs::render::render()
 			glBindVertexArray(0);
 		}	
 
-
-		/*
-		// Create the AABB
-		vec2 min = vec2(mesh.extents.x, mesh.extents.y);
-		vec2 max = vec2(mesh.extents.z, mesh.extents.w);
-
-		// Transform the AABB
-		vec4 minp = mvp * vec4(min.x, min.y, 1.0f, 1.0f);
-		vec4 maxp = mvp * vec4(max.x, min.y, 1.0f, 1.0f);
-		minp /= minp.w;
-		maxp /= maxp.w;
-		if (minp.x > maxp.x)
-			std::swap(minp.x, maxp.x);
-		if (minp.y > maxp.y)
-			std::swap(minp.y, maxp.y);
-
-		// Check if the sprite is outside the screen
-		float aperture = 1.1f;
-		if ((abs(minp.x) <= aperture && abs(minp.y) <= aperture) ||
-			(abs(maxp.x) <= aperture && abs(maxp.y) <= aperture))
-		{
-			// Set the uniforms
-			glUniformMatrix4fv(1, 1, false, value_ptr(mvp));
-			glUniform4fv(2, 1, value_ptr(spe.mul_color));
-			glUniform4fv(3, 1, value_ptr(spe.add_color));
-
-			// Bind the vertex array
-			glBindVertexArray(mesh.vao);
-
-			// Draw the mesh
-			glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr);
-
-			// Unbind the vertex array
-			glBindVertexArray(0);
-		}
-		*/
 	}
-
-	/*
-
-	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
-		[](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
-			return lhs.z < rhs.z;
-		});
-
-	int count = 0;
-	for (auto i = 0; i < sprite_queue.size(); i++)
-	{
-		const auto& spe = sprite_queue[i];
-		const auto& sprite = sprites[spe.sprite_id];
-		const auto& image = images[sprite.image_id];
-
-		auto from_x = 0.0;
-		auto from_y = 0.0;
-		auto to_x = image.width * (sprite.to.x - sprite.from.x) * spe.scale;
-		auto to_y = image.height * (sprite.to.y - sprite.from.y) * spe.scale;
-
-		auto from_u = sprite.from.x;
-		auto from_v = sprite.from.y;
-		auto to_u = sprite.to.x;
-		auto to_v = sprite.to.y;
-
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_x))
-			std::swap(from_u, to_u);
-
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_y))
-			std::swap(from_v, to_v);
-
-		vec4 add_color = to_vec4(spe.add_color);
-		vec4 mul_color = to_vec4(spe.mul_color);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, image.texture);
-
-		sprite_trigs_array[count + 0].position = { from_x, from_y, 0.0 };
-		sprite_trigs_array[count + 1].position = { from_x, to_y, 0.0 };
-		sprite_trigs_array[count + 2].position = { to_x, to_y, 0.0 };
-		sprite_trigs_array[count + 3].position = { to_x, to_y, 0.0 };
-		sprite_trigs_array[count + 4].position = { to_x, from_y, 0.0 };
-		sprite_trigs_array[count + 5].position = { from_x, from_y, 0.0 };
-
-		sprite_trigs_array[count + 0].texture = { from_u,	to_v };
-		sprite_trigs_array[count + 1].texture = { from_u,	from_v };
-		sprite_trigs_array[count + 2].texture = { to_u,		from_v };
-		sprite_trigs_array[count + 3].texture = { to_u,		from_v };
-		sprite_trigs_array[count + 4].texture = { to_u,		to_v };
-		sprite_trigs_array[count + 5].texture = { from_u,	to_v };
-
-		for (int i = 0; i < 6; ++i)
-		{
-			sprite_trigs_array[count + i].add_color = add_color;
-			sprite_trigs_array[count + i].mul_color = mul_color;
-		}
-			
-		vec3 anchor(0.0f, 0.0f, 0.0f);
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
-			anchor.x = (float)((to_x - from_x) * 0.5);
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
-			anchor.y = (float)((to_y - from_y) * 0.5);
-		else if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
-			anchor.y = (float)(to_y - from_y);
-
-		if (anchor.x != 0.0f || anchor.y != 0.0f)
-		{				
-			for (int i = 0; i < 6; i++)
-				sprite_trigs_array[count + i].position -= anchor;
-		}
-
-		if (spe.rotation != 0.0)
-		{
-			for (int i = 0; i < 6; i++)
-				rotate_vector3d(sprite_trigs_array[count + i].position, (float)spe.rotation);
-		}
-
-		for (int i = 0; i < 6; i++)
-		{
-			sprite_trigs_array[count + i].position.x += (float)spe.x;
-			sprite_trigs_array[count + i].position.y += (float)spe.y;
-		}
-		count += 6;
-
-		bool render_batch = false;
-		if (i < sprite_queue.size() - 1)
-		{
-			const auto& nspe = sprite_queue[i + 1];
-			const auto& nsprite = sprites[nspe.sprite_id];
-			render_batch = nsprite.image_id != sprite.image_id;
-		}
-		else
-		{
-			render_batch = true;
-		}
-		if (render_batch)
-		{
-			glBindVertexArray(sprite_trigs_vao);
-			glBindBuffer(GL_ARRAY_BUFFER, sprite_trigs_vbo);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(sprite_vtx_format) * count, &sprite_trigs_array[0], GL_DYNAMIC_DRAW);
-			glDrawArrays(GL_TRIANGLES, 0, count);
-			count = 0;
-		}
-	}
-
-	XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	XS_DEBUG_ONLY(glUseProgram(0));
-	XS_DEBUG_ONLY(glBindVertexArray(0));
-	*/
 	
 	glUseProgram(shader_program);
 	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
@@ -632,10 +480,10 @@ int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, do
 
 	// Vertex positions just
 	float sprite_positions[] = {
-		from_x, from_y, 0.0f,
-		from_x, to_y, 0.0f,
-		to_x, to_y, 0.0f,
-		to_x, from_y, 0.0f
+		from_x, from_y,
+		from_x, to_y,
+		to_x, to_y,
+		to_x, from_y,
 	};
 
 	// Texture coordinates
@@ -660,9 +508,9 @@ int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, do
 
 	// Create the position buffer
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[0]);
-	glBufferData(GL_ARRAY_BUFFER, 4 * 3 * sizeof(float), sprite_positions, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), sprite_positions, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	// Create the texture coordinate buffer
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[1]);
@@ -910,24 +758,14 @@ int xs::render::create_shape(
 	const float* positions,
 	const float* texture_coordinates,
 	unsigned int vertex_count,
-	const unsigned int* indices,
+	const unsigned short* indices,
 	unsigned int index_count)
 {
 	// Create the sprite mesh
-	sprite_mesh mesh;
+	sprite_mesh mesh = {};
 
 	auto key = (int)tools::hash_combine(image_id, positions, texture_coordinates, vertex_count, indices, index_count);
 
-		/*
-	// Check if the sprite already exists
-	auto key = (int)tools::hash_combine({
-		image_id,
-		reinterpret_cast<int>(positions),
-		reinterpret_cast<int>(texture_coordinates),
-		(int)(vertex_count),
-		reinterpret_cast<int>(indices),
-		(int)(index_count) });
-		*/
 	auto it = sprite_meshes.find(key);
 	if (it != sprite_meshes.end())
 		return it->first;
@@ -935,42 +773,9 @@ int xs::render::create_shape(
 	// Calculate the extents
 	for (unsigned int i = 0; i < vertex_count; i++)
 	{
-		vec2 p(positions[i * 2 + 0], positions[i * 3 + 1]);
+		vec2 p(positions[i * 2 + 0], positions[i * 2 + 1]);
 		mesh.extents.add_point(p);
 	}
-
-
-	/*
-
-	// Get the image size
-	auto& img = images[image_id];
-	auto w = (float)img.width;
-	auto h = (float)img.height;
-
-	// Scale the sprite to make sure each pixel is 1.0 units
-	float from_x = 0.0f;
-	float from_y = 0.0f;
-	float to_x = float(w * (x1 - x0));
-	float to_y = float(h * (y1 - y0));
-	mesh.extents = aabb(vec2(from_x, from_y), vec2(to_x, to_y));
-	std::swap(from_y, to_y);
-
-	// Vertex positions just
-	float sprite_positions[] = {
-		from_x, from_y, 0.0f,
-		from_x, to_y, 0.0f,
-		to_x, to_y, 0.0f,
-		to_x, from_y, 0.0f
-	};
-
-	// Texture coordinates
-	float sprite_texture_coordinates[] = {
-		(float)x0, (float)y0,
-		(float)x0, (float)y1,
-		(float)x1, (float)y1,
-		(float)x1, (float)y0
-	};
-	*/
 
 	glGenVertexArrays(1, &mesh.vao);
 	glBindVertexArray(mesh.vao);
@@ -978,7 +783,7 @@ int xs::render::create_shape(
 	// Create the index buffer
 	glGenBuffers(1, &mesh.ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(short), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned short), indices, GL_STATIC_DRAW);
 	mesh.count = index_count;
 
 	// Create the vertex buffers
@@ -986,9 +791,9 @@ int xs::render::create_shape(
 
 	// Create the position buffer
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[0]);
-	glBufferData(GL_ARRAY_BUFFER, vertex_count * 3 * sizeof(float), positions, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, vertex_count * 2 * sizeof(float), positions, GL_STATIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	// Create the texture coordinate buffer
 	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[1]);

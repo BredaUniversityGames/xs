@@ -743,7 +743,7 @@ void render_create_shape(WrenVM* vm)
     auto image_id = wrenGetParameter<int>(vm, 1);
 	auto positions = wrenGetListParameter<float>(vm, 2);
 	auto texture_coordinates = wrenGetListParameter<float>(vm, 3);
-	auto indices = wrenGetListParameter<unsigned int>(vm, 4);
+	auto indices = wrenGetListParameter<unsigned short>(vm, 4);
 
     auto shape_id = xs::render::create_shape(
 		image_id,

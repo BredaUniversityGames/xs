@@ -22,7 +22,7 @@ void main()
 
 #version 460 core
 
-layout (location = 0) in vec3 a_position;
+layout (location = 0) in vec2 a_position;
 layout (location = 1) in vec2 a_texture;
 
 layout (location = 1) uniform mat4 u_worldviewproj;
@@ -38,6 +38,6 @@ void main()
     v_mul_color = u_mul_color;
     v_add_color = u_add_color;
     v_texture = a_texture;
-	gl_Position = u_worldviewproj * vec4(a_position, 1.0);
+	gl_Position = u_worldviewproj * vec4(a_position, 0.0, 1.0);
 }
 
