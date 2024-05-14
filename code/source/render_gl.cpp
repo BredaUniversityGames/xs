@@ -1,6 +1,7 @@
 #include "opengl.h"
 #include "render.h"
 #include "render_internal.h"
+#include "tools.h"
 #include <ios>
 #include <array>
 #include <unordered_map>
@@ -9,6 +10,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <stb/stb_image.h>
+#include <imgui.h>
+#include <IconsFontAwesome5.h>
+
 
 // Include stb_image 
 #ifdef PLATFORM_SWITCH
@@ -62,7 +66,6 @@ namespace xs::render::internal
 	unsigned int			shader_program = 0;
 	unsigned int			lines_vao = 0;
 	unsigned int			lines_vbo = 0;
-
 	unsigned int			triangles_vao = 0;
 	unsigned int			triangles_vbo = 0;
 
@@ -75,62 +78,6 @@ namespace xs::render::internal
 	};	
 	
 	unsigned int			sprite_program = 0;
-	int const				sprite_trigs_max = 21800;
-	int						sprite_trigs_count = 0;
-	sprite_vtx_format		sprite_trigs_array[sprite_trigs_max * 3];
-	unsigned int			sprite_trigs_vao = 0;
-	unsigned int			sprite_trigs_vbo = 0;
-
-	struct aabb
-	{
-		glm::vec2 min = glm::vec2(numeric_limits<float>::max(), numeric_limits<float>::max());
-		glm::vec2 max = glm::vec2(numeric_limits<float>::min(), numeric_limits<float>::min());
-
-		aabb() = default;
-
-		aabb(const glm::vec2& min, const glm::vec2& max) : min(min), max(max) {}
-
-		bool is_valid() const { return min.x <= max.x && min.y <= max.y; }
-
-		void add_point(const glm::vec2& point) { min = glm::min(min, point); max = glm::max(max, point); }
-
-		static bool overlap(const aabb& a, const aabb& b)
-		{ return a.min.x <= b.max.x && a.max.x >= b.min.x && a.min.y <= b.max.y && a.max.y >= b.min.y; }
-
-		aabb transform(const glm::mat4& m) const
-		{
-			glm::vec2 p[4] = {
-				glm::vec2(m * glm::vec4(min.x, min.y, 1.0f, 1.0f)),
-				glm::vec2(m * glm::vec4(min.x, max.y, 1.0f, 1.0f)),
-				glm::vec2(m * glm::vec4(max.x, max.y, 1.0f, 1.0f)),
-				glm::vec2(m * glm::vec4(max.x, min.y, 1.0f, 1.0f))
-			};
-			aabb result(p[0], p[0]);
-			for (int i = 1; i < 4; i++)
-				result.add_point(p[i]);
-			return result;
-		}
-
-		void debug_draw()
-		{
-			color c = { 255, 255, 255, 255 };
-			xs::render::set_color(c);
-
-			// Draw the AABB as a line loop
-			debug_vertex_format verts[4] = {
-				{glm::vec4(min.x, min.y, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},
-				{glm::vec4(min.x, max.y, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},
-				{glm::vec4(max.x, max.y, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)},
-				{glm::vec4(max.x, min.y, 0.0f, 1.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)}
-			};
-
-			// Draw the AABB
-			for (int i = 0; i < 4; i++)
-			{
-				xs::render::line(verts[i].position.x, verts[i].position.y, verts[(i + 1) % 4].position.x, verts[(i + 1) % 4].position.y);
-			}
-		}
-	};
 
 	struct sprite_mesh
 	{
@@ -139,7 +86,7 @@ namespace xs::render::internal
 		std::array<unsigned int, 4>	vbos = { 0, 0, 0, 0 };
 		uint32_t					count = 0;
 		int							image_id = 0;
-		aabb						extents;
+		tools::aabb					extents;
 	};
 
 	struct sprite_mesh_instance
@@ -157,7 +104,7 @@ namespace xs::render::internal
 	};
 
 	unordered_map<int, sprite_mesh>	sprite_meshes;
-	vector<sprite_mesh_instance>	sprite_queue2;
+	vector<sprite_mesh_instance>	sprite_queue;
 }
 
 using namespace xs;
@@ -198,7 +145,6 @@ void xs::render::initialize()
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
-
 	///////// Trigs //////////////////////
 	glGenVertexArrays(1, &triangles_vao);
 	glBindVertexArray(triangles_vao);
@@ -222,43 +168,6 @@ void xs::render::initialize()
 	glVertexAttribPointer(
 		2, 4, GL_FLOAT, GL_FALSE, sizeof(debug_vertex_format),
 		reinterpret_cast<void*>(offsetof(debug_vertex_format, color)));
-
-	XS_DEBUG_ONLY(glBindVertexArray(0));
-
-
-	///////// Sprite //////////////////////
-	glGenVertexArrays(1, &sprite_trigs_vao);
-	glBindVertexArray(sprite_trigs_vao);
-
-	// Allocate VBO
-	glGenBuffers(1, &sprite_trigs_vbo);
-
-	// Array buffer contains the attribute data
-	glBindBuffer(GL_ARRAY_BUFFER, sprite_trigs_vbo);
-
-	// Allocate into VBO
-	const auto sprite_trigs_size = sizeof(sprite_trigs_array);
-	glBufferData(GL_ARRAY_BUFFER, sprite_trigs_size, &sprite_trigs_array[0], GL_STREAM_DRAW);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-		1, 3, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, position)));
-
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(
-		2, 2, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, texture)));
-
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(
-		3, 4, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, mul_color)));
-
-	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(
-		4, 4, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, add_color)));
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 }
@@ -301,14 +210,14 @@ void xs::render::render()
 	glUseProgram(sprite_program);
 	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
 
-	std::stable_sort(sprite_queue2.begin(), sprite_queue2.end(),
+	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
 		[](const sprite_mesh_instance& lhs, const sprite_mesh_instance& rhs) {
 			return lhs.z < rhs.z;
 		});
 
-	for (auto i = 0; i < sprite_queue2.size(); i++)
+	for (auto i = 0; i < sprite_queue.size(); i++)
 	{
-		const auto& spe = sprite_queue2[i];
+		const auto& spe = sprite_queue[i];
 
 		auto& mesh = sprite_meshes[spe.sprite_id];
 		auto& img = images[mesh.image_id];
@@ -342,15 +251,15 @@ void xs::render::render()
 		mat4 mv = v * model;
 
 		// Get the AABB in view space
-		static aabb view_aabb({-1,-1},{1,1});
-		aabb bb = mesh.extents.transform(mvp);
+		static tools::aabb view_aabb({-1,-1},{1,1});
+		tools::aabb bb = mesh.extents.transform(mvp);
 #if		XS_DEBUG_EXTENTS
-		aabb bb2 = mesh.extents.transform(mv);
+		tools::aabb bb2 = mesh.extents.transform(mv);
 		bb2.debug_draw();
 #endif
 		
 		// Check if the sprite is outside the screen
-		if (aabb::overlap(bb, view_aabb))
+		if (tools::aabb::overlap(bb, view_aabb))
 		{
 			glUniformMatrix4fv(1, 1, false, value_ptr(mvp));
 			glUniform4fv(2, 1, value_ptr(spe.mul_color));
@@ -433,7 +342,7 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	float from_y = 0.0f;
 	float to_x = float(w * (x1 - x0));
 	float to_y = float(h * (y1 - y0));
-	mesh.extents = aabb(vec2(from_x, from_y), vec2(to_x, to_y));
+	mesh.extents = tools::aabb(vec2(from_x, from_y), vec2(to_x, to_y));
 	std::swap(from_y, to_y);
 
 	// Vertex positions just
@@ -516,7 +425,7 @@ void xs::render::render_sprite(
 		(float)add.b / 255.0f,
 		(float)add.a / 255.0f);
 	instance.flags = flags;
-	sprite_queue2.push_back(instance);
+	sprite_queue.push_back(instance);
 }
 
 void xs::render::render_shape(
@@ -543,7 +452,6 @@ void xs::render::clear()
 	lines_count = 0;
 	triangles_count = 0;
 	sprite_queue.clear();
-	sprite_queue2.clear();
 }
 
 void xs::render::internal::create_texture_with_data(xs::render::internal::image& img, uchar* data)
@@ -586,6 +494,9 @@ void xs::render::internal::create_texture_with_data(xs::render::internal::image&
 		GL_UNSIGNED_BYTE,					// Type   (how to interpret)
 		data);								// Data
 
+	// Create mipmaps
+	glGenerateMipmap(GL_TEXTURE_2D);
+
 	XS_DEBUG_ONLY(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
@@ -627,11 +538,16 @@ int xs::render::create_shape(
 	// Create the sprite mesh
 	sprite_mesh mesh = {};
 
-	auto key = (int)tools::hash_combine(image_id, positions, texture_coordinates, vertex_count, indices, index_count);
+	static int key = 0;
+	key++;
 
+	//auto key = (int)tools::hash_combine(image_id, positions, texture_coordinates, vertex_count, indices, index_count);
+
+	/*
 	auto it = sprite_meshes.find(key);
 	if (it != sprite_meshes.end())
 		return it->first;
+	*/
 
 	// Calculate the extents
 	for (unsigned int i = 0; i < vertex_count; i++)
@@ -671,6 +587,19 @@ int xs::render::create_shape(
 	mesh.image_id = image_id;
 	sprite_meshes[key] = mesh;
 	return key;
+}
+
+void xs::render::destroy_shape(int sprite_id)
+{
+	auto it = sprite_meshes.find(sprite_id);
+	if (it != sprite_meshes.end())
+	{
+		auto& mesh = it->second;
+		glDeleteVertexArrays(1, &mesh.vao);
+		glDeleteBuffers(1, &mesh.ebo);
+		glDeleteBuffers(4, mesh.vbos.data());
+		sprite_meshes.erase(it);
+	}
 }
 
 void xs::render::internal::compile_sprite_shader()
@@ -835,4 +764,14 @@ bool xs::render::internal::link_program(GLuint program)
 
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	return status != 0;
+}
+
+void xs::render::reload()
+{
+	// TODO: Reload the images as needed
+}
+
+void xs::render::inspect()
+{
+	ImGui::Text(u8"| %s %d | ", ICON_FA_TIMES_CIRCLE, sprite_meshes.size());
 }

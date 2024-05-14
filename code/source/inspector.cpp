@@ -214,6 +214,10 @@ void xs::inspector::render(float dt)
 		Tooltip("Theme");		
 		
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));		
+
+		ImGui::SameLine();
+		xs::render::inspect();
+
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
 		{
@@ -231,7 +235,7 @@ void xs::inspector::render(float dt)
 				internal::ok_timer = 0.0f;
 			ImGui::PopStyleColor(1);
 			Tooltip("Reload Complete");
-		}
+		}		
 
 		ImGui::SameLine();
 		if (xs::script::has_error())

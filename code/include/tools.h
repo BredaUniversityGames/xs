@@ -2,6 +2,8 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <limits>
+#include <glm/glm.hpp>
 
 namespace xs::tools
 {
@@ -48,4 +50,45 @@ namespace xs::tools
 		((seed ^= hash_combine(rest) + 0x9e3779b9 + (seed << 6) + (seed >> 2)), ...);
 		return seed;
 	}
+
+
+	struct aabb
+	{
+		glm::vec2 min = glm::vec2(
+			std::numeric_limits<float>::max(),
+			std::numeric_limits<float>::max());
+		glm::vec2 max = glm::vec2(
+			std::numeric_limits<float>::min(),
+			std::numeric_limits<float>::min());
+
+		aabb() = default;
+
+		aabb(const glm::vec2& min, const glm::vec2& max) : min(min), max(max) {}
+
+		bool is_valid() const { return min.x <= max.x && min.y <= max.y; }
+
+		void add_point(const glm::vec2& point) { min = glm::min(min, point); max = glm::max(max, point); }
+
+		static bool overlap(const aabb& a, const aabb& b)
+		{
+			return a.min.x <= b.max.x && a.max.x >= b.min.x && a.min.y <= b.max.y && a.max.y >= b.min.y;
+		}
+
+		aabb transform(const glm::mat4& m) const
+		{
+			glm::vec2 p[4] = {
+				glm::vec2(m * glm::vec4(min.x, min.y, 1.0f, 1.0f)),
+				glm::vec2(m * glm::vec4(min.x, max.y, 1.0f, 1.0f)),
+				glm::vec2(m * glm::vec4(max.x, max.y, 1.0f, 1.0f)),
+				glm::vec2(m * glm::vec4(max.x, min.y, 1.0f, 1.0f))
+			};
+			aabb result(p[0], p[0]);
+			for (int i = 1; i < 4; i++)
+				result.add_point(p[i]);
+			return result;
+		}
+
+		void debug_draw();
+		
+	};
 }
