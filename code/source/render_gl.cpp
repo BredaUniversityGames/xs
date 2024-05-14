@@ -47,30 +47,17 @@ using namespace std;
 namespace xs::render::internal
 {
 	void create_frame_buffers();
-	void create_shadowmap_buffers();
-
 	//TODO: void delete_frame_buffers();
-	//TODO: void delete_shadowmap_buffers();
 	void compile_draw_shader();
 	void compile_sprite_shader();
-	void compile_3d_shader();
-	void compile_shadow_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
-
-	void render_3d();
-	void render_shadows_maps();
 
 	int width = -1;
 	int height = -1;	
 
 	unsigned int render_fbo;
 	unsigned int render_texture;
-
-	static const int max_dir_lights = 4;  // In sync with .glsl
-	static const unsigned int c_invalid_index = 4294967295;  // Just -1 casted to unsigned int
-	const int shadow_resolution = 2048;
-
 	
 	unsigned int			shader_program = 0;
 	unsigned int			lines_vao = 0;
@@ -145,21 +132,6 @@ namespace xs::render::internal
 		}
 	};
 
-	struct directional_light_shadow
-	{
-		unsigned int shadow_map = 0;
-		unsigned int shadow_map_fbo = 0;
-		mat4 shadow_matrix = {};
-	};
-
-	struct mesh
-	{
-		unsigned int				vao = 0;
-		unsigned int				ebo = 0;
-		std::array<unsigned int, 4>	vbos = { 0, 0, 0, 0 };
-		uint32_t					count = 0;
-	};
-
 	struct sprite_mesh
 	{
 		unsigned int				vao = 0;
@@ -184,16 +156,6 @@ namespace xs::render::internal
 		int flags = 0;
 	};
 
-	//	std::unordered_map<int, mesh>	meshes; TODO: Implement this
-	std::vector<mesh>		meshes;
-	std::array<directional_light_shadow, max_dir_lights> dir_lights_shadows;
-	unsigned int			mesh_program = 0;
-	unsigned int			shadow_program = 0;
-
-	glm::mat4						view;
-	glm::mat4						projection;
-	std::vector<mesh_queue_entry>	mesh_queue;
-
 	unordered_map<int, sprite_mesh>	sprite_meshes;
 	vector<sprite_mesh_instance>	sprite_queue2;
 }
@@ -207,12 +169,8 @@ void xs::render::initialize()
 	height = configuration::height();
 
 	internal::create_frame_buffers();
-	internal::create_shadowmap_buffers();
-
 	internal::compile_draw_shader();
 	internal::compile_sprite_shader();
-	internal::compile_3d_shader();
-	internal::compile_shadow_shader();
 
 	///////// Lines //////////////////////
     glGenVertexArrays(1, &lines_vao);
@@ -658,36 +616,6 @@ void xs::render::internal::create_frame_buffers()
 
 }
 
-void xs::render::internal::create_shadowmap_buffers()
-{
-	for (int i = 0; i < internal::max_dir_lights; i++)
-	{
-		// Create the shadow map texture
-		glGenTextures(1, &internal::dir_lights_shadows[i].shadow_map);
-		glBindTexture(GL_TEXTURE_2D, internal::dir_lights_shadows[i].shadow_map);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, internal::shadow_resolution, internal::shadow_resolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, value_ptr(vec4(1.0f)));
-
-		// Create the shadow map frame buffer
-		glGenFramebuffers(1, &internal::dir_lights_shadows[i].shadow_map_fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, internal::dir_lights_shadows[i].shadow_map_fbo);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, internal::dir_lights_shadows[i].shadow_map, 0);
-		glDrawBuffer(GL_NONE);
-		glReadBuffer(GL_NONE);
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-			assert(false);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-}
-
 int xs::render::create_shape(
 	int image_id,
 	const float* positions,
@@ -785,84 +713,6 @@ void xs::render::internal::compile_sprite_shader()
 
 	glDeleteShader(vert_shader);
 	glDeleteShader(frag_shader);
-}
-
-void xs::render::internal::compile_3d_shader()
-{
-	auto vs_str = xs::fileio::read_text_file("[games]/shared/shaders/standard.vert");
-	auto fs_str = xs::fileio::read_text_file("[games]/shared/shaders/standard.frag");
-	const char* const vs_source = vs_str.c_str();
-	const char* const fs_source = fs_str.c_str();
-
-	GLuint vert_shader = 0;
-	GLuint frag_shader = 0;
-
-	mesh_program = glCreateProgram();
-
-	GLboolean res = compile_shader(&vert_shader, GL_VERTEX_SHADER, vs_source);
-	if (!res)
-	{
-		log::error("Renderer failed to compile standard vertex shader");
-		return;
-	}
-
-	res = compile_shader(&frag_shader, GL_FRAGMENT_SHADER, fs_source);
-	if (!res)
-	{
-		log::error("Renderer failed to compile standard fragment shader");
-		return;
-	}
-
-	glAttachShader(mesh_program, vert_shader);
-	glAttachShader(mesh_program, frag_shader);
-
-	if (!link_program(mesh_program))
-	{
-		glDeleteShader(vert_shader);
-		glDeleteShader(frag_shader);
-		glDeleteProgram(mesh_program);
-		log::error("Renderer failed to link standard shader program");
-		return;
-	}
-
-	glDeleteShader(vert_shader);
-	glDeleteShader(frag_shader);
-}
-
-void xs::render::internal::compile_shadow_shader()
-{
-	const auto* const vs_source =
-		"#version 460 core												\n\
-		layout (location = 0) in vec4 a_position;						\n\
-		layout (location = 1) uniform mat4 u_worldviewproj;				\n\
-																		\n\
-		void main()														\n\
-		{																\n\
-			gl_Position = u_worldviewproj * a_position, 1.0;			\n\
-		}";
-
-	GLuint vert_shader = 0;
-
-	shadow_program = glCreateProgram();
-
-	GLboolean res = compile_shader(&vert_shader, GL_VERTEX_SHADER, vs_source);
-	if (!res)
-	{
-		log::error("Renderer failed to compile shadow vertex shader");
-		return;
-	}
-
-	glAttachShader(shadow_program, vert_shader);
-
-	if (!link_program(shadow_program))
-	{
-		glDeleteShader(vert_shader);
-		glDeleteProgram(shadow_program);
-		log::error("Renderer failed to link shadow shader program");
-		return;
-	}
-
-	glDeleteShader(vert_shader);
 }
 
 void xs::render::internal::compile_draw_shader()
@@ -985,152 +835,4 @@ bool xs::render::internal::link_program(GLuint program)
 
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	return status != 0;
-}
-
-void xs::render::internal::render_shadows_maps()
-{
-	// Go over all lights and render the shadow maps
-	for(int i = 0; i < dir_lights.size(); i++)
-	{
-		auto& shadow = dir_lights_shadows[i];
-		const auto& light = dir_lights[i];
-		const auto& shadow_map_fbo = shadow.shadow_map_fbo;
-		const auto& shadow_map = shadow.shadow_map;
-
-		// Set the viewport to the shadow map resolution
-		glBindFramebuffer(GL_FRAMEBUFFER, shadow_map_fbo);
-		glViewport(0, 0, shadow_resolution, shadow_resolution);
-		glClear(GL_DEPTH_BUFFER_BIT);
-
-		// Activate the shadow program
-		glUseProgram(shadow_program);
-
-		// Set the projection matrix
-		const auto projection = ortho(-10.0f, 10.0f, -10.0f, 10.0f, -10.0f, 10.0f);
-		const auto view = glm::lookAt(vec3(-light.direction), vec3(0.0f), vec3(0.0f, 0.0f, 1.0f));
-		const auto vp = projection * view;
-		shadow.shadow_matrix = vp;
-		
-		// Render each entry
-		for (const auto& entry : mesh_queue)
-		{
-			const auto& mesh = meshes[entry.mesh - 1];
-			const auto& image = images[entry.texture];
-			const auto& transform = entry.transform;
-			auto mvp = vp * transform;
-
-			// Bind the vertex array
-			glBindVertexArray(mesh.vao);
-
-			// Send the model matrix to the standard program
-			glUniformMatrix4fv(glGetUniformLocation(shadow_program, "u_worldviewproj"), 1, GL_FALSE, value_ptr(mvp));
-
-			// Draw the mesh
-			glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_INT, 0);
-		}
-	}
-}
-
-void xs::render::internal::render_3d()
-{
-	// Set the viewport to the screen resolution
-	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
-	glViewport(0, 0, width, height);
-
-	// Clear the screen
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-	glClearDepth(1.0);
-	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-	// Enable depth testing and set the depth function
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-
-	// Activate the standard program
-	const auto program = internal::mesh_program;
-	glUseProgram(program);
-
-	// Send the view and projection matrices to the standard program
-	glUniformMatrix4fv(glGetUniformLocation(program, "u_view"), 1, GL_FALSE, value_ptr(internal::view));
-	glUniformMatrix4fv(glGetUniformLocation(program, "u_projection"), 1, GL_FALSE, value_ptr(projection));
-	// auto texture_location = glGetUniformLocation(program, "u_texture");	
-
-	auto texture_location = 1;
-
-	// Go over all the directional lights and set shadow maps (even if they are not used)
-	for(int i = 0; i < internal::max_dir_lights; i++)
-	{
-		const auto& shadow = internal::dir_lights_shadows[i];
-		const auto& shadow_map = shadow.shadow_map;
-
-		// Set the shadow map
-		int sampler = 10 + i;
-		glActiveTexture(GL_TEXTURE0 + sampler);
-		glBindTexture(GL_TEXTURE_2D, shadow_map);
-		//auto s_shadow_maps = glGetUniformLocation(program, "s_shadow_maps");
-		glUniform1i(sampler, sampler);
-	}
-
-	// Send the directional lights to the standard program
-	glUniform1i(glGetUniformLocation(program, "u_num_directional_lights"), (int)internal::dir_lights.size());
-	for (int i = 0; i < internal::dir_lights.size(); ++i)
-	{
-		std::string name = "u_directional_lights[" + std::to_string(i) + "].direction";
-		glUniform3fv(glGetUniformLocation(program, name.c_str()), 1, value_ptr(internal::dir_lights[i].direction));
-		name = "u_directional_lights[" + std::to_string(i) + "].color";
-		glUniform3fv(glGetUniformLocation(program, name.c_str()), 1, &internal::dir_lights[i].color.x);
-
-		name = "u_directional_lights[" + std::to_string(i) + "].cast_shadow";
-		glUniform1i(glGetUniformLocation(program, name.c_str()), 1);
-
-		name = "u_directional_lights[" + std::to_string(i) + "].shadow_matrix";		
-		const auto& shadow = internal::dir_lights_shadows[i];		
-		glUniformMatrix4fv(glGetUniformLocation(program, name.c_str()), 1, GL_FALSE, value_ptr(shadow.shadow_matrix));
-	}
-
-	/*
-	// Send the point lights to the standard program	
-	glUniform1i(glGetUniformLocation(internal::standard_program, "u_num_point_lights"), (int)internal::point_lights.size());
-	for (int i = 0; i < internal::point_lights.size(); ++i)
-	{
-		std::string name = "u_point_lights[" + std::to_string(i) + "]";
-		glUniform3fv(glGetUniformLocation(internal::standard_program, (name + ".position").c_str()),
-			1, &internal::point_lights[i].position.x);
-		glUniform1f(glGetUniformLocation(internal::standard_program, (name + ".radius").c_str()),
-			internal::point_lights[i].range);
-		glUniform3fv(glGetUniformLocation(internal::standard_program, (name + ".color").c_str()),
-			1, &internal::point_lights[i].color.x);
-	}
-	*/
-
-	// Render each entry
-	for (const auto& entry : internal::mesh_queue)
-	{
-		const auto& mesh = internal::meshes[entry.mesh - 1];
-		const auto& image = internal::images[entry.texture];
-		// const auto& transform = entry.transform;
-
-		// Bind the vertex array
-		glBindVertexArray(mesh.vao);
-
-		// Bind the texture
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, image.texture);
-		// texture_location
-		glUniform1i(texture_location, 0);
-
-		// Send the model matrix to the standard program
-		glUniformMatrix4fv(glGetUniformLocation(program, "u_model"), 1, GL_FALSE, value_ptr(entry.transform));
-
-		// Send the multiply and add colors to the standard program
-		glUniform4fv(glGetUniformLocation(program, "u_mul_color"), 1, value_ptr(entry.mul_color));
-		glUniform4fv(glGetUniformLocation(program, "u_add_color"), 1, value_ptr(entry.add_color));
-
-		// Draw the mesh
-		glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_INT, 0);
-	}
-
-	mesh_queue.clear();
-	dir_lights.clear();
-	point_lights.clear();
 }

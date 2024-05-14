@@ -757,8 +757,17 @@ void render_create_shape(WrenVM* vm)
 
 void render_sprite_ex(WrenVM* vm)
 {
-    callFunction_args<int, double, double, double, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite);
-    //callFunction_args<int,double,double,double,double,double,xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite);
+    callFunction_args<
+        int,
+        double,
+        double,
+        double,
+        double,
+        double,
+        xs::render::color,
+        xs::render::color,
+        uint32_t
+    >(vm, xs::render::render_sprite);    
 }
 
 void render_set_offset(WrenVM* vm)
