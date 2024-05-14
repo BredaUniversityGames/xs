@@ -444,7 +444,7 @@ void xs::render::render()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, double y1)
+int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
 {
 	// Precision for the texture coordinates 
 	double precision = 10000.0;
@@ -527,7 +527,7 @@ int xs::render::create_sprite2(int image_id, double x0, double y0, double x1, do
 	return key;
 }
 
-void xs::render::render_sprite2(
+void xs::render::render_sprite(
 	int sprite_id,
 	double x,
 	double y,
@@ -572,7 +572,7 @@ void xs::render::render_shape(
 	color add,
 	unsigned int flags)
 {
-	render_sprite2(shape_id, x, y, z, size, rotation, mutiply, add, flags);
+	render_sprite(shape_id, x, y, z, size, rotation, mutiply, add, flags);
 }
 
 void xs::render::clear()
@@ -688,71 +688,6 @@ void xs::render::internal::create_shadowmap_buffers()
 	}
 }
 
-int xs::render::create_mesh(
-	const unsigned int* indices,
-	unsigned int index_count,
-	const float* positions,
-	const float* normals,
-	const float* texture_coordinates,
-	const float* colors,
-	unsigned int vertex_count)
-{
-	// Create an OpenGL mesh
-	internal::mesh mesh;
-	glGenVertexArrays(1, &mesh.vao);
-	glBindVertexArray(mesh.vao);
-
-	// Create the index buffer
-	glGenBuffers(1, &mesh.ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(int), indices, GL_STATIC_DRAW);
-	mesh.count = index_count;
-
-	// Create the vertex buffers	
-	glGenBuffers((GLsizei)mesh.vbos.size(), mesh.vbos.data());
-	//glGenBuffers(1, mesh.vbos.data());
-
-	// Create the position buffer
-	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[0]);
-	glBufferData(GL_ARRAY_BUFFER, vertex_count * 3 * sizeof(float), positions, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-
-	// Create the normal buffer
-	if (normals)
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[1]);
-		glBufferData(GL_ARRAY_BUFFER, vertex_count * 3 * sizeof(float), normals, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-	}
-
-	// Create the texture coordinate buffer
-	if (texture_coordinates)
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[2]);
-		glBufferData(GL_ARRAY_BUFFER, vertex_count * 2 * sizeof(float), texture_coordinates, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
-	}
-
-	// Create the color buffer
-	if (colors)
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[3]);
-		glBufferData(GL_ARRAY_BUFFER, vertex_count * 3 * sizeof(float), colors, GL_STATIC_DRAW);
-		glEnableVertexAttribArray(3);
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-	}
-
-	// Unbind the vertex array
-	glBindVertexArray(0);
-
-	// Store the mesh
-	internal::meshes.push_back(mesh);
-	return (int)internal::meshes.size();
-}
-
 int xs::render::create_shape(
 	int image_id,
 	const float* positions,
@@ -808,31 +743,6 @@ int xs::render::create_shape(
 	mesh.image_id = image_id;
 	sprite_meshes[key] = mesh;
 	return key;
-}
-
-void xs::render::render_mesh(
-	int mesh_id,
-	int image_id,
-	const glm::mat4& transform,
-	const glm::vec4& mul_color,
-	const glm::vec4& add_color)
-{
-	// Check that the mesh handle is valid
-	if (mesh_id < 0 || mesh_id >(int)meshes.size())
-		return;
-
-	// Check that the texture handle is valid
-	if (image_id < 0 || image_id >(int)images.size())
-		return;
-
-	// Add to the list of meshes to render
-	mesh_queue_entry instance;
-	instance.transform = transform;
-	instance.mesh = mesh_id;
-	instance.texture = image_id;
-	instance.mul_color = mul_color;
-	instance.add_color = add_color;
-	mesh_queue.push_back(instance);
 }
 
 void xs::render::internal::compile_sprite_shader()

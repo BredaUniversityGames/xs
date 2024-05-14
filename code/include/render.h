@@ -36,20 +36,9 @@ namespace xs::render
 	void set_offset(double x, double y);
 	int load_image(const std::string& image_file);
 	int load_font(const std::string& font_file, double size);
-	int load_mesh(const std::string& mesh_file);
 	int get_image_width(int image_id);
-	int get_image_height(int image_id);
-	
+	int get_image_height(int image_id);	
 	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
-	int create_sprite2(int image_id, double x0, double y0, double x1, double y1);
-	int create_mesh(
-		const unsigned int* indices,
-		unsigned int index_count,
-		const float* positions,
-		const float* normals,
-		const float* texture_coordinates,
-		const float* colors,
-		unsigned int vertex_count);
 
 	int create_shape(
 		int image_id,
@@ -63,17 +52,6 @@ namespace xs::render
 		int sprite_id,
 		double x,
 		double y,		
-		double z,
-		double size,
-		double rotation,
-		color mutiply,
-		color add,
-		unsigned int flags);
-
-	void render_sprite2(
-		int sprite_id,
-		double x,
-		double y,
 		double z,
 		double size,
 		double rotation,
@@ -100,28 +78,6 @@ namespace xs::render
 		color mutiply,
 		color add,
 		unsigned int flags);
-
-
-	void set_3d_projection(const glm::mat4& projection);
-	void set_3d_view(const glm::mat4& view);
-
-	void directional_light(
-		const glm::vec4& direction,
-		const glm::vec4& position,
-		const glm::vec4& shadow_volume,
-		const glm::vec4& color_and_intensity);
-
-	void render_point_light(
-		const float* position,
-		float radius,
-		const float* color_and_intensity);
-
-	void render_mesh(
-		int mesh_id,
-		int image_id,
-		const glm::mat4& transform,
-		const glm::vec4& mul_color,
-		const glm::vec4& add_color);
 
 	enum class primitive { lines, triangles, none };
 	void begin(primitive p);

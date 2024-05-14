@@ -734,8 +734,7 @@ void render_get_image_height(WrenVM* vm)
 
 void render_create_sprite(WrenVM* vm)
 {
-    callFunction_returnType_args<int, int, double, double, double, double>(vm, xs::render::create_sprite2);
-    //callFunction_returnType_args<int,int,double,double,double,double>(vm, xs::render::create_sprite);
+    callFunction_returnType_args<int, int, double, double, double, double>(vm, xs::render::create_sprite);
 }
 
 void render_create_shape(WrenVM* vm)
@@ -758,7 +757,7 @@ void render_create_shape(WrenVM* vm)
 
 void render_sprite_ex(WrenVM* vm)
 {
-    callFunction_args<int, double, double, double, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite2);
+    callFunction_args<int, double, double, double, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite);
     //callFunction_args<int,double,double,double,double,double,xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite);
 }
 
@@ -776,98 +775,6 @@ void render_render_text(WrenVM* vm)
 {
     callFunction_args<int, string, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_text);
 }
-
-void render_load_mesh(WrenVM* vm)
-{
-	callFunction_returnType_args<int, string>(vm, xs::render::load_mesh);
-}
-
-void render_create_mesh(WrenVM* vm)
-{
-    auto indices = wrenGetListParameter<unsigned int>(vm, 1);
-    auto positions = wrenGetListParameter<float>(vm, 2);
-    auto normals = wrenGetListParameter<float>(vm, 3);
-    auto uvs = wrenGetListParameter<float>(vm, 4);
-    auto colors = wrenGetListParameter<float>(vm, 5);
-    
-    auto mesh_id = xs::render::create_mesh(
-        indices.data(),
-        (unsigned int)indices.size(),
-        positions.data(),
-        normals.data(),
-        uvs.data(),
-        colors.data(),
-        (unsigned int)positions.size() / 3);
-
-    wrenSetReturnValue<int>(vm, mesh_id);
-}
-
-void render_render_mesh(WrenVM* vm)
-{
-    // Manual unpacking of arguments
-    auto mesh_id = wrenGetParameter<int>(vm, 1);
-    auto image_id = wrenGetParameter<int>(vm, 2);
-
-    // Load the matrix as a foreign object
-    auto transform = static_cast<glm::mat4*>(wrenGetSlotForeign(vm, 3));
-    if (!transform)
-    {
-		xs::log::error("Invalid transform matrix passed to render_mesh");
-		return;
-	}
-
-    auto mul = static_cast<glm::vec4*>(wrenGetSlotForeign(vm, 4));
-    if (!mul)
-    {
-        xs::log::error("Invalid mul color passed to render_mesh");
-        return;
-    }
-
-    auto add = static_cast<glm::vec4*>(wrenGetSlotForeign(vm, 5));
-    if (!add)
-    {
-		xs::log::error("Invalid add color passed to render_mesh");
-		return;
-	}
-    
-    xs::render::render_mesh(mesh_id, image_id, *transform, *mul, *add);
-}
-
-void render_set_3d_projection(WrenVM* vm)
-{
-    auto matrix = static_cast<glm::mat4*>(wrenGetSlotForeign(vm, 1));
-    if (!matrix)
-    {
-		xs::log::error("Invalid matrix passed to set_3d_projection");
-		return;
-    }
-
-    xs::render::set_3d_projection(*matrix);
-}
-
-void render_set_3d_view(WrenVM* vm)
-{
-	auto matrix = static_cast<glm::mat4*>(wrenGetSlotForeign(vm, 1));
-    if (!matrix)
-    {
-		xs::log::error("Invalid matrix passed to set_3d_view");
-		return;
-	}
-
-	xs::render::set_3d_view(*matrix);
-}
-
-void render_directional_light(WrenVM* vm)
-{
-    // Direction as vec4
-    auto direction = wrenGetParameter<glm::vec4>(vm, 1);
-    auto position = wrenGetParameter<glm::vec4>(vm, 2);
-    auto shadow_volume = wrenGetParameter<glm::vec4>(vm, 3);
-    auto color_and_intensity = wrenGetParameter<glm::vec4>(vm, 4);	
-
-    xs::render::directional_light(direction, position, shadow_volume, color_and_intensity);
-}
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Audio
@@ -1329,13 +1236,6 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
     bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
-    // 3D
-    bind("xs", "Render", true, "loadMesh(_)", render_load_mesh);
-    bind("xs", "Render", true, "createMesh(_,_,_,_,_)", render_create_mesh);
-    bind("xs", "Render", true, "mesh(_,_,_,_,_,_)", render_render_mesh);
-    bind("xs", "Render", true, "setProjection(_)", render_set_3d_projection);
-    bind("xs", "Render", true, "setView(_)", render_set_3d_view);
-    bind("xs", "Render", true, "directionalLight(_,_,_,_)", render_directional_light);
 
     // Audio
     bind("xs", "Audio", true, "load(_,_)", audio_load);

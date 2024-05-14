@@ -43,43 +43,6 @@ class Render {
     static spriteOverlay    { 1 << 7 }
     static spriteCenter     { spriteCenterX | spriteCenterY }
 
-    /// 3D native API /////////////////////////////////////////////////////////
-
-    /// Load a mesh from a file and return a mesh id
-    foreign static loadMesh(path)
-
-    /// Set the (3d) view matrix
-    foreign static setView(matrix)
-
-    /// Set the (3d) projection matrix
-    foreign static setProjection(matrix)
-
-    /// Render a mesh with a image (as diffuse texture) at a position, with scale, rotation, color, and flags
-    /// transform is a matrix, mul and add are vectors
-    foreign static mesh(modelId, imageId, transform, mul, add, flags)
-
-    /// Create a mesh from a set of vertices, normals, uvs, colors, and indices
-    /// positions, normals, uvs, and colors are lists of floats
-    /// positions and normals are vectors of 3 floats
-    /// uvs are vectors of 2 floats
-    /// colors are vectors of 4 floats
-    /// indices is a list of integers
-    foreign static createMesh(positions, normals, uvs, colors, indices)
-
-    /// Add a directional light to the scene with a direction, position, shadow, color
-    /// direction is a vector
-    /// position is a vector used for shadow calculation
-    /// shadow is the shadow volume extent (also a vector)
-    /// color is a vector with the last (w) component as intensity
-    foreign static directionalLight(direction, position, shadow, color)
-
-    /// Add a directional light to the scene with a direction and color
-    /// This is a helper function that sets the position and shadow to zero
-    /// and thus will not cast shadows
-    static directionalLight(direction, color) {
-        directionalLight(direction, Vector.new(0, 0, 0, 1), Vector.new(0, 0, 0, 0), color)
-    }
-
     /// Debug native API //////////////////////////////////////////////////////
 
     foreign static setColor(color)
