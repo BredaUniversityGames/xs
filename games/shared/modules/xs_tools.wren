@@ -10,61 +10,31 @@ class Tools {
     }
 }
 
-class MeshBuilder {
+class ShapeBuilder {
     construct new() {
-        _positions = []
-        _normals = []
-        _uvs = []
-        _colors = []
+        _position = []
+        _texture = []
         _indices = []
-    }
+    }    
 
     addPosition(position) {
-        _positions.add(position.x)
-        _positions.add(position.y)
-        _positions.add(position.z)
+        _position.add(position.x)
+        _position.add(position.y)
     }
 
-    addPosition(x, y, z) {
-        _positions.add(x)
-        _positions.add(y)
-        _positions.add(z)
+    addPosition(x, y) {
+        _position.add(x)
+        _position.add(y)
     }
 
-    addNormal(normal) {
-        _normals.add(normal.x)
-        _normals.add(normal.y)
-        _normals.add(normal.z)
+    addTexture(texture) {
+        _texture.add(texture.x)
+        _texture.add(texture.y)
     }
 
-    addNormal(x, y, z) {
-        _normals.add(x)
-        _normals.add(y)
-        _normals.add(z)
-    }
-
-    addUV(uv) {
-        _uvs.add(uv.x)
-        _uvs.add(uv.y)
-    }
-
-    addUV(x, y) {
-        _uvs.add(x)
-        _uvs.add(y)
-    }
-
-    addColor(color) {
-        _colors.add(color.x)
-        _colors.add(color.y)
-        _colors.add(color.z)
-        _colors.add(color.w)
-    }
-
-    addColor(r, g, b, a) {
-        _colors.add(r)
-        _colors.add(g)
-        _colors.add(b)
-        _colors.add(a)
+    addTexture(x, y) {
+        _texture.add(x)
+        _texture.add(y)
     }
 
     addIndex(index) {
@@ -89,9 +59,9 @@ class MeshBuilder {
         return true
     }
 
-    build() {
+    build(image) {
         if(!validate()) return null
-        var mesh = Render.createMesh(_indices, _positions, _normals, _uvs, _colors)
-        return mesh
+        var shape = Render.createShape(image, _position, _texture, _indices)
+        return shape
     }
 }

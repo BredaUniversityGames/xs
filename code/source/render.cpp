@@ -58,8 +58,6 @@ using namespace glm;
 
 namespace xs::render::internal
 {
-	std::vector<sprite_queue_entry>	sprite_queue = {};
-	std::vector<sprite>				sprites = {};
 	std::vector<font_atlas>			fonts = {};
 	std::vector<image>				images = {};
 	glm::vec2						offset = glm::vec2(0.0f, 0.0f);
@@ -75,8 +73,6 @@ namespace xs::render::internal
     primitive                       current_primitive = primitive::none;
     glm::vec4                       current_color = {1.0, 1.0, 1.0, 1.0};
 
-	std::vector<directional_light>	dir_lights;
-	std::vector<point_light>		point_lights;
 
 	const int FONT_ATLAS_MIN_CHARACTER = 32;
 	const int FONT_ATLAS_NR_CHARACTERS = 96;
@@ -213,8 +209,7 @@ void xs::render::render_text(
 	auto& font = fonts[font_id];
 	auto& img = images[font.image_id];
 
-	double begin = x;	
-	auto last_idx = sprite_queue.size();
+	double begin = x;
 
 	// Do a first pass to calculate the width of the text
 	if (tools::check_bit_flag_overlap(flags, xs::render::sprite_flags::center))
@@ -268,12 +263,6 @@ void xs::render::render_text(
 
 		begin += advance + kerning;		
 	}
-}
-
-void xs::render::reload()
-{
-	sprite_queue.clear();
-	sprites.clear();
 }
 
 int xs::render::load_image(const std::string& image_file)

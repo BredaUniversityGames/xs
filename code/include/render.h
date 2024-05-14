@@ -48,6 +48,8 @@ namespace xs::render
 		const unsigned short* indices,
 		unsigned int index_count);
 
+	void destroy_shape(int sprite_id);
+
 	void render_sprite(
 		int sprite_id,
 		double x,
@@ -86,4 +88,6 @@ namespace xs::render
 	void end();	
 	void line(double x0, double y0, double x1, double y1);
 	void text(const std::string& text, double x, double y, double size);
+
+	void inspect();
 }

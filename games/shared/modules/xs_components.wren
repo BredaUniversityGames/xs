@@ -77,7 +77,7 @@ class Sprite is Renderable {
         _mul = 0xFFFFFFFF        
         _add = 0x00000000
         _flags = 0
-    }
+    }    
 
     construct new(image, s0, t0, s1, t1) {
         super()
@@ -92,15 +92,18 @@ class Sprite is Renderable {
         _flags = 0
     }
 
+    initialize() {
+        _transform = owner.getComponent(Transform)
+    }
+
     render() {        
-        var t = owner.getComponent(Transform)
         Render.sprite(
             _sprite,
-            t.position.x,
-            t.position.y,
+            _transform.position.x,
+            _transform.position.y,
             layer,
             _scale,            
-            t.rotation,
+            _transform.rotation,
             _mul,
             _add,
             _flags)
@@ -122,6 +125,49 @@ class Sprite is Renderable {
     sprite { _sprite }
 
     toString { "[Sprite sprite:%(_sprite)] -> " + super.toString }
+}
+
+class Shape is Renderable {
+    construct new(shape) {
+        super()
+        _shape = shape
+        _rotation = 0.0
+        _scale = 1.0
+        _mul = 0xFFFFFFFF        
+        _add = 0x00000000
+        _flags = 0
+    }
+
+    render() {
+        var t = owner.getComponent(Transform)
+        Render.sprite(
+            _shape,
+            t.position.x,
+            t.position.y,
+            layer,
+            _scale,            
+            t.rotation,
+            _mul,
+            _add,
+            _flags)            
+    }
+
+    add { _add }
+    add=(a) { _add = a }
+
+    mul { _mul }
+    mul=(m) { _mul = m }
+
+    flags { _flags }
+    flags=(f) { _flags = f }
+
+    scale { _scale }
+    scale=(s) { _scale = s }
+
+    shape=(s) { _shape = s }
+    shape { _shape }
+
+    toString { "[Shape shape:%(_shape)] -> " + super.toString }
 }
 
 class Label is Sprite {

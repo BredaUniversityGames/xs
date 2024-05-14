@@ -28,26 +28,6 @@ namespace xs::render::internal
 		std::string file;
 	};
 
-	struct sprite
-	{
-		int image_id	= -1;
-		glm::vec2 from	= {};
-		glm::vec2 to	= {};		
-	};
-
-	struct sprite_queue_entry
-	{
-		int sprite_id	= -1;
-		double			x = 0.0;
-		double			y = 0.0;
-		double			z = 0.0;
-		double			scale = 1.0;
-		double			rotation = 0.0;
-		color			mul_color = {};
-		color			add_color = {};
-		unsigned int	flags = 0;
-	};
-
 	struct font_atlas
 	{
 		int								image_id		= -1;
@@ -64,44 +44,12 @@ namespace xs::render::internal
         glm::vec4 position;
         glm::vec4 color;
     };
-
-	struct mesh_queue_entry
-	{		
-		int mesh = -1;
-		int texture = -1;
-		glm::mat4 transform = glm::mat4(1.0f);
-		glm::vec4 mul_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		glm::vec4 add_color = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-	};
-
-	struct directional_light
-	{
-		glm::vec4 direction;
-		glm::vec4 position;
-		glm::vec4 shadow_volume;
-		glm::vec3 color;	// TODO: Keep this as a vec4
-	};
-
-	struct point_light
-	{
-		glm::vec3 position;
-		float range;
-		glm::vec3 color;
-	};	
 	
-	extern std::vector<sprite>				sprites;
 	extern std::vector<image>				images;
 	extern std::vector<font_atlas>			fonts;
 	extern glm::vec2						offset;
-	extern glm::mat4						view;
-	extern glm::mat4						projection;
 
-	extern std::vector<sprite_queue_entry>	sprite_queue;
-	extern std::vector<mesh_queue_entry>	mesh_queue;
-	extern std::vector<directional_light>	dir_lights;
-	extern std::vector<point_light>			point_lights;
-
-    static int const                        lines_max = 16000;
+	static int const                        lines_max = 16000;
     extern int                              lines_count;
     extern int                              lines_begin_count ;
     extern debug_vertex_format              lines_array[lines_max * 2];
