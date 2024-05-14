@@ -56,7 +56,7 @@ namespace xs::render
 		const float* positions,
 		const float* texture_coordinates,
 		unsigned int vertex_count,
-		const unsigned int* indices,
+		const unsigned short* indices,
 		unsigned int index_count);
 
 	void render_sprite(
