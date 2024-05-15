@@ -3,6 +3,7 @@
 #include <tuple>
 #include <vector>
 #include <limits>
+#include <random>
 #include <glm/glm.hpp>
 
 namespace xs::tools
@@ -37,20 +38,28 @@ namespace xs::tools
 	}
 
 	template <typename T>
-	inline std::size_t hash_combine(const T& v)
+	inline int hash_combine(const T& v)
 	{
 		std::hash<T> hasher;
-		return hasher(v);
+		return (int)hasher(v);
 	}
 
 	template <typename T, typename... Rest>
-	inline std::size_t hash_combine(const T& first, const Rest&... rest)
+	inline int hash_combine(const T& first, const Rest&... rest)
 	{
-		std::size_t seed = hash_combine(first);
+		int seed = hash_combine(first);
 		((seed ^= hash_combine(rest) + 0x9e3779b9 + (seed << 6) + (seed >> 2)), ...);
 		return seed;
 	}
 
+	inline int random_id()
+	{
+		// random using C++11 random library
+		static std::random_device rd;
+		static std::mt19937 gen(rd());
+		static std::uniform_int_distribution<int> dis(0, std::numeric_limits<int>::max());
+		return dis(gen);
+	}
 
 	struct aabb
 	{
@@ -88,7 +97,13 @@ namespace xs::tools
 			return result;
 		}
 
-		void debug_draw();
+		void debug_draw();		
+	};
+
+	struct handle
+	{
+		int id = 0;
+		operator int() const { return id; }
 		
 	};
 }

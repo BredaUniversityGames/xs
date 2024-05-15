@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <iostream>
 #include <functional>
+#include <type_traits>
 #include <string>
 #include <unordered_map>
 #include <array>
@@ -27,6 +28,7 @@ extern "C" {
 }
 
 using namespace std;
+using namespace xs;
 
 namespace xs::script::internal
 {
@@ -401,12 +403,138 @@ bool checkType(WrenVM* vm, int slot, WrenType type, const string& function)
     return false;
 }
 
-template <typename T> T wrenGetParameter(WrenVM* vm, int slot)
+/*
+template<> int wrenGetParameter<int>(WrenVM* vm, int slot)
+{
+    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
+        return (int)wrenGetSlotDouble(vm, slot);
+    return -1;
+}
+
+template<> uint32_t wrenGetParameter<uint32_t>(WrenVM* vm, int slot)
+{
+    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
+        return (uint32_t)wrenGetSlotDouble(vm, slot);
+    return (uint32_t)-1;
+}
+
+template <typename T> std::vector<T> wrenGetListParameter(WrenVM* vm, int slot)
+{
+    std::vector<T> values;
+    if (checkType(vm, slot, WREN_TYPE_LIST, __func__))
+    {
+        auto count = wrenGetListCount(vm, slot);
+        values.resize(count);
+        for (int i = 0; i < count; i++)
+        {
+            wrenGetListElement(vm, slot, i, 0);
+            values[i] = wrenGetParameter<T>(vm, 0);
+        }
+    }
+    return values;
+}
+
+
+// Floats and doubles
+template <typename T, std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
+T wrenGetParameter(WrenVM* vm, int slot)
+{
+	if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
+		return (T)wrenGetSlotDouble(vm, slot);
+	return (T)0;
+}
+
+// Bool
+template <typename T, std::enable_if_t<std::is_same_v<T, bool>, bool> = true>
+T wrenGetParameter(WrenVM* vm, int slot)
+{
+	if (checkType(vm, slot, WREN_TYPE_BOOL, __func__))
+		return wrenGetSlotBool(vm, slot);
+	return false;
+}
+
+// Integers
+template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
+T wrenGetParameter(WrenVM* vm, int slot)
 {
     if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
         return (T)wrenGetSlotDouble(vm, slot);
     return (T)0;
 }
+
+// Strings
+template <typename T, std::enable_if_t<std::is_same_v<T, std::string>, bool> = true>
+T wrenGetParameter(WrenVM* vm, int slot)
+{
+	if (checkType(vm, slot, WREN_TYPE_STRING, __func__))
+		return wrenGetSlotString(vm, slot);
+	return "";
+}
+
+// Colors
+template <typename T, std::enable_if_t<std::is_same_v<T, xs::render::color>, bool> = true>
+T wrenGetParameter(WrenVM* vm, int slot)
+{
+    xs::render::color c;
+    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
+        c.integer_value = wrenGetParameter<uint32_t>(vm, slot);
+    else
+        c.integer_value = 0;
+
+    return c;
+}
+
+// Enums
+template <typename T, std::enable_if_t<std::is_enum<T>::value, bool> = true>
+T wrenGetParameter(WrenVM* vm, int slot)
+{
+    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
+        return (T)wrenGetSlotDouble(vm, slot);
+    return T();
+}
+
+// Sprite handles
+template <typename T, std::enable_if_t<std::is_same_v<T, sprite_handle>, bool> = true>
+T wrenGetParameter(WrenVM* vm, int slot)
+{
+	if (checkType(vm, slot, WREN_TYPE_FOREIGN, __func__))
+		return *static_cast<T*>(wrenGetSlotForeign(vm, slot));
+	return T();
+}
+
+// Foreign types
+template <typename T,
+    std::enable_if_t<std::is_class<T>::value, bool> = true,
+    std::enable_if_t<std::is_floating_point<T>::value, bool> = false,
+    std::enable_if_t<std::is_integral<T>::value, bool> = false,
+    std::enable_if_t<std::is_enum<T>::value, bool> = false,
+    std::enable_if_t<std::is_same_v<T, bool>, bool> = false,
+    std::enable_if_t<std::is_base_of_v<T, std::string>, bool> = false,
+    std::enable_if_t<std::is_same_v<T, xs::render::color>, bool> = false>
+T wrenGetParameter(WrenVM* vm, int slot)
+{
+	// Assume the type is foreign if it is not a basic type
+	if (wrenGetSlotType(vm, slot) == WREN_TYPE_FOREIGN)
+		return *static_cast<T*>(wrenGetSlotForeign(vm, slot));
+	xs::log::error("Invalid type passed in function '{}'", __func__);
+	return T();
+}
+*/
+
+template <typename T> T wrenGetParameter(WrenVM* vm, int slot);
+template <typename T, bool is_integral_type> T wrenGetParameter(WrenVM* vm, int slot);
+
+/*
+template <typename T, >
+T wrenGetParameter<T, !std::is_integral<T>::value>(WrenVM* vm, int slot)
+{
+    // Assume the type is foreign if it is not a basic type
+    if (wrenGetSlotType(vm, slot) == WREN_TYPE_FOREIGN)
+        return *static_cast<T*>(wrenGetSlotForeign(vm, slot));
+    xs::log::error("Invalid type passed in function '{}'", __func__);
+    return T();
+}
+*/
 
 template<> bool wrenGetParameter<bool>(WrenVM* vm, int slot)
 {
@@ -428,8 +556,7 @@ template<> string wrenGetParameter<string>(WrenVM* vm, int slot)
 }
 template<> xs::render::color wrenGetParameter<xs::render::color>(WrenVM* vm, int slot)
 {
-    xs::render::color c; 
-    
+    xs::render::color c;     
     if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
         c.integer_value = wrenGetParameter<uint32_t>(vm, slot);
     else
@@ -451,6 +578,31 @@ template<> glm::vec4 wrenGetParameter<glm::vec4>(WrenVM* vm, int slot)
     return glm::vec4(0.0f);
 }
 
+template<> tools::handle wrenGetParameter<tools::handle>(WrenVM* vm, int slot)
+{
+	if (checkType(vm, slot, WREN_TYPE_FOREIGN, __func__))
+		return *static_cast<tools::handle*>(wrenGetSlotForeign(vm, slot));
+	return tools::handle();
+}
+
+template <typename T>
+T wrenGetParameter(WrenVM* vm, int slot)
+{
+    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
+        return (T)wrenGetSlotDouble(vm, slot);
+    return (T)0;
+}
+
+/*
+template <typename T>
+T wrenGetParameter<T, std::is_integral<T>::value>(WrenVM* vm, int slot)
+{    
+    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
+        return (T)wrenGetSlotDouble(vm, slot);
+    return (T)0;
+}
+*/
+
 template <typename T> std::vector<T> wrenGetListParameter(WrenVM* vm, int slot)
 {
     std::vector<T> values;
@@ -466,6 +618,7 @@ template <typename T> std::vector<T> wrenGetListParameter(WrenVM* vm, int slot)
     }
     return values;
 }
+
 
 template <typename T> void wrenSetReturnValue(WrenVM* vm, const T& value)
 {
@@ -704,7 +857,11 @@ void render_vertex(WrenVM* vm)
 
 void render_set_color(WrenVM* vm)
 {
-    callFunction_args<xs::render::color>(vm, xs::render::set_color);
+    // Call manually
+    auto c = wrenGetParameter<xs::render::color>(vm, 1);
+    xs::render::set_color(c);
+
+    // callFunction_args<xs::render::color>(vm, xs::render::set_color);
 }
 
 void render_line(WrenVM* vm)
@@ -734,7 +891,19 @@ void render_get_image_height(WrenVM* vm)
 
 void render_create_sprite(WrenVM* vm)
 {
-    callFunction_returnType_args<int, int, double, double, double, double>(vm, xs::render::create_sprite);
+    // callFunction_returnType_args<int, int, double, double, double, double>(vm, xs::render::create_sprite);
+
+    auto image_id = wrenGetParameter<int>(vm, 1);
+    auto x0 = wrenGetParameter<double>(vm, 2);
+    auto y0 = wrenGetParameter<double>(vm, 3);
+    auto x1 = wrenGetParameter<double>(vm, 4);
+    auto y1 = wrenGetParameter<double>(vm, 5);
+    auto sprite_id = xs::render::create_sprite(image_id, x0, y0, x1, y1);
+
+    wrenGetVariable(vm, "xs", "ShapeHandle", 0);
+    auto handle = (int*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
+    *handle = sprite_id;
+    
 }
 
 void render_create_shape(WrenVM* vm)
@@ -752,13 +921,15 @@ void render_create_shape(WrenVM* vm)
 		indices.data(),
 		(unsigned int)indices.size());
 
-	wrenSetReturnValue<int>(vm, shape_id);
+    wrenGetVariable(vm, "xs", "ShapeHandle", 0);
+	auto handle = (int*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
+	*handle = shape_id;
 }
 
 void render_sprite_ex(WrenVM* vm)
 {
     callFunction_args<
-        int,
+        tools::handle,
         double,
         double,
         double,
@@ -783,6 +954,23 @@ void render_load_font(WrenVM* vm)
 void render_render_text(WrenVM* vm)
 {
     callFunction_args<int, string, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_text);
+}
+
+void shape_handle_allocate(WrenVM* vm)
+{
+	void* data = wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
+	auto handle = new (data) int();
+	*handle = -1;
+}
+
+void shape_handle_finalize(void* data)
+{
+	auto handle = static_cast<int*>(data);
+    if (*handle != -1)
+    {
+		xs::render::destroy_shape(*handle);
+		*handle = -1;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1245,6 +1433,12 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
     bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
+
+    // ShapeHandle
+    WrenForeignClassMethods shape_handle_methods {};
+    shape_handle_methods.allocate = shape_handle_allocate;
+    shape_handle_methods.finalize = shape_handle_finalize;
+    bind_class("xs", "ShapeHandle", shape_handle_methods);
 
     // Audio
     bind("xs", "Audio", true, "load(_,_)", audio_load);
