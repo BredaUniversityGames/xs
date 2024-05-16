@@ -403,138 +403,7 @@ bool checkType(WrenVM* vm, int slot, WrenType type, const string& function)
     return false;
 }
 
-/*
-template<> int wrenGetParameter<int>(WrenVM* vm, int slot)
-{
-    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
-        return (int)wrenGetSlotDouble(vm, slot);
-    return -1;
-}
-
-template<> uint32_t wrenGetParameter<uint32_t>(WrenVM* vm, int slot)
-{
-    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
-        return (uint32_t)wrenGetSlotDouble(vm, slot);
-    return (uint32_t)-1;
-}
-
-template <typename T> std::vector<T> wrenGetListParameter(WrenVM* vm, int slot)
-{
-    std::vector<T> values;
-    if (checkType(vm, slot, WREN_TYPE_LIST, __func__))
-    {
-        auto count = wrenGetListCount(vm, slot);
-        values.resize(count);
-        for (int i = 0; i < count; i++)
-        {
-            wrenGetListElement(vm, slot, i, 0);
-            values[i] = wrenGetParameter<T>(vm, 0);
-        }
-    }
-    return values;
-}
-
-
-// Floats and doubles
-template <typename T, std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
-T wrenGetParameter(WrenVM* vm, int slot)
-{
-	if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
-		return (T)wrenGetSlotDouble(vm, slot);
-	return (T)0;
-}
-
-// Bool
-template <typename T, std::enable_if_t<std::is_same_v<T, bool>, bool> = true>
-T wrenGetParameter(WrenVM* vm, int slot)
-{
-	if (checkType(vm, slot, WREN_TYPE_BOOL, __func__))
-		return wrenGetSlotBool(vm, slot);
-	return false;
-}
-
-// Integers
-template <typename T, std::enable_if_t<std::is_integral<T>::value, bool> = true>
-T wrenGetParameter(WrenVM* vm, int slot)
-{
-    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
-        return (T)wrenGetSlotDouble(vm, slot);
-    return (T)0;
-}
-
-// Strings
-template <typename T, std::enable_if_t<std::is_same_v<T, std::string>, bool> = true>
-T wrenGetParameter(WrenVM* vm, int slot)
-{
-	if (checkType(vm, slot, WREN_TYPE_STRING, __func__))
-		return wrenGetSlotString(vm, slot);
-	return "";
-}
-
-// Colors
-template <typename T, std::enable_if_t<std::is_same_v<T, xs::render::color>, bool> = true>
-T wrenGetParameter(WrenVM* vm, int slot)
-{
-    xs::render::color c;
-    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
-        c.integer_value = wrenGetParameter<uint32_t>(vm, slot);
-    else
-        c.integer_value = 0;
-
-    return c;
-}
-
-// Enums
-template <typename T, std::enable_if_t<std::is_enum<T>::value, bool> = true>
-T wrenGetParameter(WrenVM* vm, int slot)
-{
-    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
-        return (T)wrenGetSlotDouble(vm, slot);
-    return T();
-}
-
-// Sprite handles
-template <typename T, std::enable_if_t<std::is_same_v<T, sprite_handle>, bool> = true>
-T wrenGetParameter(WrenVM* vm, int slot)
-{
-	if (checkType(vm, slot, WREN_TYPE_FOREIGN, __func__))
-		return *static_cast<T*>(wrenGetSlotForeign(vm, slot));
-	return T();
-}
-
-// Foreign types
-template <typename T,
-    std::enable_if_t<std::is_class<T>::value, bool> = true,
-    std::enable_if_t<std::is_floating_point<T>::value, bool> = false,
-    std::enable_if_t<std::is_integral<T>::value, bool> = false,
-    std::enable_if_t<std::is_enum<T>::value, bool> = false,
-    std::enable_if_t<std::is_same_v<T, bool>, bool> = false,
-    std::enable_if_t<std::is_base_of_v<T, std::string>, bool> = false,
-    std::enable_if_t<std::is_same_v<T, xs::render::color>, bool> = false>
-T wrenGetParameter(WrenVM* vm, int slot)
-{
-	// Assume the type is foreign if it is not a basic type
-	if (wrenGetSlotType(vm, slot) == WREN_TYPE_FOREIGN)
-		return *static_cast<T*>(wrenGetSlotForeign(vm, slot));
-	xs::log::error("Invalid type passed in function '{}'", __func__);
-	return T();
-}
-*/
-
 template <typename T> T wrenGetParameter(WrenVM* vm, int slot);
-template <typename T, bool is_integral_type> T wrenGetParameter(WrenVM* vm, int slot);
-
-/*
-template <typename T, >
-T wrenGetParameter<T, !std::is_integral<T>::value>(WrenVM* vm, int slot)
-{
-    // Assume the type is foreign if it is not a basic type
-    if (wrenGetSlotType(vm, slot) == WREN_TYPE_FOREIGN)
-        return *static_cast<T*>(wrenGetSlotForeign(vm, slot));
-    xs::log::error("Invalid type passed in function '{}'", __func__);
-    return T();
-}
-*/
 
 template<> bool wrenGetParameter<bool>(WrenVM* vm, int slot)
 {
@@ -593,16 +462,6 @@ T wrenGetParameter(WrenVM* vm, int slot)
     return (T)0;
 }
 
-/*
-template <typename T>
-T wrenGetParameter<T, std::is_integral<T>::value>(WrenVM* vm, int slot)
-{    
-    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
-        return (T)wrenGetSlotDouble(vm, slot);
-    return (T)0;
-}
-*/
-
 template <typename T> std::vector<T> wrenGetListParameter(WrenVM* vm, int slot)
 {
     std::vector<T> values;
@@ -618,7 +477,6 @@ template <typename T> std::vector<T> wrenGetListParameter(WrenVM* vm, int slot)
     }
     return values;
 }
-
 
 template <typename T> void wrenSetReturnValue(WrenVM* vm, const T& value)
 {
