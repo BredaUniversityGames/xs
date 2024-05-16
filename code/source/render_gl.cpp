@@ -87,7 +87,7 @@ namespace xs::render::internal
 		uint32_t					count = 0;
 		int							image_id = 0;
 		tools::aabb					extents;
-		uint						ref_count = 0;
+		bool						is_sprite = false;
 	};
 
 	struct sprite_mesh_instance
@@ -219,31 +219,7 @@ void xs::render::render()
 	for (auto i = 0; i < sprite_queue.size(); i++)
 	{
 		const auto& spe = sprite_queue[i];
-
-		/*
-		// Find the mesh
-		auto it = sprite_meshes.find(spe.sprite_id);
-		if (it == sprite_meshes.end())
-		{
-			// The sprite mesh does not exist
-			xs::log::error("Sprite mesh does not exist");
-			//continue;
-		}
-		*/
-
 		auto& mesh = sprite_meshes[spe.sprite_id];
-
-		/*
-		// Find the image
-		auto it2 = images.find(mesh.image_id);
-		if (it2 == images.end())
-		{
-			// The image does not exist
-			xs::log::error("Image does not exist");
-			//continue;
-		}
-		*/
-
 		auto& img = images[mesh.image_id];
 
 		// Set the shader program
@@ -476,28 +452,20 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 {
 	// Precision for the texture coordinates 
 	double precision = 10000.0;
-	//int xh0 = (int)(x0 * precision);
-	//int yh0 = (int)(y0 * precision);
-	//int xh1 = (int)(x1 * precision);
-	//int yh1 = (int)(y1 * precision);
+	int xh0 = (int)(x0 * precision);
+	int yh0 = (int)(y0 * precision);
+	int xh1 = (int)(x1 * precision);
+	int yh1 = (int)(y1 * precision);
 
-
-	/*
 	// Check if the sprite already exists
 	auto key = tools::hash_combine(image_id, x0, y0, x1, y1);
 	auto it = sprite_meshes.find(key);
 	if (it != sprite_meshes.end())
-	{
-		// Increase the reference count
-		it->second.ref_count++;
 		return it->first;
-	}
-	*/
-
-	auto key = tools::random_id();
 
 	// Create the sprite mesh
 	sprite_mesh mesh;
+	mesh.is_sprite = true;
 
 	// Index of the vertices
 	unsigned short sprite_indices[] = { 0, 1, 2, 2, 3, 0 };
@@ -574,33 +542,7 @@ int xs::render::create_shape(
 {
 	// Create the sprite mesh
 	sprite_mesh mesh = {};
-
-	/*
-	auto key = 0;
-	// Calculate the extents and hash the positions
-	for (unsigned int i = 0; i < vertex_count; i++)
-	{
-		vec2 p(positions[i * 2 + 0], positions[i * 2 + 1]);
-		mesh.extents.add_point(p);
-		key = tools::hash_combine(key, (int)(p.x * 1000), (int)(p.y * 1000));
-	}
-	// Hash the texture coordinates
-	for (unsigned int i = 0; i < vertex_count; i++)
-		key = tools::hash_combine(key, texture_coordinates[i * 2 + 0], texture_coordinates[i * 2 + 0]);
-	// Hash the indices
-	for (unsigned int i = 0; i < index_count; i++)
-		key = tools::hash_combine(key, indices[i]);
-
-	// Check if the sprite already exists
-	auto it = sprite_meshes.find(key);
-	if (it != sprite_meshes.end())
-	{
-		// Increase the reference count
-		it->second.ref_count++;
-		return it->first;
-	}
-	*/
-
+	mesh.is_sprite = false;
 	auto key = tools::random_id();
 
 	glGenVertexArrays(1, &mesh.vao);
@@ -642,8 +584,7 @@ void xs::render::destroy_shape(int sprite_id)
 	if (it != sprite_meshes.end())
 	{
 		auto& mesh = it->second;
-		//mesh.ref_count--;
-		//if (mesh.ref_count == 0)
+		if(!mesh.is_sprite) 
 		{
 			glDeleteVertexArrays(1, &mesh.vao);
 			glDeleteBuffers(1, &mesh.ebo);
@@ -824,5 +765,5 @@ void xs::render::reload()
 
 void xs::render::inspect()
 {
-	ImGui::Text(u8"| %s %d | ", ICON_FA_TIMES_CIRCLE, sprite_meshes.size());
+	ImGui::Text(u8"| %s %d | ", ICON_FA_FILE_IMAGE, sprite_meshes.size());
 }
