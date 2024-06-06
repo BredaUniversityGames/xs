@@ -78,3 +78,4 @@ games/peperuga/
 xs.vcxproj.user
 /.cache
 *.xs
+games/hack-on/
