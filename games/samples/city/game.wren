@@ -1,6 +1,6 @@
-import "xs" for Input, Render
+import "xs" for Input, Render, Data
 import "random" for Random
-import "vector" for Vector, ColorRGBA, Base
+import "xs_math" for Math, Vec2
 
 class Tag {
     static None { 0 }
@@ -56,17 +56,17 @@ class MovingObject is GameObject {
 class Ship  is MovingObject {
     construct new() {
         var x = Data.getNumber("Width", Data.system) * -0.25
-        var pos = Vector.new(x, 0.0)
-        var vel = Vector.new(0.0, 0.0)
-        var size = Vector.new(35.0, 15.0)
+        var pos = Vec2.new(x, 0.0)
+        var vel = Vec2.new(0.0, 0.0)
+        var size = Vec2.new(35.0, 15.0)
         super(pos, size, vel)
-        _rect = Rect.positionSize(Vector.new(0,0), size)
+        _rect = Rect.positionSize(Vec2.new(0,0), size)
         _shootTime = 0.0
     }
 
     update(dt) {
-        var vel = Vector.new(Input.getAxis(0), -Input.getAxis(1))
-        // var vel = Vector.new(Input.getKey(Input.keyRight) - Input.getKey(Input.keyLeft), 0)
+        var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
+        // var vel = Vec2.new(Input.getKey(Input.keyRight) - Input.getKey(Input.keyLeft), 0)
 
         if(Input.getKey(Input.keyLeft)) {
             vel.x = vel.x - 1
@@ -133,11 +133,11 @@ class Ship  is MovingObject {
 class Enemy  is MovingObject {
     construct new() {
         var x = Data.getNumber("Width", Data.system) * 0.25
-        var pos = Vector.new(x, 0.0)
-        var vel = Vector.new(0.0, 0.0)
-        var size = Vector.new(35.0, 15.0)
+        var pos = Vec2.new(x, 0.0)
+        var vel = Vec2.new(0.0, 0.0)
+        var size = Vec2.new(35.0, 15.0)
         super(pos, size, vel)
-        _rect = Rect.positionSize(Vector.new(0,0), size)
+        _rect = Rect.positionSize(Vec2.new(0,0), size)
         _shootTime = 0.0
     }
 
@@ -178,11 +178,11 @@ class Bullet is MovingObject {
         var vel
         var size
         if(owner == Game.playerShip){
-            vel = Vector.new(900.0, 0.0)
-            size = Vector.new(10.0, 10.0)
+            vel = Vec2.new(900.0, 0.0)
+            size = Vec2.new(10.0, 10.0)
         } else {
-            vel = Vector.new(-300.0, 0.0)
-            size = Vector.new(12.0, 12.0)
+            vel = Vec2.new(-300.0, 0.0)
+            size = Vec2.new(12.0, 12.0)
         }
         super(owner.position, size, vel)
     }
@@ -209,8 +209,8 @@ class Bullet is MovingObject {
 
 class Rocket is MovingObject {
     construct new(position) {
-        var vel = Vector.new(0.0, 0.0)
-        var size = Vector.new(8.0, 8.0)
+        var vel = Vec2.new(0.0, 0.0)
+        var size = Vec2.new(8.0, 8.0)
         super(position, size, vel)
     }
 
@@ -235,8 +235,8 @@ class Rect {
     }
 
     construct positionSize(position, size) {
-        _from = Vector.new(position.x - size.x * 0.5, position.y - size.y * 0.5)
-        _to = Vector.new(position.x + size.x * 0.5, position.y + size.y * 0.5)
+        _from = Vec2.new(position.x - size.x * 0.5, position.y - size.y * 0.5)
+        _to = Vec2.new(position.x + size.x * 0.5, position.y + size.y * 0.5)
     }
 
     render(x, y) {        
@@ -277,15 +277,15 @@ class Building is GameObject {
         var dy = 15 
         var n = __random.int(3, 3 + layer)
         for(i in 1..n) {
-            var from = Vector.new(x, y)
+            var from = Vec2.new(x, y)
             y = y + __random.float(1, 4) * dy
-            var to = Vector.new(x + dx, y)            
+            var to = Vec2.new(x + dx, y)            
             var r = Rect.fromTo(from, to)            
             _rects.add(r)
             y = y + 2
         }
-        var from = Vector.new(x + 2, 30)
-        var to = Vector.new(x + dx - 2, y)
+        var from = Vec2.new(x + 2, 30)
+        var to = Vec2.new(x + dx - 2, y)
         var r = Rect.fromTo( from, to)        
         _rects.add(r)      
     }
@@ -339,9 +339,9 @@ class Sprawl is Building {
         var dx = 6
         var h = __random.float(30, 50)
         for(i in 1..107) {
-            var from = Vector.new(x, 30.0)
+            var from = Vec2.new(x, 30.0)
             x = x + dx
-            var to = Vector.new(x, h)
+            var to = Vec2.new(x, h)
             h = __random.float(40, 55.0) + layer * 10
             var r = Rect.fromTo(from, to)
             _rects.add(r)
@@ -367,14 +367,18 @@ class Sprawl is Building {
 
 class Game {
 
+    static config() {
+
+    }
+
     static init() {
         Building.init()
         Sprawl.init()
 
-        Data.getNumber("Width", Data.system) = 640
-        Data.getNumber("Height", Data.system) = 360
-        Configuration.multiplier = 1
-        Configuration.title = "City"
+        //Data.getNumber("Width", Data.system) = 640
+        //Data.getNumber("Height", Data.system) = 360
+        //Configuration.multiplier = 1
+        //Configuration.title = "City"
 
         __objects = []
         __addQueue = []
@@ -395,7 +399,7 @@ class Game {
     }    
     
     static update(dt) {
-        Render.setColor(1, 1, 1)
+        Render.setColor(0xFFFFFFFF)
         Render.rect(-Data.getNumber("Width", Data.system), -Data.getNumber("Height", Data.system), Data.getNumber("Width", Data.system), Data.getNumber("Height", Data.system))        
 
         for(a in __addQueue) {
