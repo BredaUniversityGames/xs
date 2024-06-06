@@ -30,6 +30,14 @@ extern "C" {
 using namespace std;
 using namespace xs;
 
+
+namespace xs::script
+{
+    string main;
+    // string main_module;
+}
+
+
 namespace xs::script::internal
 {
     WrenVM* vm = nullptr;
@@ -40,10 +48,10 @@ namespace xs::script::internal
     WrenHandle* render_method = nullptr;
     std::unordered_map<size_t, WrenForeignMethodFn> foreign_methods;
     std::unordered_map<size_t, WrenForeignClassMethods> foreign_classes;
-    std::unordered_map<size_t, string> modules;
+    struct module { string path; string source; };
+    //std::unordered_map<size_t, module> modules;
+    std::unordered_map<string, module> modules; // name to source
     bool initialized = false;
-    string main;
-    string main_module;
     bool error = false;
 
     void writeFn(WrenVM* vm, const char* text)
@@ -69,21 +77,21 @@ namespace xs::script::internal
         const char* module,
         const int line,
         const char* msg)
-    {
+    {        
         switch (errorType)
         {
-        case WREN_ERROR_COMPILE:
-        {
-            xs::log::error("[{} line {}] [error] {}", module, line, msg);
-        } break;
-        case WREN_ERROR_STACK_TRACE:
-        {
-            xs::log::error("[{} line {}] in {}", module, line, msg);
-        } break;
-        case WREN_ERROR_RUNTIME:
-        {
-            xs::log::error("[Runtime Error] {}", msg);
-        } break;
+            case WREN_ERROR_COMPILE:
+            case WREN_ERROR_STACK_TRACE:
+            {
+                string smodule(module);
+                auto path = modules[smodule].path;
+                auto abs = xs::fileio::absolute(path);            
+                xs::log::error("[{}:{}] in {}", abs, line, msg);
+            } break;
+            case WREN_ERROR_RUNTIME:
+            {
+                xs::log::error("[Runtime Error] {}", msg);
+            } break;
         }
 
         error = true;
@@ -148,20 +156,22 @@ namespace xs::script::internal
         }
         else
         {
-            auto filename = "[games]/shared/modules/" + string(name) + ".wren";
+            string sname(name);
+            auto filename = "[games]/shared/modules/" + sname + ".wren";
             if (!xs::fileio::exists(filename))
             {
                 auto mstring = string(main);
                 auto i = mstring.find_last_of('/');
-                filename = mstring.erase(i) + '/' + string(name) + ".wren";
+                filename = mstring.erase(i) + '/' + sname + ".wren";
                 if (!xs::fileio::exists(filename))
                 {
                     log::warn("Module '{}' can not be found!", name);
                 }
             }
-            const auto id = hash<string>{}(filename);
-            modules[id] = xs::fileio::read_text_file(filename);
-            res.source = modules[id].c_str();
+            auto& m = modules[sname];
+            m.path = filename;
+            m.source = xs::fileio::read_text_file(filename);
+            res.source = m.source.c_str();
         }
         return res;
     }
@@ -176,16 +186,15 @@ void xs::script::configure()
     initialized = false;
     error = false;
 
-    internal::main = "[game]/game.wren";
+    main = "[game]/game.wren";
 
-    if (!fileio::exists(internal::main))
+    if (!fileio::exists(main))
     {
-        log::error("Wren script file {} not found!", internal::main);
-        log::error("Please restart with a valid script file!", internal::main);
+        log::error("Wren script file {} not found!", main);
+        log::error("Please restart with a valid script file!");
         return;
     }
-    
-    log::info("Wren script set to {}", fileio::get_path(internal::main));
+
     bind_api();
 
     WrenConfiguration config;
@@ -194,20 +203,13 @@ void xs::script::configure()
     config.errorFn = &errorFn;
     config.bindForeignMethodFn = &bindForeignMethod;
     config.bindForeignClassFn = &bindForeignClass;
-    config.loadModuleFn = &loadModule;
-    //config.initialHeapSize = 1024 * 1024 * 32;
-    //config.minHeapSize = 1024 * 1024 * 16;
-    //config.heapGrowthPercent = 80;
-
+    config.loadModuleFn = &loadModule;    
     vm = wrenNewVM(&config);
-    main_module = string(internal::main);
-    auto l_slash = main_module.find_last_of("/");
-    main_module.erase(0, l_slash + 1);
-    auto l_dot = main_module.find_last_of(".");
-    main_module.erase(l_dot, main_module.length());
 
-    const string& script_file = fileio::read_text_file(internal::main);
-    const WrenInterpretResult result = wrenInterpret(vm, main_module.c_str(), script_file.c_str());
+    const string& script_file = fileio::read_text_file(main);
+    modules["game"].path = main;
+    modules["game"].source = script_file;
+    const WrenInterpretResult result = wrenInterpret(vm, "game", script_file.c_str());
 
     switch (result)
     {
@@ -238,10 +240,10 @@ void xs::script::configure()
 
     if (initialized && !error)
     {
-        wrenEnsureSlots(vm, 1);										// Make sure there at least one slot
-        wrenGetVariable(vm, main_module.c_str(), "Game", 0);		// Grab a handle to the Game class
+        wrenEnsureSlots(vm, 1);									// Make sure there at least one slot
+        wrenGetVariable(vm, "game", "Game", 0);		            // Grab a handle to the Game class
         game_class = wrenGetSlotHandle(vm, 0);
-        wrenSetSlotHandle(vm, 0, game_class);						// Put Game class in slot 0
+        wrenSetSlotHandle(vm, 0, game_class);					// Put Game class in slot 0
         config_method = wrenMakeCallHandle(vm, "config()");
         init_method = wrenMakeCallHandle(vm, "init()");
         update_method = wrenMakeCallHandle(vm, "update(_)");
@@ -369,7 +371,7 @@ string get_type_name(WrenType type)
     case WREN_TYPE_NUM:
         return "number";
     case WREN_TYPE_FOREIGN:
-        return "foregin";
+        return "foreign";
     case WREN_TYPE_LIST:
         return "list";
     case WREN_TYPE_MAP:

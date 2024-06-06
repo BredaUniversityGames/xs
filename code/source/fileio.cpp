@@ -393,6 +393,15 @@ string fileio::get_path(const string& filename)
 	return full_path;
 }
 
+std::string xs::fileio::absolute(const std::string& path)
+{
+#if defined(PLATFORM_PC)
+	return fs::absolute(get_path(path)).string();
+#else
+	return path; // TODO: Implement for other platforms
+#endif
+}
+
 bool fileio::exists(const string& filename)
 {
 	// Expand wildcards

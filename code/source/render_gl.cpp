@@ -219,6 +219,7 @@ void xs::render::render()
 	for (auto i = 0; i < sprite_queue.size(); i++)
 	{
 		const auto& spe = sprite_queue[i];
+		if(spe.sprite_id == -1) continue;
 		auto& mesh = sprite_meshes[spe.sprite_id];
 		auto& img = images[mesh.image_id];
 
@@ -450,6 +451,12 @@ void xs::render::internal::create_frame_buffers()
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
 {
+	if(image_id < 0 || image_id >= images.size())
+	{
+		log::error("Invalid image id: {}", image_id);
+		return -1;
+	}
+
 	// Precision for the texture coordinates 
 	double precision = 10000.0;
 	int xh0 = (int)(x0 * precision);
