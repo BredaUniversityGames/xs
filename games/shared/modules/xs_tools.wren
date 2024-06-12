@@ -8,6 +8,15 @@ class Tools {
         }
         return l
     }
+
+    static removeFromList(list, element) {
+        for(i in 0...list.count) {
+            if(list[i] == element) {
+                list.removeAt(i)
+                return
+            }        
+        }
+    }
 }
 
 class ShapeBuilder {

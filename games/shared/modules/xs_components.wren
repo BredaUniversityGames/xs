@@ -252,8 +252,6 @@ class AnimatedSprite is GridSprite {
 
         var currentAnimation = _animations[_currentName]
 
-        // _frame = _frame + 1
-
         _frameTime = _frameTime + dt
 
         if(_frameTime >= _flipFrames) {
