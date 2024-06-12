@@ -3,5 +3,5 @@
 
 namespace xs::version
 {
-	const std::string version_string = "0.3.1";
+	const std::string version_string = "0.4.2";
 }
