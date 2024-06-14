@@ -90,10 +90,7 @@ using namespace xs::input;
     prev_time = current_time;
     auto dt = std::chrono::duration<double>(elapsed).count();
     if (dt > 0.03333)
-    {
-        log::warn("Running under than 30 fps. Time per frame:{}", dt);
         dt = 0.03333;
-    }    
     input::update(dt);
     if (!inspector::paused())
     {

@@ -126,6 +126,14 @@ class Vec2 {
         return a
     }
 
+    serialize { [_x, _y] }
+
+    
+    construct deserialize(data) {
+        _x = data[0]
+        _y = data[1]
+    }
+
     static distance(a, b) {
         var xdiff = a.x - b.x
         var ydiff = a.y - b.y
