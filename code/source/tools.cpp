@@ -1,6 +1,7 @@
 #include <tools.h>
 #include <ios>
 #include <sstream>
+#include <render.h>
 
 using namespace xs;
 
@@ -70,4 +71,14 @@ std::tuple<double, double, double, double> tools::parse_color(const std::string&
 	auto a = static_cast<double>(ia) / 255.0;
 
 	return { r, g, b, a };
+}
+
+void xs::tools::aabb::debug_draw()
+{
+	xs::render::color c = { 255, 255, 255, 255 };
+	xs::render::set_color(c);
+	xs::render::line(min.x, min.y, max.x, min.y);
+	xs::render::line(max.x, min.y, max.x, max.y);
+	xs::render::line(max.x, max.y, min.x, max.y);
+	xs::render::line(min.x, max.y, min.x, min.y);
 }
