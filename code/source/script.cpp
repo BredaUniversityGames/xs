@@ -25,6 +25,7 @@
 
 extern "C" {
 #include "wren/optional/wren_opt_random.h"
+#include "wren/optional/wren_opt_meta.h"
 }
 
 using namespace std;
@@ -124,6 +125,9 @@ namespace xs::script::internal
         if (strcmp(module, "random") == 0)
             return wrenRandomBindForeignMethod(vm, class_name, is_static, signature);
 
+        if (strcmp(module, "meta") == 0)
+            return wrenMetaBindForeignMethod(vm, class_name, is_static, signature);
+
         const auto id = get_method_id(module, class_name, is_static, signature);
         const auto itr = foreign_methods.find(id);
         if (itr != foreign_methods.end())
@@ -142,9 +146,10 @@ namespace xs::script::internal
         const auto id = get_class_id(module, className);
         const auto itr = foreign_classes.find(id);
         if (itr != foreign_classes.end())
-			return itr->second;
+            return itr->second;
 
-        return {};
+        WrenForeignClassMethods res{ NULL, NULL };
+        return res;
     }
 
     WrenLoadModuleResult loadModule(WrenVM* vm, const char* name)
@@ -153,6 +158,10 @@ namespace xs::script::internal
         if (strcmp(name, "random") == 0)
         {
             res.source = wrenRandomSource();
+        }
+        else if (strcmp(name, "meta") == 0)
+        {
+            res.source = wrenMetaSource();
         }
         else
         {

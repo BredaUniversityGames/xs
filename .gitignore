@@ -69,6 +69,10 @@ games/hex-master-jam/
 games/hexturn/
 games/brz0/
 games/salamander/
+games/dots/
+games/peperuga/
+games/commander/
+
 
 xs.xcodeproj/xcuserdata/
 *.xcuserstate

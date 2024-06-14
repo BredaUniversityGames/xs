@@ -106,6 +106,12 @@ class Entity {
         if(_components.containsKey(type)) {
             return _components[type]
         }
+        // If not found, try to find a sub class-of the type
+        for(v in _components.values) {
+            if(v is type) {
+                return v    
+            }
+        }
         return null
     }
 
@@ -208,7 +214,6 @@ class Entity {
         }
         return found
     }
-
 
     // Get all the entities where the tag matches (has bit overlap)
     // with a given tag.
