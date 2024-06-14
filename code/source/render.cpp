@@ -1,6 +1,9 @@
 #include "render.h"
 #include "render_internal.h"
 #include <ios>
+#include <sstream>
+#include <string>
+#include <map>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -50,28 +53,26 @@
 #define CAN_RELOAD_IMAGES 1
 #endif
 
-
-
+using namespace std;
 using namespace glm;
 
 namespace xs::render::internal
 {
-	std::vector<sprite_queue_entry>	sprite_queue = {};
-	std::vector<sprite>				sprites = {};
 	std::vector<font_atlas>			fonts = {};
 	std::vector<image>				images = {};
 	glm::vec2						offset = glm::vec2(0.0f, 0.0f);
 
-    int                              lines_count = 0;
-    int                              lines_begin_count = 0;
-    debug_vertex_format              lines_array[lines_max * 2];
+    int                             lines_count = 0;
+    int                             lines_begin_count = 0;
+    debug_vertex_format             lines_array[lines_max * 2];
 
-    int                              triangles_count = 0;
-    int                              triangles_begin_count = 0;
-    debug_vertex_format              triangles_array[triangles_max * 3];
+    int                             triangles_count = 0;
+    int                             triangles_begin_count = 0;
+    debug_vertex_format             triangles_array[triangles_max * 3];
 
-    primitive                        current_primitive = primitive::none;
-    glm::vec4                        current_color = {1.0, 1.0, 1.0, 1.0};
+    primitive                       current_primitive = primitive::none;
+    glm::vec4                       current_color = {1.0, 1.0, 1.0, 1.0};
+
 
 	const int FONT_ATLAS_MIN_CHARACTER = 32;
 	const int FONT_ATLAS_NR_CHARACTERS = 96;
@@ -196,7 +197,6 @@ int xs::render::get_image_width(int image_id)
 	return img.width;
 }
 
-
 void xs::render::render_text(
 	int font_id,
 	const std::string& text,
@@ -209,8 +209,27 @@ void xs::render::render_text(
 	auto& font = fonts[font_id];
 	auto& img = images[font.image_id];
 
-	double begin = x;	
-	auto last_idx = sprite_queue.size();
+	double begin = x;
+
+	// Do a first pass to calculate the width of the text
+	if (tools::check_bit_flag_overlap(flags, xs::render::sprite_flags::center))
+	{
+		for (size_t i = 0; i < text.size(); i++)
+		{
+			const int charIndex = text[i] - FONT_ATLAS_MIN_CHARACTER;
+			stbtt_aligned_quad quad;
+			float tx = 0;
+			float ty = 0;
+			stbtt_GetPackedQuad(&font.packed_chars[0], img.width, img.height, charIndex, &tx, &ty, &quad, 0);
+			const int glyphIndex = stbtt_FindGlyphIndex(&font.info, text[i]);
+			int advance_i = 0, bearing_i = 0;
+			stbtt_GetGlyphHMetrics(&font.info, glyphIndex, &advance_i, &bearing_i);
+			double advance = advance_i * font.scale;
+			begin -= advance * 0.5;
+		}
+	}
+
+	// Render text
 	for (size_t i = 0; i < text.size(); i++)
 	{
 		const int charIndex = text[i] - FONT_ATLAS_MIN_CHARACTER;
@@ -244,24 +263,6 @@ void xs::render::render_text(
 
 		begin += advance + kerning;		
 	}
-
-
-	if (tools::check_bit_flag_overlap(flags, xs::render::sprite_flags::center))
-	{
-		double width = begin - x;
-		for (auto i = last_idx; i < sprite_queue.size(); i++)
-		{
-			auto& s = sprite_queue[i];
-			s.x -= (width * 0.5f);
-		}
-	}
-}
-
-
-void xs::render::reload()
-{
-	sprite_queue.clear();
-	sprites.clear();
 }
 
 int xs::render::load_image(const std::string& image_file)
@@ -305,71 +306,9 @@ int xs::render::load_image(const std::string& image_file)
 	return static_cast<int>(i);
 }
 
-int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
-{
-	if (image_id < 0 || image_id >= images.size()) {
-		log::error("Can't create sprite with image {}!", image_id);
-		return -1;
-	}
-
-	const auto epsilon = 0.001;
-	for(int i = 0; i < sprites.size(); i++)
-	{
-		const auto& s = sprites[i];
-		if (s.image_id == image_id &&
-			abs(s.from.x - x0) < epsilon &&
-			abs(s.from.y - y0) < epsilon &&
-			abs(s.to.x - x1) < epsilon &&
-			abs(s.to.y - y1) < epsilon)
-			return i;
-	}
-
-	const auto i = sprites.size();
-	sprite s = { image_id, { x0, y0 }, { x1, y1 } };
-	sprites.push_back(s);
-	return static_cast<int>(i);
-}
-
-void xs::render::render_sprite(
-	int sprite_id,
-	double x,
-	double y,
-	double z,
-	double scale,
-	double rotation,
-	color multiply,
-	color add,
-	unsigned int flags)
-{
-	if (sprite_id < 0 || sprite_id >= internal::sprites.size()) {
-		log::error("Can't render sprite {}!", sprite_id);
-		return;
-	}
-
-	if (!tools::check_bit_flag_overlap(flags, sprite_flags::overlay)) {
-		x += offset.x;
-		y += offset.y;
-	}
-    
-    //x = round(x);
-    //y = round(y);
-
-	sprite_queue.push_back({
-		sprite_id,
-		x,
-		y,
-		z,
-		scale,
-		rotation,
-		multiply,
-		add,
-		flags
-	});
-}
-
 void xs::render::set_offset(double x, double y)
 {
-	xs::render::internal::offset = vec2((float)x, (float)y);
+	internal::offset = vec2((float)x, (float)y);
 }
 
 void xs::render::begin(primitive p)

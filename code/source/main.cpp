@@ -12,6 +12,8 @@
 #include "cooker.h"
 #include "tools.h"
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <chrono>
 
 using namespace std;
@@ -31,6 +33,7 @@ extern "C"
 
 #include <nn/os.h>
 #include <version.h>
+#include <glm/gtc/type_ptr.hpp>
 extern "C" void nnMain()
 {
 	const auto argc = nn::os::GetHostArgc();
@@ -131,8 +134,8 @@ int xs::main(int argc, char* argv[])
 
     // When arguments have been parsed the engine can be in 2 states
     // Either the arguments have been parsed successfully and we can close the engine
-    // A parsing error has occured and the engine will close down with error code 1
-    // If there are no arguments to be parsed we continue with the default behaviour which is run the game
+    // A parsing error has occurred and the engine will close down with error code 1
+    // If there are no arguments to be parsed we continue with the default behavior which is run the game
     EngineExecution execution = argument_parser(argc, argv);
     switch (execution)
     {
