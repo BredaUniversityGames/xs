@@ -276,8 +276,8 @@ class AnimatedSprite is GridSprite {
     }
 
     addAnimation(name, frames) {
-        // assert name is string
-        // assert frames is list
+        // TODO: assert name is string
+        // TODO: assert frames is list
         _animations[name] = frames
     }
 
