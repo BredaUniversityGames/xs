@@ -1,10 +1,18 @@
 import "xs" for Render
 
 class Tools {
-    static rangeToList(range) {
+    static toList(range) {
         var l = []
         for(i in range) {
             l.add(i)
+        }
+        return l
+    }
+
+    static toList(from, to) {
+        var l = []
+        for (i in from...to) {
+            l.add(from + i)
         }
         return l
     }
