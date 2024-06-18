@@ -3,6 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 import "xs_math" for Math, Bits
+import "xs_tools" for Tools
 
 // A base class for components that can be added to the entities.
 class Component {
@@ -52,8 +53,50 @@ class Entity {
         __addQueue.add(this)        
     }
 
+    // Adds a component to the entity. The component must be a subclass of
+    // the Component class. The component will be initialized and updated
+    // in the order they are added.
+    add(component) {
+        var c = get(component.type)
+        if(c != null) {
+            c.finalize()
+            // remove from the delete list (if it was there)
+            Tools.removeFromList(_compDeleteQueue, c.type)
+            // _compDeleteQueue.remove(c.type)
+        }
+
+        component.owner = this
+        _components[component.type] = component
+    }
+
+    // Get a component of a matching type.    
+    get(type) {
+        if (_components.containsKey(type)) {
+            return _components[type]            
+        }
+        for(v in _components.values) {
+            if(v is type) {
+                return v    
+            }
+        }
+        return null
+    }
+
+    // Will mark the component for removal at the end of the update
+    remove(type) {
+        if (_components.containsKey(type)) {
+            _compDeleteQueue.add(type)
+        } else {
+            for(v in _components.values) {
+                if(v is type) {
+                    _compDeleteQueue.add(v.type)
+                }
+            }   
+        }
+    }
+
     // Adds component to the entity.
-    addComponent(component) {
+    addComponent(component) {        
         component.owner = this
         _components[component.type] = component
     }
@@ -127,6 +170,10 @@ class Entity {
     // Updates the all entities and their compoenets.
     // Add/removes entities and componenets.
     static update(dt) {
+        for (e in __entities) {
+            e.removeDeletedComponents_()
+        }
+
         for(a in __addQueue) {
             __entities.add(a)
         }
@@ -153,10 +200,6 @@ class Entity {
             } else {
                 i = i + 1
             }
-        }
-
-        for (e in __entities) {
-            e.removeDeletedComponents_()
         }
     }
 

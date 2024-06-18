@@ -3,9 +3,13 @@
 #include <iomanip>
 #include <iostream>
 #include <functional>
+#include <type_traits>
 #include <string>
 #include <unordered_map>
 #include <array>
+#include <wren.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include "fileio.h"
 #include "log.h"
 #include "profiler.h"
@@ -38,6 +42,15 @@ extern "C" {
 #endif
 
 using namespace std;
+using namespace xs;
+
+
+namespace xs::script
+{
+    string main;
+    // string main_module;
+}
+
 
 namespace xs::script::internal
 {
@@ -49,10 +62,10 @@ namespace xs::script::internal
     WrenHandle* render_method = nullptr;
     std::unordered_map<size_t, WrenForeignMethodFn> foreign_methods;
     std::unordered_map<size_t, WrenForeignClassMethods> foreign_classes;
-    std::unordered_map<size_t, string> modules;
+    struct module { string path; string source; };
+    //std::unordered_map<size_t, module> modules;
+    std::unordered_map<string, module> modules; // name to source
     bool initialized = false;
-    string main;
-    string main_module;
     bool error = false;
 
     void writeFn(WrenVM* vm, const char* text)
@@ -66,7 +79,7 @@ namespace xs::script::internal
         auto t = std::time(nullptr);
         auto tm = *std::localtime(&t);
         const auto time = std::put_time(&tm, "[%Y-%m-%d %T.%e0] ");
-        std::cout << time << "[" << magenta << "script" << reset << "] " << text << endl;
+        std::cout << "[" << magenta << "script" << reset << "] " << text << endl;
 #else
         std::cout << "[script] " << text << endl;
 #endif
@@ -78,21 +91,21 @@ namespace xs::script::internal
         const char* module,
         const int line,
         const char* msg)
-    {
+    {        
         switch (errorType)
         {
-        case WREN_ERROR_COMPILE:
-        {
-            xs::log::error("[{} line {}] [error] {}", module, line, msg);
-        } break;
-        case WREN_ERROR_STACK_TRACE:
-        {
-            xs::log::error("[{} line {}] in {}", module, line, msg);
-        } break;
-        case WREN_ERROR_RUNTIME:
-        {
-            xs::log::error("[Runtime Error] {}", msg);
-        } break;
+            case WREN_ERROR_COMPILE:
+            case WREN_ERROR_STACK_TRACE:
+            {
+                string smodule(module);
+                auto path = modules[smodule].path;
+                auto abs = xs::fileio::absolute(path);            
+                xs::log::error("[{}:{}] in {}", abs, line, msg);
+            } break;
+            case WREN_ERROR_RUNTIME:
+            {
+                xs::log::error("[Runtime Error] {}", msg);
+            } break;
         }
 
         error = true;
@@ -109,13 +122,11 @@ namespace xs::script::internal
         return hash<string>{}(concat);
     }
 
-    size_t get_class_id(
-        const string& module,
-        const string& class_name)
+    size_t get_class_id(const string& module, const string& class_name)
     {
-        const string concat = module + "::" + class_name;
-        return hash<string>{}(concat);
-    }
+		const string concat = module + "::" + class_name;
+		return hash<string>{}(concat);
+	}   
 
     WrenForeignMethodFn bindForeignMethod(
         WrenVM* vm,
@@ -167,20 +178,22 @@ namespace xs::script::internal
         }
         else
         {
-            auto filename = "[games]/shared/modules/" + string(name) + ".wren";
+            string sname(name);
+            auto filename = "[games]/shared/modules/" + sname + ".wren";
             if (!xs::fileio::exists(filename))
             {
                 auto mstring = string(main);
                 auto i = mstring.find_last_of('/');
-                filename = mstring.erase(i) + '/' + string(name) + ".wren";
+                filename = mstring.erase(i) + '/' + sname + ".wren";
                 if (!xs::fileio::exists(filename))
                 {
                     log::warn("Module '{}' can not be found!", name);
                 }
             }
-            const auto id = hash<string>{}(filename);
-            modules[id] = xs::fileio::read_text_file(filename);
-            res.source = modules[id].c_str();
+            auto& m = modules[sname];
+            m.path = filename;
+            m.source = xs::fileio::read_text_file(filename);
+            res.source = m.source.c_str();
         }
         return res;
     }
@@ -195,16 +208,15 @@ void xs::script::configure()
     initialized = false;
     error = false;
 
-    internal::main = "[game]/game.wren";
+    main = "[game]/game.wren";
 
-    if (!fileio::exists(internal::main))
+    if (!fileio::exists(main))
     {
-        log::error("Wren script file {} not found!", internal::main);
-        log::error("Please restart with a valid script file!", internal::main);
+        log::error("Wren script file {} not found!", main);
+        log::error("Please restart with a valid script file!");
         return;
     }
-    
-    log::info("Wren script set to {}", fileio::get_path(internal::main));
+
     bind_api();
 
     WrenConfiguration config;
@@ -213,17 +225,13 @@ void xs::script::configure()
     config.errorFn = &errorFn;
     config.bindForeignMethodFn = &bindForeignMethod;
     config.bindForeignClassFn = &bindForeignClass;
-    config.loadModuleFn = &loadModule;
-
+    config.loadModuleFn = &loadModule;    
     vm = wrenNewVM(&config);
-    main_module = string(internal::main);
-    auto l_slash = main_module.find_last_of("/");
-    main_module.erase(0, l_slash + 1);
-    auto l_dot = main_module.find_last_of(".");
-    main_module.erase(l_dot, main_module.length());
 
-    const string& script_file = fileio::read_text_file(internal::main);
-    const WrenInterpretResult result = wrenInterpret(vm, main_module.c_str(), script_file.c_str());
+    const string& script_file = fileio::read_text_file(main);
+    modules["game"].path = main;
+    modules["game"].source = script_file;
+    const WrenInterpretResult result = wrenInterpret(vm, "game", script_file.c_str());
 
     switch (result)
     {
@@ -254,10 +262,10 @@ void xs::script::configure()
 
     if (initialized && !error)
     {
-        wrenEnsureSlots(vm, 1);										// Make sure there at least one slot
-        wrenGetVariable(vm, main_module.c_str(), "Game", 0);		// Grab a handle to the Game class
+        wrenEnsureSlots(vm, 1);									// Make sure there at least one slot
+        wrenGetVariable(vm, "game", "Game", 0);		            // Grab a handle to the Game class
         game_class = wrenGetSlotHandle(vm, 0);
-        wrenSetSlotHandle(vm, 0, game_class);						// Put Game class in slot 0
+        wrenSetSlotHandle(vm, 0, game_class);					// Put Game class in slot 0
         config_method = wrenMakeCallHandle(vm, "config()");
         init_method = wrenMakeCallHandle(vm, "init()");
         update_method = wrenMakeCallHandle(vm, "update(_)");
@@ -361,14 +369,13 @@ void xs::script::bind(
     foreign_methods[id] = func;
 }
 
-void xs::script::bind(
-    const std::string& module,
-    const std::string& class_name,
-    WrenForeignMethodFn allocate_fn,
-    WrenFinalizerFn finalize_fn)
+void bind_class(
+    const string& module,
+    const string& class_name,
+    WrenForeignClassMethods methods)
 {
-    const auto id = get_class_id(module, class_name);
-    foreign_classes[id] = WrenForeignClassMethods{ allocate_fn, finalize_fn };
+	const auto id = get_class_id(module, class_name);
+	foreign_classes[id] = methods;
 }
 
 size_t xs::script::get_bytes_allocated() {
@@ -390,7 +397,7 @@ string get_type_name(WrenType type)
     case WREN_TYPE_NUM:
         return "number";
     case WREN_TYPE_FOREIGN:
-        return "foregin";
+        return "foreign";
     case WREN_TYPE_LIST:
         return "list";
     case WREN_TYPE_MAP:
@@ -424,12 +431,7 @@ bool checkType(WrenVM* vm, int slot, WrenType type, const string& function)
     return false;
 }
 
-template <typename T> T wrenGetParameter(WrenVM* vm, int slot)
-{
-    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
-        return (T)wrenGetSlotDouble(vm, slot);
-    return (T)0;
-}
+template <typename T> T wrenGetParameter(WrenVM* vm, int slot);
 
 template<> bool wrenGetParameter<bool>(WrenVM* vm, int slot)
 {
@@ -451,8 +453,7 @@ template<> string wrenGetParameter<string>(WrenVM* vm, int slot)
 }
 template<> xs::render::color wrenGetParameter<xs::render::color>(WrenVM* vm, int slot)
 {
-    xs::render::color c; 
-    
+    xs::render::color c;     
     if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
         c.integer_value = wrenGetParameter<uint32_t>(vm, slot);
     else
@@ -465,6 +466,44 @@ template<> xs::data::type wrenGetParameter<xs::data::type>(WrenVM* vm, int slot)
     if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
         return xs::data::type((int)wrenGetSlotDouble(vm, slot));
     return xs::data::type::none;
+}
+
+template<> glm::vec4 wrenGetParameter<glm::vec4>(WrenVM* vm, int slot)
+{
+    if(checkType(vm, slot, WREN_TYPE_FOREIGN, __func__))
+		return *static_cast<glm::vec4*>(wrenGetSlotForeign(vm, slot));
+    return glm::vec4(0.0f);
+}
+
+template<> tools::handle wrenGetParameter<tools::handle>(WrenVM* vm, int slot)
+{
+	if (checkType(vm, slot, WREN_TYPE_FOREIGN, __func__))
+		return *static_cast<tools::handle*>(wrenGetSlotForeign(vm, slot));
+	return tools::handle();
+}
+
+template <typename T>
+T wrenGetParameter(WrenVM* vm, int slot)
+{
+    if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
+        return (T)wrenGetSlotDouble(vm, slot);
+    return (T)0;
+}
+
+template <typename T> std::vector<T> wrenGetListParameter(WrenVM* vm, int slot)
+{
+    std::vector<T> values;
+    if (checkType(vm, slot, WREN_TYPE_LIST, __func__))
+    {
+        auto count = wrenGetListCount(vm, slot);
+        values.resize(count);
+        for (int i = 0; i < count; i++)
+        {
+            wrenGetListElement(vm, slot, i, 0);
+            values[i] = wrenGetParameter<T>(vm, 0);
+        }
+    }
+    return values;
 }
 
 template <typename T> void wrenSetReturnValue(WrenVM* vm, const T& value)
@@ -689,7 +728,11 @@ void render_vertex(WrenVM* vm)
 
 void render_set_color(WrenVM* vm)
 {
-    callFunction_args<xs::render::color>(vm, xs::render::set_color);
+    // Call manually
+    auto c = wrenGetParameter<xs::render::color>(vm, 1);
+    xs::render::set_color(c);
+
+    // callFunction_args<xs::render::color>(vm, xs::render::set_color);
 }
 
 void render_line(WrenVM* vm)
@@ -719,12 +762,54 @@ void render_get_image_height(WrenVM* vm)
 
 void render_create_sprite(WrenVM* vm)
 {
-    callFunction_returnType_args<int,int,double,double,double,double>(vm, xs::render::create_sprite);
+    // callFunction_returnType_args<int, int, double, double, double, double>(vm, xs::render::create_sprite);
+
+    auto image_id = wrenGetParameter<int>(vm, 1);
+    auto x0 = wrenGetParameter<double>(vm, 2);
+    auto y0 = wrenGetParameter<double>(vm, 3);
+    auto x1 = wrenGetParameter<double>(vm, 4);
+    auto y1 = wrenGetParameter<double>(vm, 5);
+    auto sprite_id = xs::render::create_sprite(image_id, x0, y0, x1, y1);
+
+    wrenGetVariable(vm, "xs", "ShapeHandle", 0);
+    auto handle = (int*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
+    *handle = sprite_id;
+    
+}
+
+void render_create_shape(WrenVM* vm)
+{
+    auto image_id = wrenGetParameter<int>(vm, 1);
+	auto positions = wrenGetListParameter<float>(vm, 2);
+	auto texture_coordinates = wrenGetListParameter<float>(vm, 3);
+	auto indices = wrenGetListParameter<unsigned short>(vm, 4);
+
+    auto shape_id = xs::render::create_shape(
+		image_id,
+		positions.data(),
+		texture_coordinates.data(),
+		(unsigned int)positions.size() / 2,
+		indices.data(),
+		(unsigned int)indices.size());
+
+    wrenGetVariable(vm, "xs", "ShapeHandle", 0);
+	auto handle = (int*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
+	*handle = shape_id;
 }
 
 void render_sprite_ex(WrenVM* vm)
 {
-    callFunction_args<int,double,double,double,double,double,xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_sprite);
+    callFunction_args<
+        tools::handle,
+        double,
+        double,
+        double,
+        double,
+        double,
+        xs::render::color,
+        xs::render::color,
+        uint32_t
+    >(vm, xs::render::render_sprite);    
 }
 
 void render_set_offset(WrenVM* vm)
@@ -777,6 +862,22 @@ void render_render_shape(WrenVM* vm)
 	callFunction_args<int, double, double, double, double, xs::render::color, xs::render::color>(vm, xs::render::render_shape);
 }
 
+void shape_handle_allocate(WrenVM* vm)
+{
+	void* data = wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
+	auto handle = new (data) int();
+	*handle = -1;
+}
+
+void shape_handle_finalize(void* data)
+{
+	auto handle = static_cast<int*>(data);
+    if (*handle != -1)
+    {
+		xs::render::destroy_shape(*handle);
+		*handle = -1;
+	}
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Audio
@@ -943,6 +1044,260 @@ void profiler_end_section(WrenVM* vm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Matrix
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void matrix_allocate(WrenVM* vm)
+{
+    void* data = wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::mat4));
+    auto matrix = new (data) glm::mat4();
+    *matrix = glm::mat4(1.0f);
+}
+
+void matrix_finalize(void* data) {}
+
+void matrix_identity(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	*matrix = glm::mat4(1.0f);
+}
+
+void matrix_translate(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto x = wrenGetParameter<double>(vm, 1);
+	auto y = wrenGetParameter<double>(vm, 2);
+	auto z = wrenGetParameter<double>(vm, 3);
+    *matrix = glm::translate(*matrix, glm::vec3(x, y, z));
+}
+
+void matrix_rotate(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto angle = wrenGetParameter<double>(vm, 1);
+	auto x = wrenGetParameter<double>(vm, 2);
+	auto y = wrenGetParameter<double>(vm, 3);
+	auto z = wrenGetParameter<double>(vm, 4);
+	*matrix = glm::rotate(*matrix, (float)angle, glm::vec3(x, y, z));
+}
+
+void matrix_scale(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto x = wrenGetParameter<double>(vm, 1);
+	auto y = wrenGetParameter<double>(vm, 2);
+	auto z = wrenGetParameter<double>(vm, 3);
+	*matrix = glm::scale(*matrix, glm::vec3(x, y, z));
+}
+
+void matrix_multiply(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto other = (glm::mat4*)wrenGetSlotForeign(vm, 1);
+	*matrix = *matrix * *other;
+}
+
+void matrix_perspective(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto fov = wrenGetParameter<double>(vm, 1);
+	auto aspect = wrenGetParameter<double>(vm, 2);
+	auto near = wrenGetParameter<double>(vm, 3);
+	auto far = wrenGetParameter<double>(vm, 4);
+	*matrix = glm::perspective((float)fov, (float)aspect, (float)near, (float)far);
+}
+
+void matrix_ortho(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto left = wrenGetParameter<double>(vm, 1);
+	auto right = wrenGetParameter<double>(vm, 2);
+	auto bottom = wrenGetParameter<double>(vm, 3);
+	auto top = wrenGetParameter<double>(vm, 4);
+	auto near = wrenGetParameter<double>(vm, 5);
+	auto far = wrenGetParameter<double>(vm, 6);
+	*matrix = glm::ortho((float)left, (float)right, (float)bottom, (float)top, (float)near, (float)far);
+}
+
+void matrix_lookat(WrenVM* vm)
+{
+	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
+	auto eye = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+	auto center = (glm::vec4*)wrenGetSlotForeign(vm, 2);
+	auto up = (glm::vec4*)wrenGetSlotForeign(vm, 3);
+	*matrix = glm::lookAt(glm::vec3(*eye), glm::vec3(*center), glm::vec3(*up));
+}
+
+void matrix_list(WrenVM* vm)
+{
+    auto matrix = (float*)wrenGetSlotForeign(vm, 0);
+    wrenEnsureSlots(vm, 2);
+    wrenSetSlotNewList(vm, 0);
+    for (int i = 0; i < 16; i++)
+    {
+		wrenSetSlotDouble(vm, 1, matrix[i]);
+		wrenInsertInList(vm, 0, i, 1);
+	}	
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Vector
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void vector_allocate(WrenVM* vm)
+{
+	void* data = wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+	auto vec = new (data) glm::vec4();
+    auto count = wrenGetSlotCount(vm);
+    if(count == 5)
+	{
+		auto x = wrenGetParameter<double>(vm, 1);
+		auto y = wrenGetParameter<double>(vm, 2);
+		auto z = wrenGetParameter<double>(vm, 3);
+		auto w = wrenGetParameter<double>(vm, 4);
+		*vec = glm::vec4(x, y, z, w);
+	} else {
+        *vec = glm::vec4(0.0f);
+    }
+}
+
+void vector_finalize(void* data) {}
+
+void vector_set(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	auto x = wrenGetParameter<double>(vm, 1);
+	auto y = wrenGetParameter<double>(vm, 2);
+	auto z = wrenGetParameter<double>(vm, 3);
+	auto w = wrenGetParameter<double>(vm, 4);
+	*vec = glm::vec4(x, y, z, w);
+}
+
+void vector_plus(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+    auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+    *vec += *other;    
+    wrenGetVariable(vm, "xs", "Vector", 0);
+    auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+    *data = *vec;
+}
+
+void vector_minus(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+	*vec -= *other;
+    wrenGetVariable(vm, "xs", "Vector", 0);
+	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+	*data = *vec;
+}
+
+void vector_multiply(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+    if (wrenGetSlotType(vm, 1) == WREN_TYPE_NUM)
+    {
+		auto other = wrenGetParameter<double>(vm, 1);
+		*vec *= (float)other;
+    }
+    else if(wrenGetSlotType(vm, 1) == WREN_TYPE_FOREIGN)
+    {
+		auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+		*vec *= *other;
+	}
+	wrenGetVariable(vm, "xs", "Vector", 0);
+	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+	*data = *vec;
+}
+
+void vector_divide(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+    if (wrenGetSlotType(vm, 1) == WREN_TYPE_NUM)
+    {
+        auto other = wrenGetParameter<double>(vm, 1);
+        *vec /= (float)other;
+    }
+    else if (wrenGetSlotType(vm, 1) == WREN_TYPE_FOREIGN)
+    {
+		auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+		*vec /= *other;
+	}
+
+	wrenGetVariable(vm, "xs", "Vector", 0);
+	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+	*data = *vec;
+}
+
+void vector_dot(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+	wrenSetReturnValue<double>(vm, glm::dot(*vec, *other));
+}
+
+void vector_cross(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
+	auto result = glm::cross(glm::vec3(*vec), glm::vec3(*other));
+	wrenGetVariable(vm, "xs", "Vector", 0);
+	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
+	*data = glm::vec4(result, 0.0f);
+}
+
+void vector_length(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenSetReturnValue<double>(vm, glm::length(*vec));
+}
+
+void vector_normalize(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	*vec = glm::normalize(*vec);
+}
+
+void vector_list(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenEnsureSlots(vm, 5);
+    wrenSetSlotNewList(vm, 0);
+    wrenSetSlotDouble(vm, 1, vec->x);
+    wrenSetSlotDouble(vm, 2, vec->y);
+    wrenSetSlotDouble(vm, 3, vec->z);
+    wrenSetSlotDouble(vm, 4, vec->w);
+    wrenInsertInList(vm, 0, 0, 1);
+    wrenInsertInList(vm, 0, 1, 2);
+    wrenInsertInList(vm, 0, 2, 3);
+    wrenInsertInList(vm, 0, 3, 4);
+}
+
+void vector_get_x(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenSetReturnValue<double>(vm, vec->x);
+}
+
+void vector_get_y(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenSetReturnValue<double>(vm, vec->y);
+}
+
+void vector_get_z(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenSetReturnValue<double>(vm, vec->z);
+}
+
+void vector_get_w(WrenVM* vm)
+{
+	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
+	wrenSetReturnValue<double>(vm, vec->w);
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 //											Bind xs API
 // 
@@ -979,12 +1334,19 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "getImageWidth(_)", render_get_image_width);
     bind("xs", "Render", true, "getImageHeight(_)", render_get_image_height);
     bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
+    bind("xs", "Render", true, "createShape(_,_,_,_)", render_create_shape);
     bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
     bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
     bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
 	bind("xs", "Render", true, "createShape(_,_)", render_create_shape);
 	bind("xs", "Render", true, "shape(_,_,_,_,_,_,_)", render_render_shape);
+
+    // ShapeHandle
+    WrenForeignClassMethods shape_handle_methods {};
+    shape_handle_methods.allocate = shape_handle_allocate;
+    shape_handle_methods.finalize = shape_handle_finalize;
+    bind_class("xs", "ShapeHandle", shape_handle_methods);
 
     // Audio
     bind("xs", "Audio", true, "load(_,_)", audio_load);
@@ -1024,4 +1386,39 @@ void xs::script::bind_api()
     // Profiler
     bind("xs", "Profiler", true, "begin(_)", profiler_begin_section);
     bind("xs", "Profiler", true, "end(_)", profiler_end_section);
+
+    // Matrix
+    WrenForeignClassMethods matrix_methods {};
+    matrix_methods.allocate = matrix_allocate;
+    matrix_methods.finalize = matrix_finalize;
+    bind_class("xs", "Matrix", matrix_methods);
+    bind("xs", "Matrix", false, "identity()", matrix_identity);
+    bind("xs", "Matrix", false, "translate(_,_,_)", matrix_translate);
+    bind("xs", "Matrix", false, "rotate(_,_,_,_)", matrix_rotate);
+    bind("xs", "Matrix", false, "scale(_,_,_)", matrix_scale);
+    bind("xs", "Matrix", false, "multiply(_)", matrix_multiply);
+    bind("xs", "Matrix", false, "perspective(_,_,_,_)", matrix_perspective);
+    // bind("xs", "Matrix", false, "ortho(_,_,_,_,_,_)", matrix_ortho);
+    bind("xs", "Matrix", false, "lookAt(_,_,_)", matrix_lookat);
+    bind("xs", "Matrix", false, "list", matrix_list);
+
+    // Vector
+    WrenForeignClassMethods vector_methods {};
+    vector_methods.allocate = vector_allocate;
+    vector_methods.finalize = vector_finalize;
+    bind_class("xs", "Vector", vector_methods);
+    bind("xs", "Vector", false, "set(_,_,_,_)", vector_set);
+    bind("xs", "Vector", false, "+(_)", vector_plus);
+    bind("xs", "Vector", false, "-(_)", vector_minus);
+    bind("xs", "Vector", false, "*(_)", vector_multiply);
+    bind("xs", "Vector", false, "/(_)", vector_divide);
+    bind("xs", "Vector", false, "dot(_)", vector_dot);
+    bind("xs", "Vector", false, "cross(_)", vector_cross);    
+    bind("xs", "Vector", false, "normalize()", vector_normalize);
+    bind("xs", "Vector", false, "length", vector_length);
+    bind("xs", "Vector", false, "list", vector_list);
+    bind("xs", "Vector", false, "x", vector_get_x);
+    bind("xs", "Vector", false, "y", vector_get_y);
+    bind("xs", "Vector", false, "z", vector_get_z);
+    bind("xs", "Vector", false, "w", vector_get_w);
 }

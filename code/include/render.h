@@ -1,10 +1,9 @@
 #pragma once
 #include <string>
-#include <vector>
 
 namespace xs::render
 {	
-	using  uchar = unsigned char;
+	using uchar = unsigned char;
 	struct color
 	{ 
 		union
@@ -56,13 +55,21 @@ namespace xs::render
 	void reload();
 	void reload_images();
 	void set_offset(double x, double y);
-
 	int load_image(const std::string& image_file);
 	int load_font(const std::string& font_file, double size);
 	int get_image_width(int image_id);
-	int get_image_height(int image_id);
-	
+	int get_image_height(int image_id);	
 	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
+
+	int create_shape(
+		int image_id,
+		const float* positions,
+		const float* texture_coordinates,
+		unsigned int vertex_count,
+		const unsigned short* indices,
+		unsigned int index_count);
+
+	void destroy_shape(int sprite_id);
 
 	void render_sprite(
 		int sprite_id,
@@ -75,6 +82,18 @@ namespace xs::render
 		color add,
 		unsigned int flags);
 
+	/*
+	void render_grid(
+		int sprite_id,
+		double x,
+		double y,
+		double z,
+		double size,
+		double rotation,
+		color mutiply,
+		color add,
+		unsigned int flags);
+	*/
 	void render_grid(
 		int image_id,
 		int rows,
@@ -106,15 +125,4 @@ namespace xs::render
 	void end();	
 	void line(double x0, double y0, double x1, double y1);
 	void text(const std::string& text, double x, double y, double size);
-
-	int create_shape(std::vector<double>& points, std::vector<color>& colors);
-	// void delete_shape(int shape_id);
-	void render_shape(
-		int shape_id,
-		double x,
-		double y,
-		double size,
-		double rotation,
-		color multiply,
-		color add);
 }

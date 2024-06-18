@@ -220,8 +220,27 @@ void xs::inspector::render(float dt)
         
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE)) {}
+		
+
+		ImGui::SameLine();
+		xs::render::inspect();
+
+		ImGui::SameLine();
+		static bool about_open = false;
+		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
+		{
+			about_open = true;
+		}
 		Tooltip("About");
+
+		if (about_open)
+		{
+			ImGui::Begin("About", &about_open, ImGuiWindowFlags_Modal);
+			ImGui::Text(" xs %s ", xs::version::version_string.c_str());
+			ImGui::End();
+		}
+
+
 		ImGui::SameLine();
 		ImGui::Text("| xs %s |", xs::version::version_string.c_str());
 		ImGui::PopStyleColor();
@@ -235,7 +254,7 @@ void xs::inspector::render(float dt)
 				internal::ok_timer = 0.0f;
 			ImGui::PopStyleColor(1);
 			Tooltip("Reload Complete");
-		}
+		}		
 
 		ImGui::SameLine();
 		if (xs::script::has_error())
@@ -273,6 +292,8 @@ void xs::inspector::render(float dt)
 		{
 			xs::profiler::inspect(internal::show_profiler);
 		}
+
+		ImGui::ShowDemoWindow();
 	}
 
 

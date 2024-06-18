@@ -1,0 +1,22 @@
+{
+    "Always on top": {
+        "type": "bool",
+        "value": false
+    },
+    "Height": {
+        "type": "number",
+        "value": 0.0
+    },
+    "Multiplier": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Title": {
+        "type": "string",
+        "value": ""
+    },
+    "Width": {
+        "type": "number",
+        "value": 0.0
+    }
+}
