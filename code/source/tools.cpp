@@ -2,6 +2,7 @@
 #include <ios>
 #include <sstream>
 #include <iomanip>
+#include <render.h>
 
 using namespace xs;
 
@@ -78,4 +79,14 @@ std::string tools::float_to_str_with_precision(float f, int precision)
     std::stringstream stream;
     stream << std::fixed << std::setprecision(precision) << f;
     return stream.str();
+}
+
+void xs::tools::aabb::debug_draw()
+{
+	xs::render::color c = { 255, 255, 255, 255 };
+	xs::render::set_color(c);
+	xs::render::line(min.x, min.y, max.x, min.y);
+	xs::render::line(max.x, min.y, max.x, max.y);
+	xs::render::line(max.x, max.y, min.x, max.y);
+	xs::render::line(min.x, max.y, min.x, min.y);
 }

@@ -1,12 +1,18 @@
 #include "opengl.h"
 #include "render.h"
 #include "render_internal.h"
+#include "tools.h"
 #include <ios>
+#include <array>
+#include <unordered_map>
+#include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
 #include <stb/stb_image.h>
+#include <imgui.h>
+#include <IconsFontAwesome5.h>
+
 
 // Include stb_image 
 #ifdef PLATFORM_SWITCH
@@ -37,7 +43,10 @@
 #include "device.h"
 #include "profiler.h"
 
+#define XS_DEBUG_EXTENTS 0
+
 using namespace glm;
+using namespace std;
 
 namespace xs::render::internal
 {
@@ -61,7 +70,6 @@ namespace xs::render::internal
 	unsigned int			shader_program = 0;
 	unsigned int			lines_vao = 0;
 	unsigned int			lines_vbo = 0;
-
 	unsigned int			triangles_vao = 0;
 	unsigned int			triangles_vbo = 0;
 
@@ -71,14 +79,37 @@ namespace xs::render::internal
 		vec2 texture;
 		vec4 add_color;
 		vec4 mul_color;
-	};
+	};	
 	
 	unsigned int			sprite_program = 0;
-	int const				sprite_trigs_max = 21800;
-	int						sprite_trigs_count = 0;
-	sprite_vtx_format		sprite_trigs_array[sprite_trigs_max * 3];
-	unsigned int			sprite_trigs_vao = 0;
-	unsigned int			sprite_trigs_vbo = 0;
+
+	struct sprite_mesh
+	{
+		unsigned int				vao = 0;
+		unsigned int				ebo = 0;
+		std::array<unsigned int, 4>	vbos = { 0, 0, 0, 0 };
+		uint32_t					count = 0;
+		int							image_id = 0;
+		tools::aabb					extents;
+		bool						is_sprite = false;
+	};
+
+	struct sprite_mesh_instance
+	{
+		int sprite_id = 0;
+		int image_id = 0;
+		double x = 0;
+		double y = 0;
+		double z = 0;
+		double scale = 1.0;
+		double rotation = 0.0;
+		glm::vec4 mul_color = glm::vec4(1.0f);
+		glm::vec4 add_color = glm::vec4(0.0f);
+		int flags = 0;
+	};
+
+	unordered_map<int, sprite_mesh>	sprite_meshes;
+	vector<sprite_mesh_instance>	sprite_queue;
 }
 
 using namespace xs;
@@ -93,8 +124,7 @@ void xs::render::initialize()
 	internal::compile_draw_shader();
 	internal::compile_sprite_shader();
 
-	///////// Trigs //////////////////////
-	//glCreateVertexArrays(1, &lines_vao);
+	///////// Lines //////////////////////
     glGenVertexArrays(1, &lines_vao);
 	glBindVertexArray(lines_vao);
 
@@ -120,7 +150,6 @@ void xs::render::initialize()
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
-
 	///////// Trigs //////////////////////
 	glGenVertexArrays(1, &triangles_vao);
 	glBindVertexArray(triangles_vao);
@@ -144,44 +173,6 @@ void xs::render::initialize()
 	glVertexAttribPointer(
 		2, 4, GL_FLOAT, GL_FALSE, sizeof(debug_vertex_format),
 		reinterpret_cast<void*>(offsetof(debug_vertex_format, color)));
-
-	XS_DEBUG_ONLY(glBindVertexArray(0));
-
-
-	///////// Sprite //////////////////////
-	glGenVertexArrays(1, &sprite_trigs_vao);
-	glBindVertexArray(sprite_trigs_vao);
-
-	// Allocate VBO
-	glGenBuffers(1, &sprite_trigs_vbo);
-
-	// Array buffer contains the attribute data
-	glBindBuffer(GL_ARRAY_BUFFER, sprite_trigs_vbo);
-
-	// Allocate into VBO
-	const auto sprite_trigs_size = sizeof(sprite_trigs_array);
-	glBufferData(GL_ARRAY_BUFFER, sprite_trigs_size, &sprite_trigs_array[0], GL_STREAM_DRAW);
-
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(
-		1, 3, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, position)));
-
-	glEnableVertexAttribArray(2);
-	glVertexAttribPointer(
-		2, 2, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, texture)));
-
-
-	glEnableVertexAttribArray(3);
-	glVertexAttribPointer(
-		3, 4, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, mul_color)));
-
-	glEnableVertexAttribArray(4);
-	glVertexAttribPointer(
-		4, 4, GL_FLOAT, GL_FALSE, sizeof(sprite_vtx_format),
-		reinterpret_cast<void*>(offsetof(sprite_vtx_format, add_color)));
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 }
@@ -240,6 +231,7 @@ void xs::render::render()
 	glViewport(0, 0, width, height);
 	glClearColor(0.0, 0.0, 0.0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+	// set the viewport to the screen size
 
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
@@ -250,114 +242,88 @@ void xs::render::render()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	// Clear the screen
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glClearDepth(1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	// Enable depth testing and set the depth function
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
 	glUseProgram(sprite_program);
 	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
 
 	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
-		[](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
+		[](const sprite_mesh_instance& lhs, const sprite_mesh_instance& rhs) {
 			return lhs.z < rhs.z;
 		});
 
-	int count = 0;
 	for (auto i = 0; i < sprite_queue.size(); i++)
 	{
 		const auto& spe = sprite_queue[i];
-		const auto& sprite = sprites[spe.sprite_id];
-		const auto& image = images[sprite.image_id];
+		if(spe.sprite_id == -1) continue;
+		auto& mesh = sprite_meshes[spe.sprite_id];
+		auto& img = images[mesh.image_id];
 
-		auto from_x = 0.0;
-		auto from_y = 0.0;
-		auto to_x = image.width * (sprite.to.x - sprite.from.x) * spe.scale;
-		auto to_y = image.height * (sprite.to.y - sprite.from.y) * spe.scale;
+		// Set the shader program
+		glUseProgram(sprite_program);
 
-		auto from_u = sprite.from.x;
-		auto from_v = sprite.from.y;
-		auto to_u = sprite.to.x;
-		auto to_v = sprite.to.y;
-
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_x))
-			std::swap(from_u, to_u);
-
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_y))
-			std::swap(from_v, to_v);
-
-		vec4 add_color = to_vec4(spe.add_color);
-		vec4 mul_color = to_vec4(spe.mul_color);
-
+		// Set the texture
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, image.texture);
+		glBindTexture(GL_TEXTURE_2D, img.texture);
 
-		sprite_trigs_array[count + 0].position = { from_x, from_y, 0.0 };
-		sprite_trigs_array[count + 1].position = { from_x, to_y, 0.0 };
-		sprite_trigs_array[count + 2].position = { to_x, to_y, 0.0 };
-		sprite_trigs_array[count + 3].position = { to_x, to_y, 0.0 };
-		sprite_trigs_array[count + 4].position = { to_x, from_y, 0.0 };
-		sprite_trigs_array[count + 5].position = { from_x, from_y, 0.0 };
+		// Set the model matrix
+		float dx = mesh.extents.max.x - mesh.extents.min.x;
+		float dy = mesh.extents.max.y - mesh.extents.min.y;
+		mat4 model = identity<mat4>();
+		model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
 
-		sprite_trigs_array[count + 0].texture = { from_u,	to_v };
-		sprite_trigs_array[count + 1].texture = { from_u,	from_v };
-		sprite_trigs_array[count + 2].texture = { to_u,		from_v };
-		sprite_trigs_array[count + 3].texture = { to_u,		from_v };
-		sprite_trigs_array[count + 4].texture = { to_u,		to_v };
-		sprite_trigs_array[count + 5].texture = { from_u,	to_v };
+		if(tools::check_bit_flag_overlap(spe.flags, xs::render::flip_x))
+			model = scale(model, vec3(-1.0f, 1.0f, 1.0f));
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::flip_y))
+			model = scale(model, vec3(1.0f, -1.0f, 1.0f));
 
-		for (int i = 0; i < 6; ++i)
-		{
-			sprite_trigs_array[count + i].add_color = add_color;
-			sprite_trigs_array[count + i].mul_color = mul_color;
-		}
-			
-		vec3 anchor(0.0f, 0.0f, 0.0f);
 		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
-			anchor.x = (float)((to_x - from_x) * 0.5);
+			model = translate(model, vec3(-dx * 0.5f, 0.0f, 0.0f));
 		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
-			anchor.y = (float)((to_y - from_y) * 0.5);
-		else if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
-			anchor.y = (float)(to_y - from_y);
+			model = translate(model, vec3(0.0f, -dy * 0.5f, 0.0f));
 
-		if (anchor.x != 0.0f || anchor.y != 0.0f)
-		{				
-			for (int i = 0; i < 6; i++)
-				sprite_trigs_array[count + i].position -= anchor;
-		}
+		model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
+		model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
+		mat4 mvp = vp * model;
+		mat4 mv = v * model;
 
-		if (spe.rotation != 0.0)
+		// Get the AABB in view space
+		static tools::aabb view_aabb({-1,-1},{1,1});
+		tools::aabb bb = mesh.extents.transform(mvp);
+#if		XS_DEBUG_EXTENTS
+		tools::aabb bb2 = mesh.extents.transform(mv);
+		bb2.debug_draw();
+#endif
+		
+		// Check if the sprite is outside the screen
+		if (tools::aabb::overlap(bb, view_aabb))
 		{
-			for (int i = 0; i < 6; i++)
-				rotate_vector3d(sprite_trigs_array[count + i].position, (float)spe.rotation);
-		}
+			glUniformMatrix4fv(1, 1, false, value_ptr(mvp));
+			glUniform4fv(2, 1, value_ptr(spe.mul_color));
+			glUniform4fv(3, 1, value_ptr(spe.add_color));
 
-		for (int i = 0; i < 6; i++)
-		{
-			sprite_trigs_array[count + i].position.x += (float)spe.x;
-			sprite_trigs_array[count + i].position.y += (float)spe.y;
-		}
-		count += 6;
+			// Bind the vertex array
+			glBindVertexArray(mesh.vao);
 
-		bool render_batch = false;
-		if (i < sprite_queue.size() - 1)
-		{
-			const auto& nspe = sprite_queue[i + 1];
-			const auto& nsprite = sprites[nspe.sprite_id];
-			render_batch = nsprite.image_id != sprite.image_id;
+			// Draw the mesh
+			glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr);
+
+			// Unbind the vertex array
+			glBindVertexArray(0);
 		}
 		else
 		{
-			render_batch = true;
-		}
-		if (render_batch)
-		{
-			glBindVertexArray(sprite_trigs_vao);
-			glBindBuffer(GL_ARRAY_BUFFER, sprite_trigs_vbo);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(sprite_vtx_format) * count, &sprite_trigs_array[0], GL_DYNAMIC_DRAW);
-			glDrawArrays(GL_TRIANGLES, 0, count);
-			count = 0;
+			if (!bb.is_valid())
+				int g = 0;
 		}
 	}
-
-	XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	XS_DEBUG_ONLY(glUseProgram(0));
-	XS_DEBUG_ONLY(glBindVertexArray(0));
 	
 	glUseProgram(shader_program);
 	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
@@ -380,7 +346,6 @@ void xs::render::render()
 		XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	}
 
-
 	XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	XS_DEBUG_ONLY(glUseProgram(0));
 	XS_DEBUG_ONLY(glBindVertexArray(0));
@@ -397,6 +362,54 @@ void xs::render::render()
 	glBlitFramebuffer(0, 0, width, height, screen_to_game.xmin, screen_to_game.ymin, screen_to_game.xmax, screen_to_game.ymax, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+}
+
+void xs::render::render_sprite(
+	int sprite_id,
+	double x,
+	double y,
+	double z,
+	double size,
+	double rotation,
+	color multiply,
+	color add,
+	unsigned int flags)
+{
+	// Queue the sprite to render
+	sprite_mesh_instance instance;
+	instance.sprite_id = sprite_id;
+	instance.image_id = sprite_meshes[sprite_id].image_id;
+	instance.x = x;
+	instance.y = y;
+	instance.z = z;
+	instance.scale = size;
+	instance.rotation = rotation;
+	instance.mul_color = vec4(
+		(float)multiply.r / 255.0f,
+		(float)multiply.g / 255.0f,
+		(float)multiply.b / 255.0f,
+		(float)multiply.a / 255.0f);
+	instance.add_color = vec4(
+		(float)add.r / 255.0f,
+		(float)add.g / 255.0f,
+		(float)add.b / 255.0f,
+		(float)add.a / 255.0f);
+	instance.flags = flags;
+	sprite_queue.push_back(instance);
+}
+
+void xs::render::render_shape(
+	int shape_id,
+	double x,
+	double y,
+	double z,
+	double size,
+	double rotation,
+	color mutiply,
+	color add,
+	unsigned int flags)
+{
+	render_sprite(shape_id, x, y, z, size, rotation, mutiply, add, flags);
 }
 
 void xs::render::clear()
@@ -450,6 +463,190 @@ void xs::render::internal::create_texture_with_data(xs::render::internal::image&
 		usage,								// Format (how to use)
 		GL_UNSIGNED_BYTE,					// Type   (how to interpret)
 		data);								// Data
+
+	// Create mipmaps
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	XS_DEBUG_ONLY(glBindTexture(GL_TEXTURE_2D, 0));
+}
+
+void xs::render::internal::create_frame_buffers()
+{
+	//glCreateFramebuffers(1, &render_fbo);
+    glGenFramebuffers(1, &render_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
+	glGenTextures(1, &render_texture);
+	glBindTexture(GL_TEXTURE_2D, render_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, render_texture, 0);
+
+	// Create the depth buffer
+	unsigned int depth_buffer;
+	glGenRenderbuffers(1, &depth_buffer);
+	glBindRenderbuffer(GL_RENDERBUFFER, depth_buffer);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth_buffer);
+
+	unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
+	glDrawBuffers(1, attachments);
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		assert(false);
+	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+}
+
+int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
+{
+	if(image_id < 0 || image_id >= images.size())
+	{
+		log::error("Invalid image id: {}", image_id);
+		return -1;
+	}
+
+	// Precision for the texture coordinates 
+	double precision = 10000.0;
+	int xh0 = (int)(x0 * precision);
+	int yh0 = (int)(y0 * precision);
+	int xh1 = (int)(x1 * precision);
+	int yh1 = (int)(y1 * precision);
+
+	// Check if the sprite already exists
+	auto key = tools::hash_combine(image_id, x0, y0, x1, y1);
+	auto it = sprite_meshes.find(key);
+	if (it != sprite_meshes.end())
+		return it->first;
+
+	// Create the sprite mesh
+	sprite_mesh mesh;
+	mesh.is_sprite = true;
+
+	// Index of the vertices
+	unsigned short sprite_indices[] = { 0, 1, 2, 2, 3, 0 };
+
+	// Get the image size
+	auto& img = images[image_id];
+	auto w = (float)img.width;
+	auto h = (float)img.height;
+
+	// Scale the sprite to make sure each pixel is 1.0 units
+	float from_x = 0.0f;
+	float from_y = 0.0f;
+	float to_x = float(w * (x1 - x0));
+	float to_y = float(h * (y1 - y0));
+	mesh.extents = tools::aabb(vec2(from_x, from_y), vec2(to_x, to_y));
+	std::swap(from_y, to_y);
+
+	// Vertex positions just
+	float sprite_positions[] = {
+		from_x, from_y,
+		from_x, to_y,
+		to_x, to_y,
+		to_x, from_y,
+	};
+
+	// Texture coordinates
+	float sprite_texture_coordinates[] = {
+		(float)x0, (float)y0,
+		(float)x0, (float)y1,
+		(float)x1, (float)y1,
+		(float)x1, (float)y0
+	};
+
+	glGenVertexArrays(1, &mesh.vao);
+	glBindVertexArray(mesh.vao);
+
+	// Create the index buffer
+	glGenBuffers(1, &mesh.ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(short), sprite_indices, GL_STATIC_DRAW);
+	mesh.count = 6;
+
+	// Create the vertex buffers
+	glGenBuffers(2, mesh.vbos.data());
+
+	// Create the position buffer
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[0]);
+	glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), sprite_positions, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	// Create the texture coordinate buffer
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[1]);
+	glBufferData(GL_ARRAY_BUFFER, 4 * 2 * sizeof(float), sprite_texture_coordinates, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	// Unbind the vertex array
+	glBindVertexArray(0);
+
+	// Store the mesh
+	mesh.image_id = image_id;
+	sprite_meshes[key] = mesh;
+	return key;
+}
+
+int xs::render::create_shape(
+	int image_id,
+	const float* positions,
+	const float* texture_coordinates,
+	unsigned int vertex_count,
+	const unsigned short* indices,
+	unsigned int index_count)
+{
+	// Create the sprite mesh
+	sprite_mesh mesh = {};
+	mesh.is_sprite = false;
+	auto key = tools::random_id();
+
+	glGenVertexArrays(1, &mesh.vao);
+	glBindVertexArray(mesh.vao);
+
+	// Create the index buffer
+	glGenBuffers(1, &mesh.ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(unsigned short), indices, GL_STATIC_DRAW);
+	mesh.count = index_count;
+
+	// Create the vertex buffers
+	glGenBuffers(2, mesh.vbos.data());
+
+	// Create the position buffer
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[0]);
+	glBufferData(GL_ARRAY_BUFFER, vertex_count * 2 * sizeof(float), positions, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	// Create the texture coordinate buffer
+	glBindBuffer(GL_ARRAY_BUFFER, mesh.vbos[1]);
+	glBufferData(GL_ARRAY_BUFFER, vertex_count * 2 * sizeof(float), texture_coordinates, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	// Unbind the vertex array
+	glBindVertexArray(0);
+
+	// Store the mesh
+	mesh.image_id = image_id;
+	sprite_meshes[key] = mesh;
+	return key;
+}
+
+void xs::render::destroy_shape(int sprite_id)
+{
+	auto it = sprite_meshes.find(sprite_id);
+	if (it != sprite_meshes.end())
+	{
+		auto& mesh = it->second;
+		if(!mesh.is_sprite) 
+		{
+			glDeleteVertexArrays(1, &mesh.vao);
+			glDeleteBuffers(1, &mesh.ebo);
+			glDeleteBuffers(4, mesh.vbos.data());
+			sprite_meshes.erase(it);
+		}
+	}
 }
 
 void xs::render::internal::compile_sprite_shader()
@@ -662,4 +859,12 @@ void xs::render::internal::gl_label(GLenum type, GLuint name, const std::string&
 	const std::string temp = "[" + typeString + ":" + std::to_string(name) + "] " + label;
 	glObjectLabel(type, name, static_cast<GLsizei>(temp.length()), temp.c_str());
 
+void xs::render::reload()
+{
+	// TODO: Reload the images as needed
+}
+
+void xs::render::inspect()
+{
+	ImGui::Text(u8"| %s %d | ", ICON_FA_FILE_IMAGE, sprite_meshes.size());
 }

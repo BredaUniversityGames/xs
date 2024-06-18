@@ -96,8 +96,6 @@ def main():
     mtx = cairo.Matrix(1, 0, 0, -1, 0, image_height)
     ctx.set_matrix(mtx)
 
-    #buildings(ctx)
-
     c = colors.hex2color('#06AFFA')
     sprawl(ctx, 200, 400, 10, 22, c)
     for i in range(0, 3) :
@@ -112,14 +110,6 @@ def main():
                     random.randint(20, 22),
                     random.randint(35, 62),
                     c)
-
-
-    ##roundrect(finalCtx, 10, 10, width-20, height-20, 40)
-    #finalCtx.fill()
-    #roundrect(finalCtx, 5, 5, width - 10, height - 10, 45)
-    #finalCtx.set_line_width(10)
-    #(h, s, v) = (base + 0.28, 0.6, 0.9)
-    #(r, g, b) = colorsys.hsv_to_rgb(h, s, v)
 
     dt = datetime.datetime.now()
     ts = dt.timestamp()
