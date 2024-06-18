@@ -216,7 +216,7 @@ void xs::inspector::render(float dt)
         ImGui::SameLine();
         auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
         auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
-        ImGui::Text("| %s MB |", mem_str.c_str());
+        ImGui::Text("| VM: %s MB |", mem_str.c_str());
         
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 		ImGui::SameLine();
