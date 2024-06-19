@@ -57,10 +57,6 @@ class Render {
     foreign static end()
     foreign static vertex(x, y)
 
-    /// Create a shape from a list of points and a color.
-    /// The points are a list of floats where each pair of floats represent a point.
-    foreign static createShape(points, colors)
-    foreign static shape(shapeId, x, y, scale, rotation, mul, add)
     /// Helper functions //////////////////////////////////////////////////////
 
     static text(fontId, txt, x, y, z, mul, add, flags) {
@@ -159,15 +155,6 @@ class Render {
         }
         Render.end()
     }
-
-    foreign static loadImage(path)
-    foreign static getImageWidth(imageId)
-    foreign static getImageHeight(imageId)
-    foreign static createSprite(imageId, x0, y0, x1, y1)
-    foreign static sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)
-    foreign static setOffset(x, y)    
-    foreign static loadFont(font,size)
-    foreign static text(fontId, txt, x, y, mul, add, flags)
 
     static vertex(v) {
         Render.vertex(v.x, v.y)

@@ -464,6 +464,7 @@ void xs::render::text(const std::string& text, double x, double y, double size)
     }
 }
 
+/*
 int xs::render::create_shape(vector<double>& points, vector<color>& colors)
 {
 	//shape s = { std::move(points), std::move(colors) };
@@ -505,6 +506,7 @@ void xs::render::render_shape(
 	}
 	end();
 }
+*/
 
 #ifdef CAN_RELOAD_IMAGES
 
