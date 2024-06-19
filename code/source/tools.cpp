@@ -75,7 +75,11 @@ std::tuple<double, double, double, double> tools::parse_color(const std::string&
 
 void xs::tools::aabb::debug_draw()
 {
-	xs::render::color c = { 255, 255, 255, 255 };
+	xs::render::color c;
+	c.a = 255;
+	c.r = 255;
+	c.g = 255;
+	c.b = 255;
 	xs::render::set_color(c);
 	xs::render::line(min.x, min.y, max.x, min.y);
 	xs::render::line(max.x, min.y, max.x, max.y);
