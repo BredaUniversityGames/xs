@@ -187,6 +187,7 @@ void xs::render::shutdown()
 	// TODO: Delete frame buffer
 }
 
+/*
 void xs::render::internal::create_frame_buffers()
 {
 	// MSAA Framebuffer /////////////////////////////////////////////////
@@ -221,6 +222,7 @@ void xs::render::internal::create_frame_buffers()
 		assert(false);
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
+*/
 
 void xs::render::render()
 {	
@@ -398,6 +400,7 @@ void xs::render::render_sprite(
 	sprite_queue.push_back(instance);
 }
 
+/*
 void xs::render::render_shape(
 	int shape_id,
 	double x,
@@ -411,6 +414,7 @@ void xs::render::render_shape(
 {
 	render_sprite(shape_id, x, y, z, size, rotation, mutiply, add, flags);
 }
+*/
 
 void xs::render::clear()
 {
@@ -858,6 +862,7 @@ void xs::render::internal::gl_label(GLenum type, GLuint name, const std::string&
 
 	const std::string temp = "[" + typeString + ":" + std::to_string(name) + "] " + label;
 	glObjectLabel(type, name, static_cast<GLsizei>(temp.length()), temp.c_str());
+}
 
 void xs::render::reload()
 {

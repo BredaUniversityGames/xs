@@ -827,6 +827,7 @@ void render_render_text(WrenVM* vm)
     callFunction_args<int, string, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_text);
 }
 
+/*
 void render_create_shape(WrenVM* vm)
 {
 	auto pcount = wrenGetListCount(vm, 1);
@@ -857,10 +858,12 @@ void render_create_shape(WrenVM* vm)
 	wrenSetSlotDouble(vm, 0, id);
 }
 
+
 void render_render_shape(WrenVM* vm)
 {
-	callFunction_args<int, double, double, double, double, xs::render::color, xs::render::color>(vm, xs::render::render_shape);
+	callFunction_args<int, double, double, double, double, xs::render::color, xs::render::color>(vm, xs::render::render_sprite);
 }
+*/
 
 void shape_handle_allocate(WrenVM* vm)
 {
@@ -1339,8 +1342,6 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
     bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
-	bind("xs", "Render", true, "createShape(_,_)", render_create_shape);
-	bind("xs", "Render", true, "shape(_,_,_,_,_,_,_)", render_render_shape);
 
     // ShapeHandle
     WrenForeignClassMethods shape_handle_methods {};

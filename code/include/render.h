@@ -83,6 +83,17 @@ namespace xs::render
 		unsigned int flags);
 
 	/*
+	void render_shape(
+		int shape_id,
+		double x,
+		double y,
+		double z,
+		double size,
+		double rotation,
+		color mutiply,
+		color add,
+		unsigned int flags);
+
 	void render_grid(
 		int sprite_id,
 		double x,
@@ -93,7 +104,7 @@ namespace xs::render
 		color mutiply,
 		color add,
 		unsigned int flags);
-	*/
+
 	void render_grid(
 		int image_id,
 		int rows,
@@ -108,6 +119,7 @@ namespace xs::render
 		color adds[],
 		color z_offests[],
 		unsigned int flags);
+	*/
 
 	void render_text(
 		int font_id,
@@ -125,4 +137,5 @@ namespace xs::render
 	void end();	
 	void line(double x0, double y0, double x1, double y1);
 	void text(const std::string& text, double x, double y, double size);
+	void inspect();
 }
