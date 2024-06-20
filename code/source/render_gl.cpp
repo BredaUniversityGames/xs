@@ -187,43 +187,6 @@ void xs::render::shutdown()
 	// TODO: Delete frame buffer
 }
 
-/*
-void xs::render::internal::create_frame_buffers()
-{
-	// MSAA Framebuffer /////////////////////////////////////////////////
-	glGenFramebuffers(1, &msaa_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
-	gl_label(GL_FRAMEBUFFER, msaa_fbo, "MSAA FBO");
-	// Create a MSAA texture
-	glGenTextures(1, &msaa_texture);
-	glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, msaa_texture);
-	gl_label(GL_TEXTURE, msaa_texture, "MSAA Texture");
-	glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 16, GL_RGBA, width, height, GL_TRUE);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, msaa_texture, 0);
-	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		assert(false);
-	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
-	// Resolve Framebuffer /////////////////////////////////////////////////
-	glGenFramebuffers(1, &render_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
-	gl_label(GL_FRAMEBUFFER, render_fbo, "Render FBO");
-	// Create a render texture
-	glGenTextures(1, &render_texture);
-	glBindTexture(GL_TEXTURE_2D, render_texture);
-	gl_label(GL_TEXTURE, render_texture, "Render Texture");
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, render_texture, 0);
-	unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
-	glDrawBuffers(1, attachments);
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		assert(false);
-	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-}
-*/
-
 void xs::render::render()
 {	
 	XS_PROFILE_SECTION("xs::render::render");
@@ -399,22 +362,6 @@ void xs::render::render_sprite(
 	instance.flags = flags;
 	sprite_queue.push_back(instance);
 }
-
-/*
-void xs::render::render_shape(
-	int shape_id,
-	double x,
-	double y,
-	double z,
-	double size,
-	double rotation,
-	color mutiply,
-	color add,
-	unsigned int flags)
-{
-	render_sprite(shape_id, x, y, z, size, rotation, mutiply, add, flags);
-}
-*/
 
 void xs::render::clear()
 {
@@ -864,12 +811,7 @@ void xs::render::internal::gl_label(GLenum type, GLuint name, const std::string&
 	glObjectLabel(type, name, static_cast<GLsizei>(temp.length()), temp.c_str());
 }
 
-void xs::render::reload()
-{
-	// TODO: Reload the images as needed
-}
-
 void xs::render::inspect()
 {
-	ImGui::Text(u8"| %s %d | ", ICON_FA_FILE_IMAGE, sprite_meshes.size());
+	ImGui::Text(u8" %s %d ", ICON_FA_FILE_IMAGE, sprite_meshes.size());
 }

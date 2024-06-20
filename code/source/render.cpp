@@ -464,50 +464,6 @@ void xs::render::text(const std::string& text, double x, double y, double size)
     }
 }
 
-/*
-int xs::render::create_shape(vector<double>& points, vector<color>& colors)
-{
-	//shape s = { std::move(points), std::move(colors) };
-	shape s = { points, colors };
-	shapes[++internal::next_shape_id] = s;
-	return internal::next_shape_id;
-}
-
-void xs::render::render_shape(
-	int shape_id,
-	double x,
-	double y,
-	double size,
-	double rotation,
-	color multiply,
-	color add)
-{
-	const auto& s = shapes[shape_id];
-	begin(primitive::triangles);
-	for(int i = 0; i < s.colors.size(); i++)
-	{
-		auto px = s.points[2 * i] * size; 
-		auto py = s.points[2*i+1] * size;
-		if(rotation != 0.0)
-		{
-			const auto c = cos(rotation);
-			const auto s = sin(rotation);
-			const auto x = px * c - py * s;
-			const auto y = px * s + py * c;
-			px = x;
-			py = y;
-		}
-		px += x;
-		py += y;
-		auto c = s.colors[i];
-		c = c * multiply + add;
-		set_color(c);
-		vertex(px, py);
-	}
-	end();
-}
-*/
-
 #ifdef CAN_RELOAD_IMAGES
 
 void xs::render::reload_images()
