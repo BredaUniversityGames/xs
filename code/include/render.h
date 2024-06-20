@@ -51,8 +51,7 @@ namespace xs::render
 	void initialize();
 	void shutdown();	
 	void render();
-	void clear();
-	void reload();
+	void clear();;
 	void reload_images();
 	void set_offset(double x, double y);
 	int load_image(const std::string& image_file);
@@ -81,45 +80,6 @@ namespace xs::render
 		color mutiply,
 		color add,
 		unsigned int flags);
-
-	/*
-	void render_shape(
-		int shape_id,
-		double x,
-		double y,
-		double z,
-		double size,
-		double rotation,
-		color mutiply,
-		color add,
-		unsigned int flags);
-
-	void render_grid(
-		int sprite_id,
-		double x,
-		double y,
-		double z,
-		double size,
-		double rotation,
-		color mutiply,
-		color add,
-		unsigned int flags);
-
-	void render_grid(
-		int image_id,
-		int rows,
-		int columns,
-		double x,
-		double y,
-		double z,
-		double sx,
-		double sy,
-		int indices[],		
-		color mutiplies[],
-		color adds[],
-		color z_offests[],
-		unsigned int flags);
-	*/
 
 	void render_text(
 		int font_id,

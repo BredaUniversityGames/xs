@@ -151,7 +151,6 @@ void xs::inspector::render(float dt)
 		ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_WindowBg]);
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
 		{		
-			render::reload();
 			script::shutdown();
 			script::configure();
 			script::initialize();
@@ -216,9 +215,10 @@ void xs::inspector::render(float dt)
         ImGui::SameLine();
         auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
         auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
-        ImGui::Text("| VM: %s MB |", mem_str.c_str());
+        ImGui::Text("      %s %s MB ", ICON_FA_MICROCHIP ,mem_str.c_str());
+		Tooltip("Memory Usage");
         
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+        //ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 		ImGui::SameLine();
 		
 
@@ -240,11 +240,14 @@ void xs::inspector::render(float dt)
 			ImGui::End();
 		}
 
-
+		/*
 		ImGui::SameLine();
 		ImGui::Text("| xs %s |", xs::version::version_string.c_str());
-		ImGui::PopStyleColor();
+		
 		Tooltip("Engine Version");
+		*/
+
+		//ImGui::PopStyleColor();
         
 
 		ImGui::SameLine();
