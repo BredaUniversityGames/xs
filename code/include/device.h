@@ -4,15 +4,15 @@ namespace xs::device
 {
 	void initialize();
 	void shutdown();
-    void begin_frame();
-    void end_frame();
-	// void swap_buffers();
+	void begin_frame();
+	void end_frame();
 	void poll_events();
-    void start_frame();
-    void end_frame();
+	void start_frame();
+	void end_frame();
 	bool should_close();
 	int get_width();
 	int get_height();
+	float hdpi_scaling();
 
 	enum platform 
 	{
