@@ -169,7 +169,7 @@ class Player is Component {
             reticle.tag = Tag.reticle
             var t = Transform.new(Vec2.new(0, 0))
             var s = AnimatedSprite.new("[game]/images/ui/reticle.png", 32, 1, 60)
-            s.addAnimation("rotate", Tools.rangeToList(0...32))
+            s.addAnimation("rotate", Tools.toList(0...32))
             s.playAnimation("rotate")
             s.layer = 10.999
             s.flags = Render.spriteCenter

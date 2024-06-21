@@ -54,6 +54,32 @@ namespace xs::render::internal
     int                      sprite_trigs_count = 0;
     sprite_vtx_format        sprite_trigs_array[sprite_trigs_max * 3];
     void render_to_view();
+
+
+	// TODO: Deprecated
+	struct sprite
+	{
+		int image_id	= -1;
+		glm::vec2 from	= {};
+		glm::vec2 to	= {};
+	};
+
+	struct sprite_queue_entry
+	{
+		int sprite_id	= -1;
+		double			x = 0.0;
+		double			y = 0.0;
+		double			z = 0.0;
+		double			scale = 1.0;
+		double			rotation = 0.0;
+		color			mul_color = {};
+		color			add_color = {};
+		unsigned int	flags = 0;
+	};
+
+	std::vector<sprite>				sprites;
+	std::vector<sprite_queue_entry>	sprite_queue = {};
+
 }
 
 void xs::render::initialize()
@@ -421,3 +447,81 @@ void xs::render::internal::create_texture_with_data(
      withBytes:data
      bytesPerRow:texture_descriptor.width * 4];
 }
+
+// TODO: Deprecated
+int xs::render::create_shape(
+	int image_id,
+	const float *positions,
+	const float *texture_coordinates,
+	unsigned int vertex_count,
+	const unsigned short *indices,
+	unsigned int index_count)
+{
+	return 0;
+}
+
+void xs::render::destroy_shape(int sprite_id) {}
+
+int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
+{
+	if (image_id < 0 || image_id >= images.size()) {
+		log::error("Can't create sprite with image {}!", image_id);
+		return -1;
+	}
+
+	const auto epsilon = 0.001;
+	for(int i = 0; i < sprites.size(); i++)
+	{
+		const auto& s = sprites[i];
+		if (s.image_id == image_id &&
+			abs(s.from.x - x0) < epsilon &&
+			abs(s.from.y - y0) < epsilon &&
+			abs(s.to.x - x1) < epsilon &&
+			abs(s.to.y - y1) < epsilon)
+			return i;
+	}
+
+	const auto i = sprites.size();
+	sprite s = { image_id, { x0, y0 }, { x1, y1 } };
+	sprites.push_back(s);
+	return static_cast<int>(i);
+}
+
+void xs::render::render_sprite(
+	int sprite_id,
+	double x,
+	double y,
+	double z,
+	double scale,
+	double rotation,
+	color multiply,
+	color add,
+	unsigned int flags)
+{
+	if (sprite_id < 0 || sprite_id >= internal::sprites.size()) {
+		log::error("Can't render sprite {}!", sprite_id);
+		return;
+	}
+
+	if (!tools::check_bit_flag_overlap(flags, sprite_flags::overlay)) {
+		x += offset.x;
+		y += offset.y;
+	}
+	
+	//x = round(x);
+	//y = round(y);
+
+	sprite_queue.push_back({
+		sprite_id,
+		x,
+		y,
+		z,
+		scale,
+		rotation,
+		multiply,
+		add,
+		flags
+	});
+}
+
+void xs::render::inspect() {}
