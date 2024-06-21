@@ -257,7 +257,7 @@ void xs::render::render()
 		model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
 		model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
 		mat4 mvp = vp * model;
-		mat4 mv = v * model;
+		// mat4 mv = v * model;
 
 		// Get the AABB in view space
 		static tools::aabb view_aabb({-1,-1},{1,1});
@@ -285,8 +285,7 @@ void xs::render::render()
 		}
 		else
 		{
-			if (!bb.is_valid())
-				int g = 0;
+			if (!bb.is_valid()) {}
 		}
 	}
 	
@@ -457,11 +456,11 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	}
 
 	// Precision for the texture coordinates 
-	double precision = 10000.0;
-	int xh0 = (int)(x0 * precision);
-	int yh0 = (int)(y0 * precision);
-	int xh1 = (int)(x1 * precision);
-	int yh1 = (int)(y1 * precision);
+	// double precision = 10000.0;
+	//int xh0 = (int)(x0 * precision);
+	//int yh0 = (int)(y0 * precision);
+	//int xh1 = (int)(x1 * precision);
+	//int yh1 = (int)(y1 * precision);
 
 	// Check if the sprite already exists
 	auto key = tools::hash_combine(image_id, x0, y0, x1, y1);
@@ -813,5 +812,5 @@ void xs::render::internal::gl_label(GLenum type, GLuint name, const std::string&
 
 void xs::render::inspect()
 {
-	ImGui::Text(u8" %s %d ", ICON_FA_FILE_IMAGE, sprite_meshes.size());
+	ImGui::Text(u8"| %s %d | ", ICON_FA_FILE_IMAGE, (int)sprite_meshes.size());
 }
