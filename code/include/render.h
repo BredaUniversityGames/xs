@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <glm/fwd.hpp>
 
 namespace xs::render
 {	
@@ -13,6 +12,28 @@ namespace xs::render
 			struct { uchar a, b, g, r; };
 			uint32_t integer_value;
 		};
+
+		color operator +(const color& rhs)  const
+		{
+			return
+			{
+				uchar(a + rhs.a),
+				uchar(b + rhs.b),				
+				uchar(g + rhs.g),
+				uchar(r + rhs.r)				
+			};			
+		}
+
+		color operator *(const color& rhs)  const
+		{
+			return
+			{								
+				uchar(round(a * rhs.a / 255.0)),
+				uchar(round(b * rhs.b / 255.0)),
+				uchar(round(g * rhs.g / 255.0)),
+				uchar(round(r * rhs.r / 255.0))
+			};
+		}
 	};
 
 	enum sprite_flags
@@ -30,8 +51,7 @@ namespace xs::render
 	void initialize();
 	void shutdown();	
 	void render();
-	void clear();
-	void reload();
+	void clear();;
 	void reload_images();
 	void set_offset(double x, double y);
 	int load_image(const std::string& image_file);
@@ -61,17 +81,6 @@ namespace xs::render
 		color add,
 		unsigned int flags);
 
-	void render_shape(
-		int shape_id,
-		double x,
-		double y,
-		double z,
-		double size,
-		double rotation,
-		color mutiply,
-		color add,
-		unsigned int flags);
-
 	void render_text(
 		int font_id,
 		const std::string& text,
@@ -88,6 +97,5 @@ namespace xs::render
 	void end();	
 	void line(double x0, double y0, double x1, double y1);
 	void text(const std::string& text, double x, double y, double size);
-
 	void inspect();
 }

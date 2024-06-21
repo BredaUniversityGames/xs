@@ -26,5 +26,6 @@
         "iosfwd": "cpp",
         "ostream": "cpp",
         "string": "cpp"
-    }
+    },
+    "wren.additionalModuleDirectories": ["./games/shared/modules"]
 }

@@ -1,6 +1,7 @@
 #include <tools.h>
 #include <ios>
 #include <sstream>
+#include <iomanip>
 #include <render.h>
 
 using namespace xs;
@@ -71,6 +72,13 @@ std::tuple<double, double, double, double> tools::parse_color(const std::string&
 	auto a = static_cast<double>(ia) / 255.0;
 
 	return { r, g, b, a };
+}
+
+std::string tools::float_to_str_with_precision(float f, int precision)
+{
+    std::stringstream stream;
+    stream << std::fixed << std::setprecision(precision) << f;
+    return stream.str();
 }
 
 void xs::tools::aabb::debug_draw()

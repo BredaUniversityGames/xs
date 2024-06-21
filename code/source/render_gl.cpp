@@ -56,12 +56,16 @@ namespace xs::render::internal
 	void compile_sprite_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
+	void gl_label(GLenum type, GLuint name, const std::string& label);
 
 	int width = -1;
 	int height = -1;	
 
 	unsigned int render_fbo;
 	unsigned int render_texture;
+
+	unsigned int msaa_fbo;
+	unsigned int msaa_texture;
 	
 	unsigned int			shader_program = 0;
 	unsigned int			lines_vao = 0;
@@ -187,8 +191,12 @@ void xs::render::render()
 {	
 	XS_PROFILE_SECTION("xs::render::render");
 
-	// set the viewport to the screen size
+	// Bind MSAA framebuffer
+	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
 	glViewport(0, 0, width, height);
+	glClearColor(0.0, 0.0, 0.0, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	// set the viewport to the screen size
 
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
@@ -306,13 +314,18 @@ void xs::render::render()
 	XS_DEBUG_ONLY(glUseProgram(0));
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
+	glBindFramebuffer(GL_READ_FRAMEBUFFER, msaa_fbo);
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, render_fbo);
+	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 	// Blit render result screen
 	const auto& screen_to_game = xs::configuration::get_scale_to_game(xs::device::get_width(), xs::device::get_height());
-
 	glBindFramebuffer(GL_READ_FRAMEBUFFER, render_fbo);
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	glBlitFramebuffer(0, 0, width, height, screen_to_game.xmin, screen_to_game.ymin, screen_to_game.xmax, screen_to_game.ymax, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 }
 
 void xs::render::render_sprite(
@@ -347,20 +360,6 @@ void xs::render::render_sprite(
 		(float)add.a / 255.0f);
 	instance.flags = flags;
 	sprite_queue.push_back(instance);
-}
-
-void xs::render::render_shape(
-	int shape_id,
-	double x,
-	double y,
-	double z,
-	double size,
-	double rotation,
-	color mutiply,
-	color add,
-	unsigned int flags)
-{
-	render_sprite(shape_id, x, y, z, size, rotation, mutiply, add, flags);
 }
 
 void xs::render::clear()
@@ -764,9 +763,51 @@ bool xs::render::internal::link_program(GLuint program)
 	return status != 0;
 }
 
-void xs::render::reload()
+void xs::render::internal::gl_label(GLenum type, GLuint name, const std::string& label)
 {
-	// TODO: Reload the images as needed
+	std::string typeString;
+	switch (type)
+	{
+	case GL_BUFFER:
+		typeString = "GL_BUFFER";
+		break;
+	case GL_SHADER:
+		typeString = "GL_SHADER";
+		break;
+	case GL_PROGRAM:
+		typeString = "GL_PROGRAM";
+		break;
+	case GL_VERTEX_ARRAY:
+		typeString = "GL_VERTEX_ARRAY";
+		break;
+	case GL_QUERY:
+		typeString = "GL_QUERY";
+		break;
+	case GL_PROGRAM_PIPELINE:
+		typeString = "GL_PROGRAM_PIPELINE";
+		break;
+	case GL_TRANSFORM_FEEDBACK:
+		typeString = "GL_TRANSFORM_FEEDBACK";
+		break;
+	case GL_SAMPLER:
+		typeString = "GL_SAMPLER";
+		break;
+	case GL_TEXTURE:
+		typeString = "GL_TEXTURE";
+		break;
+	case GL_RENDERBUFFER:
+		typeString = "GL_RENDERBUFFER";
+		break;
+	case GL_FRAMEBUFFER:
+		typeString = "GL_FRAMEBUFFER";
+		break;
+	default:
+		typeString = "UNKNOWN";
+		break;
+	}
+
+	const std::string temp = "[" + typeString + ":" + std::to_string(name) + "] " + label;
+	glObjectLabel(type, name, static_cast<GLsizei>(temp.length()), temp.c_str());
 }
 
 void xs::render::inspect()

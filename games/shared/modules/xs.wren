@@ -156,6 +156,10 @@ class Render {
         Render.end()
     }
 
+    static vertex(v) {
+        Render.vertex(v.x, v.y)
+    }
+
     static sprite(spriteId, x, y) {
         sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }
