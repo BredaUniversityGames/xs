@@ -30,6 +30,7 @@ namespace xs::inspector::internal
 	float ui_scale = 1.0f;
 	bool show_registry = false;
 	bool show_profiler = false;
+	bool show_about = false;
 	void embrace_the_darkness();
 	void follow_the_light();
 	void go_gray();
@@ -39,11 +40,13 @@ namespace xs::inspector::internal
 }
 
 using namespace xs::inspector::internal;
+using namespace xs;
+using namespace std;
 
 void xs::inspector::initialize()
 {
     ImGui::CreateContext();
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
 	ImPlot::CreateContext();
 #endif
     ImGui_Impl_Init();
@@ -118,7 +121,6 @@ void xs::inspector::render(float dt)
 #endif
 	
 	ImGui_Impl_NewFrame();
-    
     ImGui::NewFrame();
 
 	internal::ok_timer -= dt;
@@ -127,6 +129,7 @@ void xs::inspector::render(float dt)
 	if (xs::script::has_error() ||
 		internal::show_registry ||
 		internal::show_profiler ||
+		internal::show_about	||
 		(ImGui::IsMousePosValid() &&
          mousePos.y < 100.0f &&
          mousePos.y >= 0.0f &&
@@ -150,7 +153,6 @@ void xs::inspector::render(float dt)
 		ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_WindowBg]);
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
 		{		
-			render::reload();
 			script::shutdown();
 			script::configure();
 			script::initialize();
@@ -184,7 +186,6 @@ void xs::inspector::render(float dt)
 		}
 		Tooltip("Data");
 		
-
 		
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_CHART_BAR))
@@ -212,28 +213,44 @@ void xs::inspector::render(float dt)
 				
 		}
 		Tooltip("Theme");		
+				
+        ImGui::SameLine();
+        auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
+        auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
+        ImGui::Text("      %s %s MB ", ICON_FA_MICROCHIP ,mem_str.c_str());
+		Tooltip("Memory Usage");
+        
+        //ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+		ImGui::SameLine();
 		
 
 		ImGui::SameLine();
 		xs::render::inspect();
 
 		ImGui::SameLine();
-		static bool about_open = false;
 		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
 		{
-			about_open = true;
+			show_about = true;
 		}
 		Tooltip("About");
 
-		if (about_open)
+		if (show_about)
 		{
-			ImGui::Begin("About", &about_open, ImGuiWindowFlags_Modal);
+			ImGui::Begin("About", &show_about, ImGuiWindowFlags_Modal);
 			ImGui::Text(" xs %s ", xs::version::version_string.c_str());
+			ImGui::Text(" Made with love at Breda University of Applied Sciences ");
 			ImGui::End();
 		}
 
-
+		/*
 		ImGui::SameLine();
+		ImGui::Text("| xs %s |", xs::version::version_string.c_str());
+		
+		Tooltip("Engine Version");
+		*/
+
+		//ImGui::PopStyleColor();
+        
 
 		ImGui::SameLine();
 		if (internal::ok_timer > 0.0f) {
@@ -281,7 +298,7 @@ void xs::inspector::render(float dt)
 			xs::profiler::inspect(internal::show_profiler);
 		}
 
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 	}
 
 

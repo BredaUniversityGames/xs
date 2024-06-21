@@ -26,4 +26,5 @@ namespace xs::script
 		const std::string& class_name,
 		WrenForeignMethodFn allocate_fn,
 		WrenFinalizerFn finalize_fn = NULL);
+    size_t get_bytes_allocated();
 }

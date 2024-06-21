@@ -1,6 +1,7 @@
 #include "render.h"
 #include "render_internal.h"
 #include <ios>
+#include <unordered_map>
 #include <sstream>
 #include <string>
 #include <map>
@@ -53,8 +54,8 @@
 #define CAN_RELOAD_IMAGES 1
 #endif
 
-using namespace std;
 using namespace glm;
+using namespace std;
 
 namespace xs::render::internal
 {
@@ -73,6 +74,15 @@ namespace xs::render::internal
     primitive                       current_primitive = primitive::none;
     glm::vec4                       current_color = {1.0, 1.0, 1.0, 1.0};
 
+
+	struct shape
+	{
+		std::vector<double>	points = {};
+		std::vector<color>	colors = {};
+	};
+
+	std::unordered_map<int, shape>	shapes = {};
+	int 							next_shape_id = 1;
 
 	const int FONT_ATLAS_MIN_CHARACTER = 32;
 	const int FONT_ATLAS_NR_CHARACTERS = 96;
@@ -120,7 +130,6 @@ int xs::render::load_font(const std::string& font_file, double size)
 	auto dimension = tools::next_power_of_two((uint32)sqrt(requiredPixels));
 
 	image img;
-	//int val = ascent - descent;
 	img.width = dimension;
 	img.height = dimension;
 	auto bitmap = static_cast<unsigned char*>(malloc(img.width * img.height));
@@ -453,7 +462,6 @@ void xs::render::text(const std::string& text, double x, double y, double size)
             return;
     }
 }
-
 
 #ifdef CAN_RELOAD_IMAGES
 
