@@ -122,9 +122,9 @@ void xs::inspector::render(float dt)
 	
 	ImGui_Impl_NewFrame();
     ImGui::NewFrame();
-
+		
 	internal::ok_timer -= dt;
-
+	
     auto mousePos = ImGui::GetMousePos();
 	if (xs::script::has_error() ||
 		internal::show_registry ||
@@ -137,6 +137,11 @@ void xs::inspector::render(float dt)
          mousePos.x >= 0.0f &&
          mousePos.x <= device::get_width()))
 	{
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.00f, 0.00f, 0.00f, 0.23f));
+		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.00f, 1.00f, 1.00f, 0.00f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.40f, 0.00f, 0.39f, 1.00f));
+		
+		
 		bool true_that = true;
 		ImGui::Begin("Window", &true_that,
 			ImGuiWindowFlags_NoScrollbar |
@@ -151,6 +156,7 @@ void xs::inspector::render(float dt)
         
 		ImGuiStyle& style = ImGui::GetStyle();
 		ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_WindowBg]);
+		
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
 		{		
 			script::shutdown();
@@ -213,44 +219,33 @@ void xs::inspector::render(float dt)
 				
 		}
 		Tooltip("Theme");		
-				
-        ImGui::SameLine();
-        auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
-        auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
-        ImGui::Text("      %s %s MB ", ICON_FA_MICROCHIP ,mem_str.c_str());
-		Tooltip("Memory Usage");
-        
-        //ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-		ImGui::SameLine();
-		
-
-		ImGui::SameLine();
-		xs::render::inspect();
-
+						
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
 		{
 			show_about = true;
 		}
 		Tooltip("About");
-
-		if (show_about)
-		{
-			ImGui::Begin("About", &show_about, ImGuiWindowFlags_Modal);
-			ImGui::Text(" xs %s ", xs::version::version_string.c_str());
-			ImGui::Text(" Made with love at Breda University of Applied Sciences ");
-			ImGui::End();
-		}
-
-		/*
-		ImGui::SameLine();
-		ImGui::Text("| xs %s |", xs::version::version_string.c_str());
 		
-		Tooltip("Engine Version");
-		*/
+		ImGui::SameLine();
+		ImGui::Text("    ");
+		
+		ImGui::SameLine();
+		auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
+		auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
+		ImGui::Button(ICON_FA_MICROCHIP);
+		Tooltip("VM Memory Usage");
+		ImGui::SameLine();
+		ImGui::Text("%sMB ", mem_str.c_str());
 
-		//ImGui::PopStyleColor();
-        
+		ImGui::SameLine();
+		xs::render::inspect();
+			
+		ImGui::SameLine();
+		ImGui::Button(ICON_FA_TAGS);
+		Tooltip("xs Version");
+		ImGui::SameLine();
+		ImGui::Text("v%s", xs::version::version_string.c_str());
 
 		ImGui::SameLine();
 		if (internal::ok_timer > 0.0f) {
@@ -284,24 +279,34 @@ void xs::inspector::render(float dt)
 			ImGui::PopStyleColor();
 			Tooltip("Data has unsaved changes");
 		}
-
+		
 		ImGui::PopStyleColor();
-		ImGui::End();		
-
-		if (internal::show_registry)
-		{
-			xs::data::inspect(internal::show_registry);
-		}
-
-		if (internal::show_profiler)
-		{
-			xs::profiler::inspect(internal::show_profiler);
-		}
-
-		//ImGui::ShowDemoWindow();
+		ImGui::End();
+		
+		ImGui::PopStyleColor(3);
+	}
+	
+	if (internal::show_registry)
+	{
+		xs::data::inspect(internal::show_registry);
 	}
 
+	if (internal::show_profiler)
+	{
+		xs::profiler::inspect(internal::show_profiler);
+	}
+	
+	if (show_about)
+	{
+		ImGui::Begin("About", &show_about, ImGuiWindowFlags_Modal);
+		ImGui::Text(" xs %s ", xs::version::version_string.c_str());
+		ImGui::Text(" Made with love at Breda University of Applied Sciences ");
+		ImGui::End();
+	}
+	
+	// ImGui::ShowDemoWindow();
 
+	
 	ImGui::Render();    
 	ImGui_Impl_RenderDrawData(ImGui::GetDrawData());
 
