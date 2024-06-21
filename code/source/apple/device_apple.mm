@@ -54,6 +54,8 @@ namespace xs::device::internal
     int _width = -1;
     int _height = -1;
     float _scaling = 1.0f;
+    float _hdpi_scale = 1.0f;
+    
     id<MTLCommandQueue> command_queue;      // The queue tied to the view
     id<MTLCommandBuffer> command_buffer;    // The buffer tied to the view
     id<MTLRenderCommandEncoder> render_encoder; // The encoder tied to the view
@@ -229,9 +231,11 @@ void device::initialize()
 #if defined(PLATFORM_MAC)
     CGFloat w = configuration::width() * configuration::multiplier();
     CGFloat h = configuration::height() * configuration::multiplier();;
-    //[_view setBoundsSize:{w, h}];
-    //[_view setDrawableSize:{w, h}];
-    [_view setFrameSize:{w, h}];
+    auto hdpi_scale = [[NSScreen mainScreen] backingScaleFactor];
+    if(xs::configuration::window_size_in_points())
+        [_view setFrameSize:{w, h}];    // In pixels
+    else
+        [_view setFrameSize:{w / hdpi_scale, h / hdpi_scale}]; // In points
 #endif
 }
 
@@ -284,6 +288,11 @@ int device::get_width()
 int device::get_height()
 {
     return _height;
+}
+
+float device::hdpi_scaling()
+{
+    return _hdpi_scale;
 }
 
 MTKView* device::internal::get_view()
