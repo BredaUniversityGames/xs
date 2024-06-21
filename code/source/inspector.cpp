@@ -30,6 +30,7 @@ namespace xs::inspector::internal
 	float ui_scale = 1.0f;
 	bool show_registry = false;
 	bool show_profiler = false;
+	bool show_about = false;
 	void embrace_the_darkness();
 	void follow_the_light();
 	void go_gray();
@@ -128,6 +129,7 @@ void xs::inspector::render(float dt)
 	if (xs::script::has_error() ||
 		internal::show_registry ||
 		internal::show_profiler ||
+		internal::show_about	||
 		(ImGui::IsMousePosValid() &&
          mousePos.y < 100.0f &&
          mousePos.y >= 0.0f &&
@@ -226,17 +228,17 @@ void xs::inspector::render(float dt)
 		xs::render::inspect();
 
 		ImGui::SameLine();
-		static bool about_open = false;
 		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
 		{
-			about_open = true;
+			show_about = true;
 		}
 		Tooltip("About");
 
-		if (about_open)
+		if (show_about)
 		{
-			ImGui::Begin("About", &about_open, ImGuiWindowFlags_Modal);
+			ImGui::Begin("About", &show_about, ImGuiWindowFlags_Modal);
 			ImGui::Text(" xs %s ", xs::version::version_string.c_str());
+			ImGui::Text(" Made with love at Breda University of Applied Sciences ");
 			ImGui::End();
 		}
 
@@ -296,7 +298,7 @@ void xs::inspector::render(float dt)
 			xs::profiler::inspect(internal::show_profiler);
 		}
 
-		ImGui::ShowDemoWindow();
+		//ImGui::ShowDemoWindow();
 	}
 
 
