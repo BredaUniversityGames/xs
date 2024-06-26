@@ -102,6 +102,9 @@ void xs::inspector::initialize()
 void xs::inspector::shutdown()
 {
 	ImGui_Impl_Shutdown();
+#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
+	ImPlot::DestroyContext();
+#endif
 	ImGui::DestroyContext();
 }
 
@@ -138,12 +141,12 @@ void xs::inspector::render(float dt)
          mousePos.y <= device::get_height() &&
          mousePos.x >= 0.0f &&
          mousePos.x <= device::get_width()))
-	{
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.00f, 0.00f, 0.00f, 0.23f));
-		ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.00f, 1.00f, 1.00f, 0.00f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.40f, 0.00f, 0.39f, 1.00f));
-		
-		
+	{				
+		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.31f, 0.31f, 0.31f, 0.21f));
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.23f, 0.23f, 0.23f, 0.00f));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		//ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+				
 		bool true_that = true;
 		ImGui::Begin("Window", &true_that,
 			ImGuiWindowFlags_NoScrollbar |
@@ -156,8 +159,8 @@ void xs::inspector::render(float dt)
 		ImGui::SetWindowPos({ 0, 0 });
 		ImGui::SetWindowSize({-1, -1 });
         
-		ImGuiStyle& style = ImGui::GetStyle();
-		ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_WindowBg]);
+		//ImGuiStyle& style = ImGui::GetStyle();
+		//ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_WindowBg]);
 		
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
 		{		
@@ -290,10 +293,32 @@ void xs::inspector::render(float dt)
 			Tooltip("Data has unsaved changes");
 		}
 		
-		ImGui::PopStyleColor();
+		// ImGui::PopStyleColor();
+
 		ImGui::End();
 		
-		ImGui::PopStyleColor(3);
+		ImGui::PopStyleVar(1);
+		ImGui::PopStyleColor(2);
+
+	}
+
+	if (ok_timer > 0.0)
+	{
+		static bool true_that2 = true;
+		const auto& io = ImGui::GetIO();
+		ImGui::Begin("Pop up", &true_that2,
+			ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoCollapse |
+			ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_NoScrollWithMouse);
+		// Set the window position to the bottom right corner of the screen	
+
+		ImGui::SetWindowPos({ io.DisplaySize.x - ImGui::GetWindowWidth(), io.DisplaySize.y - ImGui::GetWindowHeight() });
+		ImGui::Text("Inspector asdasd");
+		ImGui::End();
 	}
 	
 	if (internal::show_registry)
