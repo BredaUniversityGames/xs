@@ -31,6 +31,7 @@ namespace xs::inspector::internal
 	bool show_registry = false;
 	bool show_profiler = false;
 	bool show_about = false;
+	bool show_demo = false;
 	void embrace_the_darkness();
 	void follow_the_light();
 	void go_gray();
@@ -130,6 +131,7 @@ void xs::inspector::render(float dt)
 		internal::show_registry ||
 		internal::show_profiler ||
 		internal::show_about	||
+		internal::show_demo		||
 		(ImGui::IsMousePosValid() &&
          mousePos.y < 100.0f &&
          mousePos.y >= 0.0f &&
@@ -218,7 +220,15 @@ void xs::inspector::render(float dt)
 				internal::go_gray();
 				
 		}
-		Tooltip("Theme");		
+		Tooltip("Theme");
+		
+		
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_FA_LIFE_RING))
+		{
+			internal::show_demo = !internal::show_demo;
+		}
+		Tooltip("Demo Window");
 						
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
@@ -304,8 +314,10 @@ void xs::inspector::render(float dt)
 		ImGui::End();
 	}
 	
-	// ImGui::ShowDemoWindow();
-
+	if(internal::show_demo)
+	{
+		ImGui::ShowDemoWindow();
+	}
 	
 	ImGui::Render();    
 	ImGui_Impl_RenderDrawData(ImGui::GetDrawData());
