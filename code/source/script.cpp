@@ -22,6 +22,7 @@
 #include "fileio.h"
 #include "audio.h"
 #include "device.h"
+#include "inspector.h"
 
 // Check if we are running MSVC
 #ifdef _MSC_VER
@@ -238,11 +239,13 @@ void xs::script::configure()
     case WREN_RESULT_COMPILE_ERROR:
     {
         log::error("Compile Error!");
+        inspector::notify(inspector::notification_type::error, "Compile Error!", 10.0f);
         error = true;
     } break;
     case WREN_RESULT_RUNTIME_ERROR:
     {
         log::error("Runtime Error!");
+        inspector::notify(inspector::notification_type::error, "Runtime Error!", 10.0f);
         error = true;
     } break;
     case WREN_RESULT_SUCCESS:
@@ -256,7 +259,9 @@ void xs::script::configure()
         };
         string pr = praise[idx];
         idx = (idx + 1) % praise.size();
-        log::info(string("Game compile success. ") + pr);
+        auto message = string("Game compile success. ") + pr;
+        log::info(message);
+        inspector::notify(inspector::notification_type::success, message, 5.0f);
     } break;
     }
 
