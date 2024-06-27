@@ -24,9 +24,17 @@
 #include <nn/fs.h>
 #endif
 
-namespace xs::inspector::internal
+namespace xs::inspector
 {
-	bool paused = false;
+	struct notification
+	{
+		int id;
+		notification_type type;
+		std::string message;
+		float time;
+	};
+
+	bool game_paused = false;
 	float ui_scale = 1.0f;
 	bool show_registry = false;
 	bool show_profiler = false;
@@ -38,9 +46,12 @@ namespace xs::inspector::internal
 	float ok_timer = 0.0f;
 	bool theme = false;
 	bool next_frame;
+	std::vector<notification> notifications;
+
+	void update_notifications();
 }
 
-using namespace xs::inspector::internal;
+using namespace xs::inspector;
 using namespace xs;
 using namespace std;
 
@@ -56,7 +67,7 @@ void xs::inspector::initialize()
 	float ys;
 	float xs;
 	glfwGetWindowContentScale(device::get_window(), &xs, &ys);
-	internal::ui_scale = (xs + ys) / 2.0f;
+	ui_scale = (xs + ys) / 2.0f;
 #endif
 
 	
@@ -68,7 +79,7 @@ void xs::inspector::initialize()
 
 	ImGuiIO& io = ImGui::GetIO();
 
-	const float UIScale = internal::ui_scale;
+	const float UIScale = ui_scale;
 	const float fontSize = 14.0f;
 	const float iconSize = 12.0f;
 
@@ -96,7 +107,7 @@ void xs::inspector::initialize()
 	strcpy(str, constStr);
 	io.IniFilename = str;
 
-	xs::inspector::internal::go_gray();
+	xs::inspector::go_gray();
 }
 
 void xs::inspector::shutdown()
@@ -127,14 +138,18 @@ void xs::inspector::render(float dt)
 	ImGui_Impl_NewFrame();
     ImGui::NewFrame();
 		
-	internal::ok_timer -= dt;
+	ok_timer -= dt;
+
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.31f, 0.31f, 0.31f, 0.21f));
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.23f, 0.23f, 0.23f, 0.00f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	
     auto mousePos = ImGui::GetMousePos();
 	if (xs::script::has_error() ||
-		internal::show_registry ||
-		internal::show_profiler ||
-		internal::show_about	||
-		internal::show_demo		||
+		show_registry ||
+		show_profiler ||
+		show_about	||
+		show_demo		||
 		(ImGui::IsMousePosValid() &&
          mousePos.y < 100.0f &&
          mousePos.y >= 0.0f &&
@@ -142,11 +157,6 @@ void xs::inspector::render(float dt)
          mousePos.x >= 0.0f &&
          mousePos.x <= device::get_width()))
 	{				
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.31f, 0.31f, 0.31f, 0.21f));
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.23f, 0.23f, 0.23f, 0.00f));
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-		//ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-				
 		bool true_that = true;
 		ImGui::Begin("Window", &true_that,
 			ImGuiWindowFlags_NoScrollbar |
@@ -159,41 +169,38 @@ void xs::inspector::render(float dt)
 		ImGui::SetWindowPos({ 0, 0 });
 		ImGui::SetWindowSize({-1, -1 });
         
-		//ImGuiStyle& style = ImGui::GetStyle();
-		//ImGui::PushStyleColor(ImGuiCol_Button, style.Colors[ImGuiCol_WindowBg]);
-		
 		if (ImGui::Button(ICON_FA_SYNC_ALT))
 		{		
 			script::shutdown();
 			script::configure();
 			script::initialize();
 			if(!xs::script::has_error())
-				internal::ok_timer = 4.0f;
+				ok_timer = 4.0f;
 		}		
 		Tooltip("Reload Game");		
 	
 		ImGui::SameLine();
-		if (internal::paused)
+		if (game_paused)
 		{
 			if (ImGui::Button(ICON_FA_PLAY))
-				internal::paused = false;
+				game_paused = false;
 			Tooltip("Play");			
 			ImGui::SameLine();
 			if (ImGui::Button(ICON_FA_FAST_FORWARD))
-				internal::next_frame = true;
+				next_frame = true;
 			Tooltip("Next Frame");			
 		}
 		else
 		{
 			if (ImGui::Button(ICON_FA_PAUSE))
-				internal::paused = true;
+				game_paused = true;
 			Tooltip("Pause");
 		}		
 
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_DATABASE))
 		{
-			internal::show_registry = !internal::show_registry;
+			show_registry = !show_registry;
 		}
 		Tooltip("Data");
 		
@@ -201,7 +208,7 @@ void xs::inspector::render(float dt)
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_CHART_BAR))
 		{
-			internal::show_profiler = !internal::show_profiler;
+			show_profiler = !show_profiler;
 		}
 		Tooltip("Profiler");
 
@@ -209,18 +216,18 @@ void xs::inspector::render(float dt)
 		if (ImGui::Button(ICON_FA_IMAGES))
 		{
 			render::reload_images();	
-			internal::next_frame = true;
+			next_frame = true;
 		}
 		Tooltip("Reload Art");
 
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_ADJUST))
 		{
-			internal::theme = !internal::theme;
-			if (internal::theme)
-				internal::embrace_the_darkness();				
+			theme = !theme;
+			if (theme)
+				embrace_the_darkness();				
 			else
-				internal::go_gray();
+				go_gray();
 				
 		}
 		Tooltip("Theme");
@@ -229,7 +236,7 @@ void xs::inspector::render(float dt)
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_LIFE_RING))
 		{
-			internal::show_demo = !internal::show_demo;
+			show_demo = !show_demo;
 		}
 		Tooltip("Demo Window");
 						
@@ -261,10 +268,10 @@ void xs::inspector::render(float dt)
 		ImGui::Text("v%s", xs::version::version_string.c_str());
 
 		ImGui::SameLine();
-		if (internal::ok_timer > 0.0f) {
+		if (ok_timer > 0.0f) {
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 1.0f, 0.2f, 1.0f));
 			if (ImGui::Button(ICON_FA_CHECK_CIRCLE))
-				internal::ok_timer = 0.0f;
+				ok_timer = 0.0f;
 			ImGui::PopStyleColor(1);
 			Tooltip("Reload Complete");
 		}		
@@ -272,12 +279,12 @@ void xs::inspector::render(float dt)
 		ImGui::SameLine();
 		if (xs::script::has_error())
 		{
-			internal::paused = true;
+			game_paused = true;
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.33f, 0.33f, 1.0f));
 			if (ImGui::Button(ICON_FA_TIMES_CIRCLE))
 			{
 				xs::script::clear_error();
-				internal::paused = false;
+				game_paused = false;
 			}
 			Tooltip("Script Error! Check output.");
 			ImGui::PopStyleColor(1);
@@ -287,7 +294,7 @@ void xs::inspector::render(float dt)
 			ImGui::SameLine();
 			ImGui::PushStyleColor(ImGuiCol_Text, 0xFFFF5FB9);
 			if (ImGui::Button(ICON_FA_EXCLAMATION_TRIANGLE)) {
-				internal::show_registry = true;
+				show_registry = true;
 			}
 			ImGui::PopStyleColor();
 			Tooltip("Data has unsaved changes");
@@ -295,40 +302,77 @@ void xs::inspector::render(float dt)
 		
 		// ImGui::PopStyleColor();
 
-		ImGui::End();
-		
-		ImGui::PopStyleVar(1);
-		ImGui::PopStyleColor(2);
-
+		ImGui::End();		
 	}
 
-	if (ok_timer > 0.0)
 	{
-		static bool true_that2 = true;
-		const auto& io = ImGui::GetIO();
-		ImGui::Begin("Pop up", &true_that2,
-			ImGuiWindowFlags_NoScrollbar |
-			ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoCollapse |
-			ImGuiWindowFlags_NoSavedSettings |
-			ImGuiWindowFlags_NoScrollWithMouse);
-		// Set the window position to the bottom right corner of the screen	
+		float x = -10.0f;
+		float y = -10.0f;
+		for (auto& n : notifications)
+		{
+			static bool true_that2 = true;
+			const auto& io = ImGui::GetIO();  
+			ImGui::Begin(to_string(n.id).c_str(), &true_that2,
+				ImGuiWindowFlags_NoScrollbar |
+				ImGuiWindowFlags_NoTitleBar |
+				ImGuiWindowFlags_NoResize |
+				ImGuiWindowFlags_NoMove |
+				ImGuiWindowFlags_NoCollapse |
+				ImGuiWindowFlags_NoSavedSettings |
+				ImGuiWindowFlags_NoScrollWithMouse);
+			ImGui::SetWindowPos({ io.DisplaySize.x - ImGui::GetWindowWidth() + x, io.DisplaySize.y - ImGui::GetWindowHeight() + y });
+			// Draw the notification icon
 
-		ImGui::SetWindowPos({ io.DisplaySize.x - ImGui::GetWindowWidth(), io.DisplaySize.y - ImGui::GetWindowHeight() });
-		ImGui::Text("Inspector asdasd");
-		ImGui::End();
+			ImVec4 color;
+			string icon;
+			switch (n.type)
+			{
+			case notification_type::info:
+				color = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
+				icon = ICON_FA_INFO_CIRCLE;
+				break;
+			case notification_type::success:
+				color = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+				icon = ICON_FA_CHECK_CIRCLE;
+				break;
+			case notification_type::warning:
+				color = ImVec4(1.0f, 1.0f, 0.0f, 1.0f);
+				icon = ICON_FA_EXCLAMATION_TRIANGLE;
+				break;
+			case notification_type::error:
+				color = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+				icon = ICON_FA_TIMES_CIRCLE;
+				break;
+			}
+			ImGui::PushStyleColor(ImGuiCol_Text, color);
+			ImGui::Button(icon.c_str());			
+			ImGui::PopStyleColor(1);
+			ImGui::SameLine();
+			ImGui::Text(n.message.c_str());				
+			y -= ImGui::GetWindowHeight() + 10.0f;
+			ImGui::End();
+			n.time -= dt;
+		}
+
+		notifications.erase(
+			std::remove_if(
+				notifications.begin(),
+				notifications.end(),
+				[](const notification& n) { return n.time <= 0.0f; }),
+			notifications.end());
 	}
+
+	ImGui::PopStyleVar(1);
+	ImGui::PopStyleColor(2);
 	
-	if (internal::show_registry)
+	if (show_registry)
 	{
-		xs::data::inspect(internal::show_registry);
+		xs::data::inspect(show_registry);
 	}
 
-	if (internal::show_profiler)
+	if (show_profiler)
 	{
-		xs::profiler::inspect(internal::show_profiler);
+		xs::profiler::inspect(show_profiler);
 	}
 	
 	if (show_about)
@@ -339,7 +383,7 @@ void xs::inspector::render(float dt)
 		ImGui::End();
 	}
 	
-	if(internal::show_demo)
+	if(show_demo)
 	{
 		ImGui::ShowDemoWindow();
 	}
@@ -356,12 +400,29 @@ void xs::inspector::render(float dt)
 
 bool xs::inspector::paused()
 {
-	bool t = internal::paused && !internal::next_frame;
-	internal::next_frame = false;
+	bool t = game_paused && !next_frame;
+	next_frame = false;
 	return t;
 }
 
-void xs::inspector::internal::embrace_the_darkness()
+int xs::inspector::notify(notification_type type, const std::string& message, float time)
+{
+	static int id = 0;
+	notifications.push_back({ id, type, message, time });
+	return id++;
+}
+
+void xs::inspector::clear_notification(int id)
+{
+	notifications.erase(
+		std::remove_if(
+			notifications.begin(),
+			notifications.end(),
+			[id](const notification& n) { return n.id == id; }),
+		notifications.end());
+}
+
+void xs::inspector::embrace_the_darkness()
 {
 	ImVec4* colors = ImGui::GetStyle().Colors;
 	colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
@@ -446,7 +507,7 @@ void xs::inspector::internal::embrace_the_darkness()
 	style.FrameBorderSize = 0;
 }
 
-void xs::inspector::internal::follow_the_light()
+void xs::inspector::follow_the_light()
 {
 	ImVec4* colors = ImGui::GetStyle().Colors;
 	colors[ImGuiCol_Text] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
@@ -508,7 +569,7 @@ void xs::inspector::internal::follow_the_light()
 	style.TabBorderSize = 0;
 }
 
-void xs::inspector::internal::go_gray()
+void xs::inspector::go_gray()
 {
 	ImVec4* colors = ImGui::GetStyle().Colors;
 	colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
@@ -591,6 +652,11 @@ void xs::inspector::internal::go_gray()
 	style.LogSliderDeadzone = 4;
 	style.TabRounding = 4;
 	style.FrameBorderSize = 0;
+}
+
+void xs::inspector::update_notifications()
+{
+
 }
 
 #else
