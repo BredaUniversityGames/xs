@@ -293,6 +293,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="code\include\audio.h" />
+    <ClInclude Include="code\include\color.h" />
     <ClInclude Include="code\include\configuration.h" />
     <ClInclude Include="code\include\cooker.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
