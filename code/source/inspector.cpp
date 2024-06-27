@@ -248,33 +248,50 @@ void xs::inspector::render(float dt)
 		Tooltip("About");
 		
 		ImGui::SameLine();
-		ImGui::Text("    ");
+		ImGui::Text("  ");
+
+		// Make hover buttons transparent
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.23f, 0.23f, 0.23f, 1.00f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.23f, 0.23f, 0.23f, 1.00f));		
+
+		{ // Memory usage
+			auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
+			auto mem_str = ICON_FA_MICROCHIP + string(" ") + xs::tools::float_to_str_with_precision(mb, 1) + string("##memory");
+			ImGui::SameLine();
+			ImGui::Button(mem_str.c_str());			
+			Tooltip("VM Memory Usage");
+		}
+
+
+		{ // Render stats
+			ImGui::SameLine();
+			auto& stats = render::get_stats();
+			auto draw_calls = ICON_FA_PAINT_BRUSH + string(" ") + to_string(stats.draw_calls); // +string(" ");
+			auto sprites = ICON_FA_SQUARE + string(" ") + to_string(stats.sprites); // +string(" ");
+			auto textures = ICON_FA_IMAGE + string(" ") + to_string(stats.textures); // +string(" ");
+
+			ImGui::Button(draw_calls.c_str());
+			Tooltip("Draw Calls");
+			ImGui::SameLine();
+
+			ImGui::Button(sprites.c_str());
+			Tooltip("Sprites");
+			ImGui::SameLine();
+
+			ImGui::Button(textures.c_str());
+			Tooltip("Textures");			
+		}
 		
-		ImGui::SameLine();
-		auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
-		auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
-		ImGui::Button(ICON_FA_MICROCHIP);
-		Tooltip("VM Memory Usage");
-		ImGui::SameLine();
-		ImGui::Text("%sMB ", mem_str.c_str());
+		{ // Version
+			ImGui::SameLine();
+			string version_string = ICON_FA_TAGS + string(" ") + xs::version::version_string;
+			ImGui::PushID("version");
+			ImGui::Button(version_string.c_str());
+			ImGui::PopID();
+			Tooltip("Version");		
+		}
 
-		ImGui::SameLine();
-		xs::render::inspect();
-			
-		ImGui::SameLine();
-		ImGui::Button(ICON_FA_TAGS);
-		Tooltip("xs Version");
-		ImGui::SameLine();
-		ImGui::Text("v%s", xs::version::version_string.c_str());
-
-		ImGui::SameLine();
-		if (ok_timer > 0.0f) {
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.2f, 1.0f, 0.2f, 1.0f));
-			if (ImGui::Button(ICON_FA_CHECK_CIRCLE))
-				ok_timer = 0.0f;
-			ImGui::PopStyleColor(1);
-			Tooltip("Reload Complete");
-		}		
+		ImGui::PopStyleColor(2);
 
 		ImGui::SameLine();
 		if (xs::script::has_error())

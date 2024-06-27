@@ -23,6 +23,7 @@
 #include "audio.h"
 #include "device.h"
 #include "inspector.h"
+#include "color.h"
 
 // Check if we are running MSVC
 #ifdef _MSC_VER
@@ -456,9 +457,9 @@ template<> string wrenGetParameter<string>(WrenVM* vm, int slot)
         return wrenGetSlotString(vm, slot);
     return "";
 }
-template<> xs::render::color wrenGetParameter<xs::render::color>(WrenVM* vm, int slot)
+template<> xs::color wrenGetParameter<xs::color>(WrenVM* vm, int slot)
 {
-    xs::render::color c;     
+    xs::color c;     
     if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
         c.integer_value = wrenGetParameter<uint32_t>(vm, slot);
     else
@@ -734,7 +735,7 @@ void render_vertex(WrenVM* vm)
 void render_set_color(WrenVM* vm)
 {
     // Call manually
-    auto c = wrenGetParameter<xs::render::color>(vm, 1);
+    auto c = wrenGetParameter<xs::color>(vm, 1);
     xs::render::set_color(c);
 
     // callFunction_args<xs::render::color>(vm, xs::render::set_color);
@@ -811,8 +812,8 @@ void render_sprite_ex(WrenVM* vm)
         double,
         double,
         double,
-        xs::render::color,
-        xs::render::color,
+        xs::color,
+        xs::color,
         uint32_t
     >(vm, xs::render::render_sprite);    
 }
@@ -829,7 +830,7 @@ void render_load_font(WrenVM* vm)
 
 void render_render_text(WrenVM* vm)
 {
-    callFunction_args<int, string, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_text);
+    callFunction_args<int, string, double, double, xs::color, xs::color, uint32_t>(vm, xs::render::render_text);
 }
 
 /*
