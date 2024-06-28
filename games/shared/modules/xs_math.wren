@@ -54,6 +54,22 @@ class Math {
         var bc = lerp(b, c, t)
         return lerp(ab, bc, t)
     }
+
+    static cubicBezier(a, b, c, d, t) {
+        var ab = quadraticBezier(a, b, c, t)
+        var bc = quadraticBezier(b, c, d, t)
+        return lerp(ab, bc, t)
+    }
+
+    static catmullRom(a, b, c, d, t) {
+        var t2 = t * t
+        var t3 = t2 * t
+        var a0 = d - c - a + b
+        var a1 = a - b - a0
+        var a2 = c - a
+        return a0 * t3 + a1 * t2 + a2 * t + b
+        
+    }
 }
 
 class Bits {
