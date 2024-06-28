@@ -47,6 +47,7 @@ namespace xs::inspector
 	bool theme = false;
 	bool next_frame;
 	std::vector<notification> notifications;
+	ImFont* small_font = nullptr;
 
 	void update_notifications();
 }
@@ -80,19 +81,16 @@ void xs::inspector::initialize()
 	ImGuiIO& io = ImGui::GetIO();
 
 	const float UIScale = ui_scale;
-	const float fontSize = 14.0f;
+	const float fontSize = 16.0f;
 	const float iconSize = 12.0f;
 
 	ImFontConfig config;
 	config.OversampleH = 8;
 	config.OversampleV = 8;
-		
-	io.Fonts->AddFontFromFileTTF(fileio::get_path("[games]/shared/fonts/DroidSans.ttf").c_str(), fontSize * UIScale, &config);
-
-	static const ImWchar letter_ranges[] = { 0x2000, 0x206F, 0 }; // will not be copied by AddFont* so keep in scope.
-	config.MergeMode = true;
-	io.Fonts->AddFontFromFileTTF(fileio::get_path("[games]/shared/fonts/DroidSans.ttf").c_str(), fontSize * UIScale, &config, letter_ranges);
-
+	
+	auto selawk = fileio::get_path("[games]/shared/fonts/selawk.ttf");
+	io.Fonts->AddFontFromFileTTF(selawk.c_str(), fontSize * UIScale, &config);
+	
 	static const ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 }; // will not be copied by AddFont* so keep in scope.
 	config.MergeMode = true;
 	config.OversampleH = 8;
@@ -100,6 +98,8 @@ void xs::inspector::initialize()
 
 	std::string fontpath = fileio::get_path("[games]/shared/fonts/FontAwesome5FreeSolid900.otf");
 	io.Fonts->AddFontFromFileTTF(fontpath.c_str(), iconSize * UIScale, &config, icons_ranges);
+	
+	small_font = io.Fonts->AddFontFromFileTTF(selawk.c_str(), 0.8f * fontSize * UIScale);
 
 	const std::string iniPath = fileio::get_path("[save]/imgui.ini");
 	const char* constStr = iniPath.c_str();
@@ -135,9 +135,11 @@ void xs::inspector::render(float dt)
 	return;
 #endif
 	
+	bool true_that = true;
+	const auto& io = ImGui::GetIO();
+	
 	ImGui_Impl_NewFrame();
     ImGui::NewFrame();
-		
 	ok_timer -= dt;
 
 	ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.31f, 0.31f, 0.31f, 0.21f));
@@ -156,8 +158,7 @@ void xs::inspector::render(float dt)
          mousePos.y <= device::get_height() &&
          mousePos.x >= 0.0f &&
          mousePos.x <= device::get_width()))
-	{				
-		bool true_that = true;
+	{
 		ImGui::Begin("Window", &true_that,
 			ImGuiWindowFlags_NoScrollbar |
 			ImGuiWindowFlags_NoTitleBar |
@@ -246,53 +247,7 @@ void xs::inspector::render(float dt)
 			show_about = true;
 		}
 		Tooltip("About");
-		
-		ImGui::SameLine();
-		ImGui::Text("  ");
-
-		// Make hover buttons transparent
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.23f, 0.23f, 0.23f, 1.00f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.23f, 0.23f, 0.23f, 1.00f));		
-
-		{ // Memory usage
-			auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
-			auto mem_str = ICON_FA_MICROCHIP + string(" ") + xs::tools::float_to_str_with_precision(mb, 1) + string("##memory");
-			ImGui::SameLine();
-			ImGui::Button(mem_str.c_str());			
-			Tooltip("VM Memory Usage");
-		}
-
-
-		{ // Render stats
-			ImGui::SameLine();
-			auto& stats = render::get_stats();
-			auto draw_calls = ICON_FA_PAINT_BRUSH + string(" ") + to_string(stats.draw_calls); // +string(" ");
-			auto sprites = ICON_FA_SQUARE + string(" ") + to_string(stats.sprites); // +string(" ");
-			auto textures = ICON_FA_IMAGE + string(" ") + to_string(stats.textures); // +string(" ");
-
-			ImGui::Button(draw_calls.c_str());
-			Tooltip("Draw Calls");
-			ImGui::SameLine();
-
-			ImGui::Button(sprites.c_str());
-			Tooltip("Sprites");
-			ImGui::SameLine();
-
-			ImGui::Button(textures.c_str());
-			Tooltip("Textures");			
-		}
-		
-		{ // Version
-			ImGui::SameLine();
-			string version_string = ICON_FA_TAGS + string(" ") + xs::version::version_string;
-			ImGui::PushID("version");
-			ImGui::Button(version_string.c_str());
-			ImGui::PopID();
-			Tooltip("Version");		
-		}
-
-		ImGui::PopStyleColor(2);
-
+				
 		ImGui::SameLine();
 		if (xs::script::has_error())
 		{
@@ -316,10 +271,39 @@ void xs::inspector::render(float dt)
 			ImGui::PopStyleColor();
 			Tooltip("Data has unsaved changes");
 		}
-		
-		// ImGui::PopStyleColor();
-
 		ImGui::End();		
+		
+		{	// Bottpm stats
+			const auto& io = ImGui::GetIO();
+			ImGui::Begin("Stats", &true_that,
+						 ImGuiWindowFlags_NoScrollbar |
+						 ImGuiWindowFlags_NoTitleBar |
+						 ImGuiWindowFlags_NoResize |
+						 ImGuiWindowFlags_NoMove |
+						 ImGuiWindowFlags_NoCollapse |
+						 ImGuiWindowFlags_NoSavedSettings |
+						 ImGuiWindowFlags_NoScrollWithMouse);
+			ImGui::SetWindowPos({ 0, io.DisplaySize.y - ImGui::GetWindowHeight() });
+			ImGui::SetWindowSize({-1, -1 });
+			ImGui::PushFont(small_font);
+			
+			auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
+			auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
+			auto stats = render::get_stats();
+			auto draw_calls = to_string(stats.draw_calls);
+			auto sprites = to_string(stats.sprites);
+			auto textures =to_string(stats.textures);
+					
+			ImGui::Text(" Wren:%sMB | Draw Calls:%s | Sprites:%s | Version:%s",
+						mem_str.c_str(),
+						draw_calls.c_str(),
+						sprites.c_str(),
+						xs::version::version_string.c_str());
+						
+			ImGui::PopFont();
+			ImGui::End();
+		}
+
 	}
 
 	{
@@ -327,9 +311,7 @@ void xs::inspector::render(float dt)
 		float y = -10.0f;
 		for (auto& n : notifications)
 		{
-			static bool true_that2 = true;
-			const auto& io = ImGui::GetIO();  
-			ImGui::Begin(to_string(n.id).c_str(), &true_that2,
+			ImGui::Begin(to_string(n.id).c_str(), &true_that,
 				ImGuiWindowFlags_NoScrollbar |
 				ImGuiWindowFlags_NoTitleBar |
 				ImGuiWindowFlags_NoResize |
@@ -365,7 +347,7 @@ void xs::inspector::render(float dt)
 			ImGui::Button(icon.c_str());			
 			ImGui::PopStyleColor(1);
 			ImGui::SameLine();
-			ImGui::Text(n.message.c_str());				
+			ImGui::Text("%s", n.message.c_str());
 			y -= ImGui::GetWindowHeight() + 10.0f;
 			ImGui::End();
 			n.time -= dt;

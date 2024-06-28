@@ -9,15 +9,15 @@
 
 ### Opensource xs
 
--[ ] Mode from GLFW to SDL3
+[ ] Mode from GLFW to SDL3
 
-[ ] Provide non-fmod audio options
+[ ] Provide non-Fmod audio options 
  
 [ ] Move NDA specific code own repos (submodules)
 
 [ ] Code restructuring so that all files 
 
-[ ]  Linux & CMake build
+[ ] Linux & CMake build
 
 [ ] GitHub actions
 
@@ -33,6 +33,8 @@
 [ ] Load projects from anywhere
 
 [ ] Cooking from UI
+
+[ ] Fmod API
 
 [ ] Cooking 
 
