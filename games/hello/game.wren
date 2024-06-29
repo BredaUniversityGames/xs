@@ -17,12 +17,6 @@ class Game {
         
         // This can be saved to the system.json using the
         // Data UI. This code overrides the values from the system.json
-        // and can be removed if there is no need for that
-        Data.setString("Title", "xs - hello", Data.system)
-        Data.setNumber("Width", 640, Data.system)
-        Data.setNumber("Height", 360, Data.system)
-        Data.setNumber("Multiplier", 1, Data.system)
-        Data.setBool("Fullscreen", false, Data.system)
     }
 
     // The init method is called when all system have been created.
@@ -43,7 +37,7 @@ class Game {
         __hd = Render.createSprite(image, 0, 0, 1, 1)
 
         // xs supports true type fonts
-        __font = Render.loadFont("[games]/shared/fonts/selawk.ttf", 20)
+        __font = Render.loadFont("[games]/shared/fonts/selawk.ttf", 40)
     }    
 
     // The update method is called once per tick.
@@ -62,11 +56,11 @@ class Game {
 
         var angle = __time.sin * 0.5 + 0.5
         for(i in 0...16) {            
-            var x = (i + 1) * -64 + 320
-            var offset = (__time + i ).sin * 20.0
+            var x = (i + 1) * -128 + 640
+            var offset = (__time + i ).sin * 40.0
             var t = i / 16  
             var color = fromColor * (1 - t) + toColor * t
-            Render.sprite(__sprite, x + offset, -180, -i, 160, Math.pi * -0.25, color.toNum, 0x00000000, 0)    
+            Render.sprite(__sprite, x + offset, -360, -i, 320, Math.pi * -0.25, color.toNum, 0x00000000, 0)    
         }
 
         // Render half discs to form the xs logo
@@ -75,19 +69,19 @@ class Game {
         t = t % 2.0 < 1.0 ? t % 1.0 : 1.0 - t % 1.0
         // Smootstep the t value a few times
         for(i in 0...8) t = t * t * (3 - 2 * t)
-        var x = -64 - 8
-        var y = -32
-        Render.sprite(__hd, x, y + t * 32, 0, 1, 0.0, 0xffffffff, 0x00000000, 0)
-        y = y + 32
-        Render.sprite(__hd, x, y - t * 32, 0, 1, 0.0, 0xffffffff, 0x00000000, Render.spriteFlipY)
-        y = y - 32
+        var x = -128 - 16
+        var y = -64
+        Render.sprite(__hd, x, y + t * 64, 0, 1, 0.0, 0xffffffff, 0x00000000, 0)
+        y = y + 64
+        Render.sprite(__hd, x, y - t * 64, 0, 1, 0.0, 0xffffffff, 0x00000000, Render.spriteFlipY)
+        y = y - 64
+        x = x + 128
+        Render.sprite(__hd, x + 32 * t, y, 0, 1, 0.0, 0xffffffff, 0x00000000, Render.spriteFlipY)
         x = x + 64
-        Render.sprite(__hd, x + 16 * t, y, 0, 1, 0.0, 0xffffffff, 0x00000000, Render.spriteFlipY)
-        x = x + 32
-        y = y + 32
-        Render.sprite(__hd, x - 16 * t, y, 0, 1, 0.0, 0xffffffff, 0x00000000, 0)
+        y = y + 64
+        Render.sprite(__hd, x - 32 * t, y, 0, 1, 0.0, 0xffffffff, 0x00000000, 0)
 
         // Render text
-        Render.text(__font, "Have a good game!", 0, -60, 0xffffffff, 0x00000000, Render.spriteCenterX)   
+        Render.text(__font, "Have a good game!", 0, -120, 0xffffffff, 0x00000000, Render.spriteCenterX)   
     }
 }
