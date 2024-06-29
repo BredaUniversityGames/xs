@@ -9,11 +9,11 @@
     },
     "Height": {
         "type": "number",
-        "value": 360.0
+        "value": 720.0
     },
     "Multiplier": {
         "type": "number",
-        "value": 2.0
+        "value": 1.0
     },
     "Title": {
         "type": "string",
@@ -21,6 +21,6 @@
     },
     "Width": {
         "type": "number",
-        "value": 640.0
+        "value": 1280.0
     }
 }
