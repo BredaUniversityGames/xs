@@ -83,7 +83,7 @@ std::string tools::float_to_str_with_precision(float f, int precision)
 
 void xs::tools::aabb::debug_draw()
 {
-	xs::render::color c;
+	xs::color c;
 	c.a = 255;
 	c.r = 255;
 	c.g = 255;

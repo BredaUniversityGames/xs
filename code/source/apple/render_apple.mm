@@ -524,4 +524,7 @@ void xs::render::render_sprite(
 	});
 }
 
-void xs::render::inspect() {}
+xs::render::stats xs::render::get_stats()
+{
+	return {};
+}

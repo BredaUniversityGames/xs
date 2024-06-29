@@ -110,6 +110,8 @@ namespace xs::render::internal
 
 	unordered_map<int, sprite_mesh>	sprite_meshes;
 	vector<sprite_mesh_instance>	sprite_queue;
+
+	xs::render::stats stats = {};
 }
 
 using namespace xs;
@@ -190,6 +192,7 @@ void xs::render::shutdown()
 void xs::render::render()
 {	
 	XS_PROFILE_SECTION("xs::render::render");
+	internal::stats = {};
 
 	// Bind MSAA framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
@@ -282,6 +285,8 @@ void xs::render::render()
 
 			// Unbind the vertex array
 			glBindVertexArray(0);
+
+			internal::stats.draw_calls++;
 		}
 		else
 		{
@@ -299,6 +304,7 @@ void xs::render::render()
 		glBufferData(GL_ARRAY_BUFFER, sizeof(debug_vertex_format) * triangles_count * 3, &triangles_array[0], GL_DYNAMIC_DRAW);
 		glDrawArrays(GL_TRIANGLES, 0, triangles_count * 3);
 		XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		internal::stats.draw_calls++;
 	}
 
 	if (lines_count > 0)
@@ -308,6 +314,7 @@ void xs::render::render()
 		glBufferData(GL_ARRAY_BUFFER, sizeof(debug_vertex_format) * lines_count * 2, &lines_array[0], GL_DYNAMIC_DRAW);
 		glDrawArrays(GL_LINES, 0, lines_count * 2);
 		XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
+		internal::stats.draw_calls++;
 	}
 
 	XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -326,6 +333,9 @@ void xs::render::render()
 	glBlitFramebuffer(0, 0, width, height, screen_to_game.xmin, screen_to_game.ymin, screen_to_game.xmax, screen_to_game.ymax, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	
+	internal::stats.sprites = (int)sprite_queue.size();
+	internal::stats.textures = (int)images.size();
 }
 
 void xs::render::render_sprite(
@@ -599,6 +609,11 @@ void xs::render::destroy_shape(int sprite_id)
 	}
 }
 
+xs::render::stats xs::render::get_stats()
+{
+	return internal::stats;
+}
+
 void xs::render::internal::compile_sprite_shader()
 {
 	auto vs_str = xs::fileio::read_text_file("[games]/shared/shaders/sprite.vert");
@@ -808,9 +823,4 @@ void xs::render::internal::gl_label(GLenum type, GLuint name, const std::string&
 
 	const std::string temp = "[" + typeString + ":" + std::to_string(name) + "] " + label;
 	glObjectLabel(type, name, static_cast<GLsizei>(temp.length()), temp.c_str());
-}
-
-void xs::render::inspect()
-{
-	ImGui::Text(u8"| %s %d | ", ICON_FA_FILE_IMAGE, (int)sprite_meshes.size());
 }
