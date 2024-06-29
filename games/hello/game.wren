@@ -70,20 +70,21 @@ class Game {
         }
 
         // Render half discs to form the xs logo
-        var x = -64 - 8
-        var y = -32
         // Make periodic time go from 0 to 1 and back to 0
         var t = __time * 0.5
         t = t % 2.0 < 1.0 ? t % 1.0 : 1.0 - t % 1.0
         // Smootstep the t value a few times
         for(i in 0...8) t = t * t * (3 - 2 * t)
+        var x = -64 - 8
+        var y = -32
         Render.sprite(__hd, x, y + t * 32, 0, 1, 0.0, 0xffffffff, 0x00000000, 0)
-        y = y + 64
+        y = y + 32
         Render.sprite(__hd, x, y - t * 32, 0, 1, 0.0, 0xffffffff, 0x00000000, Render.spriteFlipY)
         y = y - 32
         x = x + 64
         Render.sprite(__hd, x + 16 * t, y, 0, 1, 0.0, 0xffffffff, 0x00000000, Render.spriteFlipY)
         x = x + 32
+        y = y + 32
         Render.sprite(__hd, x - 16 * t, y, 0, 1, 0.0, 0xffffffff, 0x00000000, 0)
 
         // Render text
