@@ -107,6 +107,8 @@ namespace xs::script::internal
             case WREN_ERROR_RUNTIME:
             {
                 xs::log::error("[Runtime Error] {}", msg);
+				xs::inspector::notify(xs::inspector::notification_type::error,
+									  "Runtime Error: " + string(msg), 5.0f);
             } break;
         }
 
