@@ -1,0 +1,26 @@
+{
+    "Always on top": {
+        "type": "bool",
+        "value": true
+    },
+    "Fullscreen": {
+        "type": "bool",
+        "value": false
+    },
+    "Height": {
+        "type": "number",
+        "value": 360.0
+    },
+    "Multiplier": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Title": {
+        "type": "string",
+        "value": "xs - hello"
+    },
+    "Width": {
+        "type": "number",
+        "value": 640.0
+    }
+}

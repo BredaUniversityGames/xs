@@ -22,6 +22,8 @@
 #include "fileio.h"
 #include "audio.h"
 #include "device.h"
+#include "inspector.h"
+#include "color.h"
 
 // Check if we are running MSVC
 #ifdef _MSC_VER
@@ -105,6 +107,8 @@ namespace xs::script::internal
             case WREN_ERROR_RUNTIME:
             {
                 xs::log::error("[Runtime Error] {}", msg);
+				xs::inspector::notify(xs::inspector::notification_type::error,
+									  "Runtime Error: " + string(msg), 5.0f);
             } break;
         }
 
@@ -238,11 +242,13 @@ void xs::script::configure()
     case WREN_RESULT_COMPILE_ERROR:
     {
         log::error("Compile Error!");
+        inspector::notify(inspector::notification_type::error, "Compile Error!", 10.0f);
         error = true;
     } break;
     case WREN_RESULT_RUNTIME_ERROR:
     {
         log::error("Runtime Error!");
+        inspector::notify(inspector::notification_type::error, "Runtime Error!", 10.0f);
         error = true;
     } break;
     case WREN_RESULT_SUCCESS:
@@ -256,7 +262,9 @@ void xs::script::configure()
         };
         string pr = praise[idx];
         idx = (idx + 1) % praise.size();
-        log::info(string("Game compile success. ") + pr);
+        auto message = string("Game compile success. ") + pr;
+        log::info(message);
+        inspector::notify(inspector::notification_type::success, message, 5.0f);
     } break;
     }
 
@@ -451,9 +459,9 @@ template<> string wrenGetParameter<string>(WrenVM* vm, int slot)
         return wrenGetSlotString(vm, slot);
     return "";
 }
-template<> xs::render::color wrenGetParameter<xs::render::color>(WrenVM* vm, int slot)
+template<> xs::color wrenGetParameter<xs::color>(WrenVM* vm, int slot)
 {
-    xs::render::color c;     
+    xs::color c;     
     if (checkType(vm, slot, WREN_TYPE_NUM, __func__))
         c.integer_value = wrenGetParameter<uint32_t>(vm, slot);
     else
@@ -729,7 +737,7 @@ void render_vertex(WrenVM* vm)
 void render_set_color(WrenVM* vm)
 {
     // Call manually
-    auto c = wrenGetParameter<xs::render::color>(vm, 1);
+    auto c = wrenGetParameter<xs::color>(vm, 1);
     xs::render::set_color(c);
 
     // callFunction_args<xs::render::color>(vm, xs::render::set_color);
@@ -806,8 +814,8 @@ void render_sprite_ex(WrenVM* vm)
         double,
         double,
         double,
-        xs::render::color,
-        xs::render::color,
+        xs::color,
+        xs::color,
         uint32_t
     >(vm, xs::render::render_sprite);    
 }
@@ -824,7 +832,7 @@ void render_load_font(WrenVM* vm)
 
 void render_render_text(WrenVM* vm)
 {
-    callFunction_args<int, string, double, double, xs::render::color, xs::render::color, uint32_t>(vm, xs::render::render_text);
+    callFunction_args<int, string, double, double, xs::color, xs::color, uint32_t>(vm, xs::render::render_text);
 }
 
 /*

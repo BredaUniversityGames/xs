@@ -15,6 +15,7 @@
 #include "tools.h"
 #include "device.h"
 #include "profiler.h"
+#include "inspector.h"
 
 // Include stb_image 
 #ifdef PLATFORM_SWITCH
@@ -297,6 +298,10 @@ int xs::render::load_image(const std::string& image_file)
 	if (data == nullptr)
 	{
 		log::error("Image {} could not be loaded!", image_file);
+		xs::inspector::notify(
+			xs::inspector::notification_type::error,
+			"Image " + image_file +  " could not be loaded!",
+			5);
 		return -1;
 	}
 	
