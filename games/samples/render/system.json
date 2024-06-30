@@ -13,7 +13,7 @@
     },
     "Title": {
         "type": "string",
-        "value": "JumpCore"
+        "value": "xs - render sprite sample"
     },
     "Width": {
         "type": "number",
