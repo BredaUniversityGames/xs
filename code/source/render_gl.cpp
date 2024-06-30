@@ -105,7 +105,7 @@ namespace xs::render::internal
 		double rotation = 0.0;
 		glm::vec4 mul_color = glm::vec4(1.0f);
 		glm::vec4 add_color = glm::vec4(0.0f);
-		int flags = 0;
+		uint flags = 0;
 	};
 
 	unordered_map<int, sprite_mesh>	sprite_meshes;
@@ -224,6 +224,8 @@ void xs::render::render()
 
 	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
 		[](const sprite_mesh_instance& lhs, const sprite_mesh_instance& rhs) {
+			if (lhs.z == rhs.z)
+				return lhs.sprite_id < rhs.sprite_id;
 			return lhs.z < rhs.z;
 		});
 
@@ -245,22 +247,22 @@ void xs::render::render()
 		float dx = mesh.extents.max.x - mesh.extents.min.x;
 		float dy = mesh.extents.max.y - mesh.extents.min.y;
 		mat4 model = identity<mat4>();
-		model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
 
-		if(tools::check_bit_flag_overlap(spe.flags, xs::render::flip_x))
-			model = scale(model, vec3(-1.0f, 1.0f, 1.0f));
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::flip_y))
-			model = scale(model, vec3(1.0f, -1.0f, 1.0f));
+		model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
+		if (!tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::overlay))
+			model = translate(model, vec3(internal::offset, 0.0));
+
+		model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
+		model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
 
 		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
 			model = translate(model, vec3(-dx * 0.5f, 0.0f, 0.0f));
 		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
 			model = translate(model, vec3(0.0f, -dy * 0.5f, 0.0f));
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
+			model = translate(model, vec3(0.0f, -dy, 0.0f));
 
-		model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
-		model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
 		mat4 mvp = vp * model;
-		// mat4 mv = v * model;
 
 		// Get the AABB in view space
 		static tools::aabb view_aabb({-1,-1},{1,1});
@@ -276,6 +278,7 @@ void xs::render::render()
 			glUniformMatrix4fv(1, 1, false, value_ptr(mvp));
 			glUniform4fv(2, 1, value_ptr(spe.mul_color));
 			glUniform4fv(3, 1, value_ptr(spe.add_color));
+			glUniform1ui(4, spe.flags);
 
 			// Bind the vertex array
 			glBindVertexArray(mesh.vao);
@@ -334,7 +337,7 @@ void xs::render::render()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	
-	internal::stats.sprites = (int)sprite_queue.size();
+	internal::stats.sprites = (int)internal::sprite_meshes.size();
 	internal::stats.textures = (int)images.size();
 }
 
