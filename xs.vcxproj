@@ -56,6 +56,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="code\source\editor.cpp" />
+    <ClCompile Include="code\source\pc\fileio_pc.cpp" />
     <ClCompile Include="code\source\render_gl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
@@ -306,6 +308,7 @@
     <ClInclude Include="code\include\defines.h" />
     <ClInclude Include="code\include\device.h" />
     <ClInclude Include="code\include\device_pc.h" />
+    <ClInclude Include="code\include\editor.h" />
     <ClInclude Include="code\include\fileio.h" />
     <ClInclude Include="code\include\input.h" />
     <ClInclude Include="code\include\inspector.h" />

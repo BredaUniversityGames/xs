@@ -11,6 +11,7 @@
 #include "inspector.h"
 #include "cooker.h"
 #include "tools.h"
+#include "editor.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -131,6 +132,9 @@ int xs::main(int argc, char* argv[])
 {	
     // We always like to have some debug logging available
     log::initialize();
+
+    // Editor initialization
+    editor::initialize();
 
     // When arguments have been parsed the engine can be in 2 states
     // Either the arguments have been parsed successfully and we can close the engine
