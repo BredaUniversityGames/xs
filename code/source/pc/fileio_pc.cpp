@@ -72,11 +72,22 @@ void fileio::initialize()
 		if (!settings_str.empty())
 		{
 			auto settings = nlohmann::json::parse(settings_str);
-			string main_script = settings["main"];
-			if(main_script.empty())
+			/*
+			if (settings.find("Main") != settings.end())
+			{
+				string main = settings["Main"];
+				add_wildcard("[main]", main);
+			}
+			else log::error("Could not find the 'main' in the game project.json file.");
+			*/
+
+			if (settings.find("Main") == settings.end())
 				log::error("Could not find the 'main' in the game project.json file.");
 		}
 		else log::error("Could not read settings.json file.");
 	}
 	else log::error("Could not find the game project.json file.");
+
+	// Set the shared assets folder
+	add_wildcard("[shared]", "/games/shared/");
 }
