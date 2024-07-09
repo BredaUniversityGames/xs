@@ -102,7 +102,12 @@ void xs::inspector::initialize()
 	config.OversampleH = 8;
 	config.OversampleV = 8;
 	
-	auto selawk = fileio::get_path("[games]/shared/fonts/selawk.ttf");
+	auto selawk = fileio::get_path("[shared]/fonts/selawk.ttf");
+	if(!fileio::exists(selawk))
+	{
+		log::critical("Could not find the font file selawk.ttf at path:{}", selawk);
+		return;
+	}
 	io.Fonts->AddFontFromFileTTF(selawk.c_str(), fontSize * UIScale, &config);
 	
 	static const ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 }; // will not be copied by AddFont* so keep in scope.
@@ -110,12 +115,17 @@ void xs::inspector::initialize()
 	config.OversampleH = 8;
 	config.OversampleV = 8;
 
-	std::string fontpath = fileio::get_path("[games]/shared/fonts/FontAwesome5FreeSolid900.otf");
-	io.Fonts->AddFontFromFileTTF(fontpath.c_str(), iconSize * UIScale, &config, icons_ranges);
+	std::string font_awesome = fileio::get_path("[shared]/fonts/FontAwesome5FreeSolid900.otf");
+	if(!fileio::exists(font_awesome))
+	{
+		log::critical("Could not find the font file FontAwesome5FreeSolid900.otf at path:{}", font_awesome);
+		return;
+	}
+	io.Fonts->AddFontFromFileTTF(font_awesome.c_str(), iconSize * UIScale, &config, icons_ranges);
 	
 	small_font = io.Fonts->AddFontFromFileTTF(selawk.c_str(), 0.8f * fontSize * UIScale);
 
-	const std::string iniPath = fileio::get_path("[save]/imgui.ini");
+	const std::string iniPath = fileio::get_path("[user]/imgui.ini");
 	const char* constStr = iniPath.c_str();
 	char* str = new char[iniPath.size() + 1];
 	strcpy(str, constStr);
