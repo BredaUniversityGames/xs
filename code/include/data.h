@@ -6,10 +6,11 @@ namespace xs::data
 	enum class type
 	{
 		none		= 1,
-		system		= 2,
+		project		= 2,
 		debug		= 3,
 		game		= 4,
 		player		= 5,
+		user		= 6,
 	};
 
 	void initialize();

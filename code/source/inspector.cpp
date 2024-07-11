@@ -17,6 +17,8 @@
 #include "render.h"
 #include "tools.h"
 #include "render_internal.h"
+#include "dialogs/portable-file-dialogs.h"
+
 #if defined(PLATFORM_PC)
 #include <GLFW/glfw3.h>
 #include "device_pc.h"
@@ -202,7 +204,7 @@ void xs::inspector::render(float dt)
 			if(!xs::script::has_error())
 				ok_timer = 4.0f;
 		}		
-		Tooltip("Reload Game");		
+		Tooltip("Reload Game");
 	
 		ImGui::SameLine();
 		if (game_paused)
@@ -244,6 +246,13 @@ void xs::inspector::render(float dt)
 			next_frame = true;
 		}
 		Tooltip("Reload Art");
+
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_FA_FOLDER_OPEN))
+		{
+			auto f = pfd::select_folder("Open Project", pfd::path::home()).result();			
+		}
+		Tooltip("Open Project");
 
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_ADJUST))
