@@ -18,9 +18,9 @@ using namespace std;
 using namespace xs;
 using namespace xs::fileio;
 
-namespace xs::fileio
+namespace xs::fileio::internal
 {
-	map<string, string> wildcards;	
+	extern map<string, string> wildcards;	
 }
 
 
@@ -33,10 +33,10 @@ void fileio::initialize()
 	_dupenv_s(&pValue, &len, "APPDATA");
 	if (pValue != nullptr)
 	{
-		string xs_user_path = string(pValue) + string("\\xs\\");
+		string xs_user_path = string(pValue) + string("\\xs");
 		if (!fs::exists(xs_user_path))
 			fs::create_directory(xs_user_path);
-		wildcards["[user]"] = xs_user_path;
+		internal::wildcards["[user]"] = xs_user_path;
 	}
 	else
 	{
@@ -55,14 +55,15 @@ void fileio::initialize()
 			if (!game_folder.empty())
 			{
 				add_wildcard("[game]", game_folder);
-			}
-		}
+			} // TODO: handle error
+		} // TODO: handle error
 	}
 	else
 	{
 		log::warn("Could not find the user settings.json file.");
-		log::info("Loading xs sample and creating settings file.");	
-		add_wildcard("[game]", fileio::absolute("samples/hello"));
+		log::info("Loading xs sample and creating settings file.");
+		string xs_sample = fileio::absolute("samples/hello");
+		add_wildcard("[game]", xs_sample);		
 	}
 
 	// Load the game settings json and find the main game script
@@ -89,5 +90,5 @@ void fileio::initialize()
 	else log::error("Could not find the game project.json file.");
 
 	// Set the shared assets folder
-	add_wildcard("[shared]", "/games/shared/");
+	add_wildcard("[shared]", "games/shared");
 }

@@ -28,7 +28,7 @@ class Game {
         __time = 0
 
         // Variable that exists only in this function 
-        var image = Render.loadImage("[games]/shared/images/white.png")
+        var image = Render.loadImage("[shared]/images/white.png")
         __sprite = Render.createSprite(image, 0, 0, 1, 1)
 
         // We can reuse the image variable to load another image
@@ -37,7 +37,7 @@ class Game {
         __hd = Render.createSprite(image, 0, 0, 1, 1)
 
         // xs supports true type fonts
-        __font = Render.loadFont("[games]/shared/fonts/selawk.ttf", 40)
+        __font = Render.loadFont("[shared]/fonts/selawk.ttf", 40)
     }    
 
     // The update method is called once per tick.
