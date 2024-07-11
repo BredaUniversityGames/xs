@@ -1,6 +1,8 @@
 name: Windows CI
 
-on: [pull_request]
+on: 
+  pull_request:
+    paths-ignore: "docs/** external/** games/** .github/** resources/** tools/**"
 
 jobs:
   build:
