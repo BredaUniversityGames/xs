@@ -183,7 +183,7 @@ namespace xs::script::internal
         else
         {
             string sname(name);
-            auto filename = "[games]/shared/modules/" + sname + ".wren";
+            auto filename = "[shared]/modules/" + sname + ".wren";
             if (!xs::fileio::exists(filename))
             {
                 auto mstring = string(main);

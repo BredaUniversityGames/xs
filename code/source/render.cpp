@@ -216,6 +216,12 @@ void xs::render::render_text(
 	color add,
 	unsigned int flags)
 {
+	if(font_id < 0 || font_id >= fonts.size())
+	{
+		log::error("render_text() font_id={} is invalid!", font_id);
+		return;
+	}
+
 	auto& font = fonts[font_id];
 	auto& img = images[font.image_id];
 

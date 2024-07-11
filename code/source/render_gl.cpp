@@ -619,8 +619,8 @@ xs::render::stats xs::render::get_stats()
 
 void xs::render::internal::compile_sprite_shader()
 {
-	auto vs_str = xs::fileio::read_text_file("[games]/shared/shaders/sprite.vert");
-	auto fs_str = xs::fileio::read_text_file("[games]/shared/shaders/sprite.frag");
+	auto vs_str = xs::fileio::read_text_file("[shared]/shaders/sprite.vert");
+	auto fs_str = xs::fileio::read_text_file("[shared]/shaders/sprite.frag");
 	const char* const vs_source = vs_str.c_str();
 	const char* const fs_source = fs_str.c_str();
 
