@@ -176,4 +176,3 @@ Lastly, you can, and should, use modules to organize your code. These must be lo
 ### Circular dependencies
 
 It's not uncommon for two, or more, modules to need functionality defined in the other module. Two modules importing one another will result in circular dependencies, with an and less than helpful error message. The solution is simple. Just put the import directive at the very end of both of the modules.
-  
