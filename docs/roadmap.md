@@ -1,6 +1,6 @@
 # This is a general roadmap for the next version xs engine (0.5)
 
-### Completnes
+### Completness
 
 [ ] AGC Rendering on par with OpenGL
 
