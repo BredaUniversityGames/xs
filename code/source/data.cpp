@@ -110,8 +110,9 @@ using namespace xs::data::internal;
 
 void xs::data::initialize()
 {
+	load_of_type(type::user);
 	load_of_type(type::game);
-	load_of_type(type::system);
+	load_of_type(type::project);
 	load_of_type(type::player);
 	load_of_type(type::debug);
 }
@@ -161,7 +162,7 @@ void xs::data::inspect(bool& show)
 		inspect_of_type("Game Data", string(ICON_FA_GAMEPAD), filter, type::game);
 		inspect_of_type("User (Save) Data", string(ICON_FA_USER), filter, type::player);
 		inspect_of_type("Debug Only Data", string(ICON_FA_BUG), filter, type::debug);
-		inspect_of_type("System Data", string(ICON_FA_COG), filter, type::system);
+		inspect_of_type("System Data", string(ICON_FA_COG), filter, type::project);
 		ImGui::EndTabBar();
 	}
 
@@ -170,7 +171,7 @@ void xs::data::inspect(bool& show)
 
 bool xs::data::has_chages()
 {
-	return edited[type::debug] || edited[type::game] || edited[type::system];
+	return edited[type::debug] || edited[type::game] || edited[type::project];
 }
 
 double xs::data::get_number(const std::string& name, type type)
@@ -347,22 +348,25 @@ const string& xs::data::internal::get_file_path(type type)
 {
 	static std::string game_path = "[game]/game.json";
 	static std::string player_path = "[save]/player.json";
-	static std::string system_path = "[game]/project.json";
+	static std::string project_path = "[game]/project.json";
 	static std::string debug_path = "[save]/debug.json";
+	static std::string user_path = "[user]/settings.json";
 	static std::string no_path = "";
 
 	switch (type)
 	{
 	case xs::data::type::none:
 		return no_path;
-	case xs::data::type::system:
-		return system_path;
+	case xs::data::type::project:
+		return project_path;
 	case xs::data::type::debug:
 		return debug_path;
 	case xs::data::type::game:
 		return game_path;
 	case xs::data::type::player:
 		return player_path;	
+	case xs::data::type::user:
+		return user_path;
 	}
 
 	return no_path;

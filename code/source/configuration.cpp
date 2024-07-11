@@ -5,19 +5,19 @@ using namespace xs::configuration;
 
 int xs::configuration::width()
 {
-	int width = (int)xs::data::get_number("Width", xs::data::type::system);
+	int width = (int)xs::data::get_number("Width", xs::data::type::project);
 	return width != 0 ? width : 640;
 }
 
 int xs::configuration::height()
 {
-	int height = (int)data::get_number("Height", data::type::system);
+	int height = (int)data::get_number("Height", data::type::project);
 	return height != 0.0 ? height : 360;
 }
 
 std::string xs::configuration::title()
 {
-	auto title = data::get_string("Title", data::type::system);
+	auto title = data::get_string("Title", data::type::project);
 	return !title.empty() ? title : "xs - window";
 }
 
@@ -28,23 +28,23 @@ bool xs::configuration::fullscreen()
 
 int xs::configuration::multiplier()
 {
-	int mult = (int)data::get_number("Multiplier", data::type::system);
+	int mult = (int)data::get_number("Multiplier", data::type::project);
 	return mult != 0 ? mult : 1;
 }
 
 bool xs::configuration::on_top()
 {
-	return data::get_bool("Always on top", data::type::system);
+	return data::get_bool("Always on top", data::type::project);
 }
 
 bool xs::configuration::snap_to_pixels()
 {
-    return data::get_bool("Snap to pixels", data::type::system);
+    return data::get_bool("Snap to pixels", data::type::project);
 }
 
 bool xs::configuration::window_size_in_points()
 {
-    return data::get_bool("Window size in points", data::type::system);
+    return data::get_bool("Window size in points", data::type::project);
 }
 
 scale_parameters xs::configuration::get_scale_to_game(int input_width, int input_height)
