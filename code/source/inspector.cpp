@@ -37,12 +37,12 @@ namespace xs::inspector
 	};	
 
 	bool game_paused = false;
+	bool restart_flag = false;
 	float ui_scale = 1.0f;
 	bool show_registry = false;
 	bool show_profiler = false;
 	bool show_about = false;
 	bool show_demo = false;
-
 
 	enum class theme
 	{
@@ -60,7 +60,6 @@ namespace xs::inspector
 	void follow_the_light();
 	void go_gray();
 	void see_through();
-
 
 	float ok_timer = 0.0f;
 	bool next_frame;
@@ -169,6 +168,7 @@ void xs::inspector::render(float dt)
     ImGui::NewFrame();
 	ok_timer -= dt;
 	theme new_theme = current_theme;
+	restart_flag = false;
 
 	push_menu_theme();
 	
@@ -250,7 +250,13 @@ void xs::inspector::render(float dt)
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_FOLDER_OPEN))
 		{
-			auto f = pfd::select_folder("Open Project", pfd::path::home()).result();			
+			auto folder = pfd::select_folder("Open Project", pfd::path::home()).result();
+			if (!folder.empty())
+			{
+				data::set_string("game", folder, data::type::user);
+				data::save();
+				restart_flag = true;
+			}
 		}
 		Tooltip("Open Project");
 
@@ -303,7 +309,7 @@ void xs::inspector::render(float dt)
 		}
 		ImGui::End();		
 		
-		{	// Bottpm stats
+		{	// Bottom stats
 			const auto& io = ImGui::GetIO();
 			ImGui::Begin("Stats", &true_that,
 						 ImGuiWindowFlags_NoScrollbar |
@@ -438,6 +444,11 @@ bool xs::inspector::paused()
 	bool t = game_paused && !next_frame;
 	next_frame = false;
 	return t;
+}
+
+bool xs::inspector::should_restart()
+{
+	return restart_flag;
 }
 
 int xs::inspector::notify(notification_type type, const std::string& message, float time)
@@ -831,5 +842,6 @@ void xs::inspector::initialize() {}
 void xs::inspector::shutdown() {}
 void xs::inspector::render(float dt) {}
 bool xs::inspector::paused() { return false; }
+bool xs::should_restart() { return false; }
 
 #endif

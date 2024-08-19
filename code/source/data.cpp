@@ -214,6 +214,15 @@ void xs::data::set_string(const std::string& name, const std::string& value, typ
     xs::data::internal::set<string>(name, value, tp);
 }
 
+void xs::data::save()
+{
+	save_of_type(type::user);
+	save_of_type(type::game);
+	save_of_type(type::project);
+	save_of_type(type::player);
+	save_of_type(type::debug);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////									Internal Impl
