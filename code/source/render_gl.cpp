@@ -48,10 +48,10 @@
 using namespace glm;
 using namespace std;
 
-namespace xs::render::internal
+namespace xs::render
 {
 	void create_frame_buffers();
-	//TODO: void delete_frame_buffers();
+	void delete_frame_buffers();
 	void compile_draw_shader();
 	void compile_sprite_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
@@ -111,20 +111,19 @@ namespace xs::render::internal
 	unordered_map<int, sprite_mesh>	sprite_meshes;
 	vector<sprite_mesh_instance>	sprite_queue;
 
-	xs::render::stats stats = {};
+	xs::render::stats render_stats = {};
 }
 
 using namespace xs;
-using namespace xs::render::internal;
 
 void xs::render::initialize()
 {
 	width = configuration::width();
 	height = configuration::height();
 
-	internal::create_frame_buffers();
-	internal::compile_draw_shader();
-	internal::compile_sprite_shader();
+	create_frame_buffers();
+	compile_draw_shader();
+	compile_sprite_shader();
 
 	///////// Lines //////////////////////
     glGenVertexArrays(1, &lines_vao);
@@ -181,18 +180,41 @@ void xs::render::initialize()
 
 void xs::render::shutdown()
 {
-	glDeleteProgram(shader_program);
-	glDeleteVertexArrays(1, &lines_vao);
-	glDeleteBuffers(1, &lines_vbo);
+	// Shutdown the render system in reverse order
 
-	// TODO: Delete all images
-	// TODO: Delete frame buffer
+	// Trigs
+	glDeleteBuffers(1, &triangles_vbo);
+	glDeleteVertexArrays(1, &triangles_vao);
+
+	// Lines
+	glDeleteBuffers(1, &lines_vbo);
+	glDeleteVertexArrays(1, &lines_vao);
+
+	// Shaders
+	glDeleteProgram(sprite_program);
+	glDeleteProgram(shader_program);
+
+	// Frame buffer
+	delete_frame_buffers();
+
+	// Clear the sprite meshes
+	sprite_meshes.clear();
+	// Clear the sprite queue
+	sprite_queue.clear();
+
+	// Clear the fonts	
+	fonts.clear();
+
+	// Clear the images
+	for (auto& img : images)
+		glDeleteTextures(1, &img.texture);
+	images.clear();	
 }
 
 void xs::render::render()
 {	
 	XS_PROFILE_SECTION("xs::render::render");
-	internal::stats = {};
+	render_stats = {};
 
 	// Bind MSAA framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
@@ -250,7 +272,7 @@ void xs::render::render()
 
 		model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
 		if (!tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::overlay))
-			model = translate(model, vec3(internal::offset, 0.0));
+			model = translate(model, vec3(offset, 0.0));
 
 		model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
 		model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
@@ -289,7 +311,7 @@ void xs::render::render()
 			// Unbind the vertex array
 			glBindVertexArray(0);
 
-			internal::stats.draw_calls++;
+			render_stats.draw_calls++;
 		}
 		else
 		{
@@ -307,7 +329,7 @@ void xs::render::render()
 		glBufferData(GL_ARRAY_BUFFER, sizeof(debug_vertex_format) * triangles_count * 3, &triangles_array[0], GL_DYNAMIC_DRAW);
 		glDrawArrays(GL_TRIANGLES, 0, triangles_count * 3);
 		XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
-		internal::stats.draw_calls++;
+		render_stats.draw_calls++;
 	}
 
 	if (lines_count > 0)
@@ -317,7 +339,7 @@ void xs::render::render()
 		glBufferData(GL_ARRAY_BUFFER, sizeof(debug_vertex_format) * lines_count * 2, &lines_array[0], GL_DYNAMIC_DRAW);
 		glDrawArrays(GL_LINES, 0, lines_count * 2);
 		XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
-		internal::stats.draw_calls++;
+		render_stats.draw_calls++;
 	}
 
 	XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -337,8 +359,8 @@ void xs::render::render()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	
-	internal::stats.sprites = (int)internal::sprite_meshes.size();
-	internal::stats.textures = (int)images.size();
+	render_stats.sprites = (int)sprite_meshes.size();
+	render_stats.textures = (int)images.size();
 }
 
 void xs::render::render_sprite(
@@ -387,7 +409,7 @@ void xs::render::clear()
 	sprite_queue.clear();
 }
 
-void xs::render::internal::create_texture_with_data(xs::render::internal::image& img, uchar* data)
+void xs::render::create_texture_with_data(xs::render::image& img, uchar* data)
 {
 	GLint format = GL_INVALID_VALUE;
 	GLint usage = GL_INVALID_VALUE;
@@ -433,7 +455,7 @@ void xs::render::internal::create_texture_with_data(xs::render::internal::image&
 	XS_DEBUG_ONLY(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-void xs::render::internal::create_frame_buffers()
+void xs::render::create_frame_buffers()
 {
 	//glCreateFramebuffers(1, &render_fbo);
     glGenFramebuffers(1, &render_fbo);
@@ -458,6 +480,15 @@ void xs::render::internal::create_frame_buffers()
 		assert(false);
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
+}
+
+void xs::render::delete_frame_buffers()
+{
+	glDeleteTextures(1, &render_texture);
+	glDeleteFramebuffers(1, &render_fbo);
+
+	glDeleteTextures(1, &msaa_texture);
+	glDeleteFramebuffers(1, &msaa_fbo);
 }
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
@@ -614,10 +645,10 @@ void xs::render::destroy_shape(int sprite_id)
 
 xs::render::stats xs::render::get_stats()
 {
-	return internal::stats;
+	return render_stats;
 }
 
-void xs::render::internal::compile_sprite_shader()
+void xs::render::compile_sprite_shader()
 {
 	auto vs_str = xs::fileio::read_text_file("[shared]/shaders/sprite.vert");
 	auto fs_str = xs::fileio::read_text_file("[shared]/shaders/sprite.frag");
@@ -659,7 +690,7 @@ void xs::render::internal::compile_sprite_shader()
 	glDeleteShader(frag_shader);
 }
 
-void xs::render::internal::compile_draw_shader()
+void xs::render::compile_draw_shader()
 {
 	const auto* const vs_source =
 		"#version 460 core												\n\
@@ -720,7 +751,7 @@ void xs::render::internal::compile_draw_shader()
 
 }
 
-bool xs::render::internal::compile_shader(GLuint* shader, GLenum type, const GLchar* source)
+bool xs::render::compile_shader(GLuint* shader, GLenum type, const GLchar* source)
 {
 	GLint status;
 
@@ -758,7 +789,7 @@ bool xs::render::internal::compile_shader(GLuint* shader, GLenum type, const GLc
 	return true;
 }
 
-bool xs::render::internal::link_program(GLuint program)
+bool xs::render::link_program(GLuint program)
 {
 	GLint status;
 
@@ -781,7 +812,7 @@ bool xs::render::internal::link_program(GLuint program)
 	return status != 0;
 }
 
-void xs::render::internal::gl_label(GLenum type, GLuint name, const std::string& label)
+void xs::render::gl_label(GLenum type, GLuint name, const std::string& label)
 {
 	std::string typeString;
 	switch (type)

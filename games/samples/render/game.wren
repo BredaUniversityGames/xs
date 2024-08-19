@@ -7,10 +7,10 @@ class Game {
     static config() {}
 
     static init() {
-        __image = Render.loadImage("[games]/shared/images/icon_small.png")
+        __image = Render.loadImage("[shared]/images/icon_small.png")
         __sprite = Render.createSprite(__image, 0, 0, 1, 1)        
 
-        var bg = Render.loadImage("[games]/shared/images/checkerboard_720p.png")
+        var bg = Render.loadImage("[shared]/images/checkerboard_720p.png")
         __checkerboard = Render.createSprite(bg, 0, 0, 1, 1)
 
         __w = Data.getNumber("Width", Data.system) * 0.5

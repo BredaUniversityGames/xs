@@ -1,12 +1,4 @@
 {
-    "Enemy Color": {
-        "type": "color",
-        "value": 4288938239
-    },
-    "Explosion Color": {
-        "type": "color",
-        "value": 4093706239
-    },
     "From Color": {
         "type": "color",
         "value": 3187733247
