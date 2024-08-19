@@ -27,4 +27,6 @@ namespace xs::data
 	void set_color(const std::string& name, uint32_t value, type tp);
 	void set_bool(const std::string& name, bool value, type tp);
 	void set_string(const std::string& name, const std::string& value, type tp);
+
+	void save();
 }

@@ -19,7 +19,12 @@
 
 using namespace std;
 
-namespace xs { int main(int argc, char* argv[]); }
+namespace xs
+{
+	int initialize();
+	int shutdown();
+    int main(int argc, char* argv[]);
+}
 
 #if defined(PLATFORM_PC)
 #define DWORD unsigned int
@@ -60,6 +65,8 @@ int main(int argc, char* argv[])
     static_assert(false);
 }
 #endif
+
+/*
 
 // The type of execution the engine is used for
 // 
@@ -127,15 +134,57 @@ EngineExecution argument_parser(int argc, char* argv[])
 
     return EngineExecution::DEFAULT;
 }
+*/
+
+int xs::initialize()
+{
+	// We always like to have some debug logging available
+	log::initialize();
+
+	// Editor initialization
+	editor::initialize();
+
+	// Default engine initialization
+	account::initialize();
+	fileio::initialize();
+	data::initialize();
+	script::configure();
+	device::initialize();
+	render::initialize();
+	input::initialize();
+	audio::initialize();
+	inspector::initialize();
+	script::initialize();
+
+	return 0;
+}
+
+int xs::shutdown()
+{
+    // Close down the engine
+    inspector::shutdown();
+    audio::shutdown();
+    input::shutdown();
+    render::shutdown();
+    device::shutdown();
+    script::shutdown();
+    account::shutdown();
+    data::shutdown();
+
+    return 0;
+}
+
 
 int xs::main(int argc, char* argv[])
 {	
+    /*
     // We always like to have some debug logging available
     log::initialize();
 
     // Editor initialization
     editor::initialize();
 
+    /*
     // When arguments have been parsed the engine can be in 2 states
     // Either the arguments have been parsed successfully and we can close the engine
     // A parsing error has occurred and the engine will close down with error code 1
@@ -161,6 +210,9 @@ int xs::main(int argc, char* argv[])
     audio::initialize();
     inspector::initialize();
     script::initialize();
+    */
+
+	xs::initialize();
 
     // Run
     auto prev_time = chrono::high_resolution_clock::now();
@@ -185,8 +237,17 @@ int xs::main(int argc, char* argv[])
         render::render();
         inspector::render(float(dt));
         device::end_frame();
+
+		if (inspector::should_restart())
+		{
+			xs::shutdown();
+			xs::initialize();
+		}
 	}
 
+	xs::shutdown();
+
+    /*
     // Close down the engine
     inspector::shutdown();
     audio::shutdown();
@@ -196,6 +257,7 @@ int xs::main(int argc, char* argv[])
     script::shutdown();
     account::shutdown();
     data::shutdown();
+    */
 
 	return 0;
 }

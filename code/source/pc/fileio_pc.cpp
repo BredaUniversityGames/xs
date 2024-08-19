@@ -50,13 +50,22 @@ void fileio::initialize()
 		auto settings_str = read_text_file("[user]/settings.json");
 		if (!settings_str.empty())
 		{
-			auto settings = nlohmann::json::parse(settings_str);	
-			string game_folder = settings["game"];
+			auto settings = nlohmann::json::parse(settings_str);
+			auto game_json = settings["game"];
+			auto type_json = game_json["type"];
+			assert(type_json.is_string());
+			auto value_json = game_json["value"];
+			assert(value_json.is_string());
+			string game_folder = value_json.get<string>();
 			if (!game_folder.empty())
 			{
 				add_wildcard("[game]", game_folder);
 			} // TODO: handle error
-		} // TODO: handle error
+		}
+		else
+		{
+			log::warn("Could not read the user settings.json file.");
+		}
 	}
 	else
 	{
