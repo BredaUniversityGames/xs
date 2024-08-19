@@ -221,6 +221,7 @@ void xs::data::save()
 	save_of_type(type::project);
 	save_of_type(type::player);
 	save_of_type(type::debug);
+	edited.clear();
 }
 
 
@@ -264,10 +265,10 @@ void xs::data::internal::inspect_of_type(
 		sort(sorted.begin(), sorted.end());
 		
 		ImGui::BeginChild("Child");
-		ImGui::PushItemWidth(80);
+		//ImGui::PushItemWidth(-180);
 		for (const auto& s : sorted)
 			ed = std::max(ed, inspect_entry(*reg.find(s)));
-		ImGui::PopItemWidth();
+		//ImGui::PopItemWidth();
 		ImGui::EndChild();
 
 		ImGui::EndTabItem();
@@ -444,11 +445,15 @@ bool xs::data::internal::inspect_entry(
 	if (!itr.second.active)
 	{
 
-		ImGui::SameLine(ImGui::GetWindowWidth() - 40);
+		//ImGui::SameLine(ImGui::GetWindowWidth() - 40);
+		ImGui::SameLine();
 		ImGui::PushID(itr.first.c_str());
 		if (ImGui::Button((const char*)u8"\U0000f1f8"))
 		{
 			reg.erase(itr.first);
+			edited = true;
+			regsitry_type r(reg);
+			history.push_back(r);
 		}
 		ImGui::PopID();
 	}

@@ -248,18 +248,50 @@ void xs::inspector::render(float dt)
 		Tooltip("Reload Art");
 
 		ImGui::SameLine();
+		bool open_project = false;
 		if (ImGui::Button(ICON_FA_FOLDER_OPEN))
+		{
+			if (data::has_chages())
+				ImGui::OpenPopup("Save Changes?");
+			else
+				open_project = true;
+		}
+		Tooltip("Open Project");
+
+		if (ImGui::BeginPopupModal("Save Changes?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			pop_menu_theme();
+			ImGui::Text("There are unsaved changes. Do you want to save them?");
+			ImGui::Separator();
+			if (ImGui::Button("Yes", ImVec2(120, 0))) {
+				data::save();
+				open_project = true;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("No", ImVec2(120, 0))) {
+				open_project = true;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+			push_menu_theme();
+		}
+
+		if (open_project)
 		{
 			auto folder = pfd::select_folder("Open Project", pfd::path::home()).result();
 			if (!folder.empty())
 			{
 				data::set_string("game", folder, data::type::user);
-				data::save();
 				restart_flag = true;
+				data::save();
 			}
 		}
-		Tooltip("Open Project");
-
+		
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_ADJUST))
 		{
@@ -397,8 +429,7 @@ void xs::inspector::render(float dt)
 			notifications.end());
 	}
 
-	pop_menu_theme();
-
+	pop_menu_theme();	
 		
 	if (show_registry)
 	{
@@ -585,7 +616,7 @@ void xs::inspector::embrace_the_darkness()
 	colors[ImGuiCol_NavHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
-	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
+	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.75f);
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowPadding = ImVec2(8.00f, 8.00f);
@@ -727,7 +758,7 @@ void xs::inspector::go_gray()
 	colors[ImGuiCol_NavHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
-	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
+	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.50f, 0.50f, 0.50f, 0.5f);
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowPadding = ImVec2(8.00f, 8.00f);
@@ -809,7 +840,7 @@ void xs::inspector::see_through()
 	colors[ImGuiCol_NavHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
-	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
+	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.0f, 1.0f, 1.0f, 0.40f);
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowPadding = ImVec2(8.00f, 8.00f);
