@@ -43,6 +43,7 @@ namespace xs::inspector
 	bool show_profiler = false;
 	bool show_about = false;
 	bool show_demo = false;
+	bool show_modal = false;
 
 	enum class theme
 	{
@@ -132,7 +133,7 @@ void xs::inspector::initialize()
 	strcpy(str, constStr);
 	io.IniFilename = str;
 
-	current_theme = theme::dark;
+	current_theme = (theme)data::get_number("theme", data::type::user);
 	apply_theme();
 }
 
@@ -174,10 +175,11 @@ void xs::inspector::render(float dt)
 	
     auto mousePos = ImGui::GetMousePos();
 	if (xs::script::has_error() ||
-		show_registry ||
-		show_profiler ||
-		show_about	||
-		show_demo		||
+		show_registry			||
+		show_profiler			||
+		show_about				||
+		show_demo				||
+		show_modal				||
 		(ImGui::IsMousePosValid() &&
          mousePos.y < 100.0f &&
          mousePos.y >= 0.0f &&
@@ -260,6 +262,7 @@ void xs::inspector::render(float dt)
 
 		if (ImGui::BeginPopupModal("Save Changes?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
 		{
+			show_modal = true;
 			pop_menu_theme();
 			ImGui::Text("There are unsaved changes. Do you want to save them?");
 			ImGui::Separator();
@@ -297,7 +300,9 @@ void xs::inspector::render(float dt)
 		{
 			int t = (int)current_theme;
 			t = (t + 1) % 4;
-			new_theme = (theme)t;	
+			new_theme = (theme)t;
+			data::set_number("theme", t, data::type::user);
+			data::save_of_type(data::type::user);
 		}
 		Tooltip("Theme");
 		
@@ -332,7 +337,7 @@ void xs::inspector::render(float dt)
 
 		if (xs::data::has_chages()) {
 			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_Text, 0xFFFF5FB9);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.745f, 0.000f, 0.949f, 1.000f));
 			if (ImGui::Button(ICON_FA_EXCLAMATION_TRIANGLE)) {
 				show_registry = true;
 			}

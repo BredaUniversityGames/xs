@@ -60,7 +60,8 @@ void fileio::initialize()
 			if (!game_folder.empty())
 			{
 				add_wildcard("[game]", game_folder);
-			} // TODO: handle error
+				log::info("Game folder {} ", game_folder);
+			}
 		}
 		else
 		{

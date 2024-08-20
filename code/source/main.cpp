@@ -21,8 +21,9 @@ using namespace std;
 
 namespace xs
 {
-	int initialize();
-	int shutdown();
+	void initialize();
+	void shutdown();
+	void run();
     int main(int argc, char* argv[]);
 }
 
@@ -66,16 +67,11 @@ int main(int argc, char* argv[])
 }
 #endif
 
-int xs::initialize()
+void xs::initialize()
 {
-	// We always like to have some debug logging available
 	log::initialize();
-
-	// Editor initialization
 	editor::initialize();
-
-	// Default engine initialization
-	account::initialize();
+    account::initialize();
 	fileio::initialize();
 	data::initialize();
 	script::configure();
@@ -85,13 +81,10 @@ int xs::initialize()
 	audio::initialize();
 	inspector::initialize();
 	script::initialize();
-
-	return 0;
 }
 
-int xs::shutdown()
+void xs::shutdown()
 {
-    // Close down the engine
     inspector::shutdown();
     audio::shutdown();
     input::shutdown();
@@ -100,19 +93,13 @@ int xs::shutdown()
     script::shutdown();
     account::shutdown();
     data::shutdown();
-
-    return 0;
 }
 
-
-int xs::main(int argc, char* argv[])
-{	
-	xs::initialize();
-
-    // Run
+void xs::run()
+{
     auto prev_time = chrono::high_resolution_clock::now();
     while (!device::should_close())
-	{
+    {
         auto current_time = chrono::high_resolution_clock::now();
         auto elapsed = current_time - prev_time;
         prev_time = current_time;
@@ -133,14 +120,18 @@ int xs::main(int argc, char* argv[])
         inspector::render(float(dt));
         device::end_frame();
 
-		if (inspector::should_restart())
-		{
-			xs::shutdown();
-			xs::initialize();
-		}
-	}
+        if (inspector::should_restart())
+        {
+            xs::shutdown();
+            xs::initialize();
+        }
+    }
+}
 
+int xs::main(int argc, char* argv[])
+{	
+	xs::initialize();
+    xs::run();
 	xs::shutdown();
-
 	return 0;
 }

@@ -2,6 +2,7 @@
 #include "render.h"
 #include "render_internal.h"
 #include "tools.h"
+#include "data.h"
 #include <ios>
 #include <array>
 #include <unordered_map>
@@ -431,12 +432,18 @@ void xs::render::create_texture_with_data(xs::render::image& img, uchar* data)
 		assert(false);
 	}
 
+	bool filter_flag = data::get_bool("Texture Filter", data::type::project);
+	auto filter = filter_flag ? GL_LINEAR : GL_NEAREST;
+
+	bool repeat_flag = data::get_bool("Texture Repeat", data::type::project);
+	auto repeat = repeat_flag ? GL_REPEAT : GL_CLAMP_TO_EDGE;
+
 	glGenTextures(1, &img.texture);
 	glBindTexture(GL_TEXTURE_2D, img.texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, repeat);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, repeat);
 
 	glTexImage2D(
 		GL_TEXTURE_2D,						// What (target)

@@ -29,4 +29,5 @@ namespace xs::data
 	void set_string(const std::string& name, const std::string& value, type tp);
 
 	void save();
+	void save_of_type(type type);
 }
