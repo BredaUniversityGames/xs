@@ -41,7 +41,6 @@ namespace xs::data::internal
 	template<typename T>
 	void set(const std::string& name, const T& reg_value, type type, bool active = false);
 
-
 	uint32_t color_convert(ImVec4 color)
 	{
 		ImU32 out;
@@ -117,7 +116,13 @@ void xs::data::initialize()
 	load_of_type(type::debug);
 }
 
-void xs::data::shutdown() {}
+void xs::data::shutdown()
+{
+	reg.clear();
+	history.clear();	
+	edited.clear();
+	history_stack_pointer = 0;
+}
 
 void xs::data::inspect(bool& show)
 {	
@@ -128,7 +133,6 @@ void xs::data::inspect(bool& show)
 	}
 
 	ImGui::Begin((const char*)u8"\U0000f1c0  Data", &show, ImGuiWindowFlags_NoCollapse);
-
 
 	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
 	if (ImGui::Button(ICON_FA_UNDO))
@@ -224,7 +228,6 @@ void xs::data::save()
 	edited.clear();
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////									Internal Impl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,7 +244,6 @@ void xs::data::internal::inspect_of_type(
 	if (ImGui::BeginTabItem(icon.c_str(), NULL, flags))
 	{
 		tooltip(name.c_str());
-
 		bool& ed = edited[type];
 		{
 			bool ted = ed;
@@ -254,8 +256,7 @@ void xs::data::internal::inspect_of_type(
 
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 			ImGui::Text("%s", fileio::get_path(get_file_path(type)).c_str());
-			ImGui::PopStyleColor();
-			
+			ImGui::PopStyleColor();			
 		}
 
 		vector<string> sorted;
