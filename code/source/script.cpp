@@ -386,8 +386,9 @@ void bind_class(
 	foreign_classes[id] = methods;
 }
 
-size_t xs::script::get_bytes_allocated() {
-    return vm->bytesAllocated;
+size_t xs::script::get_bytes_allocated()
+{
+	return vm ? vm->bytesAllocated : 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

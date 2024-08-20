@@ -62,8 +62,7 @@ namespace xs::data::internal
 	}
 
 	bool inspect_entry(std::pair<const std::string, registry_value>& itr);
-	void inspect_of_type(const std::string& name, const std::string& icon, ImGuiTextFilter& filter, type type);
-	void save_of_type(type type);
+	void inspect_of_type(const std::string& name, const std::string& icon, ImGuiTextFilter& filter, type type);	
 	void load_of_type(type type);
 	const string& get_file_path(type type);
 
@@ -166,7 +165,7 @@ void xs::data::inspect(bool& show)
 		inspect_of_type("Game Data", string(ICON_FA_GAMEPAD), filter, type::game);
 		inspect_of_type("User (Save) Data", string(ICON_FA_USER), filter, type::player);
 		inspect_of_type("Debug Only Data", string(ICON_FA_BUG), filter, type::debug);
-		inspect_of_type("System Data", string(ICON_FA_COG), filter, type::project);
+		inspect_of_type("Project Data", string(ICON_FA_COG), filter, type::project);
 		ImGui::EndTabBar();
 	}
 
@@ -276,7 +275,7 @@ void xs::data::internal::inspect_of_type(
 	}		
 }
 
-void xs::data::internal::save_of_type(type type)
+void xs::data::save_of_type(type type)
 {
 	nlohmann::json j;
 	for (auto& itr : reg)
