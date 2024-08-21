@@ -23,8 +23,6 @@ namespace xs::fileio::internal
 	extern map<string, string> wildcards;	
 }
 
-
-
 void fileio::initialize()
 {
 	// Get the engine user path [user]
