@@ -17,7 +17,10 @@
 #include "render.h"
 #include "tools.h"
 #include "render_internal.h"
+
+#ifdef EDITOR
 #include "dialogs/portable-file-dialogs.h"
+#endif
 
 #if defined(PLATFORM_PC)
 #include <GLFW/glfw3.h>
@@ -249,6 +252,7 @@ void xs::inspector::render(float dt)
 		}
 		Tooltip("Reload Art");
 
+#ifdef EDITOR
 		ImGui::SameLine();
 		bool open_project = false;
 		if (ImGui::Button(ICON_FA_FOLDER_OPEN))
@@ -294,6 +298,7 @@ void xs::inspector::render(float dt)
 				data::save();
 			}
 		}
+#endif
 		
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_ADJUST))
@@ -878,6 +883,8 @@ void xs::inspector::initialize() {}
 void xs::inspector::shutdown() {}
 void xs::inspector::render(float dt) {}
 bool xs::inspector::paused() { return false; }
-bool xs::should_restart() { return false; }
+bool xs::inspector::should_restart() { return false; }
+int xs::inspector::notify(notification_type type, const std::string& message, float time) { return 0; }
+void xs::inspector::clear_notification(int id) {}
 
 #endif
