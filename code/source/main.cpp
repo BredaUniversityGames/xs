@@ -1,17 +1,6 @@
-#include <cstdio>
-#include "fileio.h"
+#include "xs.h"
 #include "device.h"
-#include "input.h"
-#include "log.h"
-#include "render.h"
-#include "script.h"
-#include "audio.h"
-#include "account.h"
-#include "data.h"
-#include "inspector.h"
-#include "cooker.h"
-#include "tools.h"
-#include "editor.h"
+#include <cstdio>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -19,13 +8,7 @@
 
 using namespace std;
 
-namespace xs
-{
-	void initialize();
-	void shutdown();
-	void run();
-    int main(int argc, char* argv[]);
-}
+namespace xs{ int main(int argc, char* argv[]); }
 
 #if defined(PLATFORM_PC)
 #define DWORD unsigned int
@@ -67,36 +50,10 @@ int main(int argc, char* argv[])
 }
 #endif
 
-void xs::initialize()
-{
-	log::initialize();
-	editor::initialize();
-    account::initialize();
-	fileio::initialize();
-	data::initialize();
-	script::configure();
-	device::initialize();
-	render::initialize();
-	input::initialize();
-	audio::initialize();
-	inspector::initialize();
-	script::initialize();
-}
 
-void xs::shutdown()
-{
-    inspector::shutdown();
-    audio::shutdown();
-    input::shutdown();
-    render::shutdown();
-    device::shutdown();
-    script::shutdown();
-    account::shutdown();
-    data::shutdown();
-}
-
-void xs::run()
-{
+int xs::main(int argc, char* argv[])
+{	
+	xs::initialize();
     auto prev_time = chrono::high_resolution_clock::now();
     while (!device::should_close())
     {
@@ -105,33 +62,8 @@ void xs::run()
         prev_time = current_time;
         auto dt = std::chrono::duration<double>(elapsed).count();
         if (dt > 0.03333) dt = 0.03333;
-
-        device::poll_events();
-        input::update(dt);
-        if (!inspector::paused())
-        {
-            render::clear();
-            script::update(dt);
-            audio::update(dt);
-            script::render();
-        }
-        device::begin_frame();
-        render::render();
-        inspector::render(float(dt));
-        device::end_frame();
-
-        if (inspector::should_restart())
-        {
-            xs::shutdown();
-            xs::initialize();
-        }
+		xs::update((float)dt);
     }
-}
-
-int xs::main(int argc, char* argv[])
-{	
-	xs::initialize();
-    xs::run();
 	xs::shutdown();
 	return 0;
 }
