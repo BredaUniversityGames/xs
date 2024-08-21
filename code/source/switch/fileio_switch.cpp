@@ -62,27 +62,11 @@ void fileio::initialize(/* const string& main_script*/)
 		NN_ABORT_UNLESS_RESULT_SUCCESS(result);
 	}
 
-	add_wildcard("[games]", "rom:");
 	add_wildcard("[save]", "save:");
+	add_wildcard("[user]", "save:");
+	add_wildcard("[game]", "rom:/game");
+	add_wildcard("[shared]", "rom:/shared");
 
-
-	// All platforms
-	bool success = false;
-	if (exists("[games]/.ini"))
-	{
-		auto game_str = read_text_file("[games]/.ini");
-		if (!game_str.empty())
-		{
-			string cwd = "[games]/" + game_str;
-			if (exists(cwd + "/game.wren"))
-			{
-				cwd = get_path(cwd);
-				add_wildcard("[game]", cwd);
-				success = true;
-			}
-		}
-	}
-
-	if (!success)
-		log::info("Please provide a valid game folder in the game name");
+	//if (!success)
+	// 	log::info("Please provide a valid game folder in the game name");
 }
