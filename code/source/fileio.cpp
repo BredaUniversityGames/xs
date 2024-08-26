@@ -291,7 +291,7 @@ bool fileio::exists(const string& filename)
 
 	// Check if the file exists
 	ifstream f(path.c_str());
-	auto good = f.good();
+    auto good = f.good();
 	f.close();
 	return good;
 }

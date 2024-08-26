@@ -2525,6 +2525,7 @@
 					PLATFORM_MAC,
 					"PROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"",
 					INSPECTOR,
+					EDITOR,
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
