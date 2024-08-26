@@ -20,9 +20,9 @@
 using namespace glm;
 using namespace std;
 using namespace xs;
-using namespace xs::render::internal;
+using namespace xs::render;
 
-namespace xs::render::internal
+namespace xs::render
 {
     id<MTLDevice> _device;
 
@@ -423,8 +423,8 @@ void xs::render::clear()
     sprite_queue.clear();
 }
 
-void xs::render::internal::create_texture_with_data(
-    xs::render::internal::image& img,
+void xs::render::create_texture_with_data(
+    xs::render::image& img,
     uchar* data)
 {
     MTLTextureDescriptor* texture_descriptor = [[MTLTextureDescriptor alloc] init];
@@ -498,7 +498,7 @@ void xs::render::render_sprite(
 	color add,
 	unsigned int flags)
 {
-	if (sprite_id < 0 || sprite_id >= internal::sprites.size()) {
+	if (sprite_id < 0 || sprite_id >= sprites.size()) {
 		log::error("Can't render sprite {}!", sprite_id);
 		return;
 	}
