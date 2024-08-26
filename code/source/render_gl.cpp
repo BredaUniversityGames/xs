@@ -246,9 +246,7 @@ void xs::render::render()
 	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
 
 	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
-		[](const sprite_mesh_instance& lhs, const sprite_mesh_instance& rhs) {
-			if (lhs.z == rhs.z)
-				return lhs.sprite_id < rhs.sprite_id;
+		[](const sprite_mesh_instance& lhs, const sprite_mesh_instance& rhs) {		
 			return lhs.z < rhs.z;
 		});
 
