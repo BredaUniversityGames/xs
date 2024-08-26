@@ -43,11 +43,35 @@ class Game {
         var rot2 = rot * 0.25
         Render.sprite(__sprite, x, y, z)
         cross(x, y)
+        
+        var xi = x
+        var yi = y
+        var zi = z
+        for(i in 0...6) {
+            Render.sprite(__sprite, xi, yi, zi)
+            cross(x, y)
+            xi = xi + 12
+            yi = yi + 12
+            zi = zi - 0.1
+        }
+
         x = x + dx
         Render.sprite(__sprite, x, y, z, Render.spriteFlipX)
+        xi = x
+        yi = y
+        zi = z
+        for(i in 0...6) {
+            Render.sprite(__sprite, xi, yi, zi, Render.spriteFlipX)
+            cross(x, y)
+            xi = xi + 12
+            yi = yi + 12
+        }
+
         cross(x, y)
         x = x + dx
         Render.sprite(__sprite, x, y, z, Render.spriteFlipY)
+        Render.sprite(__sprite, x, y, z  + 2 , Render.spriteFlipY | Render.spriteTop)
+
         cross(x, y)
         x = x + dx
         Render.sprite(__sprite, x, y, z, Render.spriteFlipX | Render.spriteFlipY) // |
