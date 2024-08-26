@@ -1,15 +1,10 @@
-//
-//  fileio_apple.m
-//  xs
-//
-//  Created by Bojan Endrovski on 23/08/2023.
-//
-
-#import <Foundation/Foundation.h>
-
 #include "fileio.h"
+#include "log.h"
+#include "json/json.hpp"
 #include <map>
 #include <string>
+#import <filesystem>
+#import <Foundation/Foundation.h>
 
 using namespace xs;
 using namespace std;
@@ -24,37 +19,62 @@ void fileio::initialize()
     NSArray* docs_paths_oc = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString* docs_path_oc  = [docs_paths_oc objectAtIndex:0];
     
-#if defined(DEBUG) && defined(PLATFORM_MAC)
-    NSString* games_path_oc = PROJECT_DIR;  // Define from a macro
+    // NSArray* user_paths_oc = NSSearchPathForDirectoriesInDomains(NSUserDirectory, NSUserDomainMask, YES);
+    // NSString* user_path_oc = [user_paths_oc objectAtIndex:0];
+    
+#if defined(DEBUG) && defined(PLATFORM_MAC) && 0
+    NSString* project_path_oc = PROJECT_DIR;  // Define from a macro
 #else
-    NSString* games_path_oc = [[NSBundle mainBundle] resourcePath];
+    NSString* project_path_oc = [[NSBundle mainBundle] resourcePath];
 #endif
-        
-    auto games_path_c = [games_path_oc UTF8String];        
-    string games_path = string(games_path_c) + "/games";
     
-    auto docs_path_c = [docs_path_oc UTF8String];
+    // Shared
+    string project_path = [project_path_oc UTF8String];
+    auto shared_path = project_path + "/games/shared";
+    fileio::internal::wildcards["[shared]"] = shared_path;
+    
+    // Save
+    string docs_path_c = [docs_path_oc UTF8String];
     string docs_path = string(docs_path_c);
+    fileio::internal::wildcards["[save]"] = docs_path;
     
-    xs::fileio::internal::wildcards["[games]"] = games_path;
-    xs::fileio::internal::wildcards["[save]"] = docs_path;
+    // User
+    NSString* user_path_oc = @"~/Library/Preferences/xs";
+    string user_path = [user_path_oc.stringByExpandingTildeInPath UTF8String];
     
-    // All platforms
-    bool success = false;
-    if (exists("[games]/.ini"))
+    if(!filesystem::exists(user_path))
+        filesystem::create_directory(user_path);
+    fileio::internal::wildcards["[user]"] = [@"~/Library/Preferences/xs".stringByExpandingTildeInPath UTF8String];
+    
+    // Load the engine user settings json (if any) and find the game folder
+    if (exists("[user]/settings.json"))
     {
-        auto game_str = read_text_file("[games]/.ini");
-        game_str.erase(std::remove(game_str.begin(), game_str.end(), '\n'), game_str.cend());
-        if (!game_str.empty())
+        auto settings_str = read_text_file("[user]/settings.json");
+        if (!settings_str.empty())
         {
-            string cwd = "[games]/" + game_str;
-            if (exists(cwd + "/game.wren"))
+            auto settings = nlohmann::json::parse(settings_str);
+            auto game_json = settings["game"];
+            auto type_json = game_json["type"];
+            assert(type_json.is_string());
+            auto value_json = game_json["value"];
+            assert(value_json.is_string());
+            string game_folder = value_json.get<string>();
+            if (!game_folder.empty())
             {
-                cwd = get_path(cwd);
-                add_wildcard("[game]", cwd);
-                success = true;
+                add_wildcard("[game]", game_folder);
+                log::info("Game folder {} ", game_folder);
             }
         }
+        else
+        {
+            log::warn("Could not read the user settings.json file.");
+        }
     }
-    
+    else
+    {
+        log::warn("Could not find the user settings.json file.");
+        log::info("Loading xs sample and creating settings file.");
+        string xs_sample = fileio::absolute("samples/hello");
+        add_wildcard("[game]", xs_sample);
+    }
 }
