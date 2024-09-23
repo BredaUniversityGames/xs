@@ -771,8 +771,6 @@ void render_get_image_height(WrenVM* vm)
 
 void render_create_sprite(WrenVM* vm)
 {
-    // callFunction_returnType_args<int, int, double, double, double, double>(vm, xs::render::create_sprite);
-
     auto image_id = wrenGetParameter<int>(vm, 1);
     auto x0 = wrenGetParameter<double>(vm, 2);
     auto y0 = wrenGetParameter<double>(vm, 3);
@@ -788,6 +786,8 @@ void render_create_sprite(WrenVM* vm)
 
 void render_create_shape(WrenVM* vm)
 {
+    // wrenCollectGarbage(vm);// TODO: This can potentially have large performance 
+
     auto image_id = wrenGetParameter<int>(vm, 1);
 	auto positions = wrenGetListParameter<float>(vm, 2);
 	auto texture_coordinates = wrenGetListParameter<float>(vm, 3);
@@ -804,6 +804,12 @@ void render_create_shape(WrenVM* vm)
     wrenGetVariable(vm, "xs", "ShapeHandle", 0);
 	auto handle = (int*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
 	*handle = shape_id;
+}
+
+void render_destroy_shape(WrenVM* vm)
+{
+    auto handle = (int*)wrenGetSlotForeign(vm, 1);
+	xs::render::destroy_shape(*handle);
 }
 
 void render_sprite_ex(WrenVM* vm)
@@ -1351,6 +1357,7 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
     bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
+	bind("xs", "Render", true, "destroyShape(_)", render_destroy_shape);
 
     // ShapeHandle
     WrenForeignClassMethods shape_handle_methods {};

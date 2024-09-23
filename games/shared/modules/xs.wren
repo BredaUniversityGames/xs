@@ -23,6 +23,9 @@ class Render {
     /// Create a mesh
     foreign static createShape(imageId, positions, textureCoords, indices)
 
+    /// Destroy a shape
+    foreign static destroyShape(shapeId)
+
     /// Set the offset for the next sprite(s) to be drawn
     foreign static setOffset(x, y)
 
