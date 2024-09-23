@@ -45,6 +45,7 @@
 #include "profiler.h"
 
 #define XS_DEBUG_EXTENTS 0
+#define XS_QUANTIZED_HASHING 0
 
 using namespace glm;
 using namespace std;
@@ -504,12 +505,15 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 		return -1;
 	}
 
+#ifdef XS_QUANTIZED_HASHING
 	// Precision for the texture coordinates 
-	// double precision = 10000.0;
-	//int xh0 = (int)(x0 * precision);
-	//int yh0 = (int)(y0 * precision);
-	//int xh1 = (int)(x1 * precision);
-	//int yh1 = (int)(y1 * precision);
+	double precision = 10000.0;
+	int xh0 = (int)(x0 * precision);
+	int yh0 = (int)(y0 * precision);
+	int xh1 = (int)(x1 * precision);
+	int yh1 = (int)(y1 * precision);
+#endif
+
 
 	// Check if the sprite already exists
 	auto key = tools::hash_combine(image_id, x0, y0, x1, y1);
