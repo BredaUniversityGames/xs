@@ -1,7 +1,7 @@
 import "xs" for Render, Data, Vector
 import "xs_math" for Math, Color
 import "xs_tools" for ShapeBuilder
-import "../common/background" for Background
+import "background" for Background
 
 class Game {
     static config() {}
