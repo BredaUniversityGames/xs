@@ -58,7 +58,6 @@ namespace xs::render
 	void compile_sprite_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
-	void gl_label(GLenum type, GLuint name, const std::string& label);
 
 	int width = -1;
 	int height = -1;	
@@ -178,6 +177,14 @@ void xs::render::initialize()
 		reinterpret_cast<void*>(offsetof(debug_vertex_format, color)));
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
+
+#ifdef DEBUG
+	gl_label(GL_VERTEX_ARRAY, lines_vao, "lines vao");
+	gl_label(GL_VERTEX_ARRAY, triangles_vao, "triangles vao");
+	gl_label(GL_BUFFER, lines_vbo, "lines vbo");
+	gl_label(GL_BUFFER, triangles_vbo, "triangles vbo");
+#endif
+
 }
 
 void xs::render::shutdown()
@@ -458,14 +465,14 @@ void xs::render::create_texture_with_data(xs::render::image& img, uchar* data)
 	// Create mipmaps
 	glGenerateMipmap(GL_TEXTURE_2D);
 
+	gl_label(GL_TEXTURE, img.texture, img.file.c_str());
 	XS_DEBUG_ONLY(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
 void xs::render::create_frame_buffers()
 {
-	//glCreateFramebuffers(1, &render_fbo);
-    glGenFramebuffers(1, &render_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
+	glGenFramebuffers(1, &render_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);	
 	glGenTextures(1, &render_texture);
 	glBindTexture(GL_TEXTURE_2D, render_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -484,8 +491,11 @@ void xs::render::create_frame_buffers()
 	glDrawBuffers(1, attachments);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		assert(false);
-	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
+	gl_label(GL_FRAMEBUFFER, render_fbo, "render fbo");
+	gl_label(GL_TEXTURE, render_texture, "render texture");
+	gl_label(GL_RENDERBUFFER, depth_buffer, "depth buffer");
+	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
 void xs::render::delete_frame_buffers()
@@ -557,6 +567,7 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 		(float)x1, (float)y0
 	};
 
+
 	glGenVertexArrays(1, &mesh.vao);
 	glBindVertexArray(mesh.vao);
 
@@ -581,8 +592,14 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
+	string name = "sprite " + img.file + " " + to_string(key);
+	gl_label(GL_VERTEX_ARRAY, mesh.vao, name + "vao");
+	gl_label(GL_BUFFER, mesh.ebo, name + "ebo");
+	gl_label(GL_BUFFER, mesh.vbos[0], name + " position vbo");
+	gl_label(GL_BUFFER, mesh.vbos[1], name + " texture vbo");
+
 	// Unbind the vertex array
-	glBindVertexArray(0);
+	XS_DEBUG_ONLY(glBindVertexArray(0));
 
 	// Store the mesh
 	mesh.image_id = image_id;
@@ -819,51 +836,4 @@ bool xs::render::link_program(GLuint program)
 
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	return status != 0;
-}
-
-void xs::render::gl_label(GLenum type, GLuint name, const std::string& label)
-{
-	std::string typeString;
-	switch (type)
-	{
-	case GL_BUFFER:
-		typeString = "GL_BUFFER";
-		break;
-	case GL_SHADER:
-		typeString = "GL_SHADER";
-		break;
-	case GL_PROGRAM:
-		typeString = "GL_PROGRAM";
-		break;
-	case GL_VERTEX_ARRAY:
-		typeString = "GL_VERTEX_ARRAY";
-		break;
-	case GL_QUERY:
-		typeString = "GL_QUERY";
-		break;
-	case GL_PROGRAM_PIPELINE:
-		typeString = "GL_PROGRAM_PIPELINE";
-		break;
-	case GL_TRANSFORM_FEEDBACK:
-		typeString = "GL_TRANSFORM_FEEDBACK";
-		break;
-	case GL_SAMPLER:
-		typeString = "GL_SAMPLER";
-		break;
-	case GL_TEXTURE:
-		typeString = "GL_TEXTURE";
-		break;
-	case GL_RENDERBUFFER:
-		typeString = "GL_RENDERBUFFER";
-		break;
-	case GL_FRAMEBUFFER:
-		typeString = "GL_FRAMEBUFFER";
-		break;
-	default:
-		typeString = "UNKNOWN";
-		break;
-	}
-
-	const std::string temp = "[" + typeString + ":" + std::to_string(name) + "] " + label;
-	glObjectLabel(type, name, static_cast<GLsizei>(temp.length()), temp.c_str());
 }

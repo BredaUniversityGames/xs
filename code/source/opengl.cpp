@@ -197,6 +197,53 @@ void xs::init_debug_messages()
 		GL_FALSE);
 }
 
+void xs::gl_label(GLenum type, GLuint name, const std::string& label)
+{
+	std::string typeString;
+	switch (type)
+	{
+	case GL_BUFFER:
+		typeString = "buffer";
+		break;
+	case GL_SHADER:
+		typeString = "shader";
+		break;
+	case GL_PROGRAM:
+		typeString = "program";
+		break;
+	case GL_VERTEX_ARRAY:
+		typeString = "vetex array";
+		break;
+	case GL_QUERY:
+		typeString = "query";
+		break;
+	case GL_PROGRAM_PIPELINE:
+		typeString = "program pipeline";
+		break;
+	case GL_TRANSFORM_FEEDBACK:
+		typeString = "transform feedback";
+		break;
+	case GL_SAMPLER:
+		typeString = "sampler";
+		break;
+	case GL_TEXTURE:
+		typeString = "texture";
+		break;
+	case GL_RENDERBUFFER:
+		typeString = "renderbuffer";
+		break;
+	case GL_FRAMEBUFFER:
+		typeString = "framebuffer";
+		break;
+	default:
+		typeString = "unknown";
+		break;
+	}
+
+	const std::string temp = "[" + typeString + ":" + std::to_string(name) + "] " + label;
+	glObjectLabel(type, name, static_cast<GLsizei>(temp.length()), temp.c_str());
+}
+
 #elif defined(PLATFORM_SWITCH)
 
 void init_debug_messages()  
