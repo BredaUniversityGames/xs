@@ -29,7 +29,7 @@ class Game {
         t = 1 - t
         
         var radius = 180 * Math.lerp(0.5, 1, t)
-        var segments = 6
+        var segments = 256
         var angle = 0
         var step = Math.pi * 2 / segments
         sb.addPosition(0, 0)
