@@ -50,6 +50,15 @@ std::vector<std::string> xs::tools::string_split(
 	return results;
 }
 
+bool tools::string_starts_with(const std::string& haystack, const std::string& needle)
+{
+	if (haystack.length() < needle.length())
+		return false;
+
+	return haystack.compare(0, needle.length(), needle) == 0;
+}
+
+
 std::tuple<double, double, double, double> tools::parse_color(const std::string& hex_color)
 {
 	std::string color_str = hex_color;

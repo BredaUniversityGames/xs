@@ -3,17 +3,17 @@
 #include "render_internal.h"
 #include "tools.h"
 #include "data.h"
-#include <ios>
 #include <array>
 #include <unordered_map>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <stb/stb_image.h>
 #include <imgui.h>
-#include <IconsFontAwesome5.h>
-
+#include <set>
+#include <map>
+#include <regex>
+#include <sstream>
 
 // Include stb_image 
 #ifdef PLATFORM_SWITCH
@@ -113,6 +113,26 @@ namespace xs::render
 	vector<sprite_mesh_instance>	sprite_queue;
 
 	xs::render::stats render_stats = {};
+
+	class ShaderPreprocessor
+	{
+	public:
+		ShaderPreprocessor();
+
+		std::string		Read(const std::string& path);
+
+	private:
+		std::string		ParseRecursive(	const std::string& path,
+										const std::string& parentPath,
+										std::set<std::string>& includeTree);
+
+		static std::string GetParentPath(const std::string&path);
+
+		std::vector<std::string>			_searchPaths;
+		std::map<std::string, std::string>	_cachedSources;	
+	};
+
+
 }
 
 using namespace xs;
@@ -515,7 +535,7 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 		return -1;
 	}
 
-#ifdef XS_QUANTIZED_HASHING
+#if XS_QUANTIZED_HASHING
 	// Precision for the texture coordinates 
 	double precision = 10000.0;
 	int xh0 = (int)(x0 * precision);
@@ -523,7 +543,6 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	int xh1 = (int)(x1 * precision);
 	int yh1 = (int)(y1 * precision);
 #endif
-
 
 	// Check if the sprite already exists
 	auto key = tools::hash_combine(image_id, x0, y0, x1, y1);
@@ -837,3 +856,100 @@ bool xs::render::link_program(GLuint program)
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	return status != 0;
 }
+
+
+#define ENABLE_PROFILING 0
+
+#if ENABLE_PROFILING
+#endif
+
+using namespace std;
+
+namespace {
+	const regex sIncludeRegex = regex("^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*");
+} // anonymous namespace
+
+
+xs::render::ShaderPreprocessor::ShaderPreprocessor()
+{
+	_searchPaths.push_back("");
+}
+
+string xs::render::ShaderPreprocessor::Read(const string& path)
+{
+	set<string> includeTree;
+	return ParseRecursive(path, "", includeTree);
+}
+
+// Based on
+// https://www.opengl.org/discussion_boards/showthread.php/169209-include-in-glsl
+string xs::render::ShaderPreprocessor::ParseRecursive(
+	const string& path,
+	const string& parentPath,
+	set<string>& includeTree)
+{
+	string fullPath = parentPath.empty() ? path : parentPath + "/" + path;
+
+	if (includeTree.count(fullPath))
+	{
+		log::warn("Circular include found! Path: {}", path);
+		return string();
+	}
+
+	includeTree.insert(fullPath);	
+
+	fullPath = fileio::get_path(fullPath);
+	string parent = GetParentPath(fullPath);
+	string inputString =  fileio::read_text_file(fullPath);
+	if(inputString.empty())
+	{
+		log::error("Shader file not found! Path: {}", fullPath);
+		return string();
+	}
+
+	stringstream input(move(inputString));
+	stringstream output;
+
+	// go through each line and process includes
+	string line;
+	smatch matches;
+	size_t lineNumber = 1;
+	while (getline(input, line))
+	{
+		if (regex_search(line, matches, sIncludeRegex))
+		{
+			output << ParseRecursive(matches[1].str(), parent, includeTree);
+			output << "#line " << lineNumber << endl;
+		}
+		else if(xs::tools::string_starts_with(line,"#extension GL_GOOGLE_include_directive : require"))
+		{
+			output << '\n';
+		}
+		else
+		{
+			if(!line.empty() && line[0] != '\0') // Don't null terminate
+				output << line;
+		}
+		output << '\n';
+		lineNumber++;
+	}
+	
+	return output.str();
+
+}
+
+string xs::render::ShaderPreprocessor::GetParentPath(const string& path)
+{
+	// Implementation base on:
+	// http://stackoverflow.com/questions/28980386/how-to-get-file-name-from-a-whole-path-by-c
+
+	string parent = "";
+	string::size_type found = path.find_last_of("/");
+
+	// if we found one of this symbols
+	if (found != string::npos)
+		parent = path.substr(0, found);
+	
+	return parent;
+}
+

@@ -10,6 +10,7 @@ namespace xs::tools
 {
 	std::string string_replace(const std::string& subject, const std::string& search, const std::string& replace);
 	std::vector<std::string> string_split(const std::string& source, const char* delimiter = " ", bool keep_empty = false);
+	bool string_starts_with(const std::string& haystack, const std::string& needle);
 	std::tuple<double, double, double, double> parse_color(const std::string& hex_color);
 
 	inline void switch_on_bit_flag(unsigned int& flags, unsigned int bit) { flags |= bit; }
