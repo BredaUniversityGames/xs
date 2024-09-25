@@ -64,3 +64,4 @@ xs.xcodeproj/xcuserdata/
 xs.vcxproj.user
 /.cache
 *.xs
+games/game
