@@ -56,7 +56,7 @@ namespace xs::inspector
 		acrylic = 3
 	};
 
-	theme current_theme = theme::dark;
+	theme current_theme = theme::acrylic;
 	void apply_theme();
 	void push_menu_theme();
 	void pop_menu_theme();
@@ -177,7 +177,8 @@ void xs::inspector::render(float dt)
 	push_menu_theme();
 	
     auto mousePos = ImGui::GetMousePos();
-	if (xs::script::has_error() ||
+	if (true					||
+		xs::script::has_error() ||
 		show_registry			||
 		show_profiler			||
 		show_about				||
