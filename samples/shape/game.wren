@@ -5,7 +5,7 @@ import "background" for Background
 
 class Game {
 
-    static init() {        
+    static initialize() {        
         __time = 0
         __image = Render.loadImage("[game]/images/gradient.png")
         __font = Render.loadFont("[shared]/fonts/selawk.ttf", 40)

@@ -22,7 +22,7 @@ import "xs" for Render
 
 class Game {
 //...
-  static init() {
+  static initialize() {
     
   } 
 
