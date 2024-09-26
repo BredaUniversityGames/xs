@@ -144,45 +144,6 @@ def ellipse(radius : float, r : float, g : float, b : float, sx : float, sy : fl
 def circle(radius : float, r : float, g : float, b : float, file : str):
     ellipse(radius, r, g, b, 1.0, 1.0, file)
 
-def checkerboard(width : int, height : int, size : int, fc : color, sc : color, file : str):
-    colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    colorCtx = cairo.Context(colorSurf)
-    tx = int(width / size)
-    ty = int(height / size)
-    for i in range(0, tx):
-        x = i * size
-        for j in range(0, ty):            
-            y = j * size
-            colorCtx.rectangle(x, y, size, size)
-            if ((i + j) % 2 == 0):
-                colorCtx.set_source_rgb(fc.r, fc.g, fc.b)
-            else: 
-                colorCtx.set_source_rgb(sc.r, sc.g, sc.b)
-            colorCtx.fill()    
-    colorSurf.write_to_png("samples/gameplay/assets/images/" + file)
-
-def box(width : int, height : int, r : float, g : float, b : float, file : str):
-    colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    colorCtx = cairo.Context(colorSurf)
-    colorCtx.rectangle(0, 0, width, height)
-    colorCtx.set_source_rgb(r, g, b)
-    colorCtx.fill()  
-    colorSurf.write_to_png("samples/gameplay/assets/images/" + file)
-     
-def healthbar(width : int, size : int, cl : color, file : str):
-    height = 100 * size    
-    colorSurf = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    colorCtx = cairo.Context(colorSurf)
-    tx = width / 100.0
-
-    for j in range(1, 101): 
-        y = height - j * size
-        w = tx * j 
-        colorCtx.rectangle(width * 0.5 - w * 0.5, y, w, size)
-        colorCtx.set_source_rgb(cl.r, cl.g, cl.b)
-        colorCtx.fill()    
-    colorSurf.write_to_png("samples/gameplay/assets/images/" + file)
-
 class ExplosionBall:
     def __init__(self, size: float, position: vec2) -> None:
         self.position = position
@@ -224,39 +185,34 @@ def explosion(size : int, frames: int, file : str) :
 
 def player() : 
     (r,g,b) = (1, 1, 1)
-    w = 64
-    h = 64
-    s = 24
+    w = 40
+    h = 40
+    s = 20
+
     surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
     ctx = cairo.Context(surf)
     ctx.translate(w * 0.5, h * 0.5)
-    dt = math.pi * 2 / 12
-    t = -dt * 0.5
-    ctx.new_path()
-    for i in range(0, 6) :
-        r = s
-        if i < 2:
-            r = s * 1.2
-        x = math.cos(t) * r
-        y = math.sin(t) * r
-        if i == 0:
-            ctx.move_to(x,y)
-        else:   
-            ctx.line_to(x,y)
-        if i % 2 == 0:
-            t += dt
-        else:   
-            t += 3.0 * dt
-    ctx.close_path() 
-    ctx.set_source_rgb(r, g, b)
-    ctx.fill()    
+        
+    # Draw white circle
+    ctx.arc(0, 0, s, 0.0, math.pi * 2.0)
+    ctx.set_source_rgb(1, 1, 1)
+    ctx.fill()
+
+    # Draw black circle for the eye
+    ctx.arc(10, 0, s * 0.4, 0.0, math.pi * 2.0)
+    ctx.set_source_rgb(0, 0, 0)
+    ctx.fill()
     surf.write_to_png("samples/gameplay/assets/images/player.png")
 
 player()
-aim(60)
 
-(r, g, b) = get_color(3)
+(r, g, b) = (1, 1, 1)
 ellipse(3, r, g, b, 1.0, 3.0, "missile.png")
+
+radii = [50, 60, 70, 80, 90, 100, 110, 120]
+for i in range(0, 8):
+    rad = radii[i]
+    circle(rad, r, g, b, "disc_" + str(rad) + ".png")
 
 '''
 arrow(3.5)

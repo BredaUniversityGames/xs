@@ -4,6 +4,7 @@ import "xs_tools" for ShapeBuilder
 import "xs_ec" for Entity, Component
 import "xs_components" for Transform, Body, Renderable, Sprite
 import "background" for Background
+import "shadow" for Shadow
 
 class Game {
     static config() {}
@@ -16,6 +17,9 @@ class Game {
         __background = Background.new()
 
         __player = Create.player()
+        for(i in 0...6) {
+            var obstacle = Create.obstacle()
+        }
     }    
 
     static update(dt) {
@@ -28,6 +32,7 @@ class Game {
     static render() {
         __background.render()
         Renderable.render()
+        Shadow.render()
     }
 }
 
