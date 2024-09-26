@@ -7,8 +7,6 @@ import "background" for Background
 import "shadow" for Shadow
 
 class Game {
-    static config() {}
-
     static init() {
         Entity.init()        
         __time = 0
