@@ -4,7 +4,6 @@ import "xs_tools" for ShapeBuilder
 import "background" for Background
 
 class Game {
-    static config() {}
 
     static init() {        
         __time = 0

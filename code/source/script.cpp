@@ -58,7 +58,6 @@ namespace xs::script::internal
 {
     WrenVM* vm = nullptr;
     WrenHandle* game_class = nullptr;
-    WrenHandle* config_method = nullptr;
     WrenHandle* init_method = nullptr;
     WrenHandle* update_method = nullptr;
     WrenHandle* render_method = nullptr;
@@ -274,11 +273,9 @@ void xs::script::configure()
         wrenGetVariable(vm, "game", "Game", 0);		            // Grab a handle to the Game class
         game_class = wrenGetSlotHandle(vm, 0);
         wrenSetSlotHandle(vm, 0, game_class);					// Put Game class in slot 0
-        config_method = wrenMakeCallHandle(vm, "config()");
         init_method = wrenMakeCallHandle(vm, "init()");
         update_method = wrenMakeCallHandle(vm, "update(_)");
         render_method = wrenMakeCallHandle(vm, "render()");
-        wrenCall(vm, config_method);
     }
 
     auto timing = xs::profiler::end_timing();
@@ -304,11 +301,6 @@ void xs::script::shutdown()
         {
             wrenReleaseHandle(vm, game_class);
             game_class = nullptr;
-        }
-        if (config_method)
-        {
-            wrenReleaseHandle(vm, config_method);
-            config_method = nullptr;
         }
         if (init_method)
         {

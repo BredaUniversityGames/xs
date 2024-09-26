@@ -2,22 +2,14 @@
 // start making your game
 System.print("Wren just got compiled to bytecode")
 
-// The xs module is 
+// The xs module is where the inteface to the engine is
 import "xs" for Render, Data, Vector
+// The xs_math module where you will find the math tools and 
+// a handy color class
 import "xs_math" for Math, Color
 
 // The game class it the entry point to your game
 class Game {
-
-    // The config method is called before the device, window, renderer
-    // and most other systems are created. You can use it to change the
-    // window title and size (for example).
-    static config() {
-        System.print("config")
-        
-        // This can be saved to the system.json using the
-        // Data UI. This code overrides the values from the system.json
-    }
 
     // The init method is called when all system have been created.
     // You can initialize you game specific data here.
@@ -53,7 +45,6 @@ class Game {
         var toColor = Data.getColor("To Color")
         fromColor = Color.fromNum(fromColor)
         toColor = Color.fromNum(toColor)
-
         var angle = __time.sin * 0.5 + 0.5
         for(i in 0...16) {            
             var x = (i + 1) * -128 + 640
@@ -67,7 +58,7 @@ class Game {
         // Make periodic time go from 0 to 1 and back to 0
         var t = __time * 0.5
         t = t % 2.0 < 1.0 ? t % 1.0 : 1.0 - t % 1.0
-        // Smootstep the t value a few times
+        // Smootstep the t value a few times to get snappy animation
         for(i in 0...8) t = t * t * (3 - 2 * t)
         var x = -128 - 16
         var y = -64
