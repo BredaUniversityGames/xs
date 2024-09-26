@@ -7,8 +7,8 @@ import "background" for Background
 import "shadow" for Shadow
 
 class Game {
-    static init() {
-        Entity.init()        
+    static initialize() {
+        Entity.initialize()        
         __time = 0
         //__image = Render.loadImage("[game]/images/gradient.png")
         __font = Render.loadFont("[shared]/fonts/selawk.ttf", 40)

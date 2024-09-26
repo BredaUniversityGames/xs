@@ -50,7 +50,6 @@ using namespace xs;
 namespace xs::script
 {
     string main;
-    // string main_module;
 }
 
 
@@ -64,8 +63,7 @@ namespace xs::script::internal
     std::unordered_map<size_t, WrenForeignMethodFn> foreign_methods;
     std::unordered_map<size_t, WrenForeignClassMethods> foreign_classes;
     struct module { string path; string source; };
-    //std::unordered_map<size_t, module> modules;
-    std::unordered_map<string, module> modules; // name to source
+    std::unordered_map<string, module> modules; // name to source mapping
     bool initialized = false;
     bool error = false;
 
@@ -273,7 +271,7 @@ void xs::script::configure()
         wrenGetVariable(vm, "game", "Game", 0);		            // Grab a handle to the Game class
         game_class = wrenGetSlotHandle(vm, 0);
         wrenSetSlotHandle(vm, 0, game_class);					// Put Game class in slot 0
-        init_method = wrenMakeCallHandle(vm, "init()");
+        init_method = wrenMakeCallHandle(vm, "initialize()");
         update_method = wrenMakeCallHandle(vm, "update(_)");
         render_method = wrenMakeCallHandle(vm, "render()");
     }
@@ -778,8 +776,6 @@ void render_create_sprite(WrenVM* vm)
 
 void render_create_shape(WrenVM* vm)
 {
-    // wrenCollectGarbage(vm);// TODO: This can potentially have large performance 
-
     auto image_id = wrenGetParameter<int>(vm, 1);
 	auto positions = wrenGetListParameter<float>(vm, 2);
 	auto texture_coordinates = wrenGetListParameter<float>(vm, 3);

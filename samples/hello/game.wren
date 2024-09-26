@@ -13,7 +13,7 @@ class Game {
 
     // The init method is called when all system have been created.
     // You can initialize you game specific data here.
-    static init() {        
+    static initialize() {        
         System.print("init")
 
         // The "__" means that __time is a static variable (belongs to the class)

@@ -4,9 +4,7 @@ import "xs_math" for Math, Vec2
 
 class Game {
 
-    static config() {}
-
-    static init() {
+    static initialize() {
         __image = Render.loadImage("[shared]/images/icon_small.png")
         __sprite = Render.createSprite(__image, 0, 0, 1, 1)        
 
