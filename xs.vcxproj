@@ -598,6 +598,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/steam;$(ProjectDir)external/fmod;$(ProjectDir)external\miniz\include\miniz</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -649,6 +650,7 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)
       <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/steam;$(ProjectDir)external/fmod;$(ProjectDir)external\miniz\include\miniz</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -701,6 +703,7 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
       <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/steam;$(ProjectDir)external/fmod;$(ProjectDir)external\miniz\include\miniz</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -753,7 +756,7 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <Link>
       <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
-      <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
+      <AdditionalNSODependencies>opengl_renderdoc.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
       <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;%(ProjectDir)external/miniz/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
