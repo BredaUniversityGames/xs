@@ -1,4 +1,4 @@
-import "xs" for Render, Data, Vector
+import "xs" for Render, Data
 import "xs_math" for Math, Color
 
 class Background {

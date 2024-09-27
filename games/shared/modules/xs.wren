@@ -374,9 +374,11 @@ class Profiler {
     foreign static end(name)
 }
 
+/*
 /// A 4D vector
 foreign class Vector {    
     construct new(x, y, z, w) {}
+    construct new(x, y) {}
     construct new() {}
     foreign set(x, y, z, w)
     foreign +(other)
@@ -438,6 +440,5 @@ foreign class Matrix {
     scale(v) {
         scale(v.x, v.y, v.z)
     }
-
-
 }
+*/

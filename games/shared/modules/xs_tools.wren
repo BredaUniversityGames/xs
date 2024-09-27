@@ -59,19 +59,16 @@ class ShapeBuilder {
     }
 
     validate() {
-        /*
-        // Check if all arrays have the same length
-        if( _positions.length != _normals.length ||
-            _positions.length != _uvs.length ||
-            _positions.length != _colors.length) {
-            return false
-        }
+        // Check the arrays have same length
+        if( _position.count != _texture.count)  return false
 
         // Check if the indices array is a multiple of 3 and if the positions array has the right size
-        if( _indices.length % 3 != 0) {
-            return false
+        if( _indices.count % 3 != 0) return false
+    
+        // Check if the indices array is not out of bounds
+        for(i in 0..._indices.count) {
+            if(_indices[i] >= _position.count || _indices[i] < 0) return false
         }
-        */
 
         return true
     }

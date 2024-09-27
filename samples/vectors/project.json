@@ -29,10 +29,14 @@
     },
     "Title": {
         "type": "string",
-        "value": "xs - shape"
+        "value": "xs - hello"
     },
     "Width": {
         "type": "number",
         "value": 1280.0
+    },
+    "texture filter": {
+        "type": "bool",
+        "value": false
     }
 }
