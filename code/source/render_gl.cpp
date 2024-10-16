@@ -68,11 +68,11 @@ namespace xs::render
 	unsigned int msaa_fbo;
 	unsigned int msaa_texture;
 	
-	unsigned int			shader_program = 0;
-	unsigned int			lines_vao = 0;
-	unsigned int			lines_vbo = 0;
-	unsigned int			triangles_vao = 0;
-	unsigned int			triangles_vbo = 0;
+	unsigned int shader_program = 0;
+	unsigned int lines_vao = 0;
+	unsigned int lines_vbo = 0;
+	unsigned int triangles_vao = 0;
+	unsigned int triangles_vbo = 0;
 
 	struct sprite_vtx_format
 	{
@@ -104,8 +104,8 @@ namespace xs::render
 		double z = 0;
 		double scale = 1.0;
 		double rotation = 0.0;
-		glm::vec4 mul_color = glm::vec4(1.0f);
-		glm::vec4 add_color = glm::vec4(0.0f);
+		vec4 mul_color = vec4(1.0f);
+		vec4 add_color = vec4(0.0f);
 		uint flags = 0;
 	};
 
@@ -114,22 +114,20 @@ namespace xs::render
 
 	xs::render::stats render_stats = {};
 
-	class ShaderPreprocessor
+	class shader_preprocessor
 	{
 	public:
-		ShaderPreprocessor();
-
-		std::string		Read(const std::string& path);
-
+		shader_preprocessor();
+		std::string read(const std::string& path);
 	private:
-		std::string		ParseRecursive(	const std::string& path,
-										const std::string& parentPath,
-										std::set<std::string>& includeTree);
+		std::string	parse_recursive(
+			const std::string& path,
+			const std::string& parent_path,
+			std::set<std::string>& include_tree);
+		static std::string get_parent_path(const std::string&path);
 
-		static std::string GetParentPath(const std::string&path);
-
-		std::vector<std::string>			_searchPaths;
-		std::map<std::string, std::string>	_cachedSources;	
+		std::vector<std::string> m_search_paths;
+		std::map<std::string, std::string> m_cached_sources;	
 	};
 
 
@@ -157,18 +155,18 @@ void xs::render::initialize()
 	glBindBuffer(GL_ARRAY_BUFFER, lines_vbo);
 
 	// Allocate into VBO
-	const auto size = sizeof(lines_array);
+	constexpr auto size = sizeof(lines_array);
 	glBufferData(GL_ARRAY_BUFFER, size, &lines_array[0], GL_STREAM_DRAW);
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(
 		1, 4, GL_FLOAT, GL_FALSE, sizeof(debug_vertex_format),
-		reinterpret_cast<void*>(offsetof(debug_vertex_format, position)));
+		reinterpret_cast<void*>(offsetof(debug_vertex_format, position)));  // NOLINT(performance-no-int-to-ptr)
 
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(
 		2, 4, GL_FLOAT, GL_FALSE, sizeof(debug_vertex_format),
-		reinterpret_cast<void*>(offsetof(debug_vertex_format, color)));
+		reinterpret_cast<void*>(offsetof(debug_vertex_format, color)));  // NOLINT(performance-no-int-to-ptr)
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
@@ -183,18 +181,18 @@ void xs::render::initialize()
 	glBindBuffer(GL_ARRAY_BUFFER, triangles_vbo);
 
 	// Allocate into VBO
-	const auto trigs_size = sizeof(triangles_array);
+	constexpr auto trigs_size = sizeof(triangles_array);
 	glBufferData(GL_ARRAY_BUFFER, trigs_size, &triangles_array[0], GL_STREAM_DRAW);
 
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(
 		1, 3, GL_FLOAT, GL_FALSE, sizeof(debug_vertex_format),
-		reinterpret_cast<void*>(offsetof(debug_vertex_format, position)));
+		reinterpret_cast<void*>(offsetof(debug_vertex_format, position)));  // NOLINT(performance-no-int-to-ptr)
 
 	glEnableVertexAttribArray(2);
 	glVertexAttribPointer(
 		2, 4, GL_FLOAT, GL_FALSE, sizeof(debug_vertex_format),
-		reinterpret_cast<void*>(offsetof(debug_vertex_format, color)));
+		reinterpret_cast<void*>(offsetof(debug_vertex_format, color)));  // NOLINT(performance-no-int-to-ptr)
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
@@ -278,9 +276,8 @@ void xs::render::render()
 			return lhs.z < rhs.z;
 		});
 
-	for (auto i = 0; i < sprite_queue.size(); i++)
+	for (const auto& spe : sprite_queue)
 	{
-		const auto& spe = sprite_queue[i];
 		if(spe.sprite_id == -1) continue;
 		auto& mesh = sprite_meshes[spe.sprite_id];
 		auto& img = images[mesh.image_id];
@@ -485,7 +482,7 @@ void xs::render::create_texture_with_data(xs::render::image& img, uchar* data)
 	// Create mipmaps
 	glGenerateMipmap(GL_TEXTURE_2D);
 
-	gl_label(GL_TEXTURE, img.texture, img.file.c_str());
+	gl_label(GL_TEXTURE, img.texture, img.file);
 	XS_DEBUG_ONLY(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
@@ -529,7 +526,7 @@ void xs::render::delete_frame_buffers()
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
 {
-	if(image_id < 0 || image_id >= images.size())
+	if(image_id < 0 || image_id >= (int)images.size())
 	{
 		log::error("Invalid image id: {}", image_id);
 		return -1;
@@ -565,8 +562,8 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	// Scale the sprite to make sure each pixel is 1.0 units
 	float from_x = 0.0f;
 	float from_y = 0.0f;
-	float to_x = float(w * (x1 - x0));
-	float to_y = float(h * (y1 - y0));
+	float to_x = static_cast<float>(w * (x1 - x0));
+	float to_y = static_cast<float>(h * (y1 - y0));
 	mesh.extents = tools::aabb(vec2(from_x, from_y), vec2(to_x, to_y));
 	std::swap(from_y, to_y);
 
@@ -695,8 +692,9 @@ xs::render::stats xs::render::get_stats()
 
 void xs::render::compile_sprite_shader()
 {
-	auto vs_str = xs::fileio::read_text_file("[shared]/shaders/sprite.vert");
-	auto fs_str = xs::fileio::read_text_file("[shared]/shaders/sprite.frag");
+	auto shader_preprocessor = render::shader_preprocessor();
+	auto vs_str =  shader_preprocessor.read("[shared]/shaders/sprite.vert");
+	auto fs_str = shader_preprocessor.read("[shared]/shaders/sprite.frag");
 	const char* const vs_source = vs_str.c_str();
 	const char* const fs_source = fs_str.c_str();
 
@@ -870,36 +868,36 @@ namespace {
 } // anonymous namespace
 
 
-xs::render::ShaderPreprocessor::ShaderPreprocessor()
+xs::render::shader_preprocessor::shader_preprocessor()
 {
-	_searchPaths.push_back("");
+	m_search_paths.emplace_back("");
 }
 
-string xs::render::ShaderPreprocessor::Read(const string& path)
+string xs::render::shader_preprocessor::read(const string& path)
 {
 	set<string> includeTree;
-	return ParseRecursive(path, "", includeTree);
+	return parse_recursive(path, "", includeTree);
 }
 
 // Based on
 // https://www.opengl.org/discussion_boards/showthread.php/169209-include-in-glsl
-string xs::render::ShaderPreprocessor::ParseRecursive(
+string xs::render::shader_preprocessor::parse_recursive(
 	const string& path,
-	const string& parentPath,
-	set<string>& includeTree)
+	const string& parent_path,
+	set<string>& include_tree)
 {
-	string fullPath = parentPath.empty() ? path : parentPath + "/" + path;
+	string fullPath = parent_path.empty() ? path : parent_path + "/" + path;
 
-	if (includeTree.count(fullPath))
+	if (include_tree.count(fullPath))
 	{
 		log::warn("Circular include found! Path: {}", path);
 		return string();
 	}
 
-	includeTree.insert(fullPath);	
+	include_tree.insert(fullPath);	
 
 	fullPath = fileio::get_path(fullPath);
-	string parent = GetParentPath(fullPath);
+	string parent = get_parent_path(fullPath);
 	string inputString =  fileio::read_text_file(fullPath);
 	if(inputString.empty())
 	{
@@ -918,8 +916,8 @@ string xs::render::ShaderPreprocessor::ParseRecursive(
 	{
 		if (regex_search(line, matches, sIncludeRegex))
 		{
-			output << ParseRecursive(matches[1].str(), parent, includeTree);
-			output << "#line " << lineNumber << endl;
+			output << parse_recursive(matches[1].str(), parent, include_tree);
+			output << "#line " << lineNumber << '\n';
 		}
 		else if(xs::tools::string_starts_with(line,"#extension GL_GOOGLE_include_directive : require"))
 		{
@@ -938,13 +936,12 @@ string xs::render::ShaderPreprocessor::ParseRecursive(
 
 }
 
-string xs::render::ShaderPreprocessor::GetParentPath(const string& path)
+string xs::render::shader_preprocessor::get_parent_path(const string& path)
 {
 	// Implementation base on:
 	// http://stackoverflow.com/questions/28980386/how-to-get-file-name-from-a-whole-path-by-c
-
-	string parent = "";
-	string::size_type found = path.find_last_of("/");
+	string parent;
+	string::size_type found = path.find_last_of("/");  // NOLINT(performance-faster-string-find)
 
 	// if we found one of this symbols
 	if (found != string::npos)
