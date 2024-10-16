@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 
-#define XS_PROFILE_FUNCTION() xs::profiler::profiler_section s_sect(__FUNCTION__);
-#define XS_PROFILE_SECTION(id) xs::profiler::profiler_section s_sect(id);
+#define XS_PROFILE_FUNCTION() xs::profiler::profiler_section s_sect(__FUNCTION__)
+#define XS_PROFILE_SECTION(id) xs::profiler::profiler_section s_sect(id)
 
 namespace xs::profiler
 {
