@@ -122,128 +122,6 @@ namespace xs::fileio::internal
 using namespace xs;
 using namespace fileio::internal;
 
-#if !defined(PLATFORM_APPLE)
-
-void fileio::initialize(/* const string& main_script*/)
-{
-#if defined(PLATFORM_PC)
-	add_wildcard("[games]", "./games");
-
-#elif defined(PLATFORM_APPLE)
-    
-#elif defined(PLATFORM_SWITCH)
-	nn::Result result;
-	size_t cacheSize = 0;
-
-	char* cacheBuffer = nullptr;
-
-	// Mounts the file system.
-	// Mounting requires a cache buffer.
-	{
-		log::info("Mount Rom");
-
-		// Gets the buffer size needed for the file system metadata cache.
-		// No error handling is needed. An abort occurs within the library when getting fails.
-		(void)nn::fs::QueryMountRomCacheSize(&cacheSize);
-
-		cacheBuffer = new char[cacheSize];
-		assert(cacheBuffer);
-
-		// Mounts the file system.
-		// Do not release the cache buffer until you unmount.
-		result = nn::fs::MountRom("rom", cacheBuffer, cacheSize);
-
-		assert(result.IsSuccess());
-	}
-
-	// Mount save data
-	{
-		log::info("Mount save data");
-
-		// Get the user identifier from the account
-		nn::account::Uid user = nn::account::InvalidUid;
-		nn::account::GetUserId(&user, account::get_account_handle());
-
-		// Create the selected user save data.
-		// If data already exists, does nothing and returns nn::ResultSuccess.
-		result = nn::fs::EnsureSaveData(user);
-		if (nn::fs::ResultUsableSpaceNotEnough::Includes(result))
-		{
-			// Error handling when the application does not have enough memory is required for the nn::fs::EnsureSaveData() function.
-			// The system automatically displays a message indicating that there was not enough capacity to create save data in the error viewer.
-			// The application must offer options to cancel account selection and to return to the prior scene.
-			NN_ABORT("Usable space not enough.\n");
-		}
-
-		// Mount the save data as "save."
-		result = nn::fs::MountSaveData("save", user);
-		// Always abort when a failure occurs.
-		NN_ABORT_UNLESS_RESULT_SUCCESS(result);
-	}
-
-	add_wildcard("[games]", "rom:");
-	add_wildcard("[save]", "save:");
-
-#elif defined(PLATFORM_PS5)	
-	add_wildcard("[games]", "/app0");
-#endif
-
-#if !defined DEBUG
-	load_game_content_headers();
-#endif
-
-	// All platforms
-	bool success = false;
-	if (exists("[games]/.ini"))
-	{
-		auto game_str = read_text_file("[games]/.ini");
-		if (!game_str.empty())
-		{
-			string cwd = "[games]/" + game_str;
-			if (exists(cwd + "/game.wren"))
-			{
-				cwd = get_path(cwd);
-				add_wildcard("[game]", cwd);
-				success = true;
-			}
-		}
-	}
-
-#if defined(PLATFORM_PC)
-	if(!success)
-	{
-		log::info("Please provide a valid game folder in the games/.ini file!");
-		log::info("A valid game folder contains a valid game.wren script.");
-		log::info("Check the documentation and the example that was just created.");
-		fileio::write_text_file("hello", "[games]/.ini");
-		add_wildcard("[game]", "[games]/hello");
-	}
-
-	char* pValue;
-	size_t len;
-	_dupenv_s(&pValue, &len, "APPDATA");
-	if (pValue != nullptr)
-	{
-		auto game_str = read_text_file("[games]/.ini");
-		auto tokens = tools::string_split(game_str, "/");
-		game_str = tokens[tokens.size() - 1];
-		string save_path = string(pValue) + string("\\xs\\");
-		if (!fs::exists(save_path))
-			fs::create_directory(save_path);
-		auto parent_path = save_path;
-		save_path.append(game_str);
-		if (!fs::exists(save_path))
-			fs::create_directory(save_path, parent_path);
- 		add_wildcard("[save]", save_path);
-	}
-#elif defined(PLATFORM_SWITCH) || defined(PLATFORM_PS5)
-	if(!success)
-		log::info("Please provide a valid game folder in the games/.ini file!");
-#endif
-}
-
-#endif
-
 blob fileio::read_binary_file(const string& filename)
 {
 	const auto path = get_path(filename);
@@ -413,7 +291,7 @@ bool fileio::exists(const string& filename)
 
 	// Check if the file exists
 	ifstream f(path.c_str());
-	auto good = f.good();
+    auto good = f.good();
 	f.close();
 	return good;
 }

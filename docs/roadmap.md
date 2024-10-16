@@ -1,13 +1,13 @@
 # This is a general roadmap for the next version xs engine (0.5)
 
-### Completness
+### Completeness
 
 [ ] AGC Rendering on par with OpenGL
 
 [ ] Metal rendering on par with OpenGL
 
 
-### Opensource xs
+### Open-source xs
 
 [ ] Mode from GLFW to SDL3
 
@@ -30,7 +30,7 @@
 
 [ ] Samples that cover the APIs
 
-[ ] Load projects from anywhere
+[x] Load projects from anywhere
 
 [ ] Cooking from UI
 
@@ -38,15 +38,15 @@
 
 [ ] Cooking 
 
-[ ] Rename xs module files
+[x] Rename xs module files
 
-[ ] Decide on an vector based on perf-test
+[x] Decide on an vector based on perf-test
 
 [ ] Generated API Docs
 
-[ ] Update custom writen docs
+[ ] Update custom written docs
 
-[ ] New icon
+[x] New icon
 
 ### Platforms 
 

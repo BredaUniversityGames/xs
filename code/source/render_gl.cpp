@@ -2,17 +2,18 @@
 #include "render.h"
 #include "render_internal.h"
 #include "tools.h"
-#include <ios>
+#include "data.h"
 #include <array>
 #include <unordered_map>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <stb/stb_image.h>
 #include <imgui.h>
-#include <IconsFontAwesome5.h>
-
+#include <set>
+#include <map>
+#include <regex>
+#include <sstream>
 
 // Include stb_image 
 #ifdef PLATFORM_SWITCH
@@ -44,19 +45,19 @@
 #include "profiler.h"
 
 #define XS_DEBUG_EXTENTS 0
+#define XS_QUANTIZED_HASHING 0
 
 using namespace glm;
 using namespace std;
 
-namespace xs::render::internal
+namespace xs::render
 {
 	void create_frame_buffers();
-	//TODO: void delete_frame_buffers();
+	void delete_frame_buffers();
 	void compile_draw_shader();
 	void compile_sprite_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool link_program(GLuint program);
-	void gl_label(GLenum type, GLuint name, const std::string& label);
 
 	int width = -1;
 	int height = -1;	
@@ -111,20 +112,39 @@ namespace xs::render::internal
 	unordered_map<int, sprite_mesh>	sprite_meshes;
 	vector<sprite_mesh_instance>	sprite_queue;
 
-	xs::render::stats stats = {};
+	xs::render::stats render_stats = {};
+
+	class ShaderPreprocessor
+	{
+	public:
+		ShaderPreprocessor();
+
+		std::string		Read(const std::string& path);
+
+	private:
+		std::string		ParseRecursive(	const std::string& path,
+										const std::string& parentPath,
+										std::set<std::string>& includeTree);
+
+		static std::string GetParentPath(const std::string&path);
+
+		std::vector<std::string>			_searchPaths;
+		std::map<std::string, std::string>	_cachedSources;	
+	};
+
+
 }
 
 using namespace xs;
-using namespace xs::render::internal;
 
 void xs::render::initialize()
 {
 	width = configuration::width();
 	height = configuration::height();
 
-	internal::create_frame_buffers();
-	internal::compile_draw_shader();
-	internal::compile_sprite_shader();
+	create_frame_buffers();
+	compile_draw_shader();
+	compile_sprite_shader();
 
 	///////// Lines //////////////////////
     glGenVertexArrays(1, &lines_vao);
@@ -177,22 +197,53 @@ void xs::render::initialize()
 		reinterpret_cast<void*>(offsetof(debug_vertex_format, color)));
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
+
+#ifdef DEBUG
+	gl_label(GL_VERTEX_ARRAY, lines_vao, "lines vao");
+	gl_label(GL_VERTEX_ARRAY, triangles_vao, "triangles vao");
+	gl_label(GL_BUFFER, lines_vbo, "lines vbo");
+	gl_label(GL_BUFFER, triangles_vbo, "triangles vbo");
+#endif
+
 }
 
 void xs::render::shutdown()
 {
-	glDeleteProgram(shader_program);
-	glDeleteVertexArrays(1, &lines_vao);
-	glDeleteBuffers(1, &lines_vbo);
+	// Shutdown the render system in reverse order
 
-	// TODO: Delete all images
-	// TODO: Delete frame buffer
+	// Trigs
+	glDeleteBuffers(1, &triangles_vbo);
+	glDeleteVertexArrays(1, &triangles_vao);
+
+	// Lines
+	glDeleteBuffers(1, &lines_vbo);
+	glDeleteVertexArrays(1, &lines_vao);
+
+	// Shaders
+	glDeleteProgram(sprite_program);
+	glDeleteProgram(shader_program);
+
+	// Frame buffer
+	delete_frame_buffers();
+
+	// Clear the sprite meshes
+	sprite_meshes.clear();
+	// Clear the sprite queue
+	sprite_queue.clear();
+
+	// Clear the fonts	
+	fonts.clear();
+
+	// Clear the images
+	for (auto& img : images)
+		glDeleteTextures(1, &img.texture);
+	images.clear();	
 }
 
 void xs::render::render()
 {	
 	XS_PROFILE_SECTION("xs::render::render");
-	internal::stats = {};
+	render_stats = {};
 
 	// Bind MSAA framebuffer
 	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
@@ -223,9 +274,7 @@ void xs::render::render()
 	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
 
 	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
-		[](const sprite_mesh_instance& lhs, const sprite_mesh_instance& rhs) {
-			if (lhs.z == rhs.z)
-				return lhs.sprite_id < rhs.sprite_id;
+		[](const sprite_mesh_instance& lhs, const sprite_mesh_instance& rhs) {		
 			return lhs.z < rhs.z;
 		});
 
@@ -250,7 +299,7 @@ void xs::render::render()
 
 		model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
 		if (!tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::overlay))
-			model = translate(model, vec3(internal::offset, 0.0));
+			model = translate(model, vec3(offset, 0.0));
 
 		model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
 		model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
@@ -289,7 +338,7 @@ void xs::render::render()
 			// Unbind the vertex array
 			glBindVertexArray(0);
 
-			internal::stats.draw_calls++;
+			render_stats.draw_calls++;
 		}
 		else
 		{
@@ -307,7 +356,7 @@ void xs::render::render()
 		glBufferData(GL_ARRAY_BUFFER, sizeof(debug_vertex_format) * triangles_count * 3, &triangles_array[0], GL_DYNAMIC_DRAW);
 		glDrawArrays(GL_TRIANGLES, 0, triangles_count * 3);
 		XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
-		internal::stats.draw_calls++;
+		render_stats.draw_calls++;
 	}
 
 	if (lines_count > 0)
@@ -317,7 +366,7 @@ void xs::render::render()
 		glBufferData(GL_ARRAY_BUFFER, sizeof(debug_vertex_format) * lines_count * 2, &lines_array[0], GL_DYNAMIC_DRAW);
 		glDrawArrays(GL_LINES, 0, lines_count * 2);
 		XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
-		internal::stats.draw_calls++;
+		render_stats.draw_calls++;
 	}
 
 	XS_DEBUG_ONLY(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -337,8 +386,8 @@ void xs::render::render()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	
-	internal::stats.sprites = (int)internal::sprite_meshes.size();
-	internal::stats.textures = (int)images.size();
+	render_stats.sprites = (int)sprite_meshes.size();
+	render_stats.textures = (int)images.size();
 }
 
 void xs::render::render_sprite(
@@ -387,7 +436,7 @@ void xs::render::clear()
 	sprite_queue.clear();
 }
 
-void xs::render::internal::create_texture_with_data(xs::render::internal::image& img, uchar* data)
+void xs::render::create_texture_with_data(xs::render::image& img, uchar* data)
 {
 	GLint format = GL_INVALID_VALUE;
 	GLint usage = GL_INVALID_VALUE;
@@ -409,12 +458,18 @@ void xs::render::internal::create_texture_with_data(xs::render::internal::image&
 		assert(false);
 	}
 
+	bool filter_flag = data::get_bool("Texture Filter", data::type::project);
+	auto filter = filter_flag ? GL_LINEAR : GL_NEAREST;
+
+	bool repeat_flag = data::get_bool("Texture Repeat", data::type::project);
+	auto repeat = repeat_flag ? GL_REPEAT : GL_CLAMP_TO_EDGE;
+
 	glGenTextures(1, &img.texture);
 	glBindTexture(GL_TEXTURE_2D, img.texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, repeat);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, repeat);
 
 	glTexImage2D(
 		GL_TEXTURE_2D,						// What (target)
@@ -430,14 +485,14 @@ void xs::render::internal::create_texture_with_data(xs::render::internal::image&
 	// Create mipmaps
 	glGenerateMipmap(GL_TEXTURE_2D);
 
+	gl_label(GL_TEXTURE, img.texture, img.file.c_str());
 	XS_DEBUG_ONLY(glBindTexture(GL_TEXTURE_2D, 0));
 }
 
-void xs::render::internal::create_frame_buffers()
+void xs::render::create_frame_buffers()
 {
-	//glCreateFramebuffers(1, &render_fbo);
-    glGenFramebuffers(1, &render_fbo);
-	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
+	glGenFramebuffers(1, &render_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);	
 	glGenTextures(1, &render_texture);
 	glBindTexture(GL_TEXTURE_2D, render_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -456,8 +511,20 @@ void xs::render::internal::create_frame_buffers()
 	glDrawBuffers(1, attachments);
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		assert(false);
-	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
+	gl_label(GL_FRAMEBUFFER, render_fbo, "render fbo");
+	gl_label(GL_TEXTURE, render_texture, "render texture");
+	gl_label(GL_RENDERBUFFER, depth_buffer, "depth buffer");
+	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+}
+
+void xs::render::delete_frame_buffers()
+{
+	glDeleteTextures(1, &render_texture);
+	glDeleteFramebuffers(1, &render_fbo);
+
+	glDeleteTextures(1, &msaa_texture);
+	glDeleteFramebuffers(1, &msaa_fbo);
 }
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
@@ -468,12 +535,14 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 		return -1;
 	}
 
+#if XS_QUANTIZED_HASHING
 	// Precision for the texture coordinates 
-	// double precision = 10000.0;
-	//int xh0 = (int)(x0 * precision);
-	//int yh0 = (int)(y0 * precision);
-	//int xh1 = (int)(x1 * precision);
-	//int yh1 = (int)(y1 * precision);
+	double precision = 10000.0;
+	int xh0 = (int)(x0 * precision);
+	int yh0 = (int)(y0 * precision);
+	int xh1 = (int)(x1 * precision);
+	int yh1 = (int)(y1 * precision);
+#endif
 
 	// Check if the sprite already exists
 	auto key = tools::hash_combine(image_id, x0, y0, x1, y1);
@@ -517,6 +586,7 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 		(float)x1, (float)y0
 	};
 
+
 	glGenVertexArrays(1, &mesh.vao);
 	glBindVertexArray(mesh.vao);
 
@@ -541,8 +611,14 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
 
+	string name = "sprite " + img.file + " " + to_string(key);
+	gl_label(GL_VERTEX_ARRAY, mesh.vao, name + "vao");
+	gl_label(GL_BUFFER, mesh.ebo, name + "ebo");
+	gl_label(GL_BUFFER, mesh.vbos[0], name + " position vbo");
+	gl_label(GL_BUFFER, mesh.vbos[1], name + " texture vbo");
+
 	// Unbind the vertex array
-	glBindVertexArray(0);
+	XS_DEBUG_ONLY(glBindVertexArray(0));
 
 	// Store the mesh
 	mesh.image_id = image_id;
@@ -614,13 +690,13 @@ void xs::render::destroy_shape(int sprite_id)
 
 xs::render::stats xs::render::get_stats()
 {
-	return internal::stats;
+	return render_stats;
 }
 
-void xs::render::internal::compile_sprite_shader()
+void xs::render::compile_sprite_shader()
 {
-	auto vs_str = xs::fileio::read_text_file("[games]/shared/shaders/sprite.vert");
-	auto fs_str = xs::fileio::read_text_file("[games]/shared/shaders/sprite.frag");
+	auto vs_str = xs::fileio::read_text_file("[shared]/shaders/sprite.vert");
+	auto fs_str = xs::fileio::read_text_file("[shared]/shaders/sprite.frag");
 	const char* const vs_source = vs_str.c_str();
 	const char* const fs_source = fs_str.c_str();
 
@@ -659,7 +735,7 @@ void xs::render::internal::compile_sprite_shader()
 	glDeleteShader(frag_shader);
 }
 
-void xs::render::internal::compile_draw_shader()
+void xs::render::compile_draw_shader()
 {
 	const auto* const vs_source =
 		"#version 460 core												\n\
@@ -720,7 +796,7 @@ void xs::render::internal::compile_draw_shader()
 
 }
 
-bool xs::render::internal::compile_shader(GLuint* shader, GLenum type, const GLchar* source)
+bool xs::render::compile_shader(GLuint* shader, GLenum type, const GLchar* source)
 {
 	GLint status;
 
@@ -758,7 +834,7 @@ bool xs::render::internal::compile_shader(GLuint* shader, GLenum type, const GLc
 	return true;
 }
 
-bool xs::render::internal::link_program(GLuint program)
+bool xs::render::link_program(GLuint program)
 {
 	GLint status;
 
@@ -781,49 +857,99 @@ bool xs::render::internal::link_program(GLuint program)
 	return status != 0;
 }
 
-void xs::render::internal::gl_label(GLenum type, GLuint name, const std::string& label)
+
+#define ENABLE_PROFILING 0
+
+#if ENABLE_PROFILING
+#endif
+
+using namespace std;
+
+namespace {
+	const regex sIncludeRegex = regex("^[ ]*#[ ]*include[ ]+[\"<](.*)[\">].*");
+} // anonymous namespace
+
+
+xs::render::ShaderPreprocessor::ShaderPreprocessor()
 {
-	std::string typeString;
-	switch (type)
+	_searchPaths.push_back("");
+}
+
+string xs::render::ShaderPreprocessor::Read(const string& path)
+{
+	set<string> includeTree;
+	return ParseRecursive(path, "", includeTree);
+}
+
+// Based on
+// https://www.opengl.org/discussion_boards/showthread.php/169209-include-in-glsl
+string xs::render::ShaderPreprocessor::ParseRecursive(
+	const string& path,
+	const string& parentPath,
+	set<string>& includeTree)
+{
+	string fullPath = parentPath.empty() ? path : parentPath + "/" + path;
+
+	if (includeTree.count(fullPath))
 	{
-	case GL_BUFFER:
-		typeString = "GL_BUFFER";
-		break;
-	case GL_SHADER:
-		typeString = "GL_SHADER";
-		break;
-	case GL_PROGRAM:
-		typeString = "GL_PROGRAM";
-		break;
-	case GL_VERTEX_ARRAY:
-		typeString = "GL_VERTEX_ARRAY";
-		break;
-	case GL_QUERY:
-		typeString = "GL_QUERY";
-		break;
-	case GL_PROGRAM_PIPELINE:
-		typeString = "GL_PROGRAM_PIPELINE";
-		break;
-	case GL_TRANSFORM_FEEDBACK:
-		typeString = "GL_TRANSFORM_FEEDBACK";
-		break;
-	case GL_SAMPLER:
-		typeString = "GL_SAMPLER";
-		break;
-	case GL_TEXTURE:
-		typeString = "GL_TEXTURE";
-		break;
-	case GL_RENDERBUFFER:
-		typeString = "GL_RENDERBUFFER";
-		break;
-	case GL_FRAMEBUFFER:
-		typeString = "GL_FRAMEBUFFER";
-		break;
-	default:
-		typeString = "UNKNOWN";
-		break;
+		log::warn("Circular include found! Path: {}", path);
+		return string();
 	}
 
-	const std::string temp = "[" + typeString + ":" + std::to_string(name) + "] " + label;
-	glObjectLabel(type, name, static_cast<GLsizei>(temp.length()), temp.c_str());
+	includeTree.insert(fullPath);	
+
+	fullPath = fileio::get_path(fullPath);
+	string parent = GetParentPath(fullPath);
+	string inputString =  fileio::read_text_file(fullPath);
+	if(inputString.empty())
+	{
+		log::error("Shader file not found! Path: {}", fullPath);
+		return string();
+	}
+
+	stringstream input(move(inputString));
+	stringstream output;
+
+	// go through each line and process includes
+	string line;
+	smatch matches;
+	size_t lineNumber = 1;
+	while (getline(input, line))
+	{
+		if (regex_search(line, matches, sIncludeRegex))
+		{
+			output << ParseRecursive(matches[1].str(), parent, includeTree);
+			output << "#line " << lineNumber << endl;
+		}
+		else if(xs::tools::string_starts_with(line,"#extension GL_GOOGLE_include_directive : require"))
+		{
+			output << '\n';
+		}
+		else
+		{
+			if(!line.empty() && line[0] != '\0') // Don't null terminate
+				output << line;
+		}
+		output << '\n';
+		lineNumber++;
+	}
+	
+	return output.str();
+
 }
+
+string xs::render::ShaderPreprocessor::GetParentPath(const string& path)
+{
+	// Implementation base on:
+	// http://stackoverflow.com/questions/28980386/how-to-get-file-name-from-a-whole-path-by-c
+
+	string parent = "";
+	string::size_type found = path.find_last_of("/");
+
+	// if we found one of this symbols
+	if (found != string::npos)
+		parent = path.substr(0, found);
+	
+	return parent;
+}
+

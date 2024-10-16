@@ -6,10 +6,11 @@ namespace xs::data
 	enum class type
 	{
 		none		= 1,
-		system		= 2,
+		project		= 2,
 		debug		= 3,
 		game		= 4,
 		player		= 5,
+		user		= 6,
 	};
 
 	void initialize();
@@ -26,4 +27,7 @@ namespace xs::data
 	void set_color(const std::string& name, uint32_t value, type tp);
 	void set_bool(const std::string& name, bool value, type tp);
 	void set_string(const std::string& name, const std::string& value, type tp);
+
+	void save();
+	void save_of_type(type type);
 }

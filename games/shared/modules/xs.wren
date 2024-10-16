@@ -23,6 +23,9 @@ class Render {
     /// Create a mesh
     foreign static createShape(imageId, positions, textureCoords, indices)
 
+    /// Destroy a shape
+    foreign static destroyShape(shapeId)
+
     /// Set the offset for the next sprite(s) to be drawn
     foreign static setOffset(x, y)
 
@@ -371,9 +374,11 @@ class Profiler {
     foreign static end(name)
 }
 
+/*
 /// A 4D vector
 foreign class Vector {    
     construct new(x, y, z, w) {}
+    construct new(x, y) {}
     construct new() {}
     foreign set(x, y, z, w)
     foreign +(other)
@@ -435,6 +440,5 @@ foreign class Matrix {
     scale(v) {
         scale(v.x, v.y, v.z)
     }
-
-
 }
+*/

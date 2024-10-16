@@ -51,7 +51,7 @@ using namespace glm;
 using namespace sce::Agc::Core;
 using namespace sce::Vectormath::Simd::Aos;
 
-namespace xs::render::internal
+namespace xs::render
 {
 	struct sprite_vtx_format
 	{
@@ -90,8 +90,6 @@ namespace xs::render::internal
 	void rotate_vector3d(Vector3& vec, float radians);
 }
 
-using namespace xs::render::internal;
-
 // These symbols point to the headers and code of the shader binaries linked into the sample's elf.
 // They are declared inside the shader code. For example, the Shader::ps_header and Shader::ps_text symbols
 // were declared in the shader by putting the attribute [CxxSymbol("Shader::ps")] in front of the pixel 
@@ -105,7 +103,7 @@ namespace shaders
 }
 
 // This is a temporary utility function to allocate direct memory. It's not important to understand how this works.
-uint8_t* xs::render::internal::alloc_direct_mem(sce::Agc::SizeAlign sizeAlign)
+uint8_t* xs::render::alloc_direct_mem(sce::Agc::SizeAlign sizeAlign)
 {
 	if (!sizeAlign.m_size)
 	{
@@ -132,7 +130,7 @@ uint8_t* xs::render::internal::alloc_direct_mem(sce::Agc::SizeAlign sizeAlign)
 	return (uint8_t*)ptr;
 }
 
-int xs::render::internal::create_scanout_buffers(const sce::Agc::CxRenderTarget* rts, uint32_t count)
+int xs::render::create_scanout_buffers(const sce::Agc::CxRenderTarget* rts, uint32_t count)
 {
 	// First we need to select what we want to display on, which in this case is the TV, also known as SCE_VIDEO_OUT_BUS_TYPE_MAIN.
 	int videoHandle = sceVideoOutOpen(SCE_USER_SERVICE_USER_ID_SYSTEM, SCE_VIDEO_OUT_BUS_TYPE_MAIN, 0, NULL);
@@ -177,7 +175,7 @@ int xs::render::internal::create_scanout_buffers(const sce::Agc::CxRenderTarget*
 	return videoHandle;
 }
 
-void xs::render::internal::rotate_vector3d(Vector3& vec, float radians)
+void xs::render::rotate_vector3d(Vector3& vec, float radians)
 {
 	const float x = cos(radians) * vec.getX() - sin(radians) * vec.getY();
 	const float y = sin(radians) * vec.getX() + cos(radians) * vec.getY();
@@ -209,7 +207,7 @@ void create_render_targets(sce::Agc::CxRenderTarget* rts, sce::Agc::Core::Render
 	}
 }
 
-void xs::render::internal::create_texture_with_data(xs::render::internal::image& img, uchar* data)
+void xs::render::create_texture_with_data(xs::render::image& img, uchar* data)
 {
 	int32_t ret = 0;
 

@@ -17,6 +17,11 @@
 #include "render.h"
 #include "tools.h"
 #include "render_internal.h"
+
+#ifdef EDITOR
+#include "dialogs/portable-file-dialogs.h"
+#endif
+
 #if defined(PLATFORM_PC)
 #include <GLFW/glfw3.h>
 #include "device_pc.h"
@@ -35,12 +40,13 @@ namespace xs::inspector
 	};	
 
 	bool game_paused = false;
+	bool restart_flag = false;
 	float ui_scale = 1.0f;
 	bool show_registry = false;
 	bool show_profiler = false;
 	bool show_about = false;
 	bool show_demo = false;
-
+	bool show_modal = false;
 
 	enum class theme
 	{
@@ -50,7 +56,7 @@ namespace xs::inspector
 		acrylic = 3
 	};
 
-	theme current_theme = theme::dark;
+	theme current_theme = theme::acrylic;
 	void apply_theme();
 	void push_menu_theme();
 	void pop_menu_theme();
@@ -58,7 +64,6 @@ namespace xs::inspector
 	void follow_the_light();
 	void go_gray();
 	void see_through();
-
 
 	float ok_timer = 0.0f;
 	bool next_frame;
@@ -102,7 +107,12 @@ void xs::inspector::initialize()
 	config.OversampleH = 8;
 	config.OversampleV = 8;
 	
-	auto selawk = fileio::get_path("[games]/shared/fonts/selawk.ttf");
+	auto selawk = fileio::get_path("[shared]/fonts/selawk.ttf");
+	if(!fileio::exists(selawk))
+	{
+		log::critical("Could not find the font file selawk.ttf at path:{}", selawk);
+		return;
+	}
 	io.Fonts->AddFontFromFileTTF(selawk.c_str(), fontSize * UIScale, &config);
 	
 	static const ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 }; // will not be copied by AddFont* so keep in scope.
@@ -110,18 +120,23 @@ void xs::inspector::initialize()
 	config.OversampleH = 8;
 	config.OversampleV = 8;
 
-	std::string fontpath = fileio::get_path("[games]/shared/fonts/FontAwesome5FreeSolid900.otf");
-	io.Fonts->AddFontFromFileTTF(fontpath.c_str(), iconSize * UIScale, &config, icons_ranges);
+	std::string font_awesome = fileio::get_path("[shared]/fonts/FontAwesome5FreeSolid900.otf");
+	if(!fileio::exists(font_awesome))
+	{
+		log::critical("Could not find the font file FontAwesome5FreeSolid900.otf at path:{}", font_awesome);
+		return;
+	}
+	io.Fonts->AddFontFromFileTTF(font_awesome.c_str(), iconSize * UIScale, &config, icons_ranges);
 	
 	small_font = io.Fonts->AddFontFromFileTTF(selawk.c_str(), 0.8f * fontSize * UIScale);
 
-	const std::string iniPath = fileio::get_path("[save]/imgui.ini");
+	const std::string iniPath = fileio::get_path("[user]/imgui.ini");
 	const char* constStr = iniPath.c_str();
 	char* str = new char[iniPath.size() + 1];
 	strcpy(str, constStr);
 	io.IniFilename = str;
 
-	current_theme = theme::dark;
+	current_theme = (theme)data::get_number("theme", data::type::user);
 	apply_theme();
 }
 
@@ -157,15 +172,18 @@ void xs::inspector::render(float dt)
     ImGui::NewFrame();
 	ok_timer -= dt;
 	theme new_theme = current_theme;
+	restart_flag = false;
 
 	push_menu_theme();
 	
     auto mousePos = ImGui::GetMousePos();
-	if (xs::script::has_error() ||
-		show_registry ||
-		show_profiler ||
-		show_about	||
-		show_demo		||
+	if (true					||
+		xs::script::has_error() ||
+		show_registry			||
+		show_profiler			||
+		show_about				||
+		show_demo				||
+		show_modal				||
 		(ImGui::IsMousePosValid() &&
          mousePos.y < 100.0f &&
          mousePos.y >= 0.0f &&
@@ -192,7 +210,7 @@ void xs::inspector::render(float dt)
 			if(!xs::script::has_error())
 				ok_timer = 4.0f;
 		}		
-		Tooltip("Reload Game");		
+		Tooltip("Reload Game");
 	
 		ImGui::SameLine();
 		if (game_paused)
@@ -235,12 +253,62 @@ void xs::inspector::render(float dt)
 		}
 		Tooltip("Reload Art");
 
+#ifdef EDITOR
+		ImGui::SameLine();
+		bool open_project = false;
+		if (ImGui::Button(ICON_FA_FOLDER_OPEN))
+		{
+			if (data::has_chages())
+				ImGui::OpenPopup("Save Changes?");
+			else
+				open_project = true;
+		}
+		Tooltip("Open Project");
+
+		if (ImGui::BeginPopupModal("Save Changes?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			show_modal = true;
+			pop_menu_theme();
+			ImGui::Text("There are unsaved changes. Do you want to save them?");
+			ImGui::Separator();
+			if (ImGui::Button("Yes", ImVec2(120, 0))) {
+				data::save();
+				open_project = true;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("No", ImVec2(120, 0))) {
+				open_project = true;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+			push_menu_theme();
+		}
+
+		if (open_project)
+		{
+			auto folder = pfd::select_folder("Open Project", pfd::path::home()).result();
+			if (!folder.empty())
+			{
+				data::set_string("game", folder, data::type::user);
+				restart_flag = true;
+				data::save();
+			}
+		}
+#endif
+		
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_ADJUST))
 		{
 			int t = (int)current_theme;
 			t = (t + 1) % 4;
-			new_theme = (theme)t;	
+			new_theme = (theme)t;
+			data::set_number("theme", t, data::type::user);
+			data::save_of_type(data::type::user);
 		}
 		Tooltip("Theme");
 		
@@ -275,7 +343,7 @@ void xs::inspector::render(float dt)
 
 		if (xs::data::has_chages()) {
 			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_Text, 0xFFFF5FB9);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.745f, 0.000f, 0.949f, 1.000f));
 			if (ImGui::Button(ICON_FA_EXCLAMATION_TRIANGLE)) {
 				show_registry = true;
 			}
@@ -284,7 +352,7 @@ void xs::inspector::render(float dt)
 		}
 		ImGui::End();		
 		
-		{	// Bottpm stats
+		{	// Bottom stats
 			const auto& io = ImGui::GetIO();
 			ImGui::Begin("Stats", &true_that,
 						 ImGuiWindowFlags_NoScrollbar |
@@ -372,8 +440,7 @@ void xs::inspector::render(float dt)
 			notifications.end());
 	}
 
-	pop_menu_theme();
-
+	pop_menu_theme();	
 		
 	if (show_registry)
 	{
@@ -419,6 +486,11 @@ bool xs::inspector::paused()
 	bool t = game_paused && !next_frame;
 	next_frame = false;
 	return t;
+}
+
+bool xs::inspector::should_restart()
+{
+	return restart_flag;
 }
 
 int xs::inspector::notify(notification_type type, const std::string& message, float time)
@@ -555,7 +627,7 @@ void xs::inspector::embrace_the_darkness()
 	colors[ImGuiCol_NavHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
-	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
+	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.75f);
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowPadding = ImVec2(8.00f, 8.00f);
@@ -697,7 +769,7 @@ void xs::inspector::go_gray()
 	colors[ImGuiCol_NavHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
-	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
+	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.50f, 0.50f, 0.50f, 0.5f);
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowPadding = ImVec2(8.00f, 8.00f);
@@ -749,7 +821,7 @@ void xs::inspector::see_through()
 	colors[ImGuiCol_SliderGrab] = ImVec4(1.00f, 1.00f, 1.00f, 0.56f);
 	colors[ImGuiCol_SliderGrabActive] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 	colors[ImGuiCol_Button] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-	colors[ImGuiCol_ButtonHovered] = ImVec4(0.80f, 0.80f, 0.80f, 0.54f);
+	colors[ImGuiCol_ButtonHovered] = ImVec4(0.64f, 0.64f, 0.64f, 1.00f);
 	colors[ImGuiCol_ButtonActive] = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
 	colors[ImGuiCol_Header] = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
 	colors[ImGuiCol_HeaderHovered] = ImVec4(0.00f, 0.00f, 0.00f, 0.36f);
@@ -779,7 +851,7 @@ void xs::inspector::see_through()
 	colors[ImGuiCol_NavHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
-	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
+	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.0f, 1.0f, 1.0f, 0.40f);
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.WindowPadding = ImVec2(8.00f, 8.00f);
@@ -812,5 +884,8 @@ void xs::inspector::initialize() {}
 void xs::inspector::shutdown() {}
 void xs::inspector::render(float dt) {}
 bool xs::inspector::paused() { return false; }
+bool xs::inspector::should_restart() { return false; }
+int xs::inspector::notify(notification_type type, const std::string& message, float time) { return 0; }
+void xs::inspector::clear_notification(int id) {}
 
 #endif

@@ -16,7 +16,7 @@
     typedef id<MTLTexture> textureType;
 #endif
 
-namespace xs::render::internal
+namespace xs::render
 {	
 	struct image
 	{
@@ -66,10 +66,10 @@ namespace xs::render::internal
 	inline void rotate_vector3d(glm::vec3& vec, float radians);
     inline void rotate_vector3d(glm::vec4& vec, float radians);
 	inline void rotate_vector2d(glm::vec2& vec, float radians);
-	void create_texture_with_data(xs::render::internal::image& img, uchar* data);
+	void create_texture_with_data(xs::render::image& img, uchar* data);
 }
 
-inline void xs::render::internal::rotate_vector3d(glm::vec3& vec, float radians)
+inline void xs::render::rotate_vector3d(glm::vec3& vec, float radians)
 {
 	const float x = cos(radians) * vec.x - sin(radians) * vec.y;
 	const float y = sin(radians) * vec.x + cos(radians) * vec.y;
@@ -77,7 +77,7 @@ inline void xs::render::internal::rotate_vector3d(glm::vec3& vec, float radians)
 	vec.y = y;
 }
 
-inline void xs::render::internal::rotate_vector3d(glm::vec4& vec, float radians)
+inline void xs::render::rotate_vector3d(glm::vec4& vec, float radians)
 {
     const float x = cos(radians) * vec.x - sin(radians) * vec.y;
     const float y = sin(radians) * vec.x + cos(radians) * vec.y;
@@ -85,7 +85,7 @@ inline void xs::render::internal::rotate_vector3d(glm::vec4& vec, float radians)
     vec.y = y;
 }
 
-inline void xs::render::internal::rotate_vector2d(glm::vec2& vec, float radians)
+inline void xs::render::rotate_vector2d(glm::vec2& vec, float radians)
 {
 	const float x = cos(radians) * vec.x - sin(radians) * vec.y;
 	const float y = sin(radians) * vec.x + cos(radians) * vec.y;

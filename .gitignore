@@ -57,30 +57,11 @@ intermediate/
 build/
 rc.command.1.tlog
 
-# xs ini file
-games/.ini
-
-# Specific games to ignore
-games/gridiculous
-games/rogue-masterclass
-games/hexofleet
-games/jump-core/images/
-games/hex-master-jam/
-games/hexturn/
-games/brz0/
-games/salamander/
-games/dots/
-games/peperuga/
-games/commander/
-games/lock-on/
-
-
 xs.xcodeproj/xcuserdata/
 *.xcuserstate
 *.unrealvs
 *.DATA
-games/peperuga/
 xs.vcxproj.user
 /.cache
 *.xs
-games/hack-on/
+games/game
