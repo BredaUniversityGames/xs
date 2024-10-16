@@ -160,8 +160,8 @@ class Entity {
     tag { _tag }
     tag=(t) { _tag = t }
 
-    // Call from the init() function of you entry point (game class)
-    static init() {
+    // Call from the initialize() function of you entry point (game class)
+    static initialize() {
         __entities = []
         __addQueue = []
     }

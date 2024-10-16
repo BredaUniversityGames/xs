@@ -44,7 +44,7 @@ Generic tag. Used as a bit-flag when getting entities of certain type.
 ## tag=(t)
   
 ## static init
-Call from the init() function of you entry point (game class)
+Call from the initialize() function of you entry point (game class)
 ## static update(dt)
 Call from the update() function of you entry point (game class). Updates the all entities and their components. Add/removes entities and components.
 ## static entitiesWithTag(tag) 

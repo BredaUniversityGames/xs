@@ -41,7 +41,6 @@ namespace xs::data::internal
 	template<typename T>
 	void set(const std::string& name, const T& reg_value, type type, bool active = false);
 
-
 	uint32_t color_convert(ImVec4 color)
 	{
 		ImU32 out;
@@ -63,8 +62,7 @@ namespace xs::data::internal
 	}
 
 	bool inspect_entry(std::pair<const std::string, registry_value>& itr);
-	void inspect_of_type(const std::string& name, const std::string& icon, ImGuiTextFilter& filter, type type);
-	void save_of_type(type type);
+	void inspect_of_type(const std::string& name, const std::string& icon, ImGuiTextFilter& filter, type type);	
 	void load_of_type(type type);
 	const string& get_file_path(type type);
 
@@ -110,13 +108,20 @@ using namespace xs::data::internal;
 
 void xs::data::initialize()
 {
+	load_of_type(type::user);
 	load_of_type(type::game);
-	load_of_type(type::system);
+	load_of_type(type::project);
 	load_of_type(type::player);
 	load_of_type(type::debug);
 }
 
-void xs::data::shutdown() {}
+void xs::data::shutdown()
+{
+	reg.clear();
+	history.clear();	
+	edited.clear();
+	history_stack_pointer = 0;
+}
 
 void xs::data::inspect(bool& show)
 {	
@@ -127,7 +132,6 @@ void xs::data::inspect(bool& show)
 	}
 
 	ImGui::Begin((const char*)u8"\U0000f1c0  Data", &show, ImGuiWindowFlags_NoCollapse);
-
 
 	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
 	if (ImGui::Button(ICON_FA_UNDO))
@@ -161,7 +165,7 @@ void xs::data::inspect(bool& show)
 		inspect_of_type("Game Data", string(ICON_FA_GAMEPAD), filter, type::game);
 		inspect_of_type("User (Save) Data", string(ICON_FA_USER), filter, type::player);
 		inspect_of_type("Debug Only Data", string(ICON_FA_BUG), filter, type::debug);
-		inspect_of_type("System Data", string(ICON_FA_COG), filter, type::system);
+		inspect_of_type("Project Data", string(ICON_FA_COG), filter, type::project);
 		ImGui::EndTabBar();
 	}
 
@@ -170,7 +174,7 @@ void xs::data::inspect(bool& show)
 
 bool xs::data::has_chages()
 {
-	return edited[type::debug] || edited[type::game] || edited[type::system];
+	return edited[type::debug] || edited[type::game] || edited[type::project];
 }
 
 double xs::data::get_number(const std::string& name, type type)
@@ -213,6 +217,15 @@ void xs::data::set_string(const std::string& name, const std::string& value, typ
     xs::data::internal::set<string>(name, value, tp);
 }
 
+void xs::data::save()
+{
+	save_of_type(type::user);
+	save_of_type(type::game);
+	save_of_type(type::project);
+	save_of_type(type::player);
+	save_of_type(type::debug);
+	edited.clear();
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////									Internal Impl
@@ -230,7 +243,6 @@ void xs::data::internal::inspect_of_type(
 	if (ImGui::BeginTabItem(icon.c_str(), NULL, flags))
 	{
 		tooltip(name.c_str());
-
 		bool& ed = edited[type];
 		{
 			bool ted = ed;
@@ -243,8 +255,7 @@ void xs::data::internal::inspect_of_type(
 
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 			ImGui::Text("%s", fileio::get_path(get_file_path(type)).c_str());
-			ImGui::PopStyleColor();
-			
+			ImGui::PopStyleColor();			
 		}
 
 		vector<string> sorted;
@@ -254,17 +265,17 @@ void xs::data::internal::inspect_of_type(
 		sort(sorted.begin(), sorted.end());
 		
 		ImGui::BeginChild("Child");
-		ImGui::PushItemWidth(80);
+		//ImGui::PushItemWidth(-180);
 		for (const auto& s : sorted)
 			ed = std::max(ed, inspect_entry(*reg.find(s)));
-		ImGui::PopItemWidth();
+		//ImGui::PopItemWidth();
 		ImGui::EndChild();
 
 		ImGui::EndTabItem();
 	}		
 }
 
-void xs::data::internal::save_of_type(type type)
+void xs::data::save_of_type(type type)
 {
 	nlohmann::json j;
 	for (auto& itr : reg)
@@ -347,22 +358,25 @@ const string& xs::data::internal::get_file_path(type type)
 {
 	static std::string game_path = "[game]/game.json";
 	static std::string player_path = "[save]/player.json";
-	static std::string system_path = "[game]/system.json";
+	static std::string project_path = "[game]/project.json";
 	static std::string debug_path = "[save]/debug.json";
+	static std::string user_path = "[user]/settings.json";
 	static std::string no_path = "";
 
 	switch (type)
 	{
 	case xs::data::type::none:
 		return no_path;
-	case xs::data::type::system:
-		return system_path;
+	case xs::data::type::project:
+		return project_path;
 	case xs::data::type::debug:
 		return debug_path;
 	case xs::data::type::game:
 		return game_path;
 	case xs::data::type::player:
 		return player_path;	
+	case xs::data::type::user:
+		return user_path;
 	}
 
 	return no_path;
@@ -385,7 +399,6 @@ bool xs::data::internal::inspect_entry(
 	}
 
 	{
-
 		auto val = std::get_if<bool>(&itr.second.value);
 		if (val)
 		{
@@ -432,11 +445,15 @@ bool xs::data::internal::inspect_entry(
 	if (!itr.second.active)
 	{
 
-		ImGui::SameLine(ImGui::GetWindowWidth() - 40);
+		//ImGui::SameLine(ImGui::GetWindowWidth() - 40);
+		ImGui::SameLine();
 		ImGui::PushID(itr.first.c_str());
 		if (ImGui::Button((const char*)u8"\U0000f1f8"))
 		{
 			reg.erase(itr.first);
+			edited = true;
+			regsitry_type r(reg);
+			history.push_back(r);
 		}
 		ImGui::PopID();
 	}

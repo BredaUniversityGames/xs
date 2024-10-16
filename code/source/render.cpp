@@ -58,7 +58,7 @@
 using namespace glm;
 using namespace std;
 
-namespace xs::render::internal
+namespace xs::render
 {
 	std::vector<font_atlas>			fonts = {};
 	std::vector<image>				images = {};
@@ -94,7 +94,6 @@ namespace xs::render::internal
 }
 
 using namespace xs;
-using namespace xs::render::internal;
 
 int xs::render::load_font(const std::string& font_file, double size)
 {	
@@ -216,6 +215,12 @@ void xs::render::render_text(
 	color add,
 	unsigned int flags)
 {
+	if(font_id < 0 || font_id >= fonts.size())
+	{
+		log::error("render_text() font_id={} is invalid!", font_id);
+		return;
+	}
+
 	auto& font = fonts[font_id];
 	auto& img = images[font.image_id];
 
@@ -284,7 +289,7 @@ int xs::render::load_image(const std::string& image_file)
 			return i;
 
 	auto buffer = fileio::read_binary_file(image_file);	
-	internal::image img;	
+	image img;
 	img.string_id = id;
 	img.file = image_file;
 	uchar* data = stbi_load_from_memory(
@@ -322,7 +327,7 @@ int xs::render::load_image(const std::string& image_file)
 
 void xs::render::set_offset(double x, double y)
 {
-	internal::offset = vec2((float)x, (float)y);
+	offset = vec2((float)x, (float)y);
 }
 
 void xs::render::begin(primitive p)

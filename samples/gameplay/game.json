@@ -1,0 +1,46 @@
+{
+    "From Color": {
+        "type": "color",
+        "value": 3187733247
+    },
+    "Obstacle Color": {
+        "type": "color",
+        "value": 3187733247
+    },
+    "Player Input Dead Zone": {
+        "type": "number",
+        "value": 0.10000000149011612
+    },
+    "Player Position Easing": {
+        "type": "number",
+        "value": 8.0
+    },
+    "Player Size": {
+        "type": "number",
+        "value": 5.0
+    },
+    "Player Speed": {
+        "type": "number",
+        "value": 1000.0
+    },
+    "Player Speed Aim": {
+        "type": "number",
+        "value": 1.0
+    },
+    "Shadow Color": {
+        "type": "color",
+        "value": 128
+    },
+    "To Color": {
+        "type": "color",
+        "value": 4289593599
+    },
+    "World Height": {
+        "type": "number",
+        "value": 700.0
+    },
+    "World Width": {
+        "type": "number",
+        "value": 1000.0
+    }
+}

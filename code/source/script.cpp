@@ -50,7 +50,6 @@ using namespace xs;
 namespace xs::script
 {
     string main;
-    // string main_module;
 }
 
 
@@ -58,15 +57,13 @@ namespace xs::script::internal
 {
     WrenVM* vm = nullptr;
     WrenHandle* game_class = nullptr;
-    WrenHandle* config_method = nullptr;
     WrenHandle* init_method = nullptr;
     WrenHandle* update_method = nullptr;
     WrenHandle* render_method = nullptr;
     std::unordered_map<size_t, WrenForeignMethodFn> foreign_methods;
     std::unordered_map<size_t, WrenForeignClassMethods> foreign_classes;
     struct module { string path; string source; };
-    //std::unordered_map<size_t, module> modules;
-    std::unordered_map<string, module> modules; // name to source
+    std::unordered_map<string, module> modules; // name to source mapping
     bool initialized = false;
     bool error = false;
 
@@ -183,7 +180,7 @@ namespace xs::script::internal
         else
         {
             string sname(name);
-            auto filename = "[games]/shared/modules/" + sname + ".wren";
+            auto filename = "[shared]/modules/" + sname + ".wren";
             if (!xs::fileio::exists(filename))
             {
                 auto mstring = string(main);
@@ -274,11 +271,9 @@ void xs::script::configure()
         wrenGetVariable(vm, "game", "Game", 0);		            // Grab a handle to the Game class
         game_class = wrenGetSlotHandle(vm, 0);
         wrenSetSlotHandle(vm, 0, game_class);					// Put Game class in slot 0
-        config_method = wrenMakeCallHandle(vm, "config()");
-        init_method = wrenMakeCallHandle(vm, "init()");
+        init_method = wrenMakeCallHandle(vm, "initialize()");
         update_method = wrenMakeCallHandle(vm, "update(_)");
         render_method = wrenMakeCallHandle(vm, "render()");
-        wrenCall(vm, config_method);
     }
 
     auto timing = xs::profiler::end_timing();
@@ -304,11 +299,6 @@ void xs::script::shutdown()
         {
             wrenReleaseHandle(vm, game_class);
             game_class = nullptr;
-        }
-        if (config_method)
-        {
-            wrenReleaseHandle(vm, config_method);
-            config_method = nullptr;
         }
         if (init_method)
         {
@@ -386,8 +376,9 @@ void bind_class(
 	foreign_classes[id] = methods;
 }
 
-size_t xs::script::get_bytes_allocated() {
-    return vm->bytesAllocated;
+size_t xs::script::get_bytes_allocated()
+{
+	return vm ? vm->bytesAllocated : 0;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -770,8 +761,6 @@ void render_get_image_height(WrenVM* vm)
 
 void render_create_sprite(WrenVM* vm)
 {
-    // callFunction_returnType_args<int, int, double, double, double, double>(vm, xs::render::create_sprite);
-
     auto image_id = wrenGetParameter<int>(vm, 1);
     auto x0 = wrenGetParameter<double>(vm, 2);
     auto y0 = wrenGetParameter<double>(vm, 3);
@@ -803,6 +792,12 @@ void render_create_shape(WrenVM* vm)
     wrenGetVariable(vm, "xs", "ShapeHandle", 0);
 	auto handle = (int*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
 	*handle = shape_id;
+}
+
+void render_destroy_shape(WrenVM* vm)
+{
+    auto handle = (int*)wrenGetSlotForeign(vm, 1);
+	xs::render::destroy_shape(*handle);
 }
 
 void render_sprite_ex(WrenVM* vm)
@@ -1055,260 +1050,6 @@ void profiler_end_section(WrenVM* vm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Matrix
-///////////////////////////////////////////////////////////////////////////////////////////////////
-void matrix_allocate(WrenVM* vm)
-{
-    void* data = wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::mat4));
-    auto matrix = new (data) glm::mat4();
-    *matrix = glm::mat4(1.0f);
-}
-
-void matrix_finalize(void* data) {}
-
-void matrix_identity(WrenVM* vm)
-{
-	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
-	*matrix = glm::mat4(1.0f);
-}
-
-void matrix_translate(WrenVM* vm)
-{
-	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
-	auto x = wrenGetParameter<double>(vm, 1);
-	auto y = wrenGetParameter<double>(vm, 2);
-	auto z = wrenGetParameter<double>(vm, 3);
-    *matrix = glm::translate(*matrix, glm::vec3(x, y, z));
-}
-
-void matrix_rotate(WrenVM* vm)
-{
-	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
-	auto angle = wrenGetParameter<double>(vm, 1);
-	auto x = wrenGetParameter<double>(vm, 2);
-	auto y = wrenGetParameter<double>(vm, 3);
-	auto z = wrenGetParameter<double>(vm, 4);
-	*matrix = glm::rotate(*matrix, (float)angle, glm::vec3(x, y, z));
-}
-
-void matrix_scale(WrenVM* vm)
-{
-	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
-	auto x = wrenGetParameter<double>(vm, 1);
-	auto y = wrenGetParameter<double>(vm, 2);
-	auto z = wrenGetParameter<double>(vm, 3);
-	*matrix = glm::scale(*matrix, glm::vec3(x, y, z));
-}
-
-void matrix_multiply(WrenVM* vm)
-{
-	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
-	auto other = (glm::mat4*)wrenGetSlotForeign(vm, 1);
-	*matrix = *matrix * *other;
-}
-
-void matrix_perspective(WrenVM* vm)
-{
-	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
-	auto fov = wrenGetParameter<double>(vm, 1);
-	auto aspect = wrenGetParameter<double>(vm, 2);
-	auto near = wrenGetParameter<double>(vm, 3);
-	auto far = wrenGetParameter<double>(vm, 4);
-	*matrix = glm::perspective((float)fov, (float)aspect, (float)near, (float)far);
-}
-
-void matrix_ortho(WrenVM* vm)
-{
-	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
-	auto left = wrenGetParameter<double>(vm, 1);
-	auto right = wrenGetParameter<double>(vm, 2);
-	auto bottom = wrenGetParameter<double>(vm, 3);
-	auto top = wrenGetParameter<double>(vm, 4);
-	auto near = wrenGetParameter<double>(vm, 5);
-	auto far = wrenGetParameter<double>(vm, 6);
-	*matrix = glm::ortho((float)left, (float)right, (float)bottom, (float)top, (float)near, (float)far);
-}
-
-void matrix_lookat(WrenVM* vm)
-{
-	auto matrix = (glm::mat4*)wrenGetSlotForeign(vm, 0);
-	auto eye = (glm::vec4*)wrenGetSlotForeign(vm, 1);
-	auto center = (glm::vec4*)wrenGetSlotForeign(vm, 2);
-	auto up = (glm::vec4*)wrenGetSlotForeign(vm, 3);
-	*matrix = glm::lookAt(glm::vec3(*eye), glm::vec3(*center), glm::vec3(*up));
-}
-
-void matrix_list(WrenVM* vm)
-{
-    auto matrix = (float*)wrenGetSlotForeign(vm, 0);
-    wrenEnsureSlots(vm, 2);
-    wrenSetSlotNewList(vm, 0);
-    for (int i = 0; i < 16; i++)
-    {
-		wrenSetSlotDouble(vm, 1, matrix[i]);
-		wrenInsertInList(vm, 0, i, 1);
-	}	
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-// Vector
-///////////////////////////////////////////////////////////////////////////////////////////////////
-void vector_allocate(WrenVM* vm)
-{
-	void* data = wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
-	auto vec = new (data) glm::vec4();
-    auto count = wrenGetSlotCount(vm);
-    if(count == 5)
-	{
-		auto x = wrenGetParameter<double>(vm, 1);
-		auto y = wrenGetParameter<double>(vm, 2);
-		auto z = wrenGetParameter<double>(vm, 3);
-		auto w = wrenGetParameter<double>(vm, 4);
-		*vec = glm::vec4(x, y, z, w);
-	} else {
-        *vec = glm::vec4(0.0f);
-    }
-}
-
-void vector_finalize(void* data) {}
-
-void vector_set(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-	auto x = wrenGetParameter<double>(vm, 1);
-	auto y = wrenGetParameter<double>(vm, 2);
-	auto z = wrenGetParameter<double>(vm, 3);
-	auto w = wrenGetParameter<double>(vm, 4);
-	*vec = glm::vec4(x, y, z, w);
-}
-
-void vector_plus(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-    auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
-    *vec += *other;    
-    wrenGetVariable(vm, "xs", "Vector", 0);
-    auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
-    *data = *vec;
-}
-
-void vector_minus(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-	auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
-	*vec -= *other;
-    wrenGetVariable(vm, "xs", "Vector", 0);
-	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
-	*data = *vec;
-}
-
-void vector_multiply(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-    if (wrenGetSlotType(vm, 1) == WREN_TYPE_NUM)
-    {
-		auto other = wrenGetParameter<double>(vm, 1);
-		*vec *= (float)other;
-    }
-    else if(wrenGetSlotType(vm, 1) == WREN_TYPE_FOREIGN)
-    {
-		auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
-		*vec *= *other;
-	}
-	wrenGetVariable(vm, "xs", "Vector", 0);
-	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
-	*data = *vec;
-}
-
-void vector_divide(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-    if (wrenGetSlotType(vm, 1) == WREN_TYPE_NUM)
-    {
-        auto other = wrenGetParameter<double>(vm, 1);
-        *vec /= (float)other;
-    }
-    else if (wrenGetSlotType(vm, 1) == WREN_TYPE_FOREIGN)
-    {
-		auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
-		*vec /= *other;
-	}
-
-	wrenGetVariable(vm, "xs", "Vector", 0);
-	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
-	*data = *vec;
-}
-
-void vector_dot(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-	auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
-	wrenSetReturnValue<double>(vm, glm::dot(*vec, *other));
-}
-
-void vector_cross(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-	auto other = (glm::vec4*)wrenGetSlotForeign(vm, 1);
-	auto result = glm::cross(glm::vec3(*vec), glm::vec3(*other));
-	wrenGetVariable(vm, "xs", "Vector", 0);
-	auto data = (glm::vec4*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(glm::vec4));
-	*data = glm::vec4(result, 0.0f);
-}
-
-void vector_length(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-	wrenSetReturnValue<double>(vm, glm::length(*vec));
-}
-
-void vector_normalize(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-	*vec = glm::normalize(*vec);
-}
-
-void vector_list(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-	wrenEnsureSlots(vm, 5);
-    wrenSetSlotNewList(vm, 0);
-    wrenSetSlotDouble(vm, 1, vec->x);
-    wrenSetSlotDouble(vm, 2, vec->y);
-    wrenSetSlotDouble(vm, 3, vec->z);
-    wrenSetSlotDouble(vm, 4, vec->w);
-    wrenInsertInList(vm, 0, 0, 1);
-    wrenInsertInList(vm, 0, 1, 2);
-    wrenInsertInList(vm, 0, 2, 3);
-    wrenInsertInList(vm, 0, 3, 4);
-}
-
-void vector_get_x(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-	wrenSetReturnValue<double>(vm, vec->x);
-}
-
-void vector_get_y(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-	wrenSetReturnValue<double>(vm, vec->y);
-}
-
-void vector_get_z(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-	wrenSetReturnValue<double>(vm, vec->z);
-}
-
-void vector_get_w(WrenVM* vm)
-{
-	auto vec = (glm::vec4*)wrenGetSlotForeign(vm, 0);
-	wrenSetReturnValue<double>(vm, vec->w);
-}
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 // 
 //											Bind xs API
 // 
@@ -1350,9 +1091,10 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
     bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
+    bind("xs", "Render", true, "destroyShape(_)", render_destroy_shape);
 
     // ShapeHandle
-    WrenForeignClassMethods shape_handle_methods {};
+    WrenForeignClassMethods shape_handle_methods{};
     shape_handle_methods.allocate = shape_handle_allocate;
     shape_handle_methods.finalize = shape_handle_finalize;
     bind_class("xs", "ShapeHandle", shape_handle_methods);
@@ -1395,39 +1137,4 @@ void xs::script::bind_api()
     // Profiler
     bind("xs", "Profiler", true, "begin(_)", profiler_begin_section);
     bind("xs", "Profiler", true, "end(_)", profiler_end_section);
-
-    // Matrix
-    WrenForeignClassMethods matrix_methods {};
-    matrix_methods.allocate = matrix_allocate;
-    matrix_methods.finalize = matrix_finalize;
-    bind_class("xs", "Matrix", matrix_methods);
-    bind("xs", "Matrix", false, "identity()", matrix_identity);
-    bind("xs", "Matrix", false, "translate(_,_,_)", matrix_translate);
-    bind("xs", "Matrix", false, "rotate(_,_,_,_)", matrix_rotate);
-    bind("xs", "Matrix", false, "scale(_,_,_)", matrix_scale);
-    bind("xs", "Matrix", false, "multiply(_)", matrix_multiply);
-    bind("xs", "Matrix", false, "perspective(_,_,_,_)", matrix_perspective);
-    // bind("xs", "Matrix", false, "ortho(_,_,_,_,_,_)", matrix_ortho);
-    bind("xs", "Matrix", false, "lookAt(_,_,_)", matrix_lookat);
-    bind("xs", "Matrix", false, "list", matrix_list);
-
-    // Vector
-    WrenForeignClassMethods vector_methods {};
-    vector_methods.allocate = vector_allocate;
-    vector_methods.finalize = vector_finalize;
-    bind_class("xs", "Vector", vector_methods);
-    bind("xs", "Vector", false, "set(_,_,_,_)", vector_set);
-    bind("xs", "Vector", false, "+(_)", vector_plus);
-    bind("xs", "Vector", false, "-(_)", vector_minus);
-    bind("xs", "Vector", false, "*(_)", vector_multiply);
-    bind("xs", "Vector", false, "/(_)", vector_divide);
-    bind("xs", "Vector", false, "dot(_)", vector_dot);
-    bind("xs", "Vector", false, "cross(_)", vector_cross);    
-    bind("xs", "Vector", false, "normalize()", vector_normalize);
-    bind("xs", "Vector", false, "length", vector_length);
-    bind("xs", "Vector", false, "list", vector_list);
-    bind("xs", "Vector", false, "x", vector_get_x);
-    bind("xs", "Vector", false, "y", vector_get_y);
-    bind("xs", "Vector", false, "z", vector_get_z);
-    bind("xs", "Vector", false, "w", vector_get_w);
 }

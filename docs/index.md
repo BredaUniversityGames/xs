@@ -42,7 +42,7 @@ class Game {
         Data.setNumber("Multiplier", 1, Data.system)
     }
 
-    static init() {        
+    static initialize() {        
         // You can initialize you game specific data here.    
     }    
                         
