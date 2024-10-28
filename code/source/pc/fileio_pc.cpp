@@ -34,13 +34,20 @@ void fileio::initialize()
 		string xs_user_path = string(pValue) + string("\\xs");
 		if (!fs::exists(xs_user_path))
 			fs::create_directory(xs_user_path);
-		internal::wildcards["[user]"] = xs_user_path;
+		internal::wildcards["[user]"] = xs_user_path;		
 	}
 	else
 	{
 		log::critical("Could not get the APPDATA environment variable.");
 		assert(false);
 	}
+
+	// The save location for the game
+	auto xs_user_path = internal::wildcards["[user]"];
+	string game_save_path = xs_user_path + "\\save";
+	if (!fs::exists(game_save_path))
+		fs::create_directory(game_save_path);
+	internal::wildcards["[save]"] = game_save_path;
 
 	// Load the engine user settings json (if any) and find the game folder
 	if (exists("[user]/settings.json"))
@@ -71,7 +78,7 @@ void fileio::initialize()
 		log::warn("Could not find the user settings.json file.");
 		log::info("Loading xs sample and creating settings file.");
 		string xs_sample = fileio::absolute("samples/hello");
-		add_wildcard("[game]", xs_sample);		
+		add_wildcard("[game]", xs_sample);
 	}
 
 	// Load the game settings json and find the main game script
