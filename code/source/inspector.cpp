@@ -16,6 +16,7 @@
 #include "device.h"
 #include "render.h"
 #include "tools.h"
+#include "input.h"
 #include "render_internal.h"
 
 #ifdef EDITOR
@@ -173,7 +174,6 @@ void xs::inspector::render(float dt)
 	ok_timer -= dt;
 	theme new_theme = current_theme;
 	restart_flag = false;
-
 	push_menu_theme();
 	
     auto mousePos = ImGui::GetMousePos();
@@ -201,8 +201,9 @@ void xs::inspector::render(float dt)
 			ImGuiWindowFlags_NoScrollWithMouse);
 		ImGui::SetWindowPos({ 0, 0 });
 		ImGui::SetWindowSize({-1, -1 });
+
         
-		if (ImGui::Button(ICON_FA_SYNC_ALT))
+		if (ImGui::Button(ICON_FA_SYNC_ALT) || xs::input::get_key_once(xs::input::KEY_F5))
 		{		
 			script::shutdown();
 			script::configure();
