@@ -2,6 +2,21 @@
 
 #extension GL_GOOGLE_include_directive : require
 
+#include "uniforms.glsl"
+
+struct instance_struct
+{    
+    mat4    wvp;        // 64
+    vec4    mul_color;  // 16   
+    vec4    add_color;  // 16
+    uint    flags;      // 4
+};
+
+layout(std140, binding = INSTANCES_UBO_LOCATION) uniform TransformsUBO
+{
+    instance_struct instances[MAX_INSTANCES];
+};
+
 const uint c_flip_x = 32;
 const uint c_flip_y = 64;   
 
