@@ -6,9 +6,8 @@ import shutil
 from pathlib import Path
 from shutil import copytree, ignore_patterns
 
-game_dir = "hexturn"
-itch_name = "hexperiment"
-user = "bojan"
+itch_name = "xs"
+user = "xs-engine"
 
 os.system('MSBuild xs.sln /p:Platform=PC /p:Configuration=Test')
 
@@ -39,10 +38,10 @@ if os.path.exists(source_dir):
     toml_src = current_dir + "\\tools\\.itch.toml"
     toml_dst = current_dir + "\\build\\.itch.toml"
 
-    #shutil.copyfile(toml_src, toml_dst)
+    shutil.copyfile(toml_src, toml_dst)
     
-    #butler_command = "butler push build " + user + "/" + itch_name + ":win"
-    #os.system(butler_command)
+    butler_command = "butler push build " + user + "/" + itch_name + ":win"
+    os.system(butler_command)
 
 else:
     print("Source dir does not exist: " + source_dir)
