@@ -1,0 +1,18 @@
+{
+    "From Color": {
+        "type": "color",
+        "value": 3187733247
+    },
+    "Level Height": {
+        "type": "number",
+        "value": 18.0
+    },
+    "Level Width": {
+        "type": "number",
+        "value": 34.0
+    },
+    "To Color": {
+        "type": "color",
+        "value": 1358981119
+    }
+}
