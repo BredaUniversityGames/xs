@@ -1,8 +1,7 @@
 #version 450 core
 
-#extension GL_GOOGLE_include_directive : require
-
-#include "uniforms.glsl"
+#define MAX_INSTANCES 256
+#define INSTANCES_UBO_LOCATION 1
 
 struct instance_struct
 {    
