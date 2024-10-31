@@ -1,0 +1,42 @@
+{
+    "Always on top": {
+        "type": "bool",
+        "value": false
+    },
+    "Fullscreen": {
+        "type": "bool",
+        "value": false
+    },
+    "Height": {
+        "type": "number",
+        "value": 360.0
+    },
+    "Main": {
+        "type": "string",
+        "value": "game.wren"
+    },
+    "Multiplier": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Texture Filter": {
+        "type": "bool",
+        "value": false
+    },
+    "Texture Repeat": {
+        "type": "bool",
+        "value": false
+    },
+    "Title": {
+        "type": "string",
+        "value": "xs - grid"
+    },
+    "Width": {
+        "type": "number",
+        "value": 640.0
+    },
+    "texture filter": {
+        "type": "bool",
+        "value": false
+    }
+}

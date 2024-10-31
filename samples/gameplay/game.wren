@@ -10,7 +10,6 @@ class Game {
     static initialize() {
         Entity.initialize()        
         __time = 0
-        //__image = Render.loadImage("[game]/images/gradient.png")
         __font = Render.loadFont("[shared]/fonts/selawk.ttf", 40)
         __background = Background.new()
 
