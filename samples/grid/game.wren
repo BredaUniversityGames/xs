@@ -20,8 +20,13 @@ class Type {
 }
 
 class Game {
+
     static pickOne(list) {
-        return list[__random.int(0, list.count)]
+        return list[__random.int(0, list.count)]    
+    }
+
+    static checkBit(value, bit) {
+        return (value & bit) != 0
     }
 
     static initialize() {
@@ -29,10 +34,11 @@ class Game {
         __width = Data.getNumber("Level Width", Data.game)  // Get the width of the level from the game.json data file.
         __height = Data.getNumber("Level Height", Data.game) // All Data variables are visible from the UI
         __background = Background.new() // All variables that start with __ are static variables
-        var image = Render.loadImage("[game]/assets/monochrome-transparent_packed.png") // Load the image in a local variable
+        __font = Render.loadFont("[game]/assets/monogram.ttf", 16)
         __tileSize = 16
         var r = 49
         var c = 22
+        var image = Render.loadImage("[game]/assets/monochrome-transparent_packed.png") // Load the image in a local variable
         __tiles = {            
             Type.empty: Render.createGridSprite(image, r, c, 624),
             Type.tree_one: Render.createGridSprite(image, r, c, 51),
@@ -44,7 +50,22 @@ class Game {
             Type.road: Render.createGridSprite(image, r, c, 3),
             Type.player: Render.createGridSprite(image, r, c, 76)            
         }        
+        
+        var green = Data.getColor("Grass Color")
+        var alsoGreen = Data.getColor("Tree Color")
+        __colors = {
+            Type.empty: 0xFFFFFFFF,
+            Type.road: 0xFFFFFFFF,
+            Type.player: 0xFFFFFFFF,            
+            Type.grass_one: green,
+            Type.grass_two: green,
+            Type.grass_three: green,
+            Type.tree_one: alsoGreen,
+            Type.tree_two: alsoGreen,
+            Type.tree_three: alsoGreen
+        }
 
+        // Initlize the level grid and the player
         __grid = Grid.new(__width, __height, Type.empty) // Create a new grid with the width and height
         
         // Fill the grid with grass
@@ -91,23 +112,18 @@ class Game {
         // Move the player
         var dx = 0
         var dy = 0
-        if (Input.getKeyOnce(Input.keyA)) {
-            dx = -1
-        }
-        if (Input.getKeyOnce(Input.keyD)) {
-            dx = 1
-        }
-        if (Input.getKeyOnce(Input.keyS)) {
-            dy = -1
-        }
-        if (Input.getKeyOnce(Input.keyW)) {
-            dy = 1
-        }
+
+        // In wren new line have a meaning so you can put the if statement in one line
+        // without the need of curly braces. Otherwise you need to use curly braces
+        if (Input.getKeyOnce(Input.keyA)) dx = -1    
+        if (Input.getKeyOnce(Input.keyD)) dx = 1
+        if (Input.getKeyOnce(Input.keyS)) dy = -1
+        if (Input.getKeyOnce(Input.keyW)) dy = 1
 
         if (dx != 0 || dy != 0) {
             var nx = __playerX + dx
             var ny = __playerY + dy
-            if (__grid.valid(nx, ny)) {
+            if (__grid.valid(nx, ny)) { // Check if in bounds (This is the full way of writing the if statement)
                 if (__grid[nx, ny] != Type.tree_one && __grid[nx, ny] != Type.tree_two && __grid[nx, ny] != Type.tree_three) {
                     __playerX = nx
                     __playerY = ny
@@ -117,23 +133,53 @@ class Game {
     }
 
     static render() {
-        __background.render()
+        // Render the purple(ish) background
+        __background.render()   
         var s = __tileSize  
-        var sx = (__width - 1) * -s / 2
-        var sy = (__height - 1)  * -s / 2        
+
+        // Calculate the starting x and y positions
+        var sx = (__width - 1) * -s / 2   
+        var sy = (__height - 1)  * -s / 2    
+
+        // Go over all the tiles in the grid
         for (x in 0...__width) {
-            for (y in 0...__height) {
-                if(x == __playerX && y == __playerY) {
+            for (y in 0...__height) {                
+                if(x == __playerX && y == __playerY) {                      
+                    // Render the player
                     var tile = __tiles[Type.player]
-                    Render.sprite(tile, sx + x * s, sy + y * s, 0.0, 1.0, 0.0, Data.getColor("Player Color"), 0x0, Render.spriteCenter)
+                    Render.sprite(                      // direct call to the Render function
+                        tile,                           // sprite
+                        sx + x * s,                     // x position
+                        sy + y * s,                     // y position
+                        0.0,                            // z position (depth sorting)
+                        1.0,                            // scale 
+                        0.0,                            // rotation
+                        Data.getColor("Player Color"),  // multiply color
+                        0x0,                            // add color
+                        Render.spriteCenter)            // sprite flags
                 } else {
+                    // Render the tile at the current position
                     var t = __grid[x, y]
                     var px = sx + x * s
                     var py = sy + y * s
-                    var tile = __tiles[t]            
-                    Render.sprite(tile, px, py, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+                    var tile = __tiles[t]
+                    var color = __colors[t]
+                    Render.sprite(
+                        tile, px, py,
+                        0.0, 1.0, 0.0,
+                        color, 0x0,
+                        Render.spriteCenter)
                 }
             }
         }
+
+        Render.text(
+            __font,                 // font
+            "use WASD to move",     // text
+            0.0,                    // x
+            -160,                   // y
+            0xFFFFFFFF,             // multiply color
+            0x0,                    // add color
+            Render.spriteCenter)    // flags
     }
 }
