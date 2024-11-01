@@ -11,6 +11,10 @@
         "type": "number",
         "value": 34.0
     },
+    "Player Color": {
+        "type": "color",
+        "value": 16580607
+    },
     "To Color": {
         "type": "color",
         "value": 1358981119
