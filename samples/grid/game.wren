@@ -1,5 +1,5 @@
 // Import the necessary modules
-import "xs" for Render, Data        // The direct xs API
+import "xs" for Render, Input, Data // The engine-level xs API
 import "xs_math" for Math, Color    // Math and Color functionality
 import "xs_tools" for ShapeBuilder  
 import "xs_containers" for Grid     // Grid is a 
@@ -8,15 +8,15 @@ import "random" for Random          // Random number generator - system module
 
 // Just some names for the different things that can be on the grid
 class Type {
-    static empty       { 0 }    // This is actually a function that returns 0
-    static tree_one    { 1 }    // Static means that the function is a class function
-    static tree_two    { 2 }
-    static tree_three  { 3 }
-    static grass_one   { 4 }
-    static grass_two   { 5 }
-    static grass_three { 6 }
-    static road        { 7 }
-    static player      { 8 }
+    static empty       { 0 << 0 }   // This is actually a function that returns 0
+    static tree_one    { 1 << 0 }   // Static means that the function is a class function
+    static tree_two    { 1 << 1 }   // The << operator is a bit shift operator
+    static tree_three  { 1 << 2 }   // The value of each type is a power of 2
+    static grass_one   { 1 << 3 }   // This is so that they can be combined into a single value
+    static grass_two   { 1 << 4 }   // This is useful for collision detection
+    static grass_three { 1 << 5 }   // For example, a player can be on a tree and grass
+    static road        { 1 << 6 }   // but not on two trees at the same time
+    static player      { 1 << 7 }   // The player is a special type of tile
 }
 
 class Game {
@@ -80,10 +80,40 @@ class Game {
             }
         }
 
+        // Add the player
+        __playerX = 0
+        __playerY = __height / 2
     }
 
     static update(dt) {
         __background.update(dt)
+
+        // Move the player
+        var dx = 0
+        var dy = 0
+        if (Input.getKeyOnce(Input.keyA)) {
+            dx = -1
+        }
+        if (Input.getKeyOnce(Input.keyD)) {
+            dx = 1
+        }
+        if (Input.getKeyOnce(Input.keyS)) {
+            dy = -1
+        }
+        if (Input.getKeyOnce(Input.keyW)) {
+            dy = 1
+        }
+
+        if (dx != 0 || dy != 0) {
+            var nx = __playerX + dx
+            var ny = __playerY + dy
+            if (__grid.valid(nx, ny)) {
+                if (__grid[nx, ny] != Type.tree_one && __grid[nx, ny] != Type.tree_two && __grid[nx, ny] != Type.tree_three) {
+                    __playerX = nx
+                    __playerY = ny
+                }
+            }
+        }
     }
 
     static render() {
@@ -93,11 +123,16 @@ class Game {
         var sy = (__height - 1)  * -s / 2        
         for (x in 0...__width) {
             for (y in 0...__height) {
-                var t = __grid[x, y]
-                var px = sx + x * s
-                var py = sy + y * s
-                var tile = __tiles[t]            
-                Render.sprite(tile, px, py, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+                if(x == __playerX && y == __playerY) {
+                    var tile = __tiles[Type.player]
+                    Render.sprite(tile, sx + x * s, sy + y * s, 0.0, 1.0, 0.0, Data.getColor("Player Color"), 0x0, Render.spriteCenter)
+                } else {
+                    var t = __grid[x, y]
+                    var px = sx + x * s
+                    var py = sy + y * s
+                    var tile = __tiles[t]            
+                    Render.sprite(tile, px, py, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+                }
             }
         }
     }
