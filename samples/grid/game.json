@@ -1,7 +1,11 @@
 {
     "From Color": {
         "type": "color",
-        "value": 3187733247
+        "value": 1862307327
+    },
+    "Grass Color": {
+        "type": "color",
+        "value": 2969552639
     },
     "Level Height": {
         "type": "number",
@@ -13,10 +17,14 @@
     },
     "Player Color": {
         "type": "color",
-        "value": 16580607
+        "value": 4288348415
     },
     "To Color": {
         "type": "color",
-        "value": 1358981119
+        "value": 570436607
+    },
+    "Tree Color": {
+        "type": "color",
+        "value": 1711247615
     }
 }
