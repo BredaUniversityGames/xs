@@ -50,6 +50,10 @@
 using namespace glm;
 using namespace std;
 
+static const unsigned int c_invalid_index = 4294967295;  // Just -1 casted to unsigned int
+static const unsigned int c_instances_ubo_binding = 1;
+static const unsigned int c_max_instances = 256;
+
 namespace xs::render
 {
 	void create_frame_buffers();
@@ -73,6 +77,18 @@ namespace xs::render
 	unsigned int lines_vbo = 0;
 	unsigned int triangles_vao = 0;
 	unsigned int triangles_vbo = 0;
+
+
+	struct instance_struct
+	{
+		mat4    wvp;        // 64
+		vec4    mul_color;  // 16   
+		vec4    add_color;  // 16
+		uint    flags;      // 4
+	};
+
+	instance_struct* instances_data = nullptr;
+	unsigned int instances_ubo = c_invalid_index;
 
 	struct sprite_vtx_format
 	{
@@ -143,6 +159,15 @@ void xs::render::initialize()
 	create_frame_buffers();
 	compile_draw_shader();
 	compile_sprite_shader();
+
+	///////// UBO //////////////////////
+	instances_data = new instance_struct[c_max_instances];
+	glGenBuffers(1, &instances_ubo);
+	glBindBuffer(GL_UNIFORM_BUFFER, instances_ubo);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(instance_struct) * c_max_instances, instances_data, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, c_instances_ubo_binding, instances_ubo);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	xs::gl_label(GL_BUFFER, instances_ubo, "Instances");
 
 	///////// Lines //////////////////////
     glGenVertexArrays(1, &lines_vao);
@@ -269,7 +294,7 @@ void xs::render::render()
 	glDisable(GL_CULL_FACE);
 
 	glUseProgram(sprite_program);
-	glUniformMatrix4fv(1, 1, false, value_ptr(vp));
+	//glUniformMatrix4fv(1, 1, false, value_ptr(vp));
 
 	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
 		[](const sprite_mesh_instance& lhs, const sprite_mesh_instance& rhs) {		
@@ -321,10 +346,20 @@ void xs::render::render()
 		// Check if the sprite is outside the screen
 		if (tools::aabb::overlap(bb, view_aabb))
 		{
-			glUniformMatrix4fv(1, 1, false, value_ptr(mvp));
-			glUniform4fv(2, 1, value_ptr(spe.mul_color));
-			glUniform4fv(3, 1, value_ptr(spe.add_color));
-			glUniform1ui(4, spe.flags);
+			//glUniformMatrix4fv(1, 1, false, value_ptr(mvp));
+			//glUniform4fv(2, 1, value_ptr(spe.mul_color));
+			//glUniform4fv(3, 1, value_ptr(spe.add_color));
+			//glUniform1ui(4, spe.flags);
+
+			instances_data[0].wvp = mvp;
+			instances_data[0].mul_color = spe.mul_color;
+			instances_data[0].add_color = spe.add_color;
+			instances_data[0].flags = spe.flags;
+
+			glBindBuffer(GL_UNIFORM_BUFFER, instances_ubo);
+			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(instance_struct), &instances_data[0]);
+			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
 
 			// Bind the vertex array
 			glBindVertexArray(mesh.vao);
@@ -333,7 +368,7 @@ void xs::render::render()
 			glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr);
 
 			// Unbind the vertex array
-			glBindVertexArray(0);
+			XS_DEBUG_ONLY(glBindVertexArray(0));
 
 			render_stats.draw_calls++;
 		}
