@@ -211,6 +211,7 @@ void xs::render::render_text(
 	const std::string& text,
 	double x,
 	double y,
+	double z,
 	color multiply,
 	color add,
 	unsigned int flags)
@@ -274,7 +275,7 @@ void xs::render::render_text(
 		}
 
 		auto sprite = create_sprite(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
-		render_sprite(sprite, begin + bearing, y - quad.y1, 100000, 1, 0, multiply, add, 0);
+		render_sprite(sprite, begin + bearing, y - quad.y1, z, 1, 0, multiply, add, 0);
 
 		begin += advance + kerning;		
 	}

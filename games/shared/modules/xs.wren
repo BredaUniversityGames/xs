@@ -36,7 +36,7 @@ class Render {
     foreign static sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)
 
     /// Draw text at a position, with scale, rotation, color, and flags
-    foreign static text(fontId, txt, x, y, mul, add, flags) // TODO: add z for sorting
+    foreign static text(fontId, txt, x, y, z, mul, add, flags) // TODO: add z for sorting
 
     /// Flags for sprite rendering
     static spriteNone       { 0 << 0 }
@@ -61,11 +61,7 @@ class Render {
     foreign static end()
     foreign static vertex(x, y)
 
-    /// Helper functions //////////////////////////////////////////////////////
-
-    static text(fontId, txt, x, y, z, mul, add, flags) {
-        text(fontId, txt, x, y, mul, add, flags)
-    }
+    /// Helper functions //////////////////////////////////////////////////////}
 
     static line(a, b) {
         line(a.x, a.y, b.x, b.y)
