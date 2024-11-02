@@ -827,41 +827,10 @@ void render_load_font(WrenVM* vm)
 
 void render_render_text(WrenVM* vm)
 {
-    callFunction_args<int, string, double, double, xs::color, xs::color, uint32_t>(vm, xs::render::render_text);
+    callFunction_args<int, string, double, double, double, xs::color, xs::color, uint32_t>(vm, xs::render::render_text);
 }
 
 /*
-void render_create_shape(WrenVM* vm)
-{
-	auto pcount = wrenGetListCount(vm, 1);
-	auto ccount = wrenGetListCount(vm, 2);
-	
-	if(pcount != ccount * 2) {
-		// TODO: Print error
-	}
-	
-	vector<double> points(pcount);
-	for(int i = 0; i < pcount; i++)
-	{
-		wrenGetListElement(vm, 1, i, 0);		// Check data first
-		points[i] = wrenGetSlotDouble(vm, 0);
-	}
-	
-	vector<xs::render::color> colors(ccount);
-	for(int i = 0; i < ccount; i++)
-	{
-		wrenGetListElement(vm, 2, i, 0);
-		xs::render::color c;
-		auto dc = wrenGetSlotDouble(vm, 0);
-		c.integer_value = static_cast<unsigned int>(dc);
-		colors[i] = c;
-	}
-	
-	auto id = xs::render::create_shape(points, colors);
-	wrenSetSlotDouble(vm, 0, id);
-}
-
-
 void render_render_shape(WrenVM* vm)
 {
 	callFunction_args<int, double, double, double, double, xs::render::color, xs::render::color>(vm, xs::render::render_sprite);
@@ -1090,7 +1059,7 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
     bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
-    bind("xs", "Render", true, "text(_,_,_,_,_,_,_)", render_render_text);
+    bind("xs", "Render", true, "text(_,_,_,_,_,_,_,_)", render_render_text);
     bind("xs", "Render", true, "destroyShape(_)", render_destroy_shape);
 
     // ShapeHandle

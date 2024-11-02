@@ -73,6 +73,6 @@ class Game {
         Render.sprite(__hd, x - 32 * t, y, 0, 1, 0.0, 0xffffffff, 0x00000000, 0)
 
         // Render text
-        Render.text(__font, "Have a good game!", 0, -120, 0xffffffff, 0x00000000, Render.spriteCenterX)   
+        Render.text(__font, "Have a good game!", 0, -120, 1, 0xffffffff, 0x00000000, Render.spriteCenterX)   
     }
 }
