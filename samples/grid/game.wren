@@ -139,7 +139,7 @@ class Game {
 
         // Calculate the starting x and y positions
         var sx = (__width - 1) * -s / 2   
-        var sy = (__height - 1)  * -s / 2    
+        var sy = (__height - 1)  * -s / 2        
 
         // Go over all the tiles in the grid
         for (x in 0...__width) {
