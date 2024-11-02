@@ -61,6 +61,7 @@ namespace xs::render
 		const std::string& text,
 		double x,
 		double y,
+		double z,
 		color mutiply,
 		color add,
 		unsigned int flags);

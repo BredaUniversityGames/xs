@@ -178,6 +178,7 @@ class Game {
             "use WASD to move",     // text
             0.0,                    // x
             -160,                   // y
+            0.0,                    // z
             0xFFFFFFFF,             // multiply color
             0x0,                    // add color
             Render.spriteCenter)    // flags
