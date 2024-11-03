@@ -437,6 +437,13 @@ void xs::render::sprite(
 		(float)add.b / 255.0f,
 		(float)add.a / 255.0f);
 	instance.flags = flags;
+
+	if ((flags & render::fixed) == 0)
+	{
+		instance.x += offset.x;
+		instance.y += offset.y;
+	}
+
 	render_queue.push_back(instance);
 }
 

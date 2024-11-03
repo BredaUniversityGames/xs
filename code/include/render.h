@@ -13,7 +13,7 @@ namespace xs::render
 		center_y	= 1 << 4,
 		flip_x		= 1 << 5,
 		flip_y		= 1 << 6,
-		overlay		= 1 << 7,
+		fixed		= 1 << 7,
 		center		= center_x | center_y,
 		is_shape	= 1 << 8
 	};
