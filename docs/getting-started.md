@@ -83,7 +83,7 @@ Next just put your awesome art and code in the folder and you have yourself a ga
 
 Wren is lovely modern scripting language and there are handful of Visual Studio Code extensions to make working with it nicer.
 
-- If you don't have Visual Studio Code installed, you can download the latest version [here](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjJ_Pnx9Y_7AhXGjKQKHdtACsEQFnoECBYQAQ&url=https%3A%2F%2Fcode.visualstudio.com%2F&usg=AOvVaw15O90sm1ios8AUpw56hCml)
+- If you don't have Visual Studio Code installed, you can download the latest version [here](https://code.visualstudio.com/)
 - The *Wren* [extension](https://marketplace.visualstudio.com/items?itemName=nelarius.vscode-wren) in VS Code will give you syntax highlighting 
 - The *Wren Language Provider* [extension](https://marketplace.visualstudio.com/items?itemName=sponge.wren-language-provider) in VS Code will give you basic code completion
 

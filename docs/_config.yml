@@ -5,12 +5,13 @@ description: Documentation for the xs game engine
 baseurl: "/xs" # the subpath of your site, e.g. /blog
 url: "https://bredauniversitygames.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 logo: "img/icon_tiny.webp"
+color_scheme: dark
 
 # Aux links for the upper right navigation
 aux_links:
   "Download":
-    - "https://github.com/BredaUniversityGames/xs/releases"
+    - "https://xs-engine.itch.io/xs"
   "Contribute":
     - "https://github.com/BredaUniversityGames/xs"
 
-footer_content: "xs - made with ❤ at Breda University of Applied Sciences"
+footer_content: "xs - lovingly made at Breda University of Applied Sciences"
