@@ -105,5 +105,5 @@ void fileio::initialize()
 	else log::error("Could not find the game project.json file.");
 
 	// Set the shared assets folder
-	add_wildcard("[shared]", "games/shared");
+	add_wildcard("[shared]", "assets");
 }
