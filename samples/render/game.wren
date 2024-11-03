@@ -17,7 +17,7 @@ class Game {
     
     static update(dt) {
         if(Input.getKey(Input.keySpace)) {
-            Render.setOffset(32, 32)
+            Render.setOffset(64, 64)
         } else {
             Render.setOffset(0, 0)
         }
@@ -30,7 +30,7 @@ class Game {
     }
 
     static render() {
-        Render.sprite(__checkerboard, -__w, -__h, -1, Render.spriteOverlay)
+        Render.sprite(__checkerboard, -__w, -__h, -1, Render.spriteFixed)
 
         var x = -560        
         var y = 120
@@ -75,10 +75,10 @@ class Game {
         Render.sprite(__sprite, x, y, z, Render.spriteFlipX | Render.spriteFlipY) // |
         cross(x, y)
         x = x + dx
-        Render.sprite(__sprite, x, y, z, Render.spriteOverlay)
+        Render.sprite(__sprite, x, y, z, Render.spriteFixed)
         cross(x, y)
         x = x + 1.5 * dx
-        Render.sprite(__sprite, x, y, z, 1, Math.pi * 0.25, 0xffffffff, 0x00000000, Render.spriteOverlay)
+        Render.sprite(__sprite, x, y, z, 1, Math.pi * 0.25, 0xffffffff, 0x00000000, Render.spriteFixed)
         cross(x, y)
 
         x = -560
