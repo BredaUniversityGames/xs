@@ -827,7 +827,7 @@ void render_load_font(WrenVM* vm)
 
 void render_render_text(WrenVM* vm)
 {
-    callFunction_args<int, string, double, double, double, xs::color, xs::color, uint32_t>(vm, xs::render::render_text);
+    callFunction_args<int, string, double, double, double, xs::color, xs::color, uint32_t>(vm, xs::render::text);
 }
 
 /*
