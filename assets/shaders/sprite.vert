@@ -9,6 +9,7 @@ const uint c_center_y   = 16;
 const uint c_flip_x     = 32;
 const uint c_flip_y     = 64;   
 const uint c_overlay    = 128;
+const uint c_is_shape   = 256;
 
 layout (location = 0) uniform mat4 u_view_proj;
 
@@ -32,11 +33,20 @@ void main()
     wvp[3][0] = pos.x;
     wvp[3][1] = pos.y;
     wvp = u_view_proj * wvp;
-
-    uint flags = instances[gl_InstanceID].flags;
-    vec2 position = a_position;
     v_mul_color = instances[gl_InstanceID].mul_color;
     v_add_color = instances[gl_InstanceID].add_color;
+
+    // Shapes are rendered with less shananigans
+    if(instances[gl_InstanceID].flags == c_is_shape)
+    {
+        v_texture = a_texture;
+        gl_Position = wvp * vec4(a_position, 0.0, 1.0);
+        return;
+    }
+
+        
+    uint flags = instances[gl_InstanceID].flags;
+    vec2 position = a_position;    
     v_texture = a_texture;
     
     if ((flags & c_flip_x) != 0)

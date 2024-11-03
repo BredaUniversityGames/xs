@@ -11,6 +11,9 @@ class Render {
     /// Load an image from a file and return an image id
     foreign static loadImage(path)
 
+    /// Load a font from a file into a font atlas and return a font id
+    foreign static loadFont(font, size)
+
     /// Get the width of an image
     foreign static getImageWidth(imageId)
 
@@ -28,15 +31,15 @@ class Render {
 
     /// Set the offset for the next sprite(s) to be drawn
     foreign static setOffset(x, y)
-
-    /// Load a font from a file into a font atlas and return a font id
-    foreign static loadFont(font, size)
-
-    /// Draw a sprite at a position, sorted by z, with scale, rotation, color, and flags
+    
+    /// Draw a sprite at a position, sorted by z, with scale, rotation, colors and flags
     foreign static sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)
 
-    /// Draw text at a position, with scale, rotation, color, and flags
-    foreign static text(fontId, txt, x, y, z, mul, add, flags) // TODO: add z for sorting
+    /// Draw a shape at a position, with scale, rotation, mul, and colors
+    foreign static shape(shapeId, x, y, z, scale, rotation, mul, add)
+
+    /// Draw text at a position, with scale, rotation, colors and flags
+    foreign static text(fontId, txt, x, y, z, mul, add, flags)
     
     /// Don't apply any flags
     static spriteNone       { 0 << 0 }
