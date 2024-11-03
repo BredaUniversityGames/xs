@@ -2,6 +2,8 @@
 
 ### Completeness
 
+[ ] New (faster) rendereing in OpenGL
+
 [ ] AGC Rendering on par with OpenGL
 
 [ ] Metal rendering on par with OpenGL
@@ -9,13 +11,13 @@
 
 ### Open-source xs
 
-[ ] Mode from GLFW to SDL3
+[ ] Investigate mving from GLFW to SDL3 on Windows
 
 [ ] Provide non-Fmod audio options 
  
 [ ] Move NDA specific code own repos (submodules)
 
-[ ] Code restructuring so that all files 
+[ ] Code restructuring so that all files are in the same folder
 
 [ ] Linux & CMake build
 
@@ -53,5 +55,7 @@
 [ ] Windows DX12
 
 [ ] Xbox
+
+[ ] Linux
 
 
