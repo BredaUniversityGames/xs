@@ -61,7 +61,6 @@ namespace xs::render
 
 	void compile_draw_shader();
 	void compile_sprite_shader();
-	void compile_shape_shader();
 
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool compile_shader(

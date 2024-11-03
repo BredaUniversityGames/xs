@@ -4,6 +4,7 @@
 
 namespace xs::render
 {	
+	/// Bit flags for sprite rendering
 	enum sprite_flags
 	{
 		bottom		= 1 << 1,
@@ -16,6 +17,7 @@ namespace xs::render
 		center		= center_x | center_y
 	};
 
+	/// Stastistics for the rendering to share with the engine
 	struct stats
 	{
 		int draw_calls = 0;
@@ -23,18 +25,40 @@ namespace xs::render
 		int textures = 0;
 	};
 
+	/// Initialize the rendering systems
 	void initialize();
-	void shutdown();	
+
+	/// Shutdown the rendering systems and (hopefully) free all resources
+	void shutdown();
+
+	/// Render the current frame
 	void render();
-	void clear();;
+
+	///  Clear the render queue from the previous frame
+	void clear();
+
+	/// (Hot) reload all images in use
 	void reload_images();
+
+	/// Set the offset for the rendering - used for camera movement
 	void set_offset(double x, double y);
+
+	/// Load an image from a file (png or jpg)
 	int load_image(const std::string& image_file);
+
+	/// Load a font from a file (ttf)
 	int load_font(const std::string& font_file, double size);
+
+	/// Get the width of an image
 	int get_image_width(int image_id);
+
+	/// Get the height of an image
 	int get_image_height(int image_id);	
+
+	/// Create a sprite from an image with given texture coordinates
 	int create_sprite(int image_id, double x0, double y0, double x1, double y1);
 
+	/// Create a shape with vertex and index data
 	int create_shape(
 		int image_id,
 		const float* positions,
@@ -43,8 +67,10 @@ namespace xs::render
 		const unsigned short* indices,
 		unsigned int index_count);
 
-	void destroy_shape(int sprite_id);
+	/// Destroy a sprite
+	void destroy_shape(int shape_id);
 
+	/// Render a sprite with given position, size, rotation and colors
 	void render_sprite(
 		int sprite_id,
 		double x,
@@ -56,6 +82,7 @@ namespace xs::render
 		color add,
 		unsigned int flags);
 
+	/// Render text with given font, position, size and colors
 	void render_text(
 		int font_id,
 		const std::string& text,
@@ -66,12 +93,27 @@ namespace xs::render
 		color add,
 		unsigned int flags);
 
-	enum class primitive { lines, triangles, none };
-	void begin(primitive p);
-	void vertex(double x, double y);
-	void set_color(color c);
-	void end();	
-	void line(double x0, double y0, double x1, double y1);
-	void text(const std::string& text, double x, double y, double size);
+	/// Get the statistics for the rendering
 	stats get_stats();
+	
+	/// Primitives for debugging
+	enum class dbg_primitive { lines, triangles, none };
+
+	/// Begin a new primitive
+	void dgb_begin(dbg_primitive p);
+
+	/// Add a vertex to the current primitive
+	void dbg_vertex(double x, double y);
+
+	/// Set the color for the current primitive
+	void dbg_color(color c);
+
+	/// End the current primitive
+	void dbg_end();
+
+	/// Draw a line
+	void dbg_line(double x0, double y0, double x1, double y1);
+
+	/// Draw some text made up of squares
+	void dbg_text(const std::string& text, double x, double y, double size);
 }

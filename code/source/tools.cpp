@@ -97,9 +97,9 @@ void xs::tools::aabb::debug_draw()
 	c.r = 255;
 	c.g = 255;
 	c.b = 255;
-	xs::render::set_color(c);
-	xs::render::line(min.x, min.y, max.x, min.y);
-	xs::render::line(max.x, min.y, max.x, max.y);
-	xs::render::line(max.x, max.y, min.x, max.y);
-	xs::render::line(min.x, max.y, min.x, min.y);
+	xs::render::dbg_color(c);
+	xs::render::dbg_line(min.x, min.y, max.x, min.y);
+	xs::render::dbg_line(max.x, min.y, max.x, max.y);
+	xs::render::dbg_line(max.x, max.y, min.x, max.y);
+	xs::render::dbg_line(min.x, max.y, min.x, min.y);
 }
