@@ -4,7 +4,7 @@
 #define INSTANCES_UBO_LOCATION 1
 
 struct instance_struct
-{    
+{
     mat4    wvp;        // 64
     vec4    mul_color;  // 16   
     vec4    add_color;  // 16
@@ -21,11 +21,6 @@ const uint c_flip_y = 64;
 
 layout (location = 0) in vec2 a_position;
 layout (location = 1) in vec2 a_texture;
-
-//layout (location = 1) uniform mat4 u_worldviewproj;
-//layout (location = 2) uniform vec4 u_mul_color;
-//layout (location = 3) uniform vec4 u_add_color;
-//layout (location = 4) uniform uint u_flags;
 
 out vec4 v_mul_color;
 out vec4 v_add_color;

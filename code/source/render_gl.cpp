@@ -301,39 +301,39 @@ void xs::render::render()
 			return lhs.z < rhs.z;
 		});
 
+	// Set the shader program
+	//glUseProgram(sprite_program);
+
 	for (const auto& spe : sprite_queue)
 	{
 		if(spe.sprite_id == -1) continue;
 		auto& mesh = sprite_meshes[spe.sprite_id];
 		auto& img = images[mesh.image_id];
 
-		// Set the shader program
-		glUseProgram(sprite_program);
-
-		// Set the texture
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, img.texture);
-
 		// Set the model matrix
 		float dx = mesh.extents.max.x - mesh.extents.min.x;
 		float dy = mesh.extents.max.y - mesh.extents.min.y;
 		mat4 model = identity<mat4>();
 
-		model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
-		if (!tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::overlay))
-			model = translate(model, vec3(offset, 0.0));
+		mat4 mvp;
+		{
+			XS_PROFILE_SECTION("Model matrix");
+			model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
+			if (!tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::overlay))
+				model = translate(model, vec3(offset, 0.0));
 
-		model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
-		model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
+			model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
+			model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
 
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
-			model = translate(model, vec3(-dx * 0.5f, 0.0f, 0.0f));
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
-			model = translate(model, vec3(0.0f, -dy * 0.5f, 0.0f));
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
-			model = translate(model, vec3(0.0f, -dy, 0.0f));
+			if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
+				model = translate(model, vec3(-dx * 0.5f, 0.0f, 0.0f));
+			if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
+				model = translate(model, vec3(0.0f, -dy * 0.5f, 0.0f));
+			if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
+				model = translate(model, vec3(0.0f, -dy, 0.0f));
 
-		mat4 mvp = vp * model;
+			mvp = vp * model;
+		}
 
 		// Get the AABB in view space
 		static tools::aabb view_aabb({-1,-1},{1,1});
@@ -351,21 +351,31 @@ void xs::render::render()
 			//glUniform4fv(3, 1, value_ptr(spe.add_color));
 			//glUniform1ui(4, spe.flags);
 
+
+			// Set the texture
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, img.texture);
+
 			instances_data[0].wvp = mvp;
 			instances_data[0].mul_color = spe.mul_color;
 			instances_data[0].add_color = spe.add_color;
 			instances_data[0].flags = spe.flags;
 
-			glBindBuffer(GL_UNIFORM_BUFFER, instances_ubo);
-			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(instance_struct), &instances_data[0]);
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			{
+				XS_PROFILE_SECTION("Draw call");
+				glBindBuffer(GL_UNIFORM_BUFFER, instances_ubo);
+				glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(instance_struct), &instances_data[0]);
+				glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 
-			// Bind the vertex array
-			glBindVertexArray(mesh.vao);
+				// Bind the vertex array
+				glBindVertexArray(mesh.vao);
 
-			// Draw the mesh
-			glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr);
+				// Draw the mesh
+				glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr);
+
+				//glDrawElementsInstanced(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr, 1);
+			}
 
 			// Unbind the vertex array
 			XS_DEBUG_ONLY(glBindVertexArray(0));
