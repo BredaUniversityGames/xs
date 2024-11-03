@@ -71,7 +71,7 @@ namespace xs::render
 	void destroy_shape(int shape_id);
 
 	/// Render a sprite with given position, size, rotation and colors
-	void render_sprite(
+	void sprite(
 		int sprite_id,
 		double x,
 		double y,		

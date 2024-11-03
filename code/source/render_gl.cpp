@@ -394,7 +394,7 @@ void xs::render::render()
 	render_stats.textures = (int)images.size();
 }
 
-void xs::render::render_sprite(
+void xs::render::sprite(
 	int sprite_id,
 	double x,
 	double y,
