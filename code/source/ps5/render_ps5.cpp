@@ -79,7 +79,7 @@ namespace xs::render
 	sce::Agc::CxBlendControl blend_control;
 	int frame = 0;
 
-	unsigned int			sprite_program = 0;
+	unsigned int			main_program = 0;
 	int const				sprite_trigs_max = 21800;
 	int						sprite_trigs_count = 0;
 	sprite_vtx_format		sprite_trigs_array[sprite_trigs_max * 3];
