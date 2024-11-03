@@ -3,6 +3,7 @@
 #include "render_internal.h"
 #include "tools.h"
 #include "data.h"
+#include "input.h"
 #include <array>
 #include <unordered_map>
 #include <vector>
@@ -61,7 +62,6 @@ namespace xs::render
 
 	void compile_draw_shader();
 	void compile_sprite_shader();
-
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool compile_shader(
 		const GLchar* vertex_shader,
@@ -69,6 +69,7 @@ namespace xs::render
 		const GLchar* fragment_shader,
 		GLuint* program);
 	bool link_program(GLuint program);
+	void reload_shaders();
 
 	int width = -1;
 	int height = -1;	
@@ -88,12 +89,14 @@ namespace xs::render
 	// Make sure is in sync with the shader
 	struct instance_struct
 	{
+		vec4 xy;		// 16
+		vec4 uv;		// 16
 		vec4 mul_color;	// 16   
 		vec4 add_color; // 16
 		vec2 position;	// 8
 		vec2 scale;		// 8
 		float rotation;	// 4
-		uint flags;		// 4
+		uint flags;		// 4		
 	};
 	
 	struct sprite_vtx_format
@@ -114,6 +117,8 @@ namespace xs::render
 		tools::aabb	extents;
 		vec2 textureFrom;
 		vec2 textureTo;
+		vec4 xy;
+		vec4 uv;
 		bool is_sprite = false;
 	};
 
@@ -276,6 +281,9 @@ void xs::render::shutdown()
 
 void xs::render::render()
 {	
+	if (xs::input::get_key_once(xs::input::KEY_F5))
+		reload_shaders();
+
 	XS_PROFILE_SECTION("xs::render::render");
 	render_stats = {};
 
@@ -326,12 +334,16 @@ void xs::render::render()
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, img.texture);
 
+
 		instances_data[0].mul_color = spe.mul_color;
 		instances_data[0].add_color = spe.add_color;
 		instances_data[0].position = vec2((float)spe.x, (float)spe.y);
 		instances_data[0].scale = vec2((float)spe.scale, (float)spe.scale);
 		instances_data[0].rotation = (float)spe.rotation;
 		instances_data[0].flags = spe.flags;
+		instances_data[0].xy = mesh.xy;
+		instances_data[0].uv = mesh.uv;
+
 
 		glBindBuffer(GL_UNIFORM_BUFFER, instances_ubo);
 		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(instance_struct), &instances_data[0]);
@@ -574,12 +586,15 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	mesh.extents = tools::aabb(vec2(from_x, from_y), vec2(to_x, to_y));
 	std::swap(from_y, to_y);
 
+	mesh.xy = vec4(from_x, from_y, to_x, to_y);
+	mesh.uv = vec4((float)x0, (float)y0, (float)x1, (float)y1);
+
 	// Vertex positions just
 	float sprite_positions[] = {
-		from_x, from_y,
-		from_x, to_y,
-		to_x, to_y,
-		to_x, from_y,
+		0, 1,
+		0, 0,
+		1, 0,
+		1, 1
 	};
 
 	// Texture coordinates
@@ -867,11 +882,16 @@ bool xs::render::link_program(GLuint program)
 	return status != 0;
 }
 
+void xs::render::reload_shaders()
+{
+	// Delete the old shaders
+	glDeleteProgram(main_program);
+	glDeleteProgram(shader_program);
 
-#define ENABLE_PROFILING 0
-
-#if ENABLE_PROFILING
-#endif
+	// Recompile the shaders
+	compile_draw_shader();
+	compile_sprite_shader();
+}
 
 using namespace std;
 
