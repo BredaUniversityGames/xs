@@ -72,7 +72,7 @@ namespace xs::render
     int                             triangles_begin_count = 0;
     debug_vertex_format             triangles_array[triangles_max * 3];
 
-    primitive                       current_primitive = primitive::none;
+    dbg_primitive                       current_primitive = dbg_primitive::none;
     glm::vec4                       current_color = {1.0, 1.0, 1.0, 1.0};
 
 
@@ -331,9 +331,9 @@ void xs::render::set_offset(double x, double y)
 	offset = vec2((float)x, (float)y);
 }
 
-void xs::render::begin(primitive p)
+void xs::render::dgb_begin(dbg_primitive p)
 {
-    if (current_primitive == primitive::none)
+    if (current_primitive == dbg_primitive::none)
     {
         current_primitive = p;
         triangles_begin_count = 0;
@@ -345,9 +345,9 @@ void xs::render::begin(primitive p)
     }
 }
 
-void xs::render::vertex(double x, double y)
+void xs::render::dbg_vertex(double x, double y)
 {
-    if (current_primitive == primitive::triangles && triangles_count < triangles_max - 1)
+    if (current_primitive == dbg_primitive::triangles && triangles_count < triangles_max - 1)
     {
         const uint idx = triangles_count * 3;
         triangles_array[idx + triangles_begin_count].position = { x, y, 0.0f, 1.0f };
@@ -359,7 +359,7 @@ void xs::render::vertex(double x, double y)
             triangles_count++;
         }
     }
-    else if (current_primitive == primitive::lines && lines_count < lines_max)
+    else if (current_primitive == dbg_primitive::lines && lines_count < lines_max)
     {
         if (lines_begin_count == 0)
         {
@@ -387,15 +387,15 @@ void xs::render::vertex(double x, double y)
     }
 }
 
-void xs::render::end()
+void xs::render::dbg_end()
 {
-    if(current_primitive == primitive::none)
+    if(current_primitive == dbg_primitive::none)
     {
         log::error("Renderer begin()/end() mismatch! No primitive active in end().");
         return;
     }
     
-    current_primitive = primitive::none;
+    current_primitive = dbg_primitive::none;
     if (triangles_begin_count != 0 /* TODO: lines */)
     {
         log::error("Renderer vertex()/end() mismatch!");
@@ -403,7 +403,7 @@ void xs::render::end()
 
 }
 
-void xs::render::set_color(color c)
+void xs::render::dbg_color(color c)
 {
     current_color.r = c.r / 255.0f;
     current_color.g = c.g / 255.0f;
@@ -411,7 +411,7 @@ void xs::render::set_color(color c)
     current_color.a = c.a / 255.0f;
 }
 
-void xs::render::line(double x0, double y0, double x1, double y1)
+void xs::render::dbg_line(double x0, double y0, double x1, double y1)
 {
     if (lines_count < lines_max)
     {
@@ -424,7 +424,7 @@ void xs::render::line(double x0, double y0, double x1, double y1)
 
 }
 
-void xs::render::text(const std::string& text, double x, double y, double size)
+void xs::render::dbg_text(const std::string& text, double x, double y, double size)
 {
     struct stbVec
     {

@@ -59,7 +59,7 @@ namespace xs::render
     extern int                              triangles_begin_count;
     extern debug_vertex_format              triangles_array[triangles_max * 3];
 
-    extern primitive                        current_primitive;
+    extern dbg_primitive                        current_primitive;
     extern glm::vec4                        current_color;
 
 	inline glm::vec4 to_vec4(color c) { return glm::vec4(c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, c.a / 255.0f); }
