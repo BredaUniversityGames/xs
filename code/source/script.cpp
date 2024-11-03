@@ -710,22 +710,22 @@ void input_reset_lightbar(WrenVM* vm)
 // Render
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void render_begin(WrenVM* vm)
+void render_dbg_begin(WrenVM* vm)
 {
     callFunction_args<xs::render::dbg_primitive>(vm, xs::render::dgb_begin);
 }
 
-void render_end(WrenVM* vm)
+void render_dbg_end(WrenVM* vm)
 {
     xs::render::dbg_end();
 }
 
-void render_vertex(WrenVM* vm)
+void render_dbg_vertex(WrenVM* vm)
 {
     callFunction_args<double, double>(vm, xs::render::dbg_vertex);
 }
 
-void render_set_color(WrenVM* vm)
+void render_dbg_color(WrenVM* vm)
 {
     // Call manually
     auto c = wrenGetParameter<xs::color>(vm, 1);
@@ -734,12 +734,12 @@ void render_set_color(WrenVM* vm)
     // callFunction_args<xs::render::color>(vm, xs::render::set_color);
 }
 
-void render_line(WrenVM* vm)
+void render_dbg_line(WrenVM* vm)
 {
     callFunction_args<double,double,double,double>(vm, xs::render::dbg_line);
 }
 
-void render_text(WrenVM* vm)
+void render_dbg_text(WrenVM* vm)
 {
     callFunction_args<string,double,double,double>(vm, xs::render::dbg_text);
 }
@@ -1045,12 +1045,6 @@ void xs::script::bind_api()
     bind("xs", "Input", true, "resetPadLightbarColor()", input_reset_lightbar);
 
     // Render
-    bind("xs", "Render", true, "begin(_)", render_begin);
-    bind("xs", "Render", true, "end()", render_end);
-    bind("xs", "Render", true, "vertex(_,_)", render_vertex);
-    bind("xs", "Render", true, "setColor(_)", render_set_color);
-    bind("xs", "Render", true, "shapeText(_,_,_,_)", render_text);
-    bind("xs", "Render", true, "line(_,_,_,_)", render_line);
     bind("xs", "Render", true, "loadImage(_)", render_load_image);
     bind("xs", "Render", true, "getImageWidth(_)", render_get_image_width);
     bind("xs", "Render", true, "getImageHeight(_)", render_get_image_height);
@@ -1061,6 +1055,13 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
     bind("xs", "Render", true, "text(_,_,_,_,_,_,_,_)", render_render_text);
     bind("xs", "Render", true, "destroyShape(_)", render_destroy_shape);
+    bind("xs", "Render", true, "dbgBegin(_)", render_dbg_begin);
+    bind("xs", "Render", true, "dbgEnd()", render_dbg_end);
+    bind("xs", "Render", true, "dbgVertex(_,_)", render_dbg_vertex);
+    bind("xs", "Render", true, "dbgColor(_)", render_dbg_color);
+    bind("xs", "Render", true, "dbgText(_,_,_,_)", render_dbg_text);
+    bind("xs", "Render", true, "dbgLine(_,_,_,_)", render_dbg_line);
+
 
     // ShapeHandle
     WrenForeignClassMethods shape_handle_methods{};

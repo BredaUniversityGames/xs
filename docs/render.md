@@ -91,16 +91,16 @@ Renders a text string on the screen, taking the original size of the loaded font
 ## Working with shapes
 Shapes are rendered after all sprites have been finished rendering.
 
-### setColor(r, g, b, a)
+### dbgColor(r, g, b, a)
 Sets the rendering color for consecutive shapes. Can also be set per vertex, for multicolored shapes. Values are in the `[0,1]` range.
 
-### setColor(r, g, b)
-Equivalent to calling `Render.setColor(r, g, b, 1)`
+### dbgColor(r, g, b)
+Equivalent to calling `Render.dbgColor(r, g, b, 1)`
 
-### setColor(color)
+### dbgColor(color)
 Sets the color as a single 32bit number. Example:
 ```csharp
-Render.setColor(0xF0C0D0FF)
+Render.dbgColor(0xF0C0D0FF)
 //                ^ ^ ^ ^
 //                R G B A
 ```
