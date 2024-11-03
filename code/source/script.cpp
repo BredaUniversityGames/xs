@@ -712,36 +712,36 @@ void input_reset_lightbar(WrenVM* vm)
 
 void render_begin(WrenVM* vm)
 {
-    callFunction_args<xs::render::primitive>(vm, xs::render::begin);
+    callFunction_args<xs::render::dbg_primitive>(vm, xs::render::dgb_begin);
 }
 
 void render_end(WrenVM* vm)
 {
-    xs::render::end();
+    xs::render::dbg_end();
 }
 
 void render_vertex(WrenVM* vm)
 {
-    callFunction_args<double, double>(vm, xs::render::vertex);
+    callFunction_args<double, double>(vm, xs::render::dbg_vertex);
 }
 
 void render_set_color(WrenVM* vm)
 {
     // Call manually
     auto c = wrenGetParameter<xs::color>(vm, 1);
-    xs::render::set_color(c);
+    xs::render::dbg_color(c);
 
     // callFunction_args<xs::render::color>(vm, xs::render::set_color);
 }
 
 void render_line(WrenVM* vm)
 {
-    callFunction_args<double,double,double,double>(vm, xs::render::line);
+    callFunction_args<double,double,double,double>(vm, xs::render::dbg_line);
 }
 
 void render_text(WrenVM* vm)
 {
-    callFunction_args<string,double,double,double>(vm, xs::render::text);
+    callFunction_args<string,double,double,double>(vm, xs::render::dbg_text);
 }
 
 void render_load_image(WrenVM* vm)
