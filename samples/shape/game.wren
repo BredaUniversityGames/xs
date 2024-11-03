@@ -81,6 +81,8 @@ class Game {
             
         // Render text
         var text = t > 0.2 ? "flower" : "circle"
-        Render.text(__font, text, 0, -320, 0xffffffff, 0x00000000, Render.spriteCenterX)   
+        Render.text(__font, text,
+             0, -320, 0.0,
+             0xffffffff, 0x00000000, Render.spriteCenterX)   
     }
 }
