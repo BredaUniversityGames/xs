@@ -275,7 +275,7 @@ void xs::render::render_text(
 		}
 
 		auto sprite = create_sprite(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
-		render_sprite(sprite, begin + bearing, y - quad.y1, z, 1, 0, multiply, add, 0);
+		xs::render::sprite(sprite, begin + bearing, y - quad.y1, z, 1, 0, multiply, add, 0);
 
 		begin += advance + kerning;		
 	}

@@ -812,7 +812,7 @@ void render_sprite_ex(WrenVM* vm)
         xs::color,
         xs::color,
         uint32_t
-    >(vm, xs::render::render_sprite);    
+    >(vm, xs::render::sprite);    
 }
 
 void render_set_offset(WrenVM* vm)
