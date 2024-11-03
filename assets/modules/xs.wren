@@ -63,7 +63,7 @@ class Render {
     static spriteFlipY      { 1 << 6 }
 
     /// Overlay the sprite as overlay (no offset applied)
-    static spriteOverlay    { 1 << 7 }
+    static spriteFixed    { 1 << 7 }
 
     /// Center the sprite on the x and y-axis
     static spriteCenter     { spriteCenterX | spriteCenterY }
