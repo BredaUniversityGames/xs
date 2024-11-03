@@ -196,6 +196,16 @@ int xs::render::get_image_width(int image_id)
 	return img.width;
 }
 
+void xs::render::shape(
+	int sprite_id,
+	double x, double y, double z,
+	double size, double rotation, color mutiply, color add)
+{
+	xs::render::sprite(
+		sprite_id, x, y, z,
+		size, rotation, mutiply, add, is_shape);
+}
+
 void xs::render::text(
 	int font_id,
 	const std::string& text,

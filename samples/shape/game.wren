@@ -62,22 +62,20 @@ class Game {
         __shape = sb.build(__image)
  
         // Render the shape
-        Render.sprite(
+        Render.shape(
             __shape,
             0, 0, 0,        // Position
             1, 0,           // Scale аnd rotation
             0xFFFFFFFF,     // Multiply color
-            0xFFFFFFFF,     // Add color
-            0)              // Flags
+            0xFFFFFFFF)     // Add color
 
         // Render the shape again, but smaller
-        Render.sprite(
+        Render.shape(
             __shape,
             0, 0, 0,        // Position
-            0.75, 0,         // Scale аnd rotation
+            0.75, 0,        // Scale аnd rotation
             0xFFFFFFFF,     // Multiply color
-            0x00000000,     // Add color
-            0)              // Flags
+            0x00000000)     // Add color
             
         // Render text
         var text = t > 0.2 ? "flower" : "circle"

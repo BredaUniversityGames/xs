@@ -14,7 +14,8 @@ namespace xs::render
 		flip_x		= 1 << 5,
 		flip_y		= 1 << 6,
 		overlay		= 1 << 7,
-		center		= center_x | center_y
+		center		= center_x | center_y,
+		is_shape	= 1 << 8
 	};
 
 	/// Stastistics for the rendering to share with the engine
@@ -81,6 +82,17 @@ namespace xs::render
 		color mutiply,
 		color add,
 		unsigned int flags);
+
+	/// Render a shape with given position, size, rotation and colors
+	void shape(
+		int sprite_id,
+		double x,
+		double y,
+		double z,
+		double size,
+		double rotation,
+		color mutiply,
+		color add);
 
 	/// Render text with given font, position, size and colors
 	void text(
