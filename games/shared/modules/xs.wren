@@ -37,127 +37,160 @@ class Render {
 
     /// Draw text at a position, with scale, rotation, color, and flags
     foreign static text(fontId, txt, x, y, z, mul, add, flags) // TODO: add z for sorting
-
-    /// Flags for sprite rendering
+    
+    /// Don't apply any flags
     static spriteNone       { 0 << 0 }
+
+    /// Draw the sprite at the bottom
     static spriteBottom     { 1 << 1 }
+
+    /// Draw the sprite at the top
     static spriteTop        { 1 << 2 }
+
+    /// Center the sprite on the x-axis
     static spriteCenterX    { 1 << 3 }
+
+    /// Center the sprite on the y-axis
     static spriteCenterY    { 1 << 4 }
+
+    /// Flip the sprite on the x-axis
     static spriteFlipX      { 1 << 5 }
+
+    /// Flip the sprite on the y-axis
     static spriteFlipY      { 1 << 6 }
+
+    /// Overlay the sprite as overlay (no offset applied)
     static spriteOverlay    { 1 << 7 }
+
+    /// Center the sprite on the x and y-axis
     static spriteCenter     { spriteCenterX | spriteCenterY }
+
+    /// This is not a sprite but a shape, so handle it differently
+    static spriteShape      { 1 << 8 }
 
     /// Debug native API //////////////////////////////////////////////////////
 
-    foreign static setColor(color)
-    foreign static line(x0, y0, x1, y1)
-    foreign static shapeText(text, x, y, size)
-    
+    /// Primitive type lines    
     static lines { 0 }
+
+    /// Primitive type triangles
     static triangles { 1 }
-    foreign static begin(primitive)
-    foreign static end()
-    foreign static vertex(x, y)
 
-    /// Helper functions //////////////////////////////////////////////////////}
+    /// Begin a debug draw
+    foreign static dbgBegin(primitive)
 
-    static line(a, b) {
-        line(a.x, a.y, b.x, b.y)
+    /// End a debug draw (flush)
+    foreign static dbgEnd()
+
+    /// Add a vertex
+    foreign static dbgVertex(x, y)
+
+    /// Set the color for the next vertex
+    foreign static dbgColor(color)
+
+    /// Draw a line
+    foreign static dbgLine(x0, y0, x1, y1)
+
+    /// Draw some text using dbgSquare font (debug)
+    foreign static dbgText(text, x, y, size)
+
+    /// Helper functions //////////////////////////////////////////////////////
+
+    static dbgLine(a, b) {
+        dbgLine(a.x, a.y, b.x, b.y)
     }
 
-    static rect(fromX, fromY, toX, toY) {
-        Render.begin(Render.triangles)
-            Render.vertex(fromX, fromY)
-            Render.vertex(toX, fromY)
-            Render.vertex(toX, toY)
+    static dbgRect(fromX, fromY, toX, toY) {
+        Render.dbgBegin(Render.triangles)
+            Render.dbgVertex(fromX, fromY)
+            Render.dbgVertex(toX, fromY)
+            Render.dbgVertex(toX, toY)
 
-            Render.vertex(fromX, fromY)
-            Render.vertex(fromX, toY)
-            Render.vertex(toX, toY)
-        Render.end()
+            Render.dbgVertex(fromX, fromY)
+            Render.dbgVertex(fromX, toY)
+            Render.dbgVertex(toX, toY)
+        Render.dbgEnd()
     }
 
-    static square(centerX, centerY, size) {
+    static dbgSquare(centerX, centerY, size) {
         var s = size * 0.5
-        Render.rect(centerX - s, centerY - s, centerX + s, centerY + s)
+        Render.dbgRect(centerX - s, centerY - s, centerX + s, centerY + s)
     }
 
-    static disk(x, y, r, divs) {
-        Render.begin(Render.triangles)
+    static dbgDisk(x, y, r, divs) {
+        Render.dbgBegin(Render.triangles)
         var t = 0.0
         var dt = (Num.pi * 2.0) / divs
         for(i in 0...divs) {            
-            Render.vertex(x, y)
+            Render.dbgVertex(x, y)
             var xr = t.cos * r            
             var yr = t.sin * r
-            Render.vertex(x + xr, y + yr)
+            Render.dbgVertex(x + xr, y + yr)
             t = t + dt
             xr = t.cos * r
             yr = t.sin * r
-            Render.vertex(x + xr, y + yr)
+            Render.dbgVertex(x + xr, y + yr)
         }
-        Render.end()
+        Render.dbgEnd()
     }
 
-    static circle(x, y, r, divs) {
-        Render.begin(Render.lines)
+    static dbgCircle(x, y, r, divs) {
+        Render.dbgBegin(Render.dbgLines)
         var t = 0.0
         var dt = (Num.pi * 2.0) / divs
         for(i in 0..divs) {            
             var xr = t.cos * r            
             var yr = t.sin * r
-            Render.vertex(x + xr, y + yr)
+            Render.dbgVertex(x + xr, y + yr)
             t = t + dt
             xr = t.cos * r
             yr = t.sin * r
-            Render.vertex(x + xr, y + yr)
+            Render.dbgVertex(x + xr, y + yr)
         }
-        Render.end()
+        Render.dbgEnd()
     }
 
-    static arc(x, y, r, angle, divs) {        
+    static dbgArc(x, y, r, angle, divs) {        
         var t = 0.0
         divs = angle / (Num.pi * 2.0) * divs
         divs = divs.truncate
         var dt = angle / divs
         if(divs > 0) {
-            Render.begin(Render.lines)
+            Render.dbgBegin(Render.dbgLines)
             for(i in 0..divs) {
                 var xr = t.cos * r            
                 var yr = t.sin * r
-                Render.vertex(x + xr, y + yr)
+                Render.dbgVertex(x + xr, y + yr)
                 t = t + dt
                 xr = t.cos * r
                 yr = t.sin * r
-                Render.vertex(x + xr, y + yr)
+                Render.dbgVertex(x + xr, y + yr)
             }
-            Render.end()
+            Render.dbgEnd()
         }
     }
 
-    static pie(x, y, r, angle, divs) {
-        Render.begin(Render.triangles)
+    static dbgPie(x, y, r, angle, divs) {
+        Render.dbgBegin(Render.triangles)
         var t = 0.0
         divs = angle / (Num.pi * 2.0) * divs
         divs = divs.truncate
         var dt = angle / divs
         for(i in 0..divs) {            
-            Render.vertex(x, y)
+            Render.dbgVertex(x, y)
             var xr = t.cos * r            
             var yr = t.sin * r
-            Render.vertex(x + xr, y + yr)
+            Render.dbgVertex(x + xr, y + yr)
             t = t + dt
             xr = t.cos * r
             yr = t.sin * r
-            Render.vertex(x + xr, y + yr)
+            Render.dbgVertex(x + xr, y + yr)
         }
-        Render.end()
+        Render.dbgEnd()
     }
 
-    static vertex(v) {
-        Render.vertex(v.x, v.y)
+    static dbgVertex(v) {
+        Render.dbgVertex(v.x, v.y)
     }
 
     static sprite(spriteId, x, y) {

@@ -24,9 +24,9 @@ class Game {
     }
 
     static cross(x, y) {
-        Render.setColor(0x00ffffff)
-        Render.line(x - 10, y, x + 10, y)
-        Render.line(x, y - 10, x, y + 10)        
+        Render.dbgColor(0x00ffffff)
+        Render.dbgLine(x - 10, y, x + 10, y)
+        Render.dbgLine(x, y - 10, x, y + 10)
     }
 
     static render() {
