@@ -1,4 +1,5 @@
 #version 450 core
+
 layout (binding = 0) uniform sampler2D s_image;
 
 in vec4 v_mul_color;

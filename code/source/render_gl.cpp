@@ -52,15 +52,23 @@ using namespace std;
 
 static const unsigned int c_invalid_index = 4294967295;  // Just -1 casted to unsigned int
 static const unsigned int c_instances_ubo_binding = 1;
-static const unsigned int c_max_instances = 256;
+static const unsigned int c_max_instances = 128;
 
 namespace xs::render
 {
 	void create_frame_buffers();
 	void delete_frame_buffers();
+
 	void compile_draw_shader();
 	void compile_sprite_shader();
+	void compile_shape_shader();
+
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
+	bool compile_shader(
+		const GLchar* vertex_shader,
+		const GLchar* geometry_shader,
+		const GLchar* fragment_shader,
+		GLuint* program);
 	bool link_program(GLuint program);
 
 	int width = -1;
@@ -130,6 +138,7 @@ namespace xs::render
 
 	xs::render::stats render_stats = {};
 
+
 	class shader_preprocessor
 	{
 	public:
@@ -145,8 +154,6 @@ namespace xs::render
 		std::vector<std::string> m_search_paths;
 		std::map<std::string, std::string> m_cached_sources;	
 	};
-
-
 }
 
 using namespace xs;
@@ -289,7 +296,7 @@ void xs::render::render()
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// Enable depth testing and set the depth function
+	// Disable depth testing and face culling
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
@@ -306,7 +313,7 @@ void xs::render::render()
 
 	for (const auto& spe : sprite_queue)
 	{
-		if(spe.sprite_id == -1) continue;
+		if (spe.sprite_id == -1) continue;
 		auto& mesh = sprite_meshes[spe.sprite_id];
 		auto& img = images[mesh.image_id];
 
@@ -315,43 +322,34 @@ void xs::render::render()
 		float dy = mesh.extents.max.y - mesh.extents.min.y;
 		mat4 model = identity<mat4>();
 
-		mat4 mvp;
-		{
-			XS_PROFILE_SECTION("Model matrix");
-			model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
-			if (!tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::overlay))
-				model = translate(model, vec3(offset, 0.0));
+		XS_PROFILE_SECTION("Model matrix");
+		model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
+		if (!tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::overlay))
+			model = translate(model, vec3(offset, 0.0));
 
-			model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
-			model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
+		model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
+		model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
 
-			if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
-				model = translate(model, vec3(-dx * 0.5f, 0.0f, 0.0f));
-			if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
-				model = translate(model, vec3(0.0f, -dy * 0.5f, 0.0f));
-			if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
-				model = translate(model, vec3(0.0f, -dy, 0.0f));
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
+			model = translate(model, vec3(-dx * 0.5f, 0.0f, 0.0f));
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
+			model = translate(model, vec3(0.0f, -dy * 0.5f, 0.0f));
+		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
+			model = translate(model, vec3(0.0f, -dy, 0.0f));
 
-			mvp = vp * model;
-		}
+		mat4 mvp = vp * model;
 
 		// Get the AABB in view space
-		static tools::aabb view_aabb({-1,-1},{1,1});
+		static tools::aabb view_aabb({ -1,-1 }, { 1,1 });
 		tools::aabb bb = mesh.extents.transform(mvp);
 #if		XS_DEBUG_EXTENTS
 		tools::aabb bb2 = mesh.extents.transform(mv);
 		bb2.debug_draw();
 #endif
-		
+
 		// Check if the sprite is outside the screen
 		if (tools::aabb::overlap(bb, view_aabb))
 		{
-			//glUniformMatrix4fv(1, 1, false, value_ptr(mvp));
-			//glUniform4fv(2, 1, value_ptr(spe.mul_color));
-			//glUniform4fv(3, 1, value_ptr(spe.add_color));
-			//glUniform1ui(4, spe.flags);
-
-
 			// Set the texture
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, img.texture);
@@ -361,21 +359,17 @@ void xs::render::render()
 			instances_data[0].add_color = spe.add_color;
 			instances_data[0].flags = spe.flags;
 
-			{
-				XS_PROFILE_SECTION("Draw call");
-				glBindBuffer(GL_UNIFORM_BUFFER, instances_ubo);
-				glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(instance_struct), &instances_data[0]);
-				glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			glBindBuffer(GL_UNIFORM_BUFFER, instances_ubo);
+			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(instance_struct), &instances_data[0]);
+			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 
-				// Bind the vertex array
-				glBindVertexArray(mesh.vao);
+			// Bind the vertex array
+			glBindVertexArray(mesh.vao);
 
-				// Draw the mesh
-				glDrawElements(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr);
+			// Draw the mesh
+			glDrawElementsInstanced(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr, 1);
 
-				//glDrawElementsInstanced(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr, 1);
-			}
 
 			// Unbind the vertex array
 			XS_DEBUG_ONLY(glBindVertexArray(0));
@@ -735,47 +729,78 @@ xs::render::stats xs::render::get_stats()
 	return render_stats;
 }
 
-void xs::render::compile_sprite_shader()
+bool xs::render::compile_shader(
+	const GLchar* vertex_shader,
+	const GLchar* geometry_shader,
+	const GLchar* fragment_shader,
+	GLuint* program)
 {
-	auto shader_preprocessor = render::shader_preprocessor();
-	auto vs_str =  shader_preprocessor.read("[shared]/shaders/sprite.vert");
-	auto fs_str = shader_preprocessor.read("[shared]/shaders/sprite.frag");
-	const char* const vs_source = vs_str.c_str();
-	const char* const fs_source = fs_str.c_str();
-
 	GLuint vert_shader = 0;
+	GLuint geom_shader = 0;
 	GLuint frag_shader = 0;
 
-	sprite_program = glCreateProgram();
+	*program = glCreateProgram();
 
-	GLboolean res = compile_shader(&vert_shader, GL_VERTEX_SHADER, vs_source);
+	GLboolean res = compile_shader(&vert_shader, GL_VERTEX_SHADER, vertex_shader);
 	if (!res)
 	{
-		log::error("Renderer failed to compile sprite vertex shader");
-		return;
+		log::error("Renderer failed to compile vertex shader");
+		return false;
 	}
 
-	res = compile_shader(&frag_shader, GL_FRAGMENT_SHADER, fs_source);
+	if (geometry_shader)
+	{
+		res = compile_shader(&geom_shader, GL_GEOMETRY_SHADER, geometry_shader);
+		if (!res)
+		{
+			log::error("Renderer failed to compile geometry shader");
+			return false;
+		}
+	}
+
+	res = compile_shader(&frag_shader, GL_FRAGMENT_SHADER, fragment_shader);
 	if (!res)
 	{
-		log::error("Renderer failed to compile sprite fragment shader");
-		return;
+		log::error("Renderer failed to compile fragment shader");
+		return false;
 	}
 
-	glAttachShader(sprite_program, vert_shader);
-	glAttachShader(sprite_program, frag_shader);
+	glAttachShader(*program, vert_shader);
+	if (geometry_shader)
+		glAttachShader(*program, geom_shader);
+	glAttachShader(*program, frag_shader);
 
-	if (!link_program(sprite_program))
+	if (!link_program(*program))
 	{
 		glDeleteShader(vert_shader);
+		if (geometry_shader)
+			glDeleteShader(geom_shader);
 		glDeleteShader(frag_shader);
-		glDeleteProgram(sprite_program);
-		log::error("Renderer failed to link sprite shader program");
-		return;
+		glDeleteProgram(*program);
+		log::error("Renderer failed to link shader program");
+		return false;
 	}
 
 	glDeleteShader(vert_shader);
+	if (geometry_shader)
+		glDeleteShader(geom_shader);
 	glDeleteShader(frag_shader);
+
+	return true;
+}
+
+void xs::render::compile_sprite_shader()
+{
+	auto shader_preprocessor = render::shader_preprocessor();
+	auto vs_str = shader_preprocessor.read("[shared]/shaders/sprite.vert");
+	auto fs_str = shader_preprocessor.read("[shared]/shaders/sprite.frag");
+	const char* const vs_source = vs_str.c_str();
+	const char* const fs_source = fs_str.c_str();
+	bool success = compile_shader(
+		vs_source,
+		nullptr,
+		fs_source,
+		&sprite_program);
 }
 
 void xs::render::compile_draw_shader()
@@ -803,40 +828,14 @@ void xs::render::compile_draw_shader()
 			frag_color = v_color;										\n\
 		}";
 
-	GLuint vert_shader = 0;
-	GLuint frag_shader = 0;
+	bool sucess = compile_shader(
+		vs_source,
+		nullptr,
+		fs_source,
+		&shader_program);
 
-	shader_program = glCreateProgram();
-
-	GLboolean res = compile_shader(&vert_shader, GL_VERTEX_SHADER, vs_source);
-	if (!res)
-	{
-		log::error("Renderer failed to compile vertex shader");
-		return;
-	}
-
-	res = compile_shader(&frag_shader, GL_FRAGMENT_SHADER, fs_source);
-	if (!res)
-	{
-		log::error("Renderer failed to compile fragment shader");
-		return;
-	}
-
-	glAttachShader(shader_program, vert_shader);
-	glAttachShader(shader_program, frag_shader);
-
-	if (!link_program(shader_program))
-	{
-		glDeleteShader(vert_shader);
-		glDeleteShader(frag_shader);
-		glDeleteProgram(shader_program);
-		log::error("Renderer failed to link shader program");
-		return;
-	}
-
-	glDeleteShader(vert_shader);
-	glDeleteShader(frag_shader);
-
+	if (!sucess)
+		log::error("Renderer failed to compile draw shader");
 }
 
 bool xs::render::compile_shader(GLuint* shader, GLenum type, const GLchar* source)
