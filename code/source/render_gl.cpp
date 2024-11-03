@@ -96,34 +96,29 @@ namespace xs::render
 		float rotation;	// 4
 		uint flags;		// 4
 	};
-
-	instance_struct* instances_data = nullptr;
-	unsigned int instances_ubo = c_invalid_index;
-
+	
 	struct sprite_vtx_format
 	{
 		vec3 position;
 		vec2 texture;
 		vec4 add_color;
 		vec4 mul_color;
-	};	
-	
-	unsigned int			sprite_program = 0;
+	};		
 
-	struct sprite_mesh
+	struct mesh
 	{
-		unsigned int				vao = 0;
-		unsigned int				ebo = 0;
+		unsigned int vao = 0;
+		unsigned int ebo = 0;
 		std::array<unsigned int, 4>	vbos = { 0, 0, 0, 0 };
-		uint32_t					count = 0;
-		int							image_id = 0;
-		tools::aabb					extents;
-		vec2						textureFrom;
-		vec2						textureTo;
-		bool						is_sprite = false;
+		uint32_t count = 0;
+		int	image_id = 0;
+		tools::aabb	extents;
+		vec2 textureFrom;
+		vec2 textureTo;
+		bool is_sprite = false;
 	};
 
-	struct sprite_mesh_instance
+	struct render_instance
 	{
 		int sprite_id = 0;
 		int image_id = 0;
@@ -137,12 +132,18 @@ namespace xs::render
 		uint flags = 0;
 	};
 
-	unordered_map<int, sprite_mesh>	sprite_meshes;
-	vector<sprite_mesh_instance>	sprite_queue;
+	uint main_program = 0;
+	instance_struct* instances_data = nullptr;
+	unsigned int instances_ubo = c_invalid_index;
+
+	unordered_map<int, mesh> meshes;
+	vector<render_instance> render_queue;
 
 	xs::render::stats render_stats = {};
 
-
+	// Used to enable include directive in GLSL.
+	// Nice for sharing code between shaders or even
+	// for sharing code between C++ and GLSL.
 	class shader_preprocessor
 	{
 	public:
@@ -254,16 +255,16 @@ void xs::render::shutdown()
 	glDeleteVertexArrays(1, &lines_vao);
 
 	// Shaders
-	glDeleteProgram(sprite_program);
+	glDeleteProgram(main_program);
 	glDeleteProgram(shader_program);
 
 	// Frame buffer
 	delete_frame_buffers();
 
 	// Clear the sprite meshes
-	sprite_meshes.clear();
+	meshes.clear();
 	// Clear the sprite queue
-	sprite_queue.clear();
+	render_queue.clear();
 
 	// Clear the fonts	
 	fonts.clear();
@@ -304,18 +305,18 @@ void xs::render::render()
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
 
-	glUseProgram(sprite_program);
+	glUseProgram(main_program);
 	glUniformMatrix4fv(0, 1, false, value_ptr(vp));
 
-	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
-		[](const sprite_mesh_instance& lhs, const sprite_mesh_instance& rhs) {		
+	std::stable_sort(render_queue.begin(), render_queue.end(),
+		[](const render_instance& lhs, const render_instance& rhs) {		
 			return lhs.z < rhs.z;
 		});
 	
-	for (const auto& spe : sprite_queue)
+	for (const auto& spe : render_queue)
 	{
 		if (spe.sprite_id == -1) continue;
-		auto& mesh = sprite_meshes[spe.sprite_id];
+		auto& mesh = meshes[spe.sprite_id];
 		auto& img = images[mesh.image_id];
 
 		// Set the model matrix
@@ -390,7 +391,7 @@ void xs::render::render()
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	
-	render_stats.sprites = (int)sprite_meshes.size();
+	render_stats.sprites = (int)meshes.size();
 	render_stats.textures = (int)images.size();
 }
 
@@ -406,9 +407,9 @@ void xs::render::render_sprite(
 	unsigned int flags)
 {
 	// Queue the sprite to render
-	sprite_mesh_instance instance;
+	render_instance instance;
 	instance.sprite_id = sprite_id;
-	instance.image_id = sprite_meshes[sprite_id].image_id;
+	instance.image_id = meshes[sprite_id].image_id;
 	instance.x = x;
 	instance.y = y;
 	instance.z = z;
@@ -425,7 +426,7 @@ void xs::render::render_sprite(
 		(float)add.b / 255.0f,
 		(float)add.a / 255.0f);
 	instance.flags = flags;
-	sprite_queue.push_back(instance);
+	render_queue.push_back(instance);
 }
 
 void xs::render::clear()
@@ -437,7 +438,7 @@ void xs::render::clear()
 	
 	lines_count = 0;
 	triangles_count = 0;
-	sprite_queue.clear();
+	render_queue.clear();
 }
 
 void xs::render::create_texture_with_data(xs::render::image& img, uchar* data)
@@ -550,12 +551,12 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 
 	// Check if the sprite already exists
 	auto key = tools::hash_combine(image_id, x0, y0, x1, y1);
-	auto it = sprite_meshes.find(key);
-	if (it != sprite_meshes.end())
+	auto it = meshes.find(key);
+	if (it != meshes.end())
 		return it->first;
 
 	// Create the sprite mesh
-	sprite_mesh mesh;
+	mesh mesh;
 	mesh.is_sprite = true;
 
 	// Index of the vertices
@@ -626,7 +627,7 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 
 	// Store the mesh
 	mesh.image_id = image_id;
-	sprite_meshes[key] = mesh;
+	meshes[key] = mesh;
 	return key;
 }
 
@@ -639,7 +640,7 @@ int xs::render::create_shape(
 	unsigned int index_count)
 {
 	// Create the sprite mesh
-	sprite_mesh mesh = {};
+	mesh mesh = {};
 	mesh.is_sprite = false;
 	auto key = tools::random_id();
 
@@ -672,14 +673,14 @@ int xs::render::create_shape(
 
 	// Store the mesh
 	mesh.image_id = image_id;
-	sprite_meshes[key] = mesh;
+	meshes[key] = mesh;
 	return key;
 }
 
 void xs::render::destroy_shape(int sprite_id)
 {
-	auto it = sprite_meshes.find(sprite_id);
-	if (it != sprite_meshes.end())
+	auto it = meshes.find(sprite_id);
+	if (it != meshes.end())
 	{
 		auto& mesh = it->second;
 		if(!mesh.is_sprite) 
@@ -687,7 +688,7 @@ void xs::render::destroy_shape(int sprite_id)
 			glDeleteVertexArrays(1, &mesh.vao);
 			glDeleteBuffers(1, &mesh.ebo);
 			glDeleteBuffers(4, mesh.vbos.data());
-			sprite_meshes.erase(it);
+			meshes.erase(it);
 		}
 	}
 }
@@ -768,7 +769,7 @@ void xs::render::compile_sprite_shader()
 		vs_source,
 		nullptr,
 		fs_source,
-		&sprite_program);
+		&main_program);
 }
 
 void xs::render::compile_draw_shader()
