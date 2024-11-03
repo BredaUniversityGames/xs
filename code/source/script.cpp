@@ -800,7 +800,7 @@ void render_destroy_shape(WrenVM* vm)
 	xs::render::destroy_shape(*handle);
 }
 
-void render_sprite_ex(WrenVM* vm)
+void render_sprite(WrenVM* vm)
 {
     callFunction_args<
         tools::handle,
@@ -815,6 +815,20 @@ void render_sprite_ex(WrenVM* vm)
     >(vm, xs::render::sprite);    
 }
 
+void render_shape(WrenVM* vm)
+{
+	callFunction_args<
+		tools::handle,
+		double,
+		double,
+		double,
+		double,
+		double,
+		xs::color,
+		xs::color
+	>(vm, xs::render::shape);
+}
+
 void render_set_offset(WrenVM* vm)
 {
     callFunction_args<double, double>(vm, xs::render::set_offset);
@@ -825,7 +839,7 @@ void render_load_font(WrenVM* vm)
     callFunction_returnType_args<int, string, double>(vm, xs::render::load_font);
 }
 
-void render_render_text(WrenVM* vm)
+void render_text(WrenVM* vm)
 {
     callFunction_args<int, string, double, double, double, xs::color, xs::color, uint32_t>(vm, xs::render::text);
 }
@@ -1051,9 +1065,10 @@ void xs::script::bind_api()
     bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
     bind("xs", "Render", true, "createShape(_,_,_,_)", render_create_shape);
     bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
-    bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite_ex);
+    bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite);
+    bind("xs", "Render", true, "shape(_,_,_,_,_,_,_,_)", render_shape);
     bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
-    bind("xs", "Render", true, "text(_,_,_,_,_,_,_,_)", render_render_text);
+    bind("xs", "Render", true, "text(_,_,_,_,_,_,_,_)", render_text);
     bind("xs", "Render", true, "destroyShape(_)", render_destroy_shape);
     bind("xs", "Render", true, "dbgBegin(_)", render_dbg_begin);
     bind("xs", "Render", true, "dbgEnd()", render_dbg_end);
