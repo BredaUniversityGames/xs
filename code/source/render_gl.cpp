@@ -86,13 +86,15 @@ namespace xs::render
 	unsigned int triangles_vao = 0;
 	unsigned int triangles_vbo = 0;
 
-
+	// Make sure is in sync with the shader
 	struct instance_struct
 	{
-		mat4    wvp;        // 64
-		vec4    mul_color;  // 16   
-		vec4    add_color;  // 16
-		uint    flags;      // 4
+		vec4 mul_color;	// 16   
+		vec4 add_color; // 16
+		vec2 position;	// 8
+		vec2 scale;		// 8
+		float rotation;	// 4
+		uint flags;		// 4
 	};
 
 	instance_struct* instances_data = nullptr;
@@ -116,6 +118,8 @@ namespace xs::render
 		uint32_t					count = 0;
 		int							image_id = 0;
 		tools::aabb					extents;
+		vec2						textureFrom;
+		vec2						textureTo;
 		bool						is_sprite = false;
 	};
 
@@ -301,16 +305,13 @@ void xs::render::render()
 	glDisable(GL_CULL_FACE);
 
 	glUseProgram(sprite_program);
-	//glUniformMatrix4fv(1, 1, false, value_ptr(vp));
+	glUniformMatrix4fv(0, 1, false, value_ptr(vp));
 
 	std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
 		[](const sprite_mesh_instance& lhs, const sprite_mesh_instance& rhs) {		
 			return lhs.z < rhs.z;
 		});
-
-	// Set the shader program
-	//glUseProgram(sprite_program);
-
+	
 	for (const auto& spe : sprite_queue)
 	{
 		if (spe.sprite_id == -1) continue;
@@ -320,66 +321,33 @@ void xs::render::render()
 		// Set the model matrix
 		float dx = mesh.extents.max.x - mesh.extents.min.x;
 		float dy = mesh.extents.max.y - mesh.extents.min.y;
-		mat4 model = identity<mat4>();
 
-		XS_PROFILE_SECTION("Model matrix");
-		model = translate(model, vec3((float)spe.x, (float)spe.y, 0.0));
-		if (!tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::overlay))
-			model = translate(model, vec3(offset, 0.0));
+		// Set the texture
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, img.texture);
 
-		model = rotate(model, (float)spe.rotation, vec3(0.0f, 0.0f, 1.0f));
-		model = scale(model, vec3((float)spe.scale, (float)spe.scale, 1.0f));
+		instances_data[0].mul_color = spe.mul_color;
+		instances_data[0].add_color = spe.add_color;
+		instances_data[0].position = vec2((float)spe.x, (float)spe.y);
+		instances_data[0].scale = vec2((float)spe.scale, (float)spe.scale);
+		instances_data[0].rotation = (float)spe.rotation;
+		instances_data[0].flags = spe.flags;
 
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
-			model = translate(model, vec3(-dx * 0.5f, 0.0f, 0.0f));
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
-			model = translate(model, vec3(0.0f, -dy * 0.5f, 0.0f));
-		if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
-			model = translate(model, vec3(0.0f, -dy, 0.0f));
-
-		mat4 mvp = vp * model;
-
-		// Get the AABB in view space
-		static tools::aabb view_aabb({ -1,-1 }, { 1,1 });
-		tools::aabb bb = mesh.extents.transform(mvp);
-#if		XS_DEBUG_EXTENTS
-		tools::aabb bb2 = mesh.extents.transform(mv);
-		bb2.debug_draw();
-#endif
-
-		// Check if the sprite is outside the screen
-		if (tools::aabb::overlap(bb, view_aabb))
-		{
-			// Set the texture
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, img.texture);
-
-			instances_data[0].wvp = mvp;
-			instances_data[0].mul_color = spe.mul_color;
-			instances_data[0].add_color = spe.add_color;
-			instances_data[0].flags = spe.flags;
-
-			glBindBuffer(GL_UNIFORM_BUFFER, instances_ubo);
-			glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(instance_struct), &instances_data[0]);
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		glBindBuffer(GL_UNIFORM_BUFFER, instances_ubo);
+		glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(instance_struct), &instances_data[0]);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
 
-			// Bind the vertex array
-			glBindVertexArray(mesh.vao);
+		// Bind the vertex array
+		glBindVertexArray(mesh.vao);
 
-			// Draw the mesh
-			glDrawElementsInstanced(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr, 1);
+		// Draw the mesh
+		glDrawElementsInstanced(GL_TRIANGLES, mesh.count, GL_UNSIGNED_SHORT, nullptr, 1);
 
+		// Unbind the vertex array
+		XS_DEBUG_ONLY(glBindVertexArray(0));
 
-			// Unbind the vertex array
-			XS_DEBUG_ONLY(glBindVertexArray(0));
-
-			render_stats.draw_calls++;
-		}
-		else
-		{
-			if (!bb.is_valid()) {}
-		}
+		render_stats.draw_calls++;
 	}
 	
 	glUseProgram(shader_program);
