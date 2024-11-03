@@ -72,18 +72,8 @@ namespace xs::render
     int                             triangles_begin_count = 0;
     debug_vertex_format             triangles_array[triangles_max * 3];
 
-    dbg_primitive                       current_primitive = dbg_primitive::none;
+    dbg_primitive                   current_primitive = dbg_primitive::none;
     glm::vec4                       current_color = {1.0, 1.0, 1.0, 1.0};
-
-
-	struct shape
-	{
-		std::vector<double>	points = {};
-		std::vector<color>	colors = {};
-	};
-
-	std::unordered_map<int, shape>	shapes = {};
-	int 							next_shape_id = 1;
 
 	const int FONT_ATLAS_MIN_CHARACTER = 32;
 	const int FONT_ATLAS_NR_CHARACTERS = 96;
@@ -206,7 +196,7 @@ int xs::render::get_image_width(int image_id)
 	return img.width;
 }
 
-void xs::render::render_text(
+void xs::render::text(
 	int font_id,
 	const std::string& text,
 	double x,
