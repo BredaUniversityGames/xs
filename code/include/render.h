@@ -83,7 +83,7 @@ namespace xs::render
 		unsigned int flags);
 
 	/// Render text with given font, position, size and colors
-	void render_text(
+	void text(
 		int font_id,
 		const std::string& text,
 		double x,
