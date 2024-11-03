@@ -3,6 +3,8 @@
 
 struct instance_struct
 {
+    vec4 xy;        // 16
+    vec4 uv;        // 16
     vec4 mul_color; // 16   
     vec4 add_color; // 16
     vec2 position;  // 8
