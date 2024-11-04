@@ -31,8 +31,8 @@ if os.path.exists(source_dir):
     output_dir = current_dir + "\\build\\samples"
     shutil.copytree(asset_dir, output_dir, False, ignore=ignore_patterns('*.obj', "*.bnvib", "*.pyc"))
 
-    asset_dir = current_dir + "\\games\\" + "shared"
-    output_dir = current_dir + "\\build\\games\\" + "shared"
+    asset_dir = current_dir + "\\assets"
+    output_dir = current_dir + "\\build\\assets"
     shutil.copytree(asset_dir, output_dir, False, ignore=ignore_patterns('*.obj', "*.bnvib", "*.py"))    
         
     toml_src = current_dir + "\\tools\\.itch.toml"
@@ -42,7 +42,7 @@ if os.path.exists(source_dir):
     
     butler_command = "butler push build " + user + "/" + itch_name + ":win"
     os.system(butler_command)
-
+    
 else:
     print("Source dir does not exist: " + source_dir)
 
