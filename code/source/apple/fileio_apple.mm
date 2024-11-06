@@ -22,7 +22,7 @@ void fileio::initialize()
     // NSArray* user_paths_oc = NSSearchPathForDirectoriesInDomains(NSUserDirectory, NSUserDomainMask, YES);
     // NSString* user_path_oc = [user_paths_oc objectAtIndex:0];
     
-#if defined(DEBUG) && defined(PLATFORM_MAC) && 0
+#if defined(DEBUG) && defined(PLATFORM_MAC)
     NSString* project_path_oc = PROJECT_DIR;  // Define from a macro
 #else
     NSString* project_path_oc = [[NSBundle mainBundle] resourcePath];
@@ -30,7 +30,7 @@ void fileio::initialize()
     
     // Shared
     string project_path = [project_path_oc UTF8String];
-    auto shared_path = project_path + "/games/shared";
+    auto shared_path = project_path + "/assets";
     fileio::internal::wildcards["[shared]"] = shared_path;
     
     // Save
