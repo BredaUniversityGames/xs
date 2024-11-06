@@ -27,13 +27,20 @@ class Game {
   } 
 
   static render() {
-    // Loads an image from the games/<gamename>/textures folder
+    // Loads an image from <your_game>/textures folder
     var img = Render.loadImage("[game]/textures/flower.png")
     // Creates a sprite by taking a part (the bottom lower corner )
     var spr = Render.createSprite(img, 0.0, 0.0, 0.5, 0.5)
     // Renders the flower sprite 
-    Render.sprite(spr, 100, 100, 2.0, Math.pi * 0.25,
-      0xFFDD00FF, 0xDDFF00FF, Render.spriteCenter)
+    Render.sprite(spr,
+      100,            // x
+      100,            // y
+      0.0,            // z (sorting)
+      2.0,            // scale
+      Math.pi * 0.25, // rotation
+      0xFFDD00FF,     // multiply color
+      0xDDFF00FF,     // add color
+      Render.spriteCenter) // flags
   }
 //...
 }
@@ -66,13 +73,6 @@ Renders a sprite on the screen, takin the original size of the sprite, given a s
   - `spriteFlipX` - Flip the sprite horizontally 
   - `spriteFlipY` - Flip the sprite vertically
 
-### sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)
-This is equivalent to calling
-
-`sprite(spriteId, x, y, 0.0, scale, rotation, mul, add, flags)`
-
-When two sprites are rendered at the same z (sorting) value, they will be rendered according to call order.  
-
 ### sprite(spriteId, x, y)
 This is equivalent to calling:
 
@@ -88,14 +88,8 @@ Loads a given font with a certain size into a font atlas.
 Renders a text string on the screen, taking the original size of the loaded font into account, given a set of parameters. They are the same as the sprite parameters.
  - Known issue, the always text renders above the sprites. 
 
-## Working with shapes
-Shapes are rendered after all sprites have been finished rendering.
-
-### dbgColor(r, g, b, a)
-Sets the rendering color for consecutive shapes. Can also be set per vertex, for multicolored shapes. Values are in the `[0,1]` range.
-
-### dbgColor(r, g, b)
-Equivalent to calling `Render.dbgColor(r, g, b, 1)`
+## Debug rendering
+Debug rendering happens after all sprites have been finished rendering.
 
 ### dbgColor(color)
 Sets the color as a single 32bit number. Example:
@@ -105,18 +99,18 @@ Render.dbgColor(0xF0C0D0FF)
 //                R G B A
 ```
 
-### line(x0, y0, x1, y1)
-Draws a line from `[x0,y0]` to `[x1,y1]`
-
-### shapeText(text, x, y, size)
-Draws a shape text on the screen with a given size
-
-### begin(primitive)
+### dbgBegin(primitive)
 Will start the rendering of a new primitive. This can be either `triangles` or `lines`. Provide vertices using `vertex(x, y)` and call `end()` when done to finish the the primitive. It's not possible to draw the primitives within a `being()`/`end()` block.
 
-### end()
+### dbgEnd()
 Finish rendering a primitive. Providing number of vertices that does not match the type (divisible with 3 for `triangles` and divisible by 2 for `lines`) will result in an error.
 
-### vertex(x, y)
+### dbgLine(x0, y0, x1, y1)
+Draws a line from `[x0,y0]` to `[x1,y1]`
+
+### dbgText(text, x, y, size)
+Draws a shape text on the screen with a given size
+
+### dbgVertex(x, y)
 Provide a vertex. This call only be called between `being()` and `end()`. 
 
