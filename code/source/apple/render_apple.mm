@@ -57,7 +57,7 @@ namespace xs::render
 
 
 	// TODO: Deprecated
-	struct sprite
+	struct sprite_data
 	{
 		int image_id	= -1;
 		glm::vec2 from	= {};
@@ -77,7 +77,7 @@ namespace xs::render
 		unsigned int	flags = 0;
 	};
 
-	std::vector<sprite>				sprites;
+	std::vector<sprite_data>				sprites;
 	std::vector<sprite_queue_entry>	sprite_queue = {};
 
 }
@@ -482,12 +482,12 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	}
 
 	const auto i = sprites.size();
-	sprite s = { image_id, { x0, y0 }, { x1, y1 } };
+	sprite_data s = { image_id, { x0, y0 }, { x1, y1 } };
 	sprites.push_back(s);
 	return static_cast<int>(i);
 }
 
-void xs::render::render_sprite(
+void xs::render::sprite(
 	int sprite_id,
 	double x,
 	double y,
@@ -503,7 +503,7 @@ void xs::render::render_sprite(
 		return;
 	}
 
-	if (!tools::check_bit_flag_overlap(flags, sprite_flags::overlay)) {
+	if (!tools::check_bit_flag_overlap(flags, sprite_flags::fixed)) {
 		x += offset.x;
 		y += offset.y;
 	}
