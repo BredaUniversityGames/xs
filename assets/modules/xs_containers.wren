@@ -45,26 +45,114 @@ class Grid {
     /// Assigns a given value to a given grid cell.    
     [x, y]=(v) {
         _grid[y * _width + x] = v
-    }    
+    }
 
-    /// Prints the contents of this grid to the console.
-    print() {
-        var line = "\n"
+    /// Constructs a string representation of this grid.
+    toString {
+        var str = ""
         for (y in (_height-1)..0) {
             for (x in 0..._width) {
-                var val = this[x,y]
-                if (val == 0) {
-                    line = line + " ."
-                } else {
-                    line = line + " %(val)"
-                }
+                str = str + " %(this[x,y])"
             }
-            line = line + "\n"
+            str = str + "\n"
         }
-        System.print(line)
-    }    
+    }
 }
 
+/// Logical representation of a grid with many empty spaces
+class SpraseGrid {
+
+    construct new() {
+        _grid = {}
+    }
+    
+    /// Creates a unique identifier for a given cell position.
+    static makeId(x, y) { x << 16 | y }  // |
+
+    /// Checks if a given cell position exists in the grid.
+    has(x, y) {
+        var id =  SpraseGrid.makeId(x, y)
+        return _grid.containsKey(id)
+    }
+
+    /// Removes the value stored at the given grid cell.
+    remove(x, y) {
+        var id =  SpraseGrid.makeId(x, y)
+        _grid.remove(id)
+    }
+
+    /// Returns the value stored at the given grid cell.    
+    [x, y] {
+        var id =  SpraseGrid.makeId(x, y)
+        if(_grid.containsKey(id)) {
+            return _grid[id]
+        } else {
+            _grid[id] = _zero.type.new()
+            return _grid[id]
+        }
+    }
+
+    /// Assigns a given value to a given grid cell.    
+    [x, y]=(v) {
+        var id = SpraseGrid.makeId(x, y)
+        _grid[id] = v
+    }
+
+    /// Clears the grid.
+    clear() {
+        _grid.clear()
+    }
+
+    /// Returns the values stored in the grid.
+    values { _grid.values }
+
+}
+
+/// First-in-first-out (FIFO) data structure 
+class Queue {
+
+    construct new() {
+        _data = []
+    }
+
+    push(val) {
+        _data.add(val)
+    }
+
+    pop() {
+        if(!empty()) {
+            var val = _data[0]
+            _data.removeAt(0)
+            return val
+        }
+    }
+
+    empty() { _data.count == 0 }
+ }
+
+/// Last-in-fist-out (LIFO data structure)
+class Dequeue {
+
+    construct new() {
+        _data = []
+    }
+
+    push(val) {
+        _data.add(val)
+    }
+
+    pop() {
+        if(!empty()) {
+            var val = _data[_data.count - 1]
+            _data.removeAt(_data.count - 1)
+            return val
+        }
+    }
+
+    empty() { _data.count == 0 }
+ }
+
+/// A simple ring buffer implementation.
 class RingBuffer {
     construct new(size, value) {
         _size = size

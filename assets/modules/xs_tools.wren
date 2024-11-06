@@ -1,6 +1,11 @@
 import "xs" for Render
+import "random" for Random
 
 class Tools {
+    static initialize() {
+        __random = Random.new()
+    }
+
     static toList(range) {
         var l = []
         for(i in range) {
@@ -25,7 +30,14 @@ class Tools {
             }        
         }
     }
+
+    static pickOne(list) {
+        return list[__random.int(list.count)]
+    }
 }
+
+// Initialize the Tools class
+Tools.initialize()
 
 class ShapeBuilder {
     construct new() {
