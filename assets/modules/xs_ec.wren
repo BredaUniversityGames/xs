@@ -95,53 +95,6 @@ class Entity {
         }
     }
 
-    // Adds component to the entity.
-    addComponent(component) {        
-        component.owner = this
-        _components[component.type] = component
-    }
-
-    // Get a component of a matching type.
-    getComponent(type) {
-        if(_components.containsKey(type)) {
-            return _components[type]
-        }
-        // If not found, try to find a sub class-of the type
-        for(v in _components.values) {
-            if(v is type) {
-                return v    
-            }
-        }
-        return null
-    }
-
-    // Get a component of a matching super class type.
-    // Slow! Use getComponent(type) when possible
-    getComponentSuper(type) {
-        for(v in _components.values) {
-            if(v is type) {
-                return v    
-            }
-        }
-        return null
-    }
-
-    // Will mark the component for removal at the end of the update
-    deleteComponent(type) {        
-        if(_components.containsKey(type)) {
-            _compDeleteQueue.add(type)
-        }
-    }
-
-    // Will mark the component for removal at the end of the update
-    deleteComponentSuper(type) {     
-        for(v in _components.values) {
-            if(v is type) {
-                _compDeleteQueue.add(v.type)
-            }
-        }           
-    }
-
     // Get all to components 
     components { _components.values }
 
