@@ -1,8 +1,8 @@
 // Import the necessary modules
 import "xs" for Render, Input, Data // The engine-level xs API
 import "xs_math" for Math, Color    // Math and Color functionality
-import "xs_tools" for ShapeBuilder  
-import "xs_containers" for Grid     // Grid is a 
+import "xs_containers" for Grid   
+import "xs_math" for Bits
 import "background" for Background  // Wobbly background - local module
 import "random" for Random          // Random number generator - system module
 
@@ -17,6 +17,8 @@ class Type {
     static grass_three { 1 << 5 }   // For example, a player can be on a tree and grass
     static road        { 1 << 6 }   // but not on two trees at the same time
     static player      { 1 << 7 }   // The player is a special type of tile
+
+    static tree        { tree_one | tree_two | tree_three }
 }
 
 class Game {
@@ -124,7 +126,7 @@ class Game {
             var nx = __playerX + dx
             var ny = __playerY + dy
             if (__grid.valid(nx, ny)) { // Check if in bounds (This is the full way of writing the if statement)
-                if (__grid[nx, ny] != Type.tree_one && __grid[nx, ny] != Type.tree_two && __grid[nx, ny] != Type.tree_three) {
+                if (!Bits.checkBitFlagOverlap(__grid[nx, ny], Type.tree)) {
                     __playerX = nx
                     __playerY = ny
                 }
