@@ -34,6 +34,8 @@ class Tools {
     static pickOne(list) {
         return list[__random.int(list.count)]
     }
+
+    static random { __random }
 }
 
 // Initialize the Tools class
