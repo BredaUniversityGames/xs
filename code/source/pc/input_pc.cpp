@@ -30,6 +30,8 @@ namespace
 	float mousepos[2];
 	bool gamepad_connected;
 
+	double mouse_scroll = 0.0;
+
 	void joystick_callback(int joy, int event) {}
 	void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 	{
@@ -51,6 +53,11 @@ namespace
 		if (action == GLFW_PRESS || action == GLFW_RELEASE)
 			mousebuttons_action[button] = static_cast<KeyAction>(action);
 	}
+
+	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+	{
+		mouse_scroll += yoffset;
+	}
 }
 
 void xs::input::initialize()
@@ -59,6 +66,7 @@ void xs::input::initialize()
 	glfwSetCursorPosCallback(device::get_window(), cursor_position_callback);
 	glfwSetKeyCallback(device::get_window(), key_callback);
 	glfwSetMouseButtonCallback(device::get_window(), mousebutton_callback);
+	glfwSetScrollCallback(device::get_window(), scroll_callback);
 
 	update(0.0f);
 
@@ -178,6 +186,11 @@ double xs::input::get_mouse_x()
 double xs::input::get_mouse_y()
 {
 	return static_cast<double>(mousepos[1]);
+}
+
+double xs::input::get_mouse_wheel()
+{
+	return mouse_scroll;
 }
 
 int xs::input::get_nr_touches()

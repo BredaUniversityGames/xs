@@ -187,6 +187,11 @@ bool xs::input::get_mousebutton_once(mouse_button button)
 	return false;
 }
 
+double xs::input::get_mouse_wheel()
+{
+	return 0.0;
+}
+
 int xs::input::get_nr_touches()
 {
 	return internal::data.touchData.touchNum;

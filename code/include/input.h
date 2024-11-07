@@ -210,6 +210,11 @@ namespace xs::input
 	double get_mouse_y();
 
 	/// <summary>
+	/// Gets the mouse wheel, relative to the initial value when starting the game.
+	/// </summary>
+	double get_mouse_wheel();
+
+	/// <summary>
 	/// Gets the current numbers of point where the touchscreen is being touched.
 	/// </summary>
 	int get_nr_touches();
