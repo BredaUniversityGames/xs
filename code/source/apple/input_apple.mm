@@ -127,11 +127,6 @@ double xs::input::get_mouse_wheel()
 	return 0.0;
 }
 
-double xs::input::get_mouse_wheel()
-{
-	return 0.0;
-}
-
 int xs::input::get_nr_touches()
 {
     return 0;
