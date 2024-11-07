@@ -25,8 +25,8 @@ class Grid {
             return false
         }
         
-        var val1 = [x1,y1]
-        var val2 = [x2,y2]
+        var val1 = this[x1,y1]
+        var val2 = this[x2,y2]
         this[x1, y1] = val2
         this[x2, y2] = val1        
         return true
