@@ -60,7 +60,7 @@ class Grid {
 }
 
 /// Logical representation of a grid with many empty spaces
-class SpraseGrid {
+class SparseGrid {
 
     construct new() {
         _grid = {}
@@ -71,19 +71,19 @@ class SpraseGrid {
 
     /// Checks if a given cell position exists in the grid.
     has(x, y) {
-        var id =  SpraseGrid.makeId(x, y)
+        var id =  SparseGrid.makeId(x, y)
         return _grid.containsKey(id)
     }
 
     /// Removes the value stored at the given grid cell.
     remove(x, y) {
-        var id =  SpraseGrid.makeId(x, y)
+        var id =  SparseGrid.makeId(x, y)
         _grid.remove(id)
     }
 
     /// Returns the value stored at the given grid cell.    
     [x, y] {
-        var id =  SpraseGrid.makeId(x, y)
+        var id =  SparseGrid.makeId(x, y)
         if(_grid.containsKey(id)) {
             return _grid[id]
         } else {
@@ -94,7 +94,7 @@ class SpraseGrid {
 
     /// Assigns a given value to a given grid cell.    
     [x, y]=(v) {
-        var id = SpraseGrid.makeId(x, y)
+        var id = SparseGrid.makeId(x, y)
         _grid[id] = v
     }
 
