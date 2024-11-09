@@ -391,10 +391,48 @@ bool xs::data::internal::inspect_entry(
 		auto val = std::get_if<double>(&itr.second.value);
 		if(val)
 		{
-			auto val = std::get<double>(itr.second.value);
-			float flt = (float)val;
-			edited = ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);			
-			set(itr.first, flt, itr.second.type, itr.second.active);
+			// Check if the value is an enum and display a combo box
+			// Enums are just numbers with a separator in the name,
+			// followed by the options separated
+			// Example: "Name|One|Two|Three|Four"
+			auto name = itr.first;
+			auto pos = name.find('|');
+			if (pos != string::npos)
+			{
+				int vint = (int)*val;
+				auto enum_name = name.substr(0, pos);
+				auto enum_options_string = name.substr(pos + 1);
+				auto enum_options = tools::string_split(enum_options_string, "|");
+
+				// If the name options have changed, then we need a new id based on the new full name
+				ImGui::PushID(name.c_str());
+				if (ImGui::BeginCombo(enum_name.c_str(), enum_options[vint].c_str()))
+				{
+					// Iterate over the options
+					for (size_t i = 0; i < enum_options.size(); i++)
+					{
+						bool is_selected = vint == i;
+						if (ImGui::Selectable(enum_options[i].c_str(), is_selected))
+						{
+							vint = (int)i;
+							edited = true;
+						}
+						if (is_selected)
+							ImGui::SetItemDefaultFocus();
+					}
+					set(itr.first, (double)vint, itr.second.type, itr.second.active);
+					ImGui::EndCombo();
+				}
+				ImGui::PopID();
+			}
+			else
+			{
+				// Other values are just numbers
+				auto val = std::get<double>(itr.second.value);
+				float flt = (float)val;
+				edited = ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);
+				set(itr.first, flt, itr.second.type, itr.second.active);
+			}
 		}
 	}
 
