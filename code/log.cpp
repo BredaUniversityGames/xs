@@ -1,5 +1,5 @@
 #include "log.h"
-#include "../include/version.h"
+#include "version.h"
 
 
 void xs::log::initialize()
