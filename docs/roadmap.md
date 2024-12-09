@@ -1,23 +1,23 @@
-# This is a general roadmap for the next version xs engine (0.5)
+# This is a general roadmap for the next version xs engine (0.6)
 
 ### Completeness
 
-[ ] New (faster) rendereing in OpenGL
-
-[ ] AGC Rendering on par with OpenGL
+[ ] New (faster) rendering in OpenGL
 
 [ ] Metal rendering on par with OpenGL
+
+[ ] AGC Rendering on par with OpenGL
 
 
 ### Open-source xs
 
-[ ] Investigate mving from GLFW to SDL3 on Windows
+[ ] Code restructuring so that all files are in the same folder
 
-[ ] Provide non-Fmod audio options 
- 
 [ ] Move NDA specific code own repos (submodules)
 
-[ ] Code restructuring so that all files are in the same folder
+[ ] Investigate moving from GLFW to SDL3 on Windows
+
+[ ] Provide non-Fmod audio options 
 
 [ ] Linux & CMake build
 
@@ -32,13 +32,13 @@
 
 [ ] Samples that cover the APIs
 
+[ ] Cooking
+
 [x] Load projects from anywhere
 
 [ ] Cooking from UI
 
 [ ] Fmod API
-
-[ ] Cooking 
 
 [x] Rename xs module files
 
