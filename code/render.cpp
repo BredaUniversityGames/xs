@@ -1,5 +1,5 @@
-#include "render.h"
-#include "render_internal.h"
+#include "render.hpp"
+#include "render_internal.hpp"
 #include <ios>
 #include <unordered_map>
 #include <sstream>
@@ -9,13 +9,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "configuration.h"
-#include "fileio.h"
-#include "log.h"
-#include "tools.h"
-#include "device.h"
-#include "profiler.h"
-#include "inspector.h"
+#include "configuration.hpp"
+#include "fileio.hpp"
+#include "log.hpp"
+#include "tools.hpp"
+#include "device.hpp"
+#include "profiler.hpp"
+#include "inspector.hpp"
 
 // Include stb_image 
 #ifdef PLATFORM_SWITCH

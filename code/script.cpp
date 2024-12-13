@@ -1,4 +1,4 @@
-#include <script.h>
+#include <script.hpp>
 #include <cassert>
 #include <iomanip>
 #include <iostream>
@@ -10,21 +10,21 @@
 #include <wren.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "fileio.h"
-#include "log.h"
-#include "profiler.h"
-#include "data.h"
-#include "input.h"
-#include "tools.h"
-#include "render.h"
-#include "script.h"
-#include "configuration.h"
-#include "fileio.h"
-#include "audio.h"
-#include "device.h"
-#include "inspector.h"
-#include "color.h"
-
+#include "fileio.hpp"
+#include "log.hpp"
+#include "profiler.hpp"
+#include "data.hpp"
+#include "input.hpp"
+#include "tools.hpp"
+#include "render.hpp"
+#include "script.hpp"
+#include "configuration.hpp"
+#include "fileio.hpp"
+#include "audio.hpp"
+#include "device.hpp"
+#include "inspector.hpp"
+#include "color.hpp"
+    
 // Check if we are running MSVC
 #ifdef _MSC_VER
 // Disable warning about zero-sized arrays in structs

@@ -1,8 +1,8 @@
-#include "cooker.h"
-#include "fileio.h"
-#include "resource_pipeline.h"
-#include "log.h"
-#include "types.h"
+#include "cooker.hpp"
+#include "fileio.hpp"
+#include "resource_pipeline.hpp"
+#include "log.hpp"
+#include "types.hpp"
 #include "miniz.h"
 #include <filesystem>
 #include <fstream>

@@ -1,4 +1,4 @@
-#include "profiler.h"
+#include "profiler.hpp"
 #include <unordered_map>
 #include <deque>
 #include <chrono>

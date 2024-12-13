@@ -1,4 +1,4 @@
-#include "input.h"
+#include "input.hpp"
 #include <string>
 #include <vector>
 #include <map>
@@ -16,7 +16,7 @@
 #include <nn/hid/hid_Result.controllerSupport.h>
 
 #include "configuration.h"
-#include "device.h"
+#include "device.hpp"
 
 enum class JoystickType
 {

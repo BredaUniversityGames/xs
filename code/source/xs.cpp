@@ -2,16 +2,16 @@
 
 using namespace xs;
 #include "fileio.h"
-#include "device.h"
-#include "input.h"
+#include "device.hpp"
+#include "input.hpp"
 #include "log.h"
 #include "render.h"
-#include "script.h"
+#include "script.hpp"
 #include "audio.h"
 #include "account.h"
 #include "data.h"
 #include "inspector.h"
-#include "cooker.h"
+#include "cooker.hpp"
 #include "tools.h"
 #include "editor.h"
 

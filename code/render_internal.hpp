@@ -1,9 +1,9 @@
 #pragma once
-#include "render.h"
+#include "render.hpp"
 #include <vector>
 #include <glm/glm.hpp>
 #include <stb/stb_truetype.h>
-#include "types.h"
+#include "types.hpp"
 
 #if defined(PLATFORM_PS5)
 	#include <agc.h>	

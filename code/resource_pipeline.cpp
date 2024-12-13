@@ -1,8 +1,8 @@
-#include "resource_pipeline.h"
+#include "resource_pipeline.hpp"
 
 #include <sstream>
 
-#include "tools.h"
+#include "tools.hpp"
 
 namespace xs::resource_pipeline
 {

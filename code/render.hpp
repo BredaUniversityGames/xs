@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "color.h"
+#include "color.hpp"
 
 namespace xs::render
 {	

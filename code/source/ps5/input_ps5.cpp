@@ -1,4 +1,4 @@
-#include "input.h"
+#include "input.hpp"
 #include "tools.h"
 #include "log.h"
 #include "configuration.h"

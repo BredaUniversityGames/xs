@@ -1,11 +1,11 @@
-#include "input.h"
+#include "input.hpp"
 #include <cassert>
 #include <array>
 #include <GLFW/glfw3.h>
 
 #include <isteaminput.h>
 
-#include "device.h"
+#include "device.hpp"
 #include "device_pc.h"
 #include "configuration.h"
 
