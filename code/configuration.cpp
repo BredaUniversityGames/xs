@@ -1,5 +1,5 @@
-#include "configuration.h"
-#include "data.h"
+#include "configuration.hpp"
+#include "data.hpp"
 
 using namespace xs::configuration;
 

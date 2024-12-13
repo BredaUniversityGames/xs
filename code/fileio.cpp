@@ -1,13 +1,13 @@
-#include "fileio.h"
+#include "fileio.hpp"
 
 #include <cassert>
 #include <fstream>
 #include <map>
 #include <unordered_map>
 
-#include "log.h"
-#include "tools.h"
-#include "resource_pipeline.h"
+#include "log.hpp"
+#include "tools.hpp"
+#include "resource_pipeline.hpp"
 #include "miniz.h"
 
 #if defined(PLATFORM_SWITCH)

@@ -1,9 +1,9 @@
-#include "opengl.h"
+#include "opengl.hpp"
 #include "render.h"
 #include "render_internal.h"
 #include "tools.h"
 #include "data.h"
-#include "input.h"
+#include "input.hpp"
 #include <array>
 #include <unordered_map>
 #include <vector>
@@ -42,8 +42,8 @@
 #include "fileio.h"
 #include "log.h"
 #include "tools.h"
-#include "device.h"
-#include "profiler.h"
+#include "device.hpp"
+#include "profiler.hpp"
 
 #define XS_DEBUG_EXTENTS 0
 #define XS_QUANTIZED_HASHING 0

@@ -7,7 +7,7 @@
 
 #include "log.h"
 #include "tools.h"
-#include "resource_pipeline.h"
+#include "resource_pipeline.hpp"
 #include "miniz.h"
 #include "json/json.hpp"
 #include <filesystem>

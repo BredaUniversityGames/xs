@@ -4,10 +4,10 @@
 #include <cstdlib>
 #include <cstdio>
 
-#include "input.h"
-#include "tools.h"
-#include "log.h"
-#include "configuration.h"
+#include "input.hpp"
+#include "tools.hpp"
+#include "log.hpp"
+#include "configuration.hpp"
 
 #import <GameController/GameController.h>
 

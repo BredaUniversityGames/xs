@@ -315,7 +315,7 @@
     <ClInclude Include="code\include\version.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\include\profiler.h">
+    <ClInclude Include="code\include\profiler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\source\ps5\shaders\camera_srt.h">
@@ -369,7 +369,7 @@
     <ClInclude Include="external\imgui\misc\cpp\imgui_stdlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\include\cooker.h">
+    <ClInclude Include="code\include\cooker.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\miniz\include\miniz\miniz.h">
@@ -390,7 +390,7 @@
     <ClInclude Include="external\miniz\include\miniz\miniz_zip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\include\resource_pipeline.h">
+    <ClInclude Include="code\include\resource_pipeline.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\include\types.h">

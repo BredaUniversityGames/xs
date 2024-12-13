@@ -1,5 +1,5 @@
-#include "fileio.h"
-#include "log.h"
+#include "fileio.hpp"
+#include "log.hpp"
 #include "json/json.hpp"
 #include <map>
 #include <string>

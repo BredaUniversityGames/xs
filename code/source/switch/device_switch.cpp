@@ -1,5 +1,5 @@
-#include "device.h"
-#include "opengl.h"
+#include "device.hpp"
+#include "opengl.hpp"
 #include <nn/vi.h>
 #include <nn/nn_Assert.h>
 #include <nn/os.h>
@@ -9,7 +9,7 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include "log.h"
-#include "profiler.h"
+#include "profiler.hpp"
 
 using namespace xs::device;
 

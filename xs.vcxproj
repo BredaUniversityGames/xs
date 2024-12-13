@@ -313,7 +313,7 @@
     <ClInclude Include="code\include\audio.h" />
     <ClInclude Include="code\include\color.h" />
     <ClInclude Include="code\include\configuration.h" />
-    <ClInclude Include="code\include\cooker.h">
+    <ClInclude Include="code\include\cooker.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -330,10 +330,10 @@
     <ClInclude Include="code\include\inspector.h" />
     <ClInclude Include="code\include\log.h" />
     <ClInclude Include="code\include\opengl.h" />
-    <ClInclude Include="code\include\profiler.h" />
+    <ClInclude Include="code\include\profiler.hpp" />
     <ClInclude Include="code\include\data.h" />
     <ClInclude Include="code\include\render.h" />
-    <ClInclude Include="code\include\resource_pipeline.h" />
+    <ClInclude Include="code\include\resource_pipeline.hpp" />
     <ClInclude Include="code\include\script.h" />
     <ClInclude Include="code\include\tools.h" />
     <ClInclude Include="code\include\types.h" />

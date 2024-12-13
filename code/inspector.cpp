@@ -1,4 +1,4 @@
-#include "inspector.h"
+#include "inspector.hpp"
 
 #ifdef INSPECTOR
 #include <imgui.h>
@@ -6,18 +6,18 @@
 #include <imgui_internal.h>
 #include <implot.h>
 #include "IconsFontAwesome5.h"
-#include "fileio.h"
-#include "script.h"
-#include "data.h"
-#include "log.h"
-#include "configuration.h"
-#include "version.h"
-#include "profiler.h"
-#include "device.h"
-#include "render.h"
-#include "tools.h"
-#include "input.h"
-#include "render_internal.h"
+#include "fileio.hpp"
+#include "script.hpp"
+#include "data.hpp"
+#include "log.hpp"
+#include "configuration.hpp"
+#include "version.hpp"
+#include "profiler.hpp"
+#include "device.hpp"
+#include "render.hpp"
+#include "tools.hpp"
+#include "input.hpp"
+#include "render_internal.hpp"
 
 #ifdef EDITOR
 #include "dialogs/portable-file-dialogs.h"

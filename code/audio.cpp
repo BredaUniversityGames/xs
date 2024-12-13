@@ -1,8 +1,6 @@
-
-
-#include "audio.h"
-#include "fileio.h"
-#include "log.h"
+#include "audio.hpp"
+#include "fileio.hpp"
+#include "log.hpp"
 #include <fmod/fmod.hpp>
 #include <fmod/fmod_studio.hpp>
 #include <unordered_map>

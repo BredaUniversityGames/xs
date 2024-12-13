@@ -1,12 +1,12 @@
-#include "render.h"
+#include "render.hpp"
 #include "render_apple.h"
-#include "render_internal.h"
-#include "configuration.h"
-#include "profiler.h"
+#include "render_internal.hpp"
+#include "configuration.hpp"
+#include "profiler.hpp"
 #include "device_apple.h"
-#include "device.h"
-#include "tools.h"
-#include "log.h"
+#include "device.hpp"
+#include "tools.hpp"
+#include "log.hpp"
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
