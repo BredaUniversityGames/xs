@@ -156,7 +156,7 @@ class ShapeRenderer is Component {
     }
 
     initialize() {
-        _transform = owner.getComponent(Transform)
+        _transform = owner.get(Transform)
         if(_transform == null) {
             _transform = owner.addComponent(Transform)
         }
@@ -187,7 +187,7 @@ class FontRenderer is ShapeRenderer {
     }
 
     initialize() {
-        _transform = owner.getComponent(Transform)
+        _transform = owner.get(Transform)
         if(_transform == null) {
             _transform = owner.addComponent(Transform)
         }
@@ -238,7 +238,7 @@ class Shapes {
         var entities = Entity.entities
         var shapes = []
         for (entity in entities) {
-            var shape = entity.getComponent(ShapeRenderer)
+            var shape = entity.get(ShapeRenderer)
             if(shape) shapes.add(shape)
         }
 

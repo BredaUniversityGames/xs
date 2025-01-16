@@ -16,8 +16,8 @@ class Player is Component {
     }
 
     initialize() {
-        _body = owner.getComponent(Body)
-        _transform = owner.getComponent(Transform)
+        _body = owner.get(Body)
+        _transform = owner.get(Transform)
         // var aim = Create.aim(owner)
     }
 

@@ -32,7 +32,7 @@ class Body is Component {
     velocity=(v) { _velocity = v }
 
     update(dt) {
-        var t = owner.getComponent(Transform)
+        var t = owner.get(Transform)
         t.position = t.position + _velocity * dt
     }
 
@@ -55,7 +55,7 @@ class Renderable is Component {
 
     static render() {        
         for(e in Entity.entities) {
-            var s = e.getComponentSuper(Renderable)
+            var s = e.get(Renderable)
             if(s != null) {
                 s.render()                
             }
@@ -93,7 +93,7 @@ class Sprite is Renderable {
     }
 
     initialize() {
-        _transform = owner.getComponent(Transform)
+        _transform = owner.get(Transform)
     }
 
     render() {        
@@ -139,7 +139,7 @@ class Shape is Renderable {
     }
 
     render() {
-        var t = owner.getComponent(Transform)
+        var t = owner.get(Transform)
         Render.sprite(
             _shape,
             t.position.x,
@@ -186,8 +186,8 @@ class Label is Sprite {
     }
 
     render() {
-        var t = owner.getComponent(Transform)
-        Render.text(_font, _text, t.position.x, t.position.y, mul, add, flags)
+        var t = owner.get(Transform)
+        Render.text(_font, _text, t.position.x, t.position.y, layer, mul, add, flags)
     }
 
     text { _text }
@@ -310,12 +310,12 @@ class Relation is Component {
     }
 
     update(dt) {
-        var pt = _parent.getComponent(Transform)
+        var pt = _parent.get(Transform)
         var offset = _offset
         if(pt.rotation != 0.0) {
             offset = _offset.rotated(pt.rotation)
         }
-        owner.getComponent(Transform).position = pt.position + offset 
+        owner.get(Transform).position = pt.position + offset 
 
         if(_parent.deleted) {
             owner.delete()

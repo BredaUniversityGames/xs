@@ -11,18 +11,18 @@ class Shadow is  Component {
     }
 
     initialize() {
-        _transform = owner.getComponent(Transform)
+        _transform = owner.get(Transform)
     }
 
     offset { _offset }
 
     static render() {    
         for(e in Entity.entities) {
-            var s = e.getComponentSuper(Sprite)
+            var s = e.get(Sprite)
             if(s != null) {
                 // s.render()
-                var sh = e.getComponent(Shadow)                
-                var t = e.getComponent(Transform)
+                var sh = e.get(Shadow)                
+                var t = e.get(Transform)
                 var color = Data.getColor("Shadow Color")
                 if(sh != null && t != null) {
                     Render.sprite(
