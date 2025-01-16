@@ -177,8 +177,7 @@ void xs::inspector::render(float dt)
 	push_menu_theme();
 	
     auto mousePos = ImGui::GetMousePos();
-	if (true					||
-		xs::script::has_error() ||
+    if (xs::script::has_error() ||
 		show_registry			||
 		show_profiler			||
 		show_about				||
@@ -191,7 +190,7 @@ void xs::inspector::render(float dt)
          mousePos.x >= 0.0f &&
          mousePos.x <= device::get_width()))
 	{
-		ImGui::Begin("Window", &true_that,
+        ImGui::Begin("Window", nullptr,
 			ImGuiWindowFlags_NoScrollbar |
 			ImGuiWindowFlags_NoTitleBar |
 			ImGuiWindowFlags_NoResize |
