@@ -103,7 +103,12 @@ class Vec2 {
     ==(other) { (other != null) && (x == other.x) && (y == other.y) }
     !=(other) { !(this == other) }    
     magnitude { (x * x + y * y).sqrt }
+    magnitudeSq { x * x + y * y }
     normal { this / this.magnitude }
+    normalize() {
+        _x = _x / magnitude
+        _y = _y / magnitude
+    }
     dot(other) { (x * other.x + y * other.y) }
 	cross(other) { (x * other.y - y * other.x) }
     rotate(a) {
