@@ -1,4 +1,4 @@
-#include "account.h"
+#include "account.hpp"
 
 #include <steam/steam_api.h>
 
