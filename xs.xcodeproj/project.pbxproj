@@ -1034,7 +1034,6 @@
 				346E73522A4A29D5006ECAD5 /* render.hpp */,
 				346E73402A4A29D5006ECAD5 /* include */,
 				346E73532A4A29D5006ECAD5 /* source */,
-				346E73582A4A29D5006ECAD5 /* apple */,
 				3486CA632B94CC3200E9A3B8 /* cooker.cpp */,
 				3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */,
 				346E737C2A4A29D5006ECAD5 /* render.cpp */,
@@ -1123,6 +1122,7 @@
 		346EBF922A49F33C00771230 = {
 			isa = PBXGroup;
 			children = (
+				5A9B5B182D510FE300A0E5FB /* platforms */,
 				5A6A256A2CD93B390091B824 /* assets */,
 				34EB6C932A4C6E6100DA6B15 /* external */,
 				346E733F2A4A29D5006ECAD5 /* code */,
@@ -2062,6 +2062,14 @@
 			path = assets;
 			sourceTree = "<group>";
 		};
+		5A9B5B182D510FE300A0E5FB /* platforms */ = {
+			isa = PBXGroup;
+			children = (
+				346E73582A4A29D5006ECAD5 /* apple */,
+			);
+			path = platforms;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2509,6 +2517,7 @@
 					"$(PROJECT_DIR)/external/wren/vm",
 					"$(PROJECT_DIR)/external/miniz/include/miniz",
 					"$(PROJECT_DIR)/external/fmt/include",
+					"$(PROJECT_DIR)/platforms/apple",
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -2571,6 +2580,7 @@
 					"$(PROJECT_DIR)/external/wren/vm",
 					"$(PROJECT_DIR)/external/miniz/include/miniz",
 					"$(PROJECT_DIR)/external/fmt/include",
+					"$(PROJECT_DIR)/platforms/apple",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -2713,7 +2723,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_ENTITLEMENTS = code/apple/macos/xs_macOS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = platforms/apple/macos/xs_macOS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -2767,7 +2777,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
-				CODE_SIGN_ENTITLEMENTS = code/apple/macos/xs_macOS.entitlements;
+				CODE_SIGN_ENTITLEMENTS = platforms/apple/macos/xs_macOS.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
