@@ -5,9 +5,9 @@
 
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "device.h"
-#include "device_pc.h"
-#include "opengl.h"
+#include "device.hpp"
+#include "device_pc.hpp"
+#include "opengl.hpp"
 
 bool ImGui_Impl_Init()
 {

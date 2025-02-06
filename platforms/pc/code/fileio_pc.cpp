@@ -1,12 +1,12 @@
-#include "fileio.h"
+#include "fileio.hpp"
 
 #include <cassert>
 #include <fstream>
 #include <map>
 #include <unordered_map>
 
-#include "log.h"
-#include "tools.h"
+#include "log.hpp"
+#include "tools.hpp"
 #include "resource_pipeline.hpp"
 #include "miniz.h"
 #include "json/json.hpp"

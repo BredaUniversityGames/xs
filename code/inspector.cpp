@@ -25,7 +25,7 @@
 
 #if defined(PLATFORM_PC)
 #include <GLFW/glfw3.h>
-#include "device_pc.h"
+#include "device_pc.hpp"
 #elif defined(PLATFORM_SWITCH)
 #include <nn/fs.h>
 #endif
