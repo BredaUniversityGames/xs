@@ -6,8 +6,8 @@
 #include <isteaminput.h>
 
 #include "device.hpp"
-#include "device_pc.h"
-#include "configuration.h"
+#include "device_pc.hpp"
+#include "configuration.hpp"
 
 namespace 
 {

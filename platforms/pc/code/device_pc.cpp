@@ -1,10 +1,10 @@
 #include "device.hpp"
-#include "device_pc.h"
-#include "log.h"
+#include "device_pc.hpp"
+#include "log.hpp"
 #include "opengl.hpp"
-#include "configuration.h"
-#include "fileio.h"
-#include "data.h"
+#include "configuration.hpp"
+#include "fileio.hpp"
+#include "data.hpp"
 #include "profiler.hpp"
 #include <GLFW/glfw3.h>
 #include <stb/stb_image.h>

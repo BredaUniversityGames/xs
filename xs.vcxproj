@@ -48,7 +48,7 @@
     <CustomBuild Include="nintendo\icon.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="code\source\cooker.cpp">
+    <ClCompile Include="code\cooker.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -56,8 +56,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\editor.cpp" />
-    <ClCompile Include="code\source\pc\fileio_pc.cpp">
+    <ClCompile Include="platforms\pc\code\fileio_pc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -65,12 +64,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\render_gl.cpp">
+    <ClCompile Include="platforms\opengl\code\render_gl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\pc\account_pc.cpp">
+    <ClCompile Include="platforms\pc\code\account_pc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
@@ -84,8 +83,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\resource_pipeline.cpp" />
-    <ClCompile Include="code\source\switch\account_switch.cpp">
+    <ClCompile Include="code\resource_pipeline.cpp" />
+    <ClCompile Include="code\switch\account_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
@@ -99,10 +98,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\audio.cpp" />
-    <ClCompile Include="code\source\configuration.cpp" />
-    <ClCompile Include="code\source\device.cpp" />
-    <ClCompile Include="code\source\pc\device_pc.cpp">
+    <ClCompile Include="code\audio.cpp" />
+    <ClCompile Include="code\configuration.cpp" />
+    <ClCompile Include="code\device.cpp" />
+    <ClCompile Include="platforms\pc\code\device_pc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -110,7 +109,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\switch\device_switch.cpp">
+    <ClCompile Include="platforms\switch\code\device_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
@@ -118,8 +117,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\fileio.cpp" />
-    <ClCompile Include="code\source\pc\input_pc.cpp">
+    <ClCompile Include="code\fileio.cpp" />
+    <ClCompile Include="platforms\pc\code\input_pc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -127,7 +126,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\switch\fileio_switch.cpp">
+    <ClCompile Include="platforms\switch\code\fileio_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
@@ -135,7 +134,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\switch\input_switch.cpp">
+    <ClCompile Include="platforms\switch\code\input_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
@@ -143,16 +142,16 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\inspector.cpp" />
-    <ClCompile Include="code\source\log.cpp" />
-    <ClCompile Include="code\source\main.cpp" />
-    <ClCompile Include="code\source\opengl.cpp">
+    <ClCompile Include="code\inspector.cpp" />
+    <ClCompile Include="code\log.cpp" />
+    <ClCompile Include="code\main.cpp" />
+    <ClCompile Include="platforms\opengl\code\opengl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\profiler.cpp" />
-    <ClCompile Include="code\source\ps5\account_ps5.cpp">
+    <ClCompile Include="code\profiler.cpp" />
+    <ClCompile Include="platforms\ps5\code\account_ps5.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">
@@ -166,7 +165,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\ps5\device_ps5.cpp">
+    <ClCompile Include="platforms\ps5\code\device_ps5.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">
@@ -180,7 +179,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\ps5\input_ps5.cpp">
+    <ClCompile Include="platforms\ps5\code\input_ps5.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">
@@ -194,7 +193,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\ps5\render_ps5.cpp">
+    <ClCompile Include="platforms\ps5\code\render_ps5.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -202,7 +201,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\ps5\user_malloc.cpp">
+    <ClCompile Include="platforms\ps5\code\user_malloc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -210,7 +209,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\ps5\user_new.cpp">
+    <ClCompile Include="platforms\ps5\code\user_new.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -218,15 +217,15 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\data.cpp" />
-    <ClCompile Include="code\source\render.cpp">
+    <ClCompile Include="code\data.cpp" />
+    <ClCompile Include="code\render.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">false</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">false</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\source\script.cpp" />
-    <ClCompile Include="code\source\tools.cpp" />
-    <ClCompile Include="code\source\xs.cpp" />
+    <ClCompile Include="code\script.cpp" />
+    <ClCompile Include="code\tools.cpp" />
+    <ClCompile Include="code\xs.cpp" />
     <ClCompile Include="external\glad\src\glad.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
@@ -295,8 +294,8 @@
     <ClCompile Include="external\wren\vm\wren_vm.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\include\account.h" />
-    <ClInclude Include="code\include\account_switch.h">
+    <ClInclude Include="code\account.hpp" />
+    <ClInclude Include="platform\switch\code\account_switch.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
@@ -310,10 +309,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="code\include\audio.h" />
-    <ClInclude Include="code\include\color.h" />
-    <ClInclude Include="code\include\configuration.h" />
-    <ClInclude Include="code\include\cooker.hpp">
+    <ClInclude Include="code\audio.hpp" />
+    <ClInclude Include="code\color.hpp" />
+    <ClInclude Include="code\configuration.hpp" />
+    <ClInclude Include="code\cooker.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -321,29 +320,28 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="code\include\defines.h" />
-    <ClInclude Include="code\include\device.h" />
-    <ClInclude Include="code\include\device_pc.h" />
-    <ClInclude Include="code\include\editor.h" />
-    <ClInclude Include="code\include\fileio.h" />
-    <ClInclude Include="code\include\input.h" />
-    <ClInclude Include="code\include\inspector.h" />
-    <ClInclude Include="code\include\log.h" />
-    <ClInclude Include="code\include\opengl.h" />
-    <ClInclude Include="code\include\profiler.hpp" />
-    <ClInclude Include="code\include\data.h" />
-    <ClInclude Include="code\include\render.h" />
-    <ClInclude Include="code\include\resource_pipeline.hpp" />
-    <ClInclude Include="code\include\script.h" />
-    <ClInclude Include="code\include\tools.h" />
-    <ClInclude Include="code\include\types.h" />
-    <ClInclude Include="code\include\version.h" />
-    <ClInclude Include="code\include\xs.h" />
-    <ClInclude Include="code\source\ps5\address_sanitizer_utils.h" />
-    <ClInclude Include="code\source\ps5\shaders\camera_srt.h" />
-    <ClInclude Include="code\source\ps5\shaders\shader_types.h" />
-    <ClInclude Include="code\source\ps5\shaders\vertex_format.h" />
-    <ClInclude Include="code\source\render_internal.h" />
+    <ClInclude Include="code\defines.hpp" />
+    <ClInclude Include="code\device.hpp" />
+    <ClInclude Include="code\device_pc.hpp" />
+    <ClInclude Include="code\fileio.hpp" />
+    <ClInclude Include="code\input.hpp" />
+    <ClInclude Include="code\inspector.hpp" />
+    <ClInclude Include="code\log.hpp" />
+    <ClInclude Include="platforms\opengl\code\opengl.hpp" />
+    <ClInclude Include="code\profiler.hpp" />
+    <ClInclude Include="code\data.hpp" />
+    <ClInclude Include="code\render.hpp" />
+    <ClInclude Include="code\resource_pipeline.hpp" />
+    <ClInclude Include="code\script.hpp" />
+    <ClInclude Include="code\tools.hpp" />
+    <ClInclude Include="code\types.hpp" />
+    <ClInclude Include="code\version.hpp" />
+    <ClInclude Include="code\xs.hpp" />
+    <ClInclude Include="platforms\ps5\code\address_sanitizer_utils.h" />
+    <ClInclude Include="platforms\ps5\code\shaders\camera_srt.h" />
+    <ClInclude Include="platforms\ps5\code\shaders\shader_types.h" />
+    <ClInclude Include="platforms\ps5\code\shaders\vertex_format.h" />
+    <ClInclude Include="code\render_internal.hpp" />
     <ClInclude Include="external\fmod\fmod.h" />
     <ClInclude Include="external\fmod\fmod.hpp" />
     <ClInclude Include="external\fmod\fmod_codec.h" />
@@ -404,10 +402,10 @@
     <None Include="external\wren\vm\wren_core.wren.inc" />
   </ItemGroup>
   <ItemGroup>
-    <WavePsslc Include="code\source\ps5\shaders\sprite_p.pssl">
+    <WavePsslc Include="platforms\ps5\code\shaders\sprite_p.pssl">
       <FileType>Document</FileType>
     </WavePsslc>
-    <WavePsslc Include="code\source\ps5\shaders\sprite_vv.pssl">
+    <WavePsslc Include="platforms\ps5\code\shaders\sprite_vv.pssl">
       <FileType>Document</FileType>
     </WavePsslc>
   </ItemGroup>
@@ -504,18 +502,27 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="properties\xs.props" />
+    <Import Project="properties\xs_pc.props" />
+    <Import Project="properties\xs_opengl.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="properties\xs.props" />
+    <Import Project="properties\xs_pc.props" />
+    <Import Project="properties\xs_opengl.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="properties\xs.props" />
+    <Import Project="properties\xs_pc.props" />
+    <Import Project="properties\xs_opengl.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -595,7 +602,6 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>INSPECTOR;EDITOR;PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;DEBUG;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/steam;$(ProjectDir)external/fmod;$(ProjectDir)external\miniz\include\miniz</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -619,7 +625,7 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>PLATFORM_PS5;MINIZ_NO_TIME;MINIZ_NO_STDIO;DEBUG;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CppExceptions>true</CppExceptions>
       <CppLanguageStd>Cpp17</CppLanguageStd>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -647,7 +653,6 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>INSPECTOR;EDITOR;PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;WIN64;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/steam;$(ProjectDir)external/fmod;$(ProjectDir)external\miniz\include\miniz</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -670,7 +675,7 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>PLATFORM_PS5;MINIZ_NO_TIME;MINIZ_NO_STDIO;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <CppExceptions>true</CppExceptions>
@@ -700,7 +705,6 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;WIN64;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/steam;$(ProjectDir)external/fmod;$(ProjectDir)external\miniz\include\miniz</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -728,7 +732,7 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>PLATFORM_PS5;MINIZ_NO_TIME;MINIZ_NO_STDIO;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <CppExceptions>true</CppExceptions>

@@ -1,7 +1,7 @@
 #include <string>
-#include <opengl.h>
+#include "opengl.hpp"
 #include <GLFW/glfw3.h>
-#include <log.h>
+#include "log.hpp"
 
 #if defined(DEBUG)
 

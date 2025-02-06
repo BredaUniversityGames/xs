@@ -1,25 +1,22 @@
-#include "xs.h"
+#include "xs.hpp"
 
 using namespace xs;
-#include "fileio.h"
+#include "fileio.hpp"
 #include "device.hpp"
 #include "input.hpp"
-#include "log.h"
-#include "render.h"
+#include "log.hpp"
+#include "render.hpp"
 #include "script.hpp"
-#include "audio.h"
-#include "account.h"
-#include "data.h"
-#include "inspector.h"
+#include "audio.hpp"
+#include "account.hpp"
+#include "data.hpp"
+#include "inspector.hpp"
 #include "cooker.hpp"
-#include "tools.h"
-#include "editor.h"
-
+#include "tools.hpp"
 
 void xs::initialize()
 {
 	log::initialize();
-	editor::initialize();
 	account::initialize();
 	fileio::initialize();
 	data::initialize();

@@ -1,4 +1,4 @@
-#include "xs.h"
+#include "xs.hpp"
 #include "device.hpp"
 #include <cstdio>
 #include <glm/glm.hpp>

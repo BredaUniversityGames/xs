@@ -1,8 +1,8 @@
 #include "opengl.hpp"
-#include "render.h"
-#include "render_internal.h"
-#include "tools.h"
-#include "data.h"
+#include "render.hpp"
+#include "render_internal.hpp"
+#include "tools.hpp"
+#include "data.hpp"
 #include "input.hpp"
 #include <array>
 #include <unordered_map>
@@ -38,10 +38,10 @@
 	#include <filesystem>
 #endif
 
-#include "configuration.h"
-#include "fileio.h"
-#include "log.h"
-#include "tools.h"
+#include "configuration.hpp"
+#include "fileio.hpp"
+#include "log.hpp"
+#include "tools.hpp"
 #include "device.hpp"
 #include "profiler.hpp"
 
