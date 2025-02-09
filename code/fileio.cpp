@@ -10,17 +10,8 @@
 #include "resource_pipeline.hpp"
 #include "miniz.h"
 
-#if defined(PLATFORM_SWITCH)
-#include <nn/fs.h>
-#include <nn/nn_Assert.h>
-#include <nn/nn_Abort.h>
-#include <nn/nn_Log.h>
-#include <nn/account/account_ApiForApplications.h>
-#include "account_switch.h"
-#elif defined(PLATFORM_PC)
+#if defined(PLATFORM_PC)
 #include <filesystem>
-#elif defined(PLATFORM_APPLE)
-#import <Foundation/Foundation.h>
 #endif
 
 namespace fs = std::filesystem;

@@ -84,7 +84,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="code\resource_pipeline.cpp" />
-    <ClCompile Include="code\switch\account_switch.cpp">
+    <ClCompile Include="platforms\switch\code\account_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
@@ -295,13 +295,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\account.hpp" />
-    <ClInclude Include="platform\switch\code\account_switch.hpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
-      </ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">
-      </ExcludedFromBuild>
+    <ClInclude Include="platforms\switch\code\account_switch.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
@@ -529,7 +523,10 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="nintendo\ImportNintendoSdk.props" Condition="exists('nintendo\ImportNintendoSdk.props')" />
+    <Import Project="platforms\switch\properties\ImportNintendoSdk.props" Condition="exists('platforms\switch\properties\ImportNintendoSdk.props')" />
+    <Import Project="properties\xs.props" />
+    <Import Project="properties\xs_opengl.props" />
+    <Import Project="properties\xs_switch.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -759,7 +756,7 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <Link>
-      <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
+      <FinalizeMetaSource>$(ProjectDir)platforms\switch\build\xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl_renderdoc.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
       <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;%(ProjectDir)external/miniz/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;%(AdditionalDependencies)</AdditionalDependencies>
@@ -779,12 +776,12 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>python $(ProjectDir)nintendo/pre_build.py</Command>
+      <Command>python $(ProjectDir)platforms\switch\build\pre_build.py</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
     <Link>
-      <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
+      <FinalizeMetaSource>$(ProjectDir)platforms\switch\build\xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
       <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;%(ProjectDir)external/miniz/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;%(AdditionalDependencies)</AdditionalDependencies>
@@ -804,12 +801,12 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>python $(ProjectDir)nintendo/pre_build.py</Command>
+      <Command>python $(ProjectDir)platforms\switch\build\pre_build.py</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">
     <Link>
-      <FinalizeMetaSource>$(ProjectDir)nintendo/xs.aarch64.nmeta</FinalizeMetaSource>
+      <FinalizeMetaSource>$(ProjectDir)platforms\switch\build\xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
       <Profile>true</Profile>
       <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;%(ProjectDir)external/miniz/lib</AdditionalLibraryDirectories>
@@ -830,7 +827,7 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>python $(ProjectDir)nintendo/pre_build.py</Command>
+      <Command>python $(ProjectDir)platforms\switch\build\pre_build.py</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

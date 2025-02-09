@@ -46,7 +46,7 @@
 #include "profiler.hpp"
 
 #define XS_DEBUG_EXTENTS 0
-#define XS_QUANTIZED_HASHING 0
+#define XS_QUANTIZED_HASHING 1
 
 using namespace glm;
 using namespace std;
@@ -325,11 +325,7 @@ void xs::render::render()
 		if (spe.sprite_id == -1) continue;
 		auto& mesh = meshes[spe.sprite_id];
 		auto& img = images[mesh.image_id];
-
-		// Set the model matrix
-		float dx = mesh.extents.max.x - mesh.extents.min.x;
-		float dy = mesh.extents.max.y - mesh.extents.min.y;
-
+		
 		// Set the texture
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, img.texture);
@@ -565,10 +561,12 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	int yh0 = (int)(y0 * precision);
 	int xh1 = (int)(x1 * precision);
 	int yh1 = (int)(y1 * precision);
-#endif
-
+	auto key = tools::hash_combine(image_id, xh0, yh0, xh1, yh1);
+#else
 	// Check if the sprite already exists
 	auto key = tools::hash_combine(image_id, x0, y0, x1, y1);
+#endif	
+
 	auto it = meshes.find(key);
 	if (it != meshes.end())
 		return it->first;
@@ -791,6 +789,7 @@ void xs::render::compile_sprite_shader()
 		nullptr,
 		fs_source,
 		&main_program);
+	assert(success);
 }
 
 void xs::render::compile_draw_shader()

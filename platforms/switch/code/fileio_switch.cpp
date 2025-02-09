@@ -1,12 +1,12 @@
-#include "fileio.h"
-#include "log.h"
+#include "fileio.hpp"
+#include "log.hpp"
 #include <cassert>
 #include <nn/fs.h>
 #include <nn/nn_Assert.h>
 #include <nn/nn_Abort.h>
 #include <nn/nn_Log.h>
 #include <nn/account/account_ApiForApplications.h>
-#include "account_switch.h"
+#include "account_switch.hpp"
 
 using namespace std;
 using namespace xs;
