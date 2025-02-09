@@ -22,7 +22,7 @@ extern "C"
 #if defined(PLATFORM_SWITCH)
 
 #include <nn/os.h>
-#include <version.h>
+#include <version.hpp>
 #include <glm/gtc/type_ptr.hpp>
 extern "C" void nnMain()
 {

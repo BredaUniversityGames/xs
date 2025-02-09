@@ -50,10 +50,7 @@ class App(customtkinter.CTk):
 
         self.button2 = customtkinter.CTkButton(self, text="Open image", command=self.open_image)
 
-        self.iconphoto(False, tkinter.PhotoImage(file="icons/firefly.png"))
-        self.propagate()
-        
-
+        self.iconphoto(False, tkinter.PhotoImage(file="icons/firefly.png"))        
 
     ####################################################################################
     # methods

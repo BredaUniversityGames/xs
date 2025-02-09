@@ -8,7 +8,7 @@
 #include <nv/nv_MemoryManagement.h>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
-#include "log.h"
+#include "log.hpp"
 #include "profiler.hpp"
 
 using namespace xs::device;

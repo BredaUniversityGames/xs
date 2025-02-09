@@ -1,5 +1,5 @@
-#include "account.h"
-#include "account_switch.h"
+#include "account.hpp"
+#include "account_switch.hpp"
 
 #include <nn/account/account_ApiForApplications.h>
 #include <nn/account/account_Selector.h>

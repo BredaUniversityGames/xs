@@ -4,7 +4,7 @@
 #include <map>
 #include <unordered_map>
 #include <queue>
-#include "log.h"
+#include "log.hpp"
 #include <nn/hid/hid_Npad.h>
 #include <nn/hid/hid_NpadJoy.h>
 #include <nn/hid/hid_ControllerSupport.h>
@@ -15,7 +15,7 @@
 #include <nn/nn_Result.h>
 #include <nn/hid/hid_Result.controllerSupport.h>
 
-#include "configuration.h"
+#include "configuration.hpp"
 #include "device.hpp"
 
 enum class JoystickType

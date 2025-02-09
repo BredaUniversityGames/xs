@@ -2,7 +2,7 @@
 #include <nn/hid/hid_Keyboard.h>
 #include <nn/hid/hid_KeyboardKey.h>
 #include <nn/hid/hid_Mouse.h>
-#include <opengl.h>
+#include <opengl.hpp>
 #include <cfloat>
 
 static GLuint       g_FontTexture = 0;
