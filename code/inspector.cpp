@@ -1,6 +1,6 @@
 #include "inspector.hpp"
 
-#ifdef INSPECTOR
+#ifdef INSPECTOR2 
 #include <imgui.h>
 #include <imgui_impl.h>
 #include <imgui_internal.h>
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(PLATFORM_PC)
-#include <GLFW/glfw3.h>
+// #include <GLFW/glfw3.h>
 #include "device_pc.hpp"
 #elif defined(PLATFORM_SWITCH)
 #include <nn/fs.h>
@@ -85,9 +85,9 @@ void xs::inspector::initialize()
     ImGui_Impl_Init();
 	
 #if defined(PLATFORM_PC)
-	float ys;
-	float xs;
-	glfwGetWindowContentScale(device::get_window(), &xs, &ys);
+	float ys = 1.0f;
+	float xs = 1.0f;
+	// glfwGetWindowContentScale(device::get_window(), &xs, &ys);
 	ui_scale = (xs + ys) / 2.0f;
 #endif
 

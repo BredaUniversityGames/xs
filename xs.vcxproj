@@ -235,14 +235,6 @@
     <ClCompile Include="external\imgui\imgui_demo.cpp" />
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
     <ClCompile Include="external\imgui\imgui_impl.cpp" />
-    <ClCompile Include="external\imgui\imgui_impl_glfw.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="external\imgui\imgui_impl_opengl3.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
@@ -347,11 +339,6 @@
     <ClInclude Include="external\fmod\fmod_studio.h" />
     <ClInclude Include="external\fmod\fmod_studio.hpp" />
     <ClInclude Include="external\fmod\fmod_studio_common.h" />
-    <ClInclude Include="external\imgui\imgui_impl_glfw.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
-    </ClInclude>
     <ClInclude Include="external\imgui\imgui_impl_opengl3.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
@@ -609,13 +596,7 @@
       <AdditionalLibraryDirectories>$(ProjectDir)external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>GLFW/glfw3.lib;opengl32.lib;fmod/lib/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/fmod$(FMODSuffix)_vc.lib;steam/lib/win64/steam_api64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)external\fmod\lib\fmodstudio$(FMODSuffix).dll" $(OutDir)
-copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)
-copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)
-
-</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">
     <ClCompile>
@@ -660,11 +641,7 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)
       <AdditionalLibraryDirectories>$(ProjectDir)external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>GLFW/glfw3.lib;opengl32.lib;fmod/lib/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/fmod$(FMODSuffix)_vc.lib;steam/lib/win64/steam_api64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)external\fmod\lib\fmodstudio$(FMODSuffix).dll" $(OutDir)
-copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)
-copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">
     <ClCompile>
@@ -715,11 +692,7 @@ copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Comma
       <AdditionalDependencies>GLFW/glfw3.lib;opengl32.lib;fmod/lib/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/fmod$(FMODSuffix)_vc.lib;steam/lib/win64/steam_api64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Profile>true</Profile>
     </Link>
-    <PostBuildEvent>
-      <Command>copy /Y "$(ProjectDir)external\fmod\lib\fmodstudio$(FMODSuffix).dll" $(OutDir)
-copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)
-copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">
     <ClCompile>

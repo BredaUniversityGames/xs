@@ -50,6 +50,7 @@ void fileio::initialize()
 	internal::wildcards["[save]"] = game_save_path;
 
 	// Load the engine user settings json (if any) and find the game folder
+	bool success = false;
 	if (exists("[user]/settings.json"))
 	{
 		auto settings_str = read_text_file("[user]/settings.json");
@@ -57,23 +58,26 @@ void fileio::initialize()
 		{
 			auto settings = nlohmann::json::parse(settings_str);
 			auto game_json = settings["game"];
-			auto type_json = game_json["type"];
-			assert(type_json.is_string());
+			auto type_json = game_json["type"];			
 			auto value_json = game_json["value"];
-			assert(value_json.is_string());
-			string game_folder = value_json.get<string>();
-			if (!game_folder.empty())
+
+			if (type_json.is_string() && value_json.is_string())
 			{
-				add_wildcard("[game]", game_folder);
-				log::info("Game folder {} ", game_folder);
-			}
+				string game_folder = value_json.get<string>();
+				if (!game_folder.empty())
+				{
+					add_wildcard("[game]", game_folder);
+					log::info("Game folder {} ", game_folder);
+					success = true;
+				}
+			}					
 		}
 		else
 		{
 			log::warn("Could not read the user settings.json file.");
 		}
 	}
-	else
+	if (!success)
 	{
 		log::warn("Could not find the user settings.json file.");
 		log::info("Loading xs sample and creating settings file.");
@@ -100,10 +104,10 @@ void fileio::initialize()
 			if (settings.find("Main") == settings.end())
 				log::error("Could not find the 'main' in the game project.json file.");
 		}
-		else log::error("Could not read settings.json file.");
+		else log::error("Could not read project.json file.");
 	}
 	else log::error("Could not find the game project.json file.");
 
-	// Set the shared assets folder
+	// Set the shared assets folder - this is where the shared assets are stored
 	add_wildcard("[shared]", "assets");
 }

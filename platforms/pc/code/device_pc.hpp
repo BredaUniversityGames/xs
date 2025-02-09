@@ -1,8 +1,11 @@
 #pragma once
 
-struct GLFWwindow;
+// struct GLFWwindow;
+
+struct SDL_Window;
+
 
 namespace xs::device
 {
-	GLFWwindow* get_window();
+	SDL_Window* get_window();
 }

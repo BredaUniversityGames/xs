@@ -11,27 +11,37 @@
 
 bool ImGui_Impl_Init()
 {
+	/*
 	const auto window = xs::device::get_window();
 	const bool opengl = ImGui_ImplOpenGL3_Init();
 	const bool glfw = ImGui_ImplGlfw_InitForOpenGL(window, true);	
 	return glfw && opengl;
+	*/
+
+	return false;
 }
 
 void ImGui_Impl_Shutdown()
 {
+	/*
 	ImGui_ImplGlfw_Shutdown();
+	*/
 }
 
 void ImGui_Impl_NewFrame()
 {	
+	/*
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
+	*/
 }
 
 void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
 {
+	/*
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	*/
 }
 
 

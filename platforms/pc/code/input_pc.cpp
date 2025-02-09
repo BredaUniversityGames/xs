@@ -1,7 +1,7 @@
 #include "input.hpp"
 #include <cassert>
 #include <array>
-#include <GLFW/glfw3.h>
+// #include <GLFW/glfw3.h>
 
 #include <isteaminput.h>
 
@@ -9,6 +9,7 @@
 #include "device_pc.hpp"
 #include "configuration.hpp"
 
+/*
 namespace 
 {
 	enum KeyAction { Release = 0, Press = 1, None = 2 };
@@ -227,3 +228,34 @@ void xs::input::reset_lightbar()
 {
 	//Unimplemented on the PC (specific dualshock 5 controller mechanic)
 }
+*/
+
+// Dummy implementation for the PC platform (for now)
+void xs::input::initialize() {}
+void xs::input::shutdown() {}
+void xs::input::update(double dt) {}
+
+double xs::input::get_mouse_x() { return 0.0; }
+double xs::input::get_mouse_y() { return 0.0; }
+double xs::input::get_mouse_wheel() { return 0.0; }
+
+int xs::input::get_nr_touches() { return 0; }
+int xs::input::get_touch_id(int index) { return 0; }
+double xs::input::get_touch_x(int index) { return 0.0; }
+double xs::input::get_touch_y(int index) { return 0.0; }
+
+void xs::input::set_gamepad_vibration(int leftRumble, int rightRumble) {}
+void xs::input::set_lightbar_color(double red, double green, double blue) {}
+void xs::input::reset_lightbar() {}
+
+bool xs::input::get_key(int key) { return false; }
+bool xs::input::get_key_once(int key) { return false; }
+
+bool xs::input::get_mouse() { return false; }
+bool xs::input::get_mousebutton(mouse_button button) { return false; }
+bool xs::input::get_mousebutton_once(mouse_button button) { return false; }
+
+bool xs::input::get_button(gamepad_button button) { return false; }
+bool xs::input::get_button_once(gamepad_button button) { return false; }
+double xs::input::get_axis(gamepad_axis axis) { return 0.0; }
+
