@@ -526,7 +526,7 @@
     <Import Project="platforms\switch\properties\ImportNintendoSdk.props" Condition="exists('platforms\switch\properties\ImportNintendoSdk.props')" />
     <Import Project="properties\xs.props" />
     <Import Project="properties\xs_opengl.props" />
-    <Import Project="properties\xs_switch.props" />
+    <Import Project="platforms\switch\properties\xs_switch.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
