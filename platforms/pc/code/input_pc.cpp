@@ -1,13 +1,15 @@
 #include "input.hpp"
 #include <cassert>
 #include <array>
-// #include <GLFW/glfw3.h>
+#include <unordered_map>
 
 #include <isteaminput.h>
+#include <SDL3/SDL.h>
 
 #include "device.hpp"
 #include "device_pc.hpp"
 #include "configuration.hpp"
+#include "log.hpp"
 
 /*
 namespace 
@@ -230,10 +232,59 @@ void xs::input::reset_lightbar()
 }
 */
 
+// SDL implementation
+
+using namespace xs;
+using namespace std;
+
+namespace xs::input
+{
+
+struct Data
+{
+	unordered_map<size_t, SDL_Gamepad*> gamepads;
+	// SDL_GameController* controller;
+	// SDL_Haptic* haptic;
+};
+
+SDL_Gamepad* get_default_gamepad();
+
+Data* data = nullptr;
+
+}
+
 // Dummy implementation for the PC platform (for now)
-void xs::input::initialize() {}
-void xs::input::shutdown() {}
-void xs::input::update(double dt) {}
+void xs::input::initialize()
+{
+	data = new Data();
+	SDL_Init(SDL_INIT_GAMEPAD);
+}
+void xs::input::shutdown()
+{	
+	for (auto& j : data->gamepads)
+		SDL_CloseGamepad(j.second);
+	SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
+	delete data;
+}
+
+void xs::input::update(double dt)
+{
+	int count;
+	auto joysticks = SDL_GetJoysticks(&count);
+	for (int i = 0; i < count; i++)
+	{
+		if (data->gamepads.find(i) == data->gamepads.end())
+		{
+			auto gamepad = SDL_OpenGamepad(joysticks[i]);
+			if (gamepad == nullptr)
+				xs::log::error("Failed to open gamepad {}", i);
+			else
+				data->gamepads[i] = gamepad;
+		}
+	}
+	SDL_free(joysticks);
+
+}
 
 double xs::input::get_mouse_x() { return 0.0; }
 double xs::input::get_mouse_y() { return 0.0; }
@@ -252,10 +303,40 @@ bool xs::input::get_key(int key) { return false; }
 bool xs::input::get_key_once(int key) { return false; }
 
 bool xs::input::get_mouse() { return false; }
-bool xs::input::get_mousebutton(mouse_button button) { return false; }
+
+bool xs::input::get_mousebutton(mouse_button button)
+{
+
+}
 bool xs::input::get_mousebutton_once(mouse_button button) { return false; }
 
-bool xs::input::get_button(gamepad_button button) { return false; }
-bool xs::input::get_button_once(gamepad_button button) { return false; }
-double xs::input::get_axis(gamepad_axis axis) { return 0.0; }
+bool xs::input::get_button(gamepad_button button)
+{
+	auto gamepad = get_default_gamepad();
+	if (gamepad == nullptr)
+		return false;
 
+	auto value = SDL_GetGamepadButton(gamepad, (SDL_GamepadButton)button);
+	return value == 1;
+}
+
+bool xs::input::get_button_once(gamepad_button button)
+{
+	return false;
+}
+
+double xs::input::get_axis(gamepad_axis axis)
+{
+	auto gamepad = get_default_gamepad();
+	if (gamepad == nullptr)
+		return 0.0;
+	auto value = SDL_GetGamepadAxis(gamepad, (SDL_GamepadAxis)axis);
+	return value / 32767.0;
+}
+
+SDL_Gamepad* xs::input::get_default_gamepad()
+{
+	if (data->gamepads.size() > 0)
+		return data->gamepads[0];
+	return nullptr;
+}

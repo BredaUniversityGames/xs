@@ -177,9 +177,9 @@ int xs::device::get_height()
 namespace xs::device::internal
 {
 	SDL_Window* window = nullptr;
-	int	width;
-	int	height;
-
+	int	width = -1;
+	int	height = -1;
+	bool quit = false;
 }
 
 using namespace xs;
@@ -239,8 +239,7 @@ void device::initialize()
 	// Set OpenGL context
 	SDL_GL_CreateContext(internal::window);
 
-	// OpenGL init here
-	
+	// OpenGL init here	
 	if (!gladLoadGL())
 	{
 		log::critical("GLAD failed to initialize OpenGL context");
@@ -285,6 +284,8 @@ void device::poll_events()
 			break;
 		}
 	}
+
+	internal::quit = quit;
 }
 
 bool device::can_close()
@@ -302,7 +303,7 @@ bool device::request_close()
 
 bool device::should_close()
 {
-	return false;
+	return internal::quit;
 }
 
 SDL_Window* device::get_window()
