@@ -1,6 +1,6 @@
 #include "inspector.hpp"
 
-#ifdef INSPECTOR2 
+#ifdef INSPECTOR
 #include <imgui.h>
 #include <imgui_impl.h>
 #include <imgui_internal.h>
@@ -91,14 +91,13 @@ void xs::inspector::initialize()
 	ui_scale = (xs + ys) / 2.0f;
 #endif
 
-	
-#if defined(DEBUG) && defined(PLATFORM_PC)
-	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	auto& io = ImGui::GetIO();
+#if defined(DEBUG) && defined(PLATFORM_PC)	
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 #else	
-	ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
 #endif
-
-	ImGuiIO& io = ImGui::GetIO();
 
 	const float UIScale = ui_scale;
 	const float fontSize = 16.0f;
@@ -167,7 +166,7 @@ void xs::inspector::render(float dt)
 #endif
 	
 	bool true_that = true;
-	const auto& io = ImGui::GetIO();
+	auto& io = ImGui::GetIO();	
 	
 	ImGui_Impl_NewFrame();
     ImGui::NewFrame();
@@ -463,10 +462,12 @@ void xs::inspector::render(float dt)
 	if(show_demo)
 	{
 		ImGui::ShowDemoWindow();
-	}
+	}	
 	
 	ImGui::Render();    
-	ImGui_Impl_RenderDrawData(ImGui::GetDrawData());
+
+
+	ImGui_Impl_RenderDrawData(ImGui::GetDrawData());	
 
 	if (new_theme != current_theme)
 	{

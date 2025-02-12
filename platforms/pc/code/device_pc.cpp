@@ -6,9 +6,11 @@
 #include "fileio.hpp"
 #include "data.hpp"
 #include "profiler.hpp"
-// #include <GLFW/glfw3.h>
+#include <imgui.h>
+#include "imgui_impl.h"
 #include <stb/stb_image.h>
 #include <SDL3/SDL.h>
+
 
 /*
 namespace xs::device::internal
@@ -177,6 +179,7 @@ int xs::device::get_height()
 namespace xs::device::internal
 {
 	SDL_Window* window = nullptr;
+	SDL_GLContext context = nullptr;
 	int	width = -1;
 	int	height = -1;
 	bool quit = false;
@@ -213,6 +216,9 @@ void device::initialize()
 	log::info("SDL version {}.{}.{}", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_MICRO_VERSION);
 
 	// Set OpenGL version
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -237,7 +243,9 @@ void device::initialize()
 	}
 
 	// Set OpenGL context
-	SDL_GL_CreateContext(internal::window);
+	internal::context = SDL_GL_CreateContext(internal::window);
+	SDL_GL_MakeCurrent(internal::window, internal::context);
+	SDL_GL_SetSwapInterval(1);
 
 	// OpenGL init here	
 	if (!gladLoadGL())
@@ -249,6 +257,8 @@ void device::initialize()
 
 	log_opengl_version_info();
 	init_debug_messages();
+
+	SDL_ShowWindow(internal::window);
 
 	// Set application icon
 	std::string path = fileio::get_path("[shared]/images/icon.png");
@@ -283,6 +293,7 @@ void device::poll_events()
 			quit = true;
 			break;
 		}
+		ImGui_Impl_ProcessEvent(&event);
 	}
 
 	internal::quit = quit;
@@ -309,6 +320,11 @@ bool device::should_close()
 SDL_Window* device::get_window()
 {
 	return internal::window;
+}
+
+SDL_GLContextState* xs::device::get_context()
+{
+	return internal::context;	
 }
 
 int xs::device::get_width()

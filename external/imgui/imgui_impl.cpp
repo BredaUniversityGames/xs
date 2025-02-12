@@ -2,46 +2,58 @@
 #include "imgui_impl.h"
 
 #if defined(PLATFORM_PC)
-
-#include "imgui_impl_glfw.h"
+#include <SDL3/SDL.h>
+#include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
 #include "device.hpp"
 #include "device_pc.hpp"
 #include "opengl.hpp"
 
+
+
 bool ImGui_Impl_Init()
 {
-	/*
+	const char* glsl_version = "#version 130";
 	const auto window = xs::device::get_window();
-	const bool opengl = ImGui_ImplOpenGL3_Init();
-	const bool glfw = ImGui_ImplGlfw_InitForOpenGL(window, true);	
-	return glfw && opengl;
-	*/
-
-	return false;
+	auto gl_context = xs::device::get_context();
+	const bool sdl = ImGui_ImplSDL3_InitForOpenGL(window, gl_context);
+	const bool opengl = ImGui_ImplOpenGL3_Init(glsl_version);
+	return sdl && opengl;
 }
 
 void ImGui_Impl_Shutdown()
 {
-	/*
-	ImGui_ImplGlfw_Shutdown();
-	*/
+	ImGui_ImplSDL3_Shutdown();
+	ImGui_ImplOpenGL3_Shutdown();
 }
 
 void ImGui_Impl_NewFrame()
 {	
-	/*
+	ImGui_ImplSDL3_NewFrame();
 	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	*/
 }
 
 void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
 {
-	/*
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	*/
+	ImGui_ImplOpenGL3_RenderDrawData(draw_data);
+
+	// Update and Render additional Platform Windows
+	auto io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
+		SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		SDL_GL_MakeCurrent(backup_current_window, backup_current_context);
+
+	}
+}
+
+IMGUI_API void ImGui_Impl_ProcessEvent(const SDL_Event* event)
+{
+	ImGui_ImplSDL3_ProcessEvent(event);
 }
 
 
