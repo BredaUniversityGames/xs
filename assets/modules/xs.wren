@@ -321,8 +321,6 @@ class Input {
     static keyY { 89 }
     static keyZ { 90 }
 
-    // TODO: add more keys
-
     static gamepadButtonSouth      { 0  }
     static gamepadButtonEast       { 1  }
     static gamepadButtonWest       { 2  }
@@ -335,9 +333,9 @@ class Input {
     static gamepadLeftStickPress   { 9  }
     static gamepadRightStickPress  { 10 }
     static gamepadDPadUp           { 11 }
-    static gamepadDPadRight        { 12 }
-    static gamepadDPadDown         { 13 }
-    static gamepadDPadLeft         { 14 }
+    static gamepadDPadDown         { 12 }
+    static gamepadDPadLeft         { 13 }
+    static gamepadDPadRight        { 14 }        
 
     static gamepadAxisLeftStickX   { 0  }
     static gamepadAxisLeftStickY   { 1  }
