@@ -241,28 +241,40 @@ using namespace std;
 namespace xs::input
 {
 
-struct gampad_data
+struct gamepad_data
 {
 	bool buttons[SDL_GAMEPAD_BUTTON_COUNT];
 	float axes[SDL_GAMEPAD_AXIS_COUNT];
+
+	gamepad_data() { memset(this, 0, sizeof(*this)); }
+
+	// Copy the previous gamepad state
+	gamepad_data operator=(const gamepad_data& other)
+	{
+		memcpy(buttons, other.buttons, sizeof(buttons));
+		memcpy(axes, other.axes, sizeof(axes));
+		return *this;
+	}
 };
 
-struct xs_gamepad
+
+struct gamepad_entry
 {
-	SDL_Gamepad* gamepad;
-	SDL_Gamepad* prev_gamepad;
+	gamepad_data gamepad;
+	gamepad_data prev_gamepad;
+	SDL_Gamepad* sdl_pad;
+
+	gamepad_entry() : sdl_pad(nullptr) {}
+	gamepad_entry(SDL_Gamepad* pad) : sdl_pad(pad) {}
 };
 
 struct Data
 {
-	unordered_map<size_t, xs_gamepad> gamepads;
-
-	// SDL_GameController* controller;
-	// SDL_Haptic* haptic;
+	unordered_map<size_t, gamepad_entry> gamepads;
 };
 
-xs_gamepad* get_default_gamepad();
-
+gamepad_entry* get_default_gamepad();
+void update_all_gamepads();
 Data* data = nullptr;
 
 }
@@ -276,48 +288,14 @@ void xs::input::initialize()
 void xs::input::shutdown()
 {	
 	for (auto& j : data->gamepads)
-	{
-		SDL_free(j.second.prev_gamepad);
-		SDL_CloseGamepad(j.second.gamepad);
-	}
+		SDL_CloseGamepad(j.second.sdl_pad);
 	SDL_QuitSubSystem(SDL_INIT_GAMEPAD);
 	delete data;
 }
 
 void xs::input::update(double dt)
 {
-	// Copy the previous gamepad state
-	for (auto& j : data->gamepads)
-	{
-		SDL_free(j.second.prev_gamepad);
-		j.second.prev_gamepad = j.second.gamepad;
-	}
-		
-
-	// Get the current gamepad state
-	int count;
-	auto joysticks = SDL_GetJoysticks(&count);
-	for (int i = 0; i < count; i++)
-	{
-		auto itr = data->gamepads.find(i);
-		if (itr == data->gamepads.end())
-		{
-			auto gamepad = SDL_OpenGamepad(joysticks[i]);
-
-			if (gamepad == nullptr)
-				xs::log::error("Failed to open gamepad {}", i);
-			else
-			{
-				data->gamepads[i].gamepad = gamepad;
-			}
-		}
-		else
-		{
-			data->gamepads[i].gamepad = itr->second.gamepad;
-		}
-	}
-	//SDL_free(joysticks);
-
+	update_all_gamepads();
 }
 
 double xs::input::get_mouse_x() { return 0.0; }
@@ -357,7 +335,7 @@ bool xs::input::get_button(gamepad_button button)
 	if (gamepad == nullptr)
 		return false;
 
-	auto value = SDL_GetGamepadButton(gamepad->gamepad, (SDL_GamepadButton)button);
+	auto value = gamepad->gamepad.buttons[button];
 	return value == 1;
 }
 
@@ -366,8 +344,8 @@ bool xs::input::get_button_once(gamepad_button button)
 	auto gamepad = get_default_gamepad();
 	if (gamepad == nullptr)
 		return false;
-	auto value = SDL_GetGamepadButton(gamepad->gamepad, (SDL_GamepadButton)button);
-	auto value_prev = SDL_GetGamepadButton(gamepad->prev_gamepad, (SDL_GamepadButton)button);
+	auto value = gamepad->gamepad.buttons[button];
+	auto value_prev = gamepad->prev_gamepad.buttons[button];
 	return value == 1 && value_prev == 0;
 }
 
@@ -376,13 +354,48 @@ double xs::input::get_axis(gamepad_axis axis)
 	auto gamepad = get_default_gamepad();
 	if (gamepad == nullptr)
 		return 0.0;
-	auto value = SDL_GetGamepadAxis(gamepad->gamepad, (SDL_GamepadAxis)axis);
-	return value / 32767.0;
+	auto value = gamepad->gamepad.axes[axis];
+	return value;
 }
 
-xs::input::xs_gamepad* xs::input::get_default_gamepad()
+xs::input::gamepad_entry * xs::input::get_default_gamepad()
 {
 	if (data->gamepads.size() > 0)
 		return &data->gamepads[0];
 	return nullptr;
+}
+
+void xs::input::update_all_gamepads()
+{
+	int count = 0;
+	auto* joysticks = SDL_GetGamepads(&count);
+	for (int i = 0; i < count; i++)
+	{
+		auto player = SDL_GetGamepadPlayerIndexForID(joysticks[i]);
+
+		// Check if the gamepad is already open
+		if (data->gamepads.find(player) == data->gamepads.end())
+		{
+			auto gamepad = SDL_OpenGamepad(joysticks[i]);
+			if (gamepad == nullptr)
+				xs::log::error("Failed to open gamepad {}", i);
+			else
+				data->gamepads[player] = gamepad_entry(gamepad); // Init to zero
+		}
+
+		// The gamepad is already open or just added		
+		if (data->gamepads.find(player) != data->gamepads.end())
+		{
+			// Copy the previous gamepad state
+			data->gamepads[player].prev_gamepad = data->gamepads[player].gamepad;
+
+			// Get the current gamepad state
+			auto sdl_pad = data->gamepads[player].sdl_pad;
+
+			for (int i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; i++)
+				data->gamepads[player].gamepad.buttons[i] = SDL_GetGamepadButton(sdl_pad, (SDL_GamepadButton)i);
+			for (int i = 0; i < SDL_GAMEPAD_AXIS_COUNT; i++)
+				data->gamepads[player].gamepad.axes[i] = SDL_GetGamepadAxis(sdl_pad, (SDL_GamepadAxis)i) / 32767.0f;			
+		}		
+	}
 }
