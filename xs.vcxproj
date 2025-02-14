@@ -56,7 +56,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="external\imgui\imgui_impl_sdl3.cpp" />
+    <ClCompile Include="external\imgui\imgui_impl_sdl3.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="platforms\pc\code\fileio_pc.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
@@ -452,7 +456,6 @@
     <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -462,7 +465,6 @@
     <ApplicationProgramFormat>Nsp</ApplicationProgramFormat>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
@@ -472,7 +474,6 @@
     <ApplicationProgramFormat>Nsp</ApplicationProgramFormat>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|NX64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -491,6 +492,7 @@
     <Import Project="properties\xs.props" />
     <Import Project="properties\xs_pc.props" />
     <Import Project="properties\xs_opengl.props" />
+    <Import Project="properties\xs_inspector.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -500,6 +502,7 @@
     <Import Project="properties\xs.props" />
     <Import Project="properties\xs_pc.props" />
     <Import Project="properties\xs_opengl.props" />
+    <Import Project="properties\xs_inspector.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -519,63 +522,49 @@
     <Import Project="properties\xs.props" />
     <Import Project="properties\xs_opengl.props" />
     <Import Project="platforms\switch\properties\xs_switch.props" />
+    <Import Project="properties\xs_inspector.props" />
+    <Import Project="properties\xs_debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="nintendo\ImportNintendoSdk.props" Condition="exists('nintendo\ImportNintendoSdk.props')" />
+    <Import Project="platforms\switch\properties\ImportNintendoSdk.props" />
+    <Import Project="properties\xs.props" />
+    <Import Project="platforms\switch\properties\xs_switch.props" />
+    <Import Project="properties\xs_opengl.props" />
+    <Import Project="properties\xs_inspector.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="nintendo\ImportNintendoSdk.props" Condition="exists('nintendo\ImportNintendoSdk.props')" />
+    <Import Project="platforms\switch\properties\ImportNintendoSdk.props" />
+    <Import Project="properties\xs.props" />
+    <Import Project="properties\xs_opengl.props" />
+    <Import Project="platforms\switch\properties\xs_switch.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>executable\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>intermediate\$(Platform)\$(Configuration)\</IntDir>
-    <CppLanguageStandard>Gnu++17</CppLanguageStandard>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>executable\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>intermediate\$(Platform)\$(Configuration)\</IntDir>
     <CppLanguageStandard>Gnu++17</CppLanguageStandard>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>executable\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>intermediate\$(Platform)\$(Configuration)\</IntDir>
     <CppLanguageStandard>Gnu++17</CppLanguageStandard>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>executable\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>intermediate\$(Platform)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">
-    <OutDir>executable\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>intermediate\$(Platform)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">
-    <OutDir>executable\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>intermediate\$(Platform)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">
-    <OutDir>executable\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>intermediate\$(Platform)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <OutDir>executable\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>intermediate\$(Platform)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">
-    <OutDir>executable\$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>intermediate\$(Platform)\$(Configuration)\</IntDir>
-  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'" />
   <PropertyGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <ApplicationDataDir>$(ProjectDir)games</ApplicationDataDir>
   </PropertyGroup>
@@ -734,16 +723,13 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <Link>
-      <FinalizeMetaSource>$(ProjectDir)platforms\switch\build\xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl_renderdoc.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
       <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;%(ProjectDir)external/miniz/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
-      <PreprocessorDefinitions>INSPECTOR;PLATFORM_SWITCH;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <CPPExceptions>true</CPPExceptions>
-      <WarningsAsErrors>true</WarningsAsErrors>
+      <WarningsAsErrors>
+      </WarningsAsErrors>
     </ClCompile>
     <CustomBuildStep>
       <Command>
@@ -759,16 +745,15 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
     <Link>
-      <FinalizeMetaSource>$(ProjectDir)platforms\switch\build\xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
       <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;%(ProjectDir)external/miniz/lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(_NintendoSdkSdkLibraryName).nss;libfmod$(FMODSuffix).a;libfmodstudio$(FMODSuffix).a;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>INSPECTOR;PLATFORM_SWITCH;NN_SDK_BUILD_DEVELOP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CPPExceptions>true</CPPExceptions>
-      <WarningsAsErrors>true</WarningsAsErrors>
+      <WarningsAsErrors>
+      </WarningsAsErrors>
     </ClCompile>
     <CustomBuildStep>
       <Command>
@@ -784,7 +769,6 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">
     <Link>
-      <FinalizeMetaSource>$(ProjectDir)platforms\switch\build\xs.aarch64.nmeta</FinalizeMetaSource>
       <AdditionalNSODependencies>opengl.nso;%(AdditionalNSODependencies)</AdditionalNSODependencies>
       <Profile>true</Profile>
       <AdditionalLibraryDirectories>%(ProjectDir)external/fmod/lib;%(ProjectDir)external/miniz/lib</AdditionalLibraryDirectories>
@@ -792,9 +776,9 @@
     </Link>
     <ClCompile>
       <PreprocessorDefinitions>PLATFORM_SWITCH;NN_SDK_BUILD_RELEASE;%(PreprocessorDefinitions);PLATFORM_SWITCH</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code/include;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CPPExceptions>true</CPPExceptions>
-      <WarningsAsErrors>true</WarningsAsErrors>
+      <WarningsAsErrors>
+      </WarningsAsErrors>
     </ClCompile>
     <CustomBuildStep>
       <Command>

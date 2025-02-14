@@ -5,6 +5,16 @@
   <PropertyGroup>
     <_PropertySheetDisplayName>xs switch</_PropertySheetDisplayName>
   </PropertyGroup>
-  <ItemDefinitionGroup />
+  <PropertyGroup Label="Configuration">
+    <ApplicationProgramFormat>Nsp</ApplicationProgramFormat>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <FinalizeMetaSource>$(ProjectDir)platforms\switch\build\xs.aarch64.nmeta</FinalizeMetaSource>
+    </Link>
+    <ClCompile>
+      <PreprocessorDefinitions>PLATFORM_SWITCH;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
