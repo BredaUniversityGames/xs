@@ -2,10 +2,16 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup>
+    <OutDir>executable\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>intermediate\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(SolutionDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod;$(ProjectDir)external/miniz/include/miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningsAsErrors>Yes</WarningsAsErrors>
+      <CPPExceptions>true</CPPExceptions>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup />
