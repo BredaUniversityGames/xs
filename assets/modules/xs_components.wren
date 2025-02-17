@@ -41,6 +41,7 @@ class Body is Component {
 
 class Renderable is Component {
     construct new() {
+        super()
         _layer = 0.0
     }
 
@@ -305,6 +306,7 @@ class AnimatedSprite is GridSprite {
 
 class Relation is Component {
     construct new(parent) {
+        super()
         _parent = parent
         _offset = Vec2.new(0, 0)
     }
@@ -331,6 +333,7 @@ class Relation is Component {
 
 class Ownership is Component {
     construct new(parent) {
+        super()
         _parent = parent
     }
 
