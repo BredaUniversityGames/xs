@@ -267,9 +267,9 @@ namespace xs::input
 	/// <summary>
 	/// Turns on vibration for the left and right motor if the used controller supports this
 	/// </summary>
-	/// <param name="lightRumble">Value between 0 (off) and 1 (max rotation) for the left motor</param>
-	/// <param name="heavyRumble">Value between 0 (off) and 1 (max rotation) for the right motor</param>
-	void set_gamepad_vibration(int leftRumble, int rightRumble);
+	/// <param name="low">Value between 0 (off) and 1 (max rotation) for the left motor</param>
+	/// <param name="`high">Value between 0 (off) and 1 (max rotation) for the right motor</param>
+	void set_gamepad_vibration(double low, double high, double time);
 
 	/// <summary>
 	/// Sets the color value for the lightbar on Dualshock controllers (4 and up)
