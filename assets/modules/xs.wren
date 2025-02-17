@@ -267,7 +267,7 @@ class Input {
     foreign static getTouchX(index)
     foreign static getTouchY(index)
 
-    foreign static setPadVibration(leftRumble, rightRumble)
+    foreign static setPadVibration(lowRumble, highRumble, time)
     foreign static setPadLightbarColor(red, green, blue)
     foreign static resetPadLightbarColor()
 

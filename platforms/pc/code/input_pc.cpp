@@ -307,7 +307,15 @@ int xs::input::get_touch_id(int index) { return 0; }
 double xs::input::get_touch_x(int index) { return 0.0; }
 double xs::input::get_touch_y(int index) { return 0.0; }
 
-void xs::input::set_gamepad_vibration(int leftRumble, int rightRumble) {}
+void xs::input::set_gamepad_vibration(double low, double high, double time)
+{
+	auto gamepad = get_default_gamepad();
+	if (gamepad == nullptr)
+		return;
+
+	SDL_RumbleGamepad(gamepad->sdl_pad, (uint16)0xFFFF, (uint16)0xFFFF, (uint32)(time * 1000));
+}
+
 void xs::input::set_lightbar_color(double red, double green, double blue) {}
 void xs::input::reset_lightbar() {}
 

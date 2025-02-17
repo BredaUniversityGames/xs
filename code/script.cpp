@@ -697,7 +697,7 @@ void input_get_touch_y(WrenVM* vm)
 
 void input_set_gamepad_vibration(WrenVM* vm)
 {
-    callFunction_args<int,int>(vm, xs::input::set_gamepad_vibration);
+    callFunction_args<double, double, double>(vm, xs::input::set_gamepad_vibration);
 }
 
 void input_set_lightbar_color(WrenVM* vm)
@@ -1060,7 +1060,7 @@ void xs::script::bind_api()
     bind("xs", "Input", true, "getTouchId(_)", input_get_touch_id);
     bind("xs", "Input", true, "getTouchX(_)", input_get_touch_x);
     bind("xs", "Input", true, "getTouchY(_)", input_get_touch_y);
-    bind("xs", "Input", true, "setPadVibration(_,_)", input_set_gamepad_vibration);
+    bind("xs", "Input", true, "setPadVibration(_,_,_)", input_set_gamepad_vibration);
     bind("xs", "Input", true, "setPadLightbarColor(_,_,_)", input_set_lightbar_color);
     bind("xs", "Input", true, "resetPadLightbarColor()", input_reset_lightbar);
 
