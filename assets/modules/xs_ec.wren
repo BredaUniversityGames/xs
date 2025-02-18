@@ -189,6 +189,18 @@ class Entity {
         return found
     }
 
+    // Get all the entities where the tag does not match (has bit overlap)
+    // with a given tag.
+    static withoutTagOverlap(tag) {
+        var found = []
+        for (e in __entities) {
+                if(!Bits.checkBitFlagOverlap(e.tag, tag)) {
+                found.add(e)
+            }
+        }
+        return found
+    }
+
     static setEnabled(tag, enabled) {
         for (e in __entities) {
             if(Bits.checkBitFlagOverlap(e.tag, tag)) {
