@@ -130,14 +130,6 @@ class Entity {
     // Updates the all entities and their compoenets.
     // Add/removes entities and componenets.
     static update(dt) {
-        Entity.update(dt, 0xFFFFFFFF)
-    }
-
-    // Call from the update() function of you entry point (game class)
-    // Updates the all entities and their compoenets.
-    // Add/removes entities and componenets.
-    // The filter is a bitflag that will be used to filter the entities
-    static update(dt, filter) {
         for (e in __entities) {
             e.removeDeletedComponents_()
         }
@@ -153,7 +145,7 @@ class Entity {
                     c.initialize()
                     c.initialized_ = true
                 }
-                if(c.enabled /* && Bits.checkBitFlagOverlap(e.tag, filter) */ ) {
+                if(c.enabled) {
                     c.update(dt)
                 }
             }
@@ -199,7 +191,7 @@ class Entity {
 
     static setEnabled(tag, enabled) {
         for (e in __entities) {
-            if(Bits.checkBitFlag(e.tag, tag)) {
+            if(Bits.checkBitFlagOverlap(e.tag, tag)) {
                 for(c in e.components) {
                     c.enabled = enabled
                 }
