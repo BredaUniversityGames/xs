@@ -313,7 +313,9 @@ void xs::input::set_gamepad_vibration(double low, double high, double time)
 	if (gamepad == nullptr)
 		return;
 
-	SDL_RumbleGamepad(gamepad->sdl_pad, (uint16)0xFFFF, (uint16)0xFFFF, (uint32)(time * 1000));
+	uint16 low_rumble = (uint16)(low * 0xFFFF);
+	uint16 high_rumble = (uint16)(high * 0xFFFF);
+	SDL_RumbleGamepad(gamepad->sdl_pad, high_rumble, low_rumble, (uint32)(time * 1000));
 }
 
 void xs::input::set_lightbar_color(double red, double green, double blue) {}
