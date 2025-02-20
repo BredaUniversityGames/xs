@@ -120,6 +120,13 @@ class Entity {
     tag { _tag }
     tag=(t) { _tag = t }
 
+    // Set enabled state of all components
+    enabled=(e) {
+        for(c in _components.values) {
+            c.enabled = e
+        }
+    }
+
     // Call from the initialize() function of you entry point (game class)
     static initialize() {
         __entities = []
