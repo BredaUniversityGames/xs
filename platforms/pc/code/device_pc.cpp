@@ -337,3 +337,8 @@ int xs::device::get_height()
 	return internal::height;
 }
 
+double device::hdpi_scaling()
+{
+	return SDL_GetWindowDisplayScale(internal::window);
+}
+

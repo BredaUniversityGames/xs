@@ -84,13 +84,6 @@ void xs::inspector::initialize()
 #endif
     ImGui_Impl_Init();
 	
-#if defined(PLATFORM_PC)
-	float ys = 1.0f;
-	float xs = 1.0f;
-	// glfwGetWindowContentScale(device::get_window(), &xs, &ys);
-	ui_scale = (xs + ys) / 2.0f;
-#endif
-
 	auto& io = ImGui::GetIO();
 #if defined(DEBUG) && defined(PLATFORM_PC)	
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -99,7 +92,7 @@ void xs::inspector::initialize()
 	io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
 #endif
 
-	const float UIScale = ui_scale;
+	const float UIScale = (float)device::hdpi_scaling();
 	const float fontSize = 16.0f;
 	const float iconSize = 12.0f;
 
@@ -164,6 +157,10 @@ void xs::inspector::render(float dt)
 #ifdef PLATFORM_PS5
 	return;
 #endif
+
+	// Use P to pause the game 
+	if (input::get_key_once( input::KEY_P))
+		game_paused = !game_paused;
 	
 	bool true_that = true;
 	auto& io = ImGui::GetIO();	
