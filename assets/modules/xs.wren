@@ -320,7 +320,7 @@ class Input {
     static keyX { 88 }
     static keyY { 89 }
     static keyZ { 90 }
-
+    
     static gamepadButtonSouth      { 0  }
     static gamepadButtonEast       { 1  }
     static gamepadButtonWest       { 2  }
