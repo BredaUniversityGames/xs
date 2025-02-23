@@ -8,11 +8,10 @@ namespace xs::device
 	void end_frame();
 	void poll_events();
 	void start_frame();
-	void end_frame();
 	bool should_close();
 	int get_width();
 	int get_height();
-	float hdpi_scaling();
+	double hdpi_scaling();
 
 	enum platform 
 	{

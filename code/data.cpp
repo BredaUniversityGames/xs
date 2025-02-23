@@ -131,7 +131,7 @@ void xs::data::inspect(bool& show)
 		history.push_back(r);
 	}
 
-	ImGui::Begin((const char*)u8"\U0000f1c0  Data", &show, ImGuiWindowFlags_NoCollapse);
+	ImGui::Begin((const char*)u8"\U0000f1c0  Data", &show);
 
 	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
 	if (ImGui::Button(ICON_FA_UNDO))
@@ -265,10 +265,10 @@ void xs::data::internal::inspect_of_type(
 		sort(sorted.begin(), sorted.end());
 		
 		ImGui::BeginChild("Child");
-		//ImGui::PushItemWidth(-180);
+		ImGui::PushItemWidth(90);
 		for (const auto& s : sorted)
 			ed = std::max(ed, inspect_entry(*reg.find(s)));
-		//ImGui::PopItemWidth();
+		ImGui::PopItemWidth();
 		ImGui::EndChild();
 
 		ImGui::EndTabItem();

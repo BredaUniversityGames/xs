@@ -11,6 +11,7 @@
 #include "device_pc.hpp"
 #include "configuration.hpp"
 #include "log.hpp"
+#include "data.hpp"
 
 
 using namespace xs;
@@ -86,6 +87,11 @@ double xs::input::get_touch_y(int index) { return 0.0; }
 
 void xs::input::set_gamepad_vibration(double low, double high, double time)
 {
+#ifdef DEBUG
+	if (data::get_bool("Vibration.Disabled", data::type::debug))
+		return;
+#endif
+	
 	auto gamepad = get_default_gamepad();
 	if (gamepad == nullptr)
 		return;
@@ -98,7 +104,10 @@ void xs::input::set_gamepad_vibration(double low, double high, double time)
 void xs::input::set_lightbar_color(double red, double green, double blue) {}
 void xs::input::reset_lightbar() {}
 
-bool xs::input::get_key(int key) { return false; }
+bool xs::input::get_key(int key)
+{
+	return 
+}
 bool xs::input::get_key_once(int key) { return false; }
 
 bool xs::input::get_mouse()
