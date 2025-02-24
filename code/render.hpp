@@ -39,7 +39,7 @@ namespace xs::render
 	void clear();
 
 	/// (Hot) reload all images in use
-	void reload_images();
+	int reload_images();
 
 	/// Set the offset for the rendering - used for camera movement
 	void set_offset(double x, double y);

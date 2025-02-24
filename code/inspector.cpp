@@ -238,8 +238,12 @@ void xs::inspector::render(float dt)
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_IMAGES))
 		{
-			render::reload_images();	
+			auto reloaded = render::reload_images();	
 			next_frame = true;
+			if (reloaded == 0)
+				notify(notification_type::info, "No images reloaded", 3.0f);
+			else
+				notify(notification_type::success, to_string(reloaded) + " images reloaded", 3.0f);
 		}
 		Tooltip("Reload Art");
 

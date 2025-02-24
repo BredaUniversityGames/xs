@@ -138,7 +138,7 @@ class Render {
     }
 
     static dbgCircle(x, y, r, divs) {
-        Render.dbgBegin(Render.dbgLines)
+        Render.dbgBegin(Render.lines)
         var t = 0.0
         var dt = (Num.pi * 2.0) / divs
         for(i in 0..divs) {            
@@ -159,7 +159,7 @@ class Render {
         divs = divs.truncate
         var dt = angle / divs
         if(divs > 0) {
-            Render.dbgBegin(Render.dbgLines)
+            Render.dbgBegin(Render.lines)
             for(i in 0..divs) {
                 var xr = t.cos * r            
                 var yr = t.sin * r
@@ -249,6 +249,7 @@ class TouchData {
 
 class Input {
     foreign static getAxis(axis)
+    foreign static getAxisOnce(axis, threshold)
     foreign static getButton(button)
     foreign static getButtonOnce(button)
 

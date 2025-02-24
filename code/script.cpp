@@ -625,6 +625,11 @@ void input_get_axis(WrenVM* vm)
     callFunction_returnType_args<double, xs::input::gamepad_axis>(vm, xs::input::get_axis);
 }
 
+void input_get_axis_once(WrenVM* vm)
+{
+    callFunction_returnType_args<bool, xs::input::gamepad_axis, double>(vm, xs::input::get_axis_once);
+}
+
 void input_get_button(WrenVM* vm)
 {
     callFunction_returnType_args<bool, xs::input::gamepad_button>(vm, xs::input::get_button);
@@ -1046,6 +1051,7 @@ void xs::script::bind_api()
 {
     // Input
     bind("xs", "Input", true, "getAxis(_)", input_get_axis);
+    bind("xs", "Input", true, "getAxisOnce(_,_)", input_get_axis_once);
     bind("xs", "Input", true, "getButton(_)", input_get_button);
     bind("xs", "Input", true, "getButtonOnce(_)", input_get_button_once);
     bind("xs", "Input", true, "getKey(_)", input_get_key);
