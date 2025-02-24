@@ -42,12 +42,6 @@
     <FMODSuffix Condition="'$(Configuration)'=='Debug'">L</FMODSuffix>
   </PropertyGroup>
   <ItemGroup>
-    <CustomBuild Include="nintendo\xs.aarch64.nmeta" />
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="nintendo\icon.bmp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="code\cooker.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
