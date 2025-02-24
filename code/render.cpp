@@ -476,8 +476,9 @@ void xs::render::dbg_text(const std::string& text, double x, double y, double si
 
 #ifdef CAN_RELOAD_IMAGES
 
-void xs::render::reload_images()
+int xs::render::reload_images()
 {
+	int reloaded = 0;
 	for (int i = 0; i < images.size(); i++) {
 		auto& image = images[i];
 
@@ -498,20 +499,25 @@ void xs::render::reload_images()
 				&image.channels,
 				4);
 
-			if (data == nullptr)
+			if (data != nullptr)
 			{
-				log::error("Image {} could not be reloaded!", image.file);
-				return;
+				log::info("Image {} reloaded!", image.file);
+				auto message = fmt::format("Image {} reloaded!", image.file);
+				inspector::notify(inspector::notification_type::success, message, 4.0f);
+				last_write_times[i] = new_time;
+				create_texture_with_data(image, data);
+				stbi_image_free(data);
+				reloaded++;	
 			}
 			else
 			{
-				log::info("Image {} reloaded!", image.file);
+				log::error("Image {} could not be reloaded!", image.file);
+				auto message = fmt::format("Image {} could not be reloaded!", image.file);
+				inspector::notify(inspector::notification_type::error, message, 5.0f);
 			}
-			last_write_times[i] = new_time;
-			create_texture_with_data(image, data);
-			stbi_image_free(data);
 		}
 	}
+	return reloaded;
 }
 
 #else 

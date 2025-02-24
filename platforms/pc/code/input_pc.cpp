@@ -170,6 +170,18 @@ double xs::input::get_axis(gamepad_axis axis)
 	return value;
 }
 
+bool input::get_axis_once(gamepad_axis axis, double threshold)
+{
+	auto gamepad = get_default_gamepad();
+	if (gamepad == nullptr)
+		return false;
+
+	bool value = threshold < 0.0 ?
+		gamepad->gamepad.axes[axis] < threshold && gamepad->prev_gamepad.axes[axis] >= threshold :
+		gamepad->gamepad.axes[axis] > threshold && gamepad->prev_gamepad.axes[axis] <= threshold;
+	return value;
+}
+
 xs::input::gamepad_entry* xs::input::get_default_gamepad()
 {
 	if (data->gamepads.size() > 0)
