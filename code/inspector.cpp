@@ -24,11 +24,12 @@
 #endif
 
 #if defined(PLATFORM_PC)
-// #include <GLFW/glfw3.h>
 #include "device_pc.hpp"
 #elif defined(PLATFORM_SWITCH)
 #include <nn/fs.h>
 #endif
+
+#define SHOW_IMGUI_DEMO 0
 
 namespace xs::inspector
 {
@@ -48,6 +49,7 @@ namespace xs::inspector
 	bool show_about = false;
 	bool show_demo = false;
 	bool show_modal = false;
+	bool show_inspector = false;
 
 	enum class theme
 	{
@@ -130,6 +132,7 @@ void xs::inspector::initialize()
 	io.IniFilename = str;
 
 	current_theme = (theme)data::get_number("theme", data::type::user);
+	show_inspector = data::get_bool("show_inspector", data::type::user);
 	apply_theme();
 }
 
@@ -179,12 +182,7 @@ void xs::inspector::render(float dt)
 		show_about				||
 		show_demo				||
 		show_modal				||
-		(ImGui::IsMousePosValid() &&
-         mousePos.y < 100.0f &&
-         mousePos.y >= 0.0f &&
-         mousePos.y <= device::get_height() &&
-         mousePos.x >= 0.0f &&
-         mousePos.x <= device::get_width()))
+		show_inspector)
 	{
         ImGui::Begin("Window", nullptr,
 			ImGuiWindowFlags_NoScrollbar |
@@ -228,17 +226,13 @@ void xs::inspector::render(float dt)
 
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_DATABASE))
-		{
 			show_registry = !show_registry;
-		}
 		Tooltip("Data");
 		
-		
+		// Profiler
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_CHART_BAR))
-		{
 			show_profiler = !show_profiler;
-		}
 		Tooltip("Profiler");
 
 		ImGui::SameLine();
@@ -307,21 +301,29 @@ void xs::inspector::render(float dt)
 			data::save_of_type(data::type::user);
 		}
 		Tooltip("Theme");
-		
-		
+
+#if SHOW_IMGUI_DEMO
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_LIFE_RING))
-		{
 			show_demo = !show_demo;
-		}
 		Tooltip("Demo Window");
-						
+#endif
+
+    	// About
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
-		{
 			show_about = true;
-		}
 		Tooltip("About");
+
+    	// Close inspector
+    	ImGui::SameLine();
+    	if (ImGui::Button(ICON_FA_TIMES))
+    	{
+    		show_inspector = false;
+    		data::set_bool("show_inspector", show_inspector, data::type::user);
+    		data::save_of_type(data::type::user);
+    	}
+    	Tooltip("Close Inspector");
 				
 		ImGui::SameLine();
 		if (xs::script::has_error())
@@ -380,8 +382,32 @@ void xs::inspector::render(float dt)
 		}
 
 	}
-
+	else
 	{
+		ImGui::Begin("Window", nullptr,
+			ImGuiWindowFlags_NoScrollbar |
+			ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags_NoResize |
+			ImGuiWindowFlags_NoMove |
+			ImGuiWindowFlags_NoCollapse |
+			ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_NoScrollWithMouse);
+		ImGui::SetWindowPos({ 0, 0 });
+		ImGui::SetWindowSize({-1, -1 });
+
+		// A small button to show the inspector
+		if (ImGui::Button(ICON_FA_WRENCH))
+		{
+			show_inspector = true;
+			data::set_bool("show_inspector", show_inspector, data::type::user);
+			data::save_of_type(data::type::user);
+		}
+		Tooltip("Show Inspector");
+		
+		ImGui::End();		
+	}
+	
+	{	// Notifications
 		float x = -10.0f;
 		float y = -10.0f;
 		for (auto& n : notifications)
@@ -710,6 +736,24 @@ void xs::inspector::follow_the_light()
 	style.PopupBorderSize = 0;
 	style.FrameBorderSize = 0;
 	style.TabBorderSize = 0;
+
+	style.IndentSpacing = 25;
+	style.ScrollbarSize = 10;
+	style.GrabMinSize = 10;
+	style.WindowBorderSize = 1;
+	style.ChildBorderSize = 0;
+	style.PopupBorderSize = 0;
+	style.FrameBorderSize = 0;
+	style.TabBorderSize = 1;
+	style.WindowRounding = 7;
+	style.ChildRounding = 4;
+	style.FrameRounding = 3;
+	style.PopupRounding = 4;
+	style.ScrollbarRounding = 9;
+	style.GrabRounding = 3;
+	style.LogSliderDeadzone = 4;
+	style.TabRounding = 4;
+	style.FrameBorderSize = 0;
 }
 
 void xs::inspector::go_gray()
