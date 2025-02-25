@@ -12,6 +12,8 @@
 #include "json/json.hpp"
 #include <filesystem>
 
+#define PUBLISH 0
+
 namespace fs = std::filesystem;
 
 using namespace std;
@@ -84,6 +86,10 @@ void fileio::initialize()
 		string xs_sample = fileio::absolute("samples/hello");
 		add_wildcard("[game]", xs_sample);
 	}
+
+#if PUBLISH
+	add_wildcard("[game]", "game");
+#endif
 
 	// Load the game settings json and find the main game script
 	if (exists("[game]/project.json"))
