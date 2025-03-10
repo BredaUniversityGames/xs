@@ -245,6 +245,9 @@ void xs::render::text(
 		}
 	}
 
+	// Center text has been calculated, remove the flag
+	flags = flags & ~xs::render::sprite_flags::center;
+
 	// Render text
 	for (size_t i = 0; i < text.size(); i++)
 	{
@@ -275,7 +278,7 @@ void xs::render::text(
 		}
 
 		auto sprite = create_sprite(font.image_id, quad.s0, quad.t0, quad.s1, quad.t1);
-		xs::render::sprite(sprite, begin + bearing, y - quad.y1, z, 1, 0, multiply, add, 0);
+		xs::render::sprite(sprite, begin + bearing, y - quad.y1, z, 1, 0, multiply, add, flags);
 
 		begin += advance + kerning;		
 	}
