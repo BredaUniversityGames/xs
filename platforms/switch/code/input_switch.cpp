@@ -504,7 +504,7 @@ double xs::input::get_touch_y(int index)
 }
 
 //These three functions only exists here to not throw an error when called
-void xs::input::set_gamepad_vibration(int smallRumble, int largeRumble)
+void xs::input::set_gamepad_vibration(double smallRumble, double largeRumble, double time)
 {
 	//Unimplemented on the switch (Probably too simple for the switch rumble)
 }
@@ -598,4 +598,14 @@ void xs::input::internal::AddJoystick(int joy)
 			_joyState[joy].Type = state.Type;
 		}
 	}
+}
+
+/// <summary>
+/// Returns true if the given axis is currently being held down and its value is greater than the given threshold.
+/// </summary>
+/// <param name="axis">The ID of the axis to check.</param>
+/// <param name="threshold">The threshold value to compare the axis value against.</param> 
+bool xs::input::get_axis_once(gamepad_axis axis, double threshold)
+{
+	return false;
 }
