@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        Platform: ["x64", "Prospero"]
+        Platform: ["PC", "Prospero"]
         Configuration: ["Debug", "Release"]
     runs-on: ${{ matrix.Platform == 'Prospero' && 'self-hosted' || 'windows-latest' }}
     steps:
