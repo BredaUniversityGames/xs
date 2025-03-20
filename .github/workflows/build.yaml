@@ -15,9 +15,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        Platform: ["PC"]
+        Platform: ["PC", "NX64"]
         Configuration: ["Debug", "Release"]
-    runs-on: 'windows-latest'
+    runs-on: ${{ matrix.Platform == 'NX64' && 'self-hosted' || 'windows-latest' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
