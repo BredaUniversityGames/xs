@@ -10,14 +10,14 @@ permissions:
   contents: read
 
 jobs:
-  build_all:
+  build_windows:
     timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        Platform: ["PC", "Prospero"]
+        Platform: ["PC"]
         Configuration: ["Debug", "Release"]
-    runs-on: ${{ matrix.Platform == 'Prospero' && 'self-hosted' || 'windows-latest' }}
+    runs-on: 'windows-latest'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,3 +31,4 @@ jobs:
           
       - name: Build xs
         run: msbuild ${{env.SOLUTION_FILE}} -t:rebuild /p:Configuration=${{ matrix.Configuration }} /p:Platform=${{ matrix.Platform }}
+  
