@@ -242,3 +242,9 @@ int xs::device::get_height()
 {
 	return internal::height;
 }
+
+double xs::device::hdpi_scaling()
+{
+	return 1.0;
+}
+

@@ -599,3 +599,13 @@ void xs::input::internal::AddJoystick(int joy)
 		}
 	}
 }
+
+/// <summary>
+/// Returns true if the given axis is currently being held down and its value is greater than the given threshold.
+/// </summary>
+/// <param name="axis">The ID of the axis to check.</param>
+/// <param name="threshold">The threshold value to compare the axis value against.</param> 
+bool xs::input::get_axis_once(gamepad_axis axis, double threshold)
+{
+	return false;
+}
