@@ -504,7 +504,7 @@ double xs::input::get_touch_y(int index)
 }
 
 //These three functions only exists here to not throw an error when called
-void xs::input::set_gamepad_vibration(int smallRumble, int largeRumble)
+void xs::input::set_gamepad_vibration(double smallRumble, double largeRumble, double time)
 {
 	//Unimplemented on the switch (Probably too simple for the switch rumble)
 }
