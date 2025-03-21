@@ -350,6 +350,9 @@ void xs::render::dgb_begin(dbg_primitive p)
 
 void xs::render::dbg_vertex(double x, double y)
 {
+	x += offset.x;
+	y += offset.y;
+	
     if (current_primitive == dbg_primitive::triangles && triangles_count < triangles_max - 1)
     {
         const uint idx = triangles_count * 3;
@@ -416,6 +419,10 @@ void xs::render::dbg_color(color c)
 
 void xs::render::dbg_line(double x0, double y0, double x1, double y1)
 {
+	x0 += offset.x;
+	y0 += offset.y;
+	x1 += offset.x;
+	y1 += offset.y;
     if (lines_count < lines_max)
     {
         lines_array[lines_count * 2].position = {x0, y0, 0.0f, 1.0f};
@@ -429,6 +436,8 @@ void xs::render::dbg_line(double x0, double y0, double x1, double y1)
 
 void xs::render::dbg_text(const std::string& text, double x, double y, double size)
 {
+	x += offset.x;
+	y += offset.y;
     struct stbVec
     {
         float x;
