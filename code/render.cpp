@@ -534,7 +534,7 @@ int xs::render::reload_images()
 
 #else 
 
-void xs::render::reload_images() {}
+int xs::render::reload_images() {}
 
 #endif
 
