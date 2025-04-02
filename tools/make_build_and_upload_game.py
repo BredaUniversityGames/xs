@@ -10,7 +10,7 @@ from shutil import copytree, ignore_patterns
 itch_name = "xs"
 user = "buas"
 
-os.system('MSBuild xs.sln /p:Platform=PC /p:Configuration=Test')
+os.system('MSBuild xs.sln /p:Platform=PC /p:Configuration=Develop')
 
 source_dir = os.getcwd()
 source_dir = source_dir + "\\executable\\x64\\Develop"

@@ -1,8 +1,9 @@
 #include "audio.hpp"
 #include "fileio.hpp"
 #include "log.hpp"
-#include <fmod/fmod.hpp>
-#include <fmod/fmod_studio.hpp>
+#include <fmod.hpp>
+#include <fmod_studio.hpp>
+#include <fmod_errors.h>
 #include <unordered_map>
 
 #if defined(PLATFORM_PS5)
@@ -254,17 +255,40 @@ namespace xs::audio
 		
 		// try to load the bank
 		FMOD::Studio::Bank* bank;
-		const blob& bank_data = fileio::read_binary_file(filename);
-		auto result = system->loadBankMemory(reinterpret_cast<const char*>(bank_data.data()), (int)bank_data.size(), FMOD_STUDIO_LOAD_MEMORY, FMOD_STUDIO_LOAD_BANK_NORMAL, &bank);
-		if (result != FMOD_OK)
+		blob bank_data = fileio::read_binary_file(filename);
+		if (bank_data.empty())
 		{
 			log::error("FMOD bank with filename {} could not be loaded!", filename);
 			return -1;
 		}
+		auto result = system->loadBankMemory(
+			reinterpret_cast<const char*>(bank_data.data()),
+			(int)bank_data.size(),
+			FMOD_STUDIO_LOAD_MEMORY,
+			FMOD_STUDIO_LOAD_BANK_NORMAL,
+			&bank);
+		if (result != FMOD_OK)
+		{
+			// Get the error message
+			const char* error = FMOD_ErrorString(result);
+			log::error("FMOD bank with filename {} could not be loaded! Error: {}", filename, error);
+			return -1;
+		}
 
-		// load all of the bank's sample data immediately
-		bank->loadSampleData();
-		system->flushSampleLoading(); // enable this to wait for loading to finish
+		// load all the bank's sample data immediately
+		result =  bank->loadSampleData();
+		if (result != FMOD_OK)
+        {
+            log::error("FMOD bank with filename {} could not load sample data!", filename);
+            return -1;
+        }
+
+		result = system->flushSampleLoading(); // enable this to wait for loading to finish
+		if (result != FMOD_OK)
+        {
+            log::error("FMOD bank with filename {} could not flush sample loading!", filename);
+            return -1;
+        }
 
 		// store the bank by its ID
 		banks[hash] = bank;

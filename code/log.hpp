@@ -37,6 +37,8 @@ namespace xs::log
 
 	template<typename FormatString, typename... Args>
 	void critical(const FormatString& fmt, const Args&... args);
+
+	void flush();
 }
 
 template<typename FormatString, typename ...Args>
@@ -69,4 +71,9 @@ inline void xs::log::critical(const FormatString& format, const Args & ...args)
 	printf("[%serror%s] ", red, reset);
 	fmt::print(fmt::runtime(format), args...);
 	printf("\n");
+}
+
+inline void xs::log::flush()
+{
+	fflush(stdout);
 }

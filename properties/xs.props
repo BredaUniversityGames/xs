@@ -8,7 +8,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod;$(ProjectDir)external/miniz/include/miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external/fmod/inc;$(ProjectDir)external/miniz/include/miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <WarningsAsErrors>Yes</WarningsAsErrors>
       <CPPExceptions>true</CPPExceptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
