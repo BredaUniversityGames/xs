@@ -145,29 +145,6 @@ namespace xs::input
 		KEY_F12 = 301		
 	};
 
-	/*
-	/// <summary>
-	/// Returns the current floating-point value of a given gamepad axis.
-	/// </summary>
-	/// <param name="button">The ID of the axis to check.</param>
-	/// <returns>The current value of the given axis. For the possible ranges per axis, see the documentation of xs::input::gamepad_axis.</returns>
-	double get_axis(int pad, gamepad_axis axis);
-
-	/// <summary>
-	/// Checks and returns whether a given gamepad button is currently being held down.
-	/// </summary>
-	/// <param name="button">The ID of the button to check.</param>
-	/// <returns>true if the given button is being held down; false otherwise.</returns>
-	bool get_button(int pad, gamepad_button button);
-
-	/// <summary>
-	/// Checks and returns whether a given gamepad button is being pressed in the current frame without having been pressed in the previous frame.
-	/// </summary>
-	/// <param name="button">The ID of the button to check.</param>
-	/// <returns>true if the given button is being pressed in this frame and not in the previous; false otherwise.</returns>
-	bool get_button_once(int pad, gamepad_button button);
-	*/
-
 	/// <summary>
 	/// Returns the current floating-point value of a given gamepad axis.
 	/// </summary>

@@ -175,7 +175,6 @@ void xs::inspector::render(float dt)
 	restart_flag = false;
 	push_menu_theme();
 	
-    auto mousePos = ImGui::GetMousePos();
     if (xs::script::has_error() ||
 		show_registry			||
 		show_profiler			||
