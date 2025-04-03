@@ -492,11 +492,6 @@
 		34EB6DA92A4C6E6200DA6B15 /* khrplatform.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = khrplatform.h; sourceTree = "<group>"; };
 		34EB6DAB2A4C6E6200DA6B15 /* glad.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glad.h; sourceTree = "<group>"; };
 		34EB6DAD2A4C6E6200DA6B15 /* glad.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = glad.c; sourceTree = "<group>"; };
-		34EB6DAF2A4C6E6200DA6B15 /* glfw3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glfw3.h; sourceTree = "<group>"; };
-		34EB6DB02A4C6E6200DA6B15 /* glfw3native.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glfw3native.h; sourceTree = "<group>"; };
-		34EB6DB12A4C6E6200DA6B15 /* libglfw3.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libglfw3.a; sourceTree = "<group>"; };
-		34EB6DB22A4C6E6200DA6B15 /* libglfw.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libglfw.3.dylib; sourceTree = "<group>"; };
-		34EB6DB32A4C6E6200DA6B15 /* glfw3.lib */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = glfw3.lib; sourceTree = "<group>"; };
 		34EB6DB52A4C6E6200DA6B15 /* vec4.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = vec4.hpp; sourceTree = "<group>"; };
 		34EB6DB62A4C6E6200DA6B15 /* integer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = integer.hpp; sourceTree = "<group>"; };
 		34EB6DB72A4C6E6200DA6B15 /* copying.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = copying.txt; sourceTree = "<group>"; };
@@ -1257,7 +1252,6 @@
 				34EB6D3F2A4C6E6200DA6B15 /* stb */,
 				34EB6DA42A4C6E6200DA6B15 /* json */,
 				34EB6DA62A4C6E6200DA6B15 /* glad */,
-				34EB6DAE2A4C6E6200DA6B15 /* GLFW */,
 				34EB6DB42A4C6E6200DA6B15 /* glm */,
 			);
 			path = external;
@@ -1519,18 +1513,6 @@
 				34EB6DAD2A4C6E6200DA6B15 /* glad.c */,
 			);
 			path = src;
-			sourceTree = "<group>";
-		};
-		34EB6DAE2A4C6E6200DA6B15 /* GLFW */ = {
-			isa = PBXGroup;
-			children = (
-				34EB6DAF2A4C6E6200DA6B15 /* glfw3.h */,
-				34EB6DB02A4C6E6200DA6B15 /* glfw3native.h */,
-				34EB6DB12A4C6E6200DA6B15 /* libglfw3.a */,
-				34EB6DB22A4C6E6200DA6B15 /* libglfw.3.dylib */,
-				34EB6DB32A4C6E6200DA6B15 /* glfw3.lib */,
-			);
-			path = GLFW;
 			sourceTree = "<group>";
 		};
 		34EB6DB42A4C6E6200DA6B15 /* glm */ = {

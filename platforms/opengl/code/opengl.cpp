@@ -1,6 +1,5 @@
 #include <string>
 #include "opengl.hpp"
-#include <GLFW/glfw3.h>
 #include "log.hpp"
 
 #if defined(DEBUG)

@@ -11,13 +11,13 @@
 
 ### Open-source xs
 
-[ ] Investigate mving from GLFW to SDL3 on Windows
+[x] Investigate mving from GLFW to SDL3 on Windows
 
 [ ] Provide non-Fmod audio options 
  
 [ ] Move NDA specific code own repos (submodules)
 
-[ ] Code restructuring so that all files are in the same folder
+[x] Code restructuring so that all files are in the same folder
 
 [ ] Linux & CMake build
 
