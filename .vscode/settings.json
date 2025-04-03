@@ -10,7 +10,7 @@
         "string": "cpp"
     },
     "wren.additionalModuleDirectories": [
-        "./games/shared/modules"
+        "./assets/modules"
     ],
 
 }
