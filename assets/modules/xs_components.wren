@@ -193,8 +193,6 @@ class Label is Sprite {
 
     text { _text }
     text=(t) { _text = t }
-
-    //toString { "[Sprite sprite:%(_sprite)] -> " + super.toString }
 }
 
 class GridSprite is Sprite {

@@ -21,11 +21,11 @@ def round_rectangle(ctx : cairo.Context,
     ctx.close_path()    
 
 # Set the radius of the circle and the rounding radius
-scale = 1.0 / 2
+scale = 4.0
 width = int(256 * scale)
 height = int(256 * scale)
 R = int(44 * scale)
-r = int(18 * scale)
+r = int(18 * scale) * 0
 thickness = 30 * scale
 steps = 13
 w = width / 2
@@ -47,9 +47,9 @@ ctx.clip()
 ctx.set_line_width(thickness)
 
 x = thickness + 40 * scale
-y = -w - thickness - 0.5
+y = -w - thickness * 1.5
 fromColor = int_to_rgba(3187733247)
-toColor = int_to_rgba(4289593599)
+toColor = int_to_rgba(3950529194)
 for i in range(steps):
     t = i / steps
     ctx.set_source_rgb(fromColor[0] + t * (toColor[0] - fromColor[0]),
@@ -60,34 +60,5 @@ for i in range(steps):
     ctx.stroke()
     x -= thickness * math.sqrt(2) - 1
 
-# Set to white
-ctx.set_source_rgb(1, 1, 1)
-
-# Draw the half circles of the logo
-# bottom of the x
-x = -1.5 * R
-y = -R
-ctx.arc(x, y, R, 0, math.pi)
-ctx.close_path()
-ctx.fill()
-# top of the x
-x = -1.5*R
-y = R
-ctx.arc(x, y, R, math.pi, 2 * math.pi)
-ctx.close_path()
-ctx.fill()
-# bottom of the s
-x =  0.5 * R
-y = 0
-ctx.arc(x, y, R, math.pi, 2 * math.pi)
-ctx.close_path()
-ctx.fill()
-# top of the s
-x = 1.5 * R
-y = 0
-ctx.arc(x, y, R, 0, math.pi)
-ctx.close_path()
-ctx.fill()
-
 # Save the image as a PNG file
-surface.write_to_png("assets/images/icon_small.png")
+surface.write_to_png("assets/images/background.png")
