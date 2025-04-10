@@ -22,11 +22,11 @@ Entry point into the Entity Component system, allowing you to create entities an
 Creates a new entity, visible to the rest of the game in the next update.
 ## addComponent(component)
 Adds component to the entity.
-## getComponent(type)
+## get(type)
 Get a component of a matching type.
-## getComponentSuper(type)
+## get(type)
 Get a component of a matching super class type.
-Slow! Use getComponent(type) when possible
+Slow! Use get(type) when possible
 ## deleteComponent(type)  
 Will mark the component for removal at the end of the update      
 ## components 

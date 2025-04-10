@@ -138,7 +138,7 @@ class Render {
     }
 
     static dbgCircle(x, y, r, divs) {
-        Render.dbgBegin(Render.dbgLines)
+        Render.dbgBegin(Render.lines)
         var t = 0.0
         var dt = (Num.pi * 2.0) / divs
         for(i in 0..divs) {            
@@ -159,7 +159,7 @@ class Render {
         divs = divs.truncate
         var dt = angle / divs
         if(divs > 0) {
-            Render.dbgBegin(Render.dbgLines)
+            Render.dbgBegin(Render.lines)
             for(i in 0..divs) {
                 var xr = t.cos * r            
                 var yr = t.sin * r
@@ -249,6 +249,7 @@ class TouchData {
 
 class Input {
     foreign static getAxis(axis)
+    foreign static getAxisOnce(axis, threshold)
     foreign static getButton(button)
     foreign static getButtonOnce(button)
 
@@ -267,7 +268,7 @@ class Input {
     foreign static getTouchX(index)
     foreign static getTouchY(index)
 
-    foreign static setPadVibration(leftRumble, rightRumble)
+    foreign static setPadVibration(lowRumble, highRumble, time)
     foreign static setPadLightbarColor(red, green, blue)
     foreign static resetPadLightbarColor()
 
@@ -320,9 +321,7 @@ class Input {
     static keyX { 88 }
     static keyY { 89 }
     static keyZ { 90 }
-
-    // TODO: add more keys
-
+    
     static gamepadButtonSouth      { 0  }
     static gamepadButtonEast       { 1  }
     static gamepadButtonWest       { 2  }
@@ -330,14 +329,14 @@ class Input {
     static gamepadShoulderLeft     { 4  }
     static gamepadShoulderRight    { 5  }
     static gamepadButtonSelect     { 6  }
-    static gamepadButtonStart      { 7  }
+    static gamepadButtonStart      { 6  }
     
     static gamepadLeftStickPress   { 9  }
     static gamepadRightStickPress  { 10 }
     static gamepadDPadUp           { 11 }
-    static gamepadDPadRight        { 12 }
-    static gamepadDPadDown         { 13 }
-    static gamepadDPadLeft         { 14 }
+    static gamepadDPadDown         { 12 }
+    static gamepadDPadLeft         { 13 }
+    static gamepadDPadRight        { 14 }        
 
     static gamepadAxisLeftStickX   { 0  }
     static gamepadAxisLeftStickY   { 1  }

@@ -65,3 +65,5 @@ xs.vcxproj.user
 /.cache
 *.xs
 games/game
+*.user
+/deploy

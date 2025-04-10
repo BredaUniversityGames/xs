@@ -14,6 +14,7 @@ class Component {
     construct new() {
         _owner = null
         _initialized = false
+        _enabled = true
     }
 
     // Called right before the first update. Good place to query and cache other
@@ -32,6 +33,12 @@ class Component {
 
     // Private (used by Entity)
     owner=(o) { _owner = o }
+
+    // Is the component enabled. If not enabled, the update() function will not be called.
+    enabled { _enabled }
+
+    // Set to false to disable the component
+    enabled=(e) { _enabled = e }
 
     // Private (used by Entity)
     initialized_ { _initialized }
@@ -113,6 +120,13 @@ class Entity {
     tag { _tag }
     tag=(t) { _tag = t }
 
+    // Set enabled state of all components
+    enabled=(e) {
+        for(c in _components.values) {
+            c.enabled = e
+        }
+    }
+
     // Call from the initialize() function of you entry point (game class)
     static initialize() {
         __entities = []
@@ -138,7 +152,9 @@ class Entity {
                     c.initialize()
                     c.initialized_ = true
                 }
-                c.update(dt)
+                if(c.enabled) {
+                    c.update(dt)
+                }
             }
         }
 
@@ -178,6 +194,28 @@ class Entity {
             }
         }
         return found
+    }
+
+    // Get all the entities where the tag does not match (has bit overlap)
+    // with a given tag.
+    static withoutTagOverlap(tag) {
+        var found = []
+        for (e in __entities) {
+                if(!Bits.checkBitFlagOverlap(e.tag, tag)) {
+                found.add(e)
+            }
+        }
+        return found
+    }
+
+    static setEnabled(tag, enabled) {
+        for (e in __entities) {
+            if(Bits.checkBitFlagOverlap(e.tag, tag)) {
+                for(c in e.components) {
+                    c.enabled = enabled
+                }
+            }
+        }
     }
 
     // All the entities active in the system

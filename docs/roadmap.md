@@ -11,11 +11,11 @@
 
 ### Open-source xs
 
-[ ] Code restructuring so that all files are in the same folder
+[x] Investigate mving from GLFW to SDL3 on Windows
 
 [ ] Move NDA specific code own repos (submodules)
 
-[ ] Investigate moving from GLFW to SDL3 on Windows
+[x] Code restructuring so that all files are in the same folder
 
 [ ] Provide non-Fmod audio options 
 
