@@ -26,7 +26,7 @@ class Math {
     static degrees(rad) { rad * 180.0 / 3.14159265359 }
     static mod(x, m)    { (x % m + m) % m }   
     static fmod(x, m)   { x - m * (x / m).floor }
-    static clamp(a, f, t) { max(min(a, t), f) }
+    static clamp(a, f, t) { max(min(a, t), f) }    
     static slerp(a,  b,  t) {
 	    var CS = (1 - t) * (a.cos) + t * (b.cos)
 	    var SN = (1 - t) * (a.sin) + t * (b.sin)
@@ -67,8 +67,7 @@ class Math {
         var a0 = d - c - a + b
         var a1 = a - b - a0
         var a2 = c - a
-        return a0 * t3 + a1 * t2 + a2 * t + b
-        
+        return a0 * t3 + a1 * t2 + a2 * t + b        
     }
 }
 
@@ -124,9 +123,7 @@ class Vec2 {
     clear() {
         _x = 0
         _y = 0
-    }
-
-    toString { "[%(_x), %(_y)]" }
+    }    
 
     atan2 {
         // atan2 is an invalid operation when x = 0 and y = 0
@@ -146,6 +143,13 @@ class Vec2 {
 
         return a
     }
+
+    clamp(min, max) {
+        _x = Math.clamp(_x, min.x, max.x)
+        _y = Math.clamp(_y, min.y, max.y)
+    }
+    
+    toString { "[%(_x), %(_y)]" }
 
     serialize { [_x, _y] }
 

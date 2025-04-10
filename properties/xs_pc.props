@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_PropertySheetDisplayName>xs pc</_PropertySheetDisplayName>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(SolutionDir)external/steam;$(SolutionDir)platforms\pc\external\SDL3\include;$(SolutionDir)platforms\pc\code;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(SolutionDir)platforms\pc\external\SDL3\lib\x64;$(SolutionDir)platforms\pc\external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL3.lib;opengl32.lib;fmod/lib/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/fmod$(FMODSuffix)_vc.lib;steam/lib/win64/steam_api64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      
+copy /Y "$(ProjectDir)platforms\pc\external\SDL3\lib\x64\SDL3.dll" $(OutDir)
+copy /Y "$(ProjectDir)external\fmod\lib\fmodstudio$(FMODSuffix).dll" $(OutDir)
+copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)
+copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)
+    </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>
