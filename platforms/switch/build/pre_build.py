@@ -29,4 +29,11 @@ try:
         os.system("robocopy " + shared_folder + " " + output_shared_folder + " /E /MIR /XF .gitignore .gitattributes *.py *.md *.pyc /XD .git __pycache__")
 except FileNotFoundError:
     print(f"Settings file not found at {user_path}, will only build.")
+    output_game_folder = os.path.join("./games", "game")
+    output_shared_folder = os.path.join("./games", "shared")
+    print("Output game folder:" + output_game_folder)
+    
+    if not os.path.exists(output_game_folder):
+        print("Game folder does not exist. Creating game folder.")
+        os.makedirs(output_game_folder)
     
