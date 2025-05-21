@@ -47,6 +47,11 @@ bool xs::configuration::window_size_in_points()
     return data::get_bool("Window size in points", data::type::project);
 }
 
+bool xs::configuration::msaa_enabled()
+{
+	return data::get_bool("MSAA", data::type::project);
+}
+
 scale_parameters xs::configuration::get_scale_to_game(int input_width, int input_height)
 {
 	// Calculate how to fit the buffer onto the screen.
