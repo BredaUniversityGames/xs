@@ -20,6 +20,9 @@ namespace xs::configuration
 	/// Point are used on screens with HDPI
 	bool window_size_in_points();
 
+	/// Multisample anti-aliasing enabled
+	bool msaa_enabled();
+
 	/// <summary>
 	/// Parameters for transforming canvas coordinates to game coordinates.
 	/// The canvas can represent anything, such as the game window or a touch pad.

@@ -74,11 +74,11 @@ namespace xs::render
 	int width = -1;
 	int height = -1;	
 
-	unsigned int render_fbo;
-	unsigned int render_texture;
+	unsigned int render_fbo		= 0;
+	unsigned int render_texture = 0;
 
-	unsigned int msaa_fbo;
-	unsigned int msaa_texture;
+	unsigned int msaa_fbo		= 0;
+	unsigned int msaa_texture	= 0;
 	
 	unsigned int shader_program = 0;
 	unsigned int lines_vao = 0;
@@ -237,6 +237,7 @@ void xs::render::initialize()
 
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
+
 #ifdef DEBUG
 	gl_label(GL_VERTEX_ARRAY, lines_vao, "lines vao");
 	gl_label(GL_VERTEX_ARRAY, triangles_vao, "triangles vao");
@@ -287,13 +288,16 @@ void xs::render::render()
 	XS_PROFILE_SECTION("xs::render::render");
 	render_stats = {};
 
-	// Bind MSAA framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
-	glViewport(0, 0, width, height);
-	glClearColor(0.0, 0.0, 0.0, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
-	// set the viewport to the screen size
 
+	// Clear the target FBO (can be MSAA or render_fbo)
+	auto target_fbo = msaa_fbo ? msaa_fbo : render_fbo;
+	glBindFramebuffer(GL_FRAMEBUFFER, target_fbo);
+	glViewport(0, 0, width, height);
+	glClearColor(1.0, 0.0, 0.0, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
+	
+
+	// set the viewport to the screen size
 	auto w = width / 2.0f;
 	auto h = height / 2.0f;
 	mat4 p = ortho(-w, w, -h, h, -100.0f, 100.0f);
@@ -304,9 +308,9 @@ void xs::render::render()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Clear the screen
-	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-	glClearDepth(1.0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	// glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	
+	// glClear(GL_COLOR_BUFFER_BIT);
 
 	// Disable depth testing and face culling
 	glDisable(GL_DEPTH_TEST);
@@ -385,18 +389,35 @@ void xs::render::render()
 	XS_DEBUG_ONLY(glUseProgram(0));
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, msaa_fbo);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, render_fbo);
-	glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	// At the end, if MSAA is enabled, blit (resolve) to render_fbo
+	if (msaa_fbo)
+	{
+		glBlitNamedFramebuffer(
+			msaa_fbo,
+			render_fbo,
+			0, 0, width, height,			
+			0, 0, width, height,
+			GL_COLOR_BUFFER_BIT,
+			GL_NEAREST);
+		XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	}	
+		
+	// Blit the render_fbo to the screen (in the middle of the screen)
+	const auto& screen_to_game = xs::configuration::get_scale_to_game(
+		xs::device::get_width(),
+		xs::device::get_height());
+	glBlitNamedFramebuffer(
+		render_fbo,
+		0,
+		0, 0, width, height,
+		screen_to_game.xmin,
+		screen_to_game.ymin,
+		screen_to_game.xmax,
+		screen_to_game.ymax,
+		GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-	// Blit render result screen
-	const auto& screen_to_game = xs::configuration::get_scale_to_game(xs::device::get_width(), xs::device::get_height());
-	glBindFramebuffer(GL_READ_FRAMEBUFFER, render_fbo);
-	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	glBlitFramebuffer(0, 0, width, height, screen_to_game.xmin, screen_to_game.ymin, screen_to_game.xmax, screen_to_game.ymax, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	// Bind the default framebuffer for the editor
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
 	
 	render_stats.sprites = (int)meshes.size();
 	render_stats.textures = (int)images.size();
@@ -445,9 +466,11 @@ void xs::render::sprite(
 
 void xs::render::clear()
 {
-	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);
-	glViewport(0, 0, width, height);
-	glClearColor(0.0, 0.0, 0.0, 1.0f);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	auto w = device::get_width();
+	auto h = device::get_height();
+	glViewport(0, 0, w, h);
+	glClearColor(1.0, 1.0, 0.0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	lines_count = 0;
@@ -535,6 +558,37 @@ void xs::render::create_frame_buffers()
 	gl_label(GL_TEXTURE, render_texture, "render texture");
 	gl_label(GL_RENDERBUFFER, depth_buffer, "depth buffer");
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+	// MSAA setup
+	if (xs::configuration::msaa_enabled()) 
+	{
+		int samples = 8;
+
+		glGenFramebuffers(1, &msaa_fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
+
+		glGenTextures(1, &msaa_texture);
+		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, msaa_texture);
+		glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA8, width, height, GL_TRUE);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, msaa_texture, 0);
+
+		// Depth buffer for MSAA
+		unsigned int msaa_depth_buffer;
+		glGenRenderbuffers(1, &msaa_depth_buffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, msaa_depth_buffer);
+		glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT, width, height);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, msaa_depth_buffer);
+
+		unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, attachments);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			assert(false);
+
+		gl_label(GL_FRAMEBUFFER, msaa_fbo, "msaa fbo");
+		gl_label(GL_TEXTURE, msaa_texture, "msaa texture");
+		gl_label(GL_RENDERBUFFER, msaa_depth_buffer, "msaa depth buffer");
+		XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	}
 }
 
 void xs::render::delete_frame_buffers()
@@ -542,8 +596,8 @@ void xs::render::delete_frame_buffers()
 	glDeleteTextures(1, &render_texture);
 	glDeleteFramebuffers(1, &render_fbo);
 
-	glDeleteTextures(1, &msaa_texture);
-	glDeleteFramebuffers(1, &msaa_fbo);
+	//glDeleteTextures(1, &msaa_texture);
+	//glDeleteFramebuffers(1, &msaa_fbo);
 }
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
