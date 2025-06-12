@@ -48,11 +48,22 @@ void main()
     uint flags = instances[gl_InstanceID].flags;
     vec2 position = a_position;    
     v_texture = a_texture;
-    
+        
     if ((flags & c_flip_x) != 0)
-        v_texture.x = 1.0 - v_texture.x;
+    {
+        if(v_texture.x == instances[gl_InstanceID].uv.x)
+            v_texture.x = instances[gl_InstanceID].uv.z;
+        else if(v_texture.x == instances[gl_InstanceID].uv.z)
+            v_texture.x = instances[gl_InstanceID].uv.x;
+    }
     if ((flags & c_flip_y) != 0)
-        v_texture.y = 1.0 - v_texture.y;        
+    {
+        if(v_texture.y == instances[gl_InstanceID].uv.y)
+            v_texture.y = instances[gl_InstanceID].uv.w;
+        else if(v_texture.y == instances[gl_InstanceID].uv.w)
+            v_texture.y = instances[gl_InstanceID].uv.y;
+    }   
+
     if((flags & c_top) != 0)
         position.y -= 1.0;
     if((flags & c_center_x) != 0)
