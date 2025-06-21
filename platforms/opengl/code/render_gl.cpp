@@ -234,17 +234,12 @@ void xs::render::initialize()
 	glVertexAttribPointer(
 		2, 4, GL_FLOAT, GL_FALSE, sizeof(debug_vertex_format),
 		reinterpret_cast<void*>(offsetof(debug_vertex_format, color)));  // NOLINT(performance-no-int-to-ptr)
-
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
-
-#ifdef DEBUG
 	gl_label(GL_VERTEX_ARRAY, lines_vao, "lines vao");
 	gl_label(GL_VERTEX_ARRAY, triangles_vao, "triangles vao");
 	gl_label(GL_BUFFER, lines_vbo, "lines vbo");
 	gl_label(GL_BUFFER, triangles_vbo, "triangles vbo");
-#endif
-
 }
 
 void xs::render::shutdown()
@@ -290,8 +285,7 @@ void xs::render::render()
 
 
 	// Clear the target FBO (can be MSAA or render_fbo)
-	auto target_fbo = msaa_fbo ? msaa_fbo : render_fbo;
-	glBindFramebuffer(GL_FRAMEBUFFER, target_fbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
 	glViewport(0, 0, width, height);
 	glClearColor(1.0, 0.0, 0.0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
@@ -308,10 +302,6 @@ void xs::render::render()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// Clear the screen
-	// glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-	
-	// glClear(GL_COLOR_BUFFER_BIT);
-
 	// Disable depth testing and face culling
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
@@ -389,18 +379,15 @@ void xs::render::render()
 	XS_DEBUG_ONLY(glUseProgram(0));
 	XS_DEBUG_ONLY(glBindVertexArray(0));
 
-	// At the end, if MSAA is enabled, blit (resolve) to render_fbo
-	if (msaa_fbo)
-	{
-		glBlitNamedFramebuffer(
-			msaa_fbo,
-			render_fbo,
-			0, 0, width, height,			
-			0, 0, width, height,
-			GL_COLOR_BUFFER_BIT,
-			GL_NEAREST);
-		XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-	}	
+	// MSAA blit (resolve) to render_fbo
+	glBlitNamedFramebuffer(
+		msaa_fbo,
+		render_fbo,
+		0, 0, width, height,			
+		0, 0, width, height,
+		GL_COLOR_BUFFER_BIT,
+		GL_NEAREST);
+	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 		
 	// Blit the render_fbo to the screen (in the middle of the screen)
 	const auto& screen_to_game = xs::configuration::get_scale_to_game(
@@ -558,11 +545,9 @@ void xs::render::create_frame_buffers()
 	gl_label(GL_TEXTURE, render_texture, "render texture");
 	gl_label(GL_RENDERBUFFER, depth_buffer, "depth buffer");
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
-	// MSAA setup
-	if (xs::configuration::msaa_enabled()) 
-	{
-		int samples = 8;
+	
+	{ // MSAA
+		constexpr int samples = 8;
 
 		glGenFramebuffers(1, &msaa_fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
@@ -587,8 +572,9 @@ void xs::render::create_frame_buffers()
 		gl_label(GL_FRAMEBUFFER, msaa_fbo, "msaa fbo");
 		gl_label(GL_TEXTURE, msaa_texture, "msaa texture");
 		gl_label(GL_RENDERBUFFER, msaa_depth_buffer, "msaa depth buffer");
-		XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 	}
+	
+	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
 void xs::render::delete_frame_buffers()
@@ -596,8 +582,8 @@ void xs::render::delete_frame_buffers()
 	glDeleteTextures(1, &render_texture);
 	glDeleteFramebuffers(1, &render_fbo);
 
-	//glDeleteTextures(1, &msaa_texture);
-	//glDeleteFramebuffers(1, &msaa_fbo);
+	glDeleteTextures(1, &msaa_texture);
+	glDeleteFramebuffers(1, &msaa_fbo);
 }
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
