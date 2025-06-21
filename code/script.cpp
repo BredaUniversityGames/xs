@@ -209,7 +209,7 @@ void xs::script::configure()
     initialized = false;
     error = false;
 
-    main = "[game]/game.wren";
+    main = fileio::get_path("[game]/[main]"); 
 
     if (!fileio::exists(main))
     {
