@@ -146,7 +146,7 @@ using namespace xs::input;
     device::initialize();
     render::initialize();
     input::initialize();
-    // audio::initialize();
+    audio::initialize();
     inspector::initialize();
     script::initialize();
 }
@@ -290,7 +290,7 @@ int device::get_height()
     return _height;
 }
 
-float device::hdpi_scaling()
+double device::hdpi_scaling()
 {
     return _hdpi_scale;
 }
