@@ -1,14 +1,18 @@
 #include "audio.hpp"
 #include "fileio.hpp"
 #include "log.hpp"
-#include <fmod.hpp>
-#include <fmod_studio.hpp>
-#include <fmod_errors.h>
+#include <fmod/inc/fmod.hpp>
+// #include <fmod.hpp>
+#include <fmod/inc/fmod_studio.hpp>
+#include <fmod/inc/fmod_errors.h>
 #include <unordered_map>
 
 #if defined(PLATFORM_PS5)
 #include <kernel.h>
 #endif
+
+#define NO_AUDIO 1
+
 
 namespace xs::audio
 {

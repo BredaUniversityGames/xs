@@ -83,6 +83,11 @@ double xs::input::get_axis(gamepad_axis axis)
     }
 }
 
+bool xs::input::get_axis_once(gamepad_axis axis, double threshold)
+{
+    return false;
+}
+
 bool xs::input::get_button(gamepad_button button)
 {
     if (gamepad == nil)
@@ -147,7 +152,7 @@ double xs::input::get_touch_y(int index)
     return 0.0;
 }
 
-void xs::input::set_gamepad_vibration(int leftRumble, int rightRumble)
+void xs::input::set_gamepad_vibration(double low, double high, double time)
 {
 }
 
