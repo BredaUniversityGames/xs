@@ -67,3 +67,4 @@ xs.vcxproj.user
 games/game
 *.user
 /deploy
+/games
