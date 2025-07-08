@@ -155,7 +155,7 @@ void Tooltip(const char* tooltip)
 	}
 }
 
-void xs::inspector::render(float dt)
+void xs::inspector::render(double dt)
 {
 #ifdef PLATFORM_PS5
 	return;
