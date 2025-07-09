@@ -8,8 +8,11 @@ class Render {
 
     /// Sprite native API /////////////////////////////////////////////////////
 
-    /// Load an image from a file and return an image id
+    /// Load an image from a file and return an image id (supports png and jpg)
     foreign static loadImage(path)
+
+    /// Load an shape from a file and return a shape id (supports svg)
+    foreign static loadShape(path)
 
     /// Load a font from a file into a font atlas and return a font id
     foreign static loadFont(font, size)
