@@ -9,7 +9,7 @@ class Game {
         __time = 0
         __image = Render.loadImage("[game]/images/gradient.png")
         __font = Render.loadFont("[shared]/fonts/selawk.ttf", 40)
-        __shape = null
+        __shape = Render.loadShape("[game]/svg/drawing.svg")        
         __background = Background.new()
     }    
 
@@ -21,6 +21,9 @@ class Game {
     static render() {
         __background.render()
 
+        
+
+        /*
         var sb = ShapeBuilder.new()
 
         var t = (__time * 2).sin * 0.5 + 0.5
@@ -53,6 +56,7 @@ class Game {
             sb.addIndex(i % segments + 1)
         }
 
+    
         // It can take a while for shapes to recycle,
         // so we need to destroy them manually
         if(__shape != null) {
@@ -76,6 +80,7 @@ class Game {
             0.75, 0,        // Scale аnd rotation
             0xFFFFFFFF,     // Multiply color
             0x00000000)     // Add color
+        */
             
         // Render text
         var text = t > 0.2 ? "flower" : "circle"

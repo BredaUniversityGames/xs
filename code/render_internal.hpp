@@ -27,7 +27,7 @@ namespace xs::render
 		std::size_t	string_id	= 0;
 		std::string file;
 	};
-
+	
 	struct font_atlas
 	{
 		int								image_id		= -1;

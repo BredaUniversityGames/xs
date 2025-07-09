@@ -329,6 +329,29 @@ int xs::render::load_image(const std::string& image_file)
 	return static_cast<int>(i);
 }
 
+struct shape
+{
+	int image_id = -1;
+	vector<float> positions;
+	vector<float> texture_coordinates;
+	unsigned int vertex_count;
+	vector<unsigned short> indices;
+	unsigned int index_count;
+};
+
+int render::load_shape(const std::string& shape_file)
+{
+	/*
+	// Find shape first
+	auto id = std::hash<std::string>{}(shape_file);
+	for (int i = 0; i < shapes.size(); i++)
+		if (shapes[i].string_id == id)
+			return i;
+	*/
+
+	auto buffer = fileio::read_binary_file(shape_file);
+}
+
 void xs::render::set_offset(double x, double y)
 {
 	offset = vec2((float)x, (float)y);
