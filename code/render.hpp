@@ -47,6 +47,9 @@ namespace xs::render
 	/// Load an image from a file (png or jpg)
 	int load_image(const std::string& image_file);
 
+	/// Load a shape from a file (svg)
+	int load_shape(const std::string& shape_file);
+
 	/// Load a font from a file (ttf)
 	int load_font(const std::string& font_file, double size);
 

@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#define NANOSVG_IMPLEMENTATION	// Expand implementation
+#include <nanosvg/nanosvg.h>
 
 #include "configuration.hpp"
 #include "fileio.hpp"
@@ -327,6 +329,123 @@ int xs::render::load_image(const std::string& image_file)
 #endif
 
 	return static_cast<int>(i);
+}
+
+struct shape
+{
+	int image_id = -1;
+	vector<float> positions;
+	vector<float> texture_coordinates;
+	unsigned int vertex_count;
+	vector<unsigned short> indices;
+	unsigned int index_count;
+};
+
+int render::load_shape(const std::string& shape_file)
+{
+	auto buffer = fileio::read_binary_file(shape_file);
+
+	vector<vec2> positions;
+	vector<vec2> texture_coordinates;
+	vector<unsigned short> indices;
+	
+	NSVGimage* image = nsvgParse(reinterpret_cast<char*>(buffer.data()), "mm", 96);
+	if (!image) {
+		log::error("Failed to parse SVG file: {}", shape_file);
+		return -1;
+	}
+
+	printf("SVG size: %f x %f\n", image->width, image->height);
+
+	// Calculate bounds for the entire shape
+	float min_x = FLT_MAX, min_y = FLT_MAX;
+	float max_x = -FLT_MAX, max_y = -FLT_MAX;
+	
+	// First pass: collect all path points and calculate bounds
+	vector<vec2> path_points;
+	
+	for (NSVGshape* shape = image->shapes; shape != nullptr; shape = shape->next) {
+		for (NSVGpath* path = shape->paths; path != nullptr; path = path->next) {
+			// Add path points (simplified - just using control points for now)
+			for (int i = 0; i < path->npts; i++) {
+				float x = path->pts[i * 2];
+				float y = path->pts[i * 2 + 1];
+				
+				path_points.push_back(vec2(x, y));
+				
+				// Update bounds
+				min_x = std::min(min_x, x);
+				max_x = std::max(max_x, x);
+				min_y = std::min(min_y, y);
+				max_y = std::max(max_y, y);
+			}
+		}
+	}
+	
+	// Calculate center point for fan mesh
+	vec2 center = vec2((min_x + max_x) * 0.5f, (min_y + max_y) * 0.5f);
+	
+	// Normalize coordinates to [0, 1] range for texture coordinates
+	float width = max_x - min_x;
+	float height = max_y - min_y;
+	
+	if (width == 0 || height == 0) {
+		log::error("Invalid SVG dimensions");
+		nsvgDelete(image);
+		return -1;
+	}
+	
+	// Create fan mesh
+	// Add center vertex
+	positions.push_back(center);
+	texture_coordinates.push_back(vec2(0.5f, 0.5f)); // Center of texture
+	
+	// Add path points as vertices
+	for (const auto& point : path_points) {
+		positions.push_back(point);
+		// Calculate texture coordinates (normalized)
+		float u = (point.x - min_x) / width;
+		float v = (point.y - min_y) / height;
+		texture_coordinates.push_back(vec2(u, v));
+	}
+	
+	// Create triangles for fan mesh
+	// Each triangle connects center (index 0) with consecutive path points
+	for (int i = 1; i < path_points.size(); i++) {
+		int next_i = (i % (path_points.size() - 1)) + 1;
+		
+		// Triangle: center -> current point -> next point
+		indices.push_back(0);        // center
+		indices.push_back(i);        // current point
+		indices.push_back(next_i);   // next point
+	}
+	
+	// Close the shape by connecting last point back to first
+	if (path_points.size() > 2) {
+		indices.push_back(0);        // center
+		indices.push_back(static_cast<unsigned short>(path_points.size())); // last point
+		indices.push_back(1);        // first point
+	}
+	
+	nsvgDelete(image);
+	
+	// Create the shape using existing infrastructure
+	// Use the first image as placeholder (you might want to create a default texture)
+	int image_id = 0;
+	//if (!images.empty()) {
+	//	image_id = (int)images[0].string_id;
+	//}
+	
+	auto shape_id = render::create_shape(
+		image_id,
+		&positions[0].x,
+		&texture_coordinates[0].x,
+		static_cast<unsigned int>(positions.size()),
+		indices.data(),
+		static_cast<unsigned int>(indices.size())
+	);
+	
+	return shape_id;
 }
 
 void xs::render::set_offset(double x, double y)

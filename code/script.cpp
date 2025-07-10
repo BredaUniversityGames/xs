@@ -209,7 +209,7 @@ void xs::script::configure()
     initialized = false;
     error = false;
 
-    main = "[game]/game.wren";
+    main = fileio::get_path("[game]/[main]"); 
 
     if (!fileio::exists(main))
     {
@@ -620,98 +620,98 @@ void callFunction_returnType_args(WrenVM* vm, std::function<ReturnType(T1, T2, T
 // Input
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void input_get_axis(WrenVM* vm)
+static void input_get_axis(WrenVM* vm)
 {
     callFunction_returnType_args<double, xs::input::gamepad_axis>(vm, xs::input::get_axis);
 }
 
-void input_get_axis_once(WrenVM* vm)
+static void input_get_axis_once(WrenVM* vm)
 {
     callFunction_returnType_args<bool, xs::input::gamepad_axis, double>(vm, xs::input::get_axis_once);
 }
 
-void input_get_button(WrenVM* vm)
+static void input_get_button(WrenVM* vm)
 {
     callFunction_returnType_args<bool, xs::input::gamepad_button>(vm, xs::input::get_button);
 }
 
-void input_get_button_once(WrenVM* vm)
+static void input_get_button_once(WrenVM* vm)
 {
     callFunction_returnType_args<bool, xs::input::gamepad_button>(vm, xs::input::get_button_once);
 }
 
-void input_get_key(WrenVM* vm)
+static void input_get_key(WrenVM* vm)
 {
     callFunction_returnType_args<bool, int>(vm, xs::input::get_key);
 }
 
-void input_get_key_once(WrenVM* vm)
+static void input_get_key_once(WrenVM* vm)
 {
     callFunction_returnType_args<bool, int>(vm, xs::input::get_key_once);
 }
 
-void input_get_mouse(WrenVM* vm)
+static void input_get_mouse(WrenVM* vm)
 {
     callFunction_returnType<bool>(vm, xs::input::get_mouse);
 }
 
-void input_get_mousebutton(WrenVM* vm)
+static void input_get_mousebutton(WrenVM* vm)
 {
     callFunction_returnType_args<bool, xs::input::mouse_button>(vm, xs::input::get_mousebutton);
 }
 
-void input_get_mousebutton_once(WrenVM* vm)
+static void input_get_mousebutton_once(WrenVM* vm)
 {
     callFunction_returnType_args<bool, xs::input::mouse_button>(vm, xs::input::get_mousebutton_once);
 }
 
-void input_get_mouse_x(WrenVM* vm)
+static void input_get_mouse_x(WrenVM* vm)
 {
     callFunction_returnType<double>(vm, xs::input::get_mouse_x);
 }
 
-void input_get_mouse_y(WrenVM* vm)
+static void input_get_mouse_y(WrenVM* vm)
 {
     callFunction_returnType<double>(vm, xs::input::get_mouse_y);
 }
 
-void input_get_mouse_wheel(WrenVM* vm)
+static void input_get_mouse_wheel(WrenVM* vm)
 {
     callFunction_returnType<double>(vm, xs::input::get_mouse_wheel);
 }
 
-void input_get_nr_touches(WrenVM* vm)
+static void input_get_nr_touches(WrenVM* vm)
 {
     callFunction_returnType<int>(vm, xs::input::get_nr_touches);
 }
 
-void input_get_touch_id(WrenVM* vm)
+static void input_get_touch_id(WrenVM* vm)
 {
     callFunction_returnType_args<int, int>(vm, xs::input::get_touch_id);
 }
 
-void input_get_touch_x(WrenVM* vm)
+static void input_get_touch_x(WrenVM* vm)
 {
     callFunction_returnType_args<double, int>(vm, xs::input::get_touch_x);
 }
 
-void input_get_touch_y(WrenVM* vm)
+static void input_get_touch_y(WrenVM* vm)
 {
     callFunction_returnType_args<double, int>(vm, xs::input::get_touch_y);
 }
 
-void input_set_gamepad_vibration(WrenVM* vm)
+static void input_set_gamepad_vibration(WrenVM* vm)
 {
     callFunction_args<double, double, double>(vm, xs::input::set_gamepad_vibration);
 }
 
-void input_set_lightbar_color(WrenVM* vm)
+static void input_set_lightbar_color(WrenVM* vm)
 {
     // TODO: change argument, use the same color type everywhere?
     callFunction_args<double,double,double>(vm, xs::input::set_lightbar_color);
 }
 
-void input_reset_lightbar(WrenVM* vm)
+static void input_reset_lightbar(WrenVM* vm)
 {
     xs::input::reset_lightbar();
 }
@@ -720,22 +720,22 @@ void input_reset_lightbar(WrenVM* vm)
 // Render
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-void render_dbg_begin(WrenVM* vm)
+static void render_dbg_begin(WrenVM* vm)
 {
     callFunction_args<xs::render::dbg_primitive>(vm, xs::render::dgb_begin);
 }
 
-void render_dbg_end(WrenVM* vm)
+static void render_dbg_end(WrenVM* vm)
 {
     xs::render::dbg_end();
 }
 
-void render_dbg_vertex(WrenVM* vm)
+static void render_dbg_vertex(WrenVM* vm)
 {
     callFunction_args<double, double>(vm, xs::render::dbg_vertex);
 }
 
-void render_dbg_color(WrenVM* vm)
+static void render_dbg_color(WrenVM* vm)
 {
     // Call manually
     auto c = wrenGetParameter<xs::color>(vm, 1);
@@ -744,32 +744,43 @@ void render_dbg_color(WrenVM* vm)
     // callFunction_args<xs::render::color>(vm, xs::render::set_color);
 }
 
-void render_dbg_line(WrenVM* vm)
+static void render_dbg_line(WrenVM* vm)
 {
     callFunction_args<double,double,double,double>(vm, xs::render::dbg_line);
 }
 
-void render_dbg_text(WrenVM* vm)
+static void render_dbg_text(WrenVM* vm)
 {
     callFunction_args<string,double,double,double>(vm, xs::render::dbg_text);
 }
 
-void render_load_image(WrenVM* vm)
+static void render_load_image(WrenVM* vm)
 {
     callFunction_returnType_args<int, string>(vm, xs::render::load_image);
 }
 
-void render_get_image_width(WrenVM* vm)
+static void render_load_shape(WrenVM* vm)
+{
+    auto shape_path = wrenGetParameter<string>(vm, 1);
+    auto shape_id = xs::render::load_shape(shape_path);
+    wrenGetVariable(vm, "xs", "ShapeHandle", 0);
+    auto handle = (int*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
+    *handle = shape_id;
+    
+    // callFunction_returnType_args<int, string>(vm, xs::render::load_shape);
+}
+
+static void render_get_image_width(WrenVM* vm)
 {
     callFunction_returnType_args<int, int>(vm, xs::render::get_image_width);
 }
 
-void render_get_image_height(WrenVM* vm)
+static void render_get_image_height(WrenVM* vm)
 {
     callFunction_returnType_args<int, int>(vm, xs::render::get_image_height);
 }
 
-void render_create_sprite(WrenVM* vm)
+static void render_create_sprite(WrenVM* vm)
 {
     auto image_id = wrenGetParameter<int>(vm, 1);
     auto x0 = wrenGetParameter<double>(vm, 2);
@@ -784,7 +795,7 @@ void render_create_sprite(WrenVM* vm)
     
 }
 
-void render_create_shape(WrenVM* vm)
+static void render_create_shape(WrenVM* vm)
 {
     auto image_id = wrenGetParameter<int>(vm, 1);
 	auto positions = wrenGetListParameter<float>(vm, 2);
@@ -804,13 +815,13 @@ void render_create_shape(WrenVM* vm)
 	*handle = shape_id;
 }
 
-void render_destroy_shape(WrenVM* vm)
+static void render_destroy_shape(WrenVM* vm)
 {
     auto handle = (int*)wrenGetSlotForeign(vm, 1);
 	xs::render::destroy_shape(*handle);
 }
 
-void render_sprite(WrenVM* vm)
+static void render_sprite(WrenVM* vm)
 {
     callFunction_args<
         tools::handle,
@@ -825,7 +836,7 @@ void render_sprite(WrenVM* vm)
     >(vm, xs::render::sprite);    
 }
 
-void render_shape(WrenVM* vm)
+static void render_shape(WrenVM* vm)
 {
 	callFunction_args<
 		tools::handle,
@@ -839,12 +850,12 @@ void render_shape(WrenVM* vm)
 	>(vm, xs::render::shape);
 }
 
-void render_set_offset(WrenVM* vm)
+static void render_set_offset(WrenVM* vm)
 {
     callFunction_args<double, double>(vm, xs::render::set_offset);
 }
 
-void render_load_font(WrenVM* vm)
+static void render_load_font(WrenVM* vm)
 {
     callFunction_returnType_args<int, string, double>(vm, xs::render::load_font);
 }
@@ -1072,6 +1083,7 @@ void xs::script::bind_api()
 
     // Render
     bind("xs", "Render", true, "loadImage(_)", render_load_image);
+    bind("xs", "Render", true, "loadShape(_)", render_load_shape);
     bind("xs", "Render", true, "getImageWidth(_)", render_get_image_width);
     bind("xs", "Render", true, "getImageHeight(_)", render_get_image_height);
     bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);

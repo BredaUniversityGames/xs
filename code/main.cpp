@@ -1,5 +1,6 @@
 #include "xs.hpp"
 #include "device.hpp"
+#include <algorithm>
 #include <cstdio>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -61,8 +62,8 @@ int xs::main(int argc, char* argv[])
         auto elapsed = current_time - prev_time;
         prev_time = current_time;
         auto dt = std::chrono::duration<double>(elapsed).count();
-        if (dt > 0.03333) dt = 0.03333;
-		xs::update((float)dt);
+        dt = std::min(dt, 0.03333);
+        xs::update((float)dt);
     }
 	xs::shutdown();
 	return 0;
