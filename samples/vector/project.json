@@ -11,10 +11,6 @@
         "type": "number",
         "value": 720.0
     },
-    "MSAA": {
-        "type": "bool",
-        "value": true
-    },
     "Main": {
         "type": "string",
         "value": "game.wren"

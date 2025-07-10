@@ -41,7 +41,7 @@ void xs::shutdown()
 	data::shutdown();
 }
 
-void xs::update(float dt)
+void xs::update(double dt)
 {
 	device::poll_events();
 	input::update(dt);
@@ -58,7 +58,7 @@ void xs::update(float dt)
 	device::end_frame();
 	if (inspector::should_restart())
 	{
-		xs::shutdown();
-		xs::initialize();
+		shutdown();
+		initialize();
 	}
 }

@@ -124,10 +124,24 @@ void device::poll_events()
 	{
 		switch (event.type)
 		{
+			// Quit event
 		case SDL_EVENT_QUIT:
 			quit = true;
 			break;
+			// Window resize event
+		case SDL_EVENT_WINDOW_RESIZED:
+			if (event.window.windowID == SDL_GetWindowID(internal::window))
+			{
+				internal::width = event.window.data1;
+				internal::height = event.window.data2;
+				SDL_SetWindowSize(internal::window, internal::width, internal::height);
+				SDL_GL_MakeCurrent(internal::window, internal::context);
+			}
+			break;
+			// Window focus event
 		}
+
+
 		ImGui_Impl_ProcessEvent(&event);
 	}
 

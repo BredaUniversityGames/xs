@@ -311,7 +311,6 @@
     </ClInclude>
     <ClInclude Include="code\defines.hpp" />
     <ClInclude Include="code\device.hpp" />
-    <ClInclude Include="code\device_pc.hpp" />
     <ClInclude Include="code\fileio.hpp" />
     <ClInclude Include="code\input.hpp" />
     <ClInclude Include="code\inspector.hpp" />

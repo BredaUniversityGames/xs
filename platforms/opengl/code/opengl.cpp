@@ -210,10 +210,7 @@ void xs::init_debug_messages()
 	else if (_glDebugMessageCallbackARB != nullptr)
 	{
 		_glDebugMessageCallbackARB(debug_callback_func, nullptr);
-	}
-
-	// Additional AMD support
-	if (_glDebugMessageCallbackAMD != nullptr)
+	} else if (_glDebugMessageCallbackAMD != nullptr)
 	{
 		_glDebugMessageCallbackAMD(DebugCallbackFuncAMD, nullptr);
 	}
