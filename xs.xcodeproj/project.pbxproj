@@ -279,7 +279,6 @@
 		346E73432A4A29D5006ECAD5 /* version.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = version.hpp; sourceTree = "<group>"; };
 		346E73442A4A29D5006ECAD5 /* script.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = script.hpp; sourceTree = "<group>"; };
 		346E73452A4A29D5006ECAD5 /* device.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = device.hpp; sourceTree = "<group>"; };
-		346E73462A4A29D5006ECAD5 /* opengl.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = opengl.hpp; sourceTree = "<group>"; };
 		346E73472A4A29D5006ECAD5 /* account.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = account.hpp; sourceTree = "<group>"; };
 		346E73482A4A29D5006ECAD5 /* data.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = data.hpp; sourceTree = "<group>"; };
 		346E73492A4A29D5006ECAD5 /* configuration.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = configuration.hpp; sourceTree = "<group>"; };
@@ -1015,7 +1014,6 @@
 				346E73432A4A29D5006ECAD5 /* version.hpp */,
 				346E73442A4A29D5006ECAD5 /* script.hpp */,
 				346E73452A4A29D5006ECAD5 /* device.hpp */,
-				346E73462A4A29D5006ECAD5 /* opengl.hpp */,
 				346E73472A4A29D5006ECAD5 /* account.hpp */,
 				346E73482A4A29D5006ECAD5 /* data.hpp */,
 				346E73492A4A29D5006ECAD5 /* configuration.hpp */,
@@ -1027,8 +1025,6 @@
 				346E734F2A4A29D5006ECAD5 /* inspector.hpp */,
 				346E73512A4A29D5006ECAD5 /* profiler.hpp */,
 				346E73522A4A29D5006ECAD5 /* render.hpp */,
-				346E73402A4A29D5006ECAD5 /* include */,
-				346E73532A4A29D5006ECAD5 /* source */,
 				3486CA632B94CC3200E9A3B8 /* cooker.cpp */,
 				3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */,
 				346E737C2A4A29D5006ECAD5 /* render.cpp */,
@@ -1046,20 +1042,6 @@
 				346E739A2A4A29D5006ECAD5 /* main.cpp */,
 			);
 			path = code;
-			sourceTree = "<group>";
-		};
-		346E73402A4A29D5006ECAD5 /* include */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		346E73532A4A29D5006ECAD5 /* source */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = source;
 			sourceTree = "<group>";
 		};
 		346E73582A4A29D5006ECAD5 /* apple */ = {
