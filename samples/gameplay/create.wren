@@ -23,13 +23,13 @@ class Create {
         var sh = Shadow.new()
         s.layer = 2.0
         s.flags = Render.spriteCenter
-        player.addComponent(t)
-        player.addComponent(p)            
-        player.addComponent(b)
-        //player.addComponent(u)
-        //player.addComponent(c)
-        player.addComponent(s)
-        player.addComponent(sh)
+        player.add(t)
+        player.add(p)            
+        player.add(b)
+        //player.add(u)
+        //player.add(c)
+        player.add(s)
+        player.add(sh)
         player.name = "Player"
         player.tag = (Tag.player)
         // Create.arrow(player)
@@ -57,11 +57,11 @@ class Create {
         s.layer = 2.0
         s.flags = Render.spriteCenter
         s.mul = Data.getColor("Obstacle Color")
-        obstacle.addComponent(t)
-        obstacle.addComponent(b)
-        obstacle.addComponent(r)
-        obstacle.addComponent(s)
-        obstacle.addComponent(sh)
+        obstacle.add(t)
+        obstacle.add(b)
+        obstacle.add(r)
+        obstacle.add(s)
+        obstacle.add(sh)
         obstacle.tag = (Tag.obstacle)
         return obstacle
     }
