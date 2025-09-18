@@ -1,0 +1,3 @@
+[submodule "platforms/prospero"]
+	path = platforms/prospero
+	url = https://github.com/BredaUniversityGames/xs-prospero.git
