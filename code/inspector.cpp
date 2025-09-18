@@ -934,7 +934,7 @@ void xs::inspector::see_through()
 
 void xs::inspector::initialize() {}
 void xs::inspector::shutdown() {}
-void xs::inspector::render(float dt) {}
+//void xs::inspector::render(float dt) {}
 bool xs::inspector::paused() { return false; }
 bool xs::inspector::should_restart() { return false; }
 int xs::inspector::notify(notification_type type, const std::string& message, float time) { return 0; }
