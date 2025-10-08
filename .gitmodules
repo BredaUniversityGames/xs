@@ -1,3 +1,6 @@
+[submodule "platforms/nx"]
+	path = platforms/nx
+	url = https://github.com/BredaUniversityGames/xs-nx.git
 [submodule "platforms/prospero"]
 	path = platforms/prospero
 	url = https://github.com/BredaUniversityGames/xs-prospero.git
