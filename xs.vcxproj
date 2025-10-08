@@ -83,7 +83,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="code\resource_pipeline.cpp" />
-    <ClCompile Include="platforms\switch\code\account_switch.cpp">
+    <ClCompile Include="platforms\nx\code\account_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
       </ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
@@ -108,7 +108,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="platforms\switch\code\device_switch.cpp">
+    <ClCompile Include="platforms\nx\code\device_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
@@ -125,7 +125,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="platforms\switch\code\fileio_switch.cpp">
+    <ClCompile Include="platforms\nx\code\fileio_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
@@ -133,7 +133,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="platforms\switch\code\input_switch.cpp">
+    <ClCompile Include="platforms\nx\code\input_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
@@ -290,7 +290,7 @@
     <ClInclude Include="external\imgui\imgui.h" />
     <ClInclude Include="external\imgui\imgui_impl.h" />
     <ClInclude Include="external\imgui\imgui_internal.h" />
-    <ClInclude Include="platforms\switch\code\account_switch.hpp">
+    <ClInclude Include="platforms\nx\code\account_switch.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|x64'">true</ExcludedFromBuild>
@@ -511,29 +511,29 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="platforms\switch\properties\ImportNintendoSdk.props" Condition="exists('platforms\switch\properties\ImportNintendoSdk.props')" />
+    <Import Project="platforms\nx\properties\ImportNintendoSdk.props" Condition="exists('platforms\switch\properties\ImportNintendoSdk.props')" />
     <Import Project="properties\xs.props" />
     <Import Project="properties\xs_opengl.props" />
-    <Import Project="platforms\switch\properties\xs_switch.props" />
+    <Import Project="platforms\nx\properties\xs_switch.props" />
     <Import Project="properties\xs_inspector.props" />
     <Import Project="properties\xs_debug.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="nintendo\ImportNintendoSdk.props" Condition="exists('nintendo\ImportNintendoSdk.props')" />
-    <Import Project="platforms\switch\properties\ImportNintendoSdk.props" />
+    <Import Project="platforms\nx\properties\ImportNintendoSdk.props" />
     <Import Project="properties\xs.props" />
-    <Import Project="platforms\switch\properties\xs_switch.props" />
+    <Import Project="platforms\nx\properties\xs_switch.props" />
     <Import Project="properties\xs_opengl.props" />
     <Import Project="properties\xs_inspector.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="nintendo\ImportNintendoSdk.props" Condition="exists('nintendo\ImportNintendoSdk.props')" />
-    <Import Project="platforms\switch\properties\ImportNintendoSdk.props" />
+    <Import Project="platforms\nx\properties\ImportNintendoSdk.props" />
     <Import Project="properties\xs.props" />
     <Import Project="properties\xs_opengl.props" />
-    <Import Project="platforms\switch\properties\xs_switch.props" />
+    <Import Project="platforms\nx\properties\xs_switch.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
     <LinkIncremental>true</LinkIncremental>
@@ -733,7 +733,7 @@
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>python $(ProjectDir)platforms\switch\build\pre_build.py</Command>
+      <Command>python $(ProjectDir)platforms\nx\build\pre_build.py</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
@@ -757,7 +757,7 @@
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>python $(ProjectDir)platforms\switch\build\pre_build.py</Command>
+      <Command>python $(ProjectDir)platforms\nx\build\pre_build.py</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">
@@ -782,7 +782,7 @@
       </Command>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>python $(ProjectDir)platforms\switch\build\pre_build.py</Command>
+      <Command>python $(ProjectDir)platforms\nx\build\pre_build.py</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,0 +1,3 @@
+[submodule "platforms/nx"]
+	path = platforms/nx
+	url = https://github.com/BredaUniversityGames/xs-nx.git
