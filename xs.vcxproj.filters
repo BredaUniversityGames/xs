@@ -115,7 +115,7 @@
     <ClCompile Include="code\resource_pipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\switch\code\account_switch.cpp">
+    <ClCompile Include="platforms\nx\code\account_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\audio.cpp">
@@ -130,7 +130,7 @@
     <ClCompile Include="platforms\pc\code\device_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\switch\code\device_switch.cpp">
+    <ClCompile Include="platforms\nx\code\device_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\fileio.cpp">
@@ -139,10 +139,10 @@
     <ClCompile Include="platforms\pc\code\input_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\switch\code\fileio_switch.cpp">
+    <ClCompile Include="platforms\nx\code\fileio_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\switch\code\input_switch.cpp">
+    <ClCompile Include="platforms\nx\code\input_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\inspector.cpp">
@@ -315,7 +315,7 @@
     <ClInclude Include="code\account.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="platforms\switch\code\account_switch.hpp">
+    <ClInclude Include="platforms\nx\code\account_switch.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\audio.hpp">
