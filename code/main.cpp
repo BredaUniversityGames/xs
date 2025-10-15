@@ -1,15 +1,10 @@
 #include "xs.hpp"
 #include "device.hpp"
-#include <algorithm>
-#include <cstdio>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <chrono>
+#include "main.hpp"
 
 using namespace std;
 
-namespace xs{ int main(int argc, char* argv[]); }
 
 #if defined(PLATFORM_PC)
 #define DWORD unsigned int
@@ -18,36 +13,10 @@ extern "C"
     // Force Nvidia GPU if available
     _declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
 }
-#endif
 
-#if defined(PLATFORM_SWITCH)
-
-#include <nn/os.h>
-#include <version.hpp>
-#include <glm/gtc/type_ptr.hpp>
-extern "C" void nnMain()
-{
-	const auto argc = nn::os::GetHostArgc();
-	const auto argv = nn::os::GetHostArgv();
-	xs::main(argc, argv);
-}
-
-#elif defined(PLATFORM_PC) 
 int main(int argc, char* argv[])
 {
 	return  xs::main(argc, argv);	
-}
-
-#elif defined(PLATFORM_PS5) 
-int main(int argc, char* argv[])
-{
-    return  xs::main(argc, argv);
-}
-
-#elif defined(PLATFORM_APPLE)
-int main(int argc, char* argv[])
-{
-    static_assert(false);
 }
 #endif
 

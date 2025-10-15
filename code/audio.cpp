@@ -2,17 +2,9 @@
 #include "fileio.hpp"
 #include "log.hpp"
 #include <fmod/inc/fmod.hpp>
-// #include <fmod.hpp>
 #include <fmod/inc/fmod_studio.hpp>
 #include <fmod/inc/fmod_errors.h>
 #include <unordered_map>
-
-#if defined(PLATFORM_PS5)
-#include <kernel.h>
-#endif
-
-#define NO_AUDIO 1
-
 
 namespace xs::audio
 {
@@ -29,6 +21,8 @@ namespace xs::audio
 	const int GROUP_SFX = 1;
 	const int GROUP_MUSIC = 2;
 
+	void load_fmod_library();	// implemented in platform-specific files as needed
+
 	void addSoundGroup(const std::string& name, int group_id)
 	{
 		FMOD::SoundGroup* group;
@@ -38,17 +32,8 @@ namespace xs::audio
 
 	void initialize()
 	{
-#if defined(PLATFORM_PS5)
-	#ifdef DEBUG
-		SceKernelModule core_mod = sceKernelLoadStartModule("/app0/sce_module/libfmodL.prx", 0, NULL, 0, NULL, NULL);
-		assert(core_mod >= 0);
-		SceKernelModule studio_mod = sceKernelLoadStartModule("/app0/sce_module/libfmodstudioL.prx", 0, NULL, 0, NULL, NULL);
-		assert(studio_mod >= 0);
-	#else
-		sceKernelLoadStartModule("/app0/sce_module/libfmod.prx", 0, NULL, 0, NULL, NULL);
-		sceKernelLoadStartModule("/app0/sce_module/libfmodstudio.prx", 0, NULL, 0, NULL, NULL);
-	#endif		
-#endif
+		load_fmod_library();
+
 		log::info("Audio Engine: FMOD Studio by Firelight Technologies Pty Ltd.");
 
 		// Create the Studio System object
@@ -383,3 +368,9 @@ namespace xs::audio
 		}
 	}
 }
+
+#if !defined(PLATFORM_PS5)
+void xs::audio::load_fmod_library() {} // Dummy function for non-PS5 platforms
+#endif
+
+

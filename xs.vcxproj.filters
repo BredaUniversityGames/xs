@@ -196,6 +196,15 @@
     <ClCompile Include="external\imgui\imgui_impl_sdl3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="platforms\prospero\code\audio_ps5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="platforms\prospero\code\main_ps5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="platforms\nx\code\main_switch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\wren\optional\wren_opt_meta.h">
@@ -397,6 +406,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\imgui\imgui_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\main.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
