@@ -4,28 +4,18 @@
 #include <glm/glm.hpp>
 #include <stb/stb_truetype.h>
 #include "types.hpp"
-
-#if defined(PLATFORM_PS5)
-	#include <agc.h>	
-	using textureType = sce::Agc::Core::Texture;
-#elif defined(PLATFORM_PC) || defined(PLATFORM_SWITCH)
-    using textureType = unsigned int;
-#elif defined(__APPLE__)
-    #import <Foundation/Foundation.h>
-    #import <MetalKit/MetalKit.h>
-    typedef id<MTLTexture> textureType;
-#endif
+#include "platform.hpp"
 
 namespace xs::render
 {	
 	struct image
 	{
-		textureType	texture		= {};
-		int			width		= -1;
-		int			height		= -1;
-		int			channels	= -1;
-		std::size_t	string_id	= 0;
-		std::string file;
+		xs::platform::texture_type	texture		= {};
+		int							width		= -1;
+		int							height		= -1;
+		int							channels	= -1;
+		std::size_t					string_id	= 0;
+		std::string					file;
 	};
 	
 	struct font_atlas

@@ -411,6 +411,9 @@
     <ClInclude Include="code\main.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="platforms\opengl\code\platform_opengl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="external\wren\optional\wren_opt_meta.wren" />
