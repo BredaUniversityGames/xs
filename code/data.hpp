@@ -15,6 +15,7 @@ namespace xs::data
 
 	void initialize();
 	void shutdown();
+	inline void clear() { /* TODO: Implement this */ }
 	void inspect(bool& show);	
 	bool has_chages();
 

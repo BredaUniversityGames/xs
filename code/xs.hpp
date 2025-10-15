@@ -2,7 +2,8 @@
 
 namespace xs
 {
+	
 	void initialize();
 	void shutdown();
-	void update(float dt);
+	void update(double dt);
 }
