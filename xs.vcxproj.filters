@@ -115,7 +115,7 @@
     <ClCompile Include="code\resource_pipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\switch\code\account_switch.cpp">
+    <ClCompile Include="platforms\nx\code\account_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\audio.cpp">
@@ -130,7 +130,7 @@
     <ClCompile Include="platforms\pc\code\device_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\switch\code\device_switch.cpp">
+    <ClCompile Include="platforms\nx\code\device_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\fileio.cpp">
@@ -139,10 +139,10 @@
     <ClCompile Include="platforms\pc\code\input_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\switch\code\fileio_switch.cpp">
+    <ClCompile Include="platforms\nx\code\fileio_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\switch\code\input_switch.cpp">
+    <ClCompile Include="platforms\nx\code\input_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\inspector.cpp">
@@ -160,22 +160,22 @@
     <ClCompile Include="code\profiler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\ps5\code\account_ps5.cpp">
+    <ClCompile Include="platforms\prospero\code\account_ps5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\ps5\code\device_ps5.cpp">
+    <ClCompile Include="platforms\prospero\code\device_ps5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\ps5\code\input_ps5.cpp">
+    <ClCompile Include="platforms\prospero\code\input_ps5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\ps5\code\render_ps5.cpp">
+    <ClCompile Include="platforms\prospero\code\render_ps5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\ps5\code\user_malloc.cpp">
+    <ClCompile Include="platforms\prospero\code\user_malloc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\ps5\code\user_new.cpp">
+    <ClCompile Include="platforms\prospero\code\user_new.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\data.cpp">
@@ -196,12 +196,6 @@
     <ClCompile Include="external\imgui\imgui_impl_sdl3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <CustomBuild Include="nintendo\xs.aarch64.nmeta" />
-    <CustomBuild Include="nintendo\icon.bmp">
-      <Filter>Resource Files</Filter>
-    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\wren\optional\wren_opt_meta.h">
@@ -315,7 +309,7 @@
     <ClInclude Include="code\account.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="platforms\switch\code\account_switch.hpp">
+    <ClInclude Include="platforms\nx\code\account_switch.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\audio.hpp">
@@ -334,9 +328,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\device.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\device_pc.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\fileio.hpp">
@@ -381,16 +372,16 @@
     <ClInclude Include="code\xs.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="platforms\ps5\code\address_sanitizer_utils.h">
+    <ClInclude Include="platforms\prospero\code\address_sanitizer_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="platforms\ps5\code\shaders\camera_srt.h">
+    <ClInclude Include="platforms\prospero\code\shaders\camera_srt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="platforms\ps5\code\shaders\shader_types.h">
+    <ClInclude Include="platforms\prospero\code\shaders\shader_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="platforms\ps5\code\shaders\vertex_format.h">
+    <ClInclude Include="platforms\prospero\code\shaders\vertex_format.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\render_internal.hpp">

@@ -47,6 +47,7 @@ void fileio::initialize()
     fileio::internal::wildcards["[user]"] = [@"~/Library/Preferences/xs".stringByExpandingTildeInPath UTF8String];
     
     // Load the engine user settings json (if any) and find the game folder
+    bool success = false;
     if (exists("[user]/settings.json"))
     {
         auto settings_str = read_text_file("[user]/settings.json");
@@ -55,14 +56,17 @@ void fileio::initialize()
             auto settings = nlohmann::json::parse(settings_str);
             auto game_json = settings["game"];
             auto type_json = game_json["type"];
-            assert(type_json.is_string());
             auto value_json = game_json["value"];
-            assert(value_json.is_string());
-            string game_folder = value_json.get<string>();
-            if (!game_folder.empty())
+
+            if (type_json.is_string() && value_json.is_string())
             {
-                add_wildcard("[game]", game_folder);
-                log::info("Game folder {} ", game_folder);
+                string game_folder = value_json.get<string>();
+                if (!game_folder.empty())
+                {
+                    add_wildcard("[game]", game_folder);
+                    log::info("Game folder {} ", game_folder);
+                    success = true;
+                }
             }
         }
         else
@@ -77,4 +81,25 @@ void fileio::initialize()
         string xs_sample = fileio::absolute("samples/hello");
         add_wildcard("[game]", xs_sample);
     }
+    
+    // Load the game settings json and find the main game script
+    if (exists("[game]/project.json"))
+    {
+        auto settings_str = read_text_file("[game]/project.json");
+        if (!settings_str.empty())
+        {
+            auto settings = nlohmann::json::parse(settings_str);
+            if (settings.find("Main") != settings.end())
+            {
+                string main = settings["Main"]["value"];
+                add_wildcard("[main]", main);
+            }
+            else log::error("Could not find the 'main' in the game project.json file.");
+        }
+        else log::error("Could not read project.json file.");
+    }
+    else log::error("Could not find the game project.json file.");
+
+    // Set the shared assets folder - this is where the shared assets are stored
+    add_wildcard("[shared]", "assets");
 }

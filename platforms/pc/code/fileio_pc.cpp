@@ -98,17 +98,16 @@ void fileio::initialize()
 		if (!settings_str.empty())
 		{
 			auto settings = nlohmann::json::parse(settings_str);
-			/*
 			if (settings.find("Main") != settings.end())
 			{
-				string main = settings["Main"];
-				add_wildcard("[main]", main);
+				auto main = settings["Main"]["value"];
+				if (main.is_string())
+					add_wildcard("[main]", main.get<string>());
 			}
-			else log::error("Could not find the 'main' in the game project.json file.");
-			*/
+			else log::error("Could not find the 'main' in the game project.json file."); 
 
-			if (settings.find("Main") == settings.end())
-				log::error("Could not find the 'main' in the game project.json file.");
+			//if (settings.find("Main") == settings.end())
+			//	log::error("Could not find the 'main' in the game project.json file.");
 		}
 		else log::error("Could not read project.json file.");
 	}
