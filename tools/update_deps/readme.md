@@ -10,6 +10,7 @@ The `update_dependencies.py` script provides an interactive menu to manage exter
 
 - **List all dependencies**: View all open-source and local dependencies
 - **Update open-source libraries**: Fetch the latest version from their GitHub repositories
+- **Copy FMOD from Program Files**: Automatically copy FMOD SDK from Program Files installation to external/fmod
 - **Check local dependencies**: View installation status for FMOD and Steam API
 - **Batch updates**: Update all open-source dependencies at once
 
@@ -40,9 +41,11 @@ These can be updated automatically from their GitHub repositories:
 - **glad**: OpenGL loader
 
 #### Local Dependencies
-These require manual installation before running the updater:
+These require manual installation:
 - **fmod**: FMOD audio engine (PC, Nintendo Switch, PlayStation 5, Apple)
   - Download from: https://www.fmod.com/download
+  - On Windows: The script can automatically copy files from Program Files installation
+  - On other platforms: Manual copy required
 - **steam**: Steamworks SDK (PC only)
   - Download from: https://partner.steamgames.com/
 
@@ -50,5 +53,7 @@ These require manual installation before running the updater:
 
 - The script creates backups before updating and restores them if the update fails
 - Git is required for updating open-source dependencies
-- Local dependencies (FMOD, Steam API) must be installed manually per platform
+- **FMOD on Windows**: Install FMOD Studio API to Program Files, then use option 3 to copy files to external/fmod
+- **FMOD on other platforms**: Manually copy SDK files to external/fmod after installation
+- **Steam API**: Must be installed and copied manually
 - The script will show platform-specific installation status for local dependencies

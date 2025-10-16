@@ -8,6 +8,7 @@ import os
 import sys
 import shutil
 import subprocess
+import platform
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -247,14 +248,99 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict) -> bool:
         return False
 
 
-def show_local_dependency_info(dep_key: str, dep_info: Dict, platform: Optional[str] = None):
+def copy_fmod_from_program_files() -> bool:
+    """Copy FMOD files from Program Files installation to external/fmod."""
+    repo_root = get_repo_root()
+    plat = platform.system()
+
+    print_info("Copying FMOD from Program Files installation...")
+
+    if plat == "Windows":
+        # FMOD installation paths
+        fmod_base = Path(r"C:\Program Files (x86)\FMOD SoundSystem")
+
+        # Check for Windows FMOD installation
+        fmod_windows = fmod_base / "FMOD Studio API Windows"
+
+        if not fmod_windows.exists():
+            print_error(f"FMOD Studio API Windows not found at: {fmod_windows}")
+            print_warning("Please install FMOD Studio API from https://www.fmod.com/download")
+            return False
+
+        try:
+            # Source paths
+            core_inc = fmod_windows / "api" / "core" / "inc"
+            core_lib = fmod_windows / "api" / "core" / "lib" / "x64"
+            studio_inc = fmod_windows / "api" / "studio" / "inc"
+            studio_lib = fmod_windows / "api" / "studio" / "lib" / "x64"
+
+            # Destination paths
+            fmod_dest = repo_root / "external" / "fmod"
+            inc_dest = fmod_dest / "inc"
+            lib_dest = fmod_dest / "lib"
+
+            # Create destination directories
+            inc_dest.mkdir(parents=True, exist_ok=True)
+            lib_dest.mkdir(parents=True, exist_ok=True)
+
+            print_info("Copying header files...")
+            # Copy include files
+            if core_inc.exists():
+                shutil.copytree(core_inc, inc_dest, dirs_exist_ok=True)
+                print_success(f"  Copied core headers from {core_inc}")
+            else:
+                print_warning(f"  Core headers not found at {core_inc}")
+
+            if studio_inc.exists():
+                shutil.copytree(studio_inc, inc_dest, dirs_exist_ok=True)
+                print_success(f"  Copied studio headers from {studio_inc}")
+            else:
+                print_warning(f"  Studio headers not found at {studio_inc}")
+
+            print_info("Copying library files...")
+            # Copy lib files
+            if core_lib.exists():
+                shutil.copytree(core_lib, lib_dest, dirs_exist_ok=True)
+                print_success(f"  Copied core libraries from {core_lib}")
+            else:
+                print_warning(f"  Core libraries not found at {core_lib}")
+
+            if studio_lib.exists():
+                shutil.copytree(studio_lib, lib_dest, dirs_exist_ok=True)
+                print_success(f"  Copied studio libraries from {studio_lib}")
+            else:
+                print_warning(f"  Studio libraries not found at {studio_lib}")
+
+            print_success(f"FMOD files copied to {fmod_dest}")
+            return True
+
+        except Exception as e:
+            print_error(f"Error copying FMOD files: {e}")
+            return False
+
+    elif plat == "Darwin":
+        print_error("Copying FMOD on macOS is not implemented yet.")
+        print_info("Please manually copy FMOD SDK to external/fmod/")
+        return False
+
+    elif plat == "Linux":
+        print_error("Copying FMOD on Linux is not implemented yet.")
+        print_info("Please manually copy FMOD SDK to external/fmod/")
+        return False
+
+    else:
+        print_error(f"Unsupported platform: {plat}")
+        return False
+
+
+def show_local_dependency_info(dep_key: str, dep_info: Dict, platform_filter: Optional[str] = None):
     """Show information about a local dependency."""
     print_info(f"{dep_info['name']}")
     print(f"  Type: Local installation required")
     print(f"  Description: {dep_info['description']}")
 
-    if platform:
-        print(f"  Platform: {platform}")
+    if platform_filter:
+        print(f"  Platform: {platform_filter}")
     else:
         print(f"  Platforms: {', '.join(dep_info['platforms'])}")
 
@@ -264,8 +350,8 @@ def show_local_dependency_info(dep_key: str, dep_info: Dict, platform: Optional[
     repo_root = get_repo_root()
     dep_path = repo_root / 'external' / dep_key
 
-    if platform:
-        platform_path = dep_path / platform
+    if platform_filter:
+        platform_path = dep_path / platform_filter
         if platform_path.exists():
             print_success(f"Found at: {platform_path}")
         else:
@@ -311,12 +397,13 @@ def interactive_menu():
         print(f"\n{Colors.BOLD}What would you like to do?{Colors.ENDC}")
         print("  1. List all dependencies")
         print("  2. Update an open-source dependency")
-        print("  3. Show local dependency info")
-        print("  4. Update all open-source dependencies")
-        print("  5. Exit")
+        print("  3. Copy FMOD from Program Files")
+        print("  4. Show local dependency info")
+        print("  5. Update all open-source dependencies")
+        print("  6. Exit")
 
         if PROMPT_TOOLKIT_AVAILABLE:
-            completer = WordCompleter(['1', '2', '3', '4', '5'], ignore_case=True)
+            completer = WordCompleter(['1', '2', '3', '4', '5', '6'], ignore_case=True)
             choice = prompt('\nChoice: ', completer=completer).strip()
         else:
             choice = input('\nChoice: ').strip()
@@ -346,6 +433,10 @@ def interactive_menu():
                 print_error(f"Unknown dependency: {dep_choice}")
 
         elif choice == '3':
+            # Copy FMOD from Program Files
+            copy_fmod_from_program_files()
+
+        elif choice == '4':
             # Show available local dependencies
             local_deps = {k: v for k, v in DEPENDENCIES.items()
                         if v['type'] == 'local'}
@@ -388,7 +479,7 @@ def interactive_menu():
             else:
                 print_error(f"Unknown dependency: {dep_choice}")
 
-        elif choice == '4':
+        elif choice == '5':
             print_warning("This will update all open-source dependencies.")
             confirm = input("Continue? (y/N): ").strip().lower()
 
@@ -413,7 +504,7 @@ def interactive_menu():
             else:
                 print_info("Cancelled")
 
-        elif choice == '5':
+        elif choice == '6':
             print_info("Goodbye!")
             break
 
