@@ -318,9 +318,6 @@
     <ClInclude Include="code\account.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="platforms\nx\code\account_switch.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="code\audio.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -412,6 +409,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platforms\opengl\code\platform_opengl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="platforms\prospero\code\platform_ps5.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
