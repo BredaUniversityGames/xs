@@ -153,8 +153,8 @@ def print_info(text: str):
 
 def get_repo_root() -> Path:
     """Get the repository root directory."""
-    script_dir = Path(__file__).parent
-    return script_dir.parent
+    script_dir = Path(__file__).parent  # tools/update_deps/
+    return script_dir.parent.parent      # Go up two levels to repo root
 
 
 def run_command(cmd: List[str], cwd: Optional[Path] = None) -> tuple[bool, str]:
