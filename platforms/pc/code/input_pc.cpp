@@ -3,7 +3,6 @@
 #include <array>
 #include <unordered_map>
 
-#include <isteaminput.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_gamepad.h>
 
