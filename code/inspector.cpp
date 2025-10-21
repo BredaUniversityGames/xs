@@ -18,6 +18,7 @@
 #include "tools.hpp"
 #include "input.hpp"
 #include "render_internal.hpp"
+#include "cooker.hpp"
 
 #ifdef EDITOR
 #include "dialogs/portable-file-dialogs.h"
@@ -291,8 +292,44 @@ void xs::inspector::render(double dt)
 				data::save();
 			}
 		}
+
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_FA_ARCHIVE))
+		{
+			auto game_path = data::get_string("game", data::type::user);
+			if (!game_path.empty())
+			{
+				auto save_path = pfd::save_file("Export Game", game_path, { "XS Game Archive", "*.xs" }).result();
+				if (!save_path.empty())
+				{
+					// Ensure the file has .xs extension
+					if (save_path.find(".xs") == std::string::npos)
+						save_path += ".xs";
+
+					log::info("Exporting game to: {}", save_path);
+
+					// Cook the content directly to the user-selected path
+					std::vector<std::string> sub_dirs; // Empty means export entire folder
+					if (cooker::cook_content_to_path(game_path, sub_dirs, save_path))
+					{
+						notify(notification_type::success, "Game exported successfully!", 3.0f);
+						log::info("Game exported successfully to: {}", save_path);
+					}
+					else
+					{
+						notify(notification_type::error, "Failed to export game", 3.0f);
+						log::error("Failed to cook game content");
+					}
+				}
+			}
+			else
+			{
+				notify(notification_type::warning, "No game project loaded", 3.0f);
+			}
+		}
+		tooltip("Export Game");
 #endif
-		
+
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_ADJUST))
 		{

@@ -376,6 +376,15 @@ namespace cooker
 		// Write the compressed archive to a file.
 		return write_archive(resource_pipeline::make_archive_path(root, sub_dirs), a);
 	}
+
+	// Cook content by generating and compressing an archive to a specific path.
+	bool cook_content_to_path(const std::string& root, const std::vector<std::string>& sub_dirs, const std::string& output_path)
+	{
+		archive_generator::archive a = archive_generator::generate(root, sub_dirs);
+
+		// Write the compressed archive to the specified path.
+		return write_archive(output_path, a);
+	}
 }
 
 }
