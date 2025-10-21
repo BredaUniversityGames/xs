@@ -2,7 +2,6 @@
 #include <cassert>
 #include <array>
 #include <unordered_map>
-
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_gamepad.h>
 
@@ -101,9 +100,9 @@ void xs::input::set_gamepad_vibration(double low, double high, double time)
 	if (gamepad == nullptr)
 		return;
 
-	uint16 low_rumble = (uint16)(low * 0xFFFF);
-	uint16 high_rumble = (uint16)(high * 0xFFFF);
-	SDL_RumbleGamepad(gamepad->sdl_pad, high_rumble, low_rumble, (uint32)(time * 1000));
+	uint16_t low_rumble = (uint16_t)(low * 0xFFFF);
+	uint16_t high_rumble = (uint16_t)(high * 0xFFFF);
+	SDL_RumbleGamepad(gamepad->sdl_pad, high_rumble, low_rumble, (uint32_t)(time * 1000));
 }
 
 void xs::input::set_lightbar_color(double red, double green, double blue) {}

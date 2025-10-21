@@ -11,15 +11,13 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(SolutionDir)platforms\pc\external\SDL3\lib\x64;$(SolutionDir)platforms\pc\external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL3.lib;opengl32.lib;fmod/lib/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/fmod$(FMODSuffix)_vc.lib;steam/lib/win64/steam_api64.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;opengl32.lib;fmod/lib/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/fmod$(FMODSuffix)_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
-      
 copy /Y "$(ProjectDir)platforms\pc\external\SDL3\lib\x64\SDL3.dll" $(OutDir)
 copy /Y "$(ProjectDir)external\fmod\lib\fmodstudio$(FMODSuffix).dll" $(OutDir)
 copy /Y "$(ProjectDir)external\fmod\lib\fmod$(FMODSuffix).dll" $(OutDir)
-copy /Y "$(ProjectDir)external\steam\lib\win64\steam_api64.dll" $(OutDir)
     </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
