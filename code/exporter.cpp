@@ -1,4 +1,4 @@
-#include "cooker.hpp"
+#include "exporter.hpp"
 #include "fileio.hpp"
 #include "resource_pipeline.hpp"
 #include "log.hpp"
@@ -337,7 +337,7 @@ namespace archive_generator
 	}
 }
 
-namespace cooker
+namespace exporter
 {
 	size_t write_data_to_archive(std::ofstream& stream, const char* data, size_t size)
 	{
@@ -368,8 +368,8 @@ namespace cooker
 		return false;
 	}
 
-	// Cook content by generating and compressing an archive.
-	bool cook_content(const std::string& root, const std::vector<std::string>& sub_dirs)
+	// Export content by generating and compressing an archive.
+	bool export_content(const std::string& root, const std::vector<std::string>& sub_dirs)
 	{
 		archive_generator::archive a = archive_generator::generate(root, sub_dirs);
 
@@ -377,8 +377,8 @@ namespace cooker
 		return write_archive(resource_pipeline::make_archive_path(root, sub_dirs), a);
 	}
 
-	// Cook content by generating and compressing an archive to a specific path.
-	bool cook_content_to_path(const std::string& root, const std::vector<std::string>& sub_dirs, const std::string& output_path)
+	// Export content by generating and compressing an archive to a specific path.
+	bool export_content_to_path(const std::string& root, const std::vector<std::string>& sub_dirs, const std::string& output_path)
 	{
 		archive_generator::archive a = archive_generator::generate(root, sub_dirs);
 

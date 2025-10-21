@@ -42,7 +42,7 @@
     <FMODSuffix Condition="'$(Configuration)'=='Debug'">L</FMODSuffix>
   </PropertyGroup>
   <ItemGroup>
-    <ClCompile Include="code\cooker.cpp">
+    <ClCompile Include="code\exporter.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -316,7 +316,7 @@
     <ClInclude Include="code\audio.hpp" />
     <ClInclude Include="code\color.hpp" />
     <ClInclude Include="code\configuration.hpp" />
-    <ClInclude Include="code\cooker.hpp">
+    <ClInclude Include="code\exporter.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>

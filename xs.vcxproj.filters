@@ -97,7 +97,7 @@
     <ClCompile Include="external\miniz\src\miniz_zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\cooker.cpp">
+    <ClCompile Include="code\exporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="platforms\pc\code\fileio_pc.cpp">
@@ -324,7 +324,7 @@
     <ClInclude Include="code\configuration.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\cooker.hpp">
+    <ClInclude Include="code\exporter.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\defines.hpp">

@@ -18,7 +18,7 @@
 #include "tools.hpp"
 #include "input.hpp"
 #include "render_internal.hpp"
-#include "cooker.hpp"
+#include "exporter.hpp"
 
 #ifdef EDITOR
 #include "dialogs/portable-file-dialogs.h"
@@ -308,9 +308,9 @@ void xs::inspector::render(double dt)
 
 					log::info("Exporting game to: {}", save_path);
 
-					// Cook the content directly to the user-selected path
+					// Export the content directly to the user-selected path
 					std::vector<std::string> sub_dirs; // Empty means export entire folder
-					if (cooker::cook_content_to_path(game_path, sub_dirs, save_path))
+					if (exporter::export_content_to_path(game_path, sub_dirs, save_path))
 					{
 						notify(notification_type::success, "Game exported successfully!", 3.0f);
 						log::info("Game exported successfully to: {}", save_path);
@@ -318,7 +318,7 @@ void xs::inspector::render(double dt)
 					else
 					{
 						notify(notification_type::error, "Failed to export game", 3.0f);
-						log::error("Failed to cook game content");
+						log::error("Failed to export game content");
 					}
 				}
 			}
