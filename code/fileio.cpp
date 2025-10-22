@@ -61,17 +61,16 @@ using namespace fileio::internal;
 
 std::vector<std::byte> fileio::read_binary_file(const string& filename)
 {
-	const auto path = get_path(filename);
-
-	// Check if file is in loaded package
-	auto it = content_map.find(path);
+	// Check if file is in loaded package first (using wildcard path)
+	auto it = content_map.find(filename);
 	if (it != content_map.end())
 	{
-		const packager::PackageEntry* entry = it->second;
+		const packager::package_entry* entry = it->second;
 		return packager::decompress_entry(*entry);
 	}
 
-	// Not in package, try reading from disk
+	// Not in package, try reading from disk (expand wildcards)
+	const auto path = get_path(filename);
 	ifstream file(path, ios::binary | ios::ate);
 	if (!file.is_open())
 	{
@@ -90,20 +89,19 @@ std::vector<std::byte> fileio::read_binary_file(const string& filename)
 
 string fileio::read_text_file(const string& filename)
 {
-	const auto path = get_path(filename);
-
-	// Check if file is in loaded package
-	auto it = content_map.find(path);
+	// Check if file is in loaded package first (using wildcard path)
+	auto it = content_map.find(filename);
 	if (it != content_map.end())
 	{
-		const packager::PackageEntry* entry = it->second;
+		const packager::package_entry* entry = it->second;
 		std::vector<std::byte> data = packager::decompress_entry(*entry);
 
 		// Convert to string
 		return string(reinterpret_cast<const char*>(data.data()), data.size());
 	}
 
-	// Not in package, try reading from disk
+	// Not in package, try reading from disk (expand wildcards)
+	const auto path = get_path(filename);
 	ifstream file(path);
 	if (!file.is_open())
 	{
@@ -200,8 +198,13 @@ uint64_t fileio::last_write(const string& filename)
 	return static_cast<uint64_t>(ftime.time_since_epoch().count());
 }
 
-#else 
+#else
 
 uint64_t fileio::last_write(const string& filename) { return 0; }
 
 #endif
+
+bool fileio::has_wildcard(const string& wildcard)
+{
+	return internal::wildcards.find(wildcard) != internal::wildcards.end();
+}
