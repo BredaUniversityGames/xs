@@ -340,35 +340,34 @@ namespace archive_generator
 	}
 }
 
-// ------------------------------------------------------------------------
-// New archive format using cereal for cross-platform serialization
-// ------------------------------------------------------------------------
 namespace archive_v2
 {
-	struct ContentEntry
+	// Decompress a content entry if compressed, otherwise return data as-is
+	blob decompress_entry(const ContentEntry& entry)
 	{
-		std::string relative_path;       // Relative path from content root
-		uint64_t uncompressed_size;      // Original file size
-		std::vector<std::byte> data;     // File data (compressed if is_compressed=true)
-		bool is_compressed;              // Whether data is zlib compressed
-
-		template<class Archive>
-		void serialize(Archive& ar)
+		if (!entry.is_compressed)
 		{
-			ar(relative_path, uncompressed_size, data, is_compressed);
+			// Return data as-is for uncompressed entries
+			return entry.data;
 		}
-	};
 
-	struct ArchiveData
-	{
-		std::vector<ContentEntry> entries;
+		// Decompress the data
+		blob decompressed;
+		decompressed.resize(entry.uncompressed_size);
 
-		template<class Archive>
-		void serialize(Archive& ar)
+		unsigned long decompressed_size = static_cast<unsigned long>(entry.uncompressed_size);
+		int result = uncompress(
+			reinterpret_cast<unsigned char*>(decompressed.data()), &decompressed_size,
+			reinterpret_cast<const unsigned char*>(entry.data.data()), static_cast<unsigned long>(entry.data.size()));
+
+		if (result != Z_OK)
 		{
-			ar(entries);
+			log::error("Failed to decompress entry: {}", entry.relative_path);
+			return {};
 		}
-	};
+
+		return decompressed;
+	}
 }
 
 namespace exporter
@@ -523,6 +522,35 @@ namespace exporter
 		catch (const std::exception& e)
 		{
 			log::error("Failed to write archive: {}", e.what());
+			return false;
+		}
+	}
+
+	// ------------------------------------------------------------------------
+	// V2 Archive Load - Load cross-platform archives created with export_archive
+	// ------------------------------------------------------------------------
+	bool load_archive(const std::string& archive_path, archive_v2::ArchiveData& out_archive)
+	{
+		try
+		{
+			std::ifstream ifs(archive_path, std::ios::binary);
+			if (!ifs)
+			{
+				log::error("Failed to open archive file: {}", archive_path);
+				return false;
+			}
+
+			cereal::BinaryInputArchive cereal_archive(ifs);
+			cereal_archive(out_archive);
+
+			log::info("Successfully loaded archive with {} entries from: {}",
+				out_archive.entries.size(), archive_path);
+
+			return true;
+		}
+		catch (const std::exception& e)
+		{
+			log::error("Failed to load archive: {}", e.what());
 			return false;
 		}
 	}
