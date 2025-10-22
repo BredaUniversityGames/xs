@@ -11,21 +11,28 @@ namespace xs::packager
 	struct package_entry
 	{
 		// Relative path from content root
-		std::string relative_path;       
+		std::string relative_path;
 
-		// Relative path from content root
-		uint64_t uncompressed_size;      
+		// Original file size before compression
+		uint64_t uncompressed_size;
 
-		// File data (compressed if is_compressed=true)
-		std::vector<std::byte> data;
+		// Offset in package file where data starts (relative to data section)
+		uint64_t data_offset;
+
+		// Length of data in package file
+		uint64_t data_length;
 
 		// Whether data is zlib compressed
-		bool is_compressed;              
+		bool is_compressed;
+
+		// File data (will be populated on load, may be removed later for lazy loading)
+		std::vector<std::byte> data;
 
 		template<class Archive>
 		void serialize(Archive& ar)
 		{
-			ar(relative_path, uncompressed_size, data, is_compressed);
+			ar(relative_path, uncompressed_size, data_offset, data_length, is_compressed);
+			// Note: data vector is NOT serialized - it will be loaded separately
 		}
 	};
 

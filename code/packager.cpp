@@ -252,7 +252,16 @@ namespace packager
 			}
 		}
 
-		// Write package using cereal
+		// Calculate offsets for each entry in the data section
+		uint64_t current_offset = 0;
+		for (auto& entry : pkg.entries)
+		{
+			entry.data_offset = current_offset;
+			entry.data_length = entry.data.size();
+			current_offset += entry.data_length;
+		}
+
+		// Write package in two sections: metadata then data
 		try
 		{
 			std::ofstream ofs(output_path, std::ios::binary);
@@ -262,11 +271,28 @@ namespace packager
 				return false;
 			}
 
-			cereal::BinaryOutputArchive cereal_archive(ofs);
-			cereal_archive(pkg);
+			// Section 1: Write metadata using cereal
+			{
+				cereal::BinaryOutputArchive cereal_archive(ofs);
+				cereal_archive(pkg);
+			} // Flush cereal archive
+
+			// Section 2: Write raw data blobs sequentially
+			for (const auto& entry : pkg.entries)
+			{
+				ofs.write(reinterpret_cast<const char*>(entry.data.data()), entry.data_length);
+			}
+
+			if (!ofs)
+			{
+				log::error("Failed to write data section");
+				return false;
+			}
 
 			log::info("Successfully wrote package with {} entries to: {}",
 				pkg.entries.size(), output_path);
+			log::info("Metadata section: {} bytes, Data section: {} bytes",
+				ofs.tellp() - current_offset, current_offset);
 
 			return true;
 		}
@@ -291,8 +317,30 @@ namespace packager
 				return false;
 			}
 
-			cereal::BinaryInputArchive cereal_archive(ifs);
-			cereal_archive(out_package);
+			// Section 1: Read metadata using cereal
+			std::streampos data_section_start;
+			{
+				cereal::BinaryInputArchive cereal_archive(ifs);
+				cereal_archive(out_package);
+				data_section_start = ifs.tellg(); // Remember where data section starts
+			}
+
+			// Section 2: Read data blobs for each entry
+			for (auto& entry : out_package.entries)
+			{
+				// Seek to the data blob for this entry
+				ifs.seekg(data_section_start + static_cast<std::streamoff>(entry.data_offset));
+
+				// Allocate and read the data
+				entry.data.resize(entry.data_length);
+				ifs.read(reinterpret_cast<char*>(entry.data.data()), entry.data_length);
+
+				if (!ifs)
+				{
+					log::error("Failed to read data for entry: {}", entry.relative_path);
+					return false;
+				}
+			}
 
 			log::info("Successfully loaded package with {} entries from: {}",
 				out_package.entries.size(), package_path);
