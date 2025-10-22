@@ -8,6 +8,9 @@
 #include <fstream>
 #include <functional>
 #include <limits>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
 
 namespace xs
 {
@@ -335,6 +338,37 @@ namespace archive_generator
 
 		return archive(std::move(blob), builder.offset());
 	}
+}
+
+// ------------------------------------------------------------------------
+// New archive format using cereal for cross-platform serialization
+// ------------------------------------------------------------------------
+namespace archive_v2
+{
+	struct ContentEntry
+	{
+		std::string relative_path;       // Relative path from content root
+		uint64_t uncompressed_size;      // Original file size
+		std::vector<std::byte> data;     // File data (compressed if is_compressed=true)
+		bool is_compressed;              // Whether data is zlib compressed
+
+		template<class Archive>
+		void serialize(Archive& ar)
+		{
+			ar(relative_path, uncompressed_size, data, is_compressed);
+		}
+	};
+
+	struct ArchiveData
+	{
+		std::vector<ContentEntry> entries;
+
+		template<class Archive>
+		void serialize(Archive& ar)
+		{
+			ar(entries);
+		}
+	};
 }
 
 namespace exporter

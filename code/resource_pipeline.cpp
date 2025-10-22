@@ -51,7 +51,7 @@ content_header::content_header(
 	, file_size(file_size)
 	, file_size_compressed(file_size_compressed)
 {
-	auto rel_path = xs::tools::string_replace(path, "./games", "[games]");
+	auto rel_path = path;
 	size_t filePathLength = std::min(rel_path.size(), static_cast<size_t>(s_max_path - 1));
 	std::copy(rel_path.begin(), rel_path.begin() + filePathLength, file_path);
 	file_path[filePathLength] = '\0'; // Null-terminate the file path
