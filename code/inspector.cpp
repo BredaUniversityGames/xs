@@ -308,9 +308,13 @@ void xs::inspector::render(double dt)
 
 					log::info("Exporting game to: {}", save_path);
 
-					// Export the content directly to the user-selected path
-					std::vector<std::string> sub_dirs; // Empty means export entire folder
-					if (exporter::export_content_to_path(game_path, sub_dirs, save_path))
+					// Export game content and shared resources using V2 format
+					std::vector<std::string> source_dirs = {
+						game_path,
+						fileio::get_path("[shared]")
+					};
+
+					if (exporter::export_archive(source_dirs, save_path))
 					{
 						notify(notification_type::success, "Game exported successfully!", 3.0f);
 						log::info("Game exported successfully to: {}", save_path);
