@@ -1,7 +1,6 @@
 #include "packager.hpp"
 #include "fileio.hpp"
 #include "log.hpp"
-#include "types.hpp"
 #include "miniz.h"
 #include <filesystem>
 #include <fstream>
@@ -23,7 +22,7 @@ namespace packager
 	// ------------------------------------------------------------------------
 	// Decompress package entry if compressed, otherwise return data as-is
 	// ------------------------------------------------------------------------
-	blob decompress_entry(const PackageEntry& entry)
+	std::vector<std::byte> decompress_entry(const PackageEntry& entry)
 	{
 		if (!entry.is_compressed)
 		{
@@ -32,7 +31,7 @@ namespace packager
 		}
 
 		// Decompress the data
-		blob decompressed;
+		std::vector<std::byte> decompressed;
 		decompressed.resize(entry.uncompressed_size);
 
 		unsigned long decompressed_size = static_cast<unsigned long>(entry.uncompressed_size);
@@ -166,7 +165,7 @@ namespace packager
 				}
 
 				// Read file data
-				blob file_data = fileio::read_binary_file(entry.path().string());
+				std::vector<std::byte> file_data = fileio::read_binary_file(entry.path().string());
 
 				// Compress text files
 				if (is_text_file(extension))

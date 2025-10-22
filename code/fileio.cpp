@@ -74,7 +74,7 @@ namespace xs::fileio::internal
 using namespace xs;
 using namespace fileio::internal;
 
-blob fileio::read_binary_file(const string& filename)
+std::vector<std::byte> fileio::read_binary_file(const string& filename)
 {
 	const auto path = get_path(filename);
 
@@ -96,7 +96,7 @@ blob fileio::read_binary_file(const string& filename)
 
 	const streamsize size = file.tellg();
 	file.seekg(0, ios::beg);
-	blob buffer(size);
+	std::vector<std::byte> buffer(size);
 	if (file.read((char*)buffer.data(), size))
 		return buffer;
 
@@ -112,9 +112,9 @@ string fileio::read_text_file(const string& filename)
 	if (it != content_map.end())
 	{
 		const packager::PackageEntry* entry = it->second;
-		blob data = packager::decompress_entry(*entry);
+		std::vector<std::byte> data = packager::decompress_entry(*entry);
 
-		// Convert blob to string
+		// Convert to string
 		return string(reinterpret_cast<const char*>(data.data()), data.size());
 	}
 
@@ -134,14 +134,14 @@ string fileio::read_text_file(const string& filename)
 	return buffer;
 }
 
-bool fileio::write_binary_file(const blob& blob, const string& filename)
+bool fileio::write_binary_file(const std::vector<std::byte>& data, const string& filename)
 {
 	auto fullpath = fileio::get_path(filename);
 	ofstream ofs;
 	ofs.open(fullpath);
 	if (ofs.is_open())
 	{
-		ofs.write((char*)&blob[0], blob.size() * sizeof(char));;
+		ofs.write((char*)&data[0], data.size() * sizeof(char));;
 		ofs.close();
 		return true;
 	}

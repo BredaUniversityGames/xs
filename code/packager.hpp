@@ -1,9 +1,9 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
-#include <cstdint>
-#include "types.hpp"
 
 namespace xs::packager
 {
@@ -37,7 +37,7 @@ namespace xs::packager
 	};
 
 	// Decompress a package entry if it's compressed, return the raw data
-	blob decompress_entry(const PackageEntry& entry);
+	std::vector<std::byte> decompress_entry(const PackageEntry& entry);
 
 	/*
 	* Create Package

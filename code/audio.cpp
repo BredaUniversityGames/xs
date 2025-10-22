@@ -113,8 +113,8 @@ namespace xs::audio
 		// try to load the sound file
 		FMOD_MODE mode = FMOD_OPENMEMORY | FMOD_CREATESAMPLE;
 		if (group_id == GROUP_MUSIC) mode = mode | FMOD_LOOP_NORMAL;
-		FMOD::Sound* sound; 
-		const blob& sound_data = fileio::read_binary_file(filename);
+		FMOD::Sound* sound;
+		const std::vector<std::byte>& sound_data = fileio::read_binary_file(filename);
 		FMOD_CREATESOUNDEXINFO info{};
 		info.cbsize = sizeof(FMOD_CREATESOUNDEXINFO);
 		info.length = (int)sound_data.size();
@@ -244,7 +244,7 @@ namespace xs::audio
 		
 		// try to load the bank
 		FMOD::Studio::Bank* bank;
-		blob bank_data = fileio::read_binary_file(filename);
+		std::vector<std::byte> bank_data = fileio::read_binary_file(filename);
 		if (bank_data.empty())
 		{
 			log::error("FMOD bank with filename {} could not be loaded!", filename);

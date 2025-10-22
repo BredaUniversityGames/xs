@@ -353,7 +353,6 @@
 		3486CA632B94CC3200E9A3B8 /* cooker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cooker.cpp; sourceTree = "<group>"; };
 		3486CA692B94CCD900E9A3B8 /* resources.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = resources.hpp; sourceTree = "<group>"; };
 		3486CA6B2B94CCD900E9A3B8 /* cooker.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = cooker.hpp; sourceTree = "<group>"; };
-		3486CA6C2B94CCD900E9A3B8 /* types.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = types.hpp; sourceTree = "<group>"; };
 		3486CA722B94DFCF00E9A3B8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		3486CA752B94DFCF00E9A3B8 /* miniz_zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miniz_zip.h; sourceTree = "<group>"; };
 		3486CA762B94DFCF00E9A3B8 /* miniz_tinfl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miniz_tinfl.h; sourceTree = "<group>"; };
@@ -1003,7 +1002,6 @@
 			children = (
 				3486CA6B2B94CCD900E9A3B8 /* cooker.hpp */,
 				3486CA692B94CCD900E9A3B8 /* resources.hpp */,
-				3486CA6C2B94CCD900E9A3B8 /* types.hpp */,
 				346E73412A4A29D5006ECAD5 /* input.hpp */,
 				346E73432A4A29D5006ECAD5 /* version.hpp */,
 				346E73442A4A29D5006ECAD5 /* script.hpp */,
