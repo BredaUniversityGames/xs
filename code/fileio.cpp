@@ -22,10 +22,10 @@ namespace xs::fileio::internal
 {
 	map<string, string> wildcards;
 
-	// ------------------------------------------------------------------------
 	// Load game package
 	void load_game_content_headers()
 	{
+		/* TODO: Re-enable package loading when needed
 		std::string package_path = game_content_path();
 
 		if (!fileio::exists(package_path))
@@ -50,6 +50,7 @@ namespace xs::fileio::internal
 			content_map[entry.relative_path] = &entry;
 			log::info("Entry loaded: {}", entry.relative_path);
 		}
+		*/
 	}
 	// Package data - loaded once on startup (will be populated later)
 	packager::package loaded_package;
@@ -204,7 +205,7 @@ uint64_t fileio::last_write(const string& filename) { return 0; }
 
 #endif
 
-bool fileio::has_wildcard(const string& wildcard)
+bool xs::fileio::has_wildcard(const string& wildcard)
 {
 	return internal::wildcards.find(wildcard) != internal::wildcards.end();
 }

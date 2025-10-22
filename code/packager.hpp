@@ -7,10 +7,7 @@
 
 namespace xs::packager
 {
-	// ------------------------------------------------------------------------
-	// Package Format - Cross-platform serialization structures
-	// ------------------------------------------------------------------------
-
+	// Cross-platform serialization structures
 	struct package_entry
 	{
 		// Relative path from content root
@@ -32,6 +29,7 @@ namespace xs::packager
 		}
 	};
 
+	// Cross-platform serialization structure
 	struct package
 	{	
 		std::vector<package_entry> entries;
