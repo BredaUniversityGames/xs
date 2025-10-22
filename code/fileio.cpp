@@ -7,7 +7,7 @@
 
 #include "log.hpp"
 #include "tools.hpp"
-#include "exporter.hpp"
+#include "packager.hpp"
 #include "miniz.h"
 
 #if defined(PLATFORM_PC)
@@ -22,9 +22,9 @@ namespace xs::fileio::internal
 {
 	map<string, string> wildcards;
 
-	// Archive data - loaded once on startup
-	archive_v2::ArchiveData loaded_archive;
-	unordered_map<std::string, const archive_v2::ContentEntry*> content_map;
+	// Package data - loaded once on startup
+	packager::Package loaded_package;
+	unordered_map<std::string, const packager::PackageEntry*> content_map;
 
 	// ------------------------------------------------------------------------
 	std::string game_content_path()
@@ -37,33 +37,33 @@ namespace xs::fileio::internal
 			return {};
 		}
 
-		// Create archive path from game content
-		return exporter::make_archive_path(fileio::get_path("[games]"), { game_str });
+		// Create package path from game content
+		return packager::make_package_path(fileio::get_path("[games]"), { game_str });
 	}
 	// ------------------------------------------------------------------------
-	// Load game archive
+	// Load game package
 	void load_game_content_headers()
 	{
-		std::string archive_path = game_content_path();
+		std::string package_path = game_content_path();
 
-		if (!fileio::exists(archive_path))
+		if (!fileio::exists(package_path))
 		{
-			log::info("Game archive not found: {}", archive_path);
+			log::info("Game package not found: {}", package_path);
 			return;
 		}
 
-		// Load archive
-		if (!exporter::load_archive(archive_path, loaded_archive))
+		// Load package
+		if (!packager::load_package(package_path, loaded_package))
 		{
-			log::error("Failed to load game archive");
+			log::error("Failed to load game package");
 			return;
 		}
 
-		log::info("Loaded archive with {} entries", loaded_archive.entries.size());
+		log::info("Loaded package with {} entries", loaded_package.entries.size());
 
 		// Build hash map for fast lookups
 		content_map.clear();
-		for (const auto& entry : loaded_archive.entries)
+		for (const auto& entry : loaded_package.entries)
 		{
 			content_map[entry.relative_path] = &entry;
 			log::info("Entry loaded: {}", entry.relative_path);
@@ -78,15 +78,15 @@ blob fileio::read_binary_file(const string& filename)
 {
 	const auto path = get_path(filename);
 
-	// Check if file is in loaded archive
+	// Check if file is in loaded package
 	auto it = content_map.find(path);
 	if (it != content_map.end())
 	{
-		const archive_v2::ContentEntry* entry = it->second;
-		return archive_v2::decompress_entry(*entry);
+		const packager::PackageEntry* entry = it->second;
+		return packager::decompress_entry(*entry);
 	}
 
-	// Not in archive, try reading from disk
+	// Not in package, try reading from disk
 	ifstream file(path, ios::binary | ios::ate);
 	if (!file.is_open())
 	{
@@ -107,18 +107,18 @@ string fileio::read_text_file(const string& filename)
 {
 	const auto path = get_path(filename);
 
-	// Check if file is in loaded archive
+	// Check if file is in loaded package
 	auto it = content_map.find(path);
 	if (it != content_map.end())
 	{
-		const archive_v2::ContentEntry* entry = it->second;
-		blob data = archive_v2::decompress_entry(*entry);
+		const packager::PackageEntry* entry = it->second;
+		blob data = packager::decompress_entry(*entry);
 
 		// Convert blob to string
 		return string(reinterpret_cast<const char*>(data.data()), data.size());
 	}
 
-	// Not in archive, try reading from disk
+	// Not in package, try reading from disk
 	ifstream file(path);
 	if (!file.is_open())
 	{
@@ -194,7 +194,7 @@ bool fileio::exists(const string& filename)
 	// Expand wildcards
 	const auto path = get_path(filename);
 
-	// Check if the file is stored in the archive
+	// Check if the file is stored in the package
 	// TODO: re-enable this check when needed
 	// if (binary_content_headers.find(path) != binary_content_headers.cend() || text_content_headers.find(path) != text_content_headers.cend())
 	//	return true;

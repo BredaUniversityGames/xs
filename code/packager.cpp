@@ -1,4 +1,4 @@
-#include "exporter.hpp"
+#include "packager.hpp"
 #include "fileio.hpp"
 #include "log.hpp"
 #include "types.hpp"
@@ -18,10 +18,12 @@ namespace xs
 
 namespace fs = std::filesystem;
 
-namespace archive_v2
+namespace packager
 {
-	// Decompress a content entry if compressed, otherwise return data as-is
-	blob decompress_entry(const ContentEntry& entry)
+	// ------------------------------------------------------------------------
+	// Decompress package entry if compressed, otherwise return data as-is
+	// ------------------------------------------------------------------------
+	blob decompress_entry(const PackageEntry& entry)
 	{
 		if (!entry.is_compressed)
 		{
@@ -46,10 +48,7 @@ namespace archive_v2
 
 		return decompressed;
 	}
-}
 
-namespace exporter
-{
 	// ------------------------------------------------------------------------
 	// File Format Support
 	// ------------------------------------------------------------------------
@@ -83,9 +82,9 @@ namespace exporter
 			return file_formats;
 		}
 
-		std::string make_archive_name(const std::vector<std::string>& sub_dirs)
+		std::string make_package_name(const std::vector<std::string>& sub_dirs)
 		{
-			// Names that should not be included in the archive name when exported
+			// Names that should not be included in the package name
 			static std::unordered_set<std::string> blacklist = { "shared" };
 
 			std::stringstream stream;
@@ -119,18 +118,18 @@ namespace exporter
 		       supported_binary_file_formats().find(extension) != supported_binary_file_formats().end();
 	}
 
-	std::string make_archive_path(const std::string& root, const std::vector<std::string>& sub_dirs)
+	std::string make_package_path(const std::string& root, const std::vector<std::string>& sub_dirs)
 	{
-		return root + "/" + make_archive_name(sub_dirs) + ".xs";
+		return root + "/" + make_package_name(sub_dirs) + ".xs";
 	}
 
 	// ------------------------------------------------------------------------
-	// Archive Export - Cross-platform export using cereal
+	// Package Creation - Cross-platform packaging using cereal
 	// ------------------------------------------------------------------------
 
-	bool export_archive(const std::vector<std::string>& source_dirs, const std::string& output_path)
+	bool create_package(const std::vector<std::string>& source_dirs, const std::string& output_path)
 	{
-		archive_v2::ArchiveData archive;
+		Package package;
 
 		// Process each source directory
 		for (const auto& source_dir_str : source_dirs)
@@ -155,7 +154,7 @@ namespace exporter
 				if (!is_supported_file_format(extension))
 					continue;
 
-				archive_v2::ContentEntry content;
+				PackageEntry content;
 				content.relative_path = fs::relative(entry.path(), source_dir).string();
 				content.uncompressed_size = entry.file_size();
 
@@ -203,11 +202,11 @@ namespace exporter
 						content.relative_path, content.data.size());
 				}
 
-				archive.entries.push_back(std::move(content));
+				package.entries.push_back(std::move(content));
 			}
 		}
 
-		// Write archive using cereal
+		// Write package using cereal
 		try
 		{
 			std::ofstream ofs(output_path, std::ios::binary);
@@ -218,45 +217,45 @@ namespace exporter
 			}
 
 			cereal::BinaryOutputArchive cereal_archive(ofs);
-			cereal_archive(archive);
+			cereal_archive(package);
 
-			log::info("Successfully wrote archive with {} entries to: {}",
-				archive.entries.size(), output_path);
+			log::info("Successfully wrote package with {} entries to: {}",
+				package.entries.size(), output_path);
 
 			return true;
 		}
 		catch (const std::exception& e)
 		{
-			log::error("Failed to write archive: {}", e.what());
+			log::error("Failed to write package: {}", e.what());
 			return false;
 		}
 	}
 
 	// ------------------------------------------------------------------------
-	// Archive Load - Load cross-platform archives created with export_archive
+	// Package Loading - Load cross-platform packages created with create_package
 	// ------------------------------------------------------------------------
-	bool load_archive(const std::string& archive_path, archive_v2::ArchiveData& out_archive)
+	bool load_package(const std::string& package_path, Package& out_package)
 	{
 		try
 		{
-			std::ifstream ifs(archive_path, std::ios::binary);
+			std::ifstream ifs(package_path, std::ios::binary);
 			if (!ifs)
 			{
-				log::error("Failed to open archive file: {}", archive_path);
+				log::error("Failed to open package file: {}", package_path);
 				return false;
 			}
 
 			cereal::BinaryInputArchive cereal_archive(ifs);
-			cereal_archive(out_archive);
+			cereal_archive(out_package);
 
-			log::info("Successfully loaded archive with {} entries from: {}",
-				out_archive.entries.size(), archive_path);
+			log::info("Successfully loaded package with {} entries from: {}",
+				out_package.entries.size(), package_path);
 
 			return true;
 		}
 		catch (const std::exception& e)
 		{
-			log::error("Failed to load archive: {}", e.what());
+			log::error("Failed to load package: {}", e.what());
 			return false;
 		}
 	}

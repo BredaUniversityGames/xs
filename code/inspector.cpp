@@ -18,7 +18,7 @@
 #include "tools.hpp"
 #include "input.hpp"
 #include "render_internal.hpp"
-#include "exporter.hpp"
+#include "packager.hpp"
 
 #ifdef EDITOR
 #include "dialogs/portable-file-dialogs.h"
@@ -299,30 +299,30 @@ void xs::inspector::render(double dt)
 			auto game_path = data::get_string("game", data::type::user);
 			if (!game_path.empty())
 			{
-				auto save_path = pfd::save_file("Export Game", game_path, { "XS Game Archive", "*.xs" }).result();
+				auto save_path = pfd::save_file("Package Game", game_path, { "XS Game Package", "*.xs" }).result();
 				if (!save_path.empty())
 				{
 					// Ensure the file has .xs extension
 					if (save_path.find(".xs") == std::string::npos)
 						save_path += ".xs";
 
-					log::info("Exporting game to: {}", save_path);
+					log::info("Packaging game to: {}", save_path);
 
-					// Export game content and shared resources
+					// Package game content and shared resources
 					std::vector<std::string> source_dirs = {
 						game_path,
 						fileio::get_path("[shared]")
 					};
 
-					if (exporter::export_archive(source_dirs, save_path))
+					if (packager::create_package(source_dirs, save_path))
 					{
-						notify(notification_type::success, "Game exported successfully!", 3.0f);
-						log::info("Game exported successfully to: {}", save_path);
+						notify(notification_type::success, "Game packaged successfully!", 3.0f);
+						log::info("Game packaged successfully to: {}", save_path);
 					}
 					else
 					{
-						notify(notification_type::error, "Failed to export game", 3.0f);
-						log::error("Failed to export game content");
+						notify(notification_type::error, "Failed to package game", 3.0f);
+						log::error("Failed to package game content");
 					}
 				}
 			}
@@ -331,7 +331,7 @@ void xs::inspector::render(double dt)
 				notify(notification_type::warning, "No game project loaded", 3.0f);
 			}
 		}
-		tooltip("Export Game");
+		tooltip("Package Game");
 #endif
 
 		ImGui::SameLine();

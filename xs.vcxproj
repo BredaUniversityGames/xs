@@ -42,7 +42,7 @@
     <FMODSuffix Condition="'$(Configuration)'=='Debug'">L</FMODSuffix>
   </PropertyGroup>
   <ItemGroup>
-    <ClCompile Include="code\exporter.cpp">
+    <ClCompile Include="code\packager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -315,7 +315,7 @@
     <ClInclude Include="code\audio.hpp" />
     <ClInclude Include="code\color.hpp" />
     <ClInclude Include="code\configuration.hpp" />
-    <ClInclude Include="code\exporter.hpp">
+    <ClInclude Include="code\packager.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
