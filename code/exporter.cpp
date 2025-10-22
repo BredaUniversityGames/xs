@@ -419,6 +419,113 @@ namespace exporter
 		// Write the compressed archive to the specified path.
 		return write_archive(output_path, a);
 	}
+
+	// ------------------------------------------------------------------------
+	// V2 Archive Export - Simplified cross-platform export using cereal
+	// ------------------------------------------------------------------------
+	bool export_archive(const std::vector<std::string>& source_dirs, const std::string& output_path)
+	{
+		archive_v2::ArchiveData archive;
+
+		// Process each source directory
+		for (const auto& source_dir_str : source_dirs)
+		{
+			fs::path source_dir = fs::path(source_dir_str);
+
+			if (!fs::exists(source_dir))
+			{
+				log::error("Source directory does not exist: {}", source_dir_str);
+				continue;
+			}
+
+			log::info("Processing directory: {}", source_dir_str);
+
+			// Single-pass iteration: read and process all files
+			for (const auto& entry : fs::recursive_directory_iterator(source_dir))
+			{
+				if (!fs::is_regular_file(entry))
+					continue;
+
+				std::string extension = entry.path().extension().string();
+				if (!resource_pipeline::is_supported_file_format(extension))
+					continue;
+
+				archive_v2::ContentEntry content;
+				content.relative_path = fs::relative(entry.path(), source_dir).string();
+				content.uncompressed_size = entry.file_size();
+
+				// Normalize path separators to forward slashes for cross-platform compatibility
+				for (char& c : content.relative_path)
+				{
+					if (c == '\\')
+						c = '/';
+				}
+
+				// Read file data
+				blob file_data = fileio::read_binary_file(entry.path().string());
+
+				// Compress text files
+				if (resource_pipeline::is_text_file(extension))
+				{
+					unsigned long src_len = static_cast<unsigned long>(file_data.size());
+					unsigned long compressed_size = compressBound(src_len);
+
+					content.data.resize(compressed_size);
+
+					int result = compress(
+						reinterpret_cast<unsigned char*>(content.data.data()), &compressed_size,
+						reinterpret_cast<const unsigned char*>(file_data.data()), src_len);
+
+					if (result != Z_OK)
+					{
+						log::error("Failed to compress {}", content.relative_path);
+						continue;
+					}
+
+					content.data.resize(compressed_size);
+					content.is_compressed = true;
+
+					log::info("Packed (compressed): {} ({} -> {} bytes)",
+						content.relative_path, src_len, compressed_size);
+				}
+				else
+				{
+					// Binary files are stored uncompressed
+					content.data = std::move(file_data);
+					content.is_compressed = false;
+
+					log::info("Packed: {} ({} bytes)",
+						content.relative_path, content.data.size());
+				}
+
+				archive.entries.push_back(std::move(content));
+			}
+		}
+
+		// Write archive using cereal
+		try
+		{
+			std::ofstream ofs(output_path, std::ios::binary);
+			if (!ofs)
+			{
+				log::error("Failed to open output file: {}", output_path);
+				return false;
+			}
+
+			cereal::BinaryOutputArchive cereal_archive(ofs);
+			cereal_archive(archive);
+
+			log::info("Successfully wrote archive with {} entries to: {}",
+				archive.entries.size(), output_path);
+
+			return true;
+		}
+		catch (const std::exception& e)
+		{
+			log::error("Failed to write archive: {}", e.what());
+			return false;
+		}
+	}
 }
 
 }
