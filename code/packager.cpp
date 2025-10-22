@@ -272,10 +272,12 @@ namespace packager
 			}
 
 			// Section 1: Write metadata using cereal
+			std::streampos metadata_end;
 			{
 				cereal::BinaryOutputArchive cereal_archive(ofs);
 				cereal_archive(pkg);
 			} // Flush cereal archive
+			metadata_end = ofs.tellp();
 
 			// Section 2: Write raw data blobs sequentially
 			for (const auto& entry : pkg.entries)
@@ -292,7 +294,7 @@ namespace packager
 			log::info("Successfully wrote package with {} entries to: {}",
 				pkg.entries.size(), output_path);
 			log::info("Metadata section: {} bytes, Data section: {} bytes",
-				ofs.tellp() - current_offset, current_offset);
+				static_cast<uint64_t>(metadata_end), current_offset);
 
 			return true;
 		}
