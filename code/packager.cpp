@@ -22,7 +22,7 @@ namespace packager
 	// ------------------------------------------------------------------------
 	// Decompress package entry if compressed, otherwise return data as-is
 	// ------------------------------------------------------------------------
-	std::vector<std::byte> decompress_entry(const PackageEntry& entry)
+	std::vector<std::byte> decompress_entry(const package_entry& entry)
 	{
 		if (!entry.is_compressed)
 		{
@@ -126,43 +126,90 @@ namespace packager
 	// Package Creation - Cross-platform packaging using cereal
 	// ------------------------------------------------------------------------
 
-	bool create_package(const std::vector<std::string>& source_dirs, const std::string& output_path)
+	namespace
 	{
-		Package package;
-
-		// Process each source directory
-		for (const auto& source_dir_str : source_dirs)
+		bool should_skip_entry(const fs::directory_entry& entry)
 		{
-			fs::path source_dir = fs::path(source_dir_str);
+			std::string filename = entry.path().filename().string();
 
-			if (!fs::exists(source_dir))
+			// Skip hidden files and directories (starting with '.')
+			if (!filename.empty() && filename[0] == '.')
+				return true;
+
+			// Skip non-regular files
+			if (!fs::is_regular_file(entry))
+				return true;
+
+			return false;
+		}
+
+		bool should_skip_path(const fs::path& path)
+		{
+			// Check if any component of the path starts with '.'
+			for (const auto& component : path)
 			{
-				log::error("Source directory does not exist: {}", source_dir_str);
+				std::string comp_str = component.string();
+				if (!comp_str.empty() && comp_str[0] == '.')
+					return true;
+			}
+			return false;
+		}
+	}
+
+	bool create_package(const std::string& output_path)
+	{
+		package pkg;
+
+		// Define which wildcards to package
+		std::vector<std::string> wildcards_to_package = { "[game]", "[shared]" };
+
+		for (const auto& wildcard : wildcards_to_package)
+		{
+			// Check if wildcard is defined
+			if (!fileio::has_wildcard(wildcard))
+			{
+				log::warn("Wildcard {} is not defined, skipping", wildcard);
 				continue;
 			}
 
-			log::info("Processing directory: {}", source_dir_str);
+			std::string wildcard_path = fileio::get_path(wildcard);
+			fs::path source_dir = fs::path(wildcard_path);
+
+			if (!fs::exists(source_dir))
+			{
+				log::error("Wildcard {} path does not exist: {}", wildcard, wildcard_path);
+				continue;
+			}
+
+			log::info("Packaging {}: {}", wildcard, wildcard_path);
 
 			// Single-pass iteration: read and process all files
 			for (const auto& entry : fs::recursive_directory_iterator(source_dir))
 			{
-				if (!fs::is_regular_file(entry))
+				if (should_skip_entry(entry))
+					continue;
+
+				// Get relative path and check for hidden components
+				fs::path rel_path = fs::relative(entry.path(), source_dir);
+				if (should_skip_path(rel_path))
 					continue;
 
 				std::string extension = entry.path().extension().string();
 				if (!is_supported_file_format(extension))
 					continue;
 
-				PackageEntry content;
-				content.relative_path = fs::relative(entry.path(), source_dir).string();
-				content.uncompressed_size = entry.file_size();
+				package_entry content;
 
-				// Normalize path separators to forward slashes for cross-platform compatibility
-				for (char& c : content.relative_path)
+				// Store path with wildcard prefix: "[game]/images/sprite.png"
+				std::string rel_path_str = rel_path.string();
+				// Normalize path separators to forward slashes
+				for (char& c : rel_path_str)
 				{
 					if (c == '\\')
 						c = '/';
 				}
+				content.relative_path = wildcard + "/" + rel_path_str;
+				content.uncompressed_size = entry.file_size();
 
 				// Read file data
 				std::vector<std::byte> file_data = fileio::read_binary_file(entry.path().string());
@@ -201,7 +248,7 @@ namespace packager
 						content.relative_path, content.data.size());
 				}
 
-				package.entries.push_back(std::move(content));
+				pkg.entries.push_back(std::move(content));
 			}
 		}
 
@@ -216,10 +263,10 @@ namespace packager
 			}
 
 			cereal::BinaryOutputArchive cereal_archive(ofs);
-			cereal_archive(package);
+			cereal_archive(pkg);
 
 			log::info("Successfully wrote package with {} entries to: {}",
-				package.entries.size(), output_path);
+				pkg.entries.size(), output_path);
 
 			return true;
 		}
@@ -233,7 +280,7 @@ namespace packager
 	// ------------------------------------------------------------------------
 	// Package Loading - Load cross-platform packages created with create_package
 	// ------------------------------------------------------------------------
-	bool load_package(const std::string& package_path, Package& out_package)
+	bool load_package(const std::string& package_path, package& out_package)
 	{
 		try
 		{

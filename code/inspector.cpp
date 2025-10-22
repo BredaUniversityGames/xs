@@ -296,9 +296,14 @@ void xs::inspector::render(double dt)
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_ARCHIVE))
 		{
-			auto game_path = data::get_string("game", data::type::user);
-			if (!game_path.empty())
+			// Check if wildcards are defined
+			if (!fileio::has_wildcard("[game]"))
 			{
+				notify(notification_type::warning, "No game project loaded", 3.0f);
+			}
+			else
+			{
+				auto game_path = fileio::get_path("[game]");
 				auto save_path = pfd::save_file("Package Game", game_path, { "XS Game Package", "*.xs" }).result();
 				if (!save_path.empty())
 				{
@@ -308,13 +313,8 @@ void xs::inspector::render(double dt)
 
 					log::info("Packaging game to: {}", save_path);
 
-					// Package game content and shared resources
-					std::vector<std::string> source_dirs = {
-						game_path,
-						fileio::get_path("[shared]")
-					};
-
-					if (packager::create_package(source_dirs, save_path))
+					// Package game content and shared resources from wildcards
+					if (packager::create_package(save_path))
 					{
 						notify(notification_type::success, "Game packaged successfully!", 3.0f);
 						log::info("Game packaged successfully to: {}", save_path);
@@ -325,10 +325,6 @@ void xs::inspector::render(double dt)
 						log::error("Failed to package game content");
 					}
 				}
-			}
-			else
-			{
-				notify(notification_type::warning, "No game project loaded", 3.0f);
 			}
 		}
 		tooltip("Package Game");

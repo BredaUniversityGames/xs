@@ -22,24 +22,6 @@ namespace xs::fileio::internal
 {
 	map<string, string> wildcards;
 
-	// Package data - loaded once on startup
-	packager::Package loaded_package;
-	unordered_map<std::string, const packager::PackageEntry*> content_map;
-
-	// ------------------------------------------------------------------------
-	std::string game_content_path()
-	{
-		// Read game content from a text file
-		auto game_str = fileio::read_text_file("[games]/.ini");
-		if (game_str.empty())
-		{
-			log::error("Cannot load game, .ini file seems to be empty");
-			return {};
-		}
-
-		// Create package path from game content
-		return packager::make_package_path(fileio::get_path("[games]"), { game_str });
-	}
 	// ------------------------------------------------------------------------
 	// Load game package
 	void load_game_content_headers()
@@ -69,6 +51,9 @@ namespace xs::fileio::internal
 			log::info("Entry loaded: {}", entry.relative_path);
 		}
 	}
+	// Package data - loaded once on startup (will be populated later)
+	packager::package loaded_package;
+	unordered_map<std::string, const packager::package_entry*> content_map;
 }
 
 using namespace xs;

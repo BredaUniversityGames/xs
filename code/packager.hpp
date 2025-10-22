@@ -11,12 +11,19 @@ namespace xs::packager
 	// Package Format - Cross-platform serialization structures
 	// ------------------------------------------------------------------------
 
-	struct PackageEntry
+	struct package_entry
 	{
-		std::string relative_path;       // Relative path from content root
-		uint64_t uncompressed_size;      // Original file size
-		std::vector<std::byte> data;     // File data (compressed if is_compressed=true)
-		bool is_compressed;              // Whether data is zlib compressed
+		// Relative path from content root
+		std::string relative_path;       
+
+		// Relative path from content root
+		uint64_t uncompressed_size;      
+
+		// File data (compressed if is_compressed=true)
+		std::vector<std::byte> data;
+
+		// Whether data is zlib compressed
+		bool is_compressed;              
 
 		template<class Archive>
 		void serialize(Archive& ar)
@@ -25,9 +32,9 @@ namespace xs::packager
 		}
 	};
 
-	struct Package
-	{
-		std::vector<PackageEntry> entries;
+	struct package
+	{	
+		std::vector<package_entry> entries;
 
 		template<class Archive>
 		void serialize(Archive& ar)
@@ -37,20 +44,21 @@ namespace xs::packager
 	};
 
 	// Decompress a package entry if it's compressed, return the raw data
-	std::vector<std::byte> decompress_entry(const PackageEntry& entry);
+	std::vector<std::byte> decompress_entry(const package_entry& entry);
 
 	/*
 	* Create Package
 	*
-	* Simplified cross-platform package creation using cereal serialization.
-	* Accepts multiple source directories from anywhere on disk and creates a single package.
+	* Creates a cross-platform package using cereal serialization.
+	* Packages all files from the [game] and [shared] wildcards (if defined).
+	* Stores paths with wildcard prefixes (e.g., "[game]/script.wren").
+	* Automatically filters dotfiles and hidden directories.
 	*
-	* @param source_dirs - Vector of source directories to include in the package.
 	* @param output_path - The full path where the package should be written.
 	*
 	* @return True if the creation process is successful, false otherwise.
 	*/
-	bool create_package(const std::vector<std::string>& source_dirs, const std::string& output_path);
+	bool create_package(const std::string& output_path);
 
 	/*
 	* Load Package
@@ -63,7 +71,7 @@ namespace xs::packager
 	*
 	* @return True if successful, false otherwise.
 	*/
-	bool load_package(const std::string& package_path, Package& out_package);
+	bool load_package(const std::string& package_path, package& out_package);
 
 	/*
 	* Make Package Path
