@@ -1,6 +1,5 @@
 #include "exporter.hpp"
 #include "fileio.hpp"
-#include "resource_pipeline.hpp"
 #include "log.hpp"
 #include "types.hpp"
 #include "miniz.h"
@@ -8,6 +7,8 @@
 #include <fstream>
 #include <functional>
 #include <limits>
+#include <sstream>
+#include <unordered_set>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/string.hpp>
@@ -50,8 +51,83 @@ namespace archive_v2
 namespace exporter
 {
 	// ------------------------------------------------------------------------
+	// File Format Support
+	// ------------------------------------------------------------------------
+
+	namespace
+	{
+		const std::unordered_set<std::string>& supported_text_file_formats()
+		{
+			static std::unordered_set<std::string> file_formats =
+			{
+				".wren",		// scripting
+				".frag",		// shaders
+				".vert",		// shaders
+				".json",		// text
+				".txt"			// text
+			};
+			return file_formats;
+		}
+
+		const std::unordered_set<std::string>& supported_binary_file_formats()
+		{
+			static std::unordered_set<std::string> file_formats =
+			{
+				".ttf",			// fonts
+				".otf",			// fonts
+				".png",			// images
+				".bank",		// audio
+				".wav",			// audio
+				".mp3"			// audio
+			};
+			return file_formats;
+		}
+
+		std::string make_archive_name(const std::vector<std::string>& sub_dirs)
+		{
+			// Names that should not be included in the archive name when exported
+			static std::unordered_set<std::string> blacklist = { "shared" };
+
+			std::stringstream stream;
+
+			for (int i = 0; i < sub_dirs.size(); ++i)
+			{
+				if (blacklist.find(sub_dirs[i]) == blacklist.end())
+				{
+					stream << sub_dirs[i];
+
+					// If we are NOT processing the last element then add a "_"
+					if (i != sub_dirs.size() - 1)
+					{
+						stream << "_";
+					}
+				}
+			}
+
+			return stream.str();
+		}
+	}
+
+	bool is_text_file(const std::string& extension)
+	{
+		return supported_text_file_formats().find(extension) != supported_text_file_formats().end();
+	}
+
+	bool is_supported_file_format(const std::string& extension)
+	{
+		return supported_text_file_formats().find(extension) != supported_text_file_formats().end() ||
+		       supported_binary_file_formats().find(extension) != supported_binary_file_formats().end();
+	}
+
+	std::string make_archive_path(const std::string& root, const std::vector<std::string>& sub_dirs)
+	{
+		return root + "/" + make_archive_name(sub_dirs) + ".xs";
+	}
+
+	// ------------------------------------------------------------------------
 	// Archive Export - Cross-platform export using cereal
 	// ------------------------------------------------------------------------
+
 	bool export_archive(const std::vector<std::string>& source_dirs, const std::string& output_path)
 	{
 		archive_v2::ArchiveData archive;
@@ -76,7 +152,7 @@ namespace exporter
 					continue;
 
 				std::string extension = entry.path().extension().string();
-				if (!resource_pipeline::is_supported_file_format(extension))
+				if (!is_supported_file_format(extension))
 					continue;
 
 				archive_v2::ContentEntry content;
@@ -94,7 +170,7 @@ namespace exporter
 				blob file_data = fileio::read_binary_file(entry.path().string());
 
 				// Compress text files
-				if (resource_pipeline::is_text_file(extension))
+				if (is_text_file(extension))
 				{
 					unsigned long src_len = static_cast<unsigned long>(file_data.size());
 					unsigned long compressed_size = compressBound(src_len);

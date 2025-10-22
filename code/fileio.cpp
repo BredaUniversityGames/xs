@@ -7,7 +7,6 @@
 
 #include "log.hpp"
 #include "tools.hpp"
-#include "resource_pipeline.hpp"
 #include "exporter.hpp"
 #include "miniz.h"
 
@@ -39,7 +38,7 @@ namespace xs::fileio::internal
 		}
 
 		// Create archive path from game content
-		return resource_pipeline::make_archive_path(fileio::get_path("[games]"), { game_str });
+		return exporter::make_archive_path(fileio::get_path("[games]"), { game_str });
 	}
 	// ------------------------------------------------------------------------
 	// Load game archive
@@ -160,7 +159,7 @@ bool fileio::write_text_file(const string& text, const string& filename)
 		ofs.close();
 		return true;
 	}
-	return false;   // TODO: Warning?
+	return false;
 }
 
 void fileio::add_wildcard(const string& wildcard, const string& value)
@@ -196,8 +195,9 @@ bool fileio::exists(const string& filename)
 	const auto path = get_path(filename);
 
 	// Check if the file is stored in the archive
-	if (binary_content_headers.find(path) != binary_content_headers.cend() || text_content_headers.find(path) != text_content_headers.cend())
-		return true;
+	// TODO: re-enable this check when needed
+	// if (binary_content_headers.find(path) != binary_content_headers.cend() || text_content_headers.find(path) != text_content_headers.cend())
+	//	return true;
 
 	// Check if the file exists
 	ifstream f(path.c_str());

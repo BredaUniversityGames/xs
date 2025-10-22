@@ -109,9 +109,6 @@
     <ClCompile Include="platforms\pc\code\account_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\resource_pipeline.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="platforms\nx\code\account_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -355,9 +352,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\render.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\resource_pipeline.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\script.hpp">

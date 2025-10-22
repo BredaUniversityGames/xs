@@ -93,7 +93,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\resource_pipeline.cpp" />
     <ClCompile Include="platforms\nx\code\account_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
       </ExcludedFromBuild>
@@ -334,7 +333,6 @@
     <ClInclude Include="code\profiler.hpp" />
     <ClInclude Include="code\data.hpp" />
     <ClInclude Include="code\render.hpp" />
-    <ClInclude Include="code\resource_pipeline.hpp" />
     <ClInclude Include="code\script.hpp" />
     <ClInclude Include="code\tools.hpp" />
     <ClInclude Include="code\types.hpp" />

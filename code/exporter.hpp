@@ -67,5 +67,34 @@ namespace xs
 		* @return True if successful, false otherwise.
 		*/
 		bool load_archive(const std::string& archive_path, archive_v2::ArchiveData& out_archive);
+
+		/*
+		* Make Archive Path
+		*
+		* Generate a standard archive path from a root directory and optional subdirectories.
+		* The archive name is derived from the subdirectories (excluding "shared").
+		*
+		* @param root - Root directory where the archive will be placed.
+		* @param sub_dirs - Optional vector of subdirectory names to include in archive name.
+		*
+		* @return Full path to the archive file with .xs extension.
+		*/
+		std::string make_archive_path(const std::string& root, const std::vector<std::string>& sub_dirs = {});
+
+		/*
+		* Check if a file extension is a text file format that should be compressed.
+		*
+		* @param extension - File extension (e.g., ".wren", ".json")
+		* @return True if the extension is a text format.
+		*/
+		bool is_text_file(const std::string& extension);
+
+		/*
+		* Check if a file extension is supported for archiving.
+		*
+		* @param extension - File extension (e.g., ".png", ".wren")
+		* @return True if the extension is supported.
+		*/
+		bool is_supported_file_format(const std::string& extension);
 	}
 }

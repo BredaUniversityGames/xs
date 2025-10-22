@@ -112,9 +112,6 @@
 		34866F5E2B28933E0025F40C /* libfmodL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmodL.dylib */; };
 		34866F5F2B28933E0025F40C /* libfmodL.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmodL.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		3486CA662B94CC3200E9A3B8 /* cooker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA632B94CC3200E9A3B8 /* cooker.cpp */; };
-		3486CA682B94CC3200E9A3B8 /* resource_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */; };
-		3486CA6D2B94DF8B00E9A3B8 /* resource_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */; };
-		3486CA6E2B94DF8C00E9A3B8 /* resource_pipeline.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */; };
 		3486CA6F2B94DF9000E9A3B8 /* cooker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA632B94CC3200E9A3B8 /* cooker.cpp */; };
 		3486CA702B94DF9000E9A3B8 /* cooker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA632B94CC3200E9A3B8 /* cooker.cpp */; };
 		3486CA8B2B94DFCF00E9A3B8 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 3486CA722B94DFCF00E9A3B8 /* LICENSE */; };
@@ -354,9 +351,7 @@
 		34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmodstudioL.dylib; path = external/fmod/lib/mac/libfmodstudioL.dylib; sourceTree = "<group>"; };
 		34866F5B2B28933E0025F40C /* libfmodL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmodL.dylib; path = external/fmod/lib/mac/libfmodL.dylib; sourceTree = "<group>"; };
 		3486CA632B94CC3200E9A3B8 /* cooker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cooker.cpp; sourceTree = "<group>"; };
-		3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = resource_pipeline.cpp; sourceTree = "<group>"; };
 		3486CA692B94CCD900E9A3B8 /* resources.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = resources.hpp; sourceTree = "<group>"; };
-		3486CA6A2B94CCD900E9A3B8 /* resource_pipeline.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = resource_pipeline.hpp; sourceTree = "<group>"; };
 		3486CA6B2B94CCD900E9A3B8 /* cooker.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = cooker.hpp; sourceTree = "<group>"; };
 		3486CA6C2B94CCD900E9A3B8 /* types.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = types.hpp; sourceTree = "<group>"; };
 		3486CA722B94DFCF00E9A3B8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
@@ -1007,7 +1002,6 @@
 			isa = PBXGroup;
 			children = (
 				3486CA6B2B94CCD900E9A3B8 /* cooker.hpp */,
-				3486CA6A2B94CCD900E9A3B8 /* resource_pipeline.hpp */,
 				3486CA692B94CCD900E9A3B8 /* resources.hpp */,
 				3486CA6C2B94CCD900E9A3B8 /* types.hpp */,
 				346E73412A4A29D5006ECAD5 /* input.hpp */,
@@ -1026,7 +1020,6 @@
 				346E73512A4A29D5006ECAD5 /* profiler.hpp */,
 				346E73522A4A29D5006ECAD5 /* render.hpp */,
 				3486CA632B94CC3200E9A3B8 /* cooker.cpp */,
-				3486CA652B94CC3200E9A3B8 /* resource_pipeline.cpp */,
 				346E737C2A4A29D5006ECAD5 /* render.cpp */,
 				346E737E2A4A29D5006ECAD5 /* log.cpp */,
 				346E737F2A4A29D5006ECAD5 /* profiler.cpp */,
@@ -2280,7 +2273,6 @@
 				34EB6F662A4C6EE900DA6B15 /* wren_vm.c in Sources */,
 				3486CA932B94DFCF00E9A3B8 /* miniz.c in Sources */,
 				34EB6F962A4C706C00DA6B15 /* render_apple.mm in Sources */,
-				3486CA682B94CC3200E9A3B8 /* resource_pipeline.cpp in Sources */,
 				346E73C22A4A29D5006ECAD5 /* main.m in Sources */,
 				3435D9ED2A968ADA00335383 /* fileio_apple.mm in Sources */,
 				34EB6F982A4C721B00DA6B15 /* input_apple.mm in Sources */,
@@ -2297,7 +2289,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				346E73E42A4A29D5006ECAD5 /* script.cpp in Sources */,
-				3486CA6D2B94DF8B00E9A3B8 /* resource_pipeline.cpp in Sources */,
 				3486CA992B94DFFE00E9A3B8 /* miniz_tinfl.c in Sources */,
 				34EB6F702A4C6EEA00DA6B15 /* wren_core.c in Sources */,
 				344B227A2B1D15DE004B1EA2 /* inspector.cpp in Sources */,
@@ -2355,7 +2346,6 @@
 				346E73E22A4A29D5006ECAD5 /* profiler.cpp in Sources */,
 				3474D6392B14DFC000441451 /* imgui_demo.cpp in Sources */,
 				346E73DF2A4A29D5006ECAD5 /* log.cpp in Sources */,
-				3486CA6E2B94DF8C00E9A3B8 /* resource_pipeline.cpp in Sources */,
 				346E73AF2A4A29D5006ECAD5 /* AppDelegate.m in Sources */,
 				346E74122A4A29D5006ECAD5 /* configuration.cpp in Sources */,
 				3474D5F72B14DFC000441451 /* imgui_stdlib.cpp in Sources */,
