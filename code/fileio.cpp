@@ -23,7 +23,7 @@ namespace xs::fileio::internal
 {
 	map<string, string> wildcards;
 
-	// V2 Archive data - loaded once on startup
+	// Archive data - loaded once on startup
 	archive_v2::ArchiveData loaded_archive;
 	unordered_map<std::string, const archive_v2::ContentEntry*> content_map;
 
@@ -42,7 +42,7 @@ namespace xs::fileio::internal
 		return resource_pipeline::make_archive_path(fileio::get_path("[games]"), { game_str });
 	}
 	// ------------------------------------------------------------------------
-	// Load game archive using V2 format
+	// Load game archive
 	void load_game_content_headers()
 	{
 		std::string archive_path = game_content_path();
@@ -53,7 +53,7 @@ namespace xs::fileio::internal
 			return;
 		}
 
-		// Load archive using V2 format
+		// Load archive
 		if (!exporter::load_archive(archive_path, loaded_archive))
 		{
 			log::error("Failed to load game archive");

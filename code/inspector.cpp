@@ -308,7 +308,7 @@ void xs::inspector::render(double dt)
 
 					log::info("Exporting game to: {}", save_path);
 
-					// Export game content and shared resources using V2 format
+					// Export game content and shared resources
 					std::vector<std::string> source_dirs = {
 						game_path,
 						fileio::get_path("[shared]")
