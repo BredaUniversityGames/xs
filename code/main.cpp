@@ -6,6 +6,8 @@
 // CLI support for PC and Mac only
 #if defined(PLATFORM_PC) || defined(PLATFORM_MAC)
 #include "../external/argparse/argparse.hpp"
+#include "packager.hpp"
+#include "fileio.hpp"
 #include <iostream>
 #include <filesystem>
 #endif
@@ -86,9 +88,38 @@ int xs::main(int argc, char* argv[])
 		std::string input = package_cmd.get<std::string>("input");
 		std::string output = package_cmd.get<std::string>("output");
 
-		// TODO: Implement packaging (Step 6)
+		// Initialize fileio with input path to set up [game] wildcard
+		// This is needed for packager to find the files
+		xs::initialize(input);
+
+		// Generate output path if not provided
+		if (output.empty()) {
+			std::filesystem::path input_path(input);
+			std::string folder_name = input_path.filename().string();
+			if (folder_name.empty()) {
+				// Handle case like "." or paths ending with /
+				folder_name = input_path.parent_path().filename().string();
+			}
+			if (folder_name.empty()) {
+				folder_name = "game";
+			}
+			output = folder_name + ".xs";
+		}
+
 		std::cout << "Packaging: " << input << " -> " << output << std::endl;
-		std::cout << "Package command not yet implemented" << std::endl;
+
+		// Create the package
+		bool success = xs::packager::create_package(output);
+
+		if (success) {
+			std::cout << "Package created successfully: " << output << std::endl;
+		} else {
+			std::cerr << "Failed to create package" << std::endl;
+			xs::shutdown();
+			return 1;
+		}
+
+		xs::shutdown();
 		return 0;
 	}
 	else {
