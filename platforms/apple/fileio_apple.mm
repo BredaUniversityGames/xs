@@ -14,41 +14,52 @@ namespace xs::fileio::internal
     extern std::map<std::string, std::string> wildcards;
 }
 
-void fileio::initialize()
+void fileio::initialize(const std::string& game_path)
 {
     NSArray* docs_paths_oc = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString* docs_path_oc  = [docs_paths_oc objectAtIndex:0];
-    
+
     // NSArray* user_paths_oc = NSSearchPathForDirectoriesInDomains(NSUserDirectory, NSUserDomainMask, YES);
     // NSString* user_path_oc = [user_paths_oc objectAtIndex:0];
-    
+
 #if defined(DEBUG) && defined(PLATFORM_MAC)
     NSString* project_path_oc = PROJECT_DIR;  // Define from a macro
 #else
     NSString* project_path_oc = [[NSBundle mainBundle] resourcePath];
 #endif
-    
+
     // Shared
     string project_path = [project_path_oc UTF8String];
     auto shared_path = project_path + "/assets";
     fileio::internal::wildcards["[shared]"] = shared_path;
-    
+
     // Save
     string docs_path_c = [docs_path_oc UTF8String];
     string docs_path = string(docs_path_c);
     fileio::internal::wildcards["[save]"] = docs_path;
-    
+
     // User
     NSString* user_path_oc = @"~/Library/Preferences/xs";
     string user_path = [user_path_oc.stringByExpandingTildeInPath UTF8String];
-    
+
     if(!filesystem::exists(user_path))
         filesystem::create_directory(user_path);
     fileio::internal::wildcards["[user]"] = [@"~/Library/Preferences/xs".stringByExpandingTildeInPath UTF8String];
-    
-    // Load the engine user settings json (if any) and find the game folder
+
+    // Determine game folder path
+    // Priority: CLI argument > settings.json > default sample
     bool success = false;
-    if (exists("[user]/settings.json"))
+
+    // 1. Use CLI-provided game path if available
+    if (!game_path.empty())
+    {
+        string resolved_path = fileio::absolute(game_path);
+        add_wildcard("[game]", resolved_path);
+        log::info("Game folder (from CLI): {} ", resolved_path);
+        success = true;
+    }
+    // 2. Load from engine user settings json (if any)
+    else if (exists("[user]/settings.json"))
     {
         auto settings_str = read_text_file("[user]/settings.json");
         if (!settings_str.empty())
@@ -64,7 +75,7 @@ void fileio::initialize()
                 if (!game_folder.empty())
                 {
                     add_wildcard("[game]", game_folder);
-                    log::info("Game folder {} ", game_folder);
+                    log::info("Game folder (from settings): {} ", game_folder);
                     success = true;
                 }
             }
@@ -74,7 +85,9 @@ void fileio::initialize()
             log::warn("Could not read the user settings.json file.");
         }
     }
-    else
+
+    // 3. Fallback to default sample
+    if (!success)
     {
         log::warn("Could not find the user settings.json file.");
         log::info("Loading xs sample and creating settings file.");

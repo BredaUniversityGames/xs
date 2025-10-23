@@ -24,7 +24,7 @@ namespace xs::fileio::internal
 	extern map<string, string> wildcards;	
 }
 
-void fileio::initialize()
+void fileio::initialize(const std::string& game_path)
 {
 	// Get the engine user path [user]
 	char* pValue;
@@ -35,7 +35,7 @@ void fileio::initialize()
 		string xs_user_path = string(pValue) + string("\\xs");
 		if (!fs::exists(xs_user_path))
 			fs::create_directory(xs_user_path);
-		internal::wildcards["[user]"] = xs_user_path;		
+		internal::wildcards["[user]"] = xs_user_path;
 	}
 	else
 	{
@@ -50,16 +50,27 @@ void fileio::initialize()
 		fs::create_directory(game_save_path);
 	internal::wildcards["[save]"] = game_save_path;
 
-	// Load the engine user settings json (if any) and find the game folder
+	// Determine game folder path
+	// Priority: CLI argument > settings.json > default sample
 	bool success = false;
-	if (exists("[user]/settings.json"))
+
+	// 1. Use CLI-provided game path if available
+	if (!game_path.empty())
+	{
+		string resolved_path = fileio::absolute(game_path);
+		add_wildcard("[game]", resolved_path);
+		log::info("Game folder (from CLI): {} ", resolved_path);
+		success = true;
+	}
+	// 2. Load from engine user settings json (if any)
+	else if (exists("[user]/settings.json"))
 	{
 		auto settings_str = read_text_file("[user]/settings.json");
 		if (!settings_str.empty())
 		{
 			auto settings = nlohmann::json::parse(settings_str);
 			auto game_json = settings["game"];
-			auto type_json = game_json["type"];			
+			auto type_json = game_json["type"];
 			auto value_json = game_json["value"];
 
 			if (type_json.is_string() && value_json.is_string())
@@ -68,16 +79,18 @@ void fileio::initialize()
 				if (!game_folder.empty())
 				{
 					add_wildcard("[game]", game_folder);
-					log::info("Game folder {} ", game_folder);
+					log::info("Game folder (from settings): {} ", game_folder);
 					success = true;
 				}
-			}					
+			}
 		}
 		else
 		{
 			log::warn("Could not read the user settings.json file.");
 		}
 	}
+
+	// 3. Fallback to default sample
 	if (!success)
 	{
 		log::warn("Could not find the user settings.json file.");

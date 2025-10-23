@@ -66,6 +66,7 @@ int xs::main(int argc, char* argv[])
 	}
 
 	// Determine which subcommand was used
+	std::string game_path;
 	if (program.is_subcommand_used("run")) {
 		std::string path = run_cmd.get<std::string>("path");
 
@@ -73,10 +74,11 @@ int xs::main(int argc, char* argv[])
 		std::filesystem::path fs_path(path);
 		if (fs_path.extension() == ".xs") {
 			xs::set_run_mode(xs::run_mode::packaged);
-			// TODO: Set package path for fileio (Step 5)
+			// TODO: Handle .xs package loading (future work)
+			game_path = path;
 		} else {
 			xs::set_run_mode(xs::run_mode::development);
-			// TODO: Set game path for fileio (Step 5)
+			game_path = path;
 		}
 	}
 	else if (program.is_subcommand_used("package")) {
@@ -92,14 +94,15 @@ int xs::main(int argc, char* argv[])
 	else {
 		// No subcommand - default to running current directory
 		xs::set_run_mode(xs::run_mode::development);
-		// TODO: Set game path to current directory (Step 5)
+		game_path = ".";
 	}
 #else
 	// Console platforms - always run in packaged mode
 	xs::set_run_mode(xs::run_mode::packaged);
+	std::string game_path;
 #endif
 
-	xs::initialize();
+	xs::initialize(game_path);
     auto prev_time = chrono::high_resolution_clock::now();
     while (!device::should_close())
     {

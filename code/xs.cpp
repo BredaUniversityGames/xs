@@ -26,11 +26,11 @@ run_mode xs::get_run_mode()
 	return s_run_mode;
 }
 
-void xs::initialize()
+void xs::initialize(const std::string& game_path)
 {
 	log::initialize();
 	account::initialize();
-	fileio::initialize();
+	fileio::initialize(game_path);
 	data::initialize();
 	script::configure();
 

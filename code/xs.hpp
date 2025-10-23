@@ -12,7 +12,7 @@ namespace xs
 	void set_run_mode(run_mode mode);
 	run_mode get_run_mode();
 
-	void initialize();
+	void initialize(const std::string& game_path = "");
 	void shutdown();
 	void update(double dt);
 }
