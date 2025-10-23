@@ -14,6 +14,18 @@ using namespace xs;
 #include "packager.hpp"
 #include "tools.hpp"
 
+static run_mode s_run_mode = run_mode::development;
+
+void xs::set_run_mode(run_mode mode)
+{
+	s_run_mode = mode;
+}
+
+run_mode xs::get_run_mode()
+{
+	return s_run_mode;
+}
+
 void xs::initialize()
 {
 	log::initialize();
