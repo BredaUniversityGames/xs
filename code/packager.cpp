@@ -305,9 +305,7 @@ namespace packager
 		}
 	}
 
-	// ------------------------------------------------------------------------
 	// Package Loading - Load cross-platform packages created with create_package
-	// ------------------------------------------------------------------------
 	bool load_package(const std::string& package_path, package& out_package)
 	{
 		try
