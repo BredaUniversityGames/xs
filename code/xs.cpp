@@ -33,44 +33,97 @@ void xs::initialize()
 	fileio::initialize();
 	data::initialize();
 	script::configure();
-	device::initialize();
-	render::initialize();
-	input::initialize();
-	audio::initialize();
-	inspector::initialize();
-	script::initialize();
+
+	auto mode = get_run_mode();
+
+	// Packaging mode: skip all windowing/rendering/game systems
+	if (mode != run_mode::packaging)
+	{
+		device::initialize();
+		render::initialize();
+		input::initialize();
+		audio::initialize();
+	}
+
+	// Inspector in development and packaged modes (packaged shows limited UI)
+	// In release builds, inspector is not compiled anyway
+	if (mode != run_mode::packaging)
+	{
+		inspector::initialize();
+	}
+
+	// Script VM only needed for running games
+	if (mode != run_mode::packaging)
+	{
+		script::initialize();
+	}
 }
 
 void xs::shutdown()
 {
-	inspector::shutdown();
-	audio::shutdown();
-	input::shutdown();
-	render::shutdown();
-	device::shutdown();
-	script::shutdown();
+	auto mode = get_run_mode();
+
+	// Inspector in development and packaged modes
+	if (mode != run_mode::packaging)
+	{
+		inspector::shutdown();
+	}
+
+	// Shutdown systems that were initialized
+	if (mode != run_mode::packaging)
+	{
+		audio::shutdown();
+		input::shutdown();
+		render::shutdown();
+		device::shutdown();
+		script::shutdown();
+	}
+
 	account::shutdown();
 	data::shutdown();
 }
 
 void xs::update(double dt)
 {
+	auto mode = get_run_mode();
+
+	// Packaging mode shouldn't reach here, but safety check
+	if (mode == run_mode::packaging)
+	{
+		return;
+	}
+
 	device::poll_events();
 	input::update(dt);
-	if (!inspector::paused())
+
+	// Development mode: respect inspector pause state
+	// Packaged mode: always update (no pause functionality)
+	bool should_update = (mode == run_mode::development) ? !inspector::paused() : true;
+
+	if (should_update)
 	{
 		render::clear();
 		script::update(dt);
 		audio::update(dt);
 		script::render();
 	}
+
 	device::begin_frame();
 	render::render();
-	inspector::render(dt);
-	device::end_frame();
-	if (inspector::should_restart())
+
+	// Inspector in both development and packaged modes
+	// Inspector will internally show limited UI based on run_mode
+	if (mode != run_mode::packaging)
 	{
-		shutdown();
-		initialize();
+		inspector::render(dt);
+
+		// Restart only available in development mode
+		if (mode == run_mode::development && inspector::should_restart())
+		{
+			shutdown();
+			initialize();
+		}
 	}
+
+	device::end_frame();
 }
