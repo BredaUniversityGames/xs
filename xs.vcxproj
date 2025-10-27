@@ -109,6 +109,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="code\audio.cpp" />
+    <ClCompile Include="code\simple_audio.cpp" />
     <ClCompile Include="code\configuration.cpp" />
     <ClCompile Include="code\device.cpp" />
     <ClCompile Include="platforms\pc\code\device_pc.cpp">
@@ -314,6 +315,7 @@
     <ClInclude Include="external\imgui\imgui_impl.h" />
     <ClInclude Include="external\imgui\imgui_internal.h" />
     <ClInclude Include="code\audio.hpp" />
+    <ClInclude Include="code\simple_audio.hpp" />
     <ClInclude Include="code\color.hpp" />
     <ClInclude Include="code\configuration.hpp" />
     <ClInclude Include="code\exporter.hpp">
