@@ -1,5 +1,6 @@
 #include "xs.hpp"
 #include "device.hpp"
+#include "log.hpp"
 #include <chrono>
 #include "main.hpp"
 
@@ -106,15 +107,15 @@ int xs::main(int argc, char* argv[])
 			output = folder_name + ".xs";
 		}
 
-		std::cout << "Packaging: " << input << " -> " << output << std::endl;
+		xs::log::info("Packaging: {} -> {}", input, output);
 
 		// Create the package
 		bool success = xs::packager::create_package(output);
 
 		if (success) {
-			std::cout << "Package created successfully: " << output << std::endl;
+			xs::log::info("Package created successfully: {}", output);
 		} else {
-			std::cerr << "Failed to create package" << std::endl;
+			xs::log::error("Failed to create package");
 			xs::shutdown();
 			return 1;
 		}

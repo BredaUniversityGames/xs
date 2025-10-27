@@ -355,7 +355,7 @@ int render::load_shape(const std::string& shape_file)
 		return -1;
 	}
 
-	printf("SVG size: %f x %f\n", image->width, image->height);
+	xs::log::info("SVG size: {} x {}", image->width, image->height);
 
 	// Calculate bounds for the entire shape
 	float min_x = FLT_MAX, min_y = FLT_MAX;
