@@ -21,6 +21,7 @@
 #include "configuration.hpp"
 #include "fileio.hpp"
 #include "audio.hpp"
+#include "simple_audio.hpp"
 #include "device.hpp"
 #include "inspector.hpp"
 #include "color.hpp"
@@ -959,6 +960,56 @@ void audio_set_parameter_label(WrenVM* vm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// SimpleAudio
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+void simple_audio_load(WrenVM* vm)
+{
+    callFunction_returnType_args<int, string>(vm, xs::simple_audio::load);
+}
+
+void simple_audio_play(WrenVM* vm)
+{
+    // Check if volume parameter is provided
+    int num_args = wrenGetSlotCount(vm);
+    if (num_args >= 3)
+    {
+        // play(audio_id, volume)
+        callFunction_returnType_args<int, int, double>(vm, xs::simple_audio::play);
+    }
+    else
+    {
+        // play(audio_id)
+        callFunction_returnType_args<int, int>(vm, xs::simple_audio::play);
+    }
+}
+
+void simple_audio_set_volume(WrenVM* vm)
+{
+    callFunction_args<int, double>(vm, xs::simple_audio::set_volume);
+}
+
+void simple_audio_get_volume(WrenVM* vm)
+{
+    callFunction_returnType_args<double, int>(vm, xs::simple_audio::get_volume);
+}
+
+void simple_audio_stop(WrenVM* vm)
+{
+    callFunction_args<int>(vm, xs::simple_audio::stop);
+}
+
+void simple_audio_stop_all(WrenVM* vm)
+{
+    xs::simple_audio::stop_all();
+}
+
+void simple_audio_is_playing(WrenVM* vm)
+{
+    callFunction_returnType_args<bool, int>(vm, xs::simple_audio::is_playing);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // Data
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1122,6 +1173,16 @@ void xs::script::bind_api()
     bind("xs", "Audio", true, "startEvent(_)", audio_start_event);
     bind("xs", "Audio", true, "setParameterNumber(_,_,_)", audio_set_parameter_number);
     bind("xs", "Audio", true, "setParameterLabel(_,_,_)", audio_set_parameter_label);
+
+    // SimpleAudio
+    bind("xs", "SimpleAudio", true, "load(_)", simple_audio_load);
+    bind("xs", "SimpleAudio", true, "play(_)", simple_audio_play);
+    bind("xs", "SimpleAudio", true, "play(_,_)", simple_audio_play);
+    bind("xs", "SimpleAudio", true, "setVolume(_,_)", simple_audio_set_volume);
+    bind("xs", "SimpleAudio", true, "getVolume(_)", simple_audio_get_volume);
+    bind("xs", "SimpleAudio", true, "stop(_)", simple_audio_stop);
+    bind("xs", "SimpleAudio", true, "stopAll()", simple_audio_stop_all);
+    bind("xs", "SimpleAudio", true, "isPlaying(_)", simple_audio_is_playing);
 
     // Data
     bind("xs", "Data", true, "getNumber(_,_)", data_get_number);
