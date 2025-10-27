@@ -373,6 +373,32 @@ class Audio {
     static groupMusic  { 2 }
 }
 
+class SimpleAudio {
+    /// Load an audio file and return an audio id
+    foreign static load(path)
+    
+    /// Play a loaded audio file with default volume (1.0)
+    foreign static play(audioId)
+    
+    /// Play a loaded audio file with specified volume (0.0 to 1.0)
+    foreign static play(audioId, volume)
+    
+    /// Set the volume of a playing channel (0.0 to 1.0)
+    foreign static setVolume(channelId, volume)
+    
+    /// Get the volume of a playing channel
+    foreign static getVolume(channelId)
+    
+    /// Stop a playing channel
+    foreign static stop(channelId)
+    
+    /// Stop all playing channels
+    foreign static stopAll()
+    
+    /// Check if a channel is currently playing
+    foreign static isPlaying(channelId)
+}
+
 class Data {
     static getNumber(name) { getNumber(name, game) }
     static getColor(name)  { getColor(name, game) }
