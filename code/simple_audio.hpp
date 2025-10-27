@@ -12,7 +12,7 @@ namespace xs::simple_audio
 	/// Update the audio system (called once per frame)
 	void update(double dt);
 
-	/// Load an audio file (WAV, MP3, OGG, etc.)
+	/// Load an audio file (WAV format)
 	/// Returns an audio ID that can be used to play the sound, or -1 on error
 	int load(const std::string& filename);
 
