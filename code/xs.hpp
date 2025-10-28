@@ -5,8 +5,8 @@ namespace xs
 {
 	enum class run_mode
 	{
-		development,  // Run project folder with editor UI
-		packaged,     // Run .xs package (no editor UI)
+		development,  // Run project folder 
+		packaged,     // Run .xs package
 		packaging     // Package creation (no window/rendering)
 	};
 

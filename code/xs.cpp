@@ -175,31 +175,20 @@ void xs::shutdown()
 
 void xs::update(double dt)
 {
-	auto mode = get_run_mode();
-
 	device::poll_events();
 	input::update(dt);
 
-	// Development mode: respect inspector pause state
-	// Packaged mode: always update (no pause functionality)
-	bool should_update = (mode == run_mode::development) ? !inspector::paused() : true;
-
-	render::clear();
-	script::update(dt);
-	audio::update(dt);
-	script::render();
-	device::begin_frame();
-	render::render();
-
-	inspector::render(dt);
-
-	// Restart only available in development mode
-	if (mode == run_mode::development && inspector::should_restart())
+	if (!inspector::paused())
 	{
-		shutdown();
-		initialize();
+		render::clear();
+		script::update(dt);
+		audio::update(dt);
+		script::render();
 	}
 
+	device::begin_frame();
+	render::render();
+	inspector::render(dt);
 	device::end_frame();
 }
 
