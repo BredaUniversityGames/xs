@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vld.h>
 
 namespace xs
 {

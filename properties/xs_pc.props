@@ -7,10 +7,10 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)external/steam;$(SolutionDir)platforms\pc\external\SDL3\include;$(SolutionDir)platforms\pc\code;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external/steam;$(SolutionDir)platforms\pc\external\SDL3\include;$(SolutionDir)platforms\pc\code;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(SolutionDir)platforms\pc\external\SDL3\lib\x64;$(SolutionDir)platforms\pc\external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Visual Leak Detector\lib\Win64;$(SolutionDir)platforms\pc\external\SDL3\lib\x64;$(SolutionDir)platforms\pc\external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL3.lib;opengl32.lib;fmod/lib/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/fmod$(FMODSuffix)_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
