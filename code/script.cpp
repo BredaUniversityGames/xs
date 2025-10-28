@@ -970,18 +970,7 @@ void simple_audio_load(WrenVM* vm)
 
 void simple_audio_play(WrenVM* vm)
 {
-    // Check if volume parameter is provided
-    int num_args = wrenGetSlotCount(vm);
-    if (num_args >= 3)
-    {
-        // play(audio_id, volume)
-        callFunction_returnType_args<int, int, double>(vm, xs::simple_audio::play);
-    }
-    else
-    {
-        // play(audio_id)
-        callFunction_returnType_args<int, int>(vm, xs::simple_audio::play);
-    }
+    callFunction_returnType_args<double, int, double>(vm, xs::simple_audio::play);
 }
 
 void simple_audio_set_volume(WrenVM* vm)
@@ -1176,7 +1165,6 @@ void xs::script::bind_api()
 
     // SimpleAudio
     bind("xs", "SimpleAudio", true, "load(_)", simple_audio_load);
-    bind("xs", "SimpleAudio", true, "play(_)", simple_audio_play);
     bind("xs", "SimpleAudio", true, "play(_,_)", simple_audio_play);
     bind("xs", "SimpleAudio", true, "setVolume(_,_)", simple_audio_set_volume);
     bind("xs", "SimpleAudio", true, "getVolume(_)", simple_audio_get_volume);

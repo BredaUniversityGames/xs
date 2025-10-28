@@ -72,8 +72,8 @@ class Game {
     
     static render() {
         // Background gradient
-        var fromColor = Color.fromHex(0x1a1a2e)
-        var toColor = Color.fromHex(0x16213e)
+        var fromColor = Color.fromNum(0x1a1a2e)
+        var toColor = Color.fromNum(0x16213e)
         
         for(i in 0...16) {
             var x = (i + 1) * -128 + 640
@@ -102,7 +102,7 @@ class Game {
         
         // Volume indicator
         y = y + lineHeight * 2
-        var volumeText = "Volume: %((__volume * 100).floor)%%"
+        var volumeText = "Volume:"  + (__volume * 100).floor.toString
         Render.text(__font, volumeText, 0, y, 1, 0xffd700ff, 0x00000000, Render.spriteCenterX)
         
         // Volume bar

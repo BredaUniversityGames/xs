@@ -375,13 +375,15 @@ class Audio {
 
 class SimpleAudio {
     /// Load an audio file and return an audio id
-    foreign static load(path)
-    
-    /// Play a loaded audio file with default volume (1.0)
-    foreign static play(audioId)
+    foreign static load(path)    
     
     /// Play a loaded audio file with specified volume (0.0 to 1.0)
     foreign static play(audioId, volume)
+
+    /// Play a loaded audio file with default volume (1.0)
+    static play(audioId) {
+        return play(audioId, 1.0)
+    }
     
     /// Set the volume of a playing channel (0.0 to 1.0)
     foreign static setVolume(channelId, volume)
