@@ -145,9 +145,6 @@
     <ClCompile Include="code\log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="platforms\opengl\code\opengl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -197,6 +194,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="platforms\nx\code\main_switch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="platforms\pc\code\main_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -391,9 +391,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\imgui\imgui_internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\main.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platforms\opengl\code\platform_opengl.hpp">

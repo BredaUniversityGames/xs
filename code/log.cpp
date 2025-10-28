@@ -1,5 +1,6 @@
 #include "log.hpp"
 #include "version.hpp"
+#include "xs.hpp"
 
 #if defined(PLATFORM_PC)
 #include <windows.h>
@@ -7,6 +8,25 @@
 
 // UTF-8 - Modern terminals with emoji and unicode
 #ifdef USE_UTF8_LOG
+
+namespace
+{
+    std::string get_mode_name()
+    {
+		auto mode = xs::get_run_mode();
+        switch (mode)
+        {
+        case xs::run_mode::development:
+            return "development";
+        case xs::run_mode::packaged:
+            return "packaged";
+        case xs::run_mode::packaging:
+            return "packaging";
+        default:
+            return "unknown";
+        }
+    }
+}
 
 void xs::log::initialize()
 {
@@ -20,7 +40,7 @@ void xs::log::initialize()
     printf("\n");
     printf("\033[38;5;208m╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\033[0m\n");
     printf("\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n");
-    printf("\033[38;5;208m│\033[0m  \033[38;5;208m▀▄▀ █▀▀\033[0m   v-%-81s   \033[38;5;208m│\033[0m\n", xs::version::version_string.c_str());
+    printf("\033[38;5;208m│\033[0m  \033[38;5;208m▀▄▀ █▀▀\033[0m   v-%s:%-65s  \033[38;5;208m│\033[0m\n", xs::version::version_string.c_str(), ::get_mode_name().c_str());
     printf("\033[38;5;208m│\033[0m  \033[38;5;208m█ █ ▄▄█\033[0m   🧡 Breda University of Applied Sciences                                               \033[38;5;208m│\033[0m\n");
     printf("\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n");
     printf("\033[38;5;208m╰──────────────────────────────────────────────────────────────────────────────────────────────────╯\033[0m\n");
