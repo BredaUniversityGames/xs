@@ -5,20 +5,27 @@ class Game {
     static initialize() {
         System.print("Audio Sample - Initializing")
         
-        // Load audio files
+        // Load audio files in different formats
         __beep = SimpleAudio.load("[game]/sounds/beep.wav")
         __boop = SimpleAudio.load("[game]/sounds/boop.wav")
         __click = SimpleAudio.load("[game]/sounds/click.wav")
+        
+        // Load music in different compressed formats
+        __musicWav = SimpleAudio.load("[game]/sounds/music.wav")
+        __musicOgg = SimpleAudio.load("[game]/sounds/music.ogg")
+        __musicFlac = SimpleAudio.load("[game]/sounds/music.flac")
         
         // Load visuals
         var image = Render.loadImage("[shared]/images/white.png")
         __sprite = Render.createSprite(image, 0, 0, 1, 1)
         __font = Render.loadFont("[shared]/fonts/selawk.ttf", 32)
+        __smallFont = Render.loadFont("[shared]/fonts/selawk.ttf", 24)
         
         // Initialize state
         __time = 0
         __channel = -1
         __volume = 0.8
+        __currentFormat = "none"
     }
     
     static update(dt) {
@@ -28,16 +35,38 @@ class Game {
         if (Input.getKeyOnce(Input.keySpace)) {
             __channel = SimpleAudio.play(__beep, __volume)
             System.print("Playing beep on channel %(__channel)")
+            __currentFormat = "WAV"
         }
         
         if (Input.getKeyOnce(Input.keyB)) {
             __channel = SimpleAudio.play(__boop, __volume)
             System.print("Playing boop on channel %(__channel)")
+            __currentFormat = "WAV"
         }
         
         if (Input.getKeyOnce(Input.keyC)) {
             __channel = SimpleAudio.play(__click, __volume)
             System.print("Playing click on channel %(__channel)")
+            __currentFormat = "WAV"
+        }
+        
+        // Music playback in different formats
+        if (Input.getKeyOnce(Input.keyW)) {
+            __channel = SimpleAudio.play(__musicWav, __volume)
+            System.print("Playing music.WAV on channel %(__channel)")
+            __currentFormat = "WAV"
+        }
+        
+        if (Input.getKeyOnce(Input.keyO)) {
+            __channel = SimpleAudio.play(__musicOgg, __volume)
+            System.print("Playing music.OGG on channel %(__channel)")
+            __currentFormat = "OGG"
+        }
+        
+        if (Input.getKeyOnce(Input.keyF)) {
+            __channel = SimpleAudio.play(__musicFlac, __volume)
+            System.print("Playing music.FLAC on channel %(__channel)")
+            __currentFormat = "FLAC"
         }
         
         // Volume control
@@ -60,6 +89,7 @@ class Game {
             if (__channel >= 0) {
                 SimpleAudio.stop(__channel)
                 System.print("Stopped channel %(__channel)")
+                __currentFormat = "none"
             }
         }
         
@@ -67,6 +97,7 @@ class Game {
         if (Input.getKeyOnce(Input.keyA)) {
             SimpleAudio.stopAll()
             System.print("Stopped all sounds")
+            __currentFormat = "none"
         }
     }
     
@@ -83,27 +114,29 @@ class Game {
         }
         
         // Title
-        Render.text(__font, "SimpleAudio Sample", 0, -280, 1, 0xeaeaeaff, 0x00000000, Render.spriteCenterX)
+        Render.text(__font, "SimpleAudio Sample - Multi-Format", 0, -300, 1, 0xeaeaeaff, 0x00000000, Render.spriteCenterX)
         
         // Instructions
-        var y = -180
-        var lineHeight = 45
-        Render.text(__font, "Press SPACE to play beep", 0, y, 1, 0xccccccff, 0x00000000, Render.spriteCenterX)
+        var y = -220
+        var lineHeight = 38
+        Render.text(__smallFont, "Short Sounds (WAV):", 0, y, 1, 0xffd700ff, 0x00000000, Render.spriteCenterX)
         y = y + lineHeight
-        Render.text(__font, "Press B to play boop", 0, y, 1, 0xccccccff, 0x00000000, Render.spriteCenterX)
+        Render.text(__smallFont, "SPACE: beep  |  B: boop  |  C: click", 0, y, 1, 0xccccccff, 0x00000000, Render.spriteCenterX)
+        
+        y = y + lineHeight + 10
+        Render.text(__smallFont, "Music (10s melody, test compression):", 0, y, 1, 0xffd700ff, 0x00000000, Render.spriteCenterX)
         y = y + lineHeight
-        Render.text(__font, "Press C to play click", 0, y, 1, 0xccccccff, 0x00000000, Render.spriteCenterX)
+        Render.text(__smallFont, "W: WAV (862KB)  |  O: OGG (24KB)  |  F: FLAC (186KB)", 0, y, 1, 0xccccccff, 0x00000000, Render.spriteCenterX)
+        
+        y = y + lineHeight + 10
+        Render.text(__smallFont, "Controls:", 0, y, 1, 0xffd700ff, 0x00000000, Render.spriteCenterX)
         y = y + lineHeight
-        Render.text(__font, "Press UP/DOWN to change volume", 0, y, 1, 0xccccccff, 0x00000000, Render.spriteCenterX)
-        y = y + lineHeight
-        Render.text(__font, "Press S to stop current sound", 0, y, 1, 0xccccccff, 0x00000000, Render.spriteCenterX)
-        y = y + lineHeight
-        Render.text(__font, "Press A to stop all sounds", 0, y, 1, 0xccccccff, 0x00000000, Render.spriteCenterX)
+        Render.text(__smallFont, "UP/DOWN: volume  |  S: stop  |  A: stop all", 0, y, 1, 0xccccccff, 0x00000000, Render.spriteCenterX)
         
         // Volume indicator
-        y = y + lineHeight * 2
-        var volumeText = "Volume:"  + (__volume * 100).floor.toString
-        Render.text(__font, volumeText, 0, y, 1, 0xffd700ff, 0x00000000, Render.spriteCenterX)
+        y = y + lineHeight * 1.5
+        var volumeText = "Volume: %((__volume * 100).floor)%%"
+        Render.text(__smallFont, volumeText, 0, y, 1, 0xffd700ff, 0x00000000, Render.spriteCenterX)
         
         // Volume bar
         y = y + lineHeight
@@ -118,11 +151,13 @@ class Game {
         var volumeWidth = barWidth * __volume
         Render.sprite(__sprite, barX, y, 1, volumeWidth, barHeight, 0xffd700ff, 0x00000000, 0)
         
-        // Channel status
+        // Status indicators
+        y = y + lineHeight * 1.5
         if (__channel >= 0 && SimpleAudio.isPlaying(__channel)) {
-            y = y + lineHeight * 2
-            var statusText = "Playing on channel %(__channel)"
-            Render.text(__font, statusText, 0, y, 1, 0x00ff00ff, 0x00000000, Render.spriteCenterX)
+            var statusText = "▶ Playing (%(__currentFormat))"
+            Render.text(__smallFont, statusText, 0, y, 1, 0x00ff00ff, 0x00000000, Render.spriteCenterX)
+        } else {
+            Render.text(__smallFont, "⏸ Idle", 0, y, 1, 0x888888ff, 0x00000000, Render.spriteCenterX)
         }
     }
 }
