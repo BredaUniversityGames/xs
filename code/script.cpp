@@ -1080,6 +1080,11 @@ void device_request_close(WrenVM* vm)
     callFunction_returnType<bool>(vm, xs::device::request_close);
 }
 
+void device_set_fullscreen(WrenVM* vm)
+{
+    callFunction_args<bool>(vm, xs::device::set_fullscreen);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Profiler
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1191,6 +1196,7 @@ void xs::script::bind_api()
     bind("xs", "Device", true, "getPlatform()", device_get_platform);
     bind("xs", "Device", true, "canClose()", device_can_close);
     bind("xs", "Device", true, "requestClose()", device_request_close);
+    bind("xs", "Device", true, "setFullscreen(_)", device_set_fullscreen);
 
     // Profiler
     bind("xs", "Profiler", true, "begin(_)", profiler_begin_section);

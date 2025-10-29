@@ -191,3 +191,29 @@ double device::hdpi_scaling()
 	return SDL_GetWindowDisplayScale(internal::window);
 }
 
+void device::set_fullscreen(bool fullscreen)
+{
+	if (!internal::window)
+		return;
+
+	if (fullscreen)
+	{
+		// Use SDL_WINDOW_FULLSCREEN for "fullscreen desktop" mode
+		// This maintains the desktop resolution and lets the OS handle it
+		SDL_SetWindowFullscreen(internal::window, true);
+		
+		// Get the actual window size in fullscreen mode
+		SDL_GetWindowSize(internal::window, &internal::width, &internal::height);
+	}
+	else
+	{
+		// Restore windowed mode
+		SDL_SetWindowFullscreen(internal::window, false);
+		
+		// Restore windowed size
+		internal::width = configuration::width() * configuration::multiplier();
+		internal::height = configuration::height() * configuration::multiplier();
+		SDL_SetWindowSize(internal::window, internal::width, internal::height);
+	}
+}
+
