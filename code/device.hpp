@@ -39,4 +39,10 @@ namespace xs::device
 	/// </summary>
 	/// <returns>true if the request was successful; false otherwise (for example if the platform does not allow it).</returns>
 	bool request_close();
+
+	/// <summary>
+	/// Sets fullscreen mode on or off. Maintains aspect ratio with black bars.
+	/// </summary>
+	/// <param name="fullscreen">true to enable fullscreen, false for windowed mode</param>
+	void set_fullscreen(bool fullscreen);
 }

@@ -297,6 +297,7 @@ class Input {
     static keySpace  { 32  }
     static keyEscape { 256 }
     static keyEnter  { 257 }
+    static keyF11    { 300 }
 
     static keyA { 65 }
     static keyB { 66 }
@@ -427,6 +428,7 @@ class Device {
     foreign static getPlatform()
     foreign static canClose()
     foreign static requestClose()
+    foreign static setFullscreen(fullscreen)
 
     static PlatformPC      { 0 }
     static PlatformPS5     { 1 }
