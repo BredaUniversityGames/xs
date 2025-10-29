@@ -7,7 +7,7 @@ import "xs_components" for Transform, Body
 class Bullet is Component {
     construct new(direction, speed) {
         super()
-        _direction = direction.normalized
+        _direction = direction.normal
         _speed = speed
         _damage = Data.getNumber("Bullet Damage")
         _lifetime = Data.getNumber("Bullet Lifetime")

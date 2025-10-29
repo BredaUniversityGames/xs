@@ -31,7 +31,7 @@ class Enemy is Component {
         var distance = direction.magnitude
         
         if (distance > 0.1) {
-            direction = direction.normalized
+            direction = direction.normal
             _body.velocity = direction * _speed
             
             // Rotate to face movement direction
