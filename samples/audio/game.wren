@@ -103,15 +103,12 @@ class Game {
     
     static render() {
         // Background gradient
-        var fromColor = Color.fromNum(0x1a1a2e)
-        var toColor = Color.fromNum(0x16213e)
-        
-        for(i in 0...16) {
-            var x = (i + 1) * -128 + 640
-            var t = i / 16
-            var color = fromColor * (1 - t) + toColor * t
-            Render.sprite(__sprite, x, -360, -i, 320, 0, color.toNum, 0x00000000, 0)
-        }
+        var bgColor = Data.getColor("Background Color")
+
+        // Large sprite for the whole screen
+
+        // (spriteId, x, y, z, scale, rotation, mul, add, flags)
+        Render.sprite(__sprite, 0, 0, 0, 500, 0, bgColor, 0x00000000, Render.spriteCenter)
         
         // Title
         Render.text(__font, "SimpleAudio Sample - Multi-Format", 0, -300, 1, 0xeaeaeaff, 0x00000000, Render.spriteCenterX)
@@ -135,29 +132,16 @@ class Game {
         
         // Volume indicator
         y = y + lineHeight * 1.5
-        var volumeText = "Volume: %((__volume * 100).floor)%%"
+        var volumeText = "Volume:" + ((__volume * 100).floor).toString
         Render.text(__smallFont, volumeText, 0, y, 1, 0xffd700ff, 0x00000000, Render.spriteCenterX)
-        
-        // Volume bar
-        y = y + lineHeight
-        var barWidth = 400
-        var barHeight = 30
-        var barX = -barWidth / 2
-        
-        // Background bar
-        Render.sprite(__sprite, barX, y, 0, barWidth, barHeight, 0x444444ff, 0x00000000, 0)
-        
-        // Volume bar
-        var volumeWidth = barWidth * __volume
-        Render.sprite(__sprite, barX, y, 1, volumeWidth, barHeight, 0xffd700ff, 0x00000000, 0)
         
         // Status indicators
         y = y + lineHeight * 1.5
         if (__channel >= 0 && SimpleAudio.isPlaying(__channel)) {
-            var statusText = "▶ Playing (%(__currentFormat))"
+            var statusText = "Playing (%(__currentFormat))"
             Render.text(__smallFont, statusText, 0, y, 1, 0x00ff00ff, 0x00000000, Render.spriteCenterX)
         } else {
-            Render.text(__smallFont, "⏸ Idle", 0, y, 1, 0x888888ff, 0x00000000, Render.spriteCenterX)
+            Render.text(__smallFont, "Idle", 0, y, 1, 0x888888ff, 0x00000000, Render.spriteCenterX)
         }
     }
 }

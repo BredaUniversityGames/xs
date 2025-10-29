@@ -12,8 +12,9 @@
 #include <dr_libs/dr_wav.h>
 #define DR_FLAC_IMPLEMENTATION
 #include <dr_libs/dr_flac.h>
-#define STB_VORBIS_HEADER_ONLY
-#include <stb/stb_vorbis.c>
+#include <stb/stb_vorbis.c>  // NOLINT(bugprone-suspicious-include)
+
+#define LOG_AUDIO
 
 namespace xs::simple_audio
 {
@@ -254,7 +255,7 @@ int load(const std::string& filename)
 		// Load OGG using stb_vorbis
 		int error = 0;
 		stb_vorbis* vorbis = stb_vorbis_open_memory(
-			file_data.data(), 
+			reinterpret_cast<const unsigned char*>(file_data.data()), 
 			static_cast<int>(file_data.size()), 
 			&error, 
 			nullptr
@@ -297,19 +298,15 @@ int load(const std::string& filename)
 	}
 
 	internal::audio_files[hash] = audio_data;
-	
+
+#ifdef LOG_AUDIO
 	log::info("Loaded audio file: {} (ID: {}, format: {}, {}Hz, {} channels)", 
 	          filename, hash, ext, audio_data->spec.freq, audio_data->spec.channels);
+#endif
+	
 	return hash;
 }
-
-/*
-int play(int audio_id)
-{
-	return play(audio_id, 1.0);
-}
-*/
-
+	
 int play(int audio_id, double volume)
 {
 	if (!internal::initialized)

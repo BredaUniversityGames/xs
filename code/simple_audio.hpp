@@ -16,10 +16,6 @@ namespace xs::simple_audio
 	/// Returns an audio ID that can be used to play the sound, or -1 on error
 	int load(const std::string& filename);
 
-	/// Play a loaded audio file
-	/// Returns a channel ID that can be used to control the sound, or -1 on error
-	// int play(int audio_id);
-
 	/// Play a loaded audio file with a specific volume
 	/// Volume range: 0.0 (silent) to 1.0 (full volume)
 	/// Returns a channel ID that can be used to control the sound, or -1 on error
