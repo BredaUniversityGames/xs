@@ -1,11 +1,63 @@
 {
+    "Bullet Color": {
+        "type": "color",
+        "value": 4294967295
+    },
+    "Bullet Damage": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Bullet Lifetime": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Bullet Size": {
+        "type": "number",
+        "value": 8.0
+    },
+    "Bullet Speed": {
+        "type": "number",
+        "value": 800.0
+    },
+    "Enemy Color": {
+        "type": "color",
+        "value": 4278190335
+    },
+    "Enemy Damage": {
+        "type": "number",
+        "value": 5.0
+    },
+    "Enemy HP": {
+        "type": "number",
+        "value": 20.0
+    },
+    "Enemy Size": {
+        "type": "number",
+        "value": 20.0
+    },
+    "Enemy Spawn Interval": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Enemy Speed": {
+        "type": "number",
+        "value": 150.0
+    },
     "From Color": {
         "type": "color",
         "value": 3187733247
     },
+    "Max Enemies": {
+        "type": "number",
+        "value": 50.0
+    },
     "Obstacle Color": {
         "type": "color",
         "value": 3187733247
+    },
+    "Player HP": {
+        "type": "number",
+        "value": 100.0
     },
     "Player Input Dead Zone": {
         "type": "number",
@@ -15,13 +67,17 @@
         "type": "number",
         "value": 8.0
     },
+    "Player Shoot Interval": {
+        "type": "number",
+        "value": 0.25
+    },
     "Player Size": {
         "type": "number",
-        "value": 5.0
+        "value": 15.0
     },
     "Player Speed": {
         "type": "number",
-        "value": 1000.0
+        "value": 400.0
     },
     "Player Speed Aim": {
         "type": "number",

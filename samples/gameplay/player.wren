@@ -2,37 +2,25 @@ import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
-// import "unit" for Unit
-// import "tags" for Team, Tag
-// import "bullets" for Bullet
-// import "debug" for DebugColor
-// import "components" for SlowRelation
 import "random" for Random
 
 class Player is Component {
     construct new() {
         super()
-        _time = 0        
+        _time = 0
+        _shootCooldown = 0
     }
 
     initialize() {
         _body = owner.get(Body)
         _transform = owner.get(Transform)
-        // var aim = Create.aim(owner)
+        _shootInterval = Data.getNumber("Player Shoot Interval")
     }
 
     update(dt) {
-        /*
-        if(_state == stateNormal) {
-            _cooldown = _cooldown - dt
-            move(dt)
-            checkDodge()
-            keepInBounds()
-        } else if(_state == stateDodge) {
-            dodge(dt)
-        }
-        */
         move(dt)
+        shoot(dt)
+        keepInBounds()
     }
 
     move(dt) {                
@@ -56,10 +44,23 @@ class Player is Component {
         }
     }
 
+    shoot(dt) {
+        _shootCooldown = _shootCooldown - dt
+        
+        // Auto-shoot when cooldown is ready
+        if (_shootCooldown <= 0) {
+            _shootCooldown = _shootInterval
+            
+            // Shoot in the direction the player is facing
+            var direction = Vec2.new(_transform.rotation.cos, _transform.rotation.sin)
+            Create.bullet(_transform.position, direction)
+        }
+    }
+
     keepInBounds() {
         var t = _transform
-        var h = Data.getNumber("Height", Data.system) * 0.5
-        var w = Data.getNumber("Width", Data.system) * 0.5
+        var h = Data.getNumber("World Height") * 0.5
+        var w = Data.getNumber("World Width") * 0.5
         if (t.position.x < -w) {
             t.position.x = -w
         } else if (t.position.x > w) {
