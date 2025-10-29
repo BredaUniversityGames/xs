@@ -539,7 +539,7 @@ void xs::inspector::render(double dt)
 	if (show_about)
 	{
 		ImGui::Begin("About", &show_about, ImGuiWindowFlags_Modal);
-		ImGui::Text(" xs %s ", xs::version::version_string.c_str());
+		ImGui::Text(" xs %s ", xs::version::get_version_string().c_str());
 		ImGui::Text(" Made with love at Breda University of Applied Sciences ");
 		ImGui::End();
 	}

@@ -257,6 +257,7 @@
     </ClCompile>
     <ClCompile Include="code\script.cpp" />
     <ClCompile Include="code\tools.cpp" />
+    <ClCompile Include="code\version.cpp" />
     <ClCompile Include="code\xs.cpp" />
     <ClCompile Include="external\glad\src\glad.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>

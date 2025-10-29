@@ -10,7 +10,7 @@
 #include "data.hpp"
 #include "inspector.hpp"
 #include "packager.hpp"
-#include "tools.hpp"
+#include "version.hpp"
 #include <chrono>
 
 // CLI support for PC and Mac only
@@ -51,6 +51,10 @@ int xs::dispatch(int argc, char* argv[])
 		.help("Path to game project folder or .xs package file")
 		.default_value(std::string("."));
 
+	// Run subcommand - runs a project folder or .xs package
+	argparse::ArgumentParser version_cmd("version");
+	run_cmd.add_description("Get the version of xs");
+
 	// Package subcommand - creates a .xs package from a project
 	argparse::ArgumentParser package_cmd("package");
 	package_cmd.add_description("Package a game project into a .xs file");
@@ -64,6 +68,7 @@ int xs::dispatch(int argc, char* argv[])
 	// Add subcommands to main program
 	program.add_subparser(run_cmd);
 	program.add_subparser(package_cmd);
+	program.add_subparser(version_cmd);
 
 	try {
 		program.parse_args(argc, argv);
@@ -74,8 +79,13 @@ int xs::dispatch(int argc, char* argv[])
 		return 1;
 	}
 
-	// Determine which subcommand was used
 	std::string game_path;
+	if (program.is_subcommand_used("version"))
+	{
+		printf("%s", version::version_string.c_str());
+		return 0;
+	}
+	
 	if (program.is_subcommand_used("run")) {
 		std::string path = run_cmd.get<std::string>("path");
 

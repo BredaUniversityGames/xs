@@ -181,6 +181,9 @@
     <ClCompile Include="code\tools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="code\version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="code\xs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
