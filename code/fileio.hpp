@@ -8,6 +8,7 @@
 namespace xs::fileio
 {
 	void initialize(const std::string& game_path = "");
+	bool load_package(const std::string& package_path);
 	std::vector<std::byte> read_binary_file(const std::string& filename);
 	std::string read_text_file(const std::string& filename);
 	bool write_binary_file(const std::vector<std::byte>& data, const std::string& filename);

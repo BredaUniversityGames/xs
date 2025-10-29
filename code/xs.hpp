@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
+#ifdef FIND_LEAKS
 #include <vld.h>
+#endif
 
 namespace xs
 {

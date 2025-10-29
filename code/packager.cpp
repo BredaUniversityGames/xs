@@ -61,6 +61,7 @@ namespace packager
 				".wren",		// scripting
 				".frag",		// shaders
 				".vert",		// shaders
+				".glsl",		// shaders
 				".json",		// text
 				".txt"			// text
 			};
@@ -77,6 +78,9 @@ namespace packager
 				".bank",		// audio
 				".wav",			// audio
 				".mp3"			// audio
+				".jpg"			// images
+				".ogg"			// audio
+				".flac"			// audio
 			};
 			return file_formats;
 		}

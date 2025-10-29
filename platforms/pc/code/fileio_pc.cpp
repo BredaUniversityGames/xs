@@ -9,6 +9,7 @@
 #include "tools.hpp"
 #include "miniz.h"
 #include "json/json.hpp"
+#include "xs.hpp"
 #include <filesystem>
 
 #define PUBLISH 0
@@ -57,10 +58,16 @@ void fileio::initialize(const std::string& game_path)
 	// 1. Use CLI-provided game path if available
 	if (!game_path.empty())
 	{
-		string resolved_path = fileio::absolute(game_path);
-		add_wildcard("[game]", resolved_path);
-		log::info("Game folder (from CLI): {} ", resolved_path);
-		success = true;
+		if (xs::get_run_mode() == xs::run_mode::development)
+		{
+			string resolved_path = fileio::absolute(game_path);
+			add_wildcard("[game]", resolved_path);
+			log::info("Game folder (from CLI): {} ", resolved_path);
+			success = true;
+		}
+		else if (xs::get_run_mode() == xs::run_mode::packaged) {
+			success = fileio::load_package(game_path);			
+		}
 	}
 	// 2. Load from engine user settings json (if any)
 	else if (exists("[user]/settings.json"))
@@ -100,6 +107,7 @@ void fileio::initialize(const std::string& game_path)
 	}
 
 #if PUBLISH
+	// TODO: This needs to be double-checked for packaged and publlished builds
 	add_wildcard("[game]", "game");
 #endif
 
@@ -125,6 +133,7 @@ void fileio::initialize(const std::string& game_path)
 	}
 	else log::error("Could not find the game project.json file.");
 
-	// Set the shared assets folder - this is where the shared assets are stored
-	add_wildcard("[shared]", "assets");
+	// Set the shared assets folder - this is where the engine assets are stored
+	if(xs::get_run_mode() != xs::run_mode::packaged)
+		add_wildcard("[shared]", "assets");
 }

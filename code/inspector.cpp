@@ -51,6 +51,7 @@ namespace xs::inspector
 	bool show_demo = false;
 	bool show_modal = false;
 	bool show_inspector = false;
+	char* ini_filename = nullptr;
 
 	enum class theme
 	{
@@ -108,12 +109,15 @@ void xs::inspector::initialize()
 		log::critical("Could not find the font file selawk.ttf at path:{}", selawk);
 		return;
 	}
-	io.Fonts->AddFontFromFileTTF(selawk.c_str(), fontSize * UIScale, &config);
-	
+	auto selawk_data = fileio::read_binary_file(selawk);
+	// Copy to a heap allocation to ensure it stays valid
+	char* selawk_buffer = new char[selawk_data.size()];
+	memcpy(selawk_buffer, selawk_data.data(), selawk_data.size());
+	auto selawk_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), fontSize * UIScale, &config);
+	assert(selawk_font);
+		
 	static const ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 }; // will not be copied by AddFont* so keep in scope.
 	config.MergeMode = true;
-	config.OversampleH = 8;
-	config.OversampleV = 8;
 
 	std::string font_awesome = fileio::get_path("[shared]/fonts/FontAwesome5FreeSolid900.otf");
 	if(!fileio::exists(font_awesome))
@@ -121,15 +125,30 @@ void xs::inspector::initialize()
 		log::critical("Could not find the font file FontAwesome5FreeSolid900.otf at path:{}", font_awesome);
 		return;
 	}
-	io.Fonts->AddFontFromFileTTF(font_awesome.c_str(), iconSize * UIScale, &config, icons_ranges);
-	
-	small_font = io.Fonts->AddFontFromFileTTF(selawk.c_str(), 0.8f * fontSize * UIScale);
+	auto font_awesome_data = fileio::read_binary_file(font_awesome);
+	// Copy to a heap allocation to ensure it stays valid
+	char* font_awesome_buffer = new char[font_awesome_data.size()];
+	memcpy(font_awesome_buffer, font_awesome_data.data(), font_awesome_data.size());
+	auto font_awesome_font = io.Fonts->AddFontFromMemoryTTF(
+		font_awesome_buffer,
+		(int)font_awesome_data.size(),
+		iconSize * UIScale,
+		&config,
+		icons_ranges);
+	assert(font_awesome_font != nullptr);
+
+	// Copy to a heap allocation (again) to ensure it stays valid
+	selawk_buffer = new char[selawk_data.size()];
+	memcpy(selawk_buffer, selawk_data.data(), selawk_data.size());
+	small_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), 12.0f * UIScale, &config);
+	assert(small_font);
+
 
 	const std::string iniPath = fileio::get_path("[user]/imgui.ini");
 	const char* constStr = iniPath.c_str();
-	char* str = new char[iniPath.size() + 1];
-	strcpy(str, constStr);
-	io.IniFilename = str;
+	ini_filename = new char[iniPath.size() + 1];
+	strcpy(ini_filename, constStr);
+	io.IniFilename = ini_filename;
 
 	current_theme = (theme)data::get_number("theme", data::type::user);
 	show_inspector = data::get_bool("show_inspector", data::type::user);
@@ -143,6 +162,7 @@ void xs::inspector::shutdown()
 	ImPlot::DestroyContext();
 #endif
 	ImGui::DestroyContext();
+	delete[] ini_filename;
 }
 
 static void tooltip(const char* tooltip)
@@ -152,7 +172,7 @@ static void tooltip(const char* tooltip)
 		ImGui::BeginTooltip();
 		ImGui::SetTooltip("%s", tooltip);
 		ImGui::EndTooltip();
-	}
+	}	
 }
 
 void xs::inspector::render(double dt)

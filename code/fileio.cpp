@@ -8,6 +8,7 @@
 #include "log.hpp"
 #include "tools.hpp"
 #include "packager.hpp"
+#include "xs.hpp"
 #include "miniz.h"
 
 #if defined(PLATFORM_PC)
@@ -21,44 +22,42 @@ using namespace std;
 namespace xs::fileio::internal
 {
 	map<string, string> wildcards;
-
-	// Load game package
-	void load_game_content_headers()
-	{
-		/* TODO: Re-enable package loading when needed
-		std::string package_path = game_content_path();
-
-		if (!fileio::exists(package_path))
-		{
-			log::info("Game package not found: {}", package_path);
-			return;
-		}
-
-		// Load package
-		if (!packager::load_package(package_path, loaded_package))
-		{
-			log::error("Failed to load game package");
-			return;
-		}
-
-		log::info("Loaded package with {} entries", loaded_package.entries.size());
-
-		// Build hash map for fast lookups
-		content_map.clear();
-		for (const auto& entry : loaded_package.entries)
-		{
-			content_map[entry.relative_path] = &entry;
-			log::info("Entry loaded: {}", entry.relative_path);
-		}
-		*/
-	}
 	// Package data - loaded once on startup (will be populated later)
-	packager::package loaded_package;
-	unordered_map<std::string, const packager::package_entry*> content_map;
+	static packager::package loaded_package;
+	static unordered_map<std::string, const packager::package_entry*> content_map;
 }
 
 using namespace xs;
 using namespace fileio::internal;
+
+// Load game package
+bool xs::fileio::load_package(const std::string& package_path)
+{
+	if (!fileio::exists(package_path))
+	{
+		log::info("Game package not found: {}", package_path);
+		return false;
+	}
+
+	// Load package
+	if (!packager::load_package(package_path, loaded_package))
+	{
+		log::error("Failed to load game package");
+		return false;
+	}
+
+	log::info("Loaded package with {} entries", loaded_package.entries.size());
+
+	// Build hash map for fast lookups
+	// content_map.clear();
+	for (const auto& entry : loaded_package.entries)
+	{
+		content_map[entry.relative_path] = &entry;
+		log::info("Entry loaded: {}", entry.relative_path);
+	}
+
+	return true;
+}
 
 std::vector<std::byte> fileio::read_binary_file(const string& filename)
 {
@@ -179,9 +178,8 @@ bool fileio::exists(const string& filename)
 	const auto path = get_path(filename);
 
 	// Check if the file is stored in the package
-	// TODO: re-enable this check when needed
-	// if (binary_content_headers.find(path) != binary_content_headers.cend() || text_content_headers.find(path) != text_content_headers.cend())
-	//	return true;
+	if(content_map.find(filename) != content_map.end())
+		return true;
 
 	// Check if the file exists
 	ifstream f(path.c_str());
@@ -194,6 +192,10 @@ bool fileio::exists(const string& filename)
 
 uint64_t fileio::last_write(const string& filename)
 {
+	if(xs::get_run_mode() == xs::run_mode::packaged)
+		return 0;
+
+	// Expand wildcards
 	const auto path = get_path(filename);
 	fs::file_time_type ftime = fs::last_write_time(path);
 	return static_cast<uint64_t>(ftime.time_since_epoch().count());
