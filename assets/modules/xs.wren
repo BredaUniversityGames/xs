@@ -428,6 +428,7 @@ class Device {
     foreign static getPlatform()
     foreign static canClose()
     foreign static requestClose()
+    foreign static setFullscreen(fullscreen)
 
     static PlatformPC      { 0 }
     static PlatformPS5     { 1 }

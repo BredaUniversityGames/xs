@@ -16,10 +16,6 @@ namespace xs::device
 		return platform::PLATFORM_UNKNOWN;
 	}
 
-	void set_fullscreen(bool fullscreen)
-	{
-		// Default implementation does nothing
-		// Platform-specific implementations will override this
-	}
+	void set_fullscreen(bool fullscreen);
 }
 
