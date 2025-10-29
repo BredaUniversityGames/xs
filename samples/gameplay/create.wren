@@ -82,7 +82,7 @@ class Create {
         var w = Data.getNumber("World Width") * 0.5
         var h = Data.getNumber("World Height") * 0.5
 
-        var pos = Vec2.new(random.float(-w, w), random.float(-h, h))
+        var pos = Vec2.new(Create.random.float(-w, w), Create.random.float(-h, h))
         var obstacle = Entity.new()
         var t = Transform.new(pos)
         var b = Body.new(size, Vec2.new(0,0))
