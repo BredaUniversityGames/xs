@@ -38,18 +38,46 @@ namespace xs::packager
 
 	// Cross-platform serialization structure
 	struct package
-	{	
+	{
+		// Magic number to identify xs package files: 0x58534E47 = "XSNG" (XS eNGine)
+		static constexpr uint32_t MAGIC_NUMBER = 0x58534E47;
+
+		// Package format fields
+		uint32_t magic = MAGIC_NUMBER;
+		uint32_t version = 0;  // YY.BuildNumber encoded as single integer
+
 		std::vector<package_entry> entries;
 
 		template<class Archive>
 		void serialize(Archive& ar)
 		{
-			ar(entries);
+			ar(magic, version, entries);
 		}
 	};
 
 	// Decompress a package entry if it's compressed, return the raw data
 	std::vector<std::byte> decompress_entry(const package_entry& entry);
+
+	/*
+	* Encode Version
+	*
+	* Encodes a version string (e.g., "25.120") into a uint32_t for storage in package files.
+	* Format: (year << 16) | build_number
+	*
+	* @param version_string - Version in "YY.BuildNumber" format
+	* @return Encoded version as uint32_t
+	*/
+	uint32_t encode_version(const std::string& version_string);
+
+	/*
+	* Decode Version
+	*
+	* Decodes a uint32_t version back to "YY.BuildNumber" format.
+	*
+	* @param encoded_version - Encoded version as uint32_t
+	* @return Version string in "YY.BuildNumber" format
+	*/
+	std::string decode_version(uint32_t encoded_version);
 
 	/*
 	* Create Package

@@ -1,4 +1,4 @@
-# This script will deploy the current Publish build 
+# This script will deploy the current Publish build
 print("Making a build...")
 
 import os
@@ -8,6 +8,10 @@ from shutil import copytree, ignore_patterns
 
 itch_name = "xs"
 user = "xs-engine"
+
+# Update version before building
+print("Updating version...")
+os.system('python tools/version.py')
 
 os.system('MSBuild xs.sln /p:Platform=PC /p:Configuration=Develop')
 

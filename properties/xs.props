@@ -13,6 +13,9 @@
       <CPPExceptions>true</CPPExceptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
+    <PreBuildEvent>
+      <Command>python $(ProjectDir)tools\version.py</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

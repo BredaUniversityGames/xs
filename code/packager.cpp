@@ -1,6 +1,7 @@
 #include "packager.hpp"
 #include "fileio.hpp"
 #include "log.hpp"
+#include "version.hpp"
 #include "miniz.h"
 #include <filesystem>
 #include <fstream>
@@ -46,6 +47,37 @@ namespace packager
 		}
 
 		return decompressed;
+	}
+
+	// ------------------------------------------------------------------------
+	// Version Encoding/Decoding
+	// ------------------------------------------------------------------------
+
+	uint32_t encode_version(const std::string& version_string)
+	{
+		// Parse "YY.BuildNumber" format
+		size_t dot_pos = version_string.find('.');
+		if (dot_pos == std::string::npos)
+		{
+			log::warn("Invalid version format: {}", version_string);
+			return 0;
+		}
+
+		uint32_t year = std::stoul(version_string.substr(0, dot_pos));
+		uint32_t build_number = std::stoul(version_string.substr(dot_pos + 1));
+
+		// Encode as: (year << 16) | build_number
+		return (year << 16) | (build_number & 0xFFFF);
+	}
+
+	std::string decode_version(uint32_t encoded_version)
+	{
+		uint32_t year = (encoded_version >> 16) & 0xFFFF;
+		uint32_t build_number = encoded_version & 0xFFFF;
+
+		std::ostringstream oss;
+		oss << year << "." << build_number;
+		return oss.str();
 	}
 
 	// ------------------------------------------------------------------------
@@ -163,6 +195,11 @@ namespace packager
 	bool create_package(const std::string& output_path)
 	{
 		package pkg;
+
+		// Set version from current engine version
+		pkg.version = encode_version(xs::version::XS_VERSION);
+
+		log::info("Creating package with version: {}", xs::version::XS_VERSION);
 
 		// Define which wildcards to package
 		std::vector<std::string> wildcards_to_package = { "[game]", "[shared]" };
@@ -327,6 +364,25 @@ namespace packager
 				cereal::BinaryInputArchive cereal_archive(ifs);
 				cereal_archive(out_package);
 				data_section_start = ifs.tellg(); // Remember where data section starts
+			}
+
+			// Validate magic number
+			if (out_package.magic != package::MAGIC_NUMBER)
+			{
+				log::error("Invalid package file: magic number mismatch (expected 0x{:08X}, got 0x{:08X})",
+					package::MAGIC_NUMBER, out_package.magic);
+				return false;
+			}
+
+			// Check version compatibility
+			std::string package_version = decode_version(out_package.version);
+			std::string current_version = xs::version::XS_VERSION;
+
+			if (package_version != current_version)
+			{
+				log::warn("Package version mismatch: package created with {}, running {}",
+					package_version, current_version);
+				log::warn("Package may not load correctly if format has changed");
 			}
 
 			// Section 2: Read data blobs for each entry
