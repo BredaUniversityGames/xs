@@ -297,6 +297,7 @@ class Input {
     static keySpace  { 32  }
     static keyEscape { 256 }
     static keyEnter  { 257 }
+    static keyF11    { 300 }
 
     static keyA { 65 }
     static keyB { 66 }
