@@ -68,9 +68,87 @@ def getLineNumber(index, content):
       return line
   return None
 
+def getTripleSlashComments(content, file):
+  """Extract /// style documentation comments (C# style)"""
+  tripleSlashRegex = re.compile(r"^\s*///(.*)$", re.MULTILINE)
+
+  comments = []
+  lines = content.split('\n')
+  i = 0
+  filename = None
+  header = ""
+
+  while i < len(lines):
+    line = lines[i]
+    match = tripleSlashRegex.match(line)
+
+    if match:
+      # Found a /// comment, collect consecutive /// lines
+      commentLines = []
+      startLineIdx = i
+      # For /// comments, we already strip the prefix, so no additional spaces to remove
+      spaces = 0
+
+      while i < len(lines) and tripleSlashRegex.match(lines[i]):
+        commentMatch = tripleSlashRegex.match(lines[i])
+        # Strip leading space from captured content if present
+        commentText = commentMatch.group(1)
+        if commentText.startswith(' '):
+          commentText = commentText[1:]
+        commentLines.append(commentText)
+        i += 1
+
+      # Join all comment lines
+      comment = '\n'.join(commentLines)
+
+      # Check for special commands
+      if commandIsDisable(comment):
+        return []
+
+      if commandIsFilename(comment):
+        filename = comment[comment.find(CMD_FILENAME) + len(CMD_FILENAME):].strip()
+        continue
+
+      if commandIsHeader(comment):
+        header = comment[comment.find(CMD_HEADER) + len(CMD_HEADER):]
+        continue
+
+      # Find the next non-empty, non-comment line (the code being documented)
+      nextline = ""
+      nextlineStart = i
+      while i < len(lines) and lines[i].strip() == "":
+        i += 1
+
+      if i < len(lines):
+        nextline = lines[i]
+
+      # Calculate character positions
+      start = sum(len(lines[j]) + 1 for j in range(startLineIdx))
+      end = start + sum(len(lines[j]) + 1 for j in range(startLineIdx, nextlineStart))
+      nextlineStartPos = sum(len(lines[j]) + 1 for j in range(i))
+      nextlineEndPos = nextlineStartPos + len(nextline)
+
+      lineno = startLineIdx + 1
+      nextlineno = i + 1
+
+      comments.append(
+        (
+          (comment, start, end, lineno),
+          (nextline, nextlineStartPos, nextlineEndPos, nextlineno),
+          (spaces, filename, header)
+        )
+      )
+
+    i += 1
+
+  return comments
+
 def getComments(content, file):
   # Regex for /** comment start
-  startCommentRegex = re.compile("\s*\S*(\/\*\*)")
+  startCommentRegex = re.compile(r"\s*\S*(\/\*\*)")
+
+  # Regex for /// single-line comments (C# style)
+  tripleSlashRegex = re.compile(r"^\s*///(.*)$", re.MULTILINE)
 
   # for all the found matches
   # search for the corresponding */
@@ -117,6 +195,13 @@ def getComments(content, file):
             (spaces, filename, header)
           )
         )
+
+  # Also collect /// style comments
+  tripleSlashComments = getTripleSlashComments(content, file)
+  comments.extend(tripleSlashComments)
+
+  # Sort comments by line number to maintain document order
+  comments.sort(key=lambda x: x[0][3])
 
   return comments
 
@@ -175,6 +260,10 @@ def makeMarkdownFile(comments, file):
         markdown += buffer[spaces:].rstrip() + char
         buffer = ""
 
+    # Handle any remaining content that doesn't end with newline
+    if buffer:
+      markdown += buffer[spaces:].rstrip() + "\n"
+
   # End parsing and save file
   name = f"{info}".lower().strip().replace("/", "-").replace("\\", "-")
   if filename:
@@ -196,7 +285,7 @@ def main():
       total += pending
       makeMarkdownFile(comments, file)
 
-  print(f"✨ Jobs Done!: found {len(files)} files. parsed {total} comments. docs saved in `{getDocPath()}`")
+  print(f"Jobs Done!: found {len(files)} files. parsed {total} comments. docs saved in `{getDocPath()}`")
 
 if __name__ == "__main__":
   main()
