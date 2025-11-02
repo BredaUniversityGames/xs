@@ -10,11 +10,11 @@ Supports two comment styles:
 
 Special commands (work with both styles):
 - doc-disable: Skip this file entirely
-- doc-name: CustomFileName: Set the output filename
+- doc-name: CustomFileName: Set the output filename (supports paths like "api/Math")
 - doc-header: Add a custom header/title to the documentation
 
 Examples:
-  /// doc-name: MathModule
+  /// doc-name: api/MathModule
 
   /// doc-header
   /// # Math Module
@@ -228,6 +228,10 @@ def getHref(line, lineno, url):
   return f"[{line}]({url}#L{lineno})\n"
 
 def saveFile(path, content):
+  # Create parent directories if they don't exist
+  parent = Path(path).parent
+  parent.mkdir(parents=True, exist_ok=True)
+
   file = open(path, "w+")
   file.write(content)
   file.close()
