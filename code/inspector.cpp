@@ -140,7 +140,7 @@ void xs::inspector::initialize()
 	// Copy to a heap allocation (again) to ensure it stays valid
 	selawk_buffer = new char[selawk_data.size()];
 	memcpy(selawk_buffer, selawk_data.data(), selawk_data.size());
-	small_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), 12.0f * UIScale, &config);
+	small_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), 12.0f * UIScale, nullptr);
 	assert(small_font);
 
 
@@ -242,7 +242,7 @@ void xs::inspector::render(double dt)
 				game_paused = true;
 			tooltip("Pause");
 		}		
-
+    	
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_DATABASE))
 			show_registry = !show_registry;
@@ -432,17 +432,16 @@ void xs::inspector::render(double dt)
 
         	
 			auto path = fileio::absolute("[game]");
-			ImGui::Text(" Wren:%sMB | Draw Calls:%s | Sprites:%s | Version:%s | Project:%s",
+			ImGui::Text("%sMB | %sDC | %sSP | %s | %s",
 						mem_str.c_str(),
 						draw_calls.c_str(),
 						sprites.c_str(),
-						version::version_string.c_str(),
+						version::get_version_string(false, true, true).c_str(),
 						path.c_str());
 						
 			ImGui::PopFont();
 			ImGui::End();
 		}
-
 	}
 	else
 	{

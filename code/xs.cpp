@@ -82,7 +82,7 @@ int xs::dispatch(int argc, char* argv[])
 	std::string game_path;
 	if (program.is_subcommand_used("version"))
 	{
-		printf("%s", version::version_string.c_str());
+		printf("%s", version::get_version_string().c_str());
 		return 0;
 	}
 	

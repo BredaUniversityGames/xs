@@ -40,27 +40,30 @@ if __name__ == "__main__":
 
     header_file_path = 'code/version.hpp'
 
+    # Parse version components
+    current_year = int(datetime.now().strftime('%y'))
+    build_number = get_commit_count_this_year()
+
     # Generate the header file with version constants
     new_content = f'''#pragma once
 #include <string>
 
 namespace xs::version
 {{
-    // Base version: YY.BuildNumber
-    constexpr const char* XS_VERSION = "{version}";
-
-    // Full version with commit hash: YY.BuildNumber+hash
-    constexpr const char* XS_VERSION_FULL = "{version_with_hash}";
+    // Version components (single source of truth)
+    constexpr int XS_VERSION_YEAR = {current_year};
+    constexpr int XS_VERSION_BUILD = {build_number};
 
     // Short commit hash
     constexpr const char* XS_COMMIT_HASH = "{commit_hash}";
 
     // Version string builder function (implemented in version.cpp)
+    // Builds version strings from the integer components above
     // Parameters:
-    //   include_hash: Include commit hash (default: true)
-    //   include_config: Include build configuration like [dbg], [dev], [rel] (default: true)
-    //   include_platform: Include platform like [pc], [switch], [ps5] (default: true)
-    std::string get_version_string(bool include_hash = true, bool include_config = true, bool include_platform = true);
+    //   include_hash: Include commit hash (default: false)
+    //   include_config: Include build configuration like [dbg], [dev], [rel] (default: false)
+    //   include_platform: Include platform like [pc], [switch], [ps5] (default: false)
+    std::string get_version_string(bool include_hash = false, bool include_config = false, bool include_platform = false);
 }}
 '''
 

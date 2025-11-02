@@ -53,19 +53,8 @@ namespace packager
 	// Version Encoding/Decoding
 	// ------------------------------------------------------------------------
 
-	uint32_t encode_version(const std::string& version_string)
+	uint32_t encode_version(uint32_t year, uint32_t build_number)
 	{
-		// Parse "YY.BuildNumber" format
-		size_t dot_pos = version_string.find('.');
-		if (dot_pos == std::string::npos)
-		{
-			log::warn("Invalid version format: {}", version_string);
-			return 0;
-		}
-
-		uint32_t year = std::stoul(version_string.substr(0, dot_pos));
-		uint32_t build_number = std::stoul(version_string.substr(dot_pos + 1));
-
 		// Encode as: (year << 16) | build_number
 		return (year << 16) | (build_number & 0xFFFF);
 	}
@@ -197,9 +186,9 @@ namespace packager
 		package pkg;
 
 		// Set version from current engine version
-		pkg.version = encode_version(xs::version::XS_VERSION);
+		pkg.version = encode_version(xs::version::XS_VERSION_YEAR, xs::version::XS_VERSION_BUILD);
 
-		log::info("Creating package with version: {}", xs::version::XS_VERSION);
+		log::info("Creating package with version: {}.{}", xs::version::XS_VERSION_YEAR, xs::version::XS_VERSION_BUILD);
 
 		// Define which wildcards to package
 		std::vector<std::string> wildcards_to_package = { "[game]", "[shared]" };
@@ -376,7 +365,10 @@ namespace packager
 
 			// Check version compatibility
 			std::string package_version = decode_version(out_package.version);
-			std::string current_version = xs::version::XS_VERSION;
+			// Build current version string from components
+		std::ostringstream current_version_stream;
+		current_version_stream << xs::version::XS_VERSION_YEAR << "." << xs::version::XS_VERSION_BUILD;
+		std::string current_version = current_version_stream.str();
 
 			if (package_version != current_version)
 			{

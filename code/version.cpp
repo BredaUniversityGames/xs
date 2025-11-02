@@ -7,11 +7,12 @@ namespace xs::version
     {
         std::ostringstream version;
 
-        // Start with base version
+        // Start with base version: YY.BuildNumber
+        version << XS_VERSION_YEAR << "." << XS_VERSION_BUILD;
+
+        // Add commit hash if requested
         if (include_hash)
-            version << XS_VERSION_FULL;
-        else
-            version << XS_VERSION;
+            version << "+" << XS_COMMIT_HASH;
 
         // Add build configuration
         if (include_config)

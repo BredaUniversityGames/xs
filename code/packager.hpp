@@ -61,13 +61,14 @@ namespace xs::packager
 	/*
 	* Encode Version
 	*
-	* Encodes a version string (e.g., "25.120") into a uint32_t for storage in package files.
+	* Encodes version components (year and build number) into a uint32_t for storage in package files.
 	* Format: (year << 16) | build_number
 	*
-	* @param version_string - Version in "YY.BuildNumber" format
+	* @param year - Two-digit year (e.g., 25 for 2025)
+	* @param build_number - Build number (commits this year)
 	* @return Encoded version as uint32_t
 	*/
-	uint32_t encode_version(const std::string& version_string);
+	uint32_t encode_version(uint32_t year, uint32_t build_number);
 
 	/*
 	* Decode Version
