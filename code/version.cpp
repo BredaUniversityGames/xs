@@ -10,7 +10,7 @@ namespace xs::version
         // Start with base version: YY.BuildNumber
         version << XS_VERSION_YEAR << "." << XS_VERSION_BUILD;
 
-        // Add commit hash if requested
+        // Add commit hash if requested (SemVer build metadata using +)
         if (include_hash)
             version << "+" << XS_COMMIT_HASH;
 
@@ -18,11 +18,11 @@ namespace xs::version
         if (include_config)
         {
             #if defined(DEBUG) || defined(_DEBUG)
-                version << "[dbg]";
+                version << "-dbg";
             #elif defined(NDEBUG)
-                version << "[rel]";
+                version << "-rel";
             #else
-                version << "[dev]";
+                version << "-dev";
             #endif
         }
 
@@ -30,17 +30,17 @@ namespace xs::version
         if (include_platform)
         {
             #if defined(PLATFORM_PC)
-                version << "[pc]";
+                version << "-pc";
             #elif defined(PLATFORM_SWITCH)
-                version << "[switch]";
+                version << "-switch";
             #elif defined(PLATFORM_PS5)
-                version << "[ps5]";
+                version << "-ps5";
             #elif defined(PLATFORM_MAC) || defined(__APPLE__)
-                version << "[mac]";
+                version << "-mac";
             #elif defined(__linux__)
-                version << "[linux]";
+                version << "-linux";
             #else
-                version << "[unknown]";
+                version << "-unknown";
             #endif
         }
 
