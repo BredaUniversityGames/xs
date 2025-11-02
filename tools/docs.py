@@ -2,7 +2,26 @@
 # WrenDoc
 This is a simple documentation generator.
 The idea is to parse wren files and look for
-markdown style comments (/** */).
+markdown style comments.
+
+Supports two comment styles:
+- /** ... */ (block comments)
+- /// (C#-style line comments)
+
+Special commands (work with both styles):
+- doc-disable: Skip this file entirely
+- doc-name: CustomFileName: Set the output filename
+- doc-header: Add a custom header/title to the documentation
+
+Examples:
+  /// doc-name: MathModule
+
+  /// doc-header
+  /// # Math Module
+  /// This module provides math utilities.
+
+  /// Adds two numbers
+  static add(a, b) { a + b }
 
 Then generate the proper .md files inside docs
 directory.
