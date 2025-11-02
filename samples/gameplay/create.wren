@@ -39,6 +39,7 @@ class Create {
         var e = Enemy.new(target)
         var b = Body.new(Data.getNumber("Enemy Size"), Vec2.new(0,0))
         var h = Health.new(Data.getNumber("Enemy HP"))
+        h.enablePickupDrop(Data.getNumber("Pickup Value"))
         var s = Sprite.new("[game]/assets/images/enemy.png")
         var sh = Shadow.new()
         s.layer = 2.0
@@ -53,6 +54,25 @@ class Create {
         enemy.name = "Enemy"
         enemy.tag = (Tag.enemy)
         return enemy
+    }
+
+    static pickup(position, value) {
+        var pickup = Entity.new()
+        var t = Transform.new(position)
+        var p = Pickup.new(value)
+        var b = Body.new(Data.getNumber("Pickup Size"), Vec2.new(0,0))
+        var s = Sprite.new("[game]/assets/images/disc_50.png")
+        s.layer = 1.5
+        s.flags = Render.spriteCenter
+        s.mul = Data.getColor("Pickup Color")
+        s.scale = 0.3
+        pickup.add(t)
+        pickup.add(p)
+        pickup.add(b)
+        pickup.add(s)
+        pickup.name = "Pickup"
+        pickup.tag = (Tag.pickup)
+        return pickup
     }
 
     static bullet(position, direction) {
@@ -106,5 +126,6 @@ import "player" for Player
 import "enemy" for Enemy
 import "bullet" for Bullet
 import "health" for Health
+import "pickup" for Pickup
 import "tags" for Tag
 import "shadow" for Shadow

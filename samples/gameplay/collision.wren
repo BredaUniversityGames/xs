@@ -5,19 +5,26 @@ import "xs_components" for Transform, Body
 import "tags" for Tag
 import "health" for Health
 import "bullet" for Bullet
+import "pickup" for Pickup
+import "game" for Game
 
-// Collision system - checks for collisions between bullets and enemies
+// Collision system - checks for collisions between entities
 class CollisionSystem is Component {
     construct new() {
         super()
     }
 
     update(dt) {
-        // Get all bullets and enemies
+        checkBulletEnemyCollisions()
+        checkBulletObstacleCollisions()
+        checkPlayerEnemyCollisions()
+        checkPlayerPickupCollisions()
+    }
+
+    checkBulletEnemyCollisions() {
         var bullets = Entity.withTag(Tag.bullet)
         var enemies = Entity.withTag(Tag.enemy)
         
-        // Check collisions
         for (bullet in bullets) {
             if (bullet.deleted) {
                 continue
@@ -44,21 +51,57 @@ class CollisionSystem is Component {
                     continue
                 }
                 
-                // Simple circle collision
                 var distance = (bulletTransform.position - enemyTransform.position).magnitude
                 var collisionRadius = bulletBody.size * 0.5 + enemyBody.size * 0.5
                 
                 if (distance < collisionRadius) {
-                    // Collision detected!
                     enemyHealth.damage(bulletComp.damage)
                     bullet.delete()
                     break
                 }
             }
         }
+    }
+
+    checkBulletObstacleCollisions() {
+        var bullets = Entity.withTag(Tag.bullet)
+        var obstacles = Entity.withTag(Tag.obstacle)
         
-        // Check player-enemy collisions
+        for (bullet in bullets) {
+            if (bullet.deleted) {
+                continue
+            }
+            
+            var bulletTransform = bullet.get(Transform)
+            var bulletBody = bullet.get(Body)
+            
+            if (bulletTransform == null || bulletBody == null) {
+                continue
+            }
+            
+            for (obstacle in obstacles) {
+                var obstacleTransform = obstacle.get(Transform)
+                var obstacleBody = obstacle.get(Body)
+                
+                if (obstacleTransform == null || obstacleBody == null) {
+                    continue
+                }
+                
+                var distance = (bulletTransform.position - obstacleTransform.position).magnitude
+                var collisionRadius = bulletBody.size * 0.5 + obstacleBody.size * 0.5
+                
+                if (distance < collisionRadius) {
+                    bullet.delete()
+                    break
+                }
+            }
+        }
+    }
+
+    checkPlayerEnemyCollisions() {
         var players = Entity.withTag(Tag.player)
+        var enemies = Entity.withTag(Tag.enemy)
+        
         if (players.count > 0) {
             var player = players[0]
             var playerTransform = player.get(Transform)
@@ -82,7 +125,6 @@ class CollisionSystem is Component {
                     var collisionRadius = playerBody.size * 0.5 + enemyBody.size * 0.5
                     
                     if (distance < collisionRadius) {
-                        // Player hit by enemy!
                         var damage = Data.getNumber("Enemy Damage")
                         playerHealth.damage(damage)
                         enemy.delete()
@@ -92,5 +134,42 @@ class CollisionSystem is Component {
         }
     }
 
+    checkPlayerPickupCollisions() {
+        var players = Entity.withTag(Tag.player)
+        var pickups = Entity.withTag(Tag.pickup)
+        
+        if (players.count > 0) {
+            var player = players[0]
+            var playerTransform = player.get(Transform)
+            var playerBody = player.get(Body)
+            
+            if (playerTransform != null && playerBody != null) {
+                for (pickup in pickups) {
+                    if (pickup.deleted) {
+                        continue
+                    }
+                    
+                    var pickupTransform = pickup.get(Transform)
+                    var pickupBody = pickup.get(Body)
+                    var pickupComp = pickup.get(Pickup)
+                    
+                    if (pickupTransform == null || pickupBody == null || pickupComp == null) {
+                        continue
+                    }
+                    
+                    var distance = (playerTransform.position - pickupTransform.position).magnitude
+                    var collisionRadius = playerBody.size * 0.5 + pickupBody.size * 0.5
+                    
+                    if (distance < collisionRadius) {
+                        // Player collected pickup!
+                        Game.addScore(pickupComp.value)
+                        pickup.delete()
+                    }
+                }
+            }
+        }
+    }
+
     toString { "[CollisionSystem]" }
 }
+

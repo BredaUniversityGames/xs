@@ -4,4 +4,5 @@ class Tag {
     static bullet   { 4 }
     static obstacle { 8 }
     static spawner  { 16 }
+    static pickup   { 32 }
 }

@@ -41,14 +41,15 @@ class Game {
         __background.update(dt)
         Entity.update(dt)
         
-        // Update score based on survival time
-        __score = (__time * 10).floor
-        
         // Check if player is dead
         var players = Entity.withTag(Tag.player)
         if (players.count == 0) {
             // Game over - could restart here
         }
+    }
+
+    static addScore(value) {
+        __score = __score + value
     }
 
     static render() {

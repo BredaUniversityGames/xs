@@ -10,6 +10,14 @@ class Health is Component {
         _maxHealth = maxHealth
         _currentHealth = maxHealth
         _isDead = false
+        _dropPickupOnDeath = false
+        _pickupValue = 0
+    }
+
+    // Enable dropping a pickup when this entity dies
+    enablePickupDrop(value) {
+        _dropPickupOnDeath = true
+        _pickupValue = value
     }
 
     damage(amount) {
@@ -17,6 +25,15 @@ class Health is Component {
         if (_currentHealth <= 0) {
             _currentHealth = 0
             _isDead = true
+            
+            // Drop pickup if enabled
+            if (_dropPickupOnDeath) {
+                var transform = owner.get(Transform)
+                if (transform != null) {
+                    Create.pickup(transform.position, _pickupValue)
+                }
+            }
+            
             owner.delete()
         }
     }
@@ -34,3 +51,5 @@ class Health is Component {
 
     toString { "[Health current:%(_currentHealth) max:%(_maxHealth)]" }
 }
+
+import "create" for Create

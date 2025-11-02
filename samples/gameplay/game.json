@@ -43,9 +43,33 @@
         "type": "number",
         "value": 150.0
     },
+    "Enemy Avoidance Radius": {
+        "type": "number",
+        "value": 80.0
+    },
+    "Enemy Avoidance Strength": {
+        "type": "number",
+        "value": 0.5
+    },
     "From Color": {
         "type": "color",
         "value": 3187733247
+    },
+    "Pickup Color": {
+        "type": "color",
+        "value": 4294944000
+    },
+    "Pickup Lifetime": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Pickup Size": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Pickup Value": {
+        "type": "number",
+        "value": 10.0
     },
     "Max Enemies": {
         "type": "number",

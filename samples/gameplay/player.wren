@@ -24,23 +24,56 @@ class Player is Component {
     }
 
     move(dt) {                
-        // Translation
-        var aim = (Input.getAxis(5) + 1.0) / 2.0
+        // Translation - support both gamepad and keyboard (WASD)
+        var vel = Vec2.new(0, 0)
+        
+        // Gamepad input
+        var gamepadX = Input.getAxis(0)
+        var gamepadY = -Input.getAxis(1)
+        if (gamepadX.abs > Data.getNumber("Player Input Dead Zone") || 
+            gamepadY.abs > Data.getNumber("Player Input Dead Zone")) {
+            vel = Vec2.new(gamepadX, gamepadY)
+        } else {
+            // Keyboard input (WASD)
+            if (Input.getKey("a")) {
+                vel = vel + Vec2.new(-1, 0)
+            }
+            if (Input.getKey("d")) {
+                vel = vel + Vec2.new(1, 0)
+            }
+            if (Input.getKey("w")) {
+                vel = vel + Vec2.new(0, 1)
+            }
+            if (Input.getKey("s")) {
+                vel = vel + Vec2.new(0, -1)
+            }
+        }
+        
         var normalSpeed = Data.getNumber("Player Speed")
-        var aimSpeed = Data.getNumber("Player Speed Aim")
-        var speed = Math.lerp(normalSpeed, aimSpeed, aim)
-        var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
-        if(vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
-            vel = vel * speed
+        if (vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
+            vel = vel.normal * normalSpeed
         }
         var posEase = Data.getNumber("Player Position Easing")
         _body.velocity = Math.damp(_body.velocity, vel, posEase, dt)
 
-        // Rotation
+        // Rotation - support both gamepad right stick and mouse
         var face = Vec2.new(Input.getAxis(2), -Input.getAxis(3))
-        if(face.magnitude > Data.getNumber("Player Input Dead Zone")) {
+        if (face.magnitude > Data.getNumber("Player Input Dead Zone")) {
+            // Gamepad aim
             var a = face.atan2
             _transform.rotation = a
+        } else {
+            // Mouse aim - point toward mouse cursor
+            var mousePos = Vec2.new(Input.getMouseX(), Input.getMouseY())
+            var screenCenter = Vec2.new(
+                Data.getNumber("Width", Data.system) * 0.5, 
+                Data.getNumber("Height", Data.system) * 0.5
+            )
+            var worldMouse = mousePos - screenCenter
+            var toMouse = worldMouse - _transform.position
+            if (toMouse.magnitude > 10) {
+                _transform.rotation = toMouse.atan2
+            }
         }
     }
 
