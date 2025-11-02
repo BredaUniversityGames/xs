@@ -39,11 +39,11 @@ namespace xs::packager
 	// Cross-platform serialization structure
 	struct package
 	{
-		// Magic number to identify xs package files: 0x58534E47 = "XSNG" (XS eNGine)
-		static constexpr uint32_t MAGIC_NUMBER = 0x58534E47;
+		// Magic number to identify xs package files: "XSENGINE" in hex editor (little-endian)
+		static constexpr uint64_t MAGIC_NUMBER = 0x454E49474E455358;
 
 		// Package format fields
-		uint32_t magic = MAGIC_NUMBER;
+		uint64_t magic = MAGIC_NUMBER;
 		uint32_t version = 0;  // YY.BuildNumber encoded as single integer
 
 		std::vector<package_entry> entries;

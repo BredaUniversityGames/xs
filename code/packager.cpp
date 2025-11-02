@@ -358,7 +358,7 @@ namespace packager
 			// Validate magic number
 			if (out_package.magic != package::MAGIC_NUMBER)
 			{
-				log::error("Invalid package file: magic number mismatch (expected 0x{:08X}, got 0x{:08X})",
+				log::error("Invalid package file: magic number mismatch (expected 0x{:016X}, got 0x{:016X})",
 					package::MAGIC_NUMBER, out_package.magic);
 				return false;
 			}

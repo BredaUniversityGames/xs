@@ -264,15 +264,28 @@ def makeMarkdownFile(comments, file):
     # Headers
     classKeyword = "class"
 
-    if line.startswith(f"{classKeyword} "):
-      title = f"{classKeyword.title()}" + line[len(classKeyword):]
+    # Check if line is a class declaration (handles "class" and "foreign class")
+    isClass = False
+    className = ""
+
+    if line.startswith("foreign class "):
+      isClass = True
+      className = line[len("foreign class "):].split()[0]  # Get just the class name
+    elif line.startswith("class "):
+      isClass = True
+      className = line[len("class "):].split()[0]  # Get just the class name
+
+    if isClass:
+      title = f"Class {className}"
       markdown += f"\n---\n## {getHref(title, llineno, url)}\n"
       apiHeaderPresent = False
     else:
       if not apiHeaderPresent:
         markdown += "\n## API\n"
         apiHeaderPresent = True
-      markdown += f"\n### {getHref(line, llineno, url)}\n"
+      # Remove "foreign" keyword from method signatures (implementation detail)
+      cleanLine = line.replace("foreign ", "")
+      markdown += f"\n### {getHref(cleanLine, llineno, url)}\n"
 
     # Write comment contents to the markdown file
     buffer = ""
