@@ -1,47 +1,58 @@
-///////////////////////////////////////////////////////////////////////////////
-// xs API
-///////////////////////////////////////////////////////////////////////////////
+/// Handle for shapes and sprites in the rendering system
+foreign class ShapeHandle {}
 
-foreign class ShapeHandle {}    // Sprites are shapes as well
-
+/// Core rendering API for sprites, shapes, text, and debug drawing
+/// Provides functionality for rendering images, texts and shapes
 class Render {
 
-    /// Sprite native API /////////////////////////////////////////////////////
-
-    /// Load an image from a file and return an image id (supports png and jpg)
+    /// Loads an image from a file and returns an image ID
+    /// Supports PNG and JPG formats. Use relative paths like "[game]/textures/flower.png"
     foreign static loadImage(path)
 
-    /// Load an shape from a file and return a shape id (supports svg)
+    /// Loads a shape from a file and returns a shape ID
+    /// Supports SVG format
     foreign static loadShape(path)
 
-    /// Load a font from a file into a font atlas and return a font id
+    /// Loads a font into a font atlas and returns a font ID
+    /// Font will be rasterized at the specified size
     foreign static loadFont(font, size)
 
-    /// Get the width of an image
+    /// Gets the width in pixels of a loaded image
     foreign static getImageWidth(imageId)
 
-    /// Get the height of an image
+    /// Gets the height in pixels of a loaded image
     foreign static getImageHeight(imageId)
 
-    /// Create a sprite from section of an image
+    /// Creates a sprite from a section of an image using texture coordinates
+    /// Coordinates are normalized (0.0 to 1.0): x0, y0 (top-left), x1, y1 (bottom-right)
     foreign static createSprite(imageId, x0, y0, x1, y1)
 
-    /// Create a mesh
+    /// Creates a custom mesh shape from vertices, texture coordinates, and indices
     foreign static createShape(imageId, positions, textureCoords, indices)
 
-    /// Destroy a shape
+    /// Destroys a shape and frees its resources
     foreign static destroyShape(shapeId)
 
-    /// Set the offset for the next sprite(s) to be drawn
+    /// Sets the offset for subsequent sprite draw calls
+    /// All sprites will be offset by (x, y) until new values are set
     foreign static setOffset(x, y)
-    
-    /// Draw a sprite at a position, sorted by z, with scale, rotation, colors and flags
+
+    /// Draws a sprite with full control over appearance
+    /// - spriteId: Valid sprite ID created with createSprite (not an image ID)
+    /// - x, y: Position on screen (affected by setOffset)
+    /// - z: Sorting depth value
+    /// - scale: Scaling factor
+    /// - rotation: Rotation angle in radians
+    /// - mul: Multiply color (0xRRGGBBAA format)
+    /// - add: Additive color (0xRRGGBBAA format)
+    /// - flags: Combination of sprite flags (spriteBottom, spriteCenter, etc.)
     foreign static sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)
 
-    /// Draw a shape at a position, with scale, rotation, mul, and colors
+    /// Draws a shape at a position with transformation
     foreign static shape(shapeId, x, y, z, scale, rotation, mul, add)
 
-    /// Draw text at a position, with scale, rotation, colors and flags
+    /// Draws text at a position with styling
+    /// Note: Text always renders above sprites currently
     foreign static text(fontId, txt, x, y, z, mul, add, flags)
     
     /// Don't apply any flags
@@ -74,38 +85,42 @@ class Render {
     /// This is not a sprite but a shape, so handle it differently
     static spriteShape      { 1 << 8 }
 
-    /// Debug native API //////////////////////////////////////////////////////
-
-    /// Primitive type lines    
+    /// Primitive type for line rendering
     static lines { 0 }
 
-    /// Primitive type triangles
+    /// Primitive type for triangle rendering
     static triangles { 1 }
 
-    /// Begin a debug draw
+    /// Begins a debug primitive batch
+    /// Call dbgVertex() to add vertices, then dbgEnd() to finish
+    /// Primitive can be lines or triangles
     foreign static dbgBegin(primitive)
 
-    /// End a debug draw (flush)
+    /// Ends a debug primitive batch and renders it
+    /// Number of vertices must match primitive type (divisible by 2 for lines, 3 for triangles)
     foreign static dbgEnd()
 
-    /// Add a vertex
+    /// Adds a vertex to the current debug primitive
+    /// Must be called between dbgBegin() and dbgEnd()
     foreign static dbgVertex(x, y)
 
-    /// Set the color for the next vertex
+    /// Sets the color for the next debug vertices
+    /// Color format: 0xRRGGBBAA (e.g., 0xF0C0D0FF)
     foreign static dbgColor(color)
 
-    /// Draw a line
+    /// Draws a debug line from (x0, y0) to (x1, y1)
     foreign static dbgLine(x0, y0, x1, y1)
 
-    /// Draw some text using dbgSquare font (debug)
+    /// Draws debug text on screen with specified size
+    /// Uses built-in debug font
     foreign static dbgText(text, x, y, size)
 
-    /// Helper functions //////////////////////////////////////////////////////
-
+    /// Draws a debug line between two vector points
     static dbgLine(a, b) {
         dbgLine(a.x, a.y, b.x, b.y)
     }
 
+    /// Draws a filled debug rectangle
     static dbgRect(fromX, fromY, toX, toY) {
         Render.dbgBegin(Render.triangles)
             Render.dbgVertex(fromX, fromY)
@@ -118,11 +133,14 @@ class Render {
         Render.dbgEnd()
     }
 
+    /// Draws a filled debug square centered at position
     static dbgSquare(centerX, centerY, size) {
         var s = size * 0.5
         Render.dbgRect(centerX - s, centerY - s, centerX + s, centerY + s)
     }
 
+    /// Draws a filled debug circle (disk)
+    /// divs controls the number of triangular segments
     static dbgDisk(x, y, r, divs) {
         Render.dbgBegin(Render.triangles)
         var t = 0.0
@@ -140,12 +158,14 @@ class Render {
         Render.dbgEnd()
     }
 
+    /// Draws a debug circle outline
+    /// divs controls the number of line segments
     static dbgCircle(x, y, r, divs) {
         Render.dbgBegin(Render.lines)
         var t = 0.0
         var dt = (Num.pi * 2.0) / divs
-        for(i in 0..divs) {            
-            var xr = t.cos * r            
+        for(i in 0..divs) {
+            var xr = t.cos * r
             var yr = t.sin * r
             Render.dbgVertex(x + xr, y + yr)
             t = t + dt
@@ -156,6 +176,8 @@ class Render {
         Render.dbgEnd()
     }
 
+    /// Draws a debug arc (partial circle outline)
+    /// angle is in radians, divs controls line segment count
     static dbgArc(x, y, r, angle, divs) {        
         var t = 0.0
         divs = angle / (Num.pi * 2.0) * divs
@@ -176,15 +198,17 @@ class Render {
         }
     }
 
+    /// Draws a filled debug pie/wedge shape
+    /// angle is in radians, divs controls triangle count
     static dbgPie(x, y, r, angle, divs) {
         Render.dbgBegin(Render.triangles)
         var t = 0.0
         divs = angle / (Num.pi * 2.0) * divs
         divs = divs.truncate
         var dt = angle / divs
-        for(i in 0..divs) {            
+        for(i in 0..divs) {
             Render.dbgVertex(x, y)
-            var xr = t.cos * r            
+            var xr = t.cos * r
             var yr = t.sin * r
             Render.dbgVertex(x + xr, y + yr)
             t = t + dt
@@ -195,22 +219,28 @@ class Render {
         Render.dbgEnd()
     }
 
+    /// Adds a vector point as a debug vertex
     static dbgVertex(v) {
         Render.dbgVertex(v.x, v.y)
     }
 
+    /// Draws a sprite at position with default settings
+    /// Equivalent to: sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     static sprite(spriteId, x, y) {
         sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }
 
+    /// Draws a sprite at position with z-sorting
     static sprite(spriteId, x, y, z) {
         sprite(spriteId, x, y, z, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)
     }
 
+    /// Draws a sprite at position with z-sorting and custom flags
     static sprite(spriteId, x, y, z, flags) {
         sprite(spriteId, x, y, z, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, flags)
     }
 
+    /// Creates a sprite from a grid/sprite sheet by column and row
     static createGridSprite(imageId, columns, rows,  c, r) {
         var ds = 1 / columns
         var dt = 1 / rows        
@@ -219,7 +249,9 @@ class Render {
         return createSprite(imageId, s, t, s + ds, t + dt)
     }
 
-    static createGridSprite(imageId, columns, rows,  idx) { 
+    /// Creates a sprite from a grid/sprite sheet by index
+    /// Index starts at 0 from top-left, going row by row
+    static createGridSprite(imageId, columns, rows,  idx) {
         var ds = 1 / columns
         var dt = 1 / rows
         var r = (idx / columns).truncate
@@ -232,12 +264,19 @@ class Render {
     }
 }
 
+/// File I/O operations
 class File {
+    /// Reads the contents of a file as a string
     foreign static read(src)
+
+    /// Writes text content to a file
     foreign static write(text, dst)
+
+    /// Checks if a file exists at the given path
     foreign static exists(src)
 }
 
+/// Data class for touch input information
 class TouchData {
     construct new(index, x, y) {
         _index = index
@@ -250,31 +289,68 @@ class TouchData {
     y { _y }
 }
 
+/// Input handling for keyboard, mouse, gamepad, and touch
 class Input {
+    /// Gets the current value of a gamepad axis (-1.0 to 1.0)
     foreign static getAxis(axis)
+
+    /// Gets axis value once when it crosses threshold (prevents repeating)
     foreign static getAxisOnce(axis, threshold)
+
+    /// Checks if a gamepad button is currently pressed
     foreign static getButton(button)
+
+    /// Checks if a gamepad button was just pressed (doesn't repeat while held)
     foreign static getButtonOnce(button)
 
+    /// Checks if a keyboard key is currently pressed
     foreign static getKey(key)
+
+    /// Checks if a keyboard key was just pressed (doesn't repeat while held)
     foreign static getKeyOnce(key)
 
+    /// Gets mouse state information
     foreign static getMouse()
+
+    /// Checks if a mouse button is currently pressed
     foreign static getMouseButton(button)
+
+    /// Checks if a mouse button was just pressed (doesn't repeat while held)
     foreign static getMouseButtonOnce(button)
+
+    /// Gets the current mouse X position in screen coordinates
     foreign static getMouseX()
+
+    /// Gets the current mouse Y position in screen coordinates
     foreign static getMouseY()
+
+    /// Gets the mouse wheel delta for this frame
     foreign static getMouseWheel()
 
+    /// Gets the number of active touch points
     foreign static getNrTouches()
+
+    /// Gets the unique ID for a touch at the given index
     foreign static getTouchId(index)
+
+    /// Gets the X position for a touch at the given index
     foreign static getTouchX(index)
+
+    /// Gets the Y position for a touch at the given index
     foreign static getTouchY(index)
 
+    /// Sets gamepad vibration motors (DualSense, Xbox controllers)
+    /// time is in milliseconds
     foreign static setPadVibration(lowRumble, highRumble, time)
+
+    /// Sets the gamepad lightbar color (DualSense controller)
+    /// Colors are 0-255
     foreign static setPadLightbarColor(red, green, blue)
+
+    /// Resets gamepad lightbar to default color
     foreign static resetPadLightbarColor()
 
+    /// Gets all touch data as a list of TouchData objects
     static getTouchData() {
         var nrTouches = getNrTouches()
         var result = []
@@ -282,10 +358,12 @@ class Input {
         return result
     }
 
+    /// Gets touch data for a specific touch index
     static getTouchData(index) {
         return TouchData.new(getTouchId(index), getTouchX(index), getTouchY(index))
     }
 
+    /// Gets the mouse position as a two-element list [x, y]
     static getMousePosition() {
         return [getMouseX(), getMouseY()]
     }
@@ -353,51 +431,104 @@ class Input {
     static mouseButtonMiddle { 2 }
 }
 
+/// Audio playback using FMOD
 class Audio {
 
+    /// Loads a sound file into a group and returns a sound ID
     foreign static load(name, groupId)
+
+    /// Plays a loaded sound and returns a channel ID
     foreign static play(soundId)
+
+    /// Gets the volume level of a sound group (0.0 to 1.0)
     foreign static getGroupVolume(groupId)
+
+    /// Sets the volume level of a sound group (0.0 to 1.0)
     foreign static setGroupVolume(groupId, volume)
+
+    /// Gets the volume level of a specific channel (0.0 to 1.0)
     foreign static getChannelVolume(channelId)
+
+    /// Sets the volume level of a specific channel (0.0 to 1.0)
     foreign static setChannelVolume(channelId, volume)
+
+    /// Gets the volume level of an FMOD bus by name (0.0 to 1.0)
     foreign static getBusVolume(busName)
+
+    /// Sets the volume level of an FMOD bus by name (0.0 to 1.0)
     foreign static setBusVolume(busName, volume)
+
+    /// Loads an FMOD sound bank
     foreign static loadBank(bankId)
+
+    /// Unloads an FMOD sound bank
     foreign static unloadBank(bankId)
+
+    /// Starts an FMOD event and returns an event instance ID
     foreign static startEvent(eventName)
+
+    /// Sets a numeric parameter on an FMOD event instance
     foreign static setParameterNumber(eventId, paramName, newValue)
+
+    /// Sets a labeled parameter on an FMOD event instance
     foreign static setParameterLabel(eventId, paramName, newValue)
 
     static groupSFX    { 1 }
     static groupMusic  { 2 }
 }
 
+/// Persistent data storage system
+/// Allows storing and retrieving typed values across different scopes
 class Data {
+    /// Gets a number value from the game scope
     static getNumber(name) { getNumber(name, game) }
+
+    /// Gets a color value from the game scope
     static getColor(name)  { getColor(name, game) }
+
+    /// Gets a boolean value from the game scope
     static getBool(name)  { getBool(name, game) }
 
+    /// Gets a number value from a specific data scope
     foreign static getNumber(name, type)
+
+    /// Gets a color value from a specific data scope
     foreign static getColor(name, type)
+
+    /// Gets a boolean value from a specific data scope
     foreign static getBool(name, type)
+
+    /// Gets a string value from a specific data scope
     foreign static getString(name, type)
 
+    /// Sets a number value in a specific data scope
     foreign static setNumber(name, value, type)
-    foreign static setColor(name, value, type)    
+
+    /// Sets a color value in a specific data scope
+    foreign static setColor(name, value, type)
+
+    /// Sets a boolean value in a specific data scope
     foreign static setBool(name, value, type)
+
+    /// Sets a string value in a specific data scope
     foreign static setString(name, value, type)
 
     static system   { 2 }
-	static debug    { 3 }
+    static debug    { 3 }
     static game     { 4 }
     static player   { 5 }
 }
 
+/// Platform and device information
 class Device {
 
+    /// Gets the current platform identifier
     foreign static getPlatform()
+
+    /// Checks if the application can be closed (always false on consoles)
     foreign static canClose()
+
+    /// Requests the application to close
     foreign static requestClose()
 
     static PlatformPC      { 0 }
@@ -405,7 +536,11 @@ class Device {
     static PlatformSwitch  { 2 }
 }
 
+/// CPU profiling utilities
 class Profiler {
+    /// Begins a named profiler section
     foreign static begin(name)
+
+    /// Ends a named profiler section
     foreign static end(name)
 }
