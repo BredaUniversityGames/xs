@@ -188,6 +188,10 @@ bool fileio::exists(const string& filename)
 	return good;
 }
 
+#if (defined(PLATFORM_PC) || defined(PLATFORM_MAC))
+void fileio::commit() {}
+#endif
+
 #if (defined(PLATFORM_PC) || defined(PLATFORM_MAC)) && (defined(DEBUG) || defined(PROFILE))
 
 uint64_t fileio::last_write(const string& filename)

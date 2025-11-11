@@ -26,8 +26,6 @@
 
 #if defined(PLATFORM_PC)
 #include "device_pc.hpp"
-#elif defined(PLATFORM_SWITCH)
-#include <nn/fs.h>
 #endif
 
 #define SHOW_IMGUI_DEMO 1
@@ -558,12 +556,6 @@ void xs::inspector::render(double dt)
 		current_theme = new_theme;
 		apply_theme();
 	}
-
-#if defined(PLATFORM_SWITCH)
-	// Commit updated content to the specified mount name
-	// Make sure the content is not in <tt>nn::fs::OpenMode_Write</tt>
-	nn::fs::Commit("save");
-#endif
 }
 
 bool xs::inspector::paused()
@@ -990,7 +982,7 @@ void xs::inspector::see_through()
 
 void xs::inspector::initialize() {}
 void xs::inspector::shutdown() {}
-//void xs::inspector::render(float dt) {}
+void xs::inspector::render(double dt) {}
 bool xs::inspector::paused() { return false; }
 bool xs::inspector::should_restart() { return false; }
 int xs::inspector::notify(notification_type type, const std::string& message, float time) { return 0; }

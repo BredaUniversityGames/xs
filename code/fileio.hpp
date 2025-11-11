@@ -18,7 +18,8 @@ namespace xs::fileio
 	std::string absolute(const std::string& path);
 	bool exists(const std::string& filename);
 	uint64_t last_write(const std::string& filename);
+	void commit();
 
-	// Query if a wildcard is defined without modifying state
+	// Query if a wildcard is defined without modifying the state
 	bool has_wildcard(const std::string& wildcard);
 }
