@@ -41,7 +41,7 @@ int xs::dispatch(int argc, char* argv[])
 {
 #if defined(PLATFORM_PC) || defined(PLATFORM_MAC)
 	// Parse command line arguments
-	argparse::ArgumentParser program("xs", "0.2.0");
+	argparse::ArgumentParser program("xs", version::get_version_string(false, true, true).c_str());
 	program.add_description("xs game engine");
 
 	// Run subcommand - runs a project folder or .xs package
@@ -82,7 +82,7 @@ int xs::dispatch(int argc, char* argv[])
 	std::string game_path;
 	if (program.is_subcommand_used("version"))
 	{
-		printf("%s", version::get_version_string().c_str());
+		printf("%s", version::get_version_string(false, true, true).c_str());
 		return 0;
 	}
 	

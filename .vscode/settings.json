@@ -1,16 +1,3 @@
 {
-    "cSpell.words": [
-        "stbi",
-        "stbtt",
-        "Wunused"
-    ],
-    "files.associations": {
-        "iosfwd": "cpp",
-        "ostream": "cpp",
-        "string": "cpp"
-    },
-    "wren.additionalModuleDirectories": [
-        "./assets/modules"
-    ],
-
+    "window.autoDetectColorScheme": true
 }
