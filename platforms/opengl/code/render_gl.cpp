@@ -244,6 +244,8 @@ void xs::render::initialize()
 
 void xs::render::shutdown()
 {
+	if (instances_data) delete[] instances_data;
+
 	// Shutdown the render system in reverse order
 
 	// Trigs
@@ -457,7 +459,7 @@ void xs::render::clear()
 	auto w = device::get_width();
 	auto h = device::get_height();
 	glViewport(0, 0, w, h);
-	glClearColor(1.0, 1.0, 0.0, 1.0f);
+	glClearColor(0.0, 0.0, 0.0, 1.0f);  // Black for letterbox bars
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	lines_count = 0;

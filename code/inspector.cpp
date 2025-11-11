@@ -18,7 +18,7 @@
 #include "tools.hpp"
 #include "input.hpp"
 #include "render_internal.hpp"
-#include "exporter.hpp"
+#include "packager.hpp"
 
 #ifdef EDITOR
 #include "dialogs/portable-file-dialogs.h"
@@ -26,8 +26,6 @@
 
 #if defined(PLATFORM_PC)
 #include "device_pc.hpp"
-#elif defined(PLATFORM_SWITCH)
-#include <nn/fs.h>
 #endif
 
 #define SHOW_IMGUI_DEMO 1
@@ -51,6 +49,7 @@ namespace xs::inspector
 	bool show_demo = false;
 	bool show_modal = false;
 	bool show_inspector = false;
+	char* ini_filename = nullptr;
 
 	enum class theme
 	{
@@ -108,12 +107,15 @@ void xs::inspector::initialize()
 		log::critical("Could not find the font file selawk.ttf at path:{}", selawk);
 		return;
 	}
-	io.Fonts->AddFontFromFileTTF(selawk.c_str(), fontSize * UIScale, &config);
-	
+	auto selawk_data = fileio::read_binary_file(selawk);
+	// Copy to a heap allocation to ensure it stays valid
+	char* selawk_buffer = new char[selawk_data.size()];
+	memcpy(selawk_buffer, selawk_data.data(), selawk_data.size());
+	auto selawk_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), fontSize * UIScale, &config);
+	assert(selawk_font);
+		
 	static const ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 }; // will not be copied by AddFont* so keep in scope.
 	config.MergeMode = true;
-	config.OversampleH = 8;
-	config.OversampleV = 8;
 
 	std::string font_awesome = fileio::get_path("[shared]/fonts/FontAwesome5FreeSolid900.otf");
 	if(!fileio::exists(font_awesome))
@@ -121,15 +123,30 @@ void xs::inspector::initialize()
 		log::critical("Could not find the font file FontAwesome5FreeSolid900.otf at path:{}", font_awesome);
 		return;
 	}
-	io.Fonts->AddFontFromFileTTF(font_awesome.c_str(), iconSize * UIScale, &config, icons_ranges);
-	
-	small_font = io.Fonts->AddFontFromFileTTF(selawk.c_str(), 0.8f * fontSize * UIScale);
+	auto font_awesome_data = fileio::read_binary_file(font_awesome);
+	// Copy to a heap allocation to ensure it stays valid
+	char* font_awesome_buffer = new char[font_awesome_data.size()];
+	memcpy(font_awesome_buffer, font_awesome_data.data(), font_awesome_data.size());
+	auto font_awesome_font = io.Fonts->AddFontFromMemoryTTF(
+		font_awesome_buffer,
+		(int)font_awesome_data.size(),
+		iconSize * UIScale,
+		&config,
+		icons_ranges);
+	assert(font_awesome_font != nullptr);
+
+	// Copy to a heap allocation (again) to ensure it stays valid
+	selawk_buffer = new char[selawk_data.size()];
+	memcpy(selawk_buffer, selawk_data.data(), selawk_data.size());
+	small_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), 12.0f * UIScale, nullptr);
+	assert(small_font);
+
 
 	const std::string iniPath = fileio::get_path("[user]/imgui.ini");
 	const char* constStr = iniPath.c_str();
-	char* str = new char[iniPath.size() + 1];
-	strcpy(str, constStr);
-	io.IniFilename = str;
+	ini_filename = new char[iniPath.size() + 1];
+	strcpy(ini_filename, constStr);
+	io.IniFilename = ini_filename;
 
 	current_theme = (theme)data::get_number("theme", data::type::user);
 	show_inspector = data::get_bool("show_inspector", data::type::user);
@@ -143,6 +160,7 @@ void xs::inspector::shutdown()
 	ImPlot::DestroyContext();
 #endif
 	ImGui::DestroyContext();
+	delete[] ini_filename;
 }
 
 static void tooltip(const char* tooltip)
@@ -152,7 +170,7 @@ static void tooltip(const char* tooltip)
 		ImGui::BeginTooltip();
 		ImGui::SetTooltip("%s", tooltip);
 		ImGui::EndTooltip();
-	}
+	}	
 }
 
 void xs::inspector::render(double dt)
@@ -222,7 +240,7 @@ void xs::inspector::render(double dt)
 				game_paused = true;
 			tooltip("Pause");
 		}		
-
+    	
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_DATABASE))
 			show_registry = !show_registry;
@@ -296,38 +314,38 @@ void xs::inspector::render(double dt)
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_ARCHIVE))
 		{
-			auto game_path = data::get_string("game", data::type::user);
-			if (!game_path.empty())
+			// Check if wildcards are defined
+			if (!fileio::has_wildcard("[game]"))
 			{
-				auto save_path = pfd::save_file("Export Game", game_path, { "XS Game Archive", "*.xs" }).result();
+				notify(notification_type::warning, "No game project loaded", 3.0f);
+			}
+			else
+			{
+				auto game_path = fileio::get_path("[game]");
+				auto save_path = pfd::save_file("Package Game", game_path, { "XS Game Package", "*.xs" }).result();
 				if (!save_path.empty())
 				{
 					// Ensure the file has .xs extension
 					if (save_path.find(".xs") == std::string::npos)
 						save_path += ".xs";
 
-					log::info("Exporting game to: {}", save_path);
+					log::info("Packaging game to: {}", save_path);
 
-					// Export the content directly to the user-selected path
-					std::vector<std::string> sub_dirs; // Empty means export entire folder
-					if (exporter::export_content_to_path(game_path, sub_dirs, save_path))
+					// Package game content and shared resources from wildcards
+					if (packager::create_package(save_path))
 					{
-						notify(notification_type::success, "Game exported successfully!", 3.0f);
-						log::info("Game exported successfully to: {}", save_path);
+						notify(notification_type::success, "Game packaged successfully!", 3.0f);
+						log::info("Game packaged successfully to: {}", save_path);
 					}
 					else
 					{
-						notify(notification_type::error, "Failed to export game", 3.0f);
-						log::error("Failed to export game content");
+						notify(notification_type::error, "Failed to package game", 3.0f);
+						log::error("Failed to package game content");
 					}
 				}
 			}
-			else
-			{
-				notify(notification_type::warning, "No game project loaded", 3.0f);
-			}
 		}
-		tooltip("Export Game");
+		tooltip("Package Game");
 #endif
 
 		ImGui::SameLine();
@@ -412,17 +430,16 @@ void xs::inspector::render(double dt)
 
         	
 			auto path = fileio::absolute("[game]");
-			ImGui::Text(" Wren:%sMB | Draw Calls:%s | Sprites:%s | Version:%s | Project:%s",
+			ImGui::Text("%sMB | %sDC | %sSP | %s | %s",
 						mem_str.c_str(),
 						draw_calls.c_str(),
 						sprites.c_str(),
-						version::version_string.c_str(),
+						version::get_version_string(false, true, true).c_str(),
 						path.c_str());
 						
 			ImGui::PopFont();
 			ImGui::End();
 		}
-
 	}
 	else
 	{
@@ -519,7 +536,7 @@ void xs::inspector::render(double dt)
 	if (show_about)
 	{
 		ImGui::Begin("About", &show_about, ImGuiWindowFlags_Modal);
-		ImGui::Text(" xs %s ", xs::version::version_string.c_str());
+		ImGui::Text(" xs %s ", xs::version::get_version_string().c_str());
 		ImGui::Text(" Made with love at Breda University of Applied Sciences ");
 		ImGui::End();
 	}
@@ -539,12 +556,6 @@ void xs::inspector::render(double dt)
 		current_theme = new_theme;
 		apply_theme();
 	}
-
-#if defined(PLATFORM_SWITCH)
-	// Commit updated content to the specified mount name
-	// Make sure the content is not in <tt>nn::fs::OpenMode_Write</tt>
-	nn::fs::Commit("save");
-#endif
 }
 
 bool xs::inspector::paused()
@@ -971,7 +982,7 @@ void xs::inspector::see_through()
 
 void xs::inspector::initialize() {}
 void xs::inspector::shutdown() {}
-//void xs::inspector::render(float dt) {}
+void xs::inspector::render(double dt) {}
 bool xs::inspector::paused() { return false; }
 bool xs::inspector::should_restart() { return false; }
 int xs::inspector::notify(notification_type type, const std::string& message, float time) { return 0; }

@@ -1,0 +1,21 @@
+{
+  "image": "male_hero_template.png",
+  "columns": 10,
+  "rows": 9,
+  "fps": 10,
+  "animations": {
+    "walk": [
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29
+    ],
+    "idle": []
+  }
+}

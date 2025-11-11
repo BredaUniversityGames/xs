@@ -4,9 +4,13 @@
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>
 
+// Color support for platforms with ANSI terminal
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_PROSPERO)
 #define USE_LOG_COLOR
 #endif
+
+// UTF-8 support - everyone gets the modern experience!
+#define USE_UTF8_LOG
 
 namespace xs::log
 {
@@ -41,6 +45,48 @@ namespace xs::log
 	void flush();
 }
 
+// ============================================================================
+// UTF-8 IMPLEMENTATION - Modern terminals with emoji and unicode
+// ============================================================================
+#ifdef USE_UTF8_LOG
+
+template<typename FormatString, typename ...Args>
+inline void xs::log::info(const FormatString& format, const Args & ...args)
+{
+	printf("ℹ️  \033[38;5;75m");  // Blue (VS Code info color)
+	fmt::print(fmt::runtime(format), args...);
+	printf("\033[0m\n");
+}
+
+template<typename FormatString, typename ...Args>
+inline void xs::log::warn(const FormatString& format, const Args & ...args)
+{
+	printf("⚠️  \033[38;5;214m");  // Orange (VS Code warning color)
+	fmt::print(fmt::runtime(format), args...);
+	printf("\033[0m\n");
+}
+
+template<typename FormatString, typename ...Args>
+inline void xs::log::error(const FormatString& format, const Args & ...args)
+{
+	printf("⛔️ \033[38;5;196m");  // Red (VS Code error color)
+	fmt::print(fmt::runtime(format), args...);
+	printf("\033[0m\n");
+}
+
+template<typename FormatString, typename ...Args>
+inline void xs::log::critical(const FormatString& format, const Args & ...args)
+{
+	printf("🚨 \033[38;5;196m");  // Bright red (VS Code error color)
+	fmt::print(fmt::runtime(format), args...);
+	printf("\033[0m\n");
+}
+
+// ============================================================================
+// FALLBACK IMPLEMENTATION - Basic ASCII with color codes
+// ============================================================================
+#else
+
 template<typename FormatString, typename ...Args>
 inline void xs::log::info(const FormatString& format, const Args & ...args)
 {
@@ -72,6 +118,8 @@ inline void xs::log::critical(const FormatString& format, const Args & ...args)
 	fmt::print(fmt::runtime(format), args...);
 	printf("\n");
 }
+
+#endif
 
 inline void xs::log::flush()
 {

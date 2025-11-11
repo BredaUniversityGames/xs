@@ -35,16 +35,16 @@ class Player is Component {
             vel = Vec2.new(gamepadX, gamepadY)
         } else {
             // Keyboard input (WASD)
-            if (Input.getKey("a")) {
+            if (Input.getKey(Input.keyA)) {
                 vel = vel + Vec2.new(-1, 0)
             }
-            if (Input.getKey("d")) {
+            if (Input.getKey(Input.keyD)) {
                 vel = vel + Vec2.new(1, 0)
             }
-            if (Input.getKey("w")) {
+            if (Input.getKey(Input.keyW)) {
                 vel = vel + Vec2.new(0, 1)
             }
-            if (Input.getKey("s")) {
+            if (Input.getKey(Input.keyS)) {
                 vel = vel + Vec2.new(0, -1)
             }
         }

@@ -97,7 +97,7 @@
     <ClCompile Include="external\miniz\src\miniz_zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\exporter.cpp">
+    <ClCompile Include="code\packager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="platforms\pc\code\fileio_pc.cpp">
@@ -107,9 +107,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="platforms\pc\code\account_pc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="code\resource_pipeline.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="platforms\nx\code\account_switch.cpp">
@@ -151,9 +148,6 @@
     <ClCompile Include="code\log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="platforms\opengl\code\opengl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -190,6 +184,9 @@
     <ClCompile Include="code\tools.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="code\version.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="code\xs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -203,6 +200,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="platforms\nx\code\main_switch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="platforms\pc\code\main_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -330,7 +330,7 @@
     <ClInclude Include="code\configuration.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\exporter.hpp">
+    <ClInclude Include="code\packager.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\defines.hpp">
@@ -363,16 +363,10 @@
     <ClInclude Include="code\render.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\resource_pipeline.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="code\script.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\tools.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\types.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\version.hpp">
@@ -406,9 +400,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\imgui\imgui_internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="code\main.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platforms\opengl\code\platform_opengl.hpp">
