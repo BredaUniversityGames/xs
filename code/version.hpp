@@ -5,10 +5,10 @@ namespace xs::version
 {
     // Version components (single source of truth)
     constexpr int XS_VERSION_YEAR = 25;
-    constexpr int XS_VERSION_BUILD = 132;
+    constexpr int XS_VERSION_BUILD = 133;
 
     // Short commit hash
-    constexpr const char* XS_COMMIT_HASH = "c5cb27d";
+    constexpr const char* XS_COMMIT_HASH = "27e063f";
 
     // Version string builder function (implemented in version.cpp)
     // Builds version strings from the integer components above
