@@ -7,7 +7,8 @@
 
 #include "log.hpp"
 #include "tools.hpp"
-#include "resource_pipeline.hpp"
+#include "packager.hpp"
+#include "xs.hpp"
 #include "miniz.h"
 
 #if defined(PLATFORM_PC)
@@ -21,209 +22,109 @@ using namespace std;
 namespace xs::fileio::internal
 {
 	map<string, string> wildcards;
-
-	unordered_map<std::string, resource_pipeline::content_header> text_content_headers;
-	unordered_map<std::string, resource_pipeline::content_header> binary_content_headers;
-
-	// ------------------------------------------------------------------------
-	// Read data from a specific source and return the amount of bytes that are read
-	size_t read_from_archive(void* dst, const void* src, size_t size)
-	{
-		memcpy(dst, src, size);
-		return size;
-	}
-
-	// ------------------------------------------------------------------------
-	std::string game_content_path()
-	{
-		// Read game content from a text file
-		auto game_str = fileio::read_text_file("[games]/.ini");
-		if (game_str.empty())
-		{
-			log::error("Cannot load game, .ini file seems to be empty");
-			return {};
-		}
-
-		// Create archive path from game content
-		return resource_pipeline::make_archive_path(fileio::get_path("[games]"), { game_str });
-	}
-
-	// ------------------------------------------------------------------------
-	// Load game content from a file
-	blob load_game_content()
-	{
-		// Create archive path from game content
-		string archive_path = game_content_path();
-
-		log::info("Loading archive: {}", archive_path);
-
-		// Check if the archive exists
-		if (fileio::exists(archive_path))
-			// Read binary content from the created archive path
-			return fileio::read_binary_file(archive_path);
-			
-		return {};
-	}
-	// ------------------------------------------------------------------------
-	// Load compressed game archive
-	void load_game_content_headers()
-	{
-		// Load game content from file
-		blob game_content = load_game_content();
-
-		if (game_content.empty())
-		{
-			log::info("Game archive not found loading.");
-			return;
-		}
-
-		log::info("Read {0} bytes archive from disk", game_content.size());
-
-		size_t entries_count = 0;
-		size_t offset = read_from_archive(&entries_count, game_content.data(), sizeof(size_t));
-
-		log::info("Loading {0} entries", entries_count);
-
-		// Load in all archives from game data blob
-		for (int i = 0; i < entries_count; ++i)
-		{
-			resource_pipeline::content_header header;
-			offset += read_from_archive(&header, game_content.data() + offset, sizeof(resource_pipeline::content_header));
-			auto path = get_path(header.file_path);
-
-
-			if (header.file_size_compressed != 0)
-			{
-				log::info("Text entry loaded: {0}", header.file_path);
-				text_content_headers.emplace(path, header);
-				// Offset with the content data itself so we can jump to the next content_header
-				offset += header.file_size_compressed; 
-			}
-			else
-			{
-				log::info("Binary entry loaded: {0}", header.file_path);
-				binary_content_headers.emplace(path, header);
-				// Offset with the content data itself so we can jump to the next content_header
-				offset += header.file_size; 
-			}
-		}
-	}
+	// Package data - loaded once on startup (will be populated later)
+	static packager::package loaded_package;
+	static unordered_map<std::string, const packager::package_entry*> content_map;
 }
 
 using namespace xs;
 using namespace fileio::internal;
 
-blob fileio::read_binary_file(const string& filename)
+// Load game package
+bool xs::fileio::load_package(const std::string& package_path)
 {
+	if (!fileio::exists(package_path))
+	{
+		log::info("Game package not found: {}", package_path);
+		return false;
+	}
+
+	// Load package
+	if (!packager::load_package(package_path, loaded_package))
+	{
+		log::error("Failed to load game package");
+		return false;
+	}
+
+	log::info("Loaded package with {} entries", loaded_package.entries.size());
+
+	// Build hash map for fast lookups
+	// content_map.clear();
+	for (const auto& entry : loaded_package.entries)
+	{
+		content_map[entry.relative_path] = &entry;
+		log::info("Entry loaded: {}", entry.relative_path);
+	}
+
+	return true;
+}
+
+std::vector<std::byte> fileio::read_binary_file(const string& filename)
+{
+	// Check if file is in loaded package first (using wildcard path)
+	auto it = content_map.find(filename);
+	if (it != content_map.end())
+	{
+		const packager::package_entry* entry = it->second;
+		return packager::decompress_entry(*entry);
+	}
+
+	// Not in package, try reading from disk (expand wildcards)
 	const auto path = get_path(filename);
-
-	bool has_binary_content = binary_content_headers.empty() == false;
-	bool has_given_content_file = binary_content_headers.find(path) != binary_content_headers.cend();
-
-	if (has_binary_content && has_given_content_file)
+	ifstream file(path, ios::binary | ios::ate);
+	if (!file.is_open())
 	{
-		// Open the content archive
-		std::string game_content_file_path = game_content_path();
-		ifstream file(game_content_path(), ios::binary | ios::ate);
-		if (!file.is_open())
-		{
-			log::error("File {} with full path {} was not found!", game_content_file_path, path);
-			return {};
-		}
-
-		const resource_pipeline::content_header& header = binary_content_headers.at(path);
-		file.seekg(header.file_offset, ios::beg);
-		blob buffer(header.file_size);
-		if (file.read((char*)buffer.data(), header.file_size))
-			return buffer;
-	}
-	else
-	{
-		ifstream file(path, ios::binary | ios::ate);
-		if (!file.is_open())
-		{
-			log::error("File {} with full path {} was not found!", filename, path);
-			return {};
-		}
-
-		const streamsize size = file.tellg();
-		file.seekg(0, ios::beg);
-		blob buffer(size);
-		if (file.read((char*)buffer.data(), size))
-			return buffer;
+		log::error("File {} with full path {} was not found!", filename, path);
+		return {};
 	}
 
-	assert(false);
+	const streamsize size = file.tellg();
+	file.seekg(0, ios::beg);
+	std::vector<std::byte> buffer(size);
+	if (file.read((char*)buffer.data(), size))
+		return buffer;
+
 	return {};
 }
 
 string fileio::read_text_file(const string& filename)
 {
+	// Check if file is in loaded package first (using wildcard path)
+	auto it = content_map.find(filename);
+	if (it != content_map.end())
+	{
+		const packager::package_entry* entry = it->second;
+		std::vector<std::byte> data = packager::decompress_entry(*entry);
+
+		// Convert to string
+		return string(reinterpret_cast<const char*>(data.data()), data.size());
+	}
+
+	// Not in package, try reading from disk (expand wildcards)
 	const auto path = get_path(filename);
-
-	bool has_text_content = text_content_headers.empty() == false;
-	bool has_given_content_file = text_content_headers.find(path) != text_content_headers.cend();
-
-	if (has_text_content && has_given_content_file)
+	ifstream file(path);
+	if (!file.is_open())
 	{
-		// Open the content archive
-		std::string game_content_file_path = game_content_path();
-		ifstream file(game_content_path(), ios::binary | ios::ate);
-		if (!file.is_open())
-		{
-			log::error("File {} with full path {} was not found!", game_content_file_path, path);
-			return {};
-		}
-
-		const resource_pipeline::content_header& header = text_content_headers.at(path);
-
-		file.seekg(header.file_offset, ios::beg);
-		blob compressed_buffer(header.file_size_compressed);
-		if (file.read((char*)compressed_buffer.data(), header.file_size_compressed))
-		{
-			unsigned long size = (unsigned long)header.file_size;
-			string buffer(size, '\0');
-
-			// Decompress using miniz library
-			int dcmp_status = uncompress((unsigned char*)buffer.data(), &size, (const unsigned char*)(compressed_buffer.data()), (mz_ulong)(header.file_size_compressed));
-			if (dcmp_status != Z_OK)
-			{
-				log::error("uncompress failed!");
-				return {};
-			}
-
-			return buffer;
-		}
-	}
-	else
-	{
-		ifstream file(path);
-		if (!file.is_open())
-		{
-			log::error("File {} with full path {} was not found!", filename, path);
-			return string();
-		}
-
-		file.seekg(0, ios::end);
-		const size_t size = file.tellg();
-		string buffer(size, '\0');
-		file.seekg(0);
-		file.read(&buffer[0], size);
-		return buffer;
+		log::error("File {} with full path {} was not found!", filename, path);
+		return string();
 	}
 
-	assert(false);
-	return {};
+	file.seekg(0, ios::end);
+	const size_t size = file.tellg();
+	string buffer(size, '\0');
+	file.seekg(0);
+	file.read(&buffer[0], size);
+	return buffer;
 }
 
-bool fileio::write_binary_file(const blob& blob, const string& filename)
+bool fileio::write_binary_file(const std::vector<std::byte>& data, const string& filename)
 {
 	auto fullpath = fileio::get_path(filename);
 	ofstream ofs;
 	ofs.open(fullpath);
 	if (ofs.is_open())
 	{
-		ofs.write((char*)&blob[0], blob.size() * sizeof(char));;
+		ofs.write((char*)&data[0], data.size() * sizeof(char));;
 		ofs.close();
 		return true;
 	}
@@ -241,7 +142,7 @@ bool fileio::write_text_file(const string& text, const string& filename)
 		ofs.close();
 		return true;
 	}
-	return false;   // TODO: Warning?
+	return false;
 }
 
 void fileio::add_wildcard(const string& wildcard, const string& value)
@@ -276,8 +177,8 @@ bool fileio::exists(const string& filename)
 	// Expand wildcards
 	const auto path = get_path(filename);
 
-	// Check if the file is stored in the archive
-	if (binary_content_headers.find(path) != binary_content_headers.cend() || text_content_headers.find(path) != text_content_headers.cend())
+	// Check if the file is stored in the package
+	if(content_map.find(filename) != content_map.end())
 		return true;
 
 	// Check if the file exists
@@ -287,17 +188,30 @@ bool fileio::exists(const string& filename)
 	return good;
 }
 
+#if (defined(PLATFORM_PC) || defined(PLATFORM_MAC))
+void fileio::commit() {}
+#endif
+
 #if (defined(PLATFORM_PC) || defined(PLATFORM_MAC)) && (defined(DEBUG) || defined(PROFILE))
 
 uint64_t fileio::last_write(const string& filename)
 {
+	if(xs::get_run_mode() == xs::run_mode::packaged)
+		return 0;
+
+	// Expand wildcards
 	const auto path = get_path(filename);
 	fs::file_time_type ftime = fs::last_write_time(path);
 	return static_cast<uint64_t>(ftime.time_since_epoch().count());
 }
 
-#else 
+#else
 
 uint64_t fileio::last_write(const string& filename) { return 0; }
 
 #endif
+
+bool xs::fileio::has_wildcard(const string& wildcard)
+{
+	return internal::wildcards.find(wildcard) != internal::wildcards.end();
+}

@@ -1,9 +1,9 @@
 #pragma once
 #include "render.hpp"
+#include <cstddef>
 #include <vector>
 #include <glm/glm.hpp>
 #include <stb/stb_truetype.h>
-#include "types.hpp"
 #include "platform.hpp"
 
 namespace xs::render
@@ -23,8 +23,8 @@ namespace xs::render
 		int								image_id		= -1;
 		std::size_t						string_id		= 0;
 		std::vector<stbtt_packedchar>	packed_chars	= {};
-		stbtt_fontinfo					info			= {};		
-		blob							buffer			= {};
+		stbtt_fontinfo					info			= {};
+		std::vector<std::byte>			buffer			= {};
 		const unsigned char*			buffer_ptr		= nullptr;
 		double							scale			= 0;
 	};

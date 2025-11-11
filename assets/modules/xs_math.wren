@@ -4,10 +4,18 @@
 
 import "random" for Random
 
+/// Mathematical utility functions
 class Math {
     static pi { 3.14159265359 }
+
+    /// Linear interpolation between two values
+    /// Returns a value between a and b based on parameter t (0.0 to 1.0)
     static lerp(a, b, t) { (a * (1.0 - t)) + (b * t) }
-    static damp(a, b, lambda, dt) { lerp(a, b, 1.0 - (-lambda * dt).exp) }    
+
+    /// Smooth damping interpolation using exponential decay
+    /// Useful for camera following and smooth movement
+    static damp(a, b, lambda, dt) { lerp(a, b, 1.0 - (-lambda * dt).exp) }
+
     static min(l, r) { l < r ? l : r }
     static max(l, r) { l > r ? l : r }
     static atan2(y, x) { y.atan(x) }    

@@ -42,7 +42,7 @@
     <FMODSuffix Condition="'$(Configuration)'=='Debug'">L</FMODSuffix>
   </PropertyGroup>
   <ItemGroup>
-    <ClCompile Include="code\exporter.cpp">
+    <ClCompile Include="code\packager.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -93,7 +93,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="code\resource_pipeline.cpp" />
     <ClCompile Include="platforms\nx\code\account_switch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
       </ExcludedFromBuild>
@@ -155,13 +154,20 @@
     </ClCompile>
     <ClCompile Include="code\inspector.cpp" />
     <ClCompile Include="code\log.cpp" />
-    <ClCompile Include="code\main.cpp" />
     <ClCompile Include="platforms\opengl\code\opengl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="code\profiler.cpp" />
+    <ClCompile Include="platforms\pc\code\main_pc.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="platforms\prospero\code\account_ps5.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">
       </ExcludedFromBuild>
@@ -252,6 +258,7 @@
     </ClCompile>
     <ClCompile Include="code\script.cpp" />
     <ClCompile Include="code\tools.cpp" />
+    <ClCompile Include="code\version.cpp" />
     <ClCompile Include="code\xs.cpp" />
     <ClCompile Include="external\glad\src\glad.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
@@ -309,7 +316,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\account.hpp" />
-    <ClInclude Include="code\main.hpp" />
+    <ClInclude Include="code\platform.hpp" />
     <ClInclude Include="external\imgui\imconfig.h" />
     <ClInclude Include="external\imgui\imgui.h" />
     <ClInclude Include="external\imgui\imgui_impl.h" />
@@ -318,7 +325,7 @@
     <ClInclude Include="code\simple_audio.hpp" />
     <ClInclude Include="code\color.hpp" />
     <ClInclude Include="code\configuration.hpp" />
-    <ClInclude Include="code\exporter.hpp">
+    <ClInclude Include="code\packager.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -336,10 +343,8 @@
     <ClInclude Include="code\profiler.hpp" />
     <ClInclude Include="code\data.hpp" />
     <ClInclude Include="code\render.hpp" />
-    <ClInclude Include="code\resource_pipeline.hpp" />
     <ClInclude Include="code\script.hpp" />
     <ClInclude Include="code\tools.hpp" />
-    <ClInclude Include="code\types.hpp" />
     <ClInclude Include="code\version.hpp" />
     <ClInclude Include="code\xs.hpp" />
     <ClInclude Include="platforms\opengl\code\platform_opengl.hpp" />

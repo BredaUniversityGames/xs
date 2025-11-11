@@ -244,6 +244,8 @@ void xs::render::initialize()
 
 void xs::render::shutdown()
 {
+	if (instances_data) delete[] instances_data;
+
 	// Shutdown the render system in reverse order
 
 	// Trigs

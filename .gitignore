@@ -52,6 +52,7 @@ Thumbs.db
 *.wmv
 
 .vs/
+.vscode/
 executable/
 intermediate/
 build/
@@ -68,6 +69,8 @@ games/game
 *.user
 /deploy
 /games
+.venv
+
 
 # Claude Code local settings
 .claude/settings.local.json

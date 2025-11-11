@@ -73,15 +73,18 @@ namespace xs::script::internal
         if (strcmp(text, "\n") == 0)
             return;
 
-#if defined(PLATFORM_PC)
+#ifdef USE_UTF8_LOG
+        // Modern UTF-8 version with emoji
+        std::cout << "📜 " << text << endl;
+#else
+        // Basic ASCII version with color
+        #if defined(PLATFORM_PC)
         static auto magenta = "\033[35m";
         static auto reset = "\033[0m";
-        auto t = std::time(nullptr);
-        auto tm = *std::localtime(&t);
-        const auto time = std::put_time(&tm, "[%Y-%m-%d %T.%e0] ");
         std::cout << "[" << magenta << "script" << reset << "] " << text << endl;
-#else
+        #else
         std::cout << "[script] " << text << endl;
+        #endif
 #endif
     }
 

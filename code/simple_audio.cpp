@@ -164,7 +164,7 @@ int load(const std::string& filename)
 	}
 
 	// Read the audio file
-	blob file_data = fileio::read_binary_file(filename);
+	auto file_data = fileio::read_binary_file(filename);
 	if (file_data.empty())
 	{
 		log::error("Failed to read audio file: {}", filename);
