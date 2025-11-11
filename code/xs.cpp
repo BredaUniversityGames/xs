@@ -6,6 +6,7 @@
 #include "render.hpp"
 #include "script.hpp"
 #include "audio.hpp"
+#include "simple_audio.hpp"
 #include "account.hpp"
 #include "data.hpp"
 #include "inspector.hpp"
@@ -167,6 +168,7 @@ void xs::initialize(const std::string& game_path)
 	render::initialize();
 	input::initialize();
 	audio::initialize();
+	simple_audio::initialize();
 	inspector::initialize();
 	script::initialize();
 }
@@ -174,6 +176,7 @@ void xs::initialize(const std::string& game_path)
 void xs::shutdown()
 {
 	inspector::shutdown();
+	simple_audio::shutdown();
 	audio::shutdown();
 	input::shutdown();
 	render::shutdown();
@@ -193,6 +196,7 @@ void xs::update(double dt)
 		render::clear();
 		script::update(dt);
 		audio::update(dt);
+		simple_audio::update(dt);
 		script::render();
 	}
 

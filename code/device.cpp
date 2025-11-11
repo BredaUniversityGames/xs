@@ -15,5 +15,7 @@ namespace xs::device
 #endif
 		return platform::PLATFORM_UNKNOWN;
 	}
+
+	void set_fullscreen(bool fullscreen);
 }
 

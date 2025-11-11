@@ -375,6 +375,7 @@ class Input {
     static keySpace  { 32  }
     static keyEscape { 256 }
     static keyEnter  { 257 }
+    static keyF11    { 300 }
 
     static keyA { 65 }
     static keyB { 66 }
@@ -477,8 +478,34 @@ class Audio {
     static groupMusic  { 2 }
 }
 
-/// Persistent data storage system
-/// Allows storing and retrieving typed values across different scopes
+class SimpleAudio {
+    /// Load an audio file and return an audio id
+    foreign static load(path)    
+    
+    /// Play a loaded audio file with specified volume (0.0 to 1.0)
+    foreign static play(audioId, volume)
+
+    /// Play a loaded audio file with default volume (1.0)
+    static play(audioId) {
+        return play(audioId, 1.0)
+    }
+    
+    /// Set the volume of a playing channel (0.0 to 1.0)
+    foreign static setVolume(channelId, volume)
+    
+    /// Get the volume of a playing channel
+    foreign static getVolume(channelId)
+    
+    /// Stop a playing channel
+    foreign static stop(channelId)
+    
+    /// Stop all playing channels
+    foreign static stopAll()
+    
+    /// Check if a channel is currently playing
+    foreign static isPlaying(channelId)
+}
+
 class Data {
     /// Gets a number value from the game scope
     static getNumber(name) { getNumber(name, game) }
@@ -530,6 +557,7 @@ class Device {
 
     /// Requests the application to close
     foreign static requestClose()
+    foreign static setFullscreen(fullscreen)
 
     static PlatformPC      { 0 }
     static PlatformPS5     { 1 }

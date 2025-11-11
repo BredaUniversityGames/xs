@@ -1,4 +1,4 @@
-import "xs" for Input, Render, Data
+import "xs" for Input, Render, Data, Device
 import "random" for Random
 import "xs_math" for Math, Vec2
 
@@ -13,6 +13,8 @@ class Game {
 
         __w = Data.getNumber("Width", Data.system) * 0.5
         __h = Data.getNumber("Height", Data.system) * 0.5
+        
+        __fullscreen = false
     }
     
     static update(dt) {
@@ -20,6 +22,13 @@ class Game {
             Render.setOffset(64, 64)
         } else {
             Render.setOffset(0, 0)
+        }
+        
+        // Toggle fullscreen with F11 key
+        if(Input.getKeyOnce(Input.keyF11)) {
+            __fullscreen = !__fullscreen
+            Device.setFullscreen(__fullscreen)
+            System.print("Fullscreen: %(__fullscreen)")
         }
     }
 
