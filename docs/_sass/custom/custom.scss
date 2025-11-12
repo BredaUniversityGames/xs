@@ -1,0 +1,238 @@
+// xs Engine Custom Styling
+// Matches the engine's orange/pink/purple gradient theme
+
+// Color palette from the engine
+$xs-orange: #f89020;
+$xs-pink: #e85a8f;
+$xs-purple: #c739d8;
+$xs-dark: #2a1a3a;
+
+// Sticky navigation bar
+.site-header {
+  position: sticky !important;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(90deg, $xs-orange 0%, $xs-pink 50%, $xs-purple 100%) !important;
+  border-bottom: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  padding: 0.8rem 1rem !important;
+}
+
+// Navigation links styling
+.site-title,
+.site-nav a,
+.aux-nav a {
+  color: white !important;
+  font-weight: 500;
+  text-decoration: none;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+    text-decoration: none;
+  }
+}
+
+.site-title {
+  font-weight: 700 !important;
+  font-size: 1.3rem !important;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  img {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+  }
+}
+
+// Navigation icons
+.nav-icon {
+  margin-right: 0.4rem;
+  font-size: 1.1em;
+}
+
+// Main content gradient accent
+.main-content {
+  background: $xs-dark;
+}
+
+// Hero section for landing page
+.hero-section {
+  background: linear-gradient(135deg, $xs-orange 0%, $xs-pink 50%, $xs-purple 100%);
+  color: white;
+  padding: 4rem 2rem;
+  text-align: center;
+  margin: -2rem -2rem 2rem -2rem;
+  border-radius: 0;
+
+  h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  p {
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+
+    .btn {
+      background: white;
+      color: $xs-orange;
+      padding: 0.8rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        text-decoration: none;
+      }
+
+      &.btn-secondary {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        backdrop-filter: blur(10px);
+      }
+    }
+  }
+}
+
+// Feature cards
+.features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+
+  .feature-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.2s, border-color 0.2s;
+
+    &:hover {
+      transform: translateY(-4px);
+      border-color: $xs-orange;
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, $xs-orange, $xs-pink);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h3 {
+      color: $xs-orange;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      opacity: 0.9;
+    }
+  }
+}
+
+// API documentation styling
+.api-section {
+  h2 {
+    border-left: 4px solid $xs-orange;
+    padding-left: 1rem;
+    margin-top: 2rem;
+  }
+
+  h3 {
+    background: rgba(248, 144, 32, 0.1);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+
+    code {
+      background: transparent;
+      color: $xs-orange;
+    }
+  }
+}
+
+// Code blocks with gradient accent
+pre {
+  border-left: 4px solid $xs-orange;
+}
+
+// Links
+a {
+  color: $xs-orange;
+
+  &:hover {
+    color: $xs-pink;
+  }
+}
+
+// Sidebar navigation
+.side-bar {
+  background-color: rgba(42, 26, 58, 0.95) !important;
+
+  .nav-list .nav-list-item {
+    a {
+      &.active {
+        background: linear-gradient(90deg, rgba(248, 144, 32, 0.2), transparent);
+        border-left: 3px solid $xs-orange;
+      }
+    }
+  }
+}
+
+// Search
+.search-input {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+// Footer
+.site-footer {
+  background: linear-gradient(90deg, $xs-orange 0%, $xs-pink 50%, $xs-purple 100%);
+  color: white;
+  text-align: center;
+  padding: 1.5rem;
+
+  a {
+    color: white;
+    text-decoration: underline;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .hero-section p {
+    font-size: 1.1rem;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+}
