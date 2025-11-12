@@ -1,7 +1,7 @@
 ///
 /// xs_shapes
-/// A module for rendering shapes and text. Made to work bridge the
-/// xs engine and the svg Python tools.
+/// A module for rendering shapes and text. Made to bridge the
+/// xs engine and the SVG Python tools.
 ///
 
 import "xs" for Render, File, Profiler
@@ -10,13 +10,16 @@ import "xs_ec" for Entity, Component
 import "xs_components" for Transform
 import "xs_math" for Math, Color
 
+/// A custom shape that can be rendered with vertices and colors
 class Shape {
+    /// Creates an empty shape
     construct new() {
         _points = []
         _colors = []
         _shape = null
     }
 
+    /// Loads a shape from a CSV file with vertex data
     construct load(filename) {
         // _vertices = []
         // _colors = []
@@ -34,16 +37,19 @@ class Shape {
         }
     }
 
+    /// Adds a vertex at the given position with the specified color
     vertex(pos, color) {
         vertex(pos.x, pos.y, color)
     }
 
+    /// Adds a vertex at the given coordinates with the specified color
     vertex(x, y, color) {
         _points.add(x)
         _points.add(y)
         _colors.add(color)
     }
 
+    /// Clears all vertices from the shape
     clear() {
         _points.clear()
         _colors.clear()
@@ -51,7 +57,8 @@ class Shape {
         _shape = null
     }
 
-    +(other) {         
+    /// Combines two shapes (currently returns empty shape)
+    +(other) {
         var shape = Shape.new()
         /*
         for(i in 0..._vertices.count) {
@@ -64,14 +71,17 @@ class Shape {
         return shape
     }
 
+    /// Sets all vertices to the same color
     paint(color) {
         for(i in 0..._colors.count) _colors[i] = color
     }
 
+    /// Renders the shape with default colors
     render(position, scale, rotation) {
         render(position, scale, rotation, 0xffffffff, 0x00000000)
     }
 
+    /// Renders the shape with the given transformation and colors
     render(position, scale, rotation, mulColor, addColor) {
         if(!_shape) _shape = Render.createShape(_points, _colors)
         Render.shape(
@@ -84,22 +94,27 @@ class Shape {
             addColor)
     }
 
-
-    //vertices { _vertices }
+    /// Gets the colors array
     colors { _colors }
 }
 
+/// Represents a single glyph (character) with its shape and advance width
 class Glyph {
+    /// Creates a glyph with the given shape and horizontal advance
     construct new(shape, advance) {
         _shape = shape
         _advance = advance
     }
 
+    /// Gets the glyph shape
     shape { _shape }
+    /// Gets the horizontal advance width
     advance { _advance }
 }
 
+/// Font class that stores glyphs for text rendering
 class Font {
+    /// Loads a font from a file
     construct load(filename) {
         _glyphs = {}
         var data = File.read(filename)
@@ -135,11 +150,14 @@ class Font {
         }
     }
 
+    /// Gets the glyphs dictionary
     glyphs { _glyphs }
 }
 
+/// Component for rendering a shape on an entity
 class ShapeRenderer is Component {
 
+    /// Creates a ShapeRenderer with default layer 0
     construct new(shape) {
         _layer = 0
         _shape = shape
@@ -147,6 +165,7 @@ class ShapeRenderer is Component {
         _mulColor = 0xFFFFFFFF
     }
 
+    /// Creates a ShapeRenderer with a specific layer
     construct new(shape, layer) {
         _layer = layer
         _shape = shape
@@ -155,6 +174,7 @@ class ShapeRenderer is Component {
 
     }
 
+    /// Initializes by getting or adding a Transform component
     initialize() {
         _transform = owner.get(Transform)
         if(_transform == null) {
@@ -162,6 +182,7 @@ class ShapeRenderer is Component {
         }
     }
 
+    /// Renders the shape at the entity's position
     render() {
         _shape.render(
             _transform.position,
@@ -171,21 +192,29 @@ class ShapeRenderer is Component {
             _addColor)
     }
 
+    /// Gets the rendering layer
     layer { _layer }
+    /// Sets the rendering layer
     layer=(value) { _layer = value }
+    /// Comparison operator for sorting by layer
     <(other) { _layer < other.layer }
+    /// Sets the additive color
     addColor=(color) { _addColor = color }
+    /// Sets the multiply color
     mulColor=(color) { _mulColor = color }
 }
 
+/// Component for rendering text using a custom font
 class FontRenderer is ShapeRenderer {
 
+    /// Creates a FontRenderer with the given font, text, and size
     construct new(font, text, fontSize) {
         _font = font
         _text = text
         _fontSize = fontSize
     }
 
+    /// Initializes by getting or adding a Transform component
     initialize() {
         _transform = owner.get(Transform)
         if(_transform == null) {
@@ -193,6 +222,7 @@ class FontRenderer is ShapeRenderer {
         }
     }
 
+    /// Renders each character of the text
     render() {
         var position = _transform.position
         var x = position.x
@@ -228,10 +258,13 @@ class FontRenderer is ShapeRenderer {
         */
     }
 
+    /// Gets the font
     font { _font }
+    /// Gets the text string
     text { _text }
 }
 
+/// Utility class for shape rendering and generation
 class Shapes {
     /// Render all shapes in the scene
     static render() {        
@@ -248,6 +281,7 @@ class Shapes {
         }
     }
 
+    /// Renders text at the given position with the specified font and size
     static renderText(text, font, position, size) {
         var x = position.x
         var y = position.y
@@ -303,7 +337,7 @@ class Shapes {
         return Shapes.quad(p0, p2, p1, p3, color)
     }
 
-    /// Fill (convex for now) poly shape
+    /// Fills a convex polygon with the given color
     static fill(vertices, color) {
         /// Find the center of the polygon
         var center = Vec2.new(0, 0)
@@ -323,8 +357,8 @@ class Shapes {
     }
 
     /// Outlined shapes //////////////////////////////////////////////
-    
-    /// Create a new line shape
+
+    /// Creates a line shape with the given thickness
     static line(p0, p1, thickness, color) {
         var shape = Shape.new()
         var normal = (p1 - p0).normal
@@ -337,10 +371,10 @@ class Shapes {
         return shape
     }
 
-    /// Draw a line of points
+    /// Draws a polyline (stroke) through the given points with the specified thickness
     static stroke(points, thickness, color) {
 
-        // Create the inner and outer points 
+        // Create the inner and outer points
         var inner = []
         var outer = []
         for(i in 0...points.count) {
@@ -376,7 +410,7 @@ class Shapes {
 
     /// Point generation ////////////////////////////////////////////
 
-    /// Create rounded polygon points
+    /// Generates points for a rounded polygon
     static polygon( center, radius, sides,
                     rounding, segments) {
         //  Create the polygon points

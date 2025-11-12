@@ -2,35 +2,48 @@ import "xs" for Render
 import "xs_ec"for Component, Entity
 import "xs_math"for Vec2
 
+/// Component that stores position and rotation for an entity
 class Transform is Component {
+    /// Creates a new Transform at the given position with zero rotation
     construct new(position) {
          super()
         _position = position
         _rotation = 0.0
     }
 
+    /// Gets the position as a Vec2
     position { _position }
+    /// Sets the position
     position=(p) { _position = p }
 
+    /// Gets the rotation in radians
     rotation { _rotation }
+    /// Sets the rotation in radians
     rotation=(r) { _rotation = r }
 
     toString { "[Transform position:%(_position) rotation:%(_rotation)]" }
 }
 
-class Body is Component {    
+/// Component that provides size and velocity for physics-based movement
+class Body is Component {
+    /// Creates a new Body with the given size and velocity
     construct new(size, velocity) {
         super()
         _scale = size
         _velocity = velocity
     }
 
+    /// Gets the size of the body
     size { _scale }
+    /// Gets the velocity as a Vec2
     velocity { _velocity }
 
+    /// Sets the size of the body
     size=(s) { _scale = s }
+    /// Sets the velocity
     velocity=(v) { _velocity = v }
 
+    /// Updates the position based on velocity and delta time
     update(dt) {
         var t = owner.get(Transform)
         t.position = t.position + _velocity * dt
@@ -39,21 +52,28 @@ class Body is Component {
     toString { "[Body velocity:%(_velocity) size:%(_scale)]" }
 }
 
+/// Base class for all renderable components with layer-based sorting
 class Renderable is Component {
+    /// Creates a new Renderable with default layer 0
     construct new() {
         super()
         _layer = 0.0
     }
 
+    /// Override this method in subclasses to implement rendering
     render() {}
 
+    /// Comparison operator for sorting by layer
     <(other) {
         layer  < other.layer
     }
 
+    /// Gets the rendering layer (higher values render on top)
     layer { _layer }
+    /// Sets the rendering layer
     layer=(l) { _layer = l }
 
+    /// Renders all Renderable components in all entities
     static render() {        
         for(e in Entity.entities) {
             var s = e.get(Renderable)
@@ -66,7 +86,9 @@ class Renderable is Component {
     toString { "[Renderable layer:%(_layer)]" }
 }
 
+/// Renders a sprite from an image or texture atlas
 class Sprite is Renderable {
+    /// Creates a sprite from a full image (path or image ID)
     construct new(image) {
         super()
         if(image is String) {
@@ -78,8 +100,9 @@ class Sprite is Renderable {
         _mul = 0xFFFFFFFF        
         _add = 0x00000000
         _flags = 0
-    }    
+    }
 
+    /// Creates a sprite from a section of an image using normalized texture coordinates
     construct new(image, s0, t0, s1, t1) {
         super()
         if(image is String) {
@@ -93,10 +116,12 @@ class Sprite is Renderable {
         _flags = 0
     }
 
+    /// Initializes by caching reference to Transform component
     initialize() {
         _transform = owner.get(Transform)
     }
 
+    /// Renders the sprite at the Transform's position and rotation
     render() {        
         Render.sprite(
             _sprite,
@@ -110,25 +135,37 @@ class Sprite is Renderable {
             _flags)
     }
 
+    /// Gets the additive color (0xRRGGBBAA format)
     add { _add }
+    /// Sets the additive color
     add=(a) { _add = a }
 
+    /// Gets the multiply color (0xRRGGBBAA format)
     mul { _mul }
+    /// Sets the multiply color
     mul=(m) { _mul = m }
 
+    /// Gets the sprite flags (flipping, centering, etc.)
     flags { _flags }
+    /// Sets the sprite flags
     flags=(f) { _flags = f }
 
+    /// Gets the sprite scale
     scale { _scale }
+    /// Sets the sprite scale
     scale=(s) { _scale = s }
 
+    /// Sets the sprite ID
     sprite_=(s) { _sprite = s }
+    /// Gets the sprite ID
     sprite { _sprite }
 
     toString { "[Sprite sprite:%(_sprite)] -> " + super.toString }
 }
 
+/// Renders a shape (SVG or custom mesh)
 class Shape is Renderable {
+    /// Creates a Shape component with the given shape ID
     construct new(shape) {
         super()
         _shape = shape
@@ -139,6 +176,7 @@ class Shape is Renderable {
         _flags = 0
     }
 
+    /// Renders the shape at the Transform's position and rotation
     render() {
         var t = owner.get(Transform)
         Render.sprite(
@@ -150,28 +188,40 @@ class Shape is Renderable {
             t.rotation,
             _mul,
             _add,
-            _flags)            
+            _flags)
     }
 
+    /// Gets the additive color (0xRRGGBBAA format)
     add { _add }
+    /// Sets the additive color
     add=(a) { _add = a }
 
+    /// Gets the multiply color (0xRRGGBBAA format)
     mul { _mul }
+    /// Sets the multiply color
     mul=(m) { _mul = m }
 
+    /// Gets the shape flags
     flags { _flags }
+    /// Sets the shape flags
     flags=(f) { _flags = f }
 
+    /// Gets the shape scale
     scale { _scale }
+    /// Sets the shape scale
     scale=(s) { _scale = s }
 
+    /// Sets the shape ID
     shape=(s) { _shape = s }
+    /// Gets the shape ID
     shape { _shape }
 
     toString { "[Shape shape:%(_shape)] -> " + super.toString }
 }
 
+/// Renders text using a loaded font
 class Label is Sprite {
+    /// Creates a Label with the given font (path or font ID), text content, and size
     construct new(font, text, size) {
         super()
         if(font is String) {
@@ -186,16 +236,21 @@ class Label is Sprite {
         flags = 0
     }
 
+    /// Renders the text at the Transform's position
     render() {
         var t = owner.get(Transform)
         Render.text(_font, _text, t.position.x, t.position.y, layer, mul, add, flags)
     }
 
+    /// Gets the text content
     text { _text }
+    /// Sets the text content
     text=(t) { _text = t }
 }
 
+/// Sprite that can display frames from a sprite sheet grid
 class GridSprite is Sprite {
+    /// Creates a GridSprite from an image divided into columns and rows
     construct new(image, columns, rows) {
         super(image, 0.0, 0.0, 1.0, 1.0)
         if(image is String) {
@@ -219,19 +274,24 @@ class GridSprite is Sprite {
         sprite_ = _sprites[_idx]
     }
 
+    /// Sets the current frame index
     idx=(i) {
         _idx = i
         sprite_ = _sprites[_idx]
     }
 
+    /// Gets the current frame index
     idx{ _idx }
 
+    /// Gets the sprite ID at the given frame index
     [i] { _sprites[i] }
 
     toString { "[GridSprite _idx:%(_idx) from:%(_sprites.count) ] -> " + super.toString }
 }
 
+/// Sprite with animation support for playing frame sequences
 class AnimatedSprite is GridSprite {
+    /// Creates an AnimatedSprite with the given frame rate (frames per second)
     construct new(image, columns, rows, fps) {
         super(image, columns, rows)
         _animations = {}
@@ -241,9 +301,10 @@ class AnimatedSprite is GridSprite {
         _currentName = ""
         _currentFrame = 0
         // _frame = 0
-        _mode = AnimatedSprite.loop        
+        _mode = AnimatedSprite.loop
     }
 
+    /// Updates the animation frame based on delta time
     update(dt) {
         if(_currentName == "") {
             return
@@ -274,12 +335,14 @@ class AnimatedSprite is GridSprite {
         idx = currentAnimation[_currentFrame]
     }
 
+    /// Adds a named animation with a list of frame indices
     addAnimation(name, frames) {
         // TODO: assert name is string
         // TODO: assert frames is list
         _animations[name] = frames
     }
 
+    /// Plays the animation with the given name
     playAnimation(name) {
         if(_animations.containsKey(name)) {
             _currentFrame = 0
@@ -287,28 +350,38 @@ class AnimatedSprite is GridSprite {
         }
     }
 
-    randomizeFrame(random) {        
+    /// Randomizes the current frame within the current animation
+    randomizeFrame(random) {
         _currentFrame = random.int(0, _animations[_currentName].count)
     }
 
+    /// Gets the animation mode
     mode { _mode }
+    /// Sets the animation mode (once, loop, or destroy)
     mode=(m) { _mode = m }
+    /// Checks if animation has finished (for non-looping animations)
     isDone { _mode != AnimatedSprite.loop && _currentFrame == _animations[_currentName].count - 1}
 
+    /// Play animation once and stop
     static once { 0 }
-    static loop { 1 } 
+    /// Loop animation continuously
+    static loop { 1 }
+    /// Delete entity when animation completes
     static destroy { 2 }    
 
     toString { "[AnimatedSprite _mode:%(_mode) _currentName:%(_currentName) ] -> " + super.toString }
 }
 
+/// Makes an entity follow its parent's position with an offset
 class Relation is Component {
+    /// Creates a Relation that follows the given parent entity
     construct new(parent) {
         super()
         _parent = parent
         _offset = Vec2.new(0, 0)
     }
 
+    /// Updates position to follow parent (with rotation support)
     update(dt) {
         var pt = _parent.get(Transform)
         var offset = _offset
@@ -322,25 +395,32 @@ class Relation is Component {
         }
     }
 
+    /// Gets the offset from parent position
     offset { _offset }
+    /// Sets the offset from parent position
     offset=(o) { _offset = o }
+    /// Gets the parent entity
     parent { _parent }
 
     toString { "[Relation parent:%(_parent) offset:%(_offset) ]" }
 }
 
+/// Deletes this entity when its parent is deleted
 class Ownership is Component {
+    /// Creates an Ownership component tied to the given parent entity
     construct new(parent) {
         super()
         _parent = parent
     }
 
-    update(dt) {    
+    /// Checks if parent is deleted and deletes this entity if so
+    update(dt) {
         if(_parent.deleted) {
             owner.delete()
         }
     }
 
+    /// Gets the parent entity
     parent { _parent }
 
     toString { "[Ownership parent:%(_parent) ]" }
