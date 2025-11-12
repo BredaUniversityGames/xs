@@ -1,13 +1,28 @@
 #include "log.hpp"
 #include "version.hpp"
 #include "xs.hpp"
+#include <sstream>
 
 #if defined(PLATFORM_PC)
 #include <windows.h>
 #endif
 
+// Common output function used by all logging configurations
+void xs::log::output_log(const std::string& message)
+{
+    // Always output to console (if available)
+    std::cout << message;
+
+    #if defined(PLATFORM_PC) && defined(XS_RELEASE)
+    // In Release builds without console, also output to debugger
+    OutputDebugStringA(message.c_str());
+    #endif
+}
+
 // UTF-8 - Modern terminals with emoji and unicode
 #ifdef USE_UTF8_LOG
+
+using namespace std;
 
 namespace
 {
@@ -37,26 +52,33 @@ void xs::log::initialize()
     #endif
 
     // Modern UTF-8 version with rounded borders and gradient colors
-    printf("\n");
-    printf("\033[38;5;208m╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\033[0m\n");
-    printf("\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n");
-    printf("\033[38;5;208m│\033[0m  \033[38;5;208m▀▄▀ █▀▀\033[0m   version: %-75s  \033[38;5;208m│\033[0m\n",xs::version::get_version_string(false, true, true).c_str());
-    printf("\033[38;5;208m│\033[0m  \033[38;5;208m█ █ ▄▄█\033[0m   🧡 Breda University of Applied Sciences                                               \033[38;5;208m│\033[0m\n");
-    printf("\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n");
-    printf("\033[38;5;208m╰──────────────────────────────────────────────────────────────────────────────────────────────────╯\033[0m\n");
+    std::ostringstream banner;
+    banner << "\n";
+    banner << "\033[38;5;208m╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\033[0m\n";
+    banner << "\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n";
+    banner << fmt::format("\033[38;5;208m│\033[0m  \033[38;5;208m▀▄▀ █▀▀\033[0m   version: {:<75}  \033[38;5;208m│\033[0m\n",
+        xs::version::get_version_string(false, true, true));
+    banner << "\033[38;5;208m│\033[0m  \033[38;5;208m█ █ ▄▄█\033[0m   🧡 Breda University of Applied Sciences                                               \033[38;5;208m│\033[0m\n";
+    banner << "\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n";
+    banner << "\033[38;5;208m╰──────────────────────────────────────────────────────────────────────────────────────────────────╯\033[0m\n";
+
+    output_log(banner.str());
 }
 
-// Basic ASCII with color codes
+// Basic ASCII with color codes (or plain ASCII in Release)
 #else
 
 void xs::log::initialize()
 {
-    printf("\n");
-    printf(" %s  __ __ _____  %s   xs game engine %s\n", yellow, reset, xs::version::get_version_string().c_str());
-    printf(" %s |  |  |   __| %s\n", yellow, reset);
-    printf(" %s |-   -|__   | %s   Built with care at Breda University of Applied Sciences\n", yellow, reset);
-    printf(" %s |__|__|_____| %s\n", yellow, reset);
-    printf("\n");
+    std::ostringstream banner;
+    banner << "\n";
+    banner << fmt::format(" {}  __ __ _____  {}   xs game engine {}\n", yellow, reset, xs::version::get_version_string().c_str());
+    banner << fmt::format(" {} |  |  |   __| {}\n", yellow, reset);
+    banner << fmt::format(" {} |-   -|__   | {}   Built with care at Breda University of Applied Sciences\n", yellow, reset);
+    banner << fmt::format(" {} |__|__|_____| {}\n", yellow, reset);
+    banner << "\n";
+
+    output_log(banner.str());
 }
 
 #endif
