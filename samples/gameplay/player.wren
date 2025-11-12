@@ -2,64 +2,98 @@ import "xs" for Input, Render, Data
 import "xs_ec"for Entity, Component
 import "xs_math"for Math, Bits, Vec2, Color
 import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
-// import "unit" for Unit
-// import "tags" for Team, Tag
-// import "bullets" for Bullet
-// import "debug" for DebugColor
-// import "components" for SlowRelation
 import "random" for Random
 
 class Player is Component {
     construct new() {
         super()
-        _time = 0        
+        _time = 0
+        _shootCooldown = 0
     }
 
     initialize() {
         _body = owner.get(Body)
         _transform = owner.get(Transform)
-        // var aim = Create.aim(owner)
+        _shootInterval = Data.getNumber("Player Shoot Interval")
     }
 
     update(dt) {
-        /*
-        if(_state == stateNormal) {
-            _cooldown = _cooldown - dt
-            move(dt)
-            checkDodge()
-            keepInBounds()
-        } else if(_state == stateDodge) {
-            dodge(dt)
-        }
-        */
         move(dt)
+        shoot(dt)
+        keepInBounds()
     }
 
     move(dt) {                
-        // Translation
-        var aim = (Input.getAxis(5) + 1.0) / 2.0
+        // Translation - support both gamepad and keyboard (WASD)
+        var vel = Vec2.new(0, 0)
+        
+        // Gamepad input
+        var gamepadX = Input.getAxis(0)
+        var gamepadY = -Input.getAxis(1)
+        if (gamepadX.abs > Data.getNumber("Player Input Dead Zone") || 
+            gamepadY.abs > Data.getNumber("Player Input Dead Zone")) {
+            vel = Vec2.new(gamepadX, gamepadY)
+        } else {
+            // Keyboard input (WASD)
+            if (Input.getKey(Input.keyA)) {
+                vel = vel + Vec2.new(-1, 0)
+            }
+            if (Input.getKey(Input.keyD)) {
+                vel = vel + Vec2.new(1, 0)
+            }
+            if (Input.getKey(Input.keyW)) {
+                vel = vel + Vec2.new(0, 1)
+            }
+            if (Input.getKey(Input.keyS)) {
+                vel = vel + Vec2.new(0, -1)
+            }
+        }
+        
         var normalSpeed = Data.getNumber("Player Speed")
-        var aimSpeed = Data.getNumber("Player Speed Aim")
-        var speed = Math.lerp(normalSpeed, aimSpeed, aim)
-        var vel = Vec2.new(Input.getAxis(0), -Input.getAxis(1))
-        if(vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
-            vel = vel * speed
+        if (vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
+            vel = vel.normal * normalSpeed
         }
         var posEase = Data.getNumber("Player Position Easing")
         _body.velocity = Math.damp(_body.velocity, vel, posEase, dt)
 
-        // Rotation
+        // Rotation - support both gamepad right stick and mouse
         var face = Vec2.new(Input.getAxis(2), -Input.getAxis(3))
-        if(face.magnitude > Data.getNumber("Player Input Dead Zone")) {
+        if (face.magnitude > Data.getNumber("Player Input Dead Zone")) {
+            // Gamepad aim
             var a = face.atan2
             _transform.rotation = a
+        } else {
+            // Mouse aim - point toward mouse cursor
+            var mousePos = Vec2.new(Input.getMouseX(), Input.getMouseY())
+            var screenCenter = Vec2.new(
+                Data.getNumber("Width", Data.system) * 0.5, 
+                Data.getNumber("Height", Data.system) * 0.5
+            )
+            var worldMouse = mousePos - screenCenter
+            var toMouse = worldMouse - _transform.position
+            if (toMouse.magnitude > 10) {
+                _transform.rotation = toMouse.atan2
+            }
+        }
+    }
+
+    shoot(dt) {
+        _shootCooldown = _shootCooldown - dt
+        
+        // Auto-shoot when cooldown is ready
+        if (_shootCooldown <= 0) {
+            _shootCooldown = _shootInterval
+            
+            // Shoot in the direction the player is facing
+            var direction = Vec2.new(_transform.rotation.cos, _transform.rotation.sin)
+            Create.bullet(_transform.position, direction)
         }
     }
 
     keepInBounds() {
         var t = _transform
-        var h = Data.getNumber("Height", Data.system) * 0.5
-        var w = Data.getNumber("Width", Data.system) * 0.5
+        var h = Data.getNumber("World Height") * 0.5
+        var w = Data.getNumber("World Width") * 0.5
         if (t.position.x < -w) {
             t.position.x = -w
         } else if (t.position.x > w) {
