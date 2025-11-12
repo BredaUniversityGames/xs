@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assert - xs game engine API</title>
+  <meta name="description" content="API documentation for Assert">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../css/style.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../img/icon_tiny.webp">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a href="../index.html" class="logo">
+      <img src="../img/icon_tiny.webp" alt="xs logo">
+      <span>xs game engine</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> Getting Started</a></li>
+      <li><a href="index.html"><i class="fas fa-book"></i> API Reference</a></li>
+      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> Download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container api-section">
+    <h1>Assert</h1>
+    <p><em>Source: <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren">assets/modules/external/assert.wren</a></em></p>
+
+<hr>
+<h2>Class Assert <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L20" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<div class="api-method">
+<p>* Minimalist assertion library for unit testing in Wren.</p>
+<p>*</p>
+<p>* @author Rob Loach (@RobLoach)</p>
+<p>* @license MIT</p>
+<p>* @website https://github.com/RobLoach/wren-assert</p>
+<p>*</p>
+<p>* Copyright 2020 Rob Loach (@RobLoach)</p>
+<p>* Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated</p>
+<p>* documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation</p>
+<p>* the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,</p>
+<p>* and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>* The above copyright notice and this permission notice shall be included in all copies or substantial portions of</p>
+<p>* the Software.</p>
+<p>* THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO</p>
+<p>* THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE</p>
+<p>* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,</p>
+<p>* OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+</div>
+
+<h3><code>static equal(actual, expected)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L24" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the two given values are equal.</p>
+</div>
+
+<h3><code>static equal(actual, expected, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L31" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the two given values are equal, with a given message.</p>
+</div>
+
+<h3><code>static [actual, expected]</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L42" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Asserts that the two given values are equal.</p>
+<p>*</p>
+<p>* Alias for Assert.equal(actual, expected).</p>
+</div>
+
+<h3><code>static [actual, expected, message]</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L51" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Asserts that the two given values are equal, with a message.</p>
+<p>*</p>
+<p>* Alias for Assert.equal(actual, expected, message).</p>
+</div>
+
+<h3><code>static notEqual(actual, expected)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L58" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the two given values are not equal.</p>
+</div>
+
+<h3><code>static notEqual(actual, expected, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L65" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the two given values are not equal, with a given message.</p>
+</div>
+
+<h3><code>static ok(value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L74" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given value is truthy.</p>
+</div>
+
+<h3><code>static ok(value, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L81" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given value is truthy, with a given message.</p>
+</div>
+
+<h3><code>static notOk(value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L92" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given value is falsey.</p>
+</div>
+
+<h3><code>static notOk(value, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L99" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given value is falsey, with a given message.</p>
+</div>
+
+<h3><code>static [value]</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L110" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Asserts that the given value is ok.</p>
+<p>*</p>
+<p>* Alias for Assert.ok(value).</p>
+</div>
+
+<h3><code>static aborts(fn)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L117" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given function aborts.</p>
+</div>
+
+<h3><code>static aborts(fn, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L124" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given function aborts, with a given message.</p>
+</div>
+
+<h3><code>static doesNotAbort(fn)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L135" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given function does not abort.</p>
+</div>
+
+<h3><code>static doesNotAbort(fn, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L146" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given function does not abort, with a given message.</p>
+</div>
+
+<h3><code>static typeOf(object, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L157" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given object matches the given type.</p>
+</div>
+
+<h3><code>static typeOf(object, type, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L164" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given object matches the given type, with a message.</p>
+</div>
+
+<h3><code>static notTypeOf(object, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L173" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given object doesn&#x27;t match the given type.</p>
+</div>
+
+<h3><code>static notTypeOf(object, type, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L180" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that the given object doesn&#x27;t match the given type, with a message.</p>
+</div>
+
+<h3><code>static countOf(list, count)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L189" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that a list matches a given count.</p>
+</div>
+
+<h3><code>static countOf(list, count, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L196" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Assert that a list matches a given count, with a message.</p>
+</div>
+
+<h3><code>static deepEqual(actual, expected, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L203" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Asserts that the two given objects, and their children, are equal, with a message.</p>
+</div>
+
+<h3><code>static deepEqual(actual, expected)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L221" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Asserts that the two given objects, and their children, are equal.</p>
+</div>
+
+<h3><code>static exists(value, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L228" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Asserts that the given value is not null.</p>
+</div>
+
+<h3><code>static exists(value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L235" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Asserts that the given value is not null.</p>
+</div>
+
+<h3><code>static notExists(value, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L242" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Asserts that the given value is null.</p>
+</div>
+
+<h3><code>static notExists(value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L249" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Asserts that the given value is null.</p>
+</div>
+
+<h3><code>static contains(haystack, needle, message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L256" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Asserts that the given sequence haystack contains the given needle value.</p>
+</div>
+
+<h3><code>static fail(message)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L271" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Throws an abort on the current fiber with the given message.</p>
+</div>
+
+<h3><code>static fail()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L280" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Throws an abort on the current fiber.</p>
+</div>
+
+<h3><code>static fail(actual, expected, operator)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L287" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Throws an abort on the current fiber, using a built message.</p>
+</div>
+
+<h3><code>static fail(actual, expected)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L294" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Throws an assert on the given fiber, assuming an equal operator.</p>
+</div>
+
+<h3><code>static disabled</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L301" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Gets whether or not assertions should be skipped.</p>
+</div>
+
+<h3><code>static disabled=(value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/external/assert.wren#L306" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>* Set <code>Assert.disabled = true</code> to have assertions skip avoid throwing Fiber.aborts().</p>
+</div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>xs - lovingly made at Breda University of Applied Sciences</p>
+    <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="../js/main.js"></script>
+</body>
+</html>

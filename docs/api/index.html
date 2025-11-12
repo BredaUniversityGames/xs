@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Reference - xs game engine</title>
+  <meta name="description" content="Complete API documentation for xs game engine">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../css/style.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../img/icon_tiny.webp">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a href="../index.html" class="logo">
+      <img src="../img/icon_tiny.webp" alt="xs logo">
+      <span>xs game engine</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> Getting Started</a></li>
+      <li><a href="index.html"><i class="fas fa-book"></i> API Reference</a></li>
+      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> Download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1><i class="fas fa-book"></i> API Reference</h1>
+    <p>Complete API documentation for the <strong>xs</strong> game engine, auto-generated from Wren module files.</p>
+
+    <h2>Core Modules</h2>
+    <p>The xs engine provides several modules for game development:</p>
+
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-palette"></i></div>
+        <h3><a href="render.html">Core API</a></h3>
+        <p>Rendering, input, audio, file I/O, and device APIs</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-calculator"></i></div>
+        <h3><a href="math.html">Math & Vectors</a></h3>
+        <p>2D vector math, colors, geometry, and bit operations</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-cubes"></i></div>
+        <h3><a href="ec.html">Entity-Component</a></h3>
+        <p>Flexible EC system for organizing game logic</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-shapes"></i></div>
+        <h3><a href="shapes.html">Shapes & Containers</a></h3>
+        <p>Shape utilities and data structures</p>
+      </div>
+    </div>
+
+    <h2>Usage</h2>
+    <p>Import modules in your Wren code like this:</p>
+
+    <pre><code>// Import specific classes from a module
+import "xs" for Render, Input, Audio
+
+// Import math utilities
+import "xs_math" for Vec2, Math, Color
+
+// Import entity-component system
+import "xs_ec" for Entity, Component</code></pre>
+
+    <h2>Module Overview</h2>
+    <p>Each module provides classes and functions for specific functionality:</p>
+
+    <ul>
+      <li><strong>Core API</strong> (<code>xs</code>) - Main engine features (Render, Input, Audio, File, Device, Data)</li>
+      <li><strong>Math</strong> (<code>xs_math</code>) - Math utilities, Vec2, Color, Geom classes</li>
+      <li><strong>Entity-Component</strong> (<code>xs_ec</code>) - Entity and Component base classes</li>
+      <li><strong>Components</strong> (<code>xs_components</code>) - Pre-built component implementations</li>
+      <li><strong>Shapes</strong> (<code>xs_shapes</code>) - Shape drawing utilities</li>
+      <li><strong>Containers</strong> (<code>xs_containers</code>) - Data structure utilities</li>
+      <li><strong>Tools</strong> (<code>xs_tools</code>) - General utility functions</li>
+      <li><strong>Assert</strong> (<code>assert</code>) - Assertion utilities for testing</li>
+    </ul>
+
+    <h2>Available Modules</h2>
+    <p>Browse the complete API documentation:</p>
+
+    <ul>
+      <li><a href="render.html">Core API (Render, Input, Audio, File, Device, Data)</a></li>
+      <li><a href="math.html">Math & Vectors</a></li>
+      <li><a href="ec.html">Entity-Component System</a></li>
+      <li><a href="components.html">Built-in Components</a></li>
+      <li><a href="shapes.html">Shapes</a></li>
+      <li><a href="containers.html">Containers</a></li>
+      <li><a href="tools.html">Tools</a></li>
+      <li><a href="assert.html">Assert</a></li>
+    </ul>
+
+    <div class="note mt-2">
+      <strong>Note:</strong> API documentation is auto-generated from Wren source files. Run <code>python3 tools/docs.py</code> to regenerate after module changes.
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>xs - lovingly made at Breda University of Applied Sciences</p>
+    <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="../js/main.js"></script>
+</body>
+</html>
