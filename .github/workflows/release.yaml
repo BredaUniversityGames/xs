@@ -1,0 +1,149 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*.*'  # Matches tags like 25.159
+
+env:
+  SOLUTION_FILE: xs.sln
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
+
+      - name: Build Develop (for game development)
+        run: msbuild ${{env.SOLUTION_FILE}} -t:rebuild /p:Configuration=Develop /p:Platform=PC
+
+      - name: Build Release (for game distribution)
+        run: msbuild ${{env.SOLUTION_FILE}} -t:rebuild /p:Configuration=Release /p:Platform=PC
+
+      - name: Test Develop build
+        run: |
+          $exe = "executable\x64\Develop\xs.exe"
+          if (!(Test-Path $exe)) {
+            Write-Error "Develop executable not found"
+            exit 1
+          }
+          $output = & $exe version
+          Write-Host "Develop version: $output"
+          if ($output -notmatch "-dev") {
+            Write-Error "Develop build missing -dev tag"
+            exit 1
+          }
+
+      - name: Test Release build
+        run: |
+          $exe = "executable\x64\Release\xs.exe"
+          if (!(Test-Path $exe)) {
+            Write-Error "Release executable not found"
+            exit 1
+          }
+          $output = & $exe version
+          Write-Host "Release version: $output"
+          if ($output -notmatch "-rel") {
+            Write-Error "Release build missing -rel tag"
+            exit 1
+          }
+
+      - name: Package Develop build
+        run: |
+          $version = "${{ github.ref_name }}"
+          $outputDir = "xs-$version-develop-windows-x64"
+          New-Item -ItemType Directory -Path $outputDir -Force
+
+          # Copy executable and required DLLs
+          Copy-Item "executable\x64\Develop\xs.exe" $outputDir\
+          Copy-Item "executable\x64\Develop\*.dll" $outputDir\ -ErrorAction SilentlyContinue
+
+          # Create README
+          @"
+          XS Game Engine - Develop Build
+          Version: $version
+
+          This is the DEVELOP build for game development.
+          Use this for creating and testing games with debugging features enabled.
+
+          Features:
+          - Console window with colored logging
+          - Full debugging support
+          - Inspector and development tools
+
+          Usage:
+            xs.exe run <game-folder>    - Run a game project
+            xs.exe package <folder>     - Package a game
+            xs.exe version              - Show version
+
+          For game distribution, use the Release build instead.
+          "@ | Out-File -FilePath "$outputDir\README.txt" -Encoding UTF8
+
+          # Create zip
+          Compress-Archive -Path $outputDir -DestinationPath "xs-$version-develop-windows-x64.zip"
+
+      - name: Package Release build
+        run: |
+          $version = "${{ github.ref_name }}"
+          $outputDir = "xs-$version-release-windows-x64"
+          New-Item -ItemType Directory -Path $outputDir -Force
+
+          # Copy executable and required DLLs
+          Copy-Item "executable\x64\Release\xs.exe" $outputDir\
+          Copy-Item "executable\x64\Release\*.dll" $outputDir\ -ErrorAction SilentlyContinue
+
+          # Create README
+          @"
+          XS Game Engine - Release Build
+          Version: $version
+
+          This is the RELEASE build for game distribution.
+          Use this as the game player/runner for end-users.
+
+          Features:
+          - No console window (clean user experience)
+          - Optimized performance
+          - Minimal logging (to debugger only)
+
+          Usage:
+            xs.exe <game-package.xs>    - Run a packaged game
+            xs.exe version              - Show version
+
+          For game development, use the Develop build instead.
+          "@ | Out-File -FilePath "$outputDir\README.txt" -Encoding UTF8
+
+          # Create zip
+          Compress-Archive -Path $outputDir -DestinationPath "xs-$version-release-windows-x64.zip"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            xs-${{ github.ref_name }}-develop-windows-x64.zip
+            xs-${{ github.ref_name }}-release-windows-x64.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            # XS Game Engine ${{ github.ref_name }}
+
+            ## Downloads
+
+            - **xs-${{ github.ref_name }}-develop-windows-x64.zip** - For game developers (includes console, debugging tools)
+            - **xs-${{ github.ref_name }}-release-windows-x64.zip** - For game distribution (optimized, no console)
+
+            ## What's New
+
+            <!-- Add release notes here or use the auto-generated notes below -->

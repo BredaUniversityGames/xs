@@ -15,20 +15,46 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        Platform: ["PC", "Switch"]
-        Configuration: ["Debug", "Release"]
-    runs-on: ${{ matrix.Platform == 'Switch' && 'self-hosted' || 'windows-latest' }}
+        Platform: ["PC"]
+        Configuration: ["Debug", "Develop", "Release"]
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
-      
+
       - name: Setup MSBuild path
         uses: microsoft/setup-msbuild@v2
         with:
           msbuild-architecture: x64
-          
+
       - name: Build xs
         run: msbuild ${{env.SOLUTION_FILE}} -t:rebuild /p:Configuration=${{ matrix.Configuration }} /p:Platform=${{ matrix.Platform }}
+
+      - name: Test version command
+        run: |
+          $exe = "executable\x64\${{ matrix.Configuration }}\xs.exe"
+          if (!(Test-Path $exe)) {
+            Write-Error "Executable not found at $exe"
+            exit 1
+          }
+
+          # Run version command and capture output
+          $output = & $exe version
+          Write-Host "Version output: $output"
+
+          # Verify configuration tag is in the output
+          $expectedTag = switch ("${{ matrix.Configuration }}") {
+            "Debug"   { "-dbg" }
+            "Develop" { "-dev" }
+            "Release" { "-rel" }
+          }
+
+          if ($output -notmatch [regex]::Escape($expectedTag)) {
+            Write-Error "Expected configuration tag '$expectedTag' not found in version output"
+            exit 1
+          }
+
+          Write-Host "✓ Version command successful with correct configuration tag: $expectedTag"
