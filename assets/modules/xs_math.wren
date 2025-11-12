@@ -4,7 +4,7 @@
 
 import "random" for Random
 
-/// Mathematical utility functions
+/// Mathematical utility functions for 2D game development
 class Math {
     static pi { 3.14159265359 }
 
