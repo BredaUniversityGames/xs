@@ -19,6 +19,7 @@
 #include "input.hpp"
 #include "render_internal.hpp"
 #include "packager.hpp"
+#include "xs.hpp"
 
 #ifdef EDITOR
 #include "dialogs/portable-file-dialogs.h"
@@ -28,7 +29,7 @@
 #include "device_pc.hpp"
 #endif
 
-#define SHOW_IMGUI_DEMO 1
+#define SHOW_IMGUI_DEMO 0
 
 namespace xs::inspector
 {
@@ -211,19 +212,7 @@ void xs::inspector::render(double dt)
 			ImGuiWindowFlags_NoScrollWithMouse);
 		ImGui::SetWindowPos({ 0, 0 });
 		ImGui::SetWindowSize({-1, -1 });
-
-        
-		if (ImGui::Button(ICON_FA_SYNC_ALT) || xs::input::get_key_once(xs::input::KEY_F5))
-		{		
-			script::shutdown();
-			script::configure();
-			script::initialize();
-			if(!xs::script::has_error())
-				ok_timer = 4.0f;
-		}		
-		tooltip("Reload Game");
-	
-		ImGui::SameLine();
+    	
 		if (game_paused)
 		{
 			if (ImGui::Button(ICON_FA_PLAY))
@@ -239,114 +228,44 @@ void xs::inspector::render(double dt)
 			if (ImGui::Button(ICON_FA_PAUSE))
 				game_paused = true;
 			tooltip("Pause");
-		}		
+		}
     	
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_DATABASE))
-			show_registry = !show_registry;
-		tooltip("Data");
-		
-		// Profiler
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_CHART_BAR))
-			show_profiler = !show_profiler;
-		tooltip("Profiler");
-
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_IMAGES))
+    	// Profiler
+    	ImGui::SameLine();
+    	if (ImGui::Button(ICON_FA_CHART_BAR))
+    		show_profiler = !show_profiler;
+    	tooltip("Profiler");
+    	
+		if (xs::get_run_mode() == run_mode::development)
 		{
-			auto reloaded = render::reload_images();	
-			next_frame = true;
-			if (reloaded == 0)
-				notify(notification_type::info, "No images reloaded", 3.0f);
-			else
-				notify(notification_type::success, to_string(reloaded) + " images reloaded", 3.0f);
-		}
-		tooltip("Reload Art");
-
-#ifdef EDITOR
-		ImGui::SameLine();
-		bool open_project = false;
-		if (ImGui::Button(ICON_FA_FOLDER_OPEN))
-		{
-			if (data::has_chages())
-				ImGui::OpenPopup("Save Changes?");
-			else
-				open_project = true;
-		}
-		tooltip("Open Project");
-
-		if (ImGui::BeginPopupModal("Save Changes?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			show_modal = true;
-			pop_menu_theme();
-			ImGui::Text("There are unsaved changes. Do you want to save them?");
-			ImGui::Separator();
-			if (ImGui::Button("Yes", ImVec2(120, 0))) {
-				data::save();
-				open_project = true;
-				ImGui::CloseCurrentPopup();
-			}
 			ImGui::SameLine();
-			if (ImGui::Button("No", ImVec2(120, 0))) {
-				open_project = true;
-				ImGui::CloseCurrentPopup();
-			}
+			if (ImGui::Button(ICON_FA_SYNC_ALT) || xs::input::get_key_once(xs::input::KEY_F5))
+			{		
+				script::shutdown();
+				script::configure();
+				script::initialize();
+				if(!xs::script::has_error())
+					ok_timer = 4.0f;
+			}		
+			tooltip("Reload Game");
+    	
 			ImGui::SameLine();
-			if (ImGui::Button("Cancel", ImVec2(120, 0))) {
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::EndPopup();
-			push_menu_theme();
-		}
-
-		if (open_project)
-		{
-			auto folder = pfd::select_folder("Open Project", pfd::path::home()).result();
-			if (!folder.empty())
+			if (ImGui::Button(ICON_FA_DATABASE))
+				show_registry = !show_registry;
+			tooltip("Data");
+    	
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_FA_IMAGES))
 			{
-				data::set_string("game", folder, data::type::user);
-				restart_flag = true;
-				data::save();
+				auto reloaded = render::reload_images();	
+				next_frame = true;
+				if (reloaded == 0)
+					notify(notification_type::info, "No images reloaded", 3.0f);
+				else
+					notify(notification_type::success, to_string(reloaded) + " images reloaded", 3.0f);
 			}
+			tooltip("Reload Art");
 		}
-
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_ARCHIVE))
-		{
-			// Check if wildcards are defined
-			if (!fileio::has_wildcard("[game]"))
-			{
-				notify(notification_type::warning, "No game project loaded", 3.0f);
-			}
-			else
-			{
-				auto game_path = fileio::get_path("[game]");
-				auto save_path = pfd::save_file("Package Game", game_path, { "XS Game Package", "*.xs" }).result();
-				if (!save_path.empty())
-				{
-					// Ensure the file has .xs extension
-					if (save_path.find(".xs") == std::string::npos)
-						save_path += ".xs";
-
-					log::info("Packaging game to: {}", save_path);
-
-					// Package game content and shared resources from wildcards
-					if (packager::create_package(save_path))
-					{
-						notify(notification_type::success, "Game packaged successfully!", 3.0f);
-						log::info("Game packaged successfully to: {}", save_path);
-					}
-					else
-					{
-						notify(notification_type::error, "Failed to package game", 3.0f);
-						log::error("Failed to package game content");
-					}
-				}
-			}
-		}
-		tooltip("Package Game");
-#endif
 
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_ADJUST))
@@ -374,7 +293,7 @@ void xs::inspector::render(double dt)
 
     	// Close inspector
     	ImGui::SameLine();
-    	if (ImGui::Button(ICON_FA_TIMES))
+    	if (ImGui::Button(ICON_FA_CHEVRON_CIRCLE_LEFT))
     	{
     		show_inspector = false;
     		data::set_bool("show_inspector", show_inspector, data::type::user);
@@ -455,7 +374,7 @@ void xs::inspector::render(double dt)
 		ImGui::SetWindowSize({-1, -1 });
 
 		// A small button to show the inspector
-		if (ImGui::Button(ICON_FA_WRENCH))
+		if (ImGui::Button(ICON_FA_CHEVRON_CIRCLE_RIGHT))
 		{
 			show_inspector = true;
 			data::set_bool("show_inspector", show_inspector, data::type::user);
