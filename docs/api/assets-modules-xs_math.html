@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math & Vectors - xs game engine API</title>
+  <meta name="description" content="API documentation for Math & Vectors">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../css/style.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../img/icon_tiny.webp">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a href="../index.html" class="logo">
+      <img src="../img/icon_tiny.webp" alt="xs logo">
+      <span>xs game engine</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> Getting Started</a></li>
+      <li><a href="index.html"><i class="fas fa-book"></i> API Reference</a></li>
+      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> Download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container api-section">
+    <h1>Math & Vectors</h1>
+    <p><em>Source: <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren">assets/modules/xs_math.wren</a></em></p>
+
+<h3><code>// Math tools</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L2" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>////////////////////////////////////////////////////////////////////////////</p>
+</div>
+
+<h3><code>import &quot;random&quot; for Random</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L5" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>////////////////////////////////////////////////////////////////////////////</p>
+</div>
+
+<hr>
+<h2>Class Math <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L8" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<div class="api-method">
+<p>Mathematical utility functions</p>
+</div>
+
+<h3><code>static lerp(a, b, t) { (a * (1.0 - t)) + (b * t) }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L13" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Linear interpolation between two values</p>
+<p>Returns a value between a and b based on parameter t (0.0 to 1.0)</p>
+</div>
+
+<h3><code>static damp(a, b, lambda, dt) { lerp(a, b, 1.0 - (-lambda * dt).exp) }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L17" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Smooth damping interpolation using exponential decay</p>
+<p>Useful for camera following and smooth movement</p>
+</div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>xs - lovingly made at Breda University of Applied Sciences</p>
+    <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="../js/main.js"></script>
+</body>
+</html>

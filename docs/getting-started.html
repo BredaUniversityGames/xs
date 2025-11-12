@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started - xs game engine</title>
+  <meta name="description" content="Get started with xs game engine - Create your first 2D game with Wren scripting">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="img/icon_tiny.webp">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a href="index.html" class="logo">
+      <img src="img/icon_tiny.webp" alt="xs logo">
+      <span>xs game engine</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="getting-started.html"><i class="fas fa-rocket"></i> Getting Started</a></li>
+      <li><a href="api/index.html"><i class="fas fa-book"></i> API Reference</a></li>
+      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> Download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1><i class="fas fa-rocket"></i> Getting Started</h1>
+    <p>Welcome to <strong>xs</strong>! This guide will help you create your first extra small game.</p>
+
+    <hr>
+
+    <h2><i class="fas fa-download"></i> Installation</h2>
+    <p>First, grab the latest version of xs from the <a href="https://xs-engine.itch.io/xs">itch.io page</a>. If you are a member of the BUAS organization on GitHub, you can build it from source.</p>
+
+    <p><img src="img/folder.webp" alt="xs folder structure" style="max-width: 100%; border-radius: 8px; margin: 1rem 0;"></p>
+
+    <p>The preferred way of running xs is from the command line (terminal) so you can read the debug output. Open your command line/terminal application and <code>cd</code> to the xs folder. Run the executable and you should get output in the command line. Even better, use Visual Studio Code with the built-in terminal.</p>
+
+    <p><img src="img/cmd.webp" alt="xs command line" style="max-width: 100%; border-radius: 8px; margin: 1rem 0;"></p>
+
+    <p>On the first run, xs will run the "hello" sample and save a user profile.</p>
+
+    <p><img src="img/hello.webp" alt="xs hello sample" style="max-width: 100%; border-radius: 8px; margin: 1rem 0;"></p>
+
+    <p>Great, xs is up and running! <i class="fas fa-check-circle" style="color: #f89020;"></i></p>
+
+    <hr>
+
+    <h2><i class="fas fa-folder-plus"></i> Creating a New Project</h2>
+    <p>Creating a new project in xs is quite simple. An xs project is just a folder. This folder needs to have at least one <code>.wren</code> file, that will contain your <code>Game</code> class, and a <code>project.json</code> file that points to it.</p>
+
+    <p>The <code>Game</code> class needs to have three <code>static</code> methods:</p>
+    <ul>
+      <li><code>initialize</code> - Called as soon as all systems have been created</li>
+      <li><code>update</code> - Called once per tick (frame)</li>
+      <li><code>render</code> - Called once per tick, right after update</li>
+    </ul>
+
+    <p>Here's the complete "hello" example:</p>
+
+    <pre><code>// This is just confirmation, remove this line as soon as you
+// start making your game
+System.print("Wren just got compiled to bytecode")
+
+// The xs module
+import "xs" for Render, Data
+
+// The game class is the entry point to your game
+class Game {
+    // The init method is called when all systems have been created.
+    // You can initialize your game specific data here.
+    static initialize() {
+        System.print("init")
+
+        // The "__" means that __time is a static variable (belongs to the class)
+        __time = 0
+
+        // Variable that exists only in this function
+        var image = Render.loadImage("[games]/shared/images/FMOD_White.png")
+        __sprite = Render.createSprite(image, 0, 0, 1, 1)
+    }
+
+    // The update method is called once per tick. Gameplay code goes here.
+    static update(dt) {
+        __time = __time + dt
+    }
+
+    // The render method is called once per tick, right after update.
+    static render() {
+        Render.dbgColor(0xFFFFFFFF)
+        Render.shapeText("xs", -100, 100, 20)
+        Render.shapeText("Made with love at Games@BUas", -100, -50, 1)
+        Render.dbgColor(0xFFFFFFFF)
+        Render.shapeText("Time: %(__time)", -300, -160, 1)
+
+        Render.sprite(__sprite, 180, -152, 0.16, 0.0, 0xFFFFFFFF, 0x00000000, 0)
+    }
+}</code></pre>
+
+    <p>Next, just put your awesome art and code in the folder and you have yourself a game!</p>
+
+    <hr>
+
+    <h2><i class="fas fa-code"></i> Setting Up Your Environment</h2>
+    <p>Wren is a lovely modern scripting language and there are a handful of Visual Studio Code extensions to make working with it nicer.</p>
+
+    <div class="note">
+      <strong>Recommended VS Code Extensions:</strong>
+      <ul>
+        <li><i class="fas fa-puzzle-piece"></i> <a href="https://marketplace.visualstudio.com/items?itemName=nelarius.vscode-wren">Wren</a> - Syntax highlighting</li>
+        <li><i class="fas fa-lightbulb"></i> <a href="https://marketplace.visualstudio.com/items?itemName=sponge.wren-language-provider">Wren Language Provider</a> - Code completion</li>
+      </ul>
+      <p>If you don't have Visual Studio Code, <a href="https://code.visualstudio.com/">download it here</a></p>
+    </div>
+
+    <p>xs can be instructed (from the <code>system.json</code>) to run on top of other windows. This can be useful when developing or debugging with it. Running xs from the built-in terminal in VS Code will give a "single window"-like experience.</p>
+
+    <hr>
+
+    <h2><i class="fas fa-puzzle-piece"></i> Wren Modules</h2>
+    <p>A module in Wren is usually another <code>.wren</code> file that you can <code>import</code> into your code. xs ships with a few modules that let you interact with the engine:</p>
+
+    <ul>
+      <li><strong><code>xs</code></strong> - Core API for rendering, audio, input, and more</li>
+      <li><strong><code>xs_math</code></strong> - 2D vector math, colors, and bit operations</li>
+      <li><strong><code>xs_ec</code></strong> - Simple Entity-Component framework</li>
+      <li><strong><code>xs_components</code></strong> - Pre-built components for common game functionality</li>
+    </ul>
+
+    <p>The "hello" example starts with importing functionality:</p>
+    <pre><code>import "xs" for Render, Data</code></pre>
+
+    <p>These modules are located in the <code>assets/modules/</code> folder, so feel free to explore their contents.</p>
+
+    <h3>Built-in Wren Modules</h3>
+    <p>From the language itself (<a href="https://wren.io/modules/">learn more</a>):</p>
+    <ul>
+      <li><strong>Core classes</strong> - Numbers, lists, maps, etc. (automatically imported)</li>
+      <li><strong><code>random</code></strong> - Random number generation</li>
+    </ul>
+
+    <hr>
+
+    <h2><i class="fas fa-folder-open"></i> Working with Paths</h2>
+    <p>Paths in xs are relative and should start with one of the wildcards. For example, you can use the <code>[game]</code> wildcard to access asset files in your game:</p>
+    <pre><code>var image = Render.loadImage("[game]/images/cat.png")</code></pre>
+
+    <hr>
+
+    <h2><i class="fas fa-file-image"></i> Supported Assets</h2>
+    <p>xs supports <code>.png</code> images and a variety of sound files, with <code>.flac</code> being the preferred format.</p>
+
+    <hr>
+
+    <h2>Next Steps</h2>
+    <p>Now that you're set up, check out the <a href="api/index.html">API Reference</a> to learn about all the available modules and functions!</p>
+
+    <div class="features mt-2">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-book"></i></div>
+        <h3>API Documentation</h3>
+        <p><a href="api/index.html">Browse the complete API reference</a></p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-code-branch"></i></div>
+        <h3>Sample Games</h3>
+        <p>Check out the <code>samples/</code> folder in your xs installation</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fab fa-github"></i></div>
+        <h3>Contribute</h3>
+        <p><a href="https://github.com/BredaUniversityGames/xs">Contribute on GitHub</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>xs - lovingly made at Breda University of Applied Sciences</p>
+    <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="js/main.js"></script>
+</body>
+</html>

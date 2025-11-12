@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Containers - xs game engine API</title>
+  <meta name="description" content="API documentation for Containers">
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="../css/style.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../img/icon_tiny.webp">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <a href="../index.html" class="logo">
+      <img src="../img/icon_tiny.webp" alt="xs logo">
+      <span>xs game engine</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> Getting Started</a></li>
+      <li><a href="index.html"><i class="fas fa-book"></i> API Reference</a></li>
+      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> Download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container api-section">
+    <h1>Containers</h1>
+    <p><em>Source: <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren">assets/modules/xs_containers.wren</a></em></p>
+
+<hr>
+<h2>Class Grid <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L2" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<div class="api-method">
+<p>Logical representation of a (game) grid</p>
+</div>
+
+<h3><code>width { _width }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L17" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>The number of columns in the grid.</p>
+</div>
+
+<h3><code>height { _height }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L20" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>The number of rows in the grid.</p>
+</div>
+
+<h3><code>swapValues(x1, y1, x2, y2) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L23" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Swaps the values of two given grid cells.</p>
+</div>
+
+<h3><code>valid(x, y) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L36" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Checks if a given cell position exists in the grid.</p>
+</div>
+
+<h3><code>[x, y] {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L41" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Returns the value stored at the given grid cell.</p>
+</div>
+
+<h3><code>[x, y]=(v) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L46" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Assigns a given value to a given grid cell.</p>
+</div>
+
+<h3><code>toString {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L51" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Constructs a string representation of this grid.</p>
+</div>
+
+<hr>
+<h2>Class SparseGrid <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L63" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<div class="api-method">
+<p>Logical representation of a grid with many empty spaces</p>
+</div>
+
+<h3><code>static makeId(x, y) { x &lt;&lt; 16 | y }  // |</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L70" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Creates a unique identifier for a given cell position.</p>
+</div>
+
+<h3><code>has(x, y) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L73" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Checks if a given cell position exists in the grid.</p>
+</div>
+
+<h3><code>remove(x, y) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L79" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Removes the value stored at the given grid cell.</p>
+</div>
+
+<h3><code>[x, y] {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L85" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Returns the value stored at the given grid cell.</p>
+</div>
+
+<h3><code>[x, y]=(v) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L96" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Assigns a given value to a given grid cell.</p>
+</div>
+
+<h3><code>clear() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L102" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Clears the grid.</p>
+</div>
+
+<h3><code>values { _grid.values }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L107" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Returns the values stored in the grid.</p>
+</div>
+
+<hr>
+<h2>Class Queue <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L112" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<div class="api-method">
+<p>First-in-first-out (FIFO) data structure</p>
+</div>
+
+<hr>
+<h2>Class Dequeue <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L134" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<div class="api-method">
+<p>Last-in-fist-out (LIFO data structure)</p>
+</div>
+
+<hr>
+<h2>Class RingBuffer <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L156" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<div class="api-method">
+<p>A simple ring buffer implementation.</p>
+</div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <p>xs - lovingly made at Breda University of Applied Sciences</p>
+    <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+  </footer>
+
+  <!-- JavaScript -->
+  <script src="../js/main.js"></script>
+</body>
+</html>
