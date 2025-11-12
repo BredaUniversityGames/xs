@@ -2,7 +2,7 @@
 #include "opengl.hpp"
 #include "log.hpp"
 
-#if defined(DEBUG)
+#if defined(XS_DEBUG)
 
 void xs::gl_label(GLenum type, GLuint name, const std::string& label)
 {

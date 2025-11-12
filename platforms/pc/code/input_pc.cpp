@@ -91,7 +91,7 @@ double xs::input::get_touch_y(int index) { return 0.0; }
 
 void xs::input::set_gamepad_vibration(double low, double high, double time)
 {
-#ifdef DEBUG
+#ifdef XS_DEBUG
 	if (data::get_bool("Vibration.Disabled", data::type::debug))
 		return;
 #endif

@@ -54,7 +54,7 @@ int xs::dispatch(int argc, char* argv[])
 
 	// Run subcommand - runs a project folder or .xs package
 	argparse::ArgumentParser version_cmd("version");
-	run_cmd.add_description("Get the version of xs");
+	version_cmd.add_description("Get the version of xs");
 
 	// Package subcommand - creates a .xs package from a project
 	argparse::ArgumentParser package_cmd("package");
@@ -75,7 +75,7 @@ int xs::dispatch(int argc, char* argv[])
 		program.parse_args(argc, argv);
 	}
 	catch (const std::exception& err) {
-		std::cerr << err.what() << std::endl;
+		std::cerr << err.what() << '\n';
 		std::cerr << program;
 		return 1;
 	}
@@ -94,7 +94,6 @@ int xs::dispatch(int argc, char* argv[])
 		std::filesystem::path fs_path(path);
 		if (fs_path.extension() == ".xs") {
 			xs::set_run_mode(xs::run_mode::packaged);
-			// TODO: Handle .xs package loading (future work)
 			game_path = path;
 		}
 		else {
@@ -110,10 +109,9 @@ int xs::dispatch(int argc, char* argv[])
 		return package(input, output);
 	}
 	else {
-		// No subcommand - default to running current directory
-		xs::set_run_mode(xs::run_mode::development);
-		game_path = ".";
-		return xs::main(game_path);
+		// No subcommand - show usage/help and quit with non-zero exit to indicate user/usage error
+		std::cout << program;
+		return 2;
 	}
 #endif
 

@@ -17,12 +17,14 @@ namespace xs::version
         // Add build configuration
         if (include_config)
         {
-            #if defined(DEBUG) || defined(_DEBUG)
+            #if defined(XS_DEBUG)
                 version << "-dbg";
-            #elif defined(NDEBUG)
+            #elif defined(XS_RELEASE)
                 version << "-rel";
-            #else
+            #elif defined(XS_DEVELOP)
                 version << "-dev";
+            #else
+                version << "-unknown";
             #endif
         }
 

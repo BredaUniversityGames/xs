@@ -10,7 +10,7 @@
 
 #include <string>
 
-#ifdef DEBUG
+#ifdef XS_DEBUG
 #define XS_DEBUG_ONLY(x) (x)
 namespace xs
 {

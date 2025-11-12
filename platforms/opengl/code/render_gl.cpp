@@ -289,7 +289,7 @@ void xs::render::render()
 	// Clear the target FBO (can be MSAA or render_fbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
 	glViewport(0, 0, width, height);
-	glClearColor(1.0, 0.0, 0.0, 1.0f);
+	glClearColor(1.0, 0.0, 1.0, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	
 
@@ -884,7 +884,7 @@ bool xs::render::compile_shader(GLuint* shader, GLenum type, const GLchar* sourc
 
 	glCompileShader(*shader);
 
-#if defined(DEBUG)
+#if defined(XS_DEBUG)
 	GLint log_length = 0;
 	glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &log_length);
 	if (log_length > 1)
@@ -913,7 +913,7 @@ bool xs::render::link_program(GLuint program)
 
 	glLinkProgram(program);
 
-#if defined(DEBUG)
+#if defined(XS_DEBUG)
 	GLint logLength = 0;
 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
 	if (logLength > 1)
