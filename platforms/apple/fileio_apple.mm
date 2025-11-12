@@ -22,7 +22,7 @@ void fileio::initialize(const std::string& game_path)
     // NSArray* user_paths_oc = NSSearchPathForDirectoriesInDomains(NSUserDirectory, NSUserDomainMask, YES);
     // NSString* user_path_oc = [user_paths_oc objectAtIndex:0];
 
-#if defined(DEBUG) && defined(PLATFORM_MAC)
+#if defined(XS_DEBUG) && defined(PLATFORM_MAC)
     NSString* project_path_oc = PROJECT_DIR;  // Define from a macro
 #else
     NSString* project_path_oc = [[NSBundle mainBundle] resourcePath];

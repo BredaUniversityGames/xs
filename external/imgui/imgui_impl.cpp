@@ -50,7 +50,9 @@ void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
 
 IMGUI_API void ImGui_Impl_ProcessEvent(const SDL_Event* event)
 {
+#ifdef INSPECTOR	
 	ImGui_ImplSDL3_ProcessEvent(event);
+#endif
 }
 
 

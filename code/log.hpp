@@ -45,9 +45,6 @@ namespace xs::log
 	void flush();
 }
 
-// ============================================================================
-// UTF-8 IMPLEMENTATION - Modern terminals with emoji and unicode
-// ============================================================================
 #ifdef USE_UTF8_LOG
 
 template<typename FormatString, typename ...Args>
@@ -82,9 +79,6 @@ inline void xs::log::critical(const FormatString& format, const Args & ...args)
 	printf("\033[0m\n");
 }
 
-// ============================================================================
-// FALLBACK IMPLEMENTATION - Basic ASCII with color codes
-// ============================================================================
 #else
 
 template<typename FormatString, typename ...Args>

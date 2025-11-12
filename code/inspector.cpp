@@ -87,9 +87,9 @@ void xs::inspector::initialize()
     ImGui_Impl_Init();
 	
 	auto& io = ImGui::GetIO();
-#if defined(DEBUG) && defined(PLATFORM_PC)	
+#if defined(XS_DEBUG) && defined(PLATFORM_PC)
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-#else	
+#else
 	io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
 #endif
 

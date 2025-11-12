@@ -192,7 +192,7 @@ bool fileio::exists(const string& filename)
 void fileio::commit() {}
 #endif
 
-#if (defined(PLATFORM_PC) || defined(PLATFORM_MAC)) && (defined(DEBUG) || defined(PROFILE))
+#if (defined(PLATFORM_PC) || defined(PLATFORM_MAC)) && (defined(XS_DEBUG) || defined(PROFILE))
 
 uint64_t fileio::last_write(const string& filename)
 {
