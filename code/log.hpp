@@ -1,16 +1,20 @@
 #pragma once
 
 #include <cassert>
+#include <string>
+#include <iostream>
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>
 
-// Color support for platforms with ANSI terminal
-#if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_PROSPERO)
+// Color support for platforms with ANSI terminal (disabled in Release)
+#if !defined(XS_RELEASE) && (defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_PROSPERO))
 #define USE_LOG_COLOR
 #endif
 
-// UTF-8 support - everyone gets the modern experience!
+// UTF-8 support - fancy logging for Debug/Develop (disabled in Release)
+#ifndef XS_RELEASE
 #define USE_UTF8_LOG
+#endif
 
 namespace xs::log
 {
@@ -29,6 +33,9 @@ namespace xs::log
 #endif
 
 	void initialize();
+
+	// Internal helper for logging to appropriate output (console or debugger)
+	void output_log(const std::string& message);
 
 	template<typename FormatString, typename... Args>
 	void info(const FormatString& fmt, const Args&... args);
@@ -50,33 +57,29 @@ namespace xs::log
 template<typename FormatString, typename ...Args>
 inline void xs::log::info(const FormatString& format, const Args & ...args)
 {
-	printf("ℹ️  \033[38;5;75m");  // Blue (VS Code info color)
-	fmt::print(fmt::runtime(format), args...);
-	printf("\033[0m\n");
+	std::string message = "ℹ️  \033[38;5;75m" + fmt::format(fmt::runtime(format), args...) + "\033[0m\n";
+	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::warn(const FormatString& format, const Args & ...args)
 {
-	printf("⚠️  \033[38;5;214m");  // Orange (VS Code warning color)
-	fmt::print(fmt::runtime(format), args...);
-	printf("\033[0m\n");
+	std::string message = "⚠️  \033[38;5;214m" + fmt::format(fmt::runtime(format), args...) + "\033[0m\n";
+	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::error(const FormatString& format, const Args & ...args)
 {
-	printf("⛔️ \033[38;5;196m");  // Red (VS Code error color)
-	fmt::print(fmt::runtime(format), args...);
-	printf("\033[0m\n");
+	std::string message = "⛔️ \033[38;5;196m" + fmt::format(fmt::runtime(format), args...) + "\033[0m\n";
+	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::critical(const FormatString& format, const Args & ...args)
 {
-	printf("🚨 \033[38;5;196m");  // Bright red (VS Code error color)
-	fmt::print(fmt::runtime(format), args...);
-	printf("\033[0m\n");
+	std::string message = "🚨 \033[38;5;196m" + fmt::format(fmt::runtime(format), args...) + "\033[0m\n";
+	output_log(message);
 }
 
 #else
@@ -84,38 +87,34 @@ inline void xs::log::critical(const FormatString& format, const Args & ...args)
 template<typename FormatString, typename ...Args>
 inline void xs::log::info(const FormatString& format, const Args & ...args)
 {
-	printf("[%sinfo%s] ", green, reset);
-	fmt::print(fmt::runtime(format), args...);
-	printf("\n");
+	std::string message = fmt::format("[{}info{}] ", green, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
+	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::warn(const FormatString& format, const Args & ...args)
 {
-	printf("[%swarn%s] ", magenta, reset);
-	fmt::print(fmt::runtime(format), args...);
-	printf("\n");
+	std::string message = fmt::format("[{}warn{}] ", magenta, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
+	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::error(const FormatString& format, const Args & ...args)
 {
-	printf("[%serror%s] ", red, reset);
-	fmt::print(fmt::runtime(format), args...);
-	printf("\n");
+	std::string message = fmt::format("[{}error{}] ", red, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
+	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::critical(const FormatString& format, const Args & ...args)
 {
-	printf("[%serror%s] ", red, reset);
-	fmt::print(fmt::runtime(format), args...);
-	printf("\n");
+	std::string message = fmt::format("[{}error{}] ", red, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
+	output_log(message);
 }
 
 #endif
 
 inline void xs::log::flush()
 {
-	fflush(stdout);
+	std::cout.flush();
 }
