@@ -8,7 +8,7 @@ namespace xs::version
     constexpr int XS_VERSION_BUILD = 157;
 
     // Short commit hash
-    constexpr const char* XS_COMMIT_HASH = "706df45";
+    constexpr const char* XS_COMMIT_HASH = "a1ef50e";
 
     // Version string builder function (implemented in version.cpp)
     // Builds version strings from the integer components above
