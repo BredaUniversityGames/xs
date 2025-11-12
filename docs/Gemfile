@@ -9,6 +9,9 @@ gem "just-the-docs"
 # Required for GitHub Pages compatibility
 gem "github-pages", group: :jekyll_plugins
 
+# Required for Ruby 3.0+
+gem "webrick", "~> 1.8"
+
 # Plugins
 group :jekyll_plugins do
   gem "jekyll-feed"
