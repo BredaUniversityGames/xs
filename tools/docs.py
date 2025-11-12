@@ -31,7 +31,7 @@ class config:
     repo = "github.com/BredaUniversityGames/xs"
     branch = "blob/main"
     docs = "docs"
-    path = "games/shared/modules"
+    path = "assets/modules"
 
 import re
 import glob
@@ -242,7 +242,47 @@ def makeMarkdownFile(comments, file):
   # print(info, info.name, info.stem, info.parent)
   url = f"https://{config.repo}/{config.branch}/{info}"
 
-  markdown = f"""<!-- file: {info} -->
+  # Create a friendly title from filename
+  filename_base = info.stem  # e.g., "xs_math"
+  title = filename_base.replace('_', ' ').title()  # e.g., "Xs Math"
+
+  # Determine nav order and parent based on module name
+  nav_order = 100  # Default high number for API docs
+  parent = "API Reference"
+
+  if filename_base == "xs":
+    title = "Core API (Render, Input, etc.)"
+    nav_order = 1
+  elif filename_base == "xs_math":
+    title = "Math & Vectors"
+    nav_order = 2
+  elif filename_base == "xs_ec":
+    title = "Entity-Component System"
+    nav_order = 3
+  elif filename_base == "xs_components":
+    title = "Built-in Components"
+    nav_order = 4
+  elif filename_base == "xs_shapes":
+    title = "Shapes"
+    nav_order = 5
+  elif filename_base == "xs_containers":
+    title = "Containers"
+    nav_order = 6
+  elif filename_base == "xs_tools":
+    title = "Tools"
+    nav_order = 7
+  elif "assert" in filename_base:
+    title = "Assert"
+    nav_order = 8
+
+  markdown = f"""---
+layout: default
+title: {title}
+parent: {parent}
+nav_order: {nav_order}
+---
+
+<!-- file: {info} -->
 <!-- documentation automatically generated using domepunk/tools/doc -->"""
 
   apiHeaderPresent = False
