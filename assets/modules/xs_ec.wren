@@ -1,68 +1,70 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Entity / Component 
+// Entity / Component
 ///////////////////////////////////////////////////////////////////////////////
 
 import "xs_math" for Math, Bits
 import "xs_tools" for Tools
 
-// A base class for components that can be added to the entities.
+/// Base class for components that can be added to entities
 class Component {
 
-    // Creates a new component. Make sure to call super() when inheriting
-    // from this class. Other components might still not be avaialbe on the
-    // owning entity.
+    /// Creates a new component
+    /// Make sure to call super() when inheriting from this class
+    /// Other components might still not be available on the owning entity
     construct new() {
         _owner = null
         _initialized = false
         _enabled = true
     }
 
-    // Called right before the first update. Good place to query and cache other
-    // components.
+    /// Called right before the first update
+    /// Good place to query and cache other components
     initialize() {}
 
-    // Called when the component/entity is deleted. Set any references to other
-    // entities and components to null.
+    /// Called when the component/entity is deleted
+    /// Set any references to other entities and components to null
     finalize() {}
 
-    // Called once per update with delta time. Put your logic here.
+    /// Called once per update with delta time
+    /// Put your game logic here
     update(dt) {}
 
-    // The Entity object that owns this compoenent
+    /// Gets the Entity object that owns this component
     owner { _owner }
 
-    // Private (used by Entity)
+    /// Sets the owner (used internally by Entity)
     owner=(o) { _owner = o }
 
-    // Is the component enabled. If not enabled, the update() function will not be called.
+    /// Checks if the component is enabled
+    /// If not enabled, the update() function will not be called
     enabled { _enabled }
 
-    // Set to false to disable the component
+    /// Sets the enabled state of the component
     enabled=(e) { _enabled = e }
 
-    // Private (used by Entity)
+    /// Gets the initialized state (used internally by Entity)
     initialized_ { _initialized }
 
-    // Private (used by Entity)
+    /// Sets the initialized state (used internally by Entity)
     initialized_=(i) { _initialized = i }
 }
 
+/// Represents a game object that can contain multiple components
 class Entity {
 
-    // Creates a new entity, visible to the rest of the game in
-    // the next update. 
+    /// Creates a new entity that will be visible to the rest of the game in the next update
     construct new() {
         _components = {}
         _deleted = false
         _name = ""
         _tag = 0
         _compDeleteQueue = []
-        __addQueue.add(this)        
+        __addQueue.add(this)
     }
 
-    // Adds a component to the entity. The component must be a subclass of
-    // the Component class. The component will be initialized and updated
-    // in the order they are added.
+    /// Adds a component to the entity
+    /// The component must be a subclass of Component
+    /// Components will be initialized and updated in the order they are added
     add(component) {
         var c = get(component.type)
         if(c != null) {
@@ -76,7 +78,7 @@ class Entity {
         _components[component.type] = component
     }
 
-    // Get a component of a matching type.    
+    /// Gets a component of the matching type
     get(type) {
         if (_components.containsKey(type)) {
             return _components[type]            
@@ -89,7 +91,7 @@ class Entity {
         return null
     }
 
-    // Will mark the component for removal at the end of the update
+    /// Marks the component for removal at the end of the update
     remove(type) {
         if (_components.containsKey(type)) {
             _compDeleteQueue.add(type)
@@ -102,40 +104,43 @@ class Entity {
         }
     }
 
-    // Get all to components 
+    /// Gets all components attached to this entity
     components { _components.values }
 
-    // Checks if the entity is marked for removal. Set reference to this entity
-    // to null if true
+    /// Checks if the entity is marked for removal
+    /// Set references to this entity to null if true
     deleted { _deleted }
 
-    // Will mark the entity for removal at the end of the update
+    /// Marks the entity for removal at the end of the update
     delete() { _deleted = true }
 
-    // Components can have names. This makes debugguig much easier
+    /// Gets the name of the entity (useful for debugging)
     name { _name }
+    /// Sets the name of the entity
     name=(n){ _name = n }
 
-    // Generic tag. Used as a bitflag when getting entities of certain type   
+    /// Gets the tag (used as a bitflag when filtering entities)
     tag { _tag }
+    /// Sets the tag
     tag=(t) { _tag = t }
 
-    // Set enabled state of all components
+    /// Sets the enabled state of all components
     enabled=(e) {
         for(c in _components.values) {
             c.enabled = e
         }
     }
 
-    // Call from the initialize() function of you entry point (game class)
+    /// Initializes the entity system
+    /// Call this from the initialize() function of your entry point (game class)
     static initialize() {
         __entities = []
         __addQueue = []
     }
 
-    // Call from the update() function of you entry point (game class)
-    // Updates the all entities and their compoenets.
-    // Add/removes entities and componenets.
+    /// Updates all entities and their components
+    /// Call this from the update() function of your entry point (game class)
+    /// Handles adding/removing entities and components
     static update(dt) {
         for (e in __entities) {
             e.removeDeletedComponents_()
@@ -172,8 +177,7 @@ class Entity {
         }
     }
 
-    // Get all the entities where the tag matches
-    // with a given tag.
+    /// Gets all entities where the tag matches exactly with the given tag
     static withTag(tag) {
         var found = []
         for (e in __entities) {
@@ -184,8 +188,7 @@ class Entity {
         return found
     }
 
-    // Get all the entities where the tag matches (has bit overlap)
-    // with a given tag.
+    /// Gets all entities where the tag has bit overlap with the given tag
     static withTagOverlap(tag) {
         var found = []
         for (e in __entities) {
@@ -196,8 +199,7 @@ class Entity {
         return found
     }
 
-    // Get all the entities where the tag does not match (has bit overlap)
-    // with a given tag.
+    /// Gets all entities where the tag does not have bit overlap with the given tag
     static withoutTagOverlap(tag) {
         var found = []
         for (e in __entities) {
@@ -208,6 +210,7 @@ class Entity {
         return found
     }
 
+    /// Sets the enabled state for all entities with matching tag overlap
     static setEnabled(tag, enabled) {
         for (e in __entities) {
             if(Bits.checkBitFlagOverlap(e.tag, tag)) {
@@ -218,9 +221,10 @@ class Entity {
         }
     }
 
-    // All the entities active in the system
+    /// Gets all entities active in the system
     static entities { __entities }
 
+    /// Returns a string representation of this entity
     toString {
         var s = "{ Name: %(name) Tag: %(tag)"
             for(c in _components) {
@@ -230,7 +234,7 @@ class Entity {
         return s
     }
 
-    // Does a formated print of all the entities and their componenets
+    /// Prints a formatted list of all entities and their components (for debugging)
     static print() {
         System.print("<<<<<<<<<< ecs stats >>>>>>>>>>")
         System.print("Active: %(__entities.count)")
@@ -244,9 +248,9 @@ class Entity {
             i = i + 1
         }
         System.print("<<<<<<<<<<<<< end >>>>>>>>>>>>>")
-    }    
+    }
 
-    // Private (actually removes the components)
+    /// Removes components marked for deletion (used internally)
     removeDeletedComponents_() {
         for(c in _compDeleteQueue) {
             _components[c].finalize()

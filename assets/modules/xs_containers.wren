@@ -1,6 +1,7 @@
 /// Logical representation of a (game) grid
 class Grid {
-    
+
+    /// Creates a new grid with the given dimensions, filled with a default value
     construct new(width, height, zero) {
         _grid = []
         _width = width
@@ -62,6 +63,7 @@ class Grid {
 /// Logical representation of a grid with many empty spaces
 class SparseGrid {
 
+    /// Creates a new empty sparse grid
     construct new() {
         _grid = {}
     }
@@ -108,17 +110,20 @@ class SparseGrid {
 
 }
 
-/// First-in-first-out (FIFO) data structure 
+/// First-in-first-out (FIFO) data structure
 class Queue {
 
+    /// Creates a new empty queue
     construct new() {
         _data = []
     }
 
+    /// Adds a value to the back of the queue
     push(val) {
         _data.add(val)
     }
 
+    /// Removes and returns the value from the front of the queue
     pop() {
         if(!empty()) {
             var val = _data[0]
@@ -127,20 +132,24 @@ class Queue {
         }
     }
 
+    /// Checks if the queue is empty
     empty() { _data.count == 0 }
  }
 
-/// Last-in-fist-out (LIFO data structure)
+/// Last-in-first-out (LIFO) data structure (stack)
 class Dequeue {
 
+    /// Creates a new empty dequeue
     construct new() {
         _data = []
     }
 
+    /// Adds a value to the top of the stack
     push(val) {
         _data.add(val)
     }
 
+    /// Removes and returns the value from the top of the stack
     pop() {
         if(!empty()) {
             var val = _data[_data.count - 1]
@@ -149,11 +158,13 @@ class Dequeue {
         }
     }
 
+    /// Checks if the dequeue is empty
     empty() { _data.count == 0 }
  }
 
-/// A simple ring buffer implementation.
+/// A simple ring buffer (circular buffer) implementation
 class RingBuffer {
+    /// Creates a new ring buffer of the given size, filled with a default value
     construct new(size, value) {
         _size = size
         _buffer = []
@@ -161,17 +172,21 @@ class RingBuffer {
         _index = 0
     }
 
+    /// Adds a value to the buffer, overwriting the oldest value if full
     push(value) {
         _buffer[_index] = value
         _index = (_index + 1) % _size
     }
 
+    /// Returns the most recently added value
     peek() { _buffer[_index - 1] }
 
+    /// Gets a value at the given offset from the current position
     [index] {
         return _buffer[(_index + index) % _size]
     }
 
+    /// Gets the size of the ring buffer
     size { _size }
 
     toString { _buffer.toString }

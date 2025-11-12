@@ -46,6 +46,190 @@
 <p>////////////////////////////////////////////////////////////////////////////</p>
 </div>
 
+<hr>
+<h2>Class Component <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L9" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<div class="api-method">
+<p>Base class for components that can be added to entities</p>
+</div>
+
+<h3><code>construct new() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L14" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Creates a new component</p>
+<p>Make sure to call super() when inheriting from this class</p>
+<p>Other components might still not be available on the owning entity</p>
+</div>
+
+<h3><code>initialize() {}</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L22" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Called right before the first update</p>
+<p>Good place to query and cache other components</p>
+</div>
+
+<h3><code>finalize() {}</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L26" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Called when the component/entity is deleted</p>
+<p>Set any references to other entities and components to null</p>
+</div>
+
+<h3><code>update(dt) {}</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L30" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Called once per update with delta time</p>
+<p>Put your game logic here</p>
+</div>
+
+<h3><code>owner { _owner }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L33" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Gets the Entity object that owns this component</p>
+</div>
+
+<h3><code>owner=(o) { _owner = o }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L36" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Sets the owner (used internally by Entity)</p>
+</div>
+
+<h3><code>enabled { _enabled }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L40" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Checks if the component is enabled</p>
+<p>If not enabled, the update() function will not be called</p>
+</div>
+
+<h3><code>enabled=(e) { _enabled = e }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L43" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Sets the enabled state of the component</p>
+</div>
+
+<h3><code>initialized_ { _initialized }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L46" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Gets the initialized state (used internally by Entity)</p>
+</div>
+
+<h3><code>initialized_=(i) { _initialized = i }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L49" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Sets the initialized state (used internally by Entity)</p>
+</div>
+
+<hr>
+<h2>Class Entity <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L53" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<div class="api-method">
+<p>Represents a game object that can contain multiple components</p>
+</div>
+
+<h3><code>construct new() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L56" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Creates a new entity that will be visible to the rest of the game in the next update</p>
+</div>
+
+<h3><code>add(component) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L68" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Adds a component to the entity</p>
+<p>The component must be a subclass of Component</p>
+<p>Components will be initialized and updated in the order they are added</p>
+</div>
+
+<h3><code>get(type) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L82" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Gets a component of the matching type</p>
+</div>
+
+<h3><code>remove(type) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L95" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Marks the component for removal at the end of the update</p>
+</div>
+
+<h3><code>components { _components.values }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L108" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Gets all components attached to this entity</p>
+</div>
+
+<h3><code>deleted { _deleted }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L112" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Checks if the entity is marked for removal</p>
+<p>Set references to this entity to null if true</p>
+</div>
+
+<h3><code>delete() { _deleted = true }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L115" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Marks the entity for removal at the end of the update</p>
+</div>
+
+<h3><code>name { _name }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L118" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Gets the name of the entity (useful for debugging)</p>
+</div>
+
+<h3><code>name=(n){ _name = n }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L120" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Sets the name of the entity</p>
+</div>
+
+<h3><code>tag { _tag }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L123" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Gets the tag (used as a bitflag when filtering entities)</p>
+</div>
+
+<h3><code>tag=(t) { _tag = t }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L125" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Sets the tag</p>
+</div>
+
+<h3><code>enabled=(e) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L128" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Sets the enabled state of all components</p>
+</div>
+
+<h3><code>static initialize() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L136" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Initializes the entity system</p>
+<p>Call this from the initialize() function of your entry point (game class)</p>
+</div>
+
+<h3><code>static update(dt) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L144" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Updates all entities and their components</p>
+<p>Call this from the update() function of your entry point (game class)</p>
+<p>Handles adding/removing entities and components</p>
+</div>
+
+<h3><code>static withTag(tag) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L181" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Gets all entities where the tag matches exactly with the given tag</p>
+</div>
+
+<h3><code>static withTagOverlap(tag) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L192" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Gets all entities where the tag has bit overlap with the given tag</p>
+</div>
+
+<h3><code>static withoutTagOverlap(tag) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L203" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Gets all entities where the tag does not have bit overlap with the given tag</p>
+</div>
+
+<h3><code>static setEnabled(tag, enabled) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L214" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Sets the enabled state for all entities with matching tag overlap</p>
+</div>
+
+<h3><code>static entities { __entities }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L225" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Gets all entities active in the system</p>
+</div>
+
+<h3><code>toString {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L228" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Returns a string representation of this entity</p>
+</div>
+
+<h3><code>static print() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L238" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Prints a formatted list of all entities and their components (for debugging)</p>
+</div>
+
+<h3><code>removeDeletedComponents_() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_ec.wren#L254" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Removes components marked for deletion (used internally)</p>
+</div>
+
   </div>
 
   <!-- Footer -->
