@@ -290,16 +290,6 @@ void xs::inspector::render(double dt)
 		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
 			show_about = true;
 		tooltip("About");
-
-    	// Close inspector
-    	ImGui::SameLine();
-    	if (ImGui::Button(ICON_FA_CHEVRON_CIRCLE_LEFT))
-    	{
-    		show_inspector = false;
-    		data::set_bool("show_inspector", show_inspector, data::type::user);
-    		data::save_of_type(data::type::user);
-    	}
-    	tooltip("Close Inspector");
 				
 		ImGui::SameLine();
 		if (xs::script::has_error())
@@ -324,6 +314,17 @@ void xs::inspector::render(double dt)
 			ImGui::PopStyleColor();
 			tooltip("Data has unsaved changes");
 		}
+    	
+    	// Close inspector
+    	ImGui::SameLine();
+    	if (ImGui::Button(ICON_FA_CARET_LEFT))
+    	{
+    		show_inspector = false;
+    		data::set_bool("show_inspector", show_inspector, data::type::user);
+    		data::save_of_type(data::type::user);
+    	}
+    	tooltip("Close Inspector");
+    	
 		ImGui::End();		
 		
 		{	// Bottom stats
@@ -374,7 +375,7 @@ void xs::inspector::render(double dt)
 		ImGui::SetWindowSize({-1, -1 });
 
 		// A small button to show the inspector
-		if (ImGui::Button(ICON_FA_CHEVRON_CIRCLE_RIGHT))
+		if (ImGui::Button(ICON_FA_CARET_SQUARE_RIGHT))
 		{
 			show_inspector = true;
 			data::set_bool("show_inspector", show_inspector, data::type::user);
