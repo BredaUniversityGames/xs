@@ -9,9 +9,9 @@ color_scheme: dark
 
 # Aux links for the upper right navigation
 aux_links:
-  "Download":
+  "<i class='fas fa-download'></i> Download":
     - "https://xs-engine.itch.io/xs"
-  "Contribute":
+  "<i class='fab fa-github'></i> GitHub":
     - "https://github.com/BredaUniversityGames/xs"
 
 footer_content: "xs - lovingly made at Breda University of Applied Sciences"
