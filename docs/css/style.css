@@ -44,12 +44,13 @@ nav {
 nav .nav-logo {
   display: flex;
   align-items: center;
+  margin: -0.5rem 0;
 }
 
 nav .nav-logo img {
-  height: 40px;
-  width: 40px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  height: 50px;
+  width: 50px;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.5));
 }
 
 nav .logo {
