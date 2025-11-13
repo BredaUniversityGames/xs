@@ -1,16 +1,14 @@
-///////////////////////////////////////////////////////////////////////////////
-// Entity / Component
-///////////////////////////////////////////////////////////////////////////////
-
 import "xs_math" for Math, Bits
 import "xs_tools" for Tools
 
 /// Base class for components that can be added to entities
+/// Components should inherit from this class and override initialize(), update(), and/or finalize()
+/// Each entity can only have one component of each type
 class Component {
 
     /// Creates a new component
-    /// Make sure to call super() when inheriting from this class
-    /// Other components might still not be available on the owning entity
+    /// IMPORTANT: Always call super() first when creating a new component subclass constructor
+    /// Note: Other components might not be available yet - use initialize() to query them
     construct new() {
         _owner = null
         _initialized = false
@@ -18,15 +16,18 @@ class Component {
     }
 
     /// Called right before the first update
-    /// Good place to query and cache other components
+    /// This is the ideal place to query and cache references to other components on the same entity
+    /// Example: _transform = owner.get(Transform)
     initialize() {}
 
     /// Called when the component/entity is deleted
-    /// Set any references to other entities and components to null
+    /// Clean up any references to other entities and components by setting them to null
+    /// This prevents memory leaks from circular references
     finalize() {}
 
-    /// Called once per update with delta time
-    /// Put your game logic here
+    /// Called once per frame with delta time in seconds
+    /// Put your game logic here - this is only called when the component is enabled
+    /// dt is typically 1/60 (0.0166...) for 60 FPS
     update(dt) {}
 
     /// Gets the Entity object that owns this component
@@ -50,9 +51,12 @@ class Component {
 }
 
 /// Represents a game object that can contain multiple components
+/// Entities are managed by the Entity-Component system and should be created with Entity.new()
+/// Call Entity.initialize() and Entity.update(dt) in your game's initialize() and update() methods
 class Entity {
 
     /// Creates a new entity that will be visible to the rest of the game in the next update
+    /// The entity won't appear in Entity.entities until the next frame
     construct new() {
         _components = {}
         _deleted = false
@@ -64,7 +68,8 @@ class Entity {
 
     /// Adds a component to the entity
     /// The component must be a subclass of Component
-    /// Components will be initialized and updated in the order they are added
+    /// If a component of the same type already exists, it will be finalized and replaced
+    /// Components are initialized and updated in the order they were added
     add(component) {
         var c = get(component.type)
         if(c != null) {
@@ -78,7 +83,8 @@ class Entity {
         _components[component.type] = component
     }
 
-    /// Gets a component of the matching type
+    /// Gets a component of the matching type, or null if not found
+    /// Example: var transform = entity.get(Transform)
     get(type) {
         if (_components.containsKey(type)) {
             return _components[type]            
@@ -91,7 +97,8 @@ class Entity {
         return null
     }
 
-    /// Marks the component for removal at the end of the update
+    /// Marks a component for removal at the end of the current update frame
+    /// The component's finalize() method will be called before removal
     remove(type) {
         if (_components.containsKey(type)) {
             _compDeleteQueue.add(type)
@@ -107,11 +114,12 @@ class Entity {
     /// Gets all components attached to this entity
     components { _components.values }
 
-    /// Checks if the entity is marked for removal
-    /// Set references to this entity to null if true
+    /// Checks if the entity is marked for deletion
+    /// If true, you should set any references to this entity to null to avoid accessing deleted entities
     deleted { _deleted }
 
-    /// Marks the entity for removal at the end of the update
+    /// Marks the entity for removal at the end of the current update frame
+    /// All components will have their finalize() methods called before the entity is removed
     delete() { _deleted = true }
 
     /// Gets the name of the entity (useful for debugging)
@@ -131,16 +139,18 @@ class Entity {
         }
     }
 
-    /// Initializes the entity system
-    /// Call this from the initialize() function of your entry point (game class)
+    /// Initializes the entity system - MUST be called once at game startup
+    /// Call this from your game's initialize() method before creating any entities
+    /// Example: Entity.initialize()
     static initialize() {
         __entities = []
         __addQueue = []
     }
 
-    /// Updates all entities and their components
-    /// Call this from the update() function of your entry point (game class)
-    /// Handles adding/removing entities and components
+    /// Updates all entities and their components - MUST be called every frame
+    /// Call this from your game's update(dt) method
+    /// Handles adding new entities, removing deleted ones, and updating all component logic
+    /// Example: Entity.update(dt)
     static update(dt) {
         for (e in __entities) {
             e.removeDeletedComponents_()
@@ -177,7 +187,8 @@ class Entity {
         }
     }
 
-    /// Gets all entities where the tag matches exactly with the given tag
+    /// Gets all entities where the tag matches exactly with the given tag (using bitwise AND)
+    /// Use this when you need entities with ALL specified tag bits set
     static withTag(tag) {
         var found = []
         for (e in __entities) {
@@ -188,7 +199,8 @@ class Entity {
         return found
     }
 
-    /// Gets all entities where the tag has bit overlap with the given tag
+    /// Gets all entities where the tag has ANY bit overlap with the given tag
+    /// Use this when you need entities with at least one matching tag bit
     static withTagOverlap(tag) {
         var found = []
         for (e in __entities) {

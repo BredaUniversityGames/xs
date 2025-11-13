@@ -1,6 +1,9 @@
 /* xs Engine Documentation - Pure CSS */
 /* Gradient theme matching the engine UI */
 
+/* Import Selawik font */
+@import url('https://fonts.cdnfonts.com/css/selawik');
+
 :root {
   --xs-orange: #f89020;
   --xs-pink: #e85a8f;
@@ -18,7 +21,7 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'Selawik', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   background: var(--xs-dark);
   color: var(--text-light);
   line-height: 1.6;
@@ -34,7 +37,19 @@ nav {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 2rem;
+}
+
+nav .nav-logo {
+  display: flex;
+  align-items: center;
+}
+
+nav .nav-logo img {
+  height: 40px;
+  width: 40px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 nav .logo {
@@ -43,34 +58,55 @@ nav .logo {
   gap: 0.5rem;
   color: white;
   text-decoration: none;
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  line-height: 1;
 }
 
-nav .logo img {
-  height: 32px;
-  width: 32px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+nav .logo:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 nav .nav-links {
   display: flex;
-  gap: 2rem;
+  gap: 1rem;
   list-style: none;
+  align-items: center;
+  padding: 0;
+  margin: 0;
 }
 
 nav .nav-links a {
   color: white;
   text-decoration: none;
-  font-weight: 500;
-  transition: opacity 0.2s;
+  font-weight: 600;
+  font-size: 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
+  line-height: 1;
+  min-height: 2.0rem;
+}
+
+nav .nav-links a .icon-svg {
+  height: 2rem;
+  margin: -1.5rem 0;
 }
 
 nav .nav-links a:hover {
-  opacity: 0.8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* Main Container */

@@ -18,16 +18,15 @@
 <body>
   <!-- Navigation -->
   <nav>
-    <a href="../index.html" class="logo">
-      <img src="../img/icon_tiny.webp" alt="xs logo">
-      <span>xs game engine</span>
+    <a href="../index.html" class="nav-logo">
+      <img src="../img/xs_logo_animated.svg" alt="xs logo">
     </a>
     <ul class="nav-links">
-      <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
-      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> Getting Started</a></li>
-      <li><a href="index.html"><i class="fas fa-book"></i> API Reference</a></li>
-      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> Download</a></li>
-      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+      <li><a href="../index.html" class="logo"><img src="../img/xs_icon.svg" alt="xs" class="icon-svg">xs game engine</a></li>
+      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> getting started</a></li>
+      <li><a href="index.html"><i class="fas fa-book"></i> api reference</a></li>
+      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> github</a></li>
     </ul>
   </nav>
 
@@ -42,42 +41,42 @@
 <p>Logical representation of a (game) grid</p>
 </div>
 
-<h3><code>construct new(width, height, zero) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L5" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(width, height, zero)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L5" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a new grid with the given dimensions, filled with a default value</p>
 </div>
 
-<h3><code>width { _width }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L18" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>width</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L18" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>The number of columns in the grid.</p>
 </div>
 
-<h3><code>height { _height }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L21" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>height</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L21" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>The number of rows in the grid.</p>
 </div>
 
-<h3><code>swapValues(x1, y1, x2, y2) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L24" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>swapValues(x1, y1, x2, y2)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L24" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Swaps the values of two given grid cells.</p>
 </div>
 
-<h3><code>valid(x, y) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L37" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>valid(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L37" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if a given cell position exists in the grid.</p>
 </div>
 
-<h3><code>[x, y] {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L42" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>[x, y]</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L42" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns the value stored at the given grid cell.</p>
 </div>
 
-<h3><code>[x, y]=(v) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L47" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>[x, y]=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L47" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Assigns a given value to a given grid cell.</p>
 </div>
 
-<h3><code>toString {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L52" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>toString</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L52" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Constructs a string representation of this grid.</p>
 </div>
@@ -88,42 +87,42 @@
 <p>Logical representation of a grid with many empty spaces</p>
 </div>
 
-<h3><code>construct new() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L67" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L67" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a new empty sparse grid</p>
 </div>
 
-<h3><code>static makeId(x, y) { x &lt;&lt; 16 | y }  // |</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L72" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static makeId(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L72" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a unique identifier for a given cell position.</p>
 </div>
 
-<h3><code>has(x, y) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L75" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>has(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L75" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if a given cell position exists in the grid.</p>
 </div>
 
-<h3><code>remove(x, y) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L81" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>remove(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L81" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Removes the value stored at the given grid cell.</p>
 </div>
 
-<h3><code>[x, y] {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L87" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>[x, y]</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L87" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns the value stored at the given grid cell.</p>
 </div>
 
-<h3><code>[x, y]=(v) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L98" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>[x, y]=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L98" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Assigns a given value to a given grid cell.</p>
 </div>
 
-<h3><code>clear() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L104" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>clear()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L104" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Clears the grid.</p>
 </div>
 
-<h3><code>values { _grid.values }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L109" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>values</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L109" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns the values stored in the grid.</p>
 </div>
@@ -134,22 +133,22 @@
 <p>First-in-first-out (FIFO) data structure</p>
 </div>
 
-<h3><code>construct new() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L117" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L117" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a new empty queue</p>
 </div>
 
-<h3><code>push(val) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L122" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>push(val)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L122" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds a value to the back of the queue</p>
 </div>
 
-<h3><code>pop() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L127" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>pop()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L127" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Removes and returns the value from the front of the queue</p>
 </div>
 
-<h3><code>empty() { _data.count == 0 }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L136" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>empty()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L136" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if the queue is empty</p>
 </div>
@@ -160,22 +159,22 @@
 <p>Last-in-first-out (LIFO) data structure (stack)</p>
 </div>
 
-<h3><code>construct new() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L143" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L143" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a new empty dequeue</p>
 </div>
 
-<h3><code>push(val) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L148" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>push(val)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L148" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds a value to the top of the stack</p>
 </div>
 
-<h3><code>pop() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L153" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>pop()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L153" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Removes and returns the value from the top of the stack</p>
 </div>
 
-<h3><code>empty() { _data.count == 0 }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L162" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>empty()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L162" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if the dequeue is empty</p>
 </div>
@@ -186,27 +185,27 @@
 <p>A simple ring buffer (circular buffer) implementation</p>
 </div>
 
-<h3><code>construct new(size, value) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L168" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(size, value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L168" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a new ring buffer of the given size, filled with a default value</p>
 </div>
 
-<h3><code>push(value) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L176" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>push(value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L176" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds a value to the buffer, overwriting the oldest value if full</p>
 </div>
 
-<h3><code>peek() { _buffer[_index - 1] }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L182" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>peek()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L182" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns the most recently added value</p>
 </div>
 
-<h3><code>[index] {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L185" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>[index]</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L185" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets a value at the given offset from the current position</p>
 </div>
 
-<h3><code>size { _size }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L190" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>size</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_containers.wren#L190" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the size of the ring buffer</p>
 </div>

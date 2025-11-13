@@ -1,4 +1,4 @@
-/**
+/** doc-disable
  * Minimalist assertion library for unit testing in Wren.
  *
  * @author Rob Loach (@RobLoach)

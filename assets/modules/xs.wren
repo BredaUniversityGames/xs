@@ -1,4 +1,5 @@
-/// Handle for shapes and sprites in the rendering system
+/// Handle for shapes and sprites in the rendering system.
+/// Used to correctly manage resources via the GC. Not to be created directly.
 foreign class ShapeHandle {}
 
 /// Core rendering API for sprites, shapes, text, and debug drawing

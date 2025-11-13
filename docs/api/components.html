@@ -18,16 +18,15 @@
 <body>
   <!-- Navigation -->
   <nav>
-    <a href="../index.html" class="logo">
-      <img src="../img/icon_tiny.webp" alt="xs logo">
-      <span>xs game engine</span>
+    <a href="../index.html" class="nav-logo">
+      <img src="../img/xs_logo_animated.svg" alt="xs logo">
     </a>
     <ul class="nav-links">
-      <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
-      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> Getting Started</a></li>
-      <li><a href="index.html"><i class="fas fa-book"></i> API Reference</a></li>
-      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> Download</a></li>
-      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+      <li><a href="../index.html" class="logo"><img src="../img/xs_icon.svg" alt="xs" class="icon-svg">xs game engine</a></li>
+      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> getting started</a></li>
+      <li><a href="index.html"><i class="fas fa-book"></i> api reference</a></li>
+      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> github</a></li>
     </ul>
   </nav>
 
@@ -42,27 +41,27 @@
 <p>Component that stores position and rotation for an entity</p>
 </div>
 
-<h3><code>construct new(position) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L8" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(position)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L8" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a new Transform at the given position with zero rotation</p>
 </div>
 
-<h3><code>position { _position }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L15" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>position</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L15" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the position as a Vec2</p>
 </div>
 
-<h3><code>position=(p) { _position = p }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L17" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>position=(p)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L17" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the position</p>
 </div>
 
-<h3><code>rotation { _rotation }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L20" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>rotation</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L20" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the rotation in radians</p>
 </div>
 
-<h3><code>rotation=(r) { _rotation = r }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L22" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>rotation=(r)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L22" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the rotation in radians</p>
 </div>
@@ -73,32 +72,32 @@
 <p>Component that provides size and velocity for physics-based movement</p>
 </div>
 
-<h3><code>construct new(size, velocity) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L30" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(size, velocity)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L30" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a new Body with the given size and velocity</p>
 </div>
 
-<h3><code>size { _scale }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L37" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>size</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L37" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the size of the body</p>
 </div>
 
-<h3><code>velocity { _velocity }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L39" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>velocity</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L39" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the velocity as a Vec2</p>
 </div>
 
-<h3><code>size=(s) { _scale = s }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L42" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>size=(s)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L42" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the size of the body</p>
 </div>
 
-<h3><code>velocity=(v) { _velocity = v }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L44" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>velocity=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L44" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the velocity</p>
 </div>
 
-<h3><code>update(dt) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L47" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>update(dt)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L47" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Updates the position based on velocity and delta time</p>
 </div>
@@ -109,32 +108,32 @@
 <p>Base class for all renderable components with layer-based sorting</p>
 </div>
 
-<h3><code>construct new() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L58" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L58" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a new Renderable with default layer 0</p>
 </div>
 
-<h3><code>render() {}</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L64" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>render()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L64" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Override this method in subclasses to implement rendering</p>
 </div>
 
-<h3><code>&lt;(other) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L67" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>&lt;(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L67" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Comparison operator for sorting by layer</p>
 </div>
 
-<h3><code>layer { _layer }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L72" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>layer</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L72" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the rendering layer (higher values render on top)</p>
 </div>
 
-<h3><code>layer=(l) { _layer = l }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L74" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>layer=(l)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L74" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the rendering layer</p>
 </div>
 
-<h3><code>static render() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L77" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static render()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L77" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Renders all Renderable components in all entities</p>
 </div>
@@ -145,72 +144,72 @@
 <p>Renders a sprite from an image or texture atlas</p>
 </div>
 
-<h3><code>construct new(image) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L92" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(image)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L92" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a sprite from a full image (path or image ID)</p>
 </div>
 
-<h3><code>construct new(image, s0, t0, s1, t1) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L106" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(image, s0, t0, s1, t1)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L106" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a sprite from a section of an image using normalized texture coordinates</p>
 </div>
 
-<h3><code>initialize() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L120" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>initialize()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L120" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Initializes by caching reference to Transform component</p>
 </div>
 
-<h3><code>render() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L125" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>render()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L125" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Renders the sprite at the Transform&#x27;s position and rotation</p>
 </div>
 
-<h3><code>add { _add }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L139" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>add</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L139" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the additive color (0xRRGGBBAA format)</p>
 </div>
 
-<h3><code>add=(a) { _add = a }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L141" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>add=(a)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L141" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the additive color</p>
 </div>
 
-<h3><code>mul { _mul }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L144" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>mul</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L144" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the multiply color (0xRRGGBBAA format)</p>
 </div>
 
-<h3><code>mul=(m) { _mul = m }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L146" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>mul=(m)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L146" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the multiply color</p>
 </div>
 
-<h3><code>flags { _flags }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L149" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>flags</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L149" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the sprite flags (flipping, centering, etc.)</p>
 </div>
 
-<h3><code>flags=(f) { _flags = f }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L151" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>flags=(f)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L151" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the sprite flags</p>
 </div>
 
-<h3><code>scale { _scale }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L154" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>scale</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L154" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the sprite scale</p>
 </div>
 
-<h3><code>scale=(s) { _scale = s }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L156" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>scale=(s)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L156" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the sprite scale</p>
 </div>
 
-<h3><code>sprite_=(s) { _sprite = s }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L159" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>sprite_=(s)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L159" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the sprite ID</p>
 </div>
 
-<h3><code>sprite { _sprite }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L161" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>sprite</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L161" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the sprite ID</p>
 </div>
@@ -221,62 +220,62 @@
 <p>Renders a shape (SVG or custom mesh)</p>
 </div>
 
-<h3><code>construct new(shape) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L169" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(shape)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L169" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a Shape component with the given shape ID</p>
 </div>
 
-<h3><code>render() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L180" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>render()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L180" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Renders the shape at the Transform&#x27;s position and rotation</p>
 </div>
 
-<h3><code>add { _add }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L195" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>add</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L195" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the additive color (0xRRGGBBAA format)</p>
 </div>
 
-<h3><code>add=(a) { _add = a }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L197" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>add=(a)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L197" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the additive color</p>
 </div>
 
-<h3><code>mul { _mul }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L200" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>mul</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L200" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the multiply color (0xRRGGBBAA format)</p>
 </div>
 
-<h3><code>mul=(m) { _mul = m }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L202" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>mul=(m)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L202" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the multiply color</p>
 </div>
 
-<h3><code>flags { _flags }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L205" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>flags</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L205" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the shape flags</p>
 </div>
 
-<h3><code>flags=(f) { _flags = f }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L207" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>flags=(f)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L207" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the shape flags</p>
 </div>
 
-<h3><code>scale { _scale }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L210" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>scale</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L210" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the shape scale</p>
 </div>
 
-<h3><code>scale=(s) { _scale = s }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L212" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>scale=(s)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L212" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the shape scale</p>
 </div>
 
-<h3><code>shape=(s) { _shape = s }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L215" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>shape=(s)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L215" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the shape ID</p>
 </div>
 
-<h3><code>shape { _shape }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L217" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>shape</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L217" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the shape ID</p>
 </div>
@@ -287,22 +286,22 @@
 <p>Renders text using a loaded font</p>
 </div>
 
-<h3><code>construct new(font, text, size) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L225" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(font, text, size)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L225" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a Label with the given font (path or font ID), text content, and size</p>
 </div>
 
-<h3><code>render() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L240" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>render()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L240" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Renders the text at the Transform&#x27;s position</p>
 </div>
 
-<h3><code>text { _text }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L246" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>text</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L246" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the text content</p>
 </div>
 
-<h3><code>text=(t) { _text = t }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L248" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>text=(t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L248" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the text content</p>
 </div>
@@ -313,135 +312,141 @@
 <p>Sprite that can display frames from a sprite sheet grid</p>
 </div>
 
-<h3><code>construct new(image, columns, rows) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L254" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(image, columns, rows)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L254" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a GridSprite from an image divided into columns and rows</p>
 </div>
 
-<h3><code>idx=(i) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L278" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>idx=(i)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L278" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the current frame index</p>
 </div>
 
-<h3><code>idx{ _idx }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L284" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>idx</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L284" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the current frame index</p>
 </div>
 
-<h3><code>[i] { _sprites[i] }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L287" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>[i]</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L287" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the sprite ID at the given frame index</p>
 </div>
 
 <hr>
-<h2>Class AnimatedSprite <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L293" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class AnimatedSprite <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L295" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
-<p>Sprite with animation support for playing frame sequences</p>
+<p>Sprite with animation support for playing frame sequences from a sprite sheet</p>
+<p>Use addAnimation() to define named animations, then playAnimation() to start them</p>
+<p>Call update(dt) each frame to advance the animation</p>
 </div>
 
-<h3><code>construct new(image, columns, rows, fps) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L295" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(image, columns, rows, fps)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L298" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates an AnimatedSprite with the given frame rate (frames per second)</p>
+<p>fps determines how fast animations play - higher values = faster animations</p>
 </div>
 
-<h3><code>update(dt) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L308" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>update(dt)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L311" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Updates the animation frame based on delta time</p>
 </div>
 
-<h3><code>addAnimation(name, frames) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L339" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>addAnimation(name, frames)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L344" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds a named animation with a list of frame indices</p>
+<p>Frame indices correspond to positions in the sprite sheet (0-indexed, left to right, top to bottom)</p>
+<p>Example: addAnimation(&quot;walk&quot;, [0, 1, 2, 3])</p>
 </div>
 
-<h3><code>playAnimation(name) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L346" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>playAnimation(name)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L352" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
-<p>Plays the animation with the given name</p>
+<p>Plays the animation with the given name, restarting from the first frame</p>
+<p>Does nothing if the animation name doesn&#x27;t exist</p>
 </div>
 
-<h3><code>randomizeFrame(random) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L354" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>randomizeFrame(random)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L360" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Randomizes the current frame within the current animation</p>
 </div>
 
-<h3><code>mode { _mode }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L359" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>mode</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L365" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the animation mode</p>
 </div>
 
-<h3><code>mode=(m) { _mode = m }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L361" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>mode=(m)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L367" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the animation mode (once, loop, or destroy)</p>
 </div>
 
-<h3><code>isDone { _mode != AnimatedSprite.loop &amp;&amp; _currentFrame == _animations[_currentName].count - 1}</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L363" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>isDone</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L369" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if animation has finished (for non-looping animations)</p>
 </div>
 
-<h3><code>static once { 0 }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L366" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static once</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L372" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
-<p>Play animation once and stop</p>
+<p>Play animation once and stop on the last frame</p>
 </div>
 
-<h3><code>static loop { 1 }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L368" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static loop</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L374" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
-<p>Loop animation continuously</p>
+<p>Loop animation continuously (default behavior)</p>
 </div>
 
-<h3><code>static destroy { 2 }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L370" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static destroy</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L376" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
-<p>Delete entity when animation completes</p>
+<p>Delete the owning entity when animation completes (useful for effects)</p>
 </div>
 
 <hr>
-<h2>Class Relation <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L376" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Relation <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L382" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Makes an entity follow its parent&#x27;s position with an offset</p>
 </div>
 
-<h3><code>construct new(parent) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L378" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(parent)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L384" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a Relation that follows the given parent entity</p>
 </div>
 
-<h3><code>update(dt) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L385" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>update(dt)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L391" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Updates position to follow parent (with rotation support)</p>
 </div>
 
-<h3><code>offset { _offset }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L399" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>offset</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L405" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the offset from parent position</p>
 </div>
 
-<h3><code>offset=(o) { _offset = o }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L401" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>offset=(o)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L407" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the offset from parent position</p>
 </div>
 
-<h3><code>parent { _parent }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L403" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>parent</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L409" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the parent entity</p>
 </div>
 
 <hr>
-<h2>Class Ownership <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L409" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Ownership <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L415" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Deletes this entity when its parent is deleted</p>
 </div>
 
-<h3><code>construct new(parent) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L411" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(parent)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L417" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates an Ownership component tied to the given parent entity</p>
 </div>
 
-<h3><code>update(dt) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L417" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>update(dt)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L423" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if parent is deleted and deletes this entity if so</p>
 </div>
 
-<h3><code>parent { _parent }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L424" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>parent</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_components.wren#L430" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the parent entity</p>
 </div>

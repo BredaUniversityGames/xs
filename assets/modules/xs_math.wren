@@ -1,7 +1,3 @@
-///////////////////////////////////////////////////////////////////////////////
-// Math tools
-///////////////////////////////////////////////////////////////////////////////
-
 import "random" for Random
 
 /// Mathematical utility functions for 2D game development
@@ -11,10 +7,12 @@ class Math {
 
     /// Linear interpolation between two values
     /// Returns a value between a and b based on parameter t (0.0 to 1.0)
+    /// t=0 returns a, t=1 returns b, t=0.5 returns midpoint
     static lerp(a, b, t) { (a * (1.0 - t)) + (b * t) }
 
     /// Smooth damping interpolation using exponential decay
-    /// Useful for camera following and smooth movement
+    /// Useful for camera following and smooth movement - gives frame-rate independent smoothing
+    /// Higher lambda values = faster convergence (try values like 5.0 to 20.0)
     static damp(a, b, lambda, dt) { lerp(a, b, 1.0 - (-lambda * dt).exp) }
 
     /// Returns the minimum of two values
@@ -110,6 +108,7 @@ class Bits {
 }
 
 /// 2D vector class for position, velocity, and direction calculations
+/// Supports standard vector operations: addition, subtraction, scaling, dot product, cross product, rotation
 class Vec2 {
     /// Creates a zero vector (0, 0)
     construct new() {
@@ -158,8 +157,10 @@ class Vec2 {
         _y = _y / magnitude
     }
     /// Computes the dot product with another vector
+    /// Returns a scalar: positive if vectors point same direction, negative if opposite, 0 if perpendicular
     dot(other) { (x * other.x + y * other.y) }
     /// Computes the 2D cross product (returns scalar)
+    /// Returns the z-component of the 3D cross product - useful for determining rotation direction
 	cross(other) { (x * other.y - y * other.x) }
     /// Rotates this vector by angle a (in radians) in place
     rotate(a) {
@@ -172,7 +173,8 @@ class Vec2 {
         return Vec2.new(a.cos * _x - a.sin * _y,
                         a.sin * _x + a.cos * _y)
     }
-    /// Returns a perpendicular vector (90 degrees counter-clockwise)
+    /// Returns a perpendicular vector rotated 90 degrees counter-clockwise
+    /// Useful for calculating normals and perpendicular directions
     perp { Vec2.new(-y, x) }
     /// Sets the vector to (0, 0)
     clear() {
@@ -246,7 +248,8 @@ class Vec2 {
         }
     }
 
-    /// Reflects an incident vector off a surface with the given normal
+    /// Reflects an incident vector off a surface with the given normal vector
+    /// The normal should be normalized (unit length) for correct results
     static reflect(incident, normal) {
         return incident - normal * (2.0 * normal.dot(incident))
     }
@@ -288,6 +291,8 @@ class Geom {
 }
 
 /// RGBA color class with utility functions
+/// Color components are integers from 0-255
+/// Supports arithmetic operations and conversion to/from 32-bit integers
 class Color {
     /// Creates a color with RGBA components (0-255)
     construct new(r, g, b, a) {
