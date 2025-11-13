@@ -25,15 +25,16 @@ def round_rectangle(ctx : cairo.Context,
 scale = 1.0 / 2
 width = int(256 * scale)
 height = int(256 * scale)
-R = int(44 * scale)
+R = int(39 * scale)
 r = int(18 * scale)
 thickness = 30 * scale
 steps = 13
 w = width / 2
 h = height / 2
+svg_file = "docs/img/xs_logo_animated.svg"
 
 # Create SVG surface
-surface = cairo.SVGSurface("assets/images/icon_small_animated.svg", width, height)
+surface = cairo.SVGSurface(svg_file, width, height)
 ctx = cairo.Context(surface)
 
 # Move to the center of the surface
@@ -65,27 +66,30 @@ for i in range(steps):
 # Set to white
 ctx.set_source_rgb(1, 1, 1)
 
+# Shift everything right to center the merged circles (two dots)
+offset = 0.25 * R
+
 # Draw the half circles of the logo
 # bottom of the x
-x = -1.5 * R
+x = -1.5 * R + offset
 y = -R
 ctx.arc(x, y, R, 0, math.pi)
 ctx.close_path()
 ctx.fill()
 # top of the x
-x = -1.5*R
+x = -1.5*R + offset
 y = R
 ctx.arc(x, y, R, math.pi, 2 * math.pi)
 ctx.close_path()
 ctx.fill()
 # bottom of the s
-x =  0.5 * R
+x =  0.5 * R + offset
 y = 0
 ctx.arc(x, y, R, math.pi, 2 * math.pi)
 ctx.close_path()
 ctx.fill()
 # top of the s
-x = 1.5 * R
+x = 1.5 * R + offset
 y = 0
 ctx.arc(x, y, R, 0, math.pi)
 ctx.close_path()
@@ -95,7 +99,6 @@ ctx.fill()
 surface.finish()
 
 # Now post-process the SVG to add animations
-svg_file = "assets/images/icon_small_animated.svg"
 tree = ET.parse(svg_file)
 root = tree.getroot()
 

@@ -19,22 +19,22 @@
 </g>
 <g>
 <g>
-<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 53 86 C 53 73.851562 43.148438 64 31 64 C 18.851562 64 9 73.851562 9 86 Z M 53 86 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 0,-22; 0,-22; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
+<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 58.5 86 C 58.5 73.851562 48.648438 64 36.5 64 C 24.351562 64 14.5 73.851562 14.5 86 Z M 58.5 86 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 0,-22; 0,-22; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
 </g>
 </g>
 <g>
 <g>
-<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 9 42 C 9 54.148438 18.851562 64 31 64 C 43.148438 64 53 54.148438 53 42 Z M 9 42 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 0,22; 0,22; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
+<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 14.5 42 C 14.5 54.148438 24.351562 64 36.5 64 C 48.648438 64 58.5 54.148438 58.5 42 Z M 14.5 42 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 0,22; 0,22; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
 </g>
 </g>
 <g>
 <g>
-<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 53 64 C 53 76.148438 62.851562 86 75 86 C 87.148438 86 97 76.148438 97 64 Z M 53 64 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 11.0,0; 11.0,0; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
+<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 58.5 64 C 58.5 76.148438 68.351562 86 80.5 86 C 92.648438 86 102.5 76.148438 102.5 64 Z M 58.5 64 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 11.0,0; 11.0,0; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
 </g>
 </g>
 <g>
 <g>
-<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 119 64 C 119 51.851562 109.148438 42 97 42 C 84.851562 42 75 51.851562 75 64 Z M 119 64 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; -11.0,0; -11.0,0; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
+<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 124.5 64 C 124.5 51.851562 114.648438 42 102.5 42 C 90.351562 42 80.5 51.851562 80.5 64 Z M 124.5 64 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; -11.0,0; -11.0,0; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
 </g>
 </g>
 </svg>
