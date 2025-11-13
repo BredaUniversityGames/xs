@@ -1,7 +1,9 @@
+/// doc-disable
 ///
 /// xs_shapes
 /// A module for rendering shapes and text. Made to bridge the
 /// xs engine and the SVG Python tools.
+/// NOTE: This API is currently not up-to-date and excluded from documentation
 ///
 
 import "xs" for Render, File, Profiler

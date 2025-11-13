@@ -18,16 +18,15 @@
 <body>
   <!-- Navigation -->
   <nav>
-    <a href="../index.html" class="logo">
-      <img src="../img/icon_tiny.webp" alt="xs logo">
-      <span>xs game engine</span>
+    <a href="../index.html" class="nav-logo">
+      <img src="../img/xs_logo_animated.svg" alt="xs logo">
     </a>
     <ul class="nav-links">
-      <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
-      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> Getting Started</a></li>
-      <li><a href="index.html"><i class="fas fa-book"></i> API Reference</a></li>
-      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> Download</a></li>
-      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+      <li><a href="../index.html" class="logo"><img src="../img/xs_icon.svg" alt="xs" class="icon-svg">xs game engine</a></li>
+      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> getting started</a></li>
+      <li><a href="index.html"><i class="fas fa-book"></i> api reference</a></li>
+      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> github</a></li>
     </ul>
   </nav>
 
@@ -42,85 +41,93 @@
 <p>Utility functions and helpers for common operations</p>
 </div>
 
-<h3><code>static initialize() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L7" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static initialize()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L7" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Initializes the random number generator</p>
 </div>
 
-<h3><code>static toList(range) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L12" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static toList(range)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L12" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Converts a range to a list</p>
 </div>
 
-<h3><code>static toList(from, to) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L21" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static toList(from, to)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L21" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a list of numbers from &#x27;from&#x27; to &#x27;to&#x27;</p>
 </div>
 
-<h3><code>static removeFromList(list, element) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L30" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static removeFromList(list, element)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L30" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Removes the first occurrence of an element from a list</p>
 </div>
 
-<h3><code>static pickOne(list) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L40" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static pickOne(list)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L40" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns a random element from the list</p>
 </div>
 
-<h3><code>static random { __random }</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L45" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static random</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L45" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the shared random number generator</p>
 </div>
 
-<h3><code>Tools.initialize()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L49" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
-<div class="api-method">
-<p>Initialize the Tools class</p>
-</div>
-
 <hr>
-<h2>Class ShapeBuilder <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L52" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class ShapeBuilder <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L53" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
-<p>Builder class for creating custom mesh shapes</p>
+<p>Builder class for creating custom mesh shapes with vertices, texture coordinates, and triangle indices</p>
+<p>Important: Position and texture arrays must have the same number of elements (each representing x,y pairs)</p>
+<p>Indices must be divisible by 3 (triangles) and reference valid vertex indices</p>
 </div>
 
-<h3><code>construct new() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L54" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L56" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a new empty ShapeBuilder</p>
+<p>Use addPosition(), addTexture(), and addIndex() to build the mesh, then call build() to create the shape</p>
 </div>
 
-<h3><code>addPosition(position) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L61" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>addPosition(position)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L64" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds a position vertex from a Vec2</p>
+<p>Must be paired with a corresponding addTexture() call to maintain equal array lengths</p>
 </div>
 
-<h3><code>addPosition(x, y) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L67" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>addPosition(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L71" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds a position vertex from coordinates</p>
+<p>Must be paired with a corresponding addTexture() call to maintain equal array lengths</p>
 </div>
 
-<h3><code>addTexture(texture) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L73" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>addTexture(texture)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L79" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds a texture coordinate from a Vec2</p>
+<p>UV coordinates should be normalized (0.0 to 1.0)</p>
+<p>Must be paired with a corresponding addPosition() call to maintain equal array lengths</p>
 </div>
 
-<h3><code>addTexture(x, y) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L79" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>addTexture(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L87" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds a texture coordinate from UV values</p>
+<p>UV coordinates should be normalized (0.0 to 1.0)</p>
+<p>Must be paired with a corresponding addPosition() call to maintain equal array lengths</p>
 </div>
 
-<h3><code>addIndex(index) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L85" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>addIndex(index)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L95" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
-<p>Adds a triangle index</p>
+<p>Adds a triangle index referencing a vertex by its order</p>
+<p>Indices must form complete triangles (count must be divisible by 3)</p>
+<p>Each index must be &gt;= 0 and &lt; number of vertices added</p>
 </div>
 
-<h3><code>validate() {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L90" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>validate()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L101" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Validates that the shape data is correct</p>
+<p>Checks: position/texture arrays are equal length, indices are divisible by 3, indices are in valid range</p>
 </div>
 
-<h3><code>build(image) {</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L106" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>build(image)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_tools.wren#L118" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
-<p>Builds and returns the shape, or null if validation fails</p>
+<p>Builds and returns the shape with the given texture image, or null if validation fails</p>
+<p>Returns null if position/texture counts don&#x27;t match, indices aren&#x27;t divisible by 3, or indices are out of range</p>
 </div>
 
   </div>

@@ -18,16 +18,15 @@
 <body>
   <!-- Navigation -->
   <nav>
-    <a href="../index.html" class="logo">
-      <img src="../img/icon_tiny.webp" alt="xs logo">
-      <span>xs game engine</span>
+    <a href="../index.html" class="nav-logo">
+      <img src="../img/xs_logo_animated.svg" alt="xs logo">
     </a>
     <ul class="nav-links">
-      <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
-      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> Getting Started</a></li>
-      <li><a href="index.html"><i class="fas fa-book"></i> API Reference</a></li>
-      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> Download</a></li>
-      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+      <li><a href="../index.html" class="logo"><img src="../img/xs_icon.svg" alt="xs" class="icon-svg">xs game engine</a></li>
+      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> getting started</a></li>
+      <li><a href="index.html"><i class="fas fa-book"></i> api reference</a></li>
+      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> github</a></li>
     </ul>
   </nav>
 
@@ -41,9 +40,9 @@
 
     <div class="features">
       <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-palette"></i></div>
-        <h3><a href="render.html">Core API</a></h3>
-        <p>Rendering, input, audio, file I/O, and device APIs</p>
+        <div class="feature-icon"><i class="fas fa-gamepad"></i></div>
+        <h3><a href="render.html">xs Core API</a></h3>
+        <p>Main engine classes: Render, Input, Audio, File, Device, Data</p>
       </div>
 
       <div class="feature-card">
@@ -59,50 +58,61 @@
       </div>
 
       <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-shapes"></i></div>
-        <h3><a href="shapes.html">Shapes & Containers</a></h3>
-        <p>Shape utilities and data structures</p>
+        <div class="feature-icon"><i class="fas fa-database"></i></div>
+        <h3><a href="containers.html">Containers</a></h3>
+        <p>Data structures like Grid, Queue, and RingBuffer</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-toolbox"></i></div>
+        <h3><a href="tools.html">Tools</a></h3>
+        <p>Utility functions and ShapeBuilder</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fas fa-puzzle-piece"></i></div>
+        <h3><a href="components.html">Components</a></h3>
+        <p>Pre-built components like Sprite and Transform</p>
       </div>
     </div>
 
     <h2>Usage</h2>
     <p>Import modules in your Wren code like this:</p>
 
-    <pre><code>// Import specific classes from a module
-import "xs" for Render, Input, Audio
+    <pre><code>// Import core xs engine classes
+import "xs" for Render, Input, Audio, File, Device, Data
 
 // Import math utilities
 import "xs_math" for Vec2, Math, Color
 
 // Import entity-component system
-import "xs_ec" for Entity, Component</code></pre>
+import "xs_ec" for Entity, Component
+
+// Import pre-built components
+import "xs_components" for Transform, Sprite, Body</code></pre>
 
     <h2>Module Overview</h2>
     <p>Each module provides classes and functions for specific functionality:</p>
 
     <ul>
-      <li><strong>Core API</strong> (<code>xs</code>) - Main engine features (Render, Input, Audio, File, Device, Data)</li>
+      <li><strong>xs</strong> (<code>xs.wren</code>) - Core engine API with Render, Input, Audio, File, Device, Data classes</li>
       <li><strong>Math</strong> (<code>xs_math</code>) - Math utilities, Vec2, Color, Geom classes</li>
       <li><strong>Entity-Component</strong> (<code>xs_ec</code>) - Entity and Component base classes</li>
       <li><strong>Components</strong> (<code>xs_components</code>) - Pre-built component implementations</li>
-      <li><strong>Shapes</strong> (<code>xs_shapes</code>) - Shape drawing utilities</li>
       <li><strong>Containers</strong> (<code>xs_containers</code>) - Data structure utilities</li>
       <li><strong>Tools</strong> (<code>xs_tools</code>) - General utility functions</li>
-      <li><strong>Assert</strong> (<code>assert</code>) - Assertion utilities for testing</li>
     </ul>
 
     <h2>Available Modules</h2>
     <p>Browse the complete API documentation:</p>
 
     <ul>
-      <li><a href="render.html">Core API (Render, Input, Audio, File, Device, Data)</a></li>
-      <li><a href="math.html">Math & Vectors</a></li>
-      <li><a href="ec.html">Entity-Component System</a></li>
-      <li><a href="components.html">Built-in Components</a></li>
-      <li><a href="shapes.html">Shapes</a></li>
-      <li><a href="containers.html">Containers</a></li>
-      <li><a href="tools.html">Tools</a></li>
-      <li><a href="assert.html">Assert</a></li>
+      <li><a href="render.html"><strong>xs</strong> - Core API (Render, Input, Audio, File, Device, Data)</a></li>
+      <li><a href="math.html">Math & Vectors (Vec2, Color, Math, Geom, Bits)</a></li>
+      <li><a href="ec.html">Entity-Component System (Entity, Component)</a></li>
+      <li><a href="components.html">Built-in Components (Transform, Sprite, Body, etc.)</a></li>
+      <li><a href="containers.html">Containers (Grid, Queue, RingBuffer, etc.)</a></li>
+      <li><a href="tools.html">Tools (ShapeBuilder, utilities)</a></li>
     </ul>
 
     <div class="note mt-2">

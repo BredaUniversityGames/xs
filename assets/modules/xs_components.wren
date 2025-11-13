@@ -289,9 +289,12 @@ class GridSprite is Sprite {
     toString { "[GridSprite _idx:%(_idx) from:%(_sprites.count) ] -> " + super.toString }
 }
 
-/// Sprite with animation support for playing frame sequences
+/// Sprite with animation support for playing frame sequences from a sprite sheet
+/// Use addAnimation() to define named animations, then playAnimation() to start them
+/// Call update(dt) each frame to advance the animation
 class AnimatedSprite is GridSprite {
     /// Creates an AnimatedSprite with the given frame rate (frames per second)
+    /// fps determines how fast animations play - higher values = faster animations
     construct new(image, columns, rows, fps) {
         super(image, columns, rows)
         _animations = {}
@@ -336,13 +339,16 @@ class AnimatedSprite is GridSprite {
     }
 
     /// Adds a named animation with a list of frame indices
+    /// Frame indices correspond to positions in the sprite sheet (0-indexed, left to right, top to bottom)
+    /// Example: addAnimation("walk", [0, 1, 2, 3])
     addAnimation(name, frames) {
         // TODO: assert name is string
         // TODO: assert frames is list
         _animations[name] = frames
     }
 
-    /// Plays the animation with the given name
+    /// Plays the animation with the given name, restarting from the first frame
+    /// Does nothing if the animation name doesn't exist
     playAnimation(name) {
         if(_animations.containsKey(name)) {
             _currentFrame = 0
@@ -362,11 +368,11 @@ class AnimatedSprite is GridSprite {
     /// Checks if animation has finished (for non-looping animations)
     isDone { _mode != AnimatedSprite.loop && _currentFrame == _animations[_currentName].count - 1}
 
-    /// Play animation once and stop
+    /// Play animation once and stop on the last frame
     static once { 0 }
-    /// Loop animation continuously
+    /// Loop animation continuously (default behavior)
     static loop { 1 }
-    /// Delete entity when animation completes
+    /// Delete the owning entity when animation completes (useful for effects)
     static destroy { 2 }    
 
     toString { "[AnimatedSprite _mode:%(_mode) _currentName:%(_currentName) ] -> " + super.toString }

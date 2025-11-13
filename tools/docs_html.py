@@ -107,7 +107,13 @@ def getTripleSlashComments(content, file):
                 i += 1
 
             if i < len(lines):
-                nextline = lines[i]
+                # Get the line up to (but not including) the opening brace
+                full_nextline = lines[i]
+                brace_pos = full_nextline.find('{')
+                if brace_pos >= 0:
+                    nextline = full_nextline[:brace_pos].rstrip()  # Exclude the brace and trim whitespace
+                else:
+                    nextline = full_nextline
 
             start = sum(len(lines[j]) + 1 for j in range(startLineIdx))
             end = start + sum(len(lines[j]) + 1 for j in range(startLineIdx, nextlineStart))
@@ -160,7 +166,10 @@ def getComments(content, file):
 
                 nextlineStart = end + len(endCommentChar)
                 nextlineEnd = content.find(openCurlyBraceChar, nextlineStart)
-                nextline = content[nextlineStart:nextlineEnd]
+                if nextlineEnd >= 0:
+                    nextline = content[nextlineStart:nextlineEnd].rstrip()  # Exclude brace and trim
+                else:
+                    nextline = content[nextlineStart:nextlineEnd]
                 nextlineno = getLineNumber(nextlineStart, content)
 
                 comments.append(
@@ -247,16 +256,15 @@ def makeHTMLFile(comments, file):
 <body>
   <!-- Navigation -->
   <nav>
-    <a href="../index.html" class="logo">
-      <img src="../img/icon_tiny.webp" alt="xs logo">
-      <span>xs game engine</span>
+    <a href="../index.html" class="nav-logo">
+      <img src="../img/xs_logo_animated.svg" alt="xs logo">
     </a>
     <ul class="nav-links">
-      <li><a href="../index.html"><i class="fas fa-home"></i> Home</a></li>
-      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> Getting Started</a></li>
-      <li><a href="index.html"><i class="fas fa-book"></i> API Reference</a></li>
-      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> Download</a></li>
-      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> GitHub</a></li>
+      <li><a href="../index.html" class="logo"><img src="../img/xs_icon.svg" alt="xs" class="icon-svg">xs game engine</a></li>
+      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> getting started</a></li>
+      <li><a href="index.html"><i class="fas fa-book"></i> api reference</a></li>
+      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> github</a></li>
     </ul>
   </nav>
 
