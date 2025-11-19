@@ -10,6 +10,8 @@ import shutil
 import subprocess
 import platform
 import asyncio
+import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -24,6 +26,19 @@ try:
 except ImportError:
     print("Error: textual is required. Install with: pip install -r requirements.txt")
     sys.exit(1)
+
+
+# Set up logging to file
+LOG_FILE = Path(__file__).parent / 'dependency_updater.log'
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(LOG_FILE, mode='w'),  # Overwrite log each run
+        logging.StreamHandler(sys.stdout)  # Also print to console initially
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
 # Dependency definitions
@@ -214,9 +229,9 @@ DEPENDENCIES = {
         'name': 'FMOD',
         'type': 'local',
         'platforms': ['pc', 'nx', 'prospero', 'apple'],
-        'description': 'Audio engine (auto-copy from Program Files on Windows)',
-        'install_notes': 'Install FMOD Studio API from https://www.fmod.com/download',
-        'update_function': 'copy_fmod_from_program_files',  # Custom update handler
+        'description': 'Audio engine (auto-copy on Windows/macOS)',
+        'install_notes': 'Windows: Install to Program Files | macOS: Mount DMG | Other: Manual to fmod/{platform}/',
+        # Note: update_function will be set after the function is defined
     },
     'steam': {
         'name': 'Steam API',
@@ -277,21 +292,70 @@ def check_git_available() -> bool:
     return success
 
 
+def check_dependency_available(dep_key: str, dep_info: Dict) -> bool:
+    """Check if dependency source is available to copy/update from."""
+    if dep_info['type'] == 'opensource':
+        # Open-source is always available (can clone from git)
+        return True
+    elif dep_info['type'] == 'local':
+        # Check if custom update function can find the source
+        if dep_key == 'fmod':
+            plat = platform.system()
+            if plat == "Windows":
+                # Check for Windows Program Files installation
+                fmod_base = Path(r"C:\Program Files (x86)\FMOD SoundSystem")
+                return (fmod_base / "FMOD Studio API Windows").exists()
+            elif plat == "Darwin":
+                # Check for mounted DMG volumes
+                volumes_base = Path("/Volumes")
+                mac_volume = volumes_base / "FMOD Programmers API Mac" / "FMOD Programmers API"
+                ios_volume = volumes_base / "FMOD Programmers API iOS" / "FMOD Programmers API"
+                return mac_volume.exists() or ios_volume.exists()
+            else:
+                return False
+        # Other local dependencies default to not available
+        return False
+    return False
+
+
 def check_dependency_installed(dep_key: str, dep_info: Dict) -> bool:
-    """Check if a dependency is installed."""
+    """Check if a dependency is installed by looking for specific expected files."""
     repo_root = get_repo_root()
     dep_path = repo_root / 'external' / dep_key
 
     if dep_info['type'] == 'opensource':
-        # For open-source, just check if directory exists and has content
-        return dep_path.exists() and any(dep_path.iterdir())
+        # For open-source, check if the include_paths exist
+        if 'include_paths' in dep_info and dep_info['include_paths']:
+            # Check if at least one of the expected files/dirs exists
+            for path_item in dep_info['include_paths']:
+                if isinstance(path_item, tuple):
+                    # Path mapping: check destination path
+                    expected_path = dep_path / path_item[1]
+                else:
+                    # Direct path
+                    expected_path = dep_path / path_item
+
+                if expected_path.exists():
+                    return True
+            return False
+        else:
+            # Fallback: check if directory exists and has content
+            return dep_path.exists() and any(dep_path.iterdir())
+
     elif dep_info['type'] == 'local':
-        # For local deps, check if the platform-specific directory exists
+        # For local deps, check platform-specific structure only
         platform_key = get_platform_key()
-        if platform_key in dep_info['platforms']:
-            platform_path = dep_path / platform_key
-            return platform_path.exists() and any(platform_path.iterdir())
-        return False
+        if platform_key not in dep_info['platforms']:
+            return False
+
+        # Check for platform subdirectory with inc/ and lib/
+        platform_path = dep_path / platform_key
+        inc_path = platform_path / 'inc'
+        lib_path = platform_path / 'lib'
+
+        return (inc_path.exists() and any(inc_path.iterdir())) or \
+               (lib_path.exists() and any(lib_path.iterdir()))
+
     return False
 
 
@@ -330,6 +394,7 @@ def copy_filtered_paths(src_dir: Path, dst_dir: Path, include_paths: List) -> No
 
 def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback=None) -> Tuple[bool, str]:
     """Update an open-source dependency from its git repository."""
+    logger.info(f"Starting update for {dep_key} ({dep_info['name']})")
     repo_root = get_repo_root()
     dep_path = repo_root / 'external' / dep_key
     temp_dir = repo_root / 'external' / f'.temp_{dep_key}'
@@ -338,6 +403,7 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
         # Clone the repository
         if progress_callback:
             progress_callback("Cloning repository...")
+        logger.info(f"Cloning {dep_info['repo']} (branch: {dep_info['branch']})")
 
         success, output = run_command([
             'git', 'clone',
@@ -348,6 +414,7 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
         ])
 
         if not success:
+            logger.error(f"Clone failed for {dep_key}: {output}")
             return False, f"Failed to clone: {output}"
 
         # Remove .git directory from clone
@@ -360,6 +427,7 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
         if dep_path.exists():
             if progress_callback:
                 progress_callback("Backing up...")
+            logger.info(f"Creating backup for {dep_key}")
             backup_path = repo_root / 'external' / f'.backup_{dep_key}'
             if backup_path.exists():
                 shutil.rmtree(backup_path)
@@ -368,6 +436,7 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
         # Copy filtered files/directories
         if progress_callback:
             progress_callback("Copying files...")
+        logger.info(f"Copying filtered files for {dep_key}")
 
         # Create destination directory
         dep_path.mkdir(parents=True, exist_ok=True)
@@ -375,9 +444,11 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
         # Check if include_paths is specified
         if 'include_paths' in dep_info and dep_info['include_paths']:
             # Copy only specified paths
+            logger.info(f"Using filtered copy ({len(dep_info['include_paths'])} paths specified)")
             copy_filtered_paths(temp_dir, dep_path, dep_info['include_paths'])
         else:
             # No filter - copy everything (old behavior)
+            logger.info("Copying all files (no filter specified)")
             shutil.copytree(temp_dir, dep_path, dirs_exist_ok=True)
 
         # Clean up temp directory
@@ -386,17 +457,21 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
 
         # Remove backup if successful
         if backup_path and backup_path.exists():
+            logger.info(f"Removing backup for {dep_key}")
             shutil.rmtree(backup_path)
 
         if progress_callback:
             progress_callback("Complete")
 
+        logger.info(f"Successfully updated {dep_key}")
         return True, "Successfully updated"
 
     except Exception as e:
+        logger.error(f"Error updating {dep_key}: {str(e)}")
         # Restore backup if it exists
         backup_path = repo_root / 'external' / f'.backup_{dep_key}'
         if backup_path and backup_path.exists():
+            logger.info(f"Restoring backup for {dep_key}")
             if dep_path.exists():
                 shutil.rmtree(dep_path)
             shutil.move(str(backup_path), str(dep_path))
@@ -410,19 +485,23 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
 
 def copy_fmod_from_program_files(progress_callback=None) -> Tuple[bool, str]:
     """Copy FMOD files from Program Files installation to external/fmod."""
+    logger.info("Starting FMOD copy operation")
     repo_root = get_repo_root()
     plat = platform.system()
 
     if plat == "Windows":
+        logger.info("Platform: Windows - copying from Program Files")
         fmod_base = Path(r"C:\Program Files (x86)\FMOD SoundSystem")
         fmod_windows = fmod_base / "FMOD Studio API Windows"
 
         if not fmod_windows.exists():
+            logger.error(f"FMOD not found at {fmod_windows}")
             return False, f"FMOD not found at {fmod_windows}"
 
         try:
             if progress_callback:
                 progress_callback("Copying headers...")
+            logger.info("Copying FMOD headers and libraries")
 
             # Source paths
             core_inc = fmod_windows / "api" / "core" / "inc"
@@ -457,24 +536,100 @@ def copy_fmod_from_program_files(progress_callback=None) -> Tuple[bool, str]:
             if progress_callback:
                 progress_callback("Complete")
 
+            logger.info("Successfully copied FMOD for Windows")
             return True, "Successfully copied FMOD"
 
         except Exception as e:
+            logger.error(f"Error copying FMOD on Windows: {str(e)}")
             return False, str(e)
 
     elif plat == "Darwin":
-        return False, "FMOD copy on macOS not implemented. Please copy manually to external/fmod/apple/"
+        logger.info("Platform: macOS - checking for mounted DMG volumes")
+        # Check for mounted FMOD DMG volumes (prefer Mac, but also accept iOS)
+        volumes_base = Path("/Volumes")
+        mac_volume = volumes_base / "FMOD Programmers API Mac" / "FMOD Programmers API"
+        ios_volume = volumes_base / "FMOD Programmers API iOS" / "FMOD Programmers API"
+
+        # Prefer macOS volume, fall back to iOS if only iOS is mounted
+        source_volume = None
+        volume_name = ""
+
+        if mac_volume.exists():
+            source_volume = mac_volume
+            volume_name = "macOS"
+            logger.info(f"Found macOS FMOD volume at {mac_volume}")
+        elif ios_volume.exists():
+            source_volume = ios_volume
+            volume_name = "iOS"
+            logger.info(f"Found iOS FMOD volume at {ios_volume}")
+        else:
+            logger.error("No FMOD DMG mounted")
+            return False, "FMOD DMG not mounted. Please mount FMOD Programmers API Mac or iOS DMG"
+
+        try:
+            if progress_callback:
+                progress_callback(f"Copying {volume_name} FMOD...")
+            logger.info(f"Copying {volume_name} FMOD to external/fmod/apple/")
+
+            repo_root = get_repo_root()
+
+            core_inc = source_volume / "api" / "core" / "inc"
+            core_lib = source_volume / "api" / "core" / "lib"
+            studio_inc = source_volume / "api" / "studio" / "inc"
+            studio_lib = source_volume / "api" / "studio" / "lib"
+
+            # Destination: external/fmod/apple/
+            fmod_dest = repo_root / "external" / "fmod" / "apple"
+            inc_dest = fmod_dest / "inc"
+            lib_dest = fmod_dest / "lib"
+
+            inc_dest.mkdir(parents=True, exist_ok=True)
+            lib_dest.mkdir(parents=True, exist_ok=True)
+
+            # Copy headers
+            if core_inc.exists():
+                shutil.copytree(core_inc, inc_dest, dirs_exist_ok=True)
+            if studio_inc.exists():
+                shutil.copytree(studio_inc, inc_dest, dirs_exist_ok=True)
+
+            if progress_callback:
+                progress_callback("Copying libraries...")
+
+            # Copy libraries
+            if core_lib.exists():
+                shutil.copytree(core_lib, lib_dest, dirs_exist_ok=True)
+            if studio_lib.exists():
+                shutil.copytree(studio_lib, lib_dest, dirs_exist_ok=True)
+
+            if progress_callback:
+                progress_callback("Complete")
+
+            logger.info(f"Successfully copied {volume_name} FMOD for macOS")
+            return True, f"Successfully copied {volume_name} FMOD"
+
+        except Exception as e:
+            logger.error(f"Error copying FMOD on macOS: {str(e)}")
+            return False, f"Error copying FMOD: {e}"
 
     elif plat == "Linux":
+        logger.warning("FMOD copy on Linux not implemented")
         return False, "FMOD copy on Linux not implemented. Please copy manually to external/fmod/pc/"
 
     else:
+        logger.error(f"Unsupported platform: {plat}")
         return False, f"Unsupported platform: {plat}"
+
+
+# Set function references for dependencies with custom update handlers
+# This must be done after the functions are defined
+DEPENDENCIES['fmod']['update_function'] = copy_fmod_from_program_files
 
 
 class DependencyUpdaterApp(App):
     """Textual app for managing XS dependencies."""
 
+    # Auto-detect theme from terminal
+    # Textual will use DARK mode by default, or follow terminal theme if detectable
     CSS = """
     Screen {
         layout: vertical;
@@ -534,6 +689,53 @@ class DependencyUpdaterApp(App):
         self.selected_deps = set()
         self.updating = False
 
+        # Detect and set theme based on terminal
+        # Textual supports automatic theme detection via TERM_PROGRAM and other env vars
+        # But we can also explicitly check COLORFGBG for light/dark detection
+        self._detect_terminal_theme()
+
+    def _detect_terminal_theme(self) -> None:
+        """Detect if terminal is using light or dark theme."""
+        # Check COLORFGBG environment variable (used by many terminals)
+        # Format is typically "foreground;background" where high values = light, low = dark
+        colorfgbg = os.environ.get('COLORFGBG', '')
+
+        if colorfgbg:
+            try:
+                # Extract background color value
+                parts = colorfgbg.split(';')
+                if len(parts) >= 2:
+                    bg_color = int(parts[-1])
+                    # Background color > 7 typically means light theme
+                    if bg_color >= 7:
+                        self.theme = "textual-light"
+                        return
+            except (ValueError, IndexError):
+                pass
+
+        # Check macOS appearance (via defaults command)
+        if platform.system() == "Darwin":
+            try:
+                result = subprocess.run(
+                    ['defaults', 'read', '-g', 'AppleInterfaceStyle'],
+                    capture_output=True,
+                    text=True,
+                    timeout=1
+                )
+                if result.returncode == 0 and 'Dark' in result.stdout:
+                    self.theme = "textual-dark"
+                    return
+                elif result.returncode != 0:
+                    # Command failed = light mode (Dark mode not set)
+                    self.theme = "textual-light"
+                    return
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                pass
+
+        # Default to dark theme if detection fails
+        # (Most terminals and developer environments use dark themes)
+        self.theme = "textual-dark"
+
     def compose(self) -> ComposeResult:
         """Create child widgets."""
         platform_name = get_platform_name()
@@ -563,8 +765,9 @@ class DependencyUpdaterApp(App):
         table.add_column("Key", width=12, key="key")
         table.add_column("Name", width=25, key="name")
         table.add_column("Type", width=15, key="type")
-        table.add_column("Status", width=15, key="status")
-        table.add_column("Description", width=40, key="description")
+        table.add_column("Installed", width=10, key="installed")
+        table.add_column("Available", width=10, key="available")
+        table.add_column("Description", width=35, key="description")
         table.add_column("Progress", width=30, key="progress")
 
         # Check if git is available
@@ -589,23 +792,18 @@ class DependencyUpdaterApp(App):
                     continue
 
             installed = check_dependency_installed(dep_key, dep_info)
+            available = check_dependency_available(dep_key, dep_info)
 
             # Determine type string
             type_str = dep_info['type'].capitalize()
             if dep_info['type'] == 'local':
                 type_str += f" ({platform_key})"
 
-            # Status - different messaging for opensource vs local
-            if dep_info['type'] == 'opensource':
-                if installed:
-                    status = "[green]✓ Installed[/green]"
-                else:
-                    status = "[cyan]○ Available[/cyan]"
-            else:  # local dependency
-                if installed:
-                    status = "[green]✓ Installed[/green]"
-                else:
-                    status = "[red]✗ Not Found[/red]"
+            # Installed column: simple checkmark/cross
+            installed_str = "[green]✓[/green]" if installed else "[red]✗[/red]"
+
+            # Available column: simple checkmark/cross
+            available_str = "[green]✓[/green]" if available else "[red]✗[/red]"
 
             # Checkbox state
             checkbox = "☑" if dep_key in self.selected_deps else "☐"
@@ -616,7 +814,8 @@ class DependencyUpdaterApp(App):
                 dep_key,
                 dep_info['name'],
                 type_str,
-                status,
+                installed_str,
+                available_str,
                 dep_info['description'],
                 "",  # Progress column (empty initially)
                 key=dep_key
@@ -688,8 +887,11 @@ class DependencyUpdaterApp(App):
     @work(exclusive=True, thread=True)
     def update_dependencies(self, dep_keys: List[str]) -> None:
         """Update dependencies in a worker thread."""
+        logger.info(f"Starting batch update for {len(dep_keys)} dependencies: {', '.join(dep_keys)}")
+
         for dep_key in dep_keys:
             dep_info = DEPENDENCIES[dep_key]
+            logger.info(f"Processing {dep_key}...")
 
             # Update progress in table
             self.call_from_thread(self.update_progress, dep_key, "⏳ Starting...")
@@ -699,24 +901,26 @@ class DependencyUpdaterApp(App):
 
             # Check if dependency has a custom update function
             if 'update_function' in dep_info:
-                # Call custom update function by name
-                func_name = dep_info['update_function']
-                if func_name == 'copy_fmod_from_program_files':
-                    success, message = copy_fmod_from_program_files(progress_callback)
-                else:
-                    success, message = False, f"Unknown update function: {func_name}"
+                # Call custom update function directly (function reference)
+                logger.info(f"{dep_key} using custom update function")
+                update_func = dep_info['update_function']
+                success, message = update_func(progress_callback)
             else:
                 # Default opensource update
+                logger.info(f"{dep_key} using standard open-source update")
                 success, message = update_opensource_dependency(dep_key, dep_info, progress_callback)
 
             if success:
+                logger.info(f"✓ {dep_key} completed successfully")
                 self.call_from_thread(self.update_progress, dep_key, "[green]✓ Complete[/green]")
                 self.call_from_thread(self.notify, f"✓ {dep_key} updated successfully", severity="information")
             else:
+                logger.error(f"✗ {dep_key} failed: {message}")
                 self.call_from_thread(self.update_progress, dep_key, f"[red]✗ Failed: {message}[/red]")
                 self.call_from_thread(self.notify, f"✗ {dep_key} failed: {message}", severity="error")
 
         # Done
+        logger.info("Batch update complete")
         self.call_from_thread(self.finish_update)
 
     def update_progress(self, dep_key: str, progress_text: str) -> None:
@@ -735,8 +939,8 @@ class DependencyUpdaterApp(App):
                 break
             row_idx += 1
 
-        # Update the progress column (now index 6, after swapping Description and Progress)
-        table.update_cell_at(Coordinate(row_idx, 6), progress_text)
+        # Update the progress column (index 7: checkbox, key, name, type, installed, available, description, progress)
+        table.update_cell_at(Coordinate(row_idx, 7), progress_text)
 
     def finish_update(self) -> None:
         """Called when all updates are complete."""
@@ -747,7 +951,22 @@ class DependencyUpdaterApp(App):
 
 def main():
     """Main entry point."""
+    logger.info("=" * 60)
+    logger.info("XS Dependency Updater Starting")
+    logger.info(f"Platform: {platform.system()} ({platform.machine()})")
+    logger.info(f"Python: {sys.version}")
+    logger.info(f"Log file: {LOG_FILE}")
+    logger.info("=" * 60)
+
+    # Remove console handler before starting UI (keep file handler)
+    # This prevents log messages from interfering with the TUI
+    for handler in logging.root.handlers[:]:
+        if isinstance(handler, logging.StreamHandler) and handler.stream == sys.stdout:
+            logging.root.removeHandler(handler)
+
     app = DependencyUpdaterApp()
+    # Textual auto-detects light/dark mode from terminal
+    # You can override with: app.theme = "textual-light" or "textual-dark"
     app.run()
 
 
