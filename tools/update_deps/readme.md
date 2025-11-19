@@ -12,6 +12,10 @@ The `update_dependencies.py` script provides a modern, full-screen TUI (Terminal
 - **Interactive table**: DataTable with clickable rows and checkbox selection
 - **Real-time progress**: Progress updates shown directly in the table during updates
 - **Platform auto-detection**: Automatically detects and displays your platform (Windows/macOS/Linux)
+- **Theme auto-detection**: Automatically matches your terminal's light/dark theme
+  - Checks `COLORFGBG` environment variable
+  - On macOS: Reads system appearance preference
+  - Falls back to dark theme (most common for developers)
 - **Live status indicators**:
   - ✓/✗ symbols show installation status
   - ☐/☑ checkboxes for selecting dependencies
@@ -31,6 +35,13 @@ pip install -r tools/update_deps/requirements.txt
 # Run the TUI
 python tools/update_deps/update_dependencies.py
 ```
+
+**Logging**: All operations are logged to `tools/update_deps/dependency_updater.log`. If you miss any initial messages before the UI appears, check this log file for complete details including:
+- Startup information (platform, Python version)
+- Git clone operations
+- File copy operations
+- Success/failure messages
+- Error details
 
 ### Controls
 
@@ -98,7 +109,12 @@ These can be updated automatically from their GitHub repositories:
 These require manual installation first, then can be updated through the UI:
 - **fmod**: FMOD audio engine (PC, Nintendo Switch, PlayStation 5, Apple)
   - Download from: https://www.fmod.com/download
-  - **Windows**: Auto-copies from Program Files when you select and update it
+  - **Windows**: Auto-copies from Program Files installation
+  - **macOS**: Auto-copies from mounted DMG volumes
+    - Mount "FMOD Programmers API Mac" DMG for macOS support
+    - Mount "FMOD Programmers API iOS" DMG for iOS support
+    - Can mount both and copy simultaneously
+    - Copies to `external/fmod/apple/macos/` and `external/fmod/apple/ios/`
   - **Other platforms**: Install SDK, then manually copy to `external/fmod/{platform}/`
 - **steam**: Steamworks SDK (PC only)
   - Download from: https://partner.steamgames.com/
