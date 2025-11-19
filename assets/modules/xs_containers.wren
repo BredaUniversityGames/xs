@@ -57,6 +57,7 @@ class Grid {
             }
             str = str + "\n"
         }
+        return str
     }
 }
 
