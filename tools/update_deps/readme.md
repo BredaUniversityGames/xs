@@ -109,13 +109,23 @@ These can be updated automatically from their GitHub repositories:
 These require manual installation first, then can be updated through the UI:
 - **fmod**: FMOD audio engine (PC, Nintendo Switch, PlayStation 5, Apple)
   - Download from: https://www.fmod.com/download
+  - **Directory structure**:
+    - Headers (shared across all platforms): `external/fmod/inc/`
+    - Libraries (platform-specific): `external/fmod/lib/<platform>/`
+    - Platform names: `win`, `linux`, `mac`, `ios`, `nx`, `prospero`
   - **Windows**: Auto-copies from Program Files installation
+    - Headers → `external/fmod/inc/`
+    - Libraries → `external/fmod/lib/win/`
   - **macOS**: Auto-copies from mounted DMG volumes
     - Mount "FMOD Programmers API Mac" DMG for macOS support
     - Mount "FMOD Programmers API iOS" DMG for iOS support
     - Can mount both and copy simultaneously
-    - Copies to `external/fmod/apple/macos/` and `external/fmod/apple/ios/`
-  - **Other platforms**: Install SDK, then manually copy to `external/fmod/{platform}/`
+    - Headers → `external/fmod/inc/` (shared, copied once)
+    - macOS libraries → `external/fmod/lib/mac/`
+    - iOS libraries → `external/fmod/lib/ios/`
+  - **Other platforms**: Install SDK, then manually copy:
+    - Headers to `external/fmod/inc/`
+    - Libraries to `external/fmod/lib/<platform>/`
 - **steam**: Steamworks SDK (PC only)
   - Download from: https://partner.steamgames.com/
   - Manual installation to `external/steam/pc/` required
@@ -124,7 +134,7 @@ These require manual installation first, then can be updated through the UI:
 
 - The script creates backups before updating and restores them if the update fails
 - Git is required for updating open-source dependencies
-- **FMOD on Windows**: Install FMOD Studio API to Program Files, then use option 3 to copy files to external/fmod
-- **FMOD on other platforms**: Manually copy SDK files to external/fmod after installation
+- **FMOD headers are shared** across all platforms (version consistency for game assets)
+- **FMOD libraries are platform-specific** and stored in separate `lib/<platform>/` directories
 - **Steam API**: Must be installed and copied manually
 - The script will show platform-specific installation status for local dependencies
