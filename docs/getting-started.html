@@ -12,6 +12,9 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
 
+  <!-- Highlight.js for syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="img/icon_tiny.webp">
 </head>
@@ -33,30 +36,35 @@
   <!-- Main Content -->
   <div class="container">
     <h1><i class="fas fa-rocket"></i> Getting Started</h1>
-    <p>Welcome to <strong>xs</strong>! This guide will help you create your first extra small game.</p>
+    <p>Welcome to <strong>xs</strong>! This guide will help you create your first extra small game. It will also explain the basics of the engine and how to use it.</p>
 
     <hr>
 
     <h2><i class="fas fa-download"></i> Installation</h2>
-    <p>First, grab the latest version of xs from the <a href="https://xs-engine.itch.io/xs">itch.io page</a>. If you are a member of the BUAS organization on GitHub, you can build it from source.</p>
+    <p>First, grab the latest version of xs from the <a href="https://xs-engine.itch.io/xs">itch.io page</a> or  you can build it from source. There is not installer for xs yet, so just unzip the archive in your desired location.</p>
 
-    <p><img src="img/folder.webp" alt="xs folder structure" style="max-width: 100%; border-radius: 8px; margin: 1rem 0;"></p>
-
-    <p>The preferred way of running xs is from the command line (terminal) so you can read the debug output. Open your command line/terminal application and <code>cd</code> to the xs folder. Run the executable and you should get output in the command line. Even better, use Visual Studio Code with the built-in terminal.</p>
+    
+    <h2><i class="fas fa-play-circle"></i> Running xs</h2>
+    <p>The preferred way of running xs is from the command line (terminal), so you can provide commands to it and read the debug output. Open your command line/terminal application and <code>cd</code> to the xs folder. Run the executable by providing <code>run</code> command and a path to a game folder. For example: <code>xs.exe run samples/hello</code> on Windows or <code>./xs run samples/hello</code> on macOS. You should get output in the command line. Even better, use Visual Studio Code with the built-in terminal.</p>
 
     <p><img src="img/cmd.webp" alt="xs command line" style="max-width: 100%; border-radius: 8px; margin: 1rem 0;"></p>
 
-    <p>On the first run, xs will run the "hello" sample and save a user profile.</p>
+    <p>The "hello" sample looks like the image below and should run without errors.</p>
 
     <p><img src="img/hello.webp" alt="xs hello sample" style="max-width: 100%; border-radius: 8px; margin: 1rem 0;"></p>
 
     <p>Great, xs is up and running! <i class="fas fa-check-circle" style="color: #f89020;"></i></p>
-
     <hr>
 
-    <h2><i class="fas fa-folder-plus"></i> Creating a New Project</h2>
-    <p>Creating a new project in xs is quite simple. An xs project is just a folder. This folder needs to have at least one <code>.wren</code> file, that will contain your <code>Game</code> class, and a <code>project.json</code> file that points to it.</p>
+    <h2><i class="fas fa-code"></i> Working with the xs Visual Studio Code Extension</h2>
+    <p>xs is a code-first game engine, so using a code editor with good Wren support helps a lot. The <a href="https://marketplace.visualstudio.com/items?itemName=BojanEndrovski.xs-vscode" target="_blank">xs Visual Studio Code extension</a> provides integrated development features such launch commands/buttons, an animation editor, a package inspector and launch templates to enhance your game development experience.</p>
+      
+      <!--
+      The xs Visual Studio Code extension provides integrated development features such as visual editors, launch commands/buttons, and debug templates to enhance your game development experience.-->
 
+    <h2><i class="fas fa-folder-plus"></i> Creating a New Project</h2>
+    <p>Creating a new project in xs is quite simple. An xs project is just a folder, with a <code>project.json</code> file in it that contains the project settings, most important one being the path to the game code in the <code>Main</code> field. You main class file should be a Wren file located in the same folder or a subfolder.</p>
+    
     <p>The <code>Game</code> class needs to have three <code>static</code> methods:</p>
     <ul>
       <li><code>initialize</code> - Called as soon as all systems have been created</li>
@@ -64,45 +72,13 @@
       <li><code>render</code> - Called once per tick, right after update</li>
     </ul>
 
-    <p>Here's the complete "hello" example:</p>
+    <p>This is the a minimal example:</p>
 
-    <pre><code>// This is just confirmation, remove this line as soon as you
-// start making your game
-System.print("Wren just got compiled to bytecode")
-
-// The xs module
-import "xs" for Render, Data
-
-// The game class is the entry point to your game
+    <pre><code class="language-javascript">import "xs" for Render, Data
 class Game {
-    // The init method is called when all systems have been created.
-    // You can initialize your game specific data here.
-    static initialize() {
-        System.print("init")
-
-        // The "__" means that __time is a static variable (belongs to the class)
-        __time = 0
-
-        // Variable that exists only in this function
-        var image = Render.loadImage("[games]/shared/images/FMOD_White.png")
-        __sprite = Render.createSprite(image, 0, 0, 1, 1)
-    }
-
-    // The update method is called once per tick. Gameplay code goes here.
-    static update(dt) {
-        __time = __time + dt
-    }
-
-    // The render method is called once per tick, right after update.
-    static render() {
-        Render.dbgColor(0xFFFFFFFF)
-        Render.shapeText("xs", -100, 100, 20)
-        Render.shapeText("Made with love at Games@BUas", -100, -50, 1)
-        Render.dbgColor(0xFFFFFFFF)
-        Render.shapeText("Time: %(__time)", -300, -160, 1)
-
-        Render.sprite(__sprite, 180, -152, 0.16, 0.0, 0xFFFFFFFF, 0x00000000, 0)
-    }
+    static initialize() { /* Initialize your game state here */ }
+    static update(dt) { /* Update your game state here */ }
+    static render() { /* Render your game here */  }
 }</code></pre>
 
     <p>Next, just put your awesome art and code in the folder and you have yourself a game!</p>
@@ -192,5 +168,7 @@ class Game {
 
   <!-- JavaScript -->
   <script src="js/main.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
 </body>
 </html>

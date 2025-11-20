@@ -38,7 +38,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
+  gap: 6rem;
 }
 
 nav .nav-logo {
@@ -112,7 +112,7 @@ nav .nav-links a:hover {
 
 /* Main Container */
 .container {
-  max-width: 1200px;
+  max-width: 1040px;
   margin: 0 auto;
   padding: 2rem;
 }
@@ -176,7 +176,6 @@ h2 {
   color: var(--xs-orange);
   font-size: 2rem;
   margin: 2rem 0 1rem 0;
-  border-left: 4px solid var(--xs-orange);
   padding-left: 1rem;
 }
 
@@ -366,8 +365,12 @@ footer {
   background: linear-gradient(90deg, var(--xs-orange) 0%, var(--xs-pink) 50%, var(--xs-purple) 100%);
   color: white;
   text-align: center;
-  padding: 2rem;
-  margin-top: 4rem;
+  padding: 0.8rem;
+  margin-top: 1rem;
+}
+
+footer p {
+  margin: 0.2rem 0;
 }
 
 footer a {
