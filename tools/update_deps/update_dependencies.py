@@ -229,8 +229,8 @@ DEPENDENCIES = {
         'name': 'FMOD',
         'type': 'local',
         'platforms': ['pc', 'nx', 'prospero', 'apple'],
-        'description': 'Audio engine (auto-copy on Windows/macOS)',
-        'install_notes': 'Windows: Install to Program Files | macOS: Mount DMG | Other: Manual to fmod/{platform}/',
+        'description': 'Audio engine (shared headers, platform libs)',
+        'install_notes': 'Windows: Install to Program Files | macOS: Mount DMG | Other: Manual to inc/ and lib/<platform>/',
         # Note: update_function will be set after the function is defined
     },
     'steam': {
@@ -343,18 +343,46 @@ def check_dependency_installed(dep_key: str, dep_info: Dict) -> bool:
             return dep_path.exists() and any(dep_path.iterdir())
 
     elif dep_info['type'] == 'local':
-        # For local deps, check platform-specific structure only
+        # For local deps, check shared headers and platform-specific libraries
+        # Structure: external/fmod/inc/ (shared) and external/fmod/lib/<platform>/
         platform_key = get_platform_key()
         if platform_key not in dep_info['platforms']:
             return False
 
-        # Check for platform subdirectory with inc/ and lib/
-        platform_path = dep_path / platform_key
-        inc_path = platform_path / 'inc'
-        lib_path = platform_path / 'lib'
+        # Check for shared headers
+        inc_path = dep_path / 'inc'
 
-        return (inc_path.exists() and any(inc_path.iterdir())) or \
-               (lib_path.exists() and any(lib_path.iterdir()))
+        # For libraries, we need to map platform keys to library directory names
+        # Platform key to library folder mapping
+        lib_platform_map = {
+            'pc': ['win', 'linux'],  # PC can have both Windows and Linux
+            'apple': ['mac', 'ios'],  # Apple has mac (macOS) and ios
+            'nx': ['nx'],
+            'prospero': ['prospero']
+        }
+
+        # Check if headers exist (shared across all platforms)
+        has_headers = inc_path.exists() and any(inc_path.iterdir())
+
+        # Check if platform-specific libraries exist in the NEW structure
+        # Must be in lib/<platform>/ subdirectories, NOT directly in lib/
+        lib_base = dep_path / 'lib'
+        has_libs = False
+        if lib_base.exists() and lib_base.is_dir():
+            # Check for any of the valid platform library folders
+            lib_platforms = lib_platform_map.get(platform_key, [])
+            for lib_platform in lib_platforms:
+                lib_platform_path = lib_base / lib_platform
+                # Must be a directory with files (not files directly in lib/)
+                if lib_platform_path.exists() and lib_platform_path.is_dir():
+                    try:
+                        if any(lib_platform_path.iterdir()):
+                            has_libs = True
+                            break
+                    except:
+                        pass
+
+        return has_headers and has_libs  # Both must exist
 
     return False
 
@@ -509,16 +537,16 @@ def copy_fmod_from_program_files(progress_callback=None) -> Tuple[bool, str]:
             studio_inc = fmod_windows / "api" / "studio" / "inc"
             studio_lib = fmod_windows / "api" / "studio" / "lib" / "x64"
 
-            # Destination paths
-            fmod_dest = repo_root / "external" / "fmod" / "pc"
-            inc_dest = fmod_dest / "inc"
-            lib_dest = fmod_dest / "lib"
+            # Destination paths - shared headers, platform-specific libs
+            fmod_dest = repo_root / "external" / "fmod"
+            inc_dest = fmod_dest / "inc"  # Shared headers
+            lib_dest = fmod_dest / "lib" / "win"  # Windows-specific libraries
 
             # Create destination directories
             inc_dest.mkdir(parents=True, exist_ok=True)
             lib_dest.mkdir(parents=True, exist_ok=True)
 
-            # Copy include files
+            # Copy include files (shared across all platforms)
             if core_inc.exists():
                 shutil.copytree(core_inc, inc_dest, dirs_exist_ok=True)
             if studio_inc.exists():
@@ -527,7 +555,7 @@ def copy_fmod_from_program_files(progress_callback=None) -> Tuple[bool, str]:
             if progress_callback:
                 progress_callback("Copying libraries...")
 
-            # Copy lib files
+            # Copy lib files (Windows-specific)
             if core_lib.exists():
                 shutil.copytree(core_lib, lib_dest, dirs_exist_ok=True)
             if studio_lib.exists():
@@ -545,67 +573,94 @@ def copy_fmod_from_program_files(progress_callback=None) -> Tuple[bool, str]:
 
     elif plat == "Darwin":
         logger.info("Platform: macOS - checking for mounted DMG volumes")
-        # Check for mounted FMOD DMG volumes (prefer Mac, but also accept iOS)
+        # Check for mounted FMOD DMG volumes
         volumes_base = Path("/Volumes")
         mac_volume = volumes_base / "FMOD Programmers API Mac" / "FMOD Programmers API"
         ios_volume = volumes_base / "FMOD Programmers API iOS" / "FMOD Programmers API"
 
-        # Prefer macOS volume, fall back to iOS if only iOS is mounted
-        source_volume = None
-        volume_name = ""
+        # Check what volumes are available
+        has_mac = mac_volume.exists()
+        has_ios = ios_volume.exists()
 
-        if mac_volume.exists():
-            source_volume = mac_volume
-            volume_name = "macOS"
-            logger.info(f"Found macOS FMOD volume at {mac_volume}")
-        elif ios_volume.exists():
-            source_volume = ios_volume
-            volume_name = "iOS"
-            logger.info(f"Found iOS FMOD volume at {ios_volume}")
-        else:
+        if not has_mac and not has_ios:
             logger.error("No FMOD DMG mounted")
             return False, "FMOD DMG not mounted. Please mount FMOD Programmers API Mac or iOS DMG"
 
         try:
-            if progress_callback:
-                progress_callback(f"Copying {volume_name} FMOD...")
-            logger.info(f"Copying {volume_name} FMOD to external/fmod/apple/")
-
             repo_root = get_repo_root()
+            fmod_dest = repo_root / "external" / "fmod"
+            inc_dest = fmod_dest / "inc"  # Shared headers
 
-            core_inc = source_volume / "api" / "core" / "inc"
-            core_lib = source_volume / "api" / "core" / "lib"
-            studio_inc = source_volume / "api" / "studio" / "inc"
-            studio_lib = source_volume / "api" / "studio" / "lib"
-
-            # Destination: external/fmod/apple/
-            fmod_dest = repo_root / "external" / "fmod" / "apple"
-            inc_dest = fmod_dest / "inc"
-            lib_dest = fmod_dest / "lib"
-
+            # Create shared headers directory
             inc_dest.mkdir(parents=True, exist_ok=True)
-            lib_dest.mkdir(parents=True, exist_ok=True)
 
-            # Copy headers
-            if core_inc.exists():
-                shutil.copytree(core_inc, inc_dest, dirs_exist_ok=True)
-            if studio_inc.exists():
-                shutil.copytree(studio_inc, inc_dest, dirs_exist_ok=True)
+            copied_platforms = []
 
-            if progress_callback:
-                progress_callback("Copying libraries...")
+            # Copy from macOS volume if available
+            if has_mac:
+                logger.info(f"Found macOS FMOD volume at {mac_volume}")
+                if progress_callback:
+                    progress_callback("Copying macOS FMOD...")
 
-            # Copy libraries
-            if core_lib.exists():
-                shutil.copytree(core_lib, lib_dest, dirs_exist_ok=True)
-            if studio_lib.exists():
-                shutil.copytree(studio_lib, lib_dest, dirs_exist_ok=True)
+                core_inc = mac_volume / "api" / "core" / "inc"
+                core_lib = mac_volume / "api" / "core" / "lib"
+                studio_inc = mac_volume / "api" / "studio" / "inc"
+                studio_lib = mac_volume / "api" / "studio" / "lib"
+
+                # Copy headers (shared, only need to do once)
+                logger.info("Copying shared FMOD headers")
+                if core_inc.exists():
+                    shutil.copytree(core_inc, inc_dest, dirs_exist_ok=True)
+                if studio_inc.exists():
+                    shutil.copytree(studio_inc, inc_dest, dirs_exist_ok=True)
+
+                # Copy macOS-specific libraries
+                logger.info("Copying macOS libraries to lib/mac/")
+                lib_dest = fmod_dest / "lib" / "mac"
+                lib_dest.mkdir(parents=True, exist_ok=True)
+                if core_lib.exists():
+                    shutil.copytree(core_lib, lib_dest, dirs_exist_ok=True)
+                if studio_lib.exists():
+                    shutil.copytree(studio_lib, lib_dest, dirs_exist_ok=True)
+
+                copied_platforms.append("macOS")
+
+            # Copy from iOS volume if available
+            if has_ios:
+                logger.info(f"Found iOS FMOD volume at {ios_volume}")
+                if progress_callback:
+                    progress_callback("Copying iOS FMOD...")
+
+                core_inc = ios_volume / "api" / "core" / "inc"
+                core_lib = ios_volume / "api" / "core" / "lib"
+                studio_inc = ios_volume / "api" / "studio" / "inc"
+                studio_lib = ios_volume / "api" / "studio" / "lib"
+
+                # Copy headers if we haven't already (shared)
+                if not has_mac:
+                    logger.info("Copying shared FMOD headers")
+                    if core_inc.exists():
+                        shutil.copytree(core_inc, inc_dest, dirs_exist_ok=True)
+                    if studio_inc.exists():
+                        shutil.copytree(studio_inc, inc_dest, dirs_exist_ok=True)
+
+                # Copy iOS-specific libraries
+                logger.info("Copying iOS libraries to lib/ios/")
+                lib_dest = fmod_dest / "lib" / "ios"
+                lib_dest.mkdir(parents=True, exist_ok=True)
+                if core_lib.exists():
+                    shutil.copytree(core_lib, lib_dest, dirs_exist_ok=True)
+                if studio_lib.exists():
+                    shutil.copytree(studio_lib, lib_dest, dirs_exist_ok=True)
+
+                copied_platforms.append("iOS")
 
             if progress_callback:
                 progress_callback("Complete")
 
-            logger.info(f"Successfully copied {volume_name} FMOD for macOS")
-            return True, f"Successfully copied {volume_name} FMOD"
+            platforms_str = " and ".join(copied_platforms)
+            logger.info(f"Successfully copied {platforms_str} FMOD")
+            return True, f"Successfully copied {platforms_str} FMOD"
 
         except Exception as e:
             logger.error(f"Error copying FMOD on macOS: {str(e)}")
@@ -613,7 +668,7 @@ def copy_fmod_from_program_files(progress_callback=None) -> Tuple[bool, str]:
 
     elif plat == "Linux":
         logger.warning("FMOD copy on Linux not implemented")
-        return False, "FMOD copy on Linux not implemented. Please copy manually to external/fmod/pc/"
+        return False, "FMOD copy on Linux not implemented. Please copy headers to external/fmod/inc/ and libraries to external/fmod/lib/linux/"
 
     else:
         logger.error(f"Unsupported platform: {plat}")
