@@ -1,4 +1,3 @@
-#include <script.hpp>
 #include <cassert>
 #include <iomanip>
 #include <iostream>

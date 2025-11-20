@@ -220,3 +220,4 @@ int xs::main(const std::string& game_path)
 	xs::shutdown();
 	return 0;
 }
+
