@@ -126,6 +126,26 @@ These require manual installation first, then can be updated through the UI:
   - **Other platforms**: Install SDK, then manually copy:
     - Headers to `external/fmod/inc/`
     - Libraries to `external/fmod/lib/<platform>/`
+- **sdl3**: Simple DirectMedia Layer 3 (PC, macOS, iOS)
+  - Download from: https://github.com/libsdl-org/SDL/releases
+  - **Directory structure**:
+    - Headers (shared): `external/sdl3/inc/`
+    - Libraries (platform-specific): `external/sdl3/lib/<platform>/`
+    - Frameworks (for Xcode): `external/sdl3/frameworks/SDL3.xcframework/`
+    - License: `external/sdl3/LICENSE.txt`
+    - Platform names: `win`, `linux`, `mac`, `ios`
+  - **macOS/iOS**: Auto-copies from mounted DMG
+    - Mount SDL3 DMG (contains SDL3.xcframework)
+    - Copies:
+      - Complete xcframework → `external/sdl3/frameworks/SDL3.xcframework/`
+      - Extracted headers → `external/sdl3/inc/` (for traditional includes)
+      - macOS libraries → `external/sdl3/lib/mac/libSDL3.dylib`
+      - iOS libraries → `external/sdl3/lib/ios/libSDL3.a`
+      - LICENSE.txt → `external/sdl3/LICENSE.txt`
+  - **Windows**: Manual installation
+    - Download VC development libraries
+    - Extract headers to `external/sdl3/inc/`
+    - Extract libraries to `external/sdl3/lib/win/`
 - **steam**: Steamworks SDK (PC only)
   - Download from: https://partner.steamgames.com/
   - Manual installation to `external/steam/pc/` required

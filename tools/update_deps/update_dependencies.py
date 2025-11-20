@@ -233,6 +233,14 @@ DEPENDENCIES = {
         'install_notes': 'Windows: Install to Program Files | macOS: Mount DMG | Other: Manual to inc/ and lib/<platform>/',
         # Note: update_function will be set after the function is defined
     },
+    'sdl3': {
+        'name': 'SDL3',
+        'type': 'local',
+        'platforms': ['pc', 'apple'],
+        'description': 'Simple DirectMedia Layer 3 (windowing/input)',
+        'install_notes': 'Windows: Download VC libs from releases | macOS: Mount DMG volumes',
+        # Note: update_function will be set after the function is defined
+    },
     'steam': {
         'name': 'Steam API',
         'type': 'local',
@@ -299,8 +307,9 @@ def check_dependency_available(dep_key: str, dep_info: Dict) -> bool:
         return True
     elif dep_info['type'] == 'local':
         # Check if custom update function can find the source
+        plat = platform.system()
+
         if dep_key == 'fmod':
-            plat = platform.system()
             if plat == "Windows":
                 # Check for Windows Program Files installation
                 fmod_base = Path(r"C:\Program Files (x86)\FMOD SoundSystem")
@@ -313,6 +322,25 @@ def check_dependency_available(dep_key: str, dep_info: Dict) -> bool:
                 return mac_volume.exists() or ios_volume.exists()
             else:
                 return False
+
+        elif dep_key == 'sdl3':
+            if plat == "Darwin":
+                # Check for mounted SDL DMG volumes
+                volumes_base = Path("/Volumes")
+                # SDL DMG naming: "SDL3" or "SDL3-3.x.x"
+                # Check if any SDL3 volume is mounted
+                try:
+                    for volume in volumes_base.iterdir():
+                        if volume.name == "SDL3" or volume.name.startswith("SDL3-"):
+                            # Check if it has the expected structure
+                            if (volume / "SDL3.xcframework").exists():
+                                return True
+                except:
+                    pass
+                return False
+            else:
+                return False
+
         # Other local dependencies default to not available
         return False
     return False
@@ -343,13 +371,13 @@ def check_dependency_installed(dep_key: str, dep_info: Dict) -> bool:
             return dep_path.exists() and any(dep_path.iterdir())
 
     elif dep_info['type'] == 'local':
-        # For local deps, check shared headers and platform-specific libraries
-        # Structure: external/fmod/inc/ (shared) and external/fmod/lib/<platform>/
+        # For local deps, check based on dependency type
         platform_key = get_platform_key()
         if platform_key not in dep_info['platforms']:
             return False
 
-        # Check for shared headers
+        # SDL3 and FMOD use the same structure: shared headers and platform-specific libraries
+        # Structure: external/fmod/inc/ (shared) and external/fmod/lib/<platform>/
         inc_path = dep_path / 'inc'
 
         # For libraries, we need to map platform keys to library directory names
@@ -675,9 +703,152 @@ def copy_fmod_from_program_files(progress_callback=None) -> Tuple[bool, str]:
         return False, f"Unsupported platform: {plat}"
 
 
+def copy_sdl3_from_dmg(progress_callback=None) -> Tuple[bool, str]:
+    """Copy SDL3 from mounted DMG volumes to external/sdl3."""
+    logger.info("Starting SDL3 copy operation")
+    repo_root = get_repo_root()
+    plat = platform.system()
+
+    if plat == "Darwin":
+        logger.info("Platform: macOS - checking for mounted SDL3 DMG volumes")
+
+        # Find SDL3 volume
+        volumes_base = Path("/Volumes")
+        sdl_volume = None
+
+        try:
+            for volume in volumes_base.iterdir():
+                if volume.name == "SDL3" or volume.name.startswith("SDL3-"):
+                    # Check for xcframework (universal binary for macOS/iOS)
+                    if (volume / "SDL3.xcframework").exists():
+                        sdl_volume = volume
+                        logger.info(f"Found SDL3 volume at {volume}")
+                        break
+        except Exception as e:
+            logger.error(f"Error scanning volumes: {str(e)}")
+            return False, f"Error scanning for SDL3 DMG: {str(e)}"
+
+        if not sdl_volume:
+            logger.error("No SDL3 DMG mounted")
+            return False, "SDL3 DMG not mounted. Please mount SDL3 DMG from https://github.com/libsdl-org/SDL/releases"
+
+        try:
+            if progress_callback:
+                progress_callback("Copying SDL3...")
+
+            sdl_dest = repo_root / "external" / "sdl3"
+            inc_dest = sdl_dest / "inc"
+            lib_dest = sdl_dest / "lib"
+
+            # Create directories
+            sdl_dest.mkdir(parents=True, exist_ok=True)
+            inc_dest.mkdir(parents=True, exist_ok=True)
+
+            # Copy LICENSE
+            license_src = sdl_volume / "LICENSE.txt"
+            if license_src.exists():
+                logger.info("Copying LICENSE.txt")
+                shutil.copy2(license_src, sdl_dest / "LICENSE.txt")
+
+            # Define xcframework path
+            xcframework_path = sdl_volume / "SDL3.xcframework"
+
+            # Copy the entire xcframework (useful for Xcode projects)
+            frameworks_dest = sdl_dest / "frameworks"
+            frameworks_dest.mkdir(parents=True, exist_ok=True)
+            xcframework_dest = frameworks_dest / "SDL3.xcframework"
+            logger.info("Copying SDL3.xcframework to frameworks/")
+            if progress_callback:
+                progress_callback("Copying xcframework...")
+            if xcframework_dest.exists():
+                shutil.rmtree(xcframework_dest)
+            shutil.copytree(xcframework_path, xcframework_dest)
+
+            # Also extract headers and binaries for convenience
+            # xcframework contains platform-specific directories like:
+            # - macos-arm64_x86_64/SDL3.framework/
+            # - ios-arm64/SDL3.framework/
+
+            # Find the macOS and iOS frameworks inside xcframework
+            macos_framework = None
+            ios_framework = None
+
+            for item in xcframework_path.iterdir():
+                if item.is_dir():
+                    # Check directory name to determine platform
+                    if "macos" in item.name.lower():
+                        framework_path = item / "SDL3.framework"
+                        if framework_path.exists():
+                            macos_framework = framework_path
+                            logger.info(f"Found macOS framework at {item.name}")
+                    elif "ios-arm64" == item.name.lower() and "simulator" not in item.name.lower():
+                        # Get real iOS device framework, not simulator
+                        framework_path = item / "SDL3.framework"
+                        if framework_path.exists():
+                            ios_framework = framework_path
+                            logger.info(f"Found iOS framework at {item.name}")
+
+            # Copy shared headers (from either framework, they're the same)
+            source_framework = macos_framework if macos_framework else ios_framework
+            if source_framework:
+                headers_src = source_framework / "Headers"
+                if headers_src.exists():
+                    logger.info("Copying shared SDL3 headers")
+                    shutil.copytree(headers_src, inc_dest, dirs_exist_ok=True)
+
+            if progress_callback:
+                progress_callback("Copying libraries...")
+
+            copied_platforms = []
+
+            # Copy macOS libraries
+            if macos_framework:
+                logger.info("Copying macOS libraries to lib/mac/")
+                lib_mac_dest = lib_dest / "mac"
+                lib_mac_dest.mkdir(parents=True, exist_ok=True)
+
+                # Copy the framework binary
+                dylib_src = macos_framework / "SDL3"
+                if dylib_src.exists():
+                    shutil.copy2(dylib_src, lib_mac_dest / "libSDL3.dylib")
+                copied_platforms.append("macOS")
+
+            # Copy iOS libraries
+            if ios_framework:
+                logger.info("Copying iOS libraries to lib/ios/")
+                lib_ios_dest = lib_dest / "ios"
+                lib_ios_dest.mkdir(parents=True, exist_ok=True)
+
+                # Copy the framework binary
+                lib_src = ios_framework / "SDL3"
+                if lib_src.exists():
+                    shutil.copy2(lib_src, lib_ios_dest / "libSDL3.a")
+                copied_platforms.append("iOS")
+
+            if progress_callback:
+                progress_callback("Complete")
+
+            if copied_platforms:
+                platforms_str = " and ".join(copied_platforms)
+                logger.info(f"Successfully copied {platforms_str} SDL3")
+                return True, f"Successfully copied {platforms_str} SDL3"
+            else:
+                logger.error("No platforms found in xcframework")
+                return False, "Could not find macOS or iOS frameworks in xcframework"
+
+        except Exception as e:
+            logger.error(f"Error copying SDL3 on macOS: {str(e)}")
+            return False, f"Error copying SDL3: {e}"
+
+    else:
+        logger.error(f"SDL3 auto-copy only supported on macOS (platform: {plat})")
+        return False, "SDL3 auto-copy only supported on macOS. On Windows, manually extract to external/sdl3/"
+
+
 # Set function references for dependencies with custom update handlers
 # This must be done after the functions are defined
 DEPENDENCIES['fmod']['update_function'] = copy_fmod_from_program_files
+DEPENDENCIES['sdl3']['update_function'] = copy_sdl3_from_dmg
 
 
 class DependencyUpdaterApp(App):
@@ -818,12 +989,12 @@ class DependencyUpdaterApp(App):
         # Add columns
         table.add_column("☐", width=3, key="selected")
         table.add_column("Key", width=12, key="key")
-        table.add_column("Name", width=25, key="name")
-        table.add_column("Type", width=15, key="type")
-        table.add_column("Installed", width=10, key="installed")
-        table.add_column("Available", width=10, key="available")
-        table.add_column("Description", width=35, key="description")
-        table.add_column("Progress", width=30, key="progress")
+        table.add_column("Name", width=22, key="name")
+        table.add_column("Type", width=6, key="type")
+        table.add_column("📁", width=2, key="installed")
+        table.add_column("🔎", width=2, key="available")
+        table.add_column("Description", width=50, key="description")
+        table.add_column("Progress", width=25, key="progress")
 
         # Check if git is available
         if not check_git_available():
@@ -850,9 +1021,7 @@ class DependencyUpdaterApp(App):
             available = check_dependency_available(dep_key, dep_info)
 
             # Determine type string
-            type_str = dep_info['type'].capitalize()
-            if dep_info['type'] == 'local':
-                type_str += f" ({platform_key})"
+            type_str = "Remote" if dep_info['type'] == 'opensource' else "Local"
 
             # Installed column: simple checkmark/cross
             installed_str = "[green]✓[/green]" if installed else "[red]✗[/red]"
