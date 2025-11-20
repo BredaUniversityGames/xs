@@ -51,39 +51,33 @@
 
   <!-- Main Content -->
   <div class="container">
-    <h2>About XS</h2>
-    <p><strong>XS</strong> is an extra small, educational 2D game engine with Wren scripting. It's made with the goal of being the smallest game making tool possible. It's designed to teach introduction game engine programming at Breda University of Applied Sciences.</p>
+    <h2>About <strong>xs</strong></h2>
+    <p><strong>xs</strong> is an extra small, educational 2D game engine with Wren scripting. It's made with the goal of being the smallest game making tool possible. It used to teach introduction game engine programming at Breda University of Applied Sciences.</p>
 
     <!-- Features -->
     <div class="features">
       <div class="feature-card">
         <div class="feature-icon"><i class="fas fa-code"></i></div>
         <h3>Wren Scripting</h3>
-        <p>Uses the lightweight <a href="https://wren.io/">Wren</a> scripting language - easy to learn, fast to run</p>
+        <p>Uses the lightweight <a href="https://wren.io/">Wren</a> scripting language - easy to learn, fast to run, <strong>hot-reloadable</strong> in microseconds</p>
       </div>
 
       <div class="feature-card">
         <div class="feature-icon"><i class="fas fa-paint-brush"></i></div>
         <h3>2D Graphics</h3>
-        <p>Built for pixel-perfect sprite graphics with efficient rendering</p>
+        <p>Render pixel-perfect sprite graphics or sharp vector shapes</p>
       </div>
 
       <div class="feature-card">
         <div class="feature-icon"><i class="fas fa-cube"></i></div>
         <h3>Entity-Component</h3>
-        <p>Simple and powerful EC system for organizing your game logic</p>
+        <p>Easy to use EC system for organizing your game logic</p>
       </div>
 
       <div class="feature-card">
         <div class="feature-icon"><i class="fas fa-music"></i></div>
         <h3>Audio Support</h3>
-        <p>Play sound effects and background music using Fmod</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon"><i class="fas fa-window-maximize"></i></div>
-        <h3>Minimal UI</h3>
-        <p>Clean, distraction-free interface - focus on your game</p>
+        <p>Super simple audio interface or state of art audio engine provided by the Fmod integration*</p>
       </div>
 
       <div class="feature-card">
@@ -95,30 +89,36 @@
       <div class="feature-card">
         <div class="feature-icon"><i class="fab fa-microsoft"></i></div>
         <h3>VS Code Extension</h3>
-        <p>Integrated development with <a href="https://marketplace.visualstudio.com/items?itemName=BojanEndrovski.xs-vscode" target="_blank">xs extension</a> - visual editors, launch commands, and debug templates</p>
+        <p>Integrated development with <a href="https://marketplace.visualstudio.com/items?itemName=BojanEndrovski.xs-vscode" target="_blank">xs extension</a> - visual editors, launch commands/buttons, and debug templates</p>
       </div>
     </div>
 
     <!-- Warning -->
     <div class="warning">
-      <strong>Early Alpha:</strong> xs is in very early alpha and open for contribution from anyone at games@buas. Features might be missing or not be stable.
+      <strong>Early Alpha:</strong> xs is early development. API may change from version to version. Some features might be missing or not be stable.
     </div>
+
+    <!-- Warning -->
+    <div class="warning">
+      <strong>Fmod:</strong> Fmod integration is optional and requires a separate license from <a href="https://fmod.com/" target="_blank">Fmod</a>. The basic audio system is free to use without Fmod.
+    </div>
+
+    <h2>What's Inside</h2>
+    <ul>
+      <li><strong>Core Engine:</strong> Written in C++ with focus on portability, simplicity and performance, it compiles in few seconds </li>
+      <li><strong>Wren VM:</strong> Embedded scripting with great error messages, with support for hot-reloading from the UI</li>
+      <li><strong>API Modules:</strong>  Rendering, audio, input, math, file I/O, and more</li>
+      <li><strong>Minimal UI:</strong> Simple and intuitive user interface that gets out of your way and lets you express your creativity through code</li>
+      <li><strong>Sample Games:</strong> Learn from included examples</li>
+      <li><strong>Open Source:</strong> Crafted at Breda University of Applied Sciences and shared with the community</li>
+    </ul>
 
     <h2>Quick Start</h2>
     <ol>
       <li><strong>Download</strong> the <a href="https://xs-engine.itch.io/xs">latest release</a> from itch.io</li>
-      <li><strong>Run</strong> the file <code>xs.exe</code> (or equivalent for your platform)</li>
+      <li><strong>Run</strong> the file <code>xs.exe run samples/hello</code> (or equivalent for your platform)</li>
       <li><strong>Follow</strong> the <a href="getting-started.html">Getting Started</a> guide to create your first game</li>
     </ol>
-
-    <h2>What's Inside</h2>
-    <ul>
-      <li><strong>Core Engine:</strong> Written in C++ for performance</li>
-      <li><strong>Wren VM:</strong> Embedded scripting with great error messages</li>
-      <li><strong>API Modules:</strong> Math, rendering, audio, input, file I/O, and more</li>
-      <li><strong>Sample Games:</strong> Learn from included examples</li>
-      <li><strong>Open Source:</strong> Lovingly made at Breda University of Applied Sciences</li>
-    </ul>
 
     <hr>
 
