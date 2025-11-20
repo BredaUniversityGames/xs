@@ -1,3 +1,5 @@
+#ifdef XS_SIMPLE_AUDIO_SDL3
+
 #include "simple_audio.hpp"
 #include "log.hpp"
 #include "fileio.hpp"
@@ -464,3 +466,66 @@ bool is_playing(int channel_id)
 }
 
 }
+
+#else
+// SimpleAudio SDL3 not enabled
+#include "simple_audio.hpp"
+
+namespace xs::simple_audio
+{
+	void initialize()
+	{
+		// Null implementation
+	}
+
+	void shutdown()
+	{
+		// Null implementation
+	}
+
+	void update(double dt)
+	{
+		// Null implementation
+	}
+
+	int load(const std::string& filename)
+	{
+		// Null implementation
+		return -1;
+	}
+
+	int play(int audio_id, double volume)
+	{
+		// Null implementation
+		return -1;
+	}
+
+	void set_volume(int channel_id, double volume)
+	{
+		// Null implementation
+	}
+
+	double get_volume(int channel_id)
+	{
+		// Null implementation
+		return -1.0;
+	}
+
+	void stop(int channel_id)
+	{
+		// Null implementation
+	}
+
+	void stop_all()
+	{
+		// Null implementation
+	}
+
+	bool is_playing(int channel_id)
+	{
+		// Null implementation
+		return false;
+	}
+}
+
+#endif // XS_SIMPLE_AUDIO_SDL3

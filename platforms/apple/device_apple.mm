@@ -346,3 +346,9 @@ bool xs::input::get_mousebutton_once(mouse_button button)
     return input::clicked && !input::clicked_last_frame;
 }
 
+
+void xs::device::begin_frame() {}
+
+void xs::device::poll_events() {}
+
+void xs::device::set_fullscreen(bool) {}
