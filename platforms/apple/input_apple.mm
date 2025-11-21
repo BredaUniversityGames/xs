@@ -8,8 +8,11 @@
 #include "tools.hpp"
 #include "log.hpp"
 #include "configuration.hpp"
+#include "device.hpp"
+#include "device_apple.h"
 
 #import <GameController/GameController.h>
+#import <SDL3/SDL.h>
 
 namespace xs::input::internal
 {
@@ -125,6 +128,65 @@ bool xs::input::get_key_once(int key)
 bool xs::input::get_mouse()
 {
     return true;
+}
+
+bool xs::input::get_mousebutton(mouse_button button)
+{
+    SDL_Window* window = xs::device::get_window();
+    if (!window)
+        return false;
+
+    Uint32 mouse_state = SDL_GetMouseState(nullptr, nullptr);
+
+    switch (button)
+    {
+        case MOUSE_BUTTON_LEFT:
+            return (mouse_state & SDL_BUTTON_LMASK) != 0;
+        case MOUSE_BUTTON_RIGHT:
+            return (mouse_state & SDL_BUTTON_RMASK) != 0;
+        case MOUSE_BUTTON_MIDDLE:
+            return (mouse_state & SDL_BUTTON_MMASK) != 0;
+        default:
+            return false;
+    }
+}
+
+bool xs::input::get_mousebutton_once(mouse_button button)
+{
+    // TODO: Implement proper frame tracking for mouse buttons
+    return false;
+}
+
+double xs::input::get_mouse_x()
+{
+    SDL_Window* window = xs::device::get_window();
+    if (!window)
+        return 0.0;
+
+    float x, y;
+    SDL_GetMouseState(&x, &y);
+
+    // Convert from window coordinates to game coordinates
+    int window_width = xs::device::get_width();
+    int game_width = xs::configuration::width();
+
+    return (x / window_width) * game_width;
+}
+
+double xs::input::get_mouse_y()
+{
+    SDL_Window* window = xs::device::get_window();
+    if (!window)
+        return 0.0;
+
+    float x, y;
+    SDL_GetMouseState(&x, &y);
+
+    // Convert from window coordinates to game coordinates
+    int window_height = xs::device::get_height();
+    int game_height = xs::configuration::height();
+
+    return (y / window_height) * game_height;
 }
 
 double xs::input::get_mouse_wheel()

@@ -1,44 +1,286 @@
 #include "device.hpp"
+#include "device_apple.h"
+#include "render_apple.h"
 #include "log.hpp"
 #include "configuration.hpp"
 #include "fileio.hpp"
-#include "device.hpp"
 #include "input.hpp"
-#include "log.hpp"
 #include "render.hpp"
 #include "script.hpp"
 #include "audio.hpp"
 #include "account.hpp"
 #include "data.hpp"
 #include "inspector.hpp"
-#include "device_apple.h"
-#include "render_apple.h"
-#import <MetalKit/MetalKit.h>
+#include "profiler.hpp"
+#include <SDL.h>
+#import <Metal/Metal.h>
+#import <QuartzCore/CAMetalLayer.h>
 
-#if TARGET_OS_IOS
-#import <UIKit/UIKit.h>
-typedef  CGPoint XsPoint;
-
-// Our iOS view controller
-@interface GameViewController : UIViewController
-@end
-
-#define IView UIView
-
-#elif defined(PLATFORM_MAC)
-#import <Cocoa/Cocoa.h>
-typedef  NSPoint XsPoint;
-
-@interface GameViewController : NSViewController
-@end
-
-#define IView NSView
-
-#endif
 
 using namespace std;
+using namespace xs;
+using namespace xs::device;
+
+namespace xs::device::internal
+{
+    SDL_Window* window = nullptr;
+    SDL_MetalView metal_view = nullptr;
+    int    width = -1;
+    int    height = -1;
+    bool quit = false;
+
+    // Metal objects
+    id<MTLDevice> metal_device = nil;
+    id<MTLCommandQueue> command_queue = nil;
+    id<MTLCommandBuffer> command_buffer = nil;
+    id<MTLRenderCommandEncoder> render_encoder = nil;
+    id<CAMetalDrawable> current_drawable = nil;
+}
+
+void device::initialize()
+{
+    // Initialize SDL
+    if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD))
+    {
+        log::critical("SDL init failed: {}", SDL_GetError());
+        assert(false);
+        exit(EXIT_FAILURE);
+    }
+
+    log::info("SDL version {}.{}.{}", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_MICRO_VERSION);
+
+    // Set window size
+    internal::width = configuration::width() * configuration::multiplier();
+    internal::height = configuration::height() * configuration::multiplier();
+
+    // Create window with Metal support
+    internal::window = SDL_CreateWindow(
+        configuration::title().c_str(),
+        internal::width,
+        internal::height,
+        SDL_WINDOW_METAL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+
+    if (!internal::window)
+    {
+        log::critical("SDL window could not be created: {}", SDL_GetError());
+        SDL_Quit();
+        assert(false);
+        exit(EXIT_FAILURE);
+    }
+
+    SDL_ShowWindow(internal::window);
+
+    // Initialize Metal
+    internal::metal_view = SDL_Metal_CreateView(internal::window);
+    if (!internal::metal_view)
+    {
+        log::critical("Failed to create Metal view: {}", SDL_GetError());
+        SDL_DestroyWindow(internal::window);
+        SDL_Quit();
+        assert(false);
+        exit(EXIT_FAILURE);
+    }
+
+    // Get the Metal layer and create MTKView
+    CAMetalLayer* metal_layer = (__bridge CAMetalLayer*)SDL_Metal_GetLayer(internal::metal_view);
+    internal::metal_device = metal_layer.device;
+
+    if (!internal::metal_device)
+    {
+        internal::metal_device = MTLCreateSystemDefaultDevice();
+        metal_layer.device = internal::metal_device;
+    }
+
+    // Create command queue
+    internal::command_queue = [internal::metal_device newCommandQueue];
+
+    // Create MTKView wrapper for compatibility with existing render code
+    // Note: We're using the Metal layer from SDL, not a real MTKView
+    // The render code will need to be adapted to work with this
+
+    log::info("SDL3 window created with Metal support");
+}
+
+void device::shutdown()
+{
+    if (internal::window)
+    {
+        SDL_DestroyWindow(internal::window);
+        internal::window = nullptr;
+    }
+    SDL_Quit();
+}
+
+void device::begin_frame()
+{
+    // Metal rendering begins in render module
+}
+
+void device::end_frame()
+{
+    XS_PROFILE_FUNCTION();
+    // Metal rendering ends in render module
+}
+
+void device::poll_events()
+{
+    SDL_Event event;
+    internal::quit = false;
+
+    while (SDL_PollEvent(&event))
+    {
+        switch (event.type)
+        {
+        case SDL_EVENT_QUIT:
+            internal::quit = true;
+            break;
+
+        case SDL_EVENT_WINDOW_RESIZED:
+            if (event.window.windowID == SDL_GetWindowID(internal::window))
+            {
+                internal::width = event.window.data1;
+                internal::height = event.window.data2;
+            }
+            break;
+
+        default:
+            break;
+        }
+
+        // Forward events to ImGui if needed
+        // ImGui_Impl_ProcessEvent(&event);
+    }
+}
+
+bool device::can_close()
+{
+    return true;
+}
+
+bool device::request_close()
+{
+    SDL_Event event;
+    event.type = SDL_EVENT_QUIT;
+    SDL_PushEvent(&event);
+    return true;
+}
+
+bool device::should_close()
+{
+    return internal::quit;
+}
+
+SDL_Window* device::get_window()
+{
+    return internal::window;
+}
+
+int xs::device::get_width()
+{
+    return internal::width;
+}
+
+int xs::device::get_height()
+{
+    return internal::height;
+}
+
+double device::hdpi_scaling()
+{
+    return SDL_GetWindowDisplayScale(internal::window);
+}
+
+void device::set_fullscreen(bool fullscreen)
+{
+    if (!internal::window)
+        return;
+
+    if (fullscreen)
+    {
+        SDL_SetWindowFullscreen(internal::window, true);
+        SDL_GetWindowSize(internal::window, &internal::width, &internal::height);
+    }
+    else
+    {
+        SDL_SetWindowFullscreen(internal::window, false);
+        internal::width = configuration::width() * configuration::multiplier();
+        internal::height = configuration::height() * configuration::multiplier();
+        SDL_SetWindowSize(internal::window, internal::width, internal::height);
+    }
+}
+
+// Apple-specific: Get Metal layer from SDL window
+void* xs::device::get_metal_layer()
+{
+    if (!internal::metal_view)
+        return nullptr;
+
+    return SDL_Metal_GetLayer(internal::metal_view);
+}
+
+// Metal internal functions for render compatibility
+id<MTLDevice> xs::device::internal::get_device()
+{
+    return internal::metal_device;
+}
+
+CAMetalLayer* xs::device::internal::get_metal_layer()
+{
+    if (!internal::metal_view)
+        return nullptr;
+    return (__bridge CAMetalLayer*)SDL_Metal_GetLayer(internal::metal_view);
+}
+
+id<CAMetalDrawable> xs::device::internal::get_current_drawable()
+{
+    return internal::current_drawable;
+}
+
+id<MTLCommandQueue> xs::device::internal::get_command_queue()
+{
+    return internal::command_queue;
+}
+
+id<MTLCommandBuffer> xs::device::internal::get_command_buffer()
+{
+    return internal::command_buffer;
+}
+
+id<MTLRenderCommandEncoder> xs::device::internal::get_render_encoder()
+{
+    return internal::render_encoder;
+}
+
+void xs::device::internal::create_render_encoder()
+{
+    // For SDL3+Metal, we need to create a drawable and render pass descriptor manually
+    // since we don't have MTKView doing it for us
+
+    if (!internal::command_buffer)
+    {
+        internal::command_buffer = [internal::command_queue commandBuffer];
+        internal::command_buffer.label = @"xs frame command buffer";
+    }
+
+    CAMetalLayer* metal_layer = (__bridge CAMetalLayer*)SDL_Metal_GetLayer(internal::metal_view);
+    internal::current_drawable = [metal_layer nextDrawable];
+
+    if (internal::current_drawable)
+    {
+        MTLRenderPassDescriptor* rpd = [MTLRenderPassDescriptor renderPassDescriptor];
+        rpd.colorAttachments[0].texture = internal::current_drawable.texture;
+        rpd.colorAttachments[0].loadAction = MTLLoadActionClear;
+        rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
+        rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+
+        internal::render_encoder = [internal::command_buffer renderCommandEncoderWithDescriptor:rpd];
+        internal::render_encoder.label = @"xs screen render pass";
+    }
+}
 
 
+
+/*
 // Our platform independent renderer class. Implements the MTKViewDelegate protocol which
 // allows it to accept per-frame update and drawable resize callbacks.
 @interface XSRenderer : NSObject <MTKViewDelegate>
@@ -264,6 +506,8 @@ void device::end_frame()
     [command_buffer presentDrawable:_view.currentDrawable];
     [command_buffer commit];
 }
+ 
+
 
 bool device::can_close()
 {
@@ -322,33 +566,12 @@ void device::internal::create_render_encoder()
     render_encoder.label = @"xs screen render pass";
 }
 
-double xs::input::get_mouse_x()
-{
-    float m = configuration::multiplier();
-    float s = _scaling;
-    return (input::mouse_pos.x / m) - (_width / (m * s * 2.0f));
-}
+// void xs::device::begin_frame() {}
 
-double xs::input::get_mouse_y()
-{
-    float m = configuration::multiplier();
-    float s = _scaling;
-    return (input::mouse_pos.y / m) - (_height / (m * s * 2.0f));
-}
-
-bool xs::input::get_mousebutton(mouse_button button)
-{
-    return input::clicked;
-}
-
-bool xs::input::get_mousebutton_once(mouse_button button)
-{
-    return input::clicked && !input::clicked_last_frame;
-}
-
-
-void xs::device::begin_frame() {}
-
-void xs::device::poll_events() {}
 
 void xs::device::set_fullscreen(bool) {}
+ 
+ 
+*/
+
+
