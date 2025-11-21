@@ -12,7 +12,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#import <MetalKit/MetalKit.h>
+#import <Metal/Metal.h>
+#import <QuartzCore/CAMetalLayer.h>
 #import <simd/simd.h>
 #import <ModelIO/ModelIO.h>
 #import "shader_types.h"
@@ -86,8 +87,8 @@ void xs::render::initialize()
 {
     NSError *error;
     
-    MTKView* view = device::internal::get_view();
-    _device = view.device;
+    CAMetalLayer* metalLayer = device::internal::get_metal_layer();
+    _device = device::internal::get_device();
     
     // Save the size of the drawable to pass to the vertex shader.
     _viewportSize.x = configuration::width();
@@ -173,7 +174,7 @@ void xs::render::initialize()
         _pipelineStateDescriptor.label = @"xs render to screen pipeline";
         _pipelineStateDescriptor.vertexFunction = vertexFunction;
         _pipelineStateDescriptor.fragmentFunction = fragmentFunction;
-        _pipelineStateDescriptor.colorAttachments[0].pixelFormat = view.colorPixelFormat;
+        _pipelineStateDescriptor.colorAttachments[0].pixelFormat = metalLayer.pixelFormat;
         
         _pipelineState = [_device newRenderPipelineStateWithDescriptor:_pipelineStateDescriptor error:&error];
         assert(_pipelineState);
@@ -374,10 +375,9 @@ void xs::render::render()
 
 void xs::render::composite()
 {
-    MTKView* view = device::internal::get_view();
+    id<CAMetalDrawable> drawable = device::internal::get_current_drawable();
     
-    MTLRenderPassDescriptor *drawableRenderPassDescriptor = view.currentRenderPassDescriptor;
-    if(drawableRenderPassDescriptor != nil)
+    if(drawable != nil)
     {
         const float dw = device::get_width();
         const float dh = device::get_height();
