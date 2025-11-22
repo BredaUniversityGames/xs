@@ -524,6 +524,11 @@ void xs::inspector::apply_theme()
 		go_gray();
 		break;
 	}
+	
+	// Scale all style sizes by HDPI factor
+	const float UIScale = (float)device::hdpi_scaling();
+	if (UIScale != 1.0f)
+		ImGui::GetStyle().ScaleAllSizes(UIScale);
 }
 
 void xs::inspector::push_menu_theme()

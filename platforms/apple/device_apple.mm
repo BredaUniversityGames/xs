@@ -54,15 +54,17 @@ void device::initialize()
 
     log::info("SDL version {}.{}.{}", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_MICRO_VERSION);
 
-    // Set window size
-    internal::width = configuration::width() * configuration::multiplier();
-    internal::height = configuration::height() * configuration::multiplier();
+    // Set window size in pixels
+    int pixel_width = configuration::width() * configuration::multiplier();
+    int pixel_height = configuration::height() * configuration::multiplier();
 
     // Create window with Metal support
+    // Note: We create a temporary window first to get the display scale,
+    // then resize it to the correct point size for our desired pixel size
     internal::window = SDL_CreateWindow(
         configuration::title().c_str(),
-        internal::width,
-        internal::height,
+        pixel_width,
+        pixel_height,
         SDL_WINDOW_METAL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 
     if (!internal::window)
@@ -72,6 +74,16 @@ void device::initialize()
         assert(false);
         exit(EXIT_FAILURE);
     }
+
+    // Now get the actual display scale and resize window to achieve desired pixel size
+    float scale = SDL_GetWindowDisplayScale(internal::window);
+    int point_width = static_cast<int>(pixel_width / scale);
+    int point_height = static_cast<int>(pixel_height / scale);
+    SDL_SetWindowSize(internal::window, point_width, point_height);
+    
+    // Store the actual pixel dimensions
+    internal::width = pixel_width;
+    internal::height = pixel_height;
 
     SDL_ShowWindow(internal::window);
 
@@ -217,7 +229,10 @@ int xs::device::get_height()
 
 double device::hdpi_scaling()
 {
-    return SDL_GetWindowDisplayScale(internal::window);
+    // Since we size the window in points to achieve our desired pixel dimensions,
+    // the effective scaling for rendering purposes is 1.0
+    // The actual display scale is handled by the window sizing logic
+    return 1.0;
 }
 
 void device::set_fullscreen(bool fullscreen)
