@@ -11,7 +11,7 @@
 #include "xs.hpp"
 #include "miniz.h"
 
-#if defined(PLATFORM_PC)
+#if defined(PLATFORM_PC) || defined(PLATFORM_MAC)
 #include <filesystem>
 #endif
 
@@ -165,7 +165,7 @@ string fileio::get_path(const string& filename)
 
 std::string xs::fileio::absolute(const std::string& path)
 {
-#if defined(PLATFORM_PC)
+#if defined(PLATFORM_PC) || defined(PLATFORM_MAC)
 	return fs::absolute(get_path(path)).string();
 #else
 	return path; // TODO: Implement for other platforms
