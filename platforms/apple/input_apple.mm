@@ -183,10 +183,11 @@ double xs::input::get_mouse_y()
     SDL_GetMouseState(&x, &y);
 
     // Convert from window coordinates to game coordinates
+    // Flip Y so origin is at bottom-left (y up)
     int window_height = xs::device::get_height();
     int game_height = xs::configuration::height();
 
-    return (y / window_height) * game_height;
+    return (1.0f - (y / window_height)) * game_height;
 }
 
 double xs::input::get_mouse_wheel()
@@ -196,22 +197,77 @@ double xs::input::get_mouse_wheel()
 
 int xs::input::get_nr_touches()
 {
-    return 0;
+    SDL_TouchID* touch_devices = SDL_GetTouchDevices(nullptr);
+    if (!touch_devices || touch_devices[0] == 0)
+        return 0;
+    
+    int num_fingers = 0;
+    SDL_Finger** fingers = SDL_GetTouchFingers(touch_devices[0], &num_fingers);
+    SDL_free(fingers);
+    return num_fingers;
 }
 
 int xs::input::get_touch_id(int index)
 {
-    return 0;
+    SDL_TouchID* touch_devices = SDL_GetTouchDevices(nullptr);
+    if (!touch_devices || touch_devices[0] == 0)
+        return -1;
+    
+    int num_fingers = 0;
+    SDL_Finger** fingers = SDL_GetTouchFingers(touch_devices[0], &num_fingers);
+    if (!fingers || index >= num_fingers)
+    {
+        SDL_free(fingers);
+        return -1;
+    }
+    
+    SDL_FingerID finger_id = fingers[index]->id;
+    SDL_free(fingers);
+    return static_cast<int>(finger_id);
 }
 
 double xs::input::get_touch_x(int index)
 {
-    return 0.0;
+    SDL_TouchID* touch_devices = SDL_GetTouchDevices(nullptr);
+    if (!touch_devices || touch_devices[0] == 0)
+        return 0.0;
+    
+    int num_fingers = 0;
+    SDL_Finger** fingers = SDL_GetTouchFingers(touch_devices[0], &num_fingers);
+    if (!fingers || index >= num_fingers)
+    {
+        SDL_free(fingers);
+        return 0.0;
+    }
+    
+    // SDL returns normalized coordinates (0.0 to 1.0)
+    // Convert to game coordinates
+    float normalized_x = fingers[index]->x;
+    SDL_free(fingers);
+    
+    return normalized_x * xs::configuration::width();
 }
 
 double xs::input::get_touch_y(int index)
 {
-    return 0.0;
+    SDL_TouchID* touch_devices = SDL_GetTouchDevices(nullptr);
+    if (!touch_devices || touch_devices[0] == 0)
+        return 0.0;
+    
+    int num_fingers = 0;
+    SDL_Finger** fingers = SDL_GetTouchFingers(touch_devices[0], &num_fingers);
+    if (!fingers || index >= num_fingers)
+    {
+        SDL_free(fingers);
+        return 0.0;
+    }
+    
+    // SDL returns normalized coordinates (0.0 to 1.0) with origin at top-left
+    // Flip Y so origin is at bottom-left (y up)
+    float normalized_y = fingers[index]->y;
+    SDL_free(fingers);
+    
+    return (1.0f - normalized_y) * xs::configuration::height();
 }
 
 void xs::input::set_gamepad_vibration(double low, double high, double time)

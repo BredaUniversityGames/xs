@@ -129,6 +129,8 @@
 		5A3117802ECF68FD00049544 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A31177E2ECF68FD00049544 /* MetalKit.framework */; };
 		5A48B06A2ED125CD0003ACC5 /* device_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */; };
 		5A48B06B2ED125CD0003ACC5 /* device_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */; };
+		5A48B06D2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A48B06C2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp */; };
+		5A48B06E2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A48B06C2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp */; };
 		5A6012612ECF543700FDE28A /* SDL3.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A6012602ECF543700FDE28A /* SDL3.xcframework */; };
 		5A6012622ECF544A00FDE28A /* SDL3.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A6012602ECF543700FDE28A /* SDL3.xcframework */; };
 		5A6A25812CD93B390091B824 /* sprite.geom in Resources */ = {isa = PBXBuildFile; fileRef = 5A6A25662CD93B390091B824 /* sprite.geom */; };
@@ -805,6 +807,7 @@
 		5A31177B2ECF68B200049544 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/CoreMotion.framework; sourceTree = DEVELOPER_DIR; };
 		5A31177D2ECF68FD00049544 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/Metal.framework; sourceTree = DEVELOPER_DIR; };
 		5A31177E2ECF68FD00049544 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/MetalKit.framework; sourceTree = DEVELOPER_DIR; };
+		5A48B06C2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_sdl3.cpp; sourceTree = "<group>"; };
 		5A6012602ECF543700FDE28A /* SDL3.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDL3.xcframework; path = external/sdl3/frameworks/SDL3.xcframework; sourceTree = "<group>"; };
 		5A6A25502CD93B390091B824 /* DroidSans.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = DroidSans.ttf; sourceTree = "<group>"; };
 		5A6A25512CD93B390091B824 /* FontAwesome5FreeSolid900.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome5FreeSolid900.otf; sourceTree = "<group>"; };
@@ -1034,6 +1037,7 @@
 		3474D5A52B14DFC000441451 /* imgui */ = {
 			isa = PBXGroup;
 			children = (
+				5A48B06C2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp */,
 				3474D5A62B14DFC000441451 /* misc */,
 				3474D5BF2B14DFC000441451 /* imgui.h */,
 				3474D5C02B14DFC000441451 /* imstb_textedit.h */,
@@ -2031,6 +2035,7 @@
 				34EB6F672A4C6EE900DA6B15 /* wren_primitive.c in Sources */,
 				3474D6102B14DFC000441451 /* imgui_widgets.cpp in Sources */,
 				3474D61C2B14DFC000441451 /* implot_items.cpp in Sources */,
+				5A48B06E2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp in Sources */,
 				34EB6F622A4C6EDA00DA6B15 /* wren_opt_random.c in Sources */,
 				5A7BCF782ECE29CE00A4A0C3 /* simple_audio.cpp in Sources */,
 				346E74072A4A29D5006ECAD5 /* data.cpp in Sources */,
@@ -2074,6 +2079,7 @@
 				3474D6392B14DFC000441451 /* imgui_demo.cpp in Sources */,
 				346E73DF2A4A29D5006ECAD5 /* log.cpp in Sources */,
 				346E74122A4A29D5006ECAD5 /* configuration.cpp in Sources */,
+				5A48B06D2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp in Sources */,
 				3474D5F72B14DFC000441451 /* imgui_stdlib.cpp in Sources */,
 				3486CA9B2B94DFFF00E9A3B8 /* miniz.c in Sources */,
 				3474D6242B14DFC000441451 /* imgui.cpp in Sources */,

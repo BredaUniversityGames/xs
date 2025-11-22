@@ -1,4 +1,5 @@
 #include "render.hpp"
+#include "render.hpp"
 #include "render_apple.h"
 #include "render_internal.hpp"
 #include "configuration.hpp"
@@ -371,50 +372,57 @@ void xs::render::render()
     }
     
     [render_encoder endEncoding];
-}
-
-void xs::render::composite()
-{
-    id<CAMetalDrawable> drawable = device::internal::get_current_drawable();
     
-    if(drawable != nil)
+    // Composite offscreen texture to screen
+    id<CAMetalDrawable> drawable = device::internal::get_current_drawable();
+    if (drawable != nil)
     {
+        // Create screen render pass
+        MTLRenderPassDescriptor* screen_rpd = [MTLRenderPassDescriptor renderPassDescriptor];
+        screen_rpd.colorAttachments[0].texture = drawable.texture;
+        screen_rpd.colorAttachments[0].loadAction = MTLLoadActionClear;
+        screen_rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
+        screen_rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+        
+        id<MTLRenderCommandEncoder> screen_encoder = [command_buffer renderCommandEncoderWithDescriptor:screen_rpd];
+        screen_encoder.label = @"xs screen render pass";
+        
         const float dw = device::get_width();
         const float dh = device::get_height();
         const float cw = configuration::width();
         const float ch = configuration::height();
         const float aspect = (cw / ch) / (dw / dh);
-        const float w = aspect;
-        const float h = 1.0f;
+        const float qw = aspect;
+        const float qh = 1.0f;
         const screen_vtx_format quadVertices[] =
         {
-            // Positions     , Texture coordinates
-            { {  w,  -h },  { 1.0, 1.0 } },
-            { { -w,  -h },  { 0.0, 1.0 } },
-            { { -w,   h },  { 0.0, 0.0 } },
+            // Positions      , Texture coordinates
+            { {  qw,  -qh },  { 1.0, 1.0 } },
+            { { -qw,  -qh },  { 0.0, 1.0 } },
+            { { -qw,   qh },  { 0.0, 0.0 } },
             
-            { {  w,  -h },  { 1.0, 1.0 } },
-            { { -w,   h },  { 0.0, 0.0 } },
-            { {  w,   h },  { 1.0, 0.0 } },
+            { {  qw,  -qh },  { 1.0, 1.0 } },
+            { { -qw,   qh },  { 0.0, 0.0 } },
+            { {  qw,   qh },  { 1.0, 0.0 } },
         };
         
-        id<MTLRenderCommandEncoder> renderEncoder = device::internal::get_render_encoder();
+        [screen_encoder setRenderPipelineState:_pipelineState];
         
-        [renderEncoder setRenderPipelineState:_pipelineState];
-        
-        [renderEncoder setVertexBytes:&quadVertices
-                               length:sizeof(quadVertices)
-                              atIndex:index_vertices];
+        [screen_encoder setVertexBytes:&quadVertices
+                                length:sizeof(quadVertices)
+                               atIndex:index_vertices];
         
         // Set the offscreen texture as the source texture.
-        [renderEncoder setFragmentTexture:_renderTargetTexture atIndex:index_sprite_texture];
+        [screen_encoder setFragmentTexture:_renderTargetTexture atIndex:index_sprite_texture];
         
         // Draw quad with rendered texture.
-        [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
-                          vertexStart:0
-                          vertexCount:6];
+        [screen_encoder drawPrimitives:MTLPrimitiveTypeTriangle
+                           vertexStart:0
+                           vertexCount:6];
         
-        // End encoding will be called by the device on the "default" encoder
+        // Store the screen encoder for ImGui to use
+        // end_frame() will call endEncoding
+        device::internal::set_render_encoder(screen_encoder);
     }
 }
 
