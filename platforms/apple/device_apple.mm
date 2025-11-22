@@ -16,6 +16,11 @@
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 
+#ifdef INSPECTOR
+#include <imgui.h>
+#include <imgui_impl.h>
+#endif
+
 
 using namespace std;
 using namespace xs;
@@ -113,13 +118,36 @@ void device::shutdown()
 
 void device::begin_frame()
 {
-    // Metal rendering begins in render module
+    // Create the command buffer for this frame
+    internal::command_buffer = [internal::command_queue commandBuffer];
+    internal::command_buffer.label = @"xs frame command buffer";
+    
+    // Acquire the drawable early so it's available for the frame
+    CAMetalLayer* metal_layer = (__bridge CAMetalLayer*)SDL_Metal_GetLayer(internal::metal_view);
+    internal::current_drawable = [metal_layer nextDrawable];
 }
 
 void device::end_frame()
 {
     XS_PROFILE_FUNCTION();
-    // Metal rendering ends in render module
+    
+    // End the render encoder if active
+    if (internal::render_encoder)
+    {
+        [internal::render_encoder endEncoding];
+        internal::render_encoder = nil;
+    }
+    
+    // Present and commit
+    if (internal::current_drawable && internal::command_buffer)
+    {
+        [internal::command_buffer presentDrawable:internal::current_drawable];
+        [internal::command_buffer commit];
+    }
+    
+    // Reset for next frame
+    internal::command_buffer = nil;
+    internal::current_drawable = nil;
 }
 
 void device::poll_events()
@@ -147,8 +175,10 @@ void device::poll_events()
             break;
         }
 
-        // Forward events to ImGui if needed
-        // ImGui_Impl_ProcessEvent(&event);
+#ifdef INSPECTOR
+        // Forward events to ImGui
+        ImGui_Impl_ProcessEvent(&event);
+#endif
     }
 }
 
@@ -251,31 +281,9 @@ id<MTLRenderCommandEncoder> xs::device::internal::get_render_encoder()
     return internal::render_encoder;
 }
 
-void xs::device::internal::create_render_encoder()
+void xs::device::internal::set_render_encoder(id<MTLRenderCommandEncoder> encoder)
 {
-    // For SDL3+Metal, we need to create a drawable and render pass descriptor manually
-    // since we don't have MTKView doing it for us
-
-    if (!internal::command_buffer)
-    {
-        internal::command_buffer = [internal::command_queue commandBuffer];
-        internal::command_buffer.label = @"xs frame command buffer";
-    }
-
-    CAMetalLayer* metal_layer = (__bridge CAMetalLayer*)SDL_Metal_GetLayer(internal::metal_view);
-    internal::current_drawable = [metal_layer nextDrawable];
-
-    if (internal::current_drawable)
-    {
-        MTLRenderPassDescriptor* rpd = [MTLRenderPassDescriptor renderPassDescriptor];
-        rpd.colorAttachments[0].texture = internal::current_drawable.texture;
-        rpd.colorAttachments[0].loadAction = MTLLoadActionClear;
-        rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
-        rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
-
-        internal::render_encoder = [internal::command_buffer renderCommandEncoderWithDescriptor:rpd];
-        internal::render_encoder.label = @"xs screen render pass";
-    }
+    internal::render_encoder = encoder;
 }
 
 

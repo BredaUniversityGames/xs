@@ -32,9 +32,9 @@ namespace xs::device::internal
     // Get the current command buffer. You are free to make new ones too.
     id<MTLCommandBuffer> get_command_buffer();
 
-    // Get the current render command encoder. You are free to make new ones too.
+    // Get the current render command encoder.
     id<MTLRenderCommandEncoder> get_render_encoder();
-
-    // Creates a new render encoder for the frame
-    void create_render_encoder();
+    
+    // Set the current render command encoder (used by renderer after composite)
+    void set_render_encoder(id<MTLRenderCommandEncoder> encoder);
 }
