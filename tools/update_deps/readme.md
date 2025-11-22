@@ -92,6 +92,7 @@ You can customize these paths per dependency in the `DEPENDENCIES` dictionary in
 #### Open-Source Libraries
 These can be updated automatically from their GitHub repositories:
 - **imgui**: Dear ImGui - Immediate mode GUI library
+- **implot**: ImPlot - Plotting library for Dear ImGui
 - **fmt**: Modern C++ formatting library
 - **glm**: OpenGL Mathematics library
 - **json**: nlohmann/json - JSON for Modern C++
