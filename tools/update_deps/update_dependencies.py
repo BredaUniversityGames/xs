@@ -62,9 +62,7 @@ DEPENDENCIES = {
             'imstb_textedit.h',
             'imstb_truetype.h',
             'imconfig.h',
-            # Backends
-            ('backends/imgui_impl_glfw.cpp', 'imgui_impl_glfw.cpp'),
-            ('backends/imgui_impl_glfw.h', 'imgui_impl_glfw.h'),
+            # Backends (flattened to root for convenience)
             ('backends/imgui_impl_opengl3.cpp', 'imgui_impl_opengl3.cpp'),
             ('backends/imgui_impl_opengl3.h', 'imgui_impl_opengl3.h'),
             ('backends/imgui_impl_opengl3_loader.h', 'imgui_impl_opengl3_loader.h'),
@@ -74,12 +72,30 @@ DEPENDENCIES = {
             ('backends/imgui_impl_osx.mm', 'imgui_impl_osx.mm'),
             ('backends/imgui_impl_sdl3.cpp', 'imgui_impl_sdl3.cpp'),
             ('backends/imgui_impl_sdl3.h', 'imgui_impl_sdl3.h'),
-            # Misc
+            # Misc (flattened imgui_stdlib to root, keep folders for fonts/debuggers/freetype)
             ('misc/cpp/imgui_stdlib.cpp', 'imgui_stdlib.cpp'),
             ('misc/cpp/imgui_stdlib.h', 'imgui_stdlib.h'),
+            ('misc/debuggers/', 'misc/debuggers/'),
+            ('misc/fonts/', 'misc/fonts/'),
+            ('misc/freetype/', 'misc/freetype/'),
             'LICENSE.txt',
             # Note: IconsFontAwesome*.h and imgui_impl.cpp/h are custom XS files
             # and should be preserved during updates (not overwritten)
+        ],
+    },
+    'implot': {
+        'name': 'ImPlot',
+        'type': 'opensource',
+        'repo': 'https://github.com/epezent/implot.git',
+        'branch': 'master',
+        'description': 'Plotting library for Dear ImGui',
+        'include_paths': [
+            'implot.cpp',
+            'implot.h',
+            'implot_demo.cpp',
+            'implot_internal.h',
+            'implot_items.cpp',
+            'LICENSE',
         ],
     },
     'fmt': {

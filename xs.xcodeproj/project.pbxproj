@@ -43,8 +43,6 @@
 		346E74122A4A29D5006ECAD5 /* configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73942A4A29D5006ECAD5 /* configuration.cpp */; };
 		346E74132A4A29D5006ECAD5 /* tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73952A4A29D5006ECAD5 /* tools.cpp */; };
 		346E74152A4A29D5006ECAD5 /* tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73952A4A29D5006ECAD5 /* tools.cpp */; };
-		3474D5F52B14DFC000441451 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5B52B14DFC000441451 /* imgui_stdlib.cpp */; };
-		3474D5F72B14DFC000441451 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5B52B14DFC000441451 /* imgui_stdlib.cpp */; };
 		3474D5FB2B14DFC000441451 /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3474D5B82B14DFC000441451 /* Roboto-Medium.ttf */; };
 		3474D5FE2B14DFC000441451 /* DroidSans.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3474D5B92B14DFC000441451 /* DroidSans.ttf */; };
 		3474D6012B14DFC000441451 /* ProggyTiny.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3474D5BA2B14DFC000441451 /* ProggyTiny.ttf */; };
@@ -56,11 +54,7 @@
 		3474D60C2B14DFC000441451 /* Karla-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3474D5BD2B14DFC000441451 /* Karla-Regular.ttf */; };
 		3474D6102B14DFC000441451 /* imgui_widgets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C22B14DFC000441451 /* imgui_widgets.cpp */; };
 		3474D6122B14DFC000441451 /* imgui_widgets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C22B14DFC000441451 /* imgui_widgets.cpp */; };
-		3474D6132B14DFC000441451 /* implot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C62B14DFC000441451 /* implot.cpp */; };
-		3474D6152B14DFC000441451 /* implot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C62B14DFC000441451 /* implot.cpp */; };
 		3474D6182B14DFC000441451 /* imgui_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C72B14DFC000441451 /* imgui_impl.cpp */; };
-		3474D61C2B14DFC000441451 /* implot_items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5CD2B14DFC000441451 /* implot_items.cpp */; };
-		3474D61E2B14DFC000441451 /* implot_items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5CD2B14DFC000441451 /* implot_items.cpp */; };
 		3474D6212B14DFC000441451 /* imgui_impl_metal.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5CF2B14DFC000441451 /* imgui_impl_metal.mm */; };
 		3474D6222B14DFC000441451 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5D02B14DFC000441451 /* imgui.cpp */; };
 		3474D6242B14DFC000441451 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5D02B14DFC000441451 /* imgui.cpp */; };
@@ -184,6 +178,16 @@
 		5A7BCF852ECE307800A4A0C3 /* version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A7BCF7E2ECE307800A4A0C3 /* version.cpp */; };
 		5A7BCF862ECE307800A4A0C3 /* packager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A7BCF7C2ECE307800A4A0C3 /* packager.cpp */; };
 		5ABF52D92ECFCE3F00F039A6 /* SDL3.xcframework in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 5A6012602ECF543700FDE28A /* SDL3.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		5AC6A4DF2ED2436500727C61 /* implot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4D92ED2436500727C61 /* implot.cpp */; };
+		5AC6A4E02ED2436500727C61 /* implot_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4DA2ED2436500727C61 /* implot_demo.cpp */; };
+		5AC6A4E12ED2436500727C61 /* implot_items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4DC2ED2436500727C61 /* implot_items.cpp */; };
+		5AC6A4E22ED2436500727C61 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 5AC6A4DD2ED2436500727C61 /* LICENSE */; };
+		5AC6A4E32ED2436500727C61 /* implot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4D92ED2436500727C61 /* implot.cpp */; };
+		5AC6A4E42ED2436500727C61 /* implot_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4DA2ED2436500727C61 /* implot_demo.cpp */; };
+		5AC6A4E52ED2436500727C61 /* implot_items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4DC2ED2436500727C61 /* implot_items.cpp */; };
+		5AC6A4E62ED2436500727C61 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 5AC6A4DD2ED2436500727C61 /* LICENSE */; };
+		5AC6A4EA2ED2445B00727C61 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4E92ED2445B00727C61 /* imgui_stdlib.cpp */; };
+		5AC6A4EB2ED2445B00727C61 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4E92ED2445B00727C61 /* imgui_stdlib.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -255,8 +259,6 @@
 		346E73952A4A29D5006ECAD5 /* tools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tools.cpp; sourceTree = "<group>"; };
 		346EBFA12A49F33D00771230 /* xs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xs.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		346EBFCA2A49F33D00771230 /* xs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = xs.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		3474D5B32B14DFC000441451 /* imgui_stdlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_stdlib.h; sourceTree = "<group>"; };
-		3474D5B52B14DFC000441451 /* imgui_stdlib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_stdlib.cpp; sourceTree = "<group>"; };
 		3474D5B82B14DFC000441451 /* Roboto-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Roboto-Medium.ttf"; sourceTree = "<group>"; };
 		3474D5B92B14DFC000441451 /* DroidSans.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = DroidSans.ttf; sourceTree = "<group>"; };
 		3474D5BA2B14DFC000441451 /* ProggyTiny.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ProggyTiny.ttf; sourceTree = "<group>"; };
@@ -269,11 +271,9 @@
 		3474D5C22B14DFC000441451 /* imgui_widgets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_widgets.cpp; sourceTree = "<group>"; };
 		3474D5C42B14DFC000441451 /* imstb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_truetype.h; sourceTree = "<group>"; };
 		3474D5C52B14DFC000441451 /* IconsFontAwesome5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IconsFontAwesome5.h; sourceTree = "<group>"; };
-		3474D5C62B14DFC000441451 /* implot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = implot.cpp; sourceTree = "<group>"; };
 		3474D5C72B14DFC000441451 /* imgui_impl.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = imgui_impl.cpp; sourceTree = "<group>"; };
 		3474D5C92B14DFC000441451 /* imgui_impl_osx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_impl_osx.h; sourceTree = "<group>"; };
 		3474D5CC2B14DFC000441451 /* imgui_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_impl.h; sourceTree = "<group>"; };
-		3474D5CD2B14DFC000441451 /* implot_items.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = implot_items.cpp; sourceTree = "<group>"; };
 		3474D5CF2B14DFC000441451 /* imgui_impl_metal.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = imgui_impl_metal.mm; sourceTree = "<group>"; };
 		3474D5D02B14DFC000441451 /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui.cpp; sourceTree = "<group>"; };
 		3474D5D22B14DFC000441451 /* imgui_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_internal.h; sourceTree = "<group>"; };
@@ -282,9 +282,7 @@
 		3474D5D72B14DFC000441451 /* imgui_impl_osx.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = imgui_impl_osx.mm; sourceTree = "<group>"; };
 		3474D5D82B14DFC000441451 /* imstb_rectpack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_rectpack.h; sourceTree = "<group>"; };
 		3474D5D92B14DFC000441451 /* imgui_tables.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_tables.cpp; sourceTree = "<group>"; };
-		3474D5DB2B14DFC000441451 /* implot_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = implot_internal.h; sourceTree = "<group>"; };
 		3474D5DD2B14DFC000441451 /* imgui_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_demo.cpp; sourceTree = "<group>"; };
-		3474D5DE2B14DFC000441451 /* implot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = implot.h; sourceTree = "<group>"; };
 		3474D5DF2B14DFC000441451 /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
 		3474D63D2B14E91100441451 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
 		34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmodstudioL.dylib; path = external/fmod/lib/mac/libfmodstudioL.dylib; sourceTree = "<group>"; };
@@ -840,6 +838,15 @@
 		5A7BCF7F2ECE307800A4A0C3 /* xs.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = xs.hpp; sourceTree = "<group>"; };
 		5A7BCF802ECE307800A4A0C3 /* xs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = xs.cpp; sourceTree = "<group>"; };
 		5ABF52D52ECF73B600F039A6 /* libSDL3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL3.dylib; path = external/sdl3/lib/mac/libSDL3.dylib; sourceTree = "<group>"; };
+		5AC6A4D82ED2436500727C61 /* implot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = implot.h; sourceTree = "<group>"; };
+		5AC6A4D92ED2436500727C61 /* implot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = implot.cpp; sourceTree = "<group>"; };
+		5AC6A4DA2ED2436500727C61 /* implot_demo.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = implot_demo.cpp; sourceTree = "<group>"; };
+		5AC6A4DB2ED2436500727C61 /* implot_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = implot_internal.h; sourceTree = "<group>"; };
+		5AC6A4DC2ED2436500727C61 /* implot_items.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = implot_items.cpp; sourceTree = "<group>"; };
+		5AC6A4DD2ED2436500727C61 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		5AC6A4E72ED2445B00727C61 /* imgui_impl_sdl3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui_impl_sdl3.h; sourceTree = "<group>"; };
+		5AC6A4E82ED2445B00727C61 /* imgui_stdlib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui_stdlib.h; sourceTree = "<group>"; };
+		5AC6A4E92ED2445B00727C61 /* imgui_stdlib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_stdlib.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1037,6 +1044,9 @@
 		3474D5A52B14DFC000441451 /* imgui */ = {
 			isa = PBXGroup;
 			children = (
+				5AC6A4E72ED2445B00727C61 /* imgui_impl_sdl3.h */,
+				5AC6A4E82ED2445B00727C61 /* imgui_stdlib.h */,
+				5AC6A4E92ED2445B00727C61 /* imgui_stdlib.cpp */,
 				5A48B06C2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp */,
 				3474D5A62B14DFC000441451 /* misc */,
 				3474D5BF2B14DFC000441451 /* imgui.h */,
@@ -1045,11 +1055,9 @@
 				3474D5C22B14DFC000441451 /* imgui_widgets.cpp */,
 				3474D5C42B14DFC000441451 /* imstb_truetype.h */,
 				3474D5C52B14DFC000441451 /* IconsFontAwesome5.h */,
-				3474D5C62B14DFC000441451 /* implot.cpp */,
 				3474D5C72B14DFC000441451 /* imgui_impl.cpp */,
 				3474D5C92B14DFC000441451 /* imgui_impl_osx.h */,
 				3474D5CC2B14DFC000441451 /* imgui_impl.h */,
-				3474D5CD2B14DFC000441451 /* implot_items.cpp */,
 				3474D5CF2B14DFC000441451 /* imgui_impl_metal.mm */,
 				3474D5D02B14DFC000441451 /* imgui.cpp */,
 				3474D5D22B14DFC000441451 /* imgui_internal.h */,
@@ -1058,9 +1066,7 @@
 				3474D5D72B14DFC000441451 /* imgui_impl_osx.mm */,
 				3474D5D82B14DFC000441451 /* imstb_rectpack.h */,
 				3474D5D92B14DFC000441451 /* imgui_tables.cpp */,
-				3474D5DB2B14DFC000441451 /* implot_internal.h */,
 				3474D5DD2B14DFC000441451 /* imgui_demo.cpp */,
-				3474D5DE2B14DFC000441451 /* implot.h */,
 				3474D5DF2B14DFC000441451 /* imgui_draw.cpp */,
 			);
 			path = imgui;
@@ -1069,19 +1075,9 @@
 		3474D5A62B14DFC000441451 /* misc */ = {
 			isa = PBXGroup;
 			children = (
-				3474D5B22B14DFC000441451 /* cpp */,
 				3474D5B72B14DFC000441451 /* fonts */,
 			);
 			path = misc;
-			sourceTree = "<group>";
-		};
-		3474D5B22B14DFC000441451 /* cpp */ = {
-			isa = PBXGroup;
-			children = (
-				3474D5B32B14DFC000441451 /* imgui_stdlib.h */,
-				3474D5B52B14DFC000441451 /* imgui_stdlib.cpp */,
-			);
-			path = cpp;
 			sourceTree = "<group>";
 		};
 		3474D5B72B14DFC000441451 /* fonts */ = {
@@ -1143,6 +1139,7 @@
 		34EB6C932A4C6E6100DA6B15 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				5AC6A4DE2ED2436500727C61 /* implot */,
 				3486CA712B94DFCF00E9A3B8 /* miniz */,
 				3474D5A52B14DFC000441451 /* imgui */,
 				34EB6C942A4C6E6100DA6B15 /* fmod */,
@@ -1856,6 +1853,19 @@
 			path = platforms;
 			sourceTree = "<group>";
 		};
+		5AC6A4DE2ED2436500727C61 /* implot */ = {
+			isa = PBXGroup;
+			children = (
+				5AC6A4D82ED2436500727C61 /* implot.h */,
+				5AC6A4D92ED2436500727C61 /* implot.cpp */,
+				5AC6A4DA2ED2436500727C61 /* implot_demo.cpp */,
+				5AC6A4DB2ED2436500727C61 /* implot_internal.h */,
+				5AC6A4DC2ED2436500727C61 /* implot_items.cpp */,
+				5AC6A4DD2ED2436500727C61 /* LICENSE */,
+			);
+			path = implot;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1962,6 +1972,7 @@
 				5A6A258F2CD93B390091B824 /* xs_shapes.wren in Resources */,
 				5A6A25902CD93B390091B824 /* FMOD_White.png in Resources */,
 				5A6A25912CD93B390091B824 /* icon_tiny.png in Resources */,
+				5AC6A4E62ED2436500727C61 /* LICENSE in Resources */,
 				5A6A25922CD93B390091B824 /* xs.wren in Resources */,
 				5A6A25932CD93B390091B824 /* FMOD_Black.png in Resources */,
 				5A6A25942CD93B390091B824 /* xs_math.wren in Resources */,
@@ -1989,6 +2000,7 @@
 				5A6A25A02CD93B390091B824 /* uniforms.glsl in Resources */,
 				5A6A25A12CD93B390091B824 /* icon.png in Resources */,
 				5A6A25A22CD93B390091B824 /* FontAwesome5FreeSolid900.otf in Resources */,
+				5AC6A4E22ED2436500727C61 /* LICENSE in Resources */,
 				5A6A25A32CD93B390091B824 /* selawk.ttf in Resources */,
 				5A6A25A42CD93B390091B824 /* sprite.vert in Resources */,
 				5A6A25A52CD93B390091B824 /* xs_shapes.wren in Resources */,
@@ -2019,27 +2031,28 @@
 				34EB6FA42A4CCD2000DA6B15 /* account_apple.mm in Sources */,
 				1E7EE57F4C3547A5A41A4868 /* main_apple.cpp in Sources */,
 				3474D63A2B14DFC000441451 /* imgui_draw.cpp in Sources */,
+				5AC6A4EB2ED2445B00727C61 /* imgui_stdlib.cpp in Sources */,
 				346E74132A4A29D5006ECAD5 /* tools.cpp in Sources */,
 				3474D6372B14DFC000441451 /* imgui_demo.cpp in Sources */,
 				346184202A78525C0014B43C /* shaders.metal in Sources */,
 				346E73E02A4A29D5006ECAD5 /* profiler.cpp in Sources */,
 				346E73DD2A4A29D5006ECAD5 /* log.cpp in Sources */,
-				3474D5F52B14DFC000441451 /* imgui_stdlib.cpp in Sources */,
 				3474D6222B14DFC000441451 /* imgui.cpp in Sources */,
 				34EB6F652A4C6EE900DA6B15 /* wren_value.c in Sources */,
 				34EB6F6A2A4C6EE900DA6B15 /* wren_debug.c in Sources */,
 				346E74102A4A29D5006ECAD5 /* configuration.cpp in Sources */,
 				34EB6F5F2A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */,
 				346E74012A4A29D5006ECAD5 /* device.cpp in Sources */,
-				3474D6132B14DFC000441451 /* implot.cpp in Sources */,
 				34EB6F672A4C6EE900DA6B15 /* wren_primitive.c in Sources */,
 				3474D6102B14DFC000441451 /* imgui_widgets.cpp in Sources */,
-				3474D61C2B14DFC000441451 /* implot_items.cpp in Sources */,
 				5A48B06E2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp in Sources */,
 				34EB6F622A4C6EDA00DA6B15 /* wren_opt_random.c in Sources */,
 				5A7BCF782ECE29CE00A4A0C3 /* simple_audio.cpp in Sources */,
 				346E74072A4A29D5006ECAD5 /* data.cpp in Sources */,
 				34EB6F6B2A4C6EE900DA6B15 /* wren_compiler.c in Sources */,
+				5AC6A4E32ED2436500727C61 /* implot.cpp in Sources */,
+				5AC6A4E42ED2436500727C61 /* implot_demo.cpp in Sources */,
+				5AC6A4E52ED2436500727C61 /* implot_items.cpp in Sources */,
 				34EB6F662A4C6EE900DA6B15 /* wren_vm.c in Sources */,
 				3486CA932B94DFCF00E9A3B8 /* miniz.c in Sources */,
 				34EB6F962A4C706C00DA6B15 /* render_apple.mm in Sources */,
@@ -2080,7 +2093,6 @@
 				346E73DF2A4A29D5006ECAD5 /* log.cpp in Sources */,
 				346E74122A4A29D5006ECAD5 /* configuration.cpp in Sources */,
 				5A48B06D2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp in Sources */,
-				3474D5F72B14DFC000441451 /* imgui_stdlib.cpp in Sources */,
 				3486CA9B2B94DFFF00E9A3B8 /* miniz.c in Sources */,
 				3474D6242B14DFC000441451 /* imgui.cpp in Sources */,
 				3474D6182B14DFC000441451 /* imgui_impl.cpp in Sources */,
@@ -2089,11 +2101,12 @@
 				3486CA9C2B94DFFF00E9A3B8 /* miniz_zip.c in Sources */,
 				34EB6F792A4C6EEA00DA6B15 /* wren_compiler.c in Sources */,
 				346E74032A4A29D5006ECAD5 /* device.cpp in Sources */,
-				3474D6152B14DFC000441451 /* implot.cpp in Sources */,
+				5AC6A4DF2ED2436500727C61 /* implot.cpp in Sources */,
+				5AC6A4E02ED2436500727C61 /* implot_demo.cpp in Sources */,
+				5AC6A4E12ED2436500727C61 /* implot_items.cpp in Sources */,
 				346E74092A4A29D5006ECAD5 /* data.cpp in Sources */,
 				3474D6122B14DFC000441451 /* imgui_widgets.cpp in Sources */,
 				3486CA9D2B94DFFF00E9A3B8 /* miniz_tinfl.c in Sources */,
-				3474D61E2B14DFC000441451 /* implot_items.cpp in Sources */,
 				34EB6F762A4C6EEA00DA6B15 /* wren_utils.c in Sources */,
 				34EB6F752A4C6EEA00DA6B15 /* wren_primitive.c in Sources */,
 				34EB6FA62A4CCD2000DA6B15 /* account_apple.mm in Sources */,
@@ -2106,6 +2119,7 @@
 				346E73D92A4A29D5006ECAD5 /* render.cpp in Sources */,
 				34EB6F642A4C6EDB00DA6B15 /* wren_opt_random.c in Sources */,
 				346E74062A4A29D5006ECAD5 /* fileio.cpp in Sources */,
+				5AC6A4EA2ED2445B00727C61 /* imgui_stdlib.cpp in Sources */,
 				3474D6302B14DFC000441451 /* imgui_tables.cpp in Sources */,
 				346184222A78525C0014B43C /* shaders.metal in Sources */,
 			);
@@ -2199,6 +2213,7 @@
 					"$(PROJECT_DIR)/external/wren/include",
 					"$(PROJECT_DIR)/external/wren/optional",
 					"$(PROJECT_DIR)/external/wren/vm",
+					"$(PROJECT_DIR)/external/implot",
 					"$(PROJECT_DIR)/external/miniz/include/miniz",
 					"$(PROJECT_DIR)/external/fmt/include",
 					"$(PROJECT_DIR)/external/cereal/include",
@@ -2264,6 +2279,7 @@
 					"$(PROJECT_DIR)/external/wren/include",
 					"$(PROJECT_DIR)/external/wren/optional",
 					"$(PROJECT_DIR)/external/wren/vm",
+					"$(PROJECT_DIR)/external/implot",
 					"$(PROJECT_DIR)/external/miniz/include/miniz",
 					"$(PROJECT_DIR)/external/fmt/include",
 					"$(PROJECT_DIR)/external/cereal/include",

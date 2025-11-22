@@ -4,7 +4,7 @@
 #include <chrono>
 #include <vector>
 #include <imgui/imgui.h>
-#include <imgui/implot.h>
+#include <implot/implot.h>
 
 //TODO: Create a macro to turn profiling on/off
 
