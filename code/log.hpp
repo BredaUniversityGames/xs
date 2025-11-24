@@ -87,28 +87,28 @@ inline void xs::log::critical(const FormatString& format, const Args & ...args)
 template<typename FormatString, typename ...Args>
 inline void xs::log::info(const FormatString& format, const Args & ...args)
 {
-	std::string message = fmt::format("[{}info{}] ", green, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
+	std::string message = fmt::format("[{}info{}] ", info_color, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
 	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::warn(const FormatString& format, const Args & ...args)
 {
-	std::string message = fmt::format("[{}warn{}] ", magenta, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
+	std::string message = fmt::format("[{}warn{}] ", warn_color, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
 	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::error(const FormatString& format, const Args & ...args)
 {
-	std::string message = fmt::format("[{}error{}] ", red, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
+	std::string message = fmt::format("[{}error{}] ", error_color, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
 	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::critical(const FormatString& format, const Args & ...args)
 {
-	std::string message = fmt::format("[{}error{}] ", red, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
+	std::string message = fmt::format("[{}error{}] ", error_color, reset) + fmt::format(fmt::runtime(format), args...) + "\n";
 	output_log(message);
 }
 
