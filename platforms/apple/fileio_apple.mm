@@ -13,10 +13,21 @@ using namespace std;
 namespace xs::fileio::internal
 {
     extern std::map<std::string, std::string> wildcards;
+
+    static std::string get_bundle_resources_path()
+    {
+        NSBundle* bundle = [NSBundle mainBundle];
+        NSString* resourcePath = [bundle resourcePath];
+        return std::string([resourcePath UTF8String]);
+    }
 }
 
 void fileio::initialize(const std::string& game_path)
 {
+    // Get bundle resources path for resolving bundled assets
+    string bundle_resources = internal::get_bundle_resources_path();
+    log::info("Bundle resources path: {}", bundle_resources);
+
     // Get the engine user path [user] - ~/Library/Application Support/xs
     NSString* user_path_oc = @"~/Library/Application Support/xs";
     string user_path = [user_path_oc.stringByExpandingTildeInPath UTF8String];
@@ -31,7 +42,7 @@ void fileio::initialize(const std::string& game_path)
     internal::wildcards["[save]"] = game_save_path;
 
     // Determine game folder path
-    // Priority: CLI argument > default sample
+    // Priority: CLI argument > bundle resources > default sample
     bool success = false;
 
     // 1. Use CLI-provided game path if available
@@ -46,16 +57,26 @@ void fileio::initialize(const std::string& game_path)
         }
         else if (xs::get_run_mode() == xs::run_mode::packaged)
         {
-            success = fileio::load_package(game_path);
+            // First try absolute path, then try in bundle resources
+            string package_path = game_path;
+            if (!fileio::exists(package_path))
+            {
+                package_path = bundle_resources + "/" + game_path;
+            }
+            success = fileio::load_package(package_path);
         }
     }
 
-    // 2. Fallback to default sample
+    // 2. Fallback: check for game in bundle resources
     if (!success)
     {
-        log::info("No game path provided, loading xs sample.");
-        string xs_sample = fileio::absolute("samples/hello");
-        add_wildcard("[game]", xs_sample);
+        string bundled_game = bundle_resources + "/game";
+        if (filesystem::exists(bundled_game))
+        {
+            add_wildcard("[game]", bundled_game);
+            log::info("Game folder (from bundle): {}", bundled_game);
+            success = true;
+        }
     }
 
     // Load the game settings json and find the main game script
@@ -78,6 +99,19 @@ void fileio::initialize(const std::string& game_path)
     else log::error("Could not find the game project.json file.");
 
     // Set the shared assets folder - this is where the engine assets are stored
+    // First check bundle resources, then fall back to relative path (for development)
     if (xs::get_run_mode() != xs::run_mode::packaged)
-        add_wildcard("[shared]", "assets");
+    {
+        string bundled_assets = bundle_resources + "/assets";
+        if (filesystem::exists(bundled_assets))
+        {
+            add_wildcard("[shared]", bundled_assets);
+            log::info("Shared assets (from bundle): {}", bundled_assets);
+        }
+        else
+        {
+            add_wildcard("[shared]", "assets");
+            log::info("Shared assets (relative): assets");
+        }
+    }
 }
