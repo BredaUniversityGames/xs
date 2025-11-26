@@ -52,7 +52,7 @@ void xs::log::initialize()
     #endif
 
     std::ostringstream banner;
-#if USE_LOG_COLOR
+#ifdef USE_LOG_COLOR
     // Modern UTF-8 version with rounded borders and gradient colors
     banner << "\n";
     banner << "\033[38;5;208m╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\033[0m\n";
@@ -84,10 +84,10 @@ void xs::log::initialize()
 {
     std::ostringstream banner;
     banner << "\n";
-    banner << fmt::format(" {}  __ __ _____  {}   xs game engine {}\n", yellow, reset, xs::version::get_version_string().c_str());
-    banner << fmt::format(" {} |  |  |   __| {}\n", yellow, reset);
-    banner << fmt::format(" {} |-   -|__   | {}   Crafted at Breda University of Applied Sciences\n", yellow, reset);
-    banner << fmt::format(" {} |__|__|_____| {}\n", yellow, reset);
+    banner << fmt::format(" {}  __ __ _____  {}   xs game engine {}\n", warn_color, reset, xs::version::get_version_string().c_str());
+    banner << fmt::format(" {} |  |  |   __| {}\n", warn_color, reset);
+    banner << fmt::format(" {} |-   -|__   | {}   Crafted at Breda University of Applied Sciences\n", warn_color, reset);
+    banner << fmt::format(" {} |__|__|_____| {}\n", warn_color, reset);
     banner << "\n";
 
     output_log(banner.str());

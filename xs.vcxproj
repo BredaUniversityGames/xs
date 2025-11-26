@@ -284,22 +284,22 @@
     </ClCompile>
     <ClCompile Include="external\imgui\imgui_tables.cpp" />
     <ClCompile Include="external\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="external\imgui\implot.cpp">
+    <ClCompile Include="external\implot\implot.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="external\imgui\implot_demo.cpp">
+    <ClCompile Include="external\implot\implot_demo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="external\imgui\implot_items.cpp">
+    <ClCompile Include="external\implot\implot_items.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="external\imgui\misc\cpp\imgui_stdlib.cpp" />
+    <ClCompile Include="external\imgui\imgui_stdlib.cpp" />
     <ClCompile Include="external\miniz\src\miniz.c" />
     <ClCompile Include="external\miniz\src\miniz_tdef.c" />
     <ClCompile Include="external\miniz\src\miniz_tinfl.c" />
@@ -376,7 +376,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="external\imgui\imgui_impl_switch.h" />
-    <ClInclude Include="external\imgui\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="external\imgui\imgui_stdlib.h" />
     <ClInclude Include="external\miniz\include\miniz\miniz.h" />
     <ClInclude Include="external\miniz\include\miniz\miniz_common.h" />
     <ClInclude Include="external\miniz\include\miniz\miniz_export.h" />
