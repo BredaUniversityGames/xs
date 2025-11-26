@@ -68,7 +68,7 @@ void device::initialize()
 		internal::width,
 		internal::height,
 		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-
+	
 	if (!internal::window)
 	{
 		log::critical("SDL window could not be created");

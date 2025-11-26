@@ -541,10 +541,14 @@ void xs::inspector::apply_theme()
 		break;
 	}
 	
-	// Scale all style sizes by HDPI factor
+	// Avoid cumulative growth when switching themes.
 	const float UIScale = (float)device::hdpi_scaling();
-	if (UIScale != 1.0f)
-		ImGui::GetStyle().ScaleAllSizes(UIScale);
+	static float last_ui_scale = 1.0f; // preserved across calls
+	if (last_ui_scale <= 0.0f) last_ui_scale = 1.0f;
+	float scale_factor = UIScale / last_ui_scale;
+	if (scale_factor != 1.0f)
+		ImGui::GetStyle().ScaleAllSizes(scale_factor);
+	last_ui_scale = UIScale;
 }
 
 void xs::inspector::push_menu_theme()

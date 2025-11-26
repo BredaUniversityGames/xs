@@ -11,7 +11,7 @@
 void xs::log::output_log(const std::string& message)
 {
     // Always output to console (if available)
-    std::cout << message;
+    std::cout << message << "\n" << std::flush;
 
     #if defined(PLATFORM_PC) && defined(XS_RELEASE)
     // In Release builds without console, also output to debugger
