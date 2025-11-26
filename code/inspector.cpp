@@ -50,6 +50,7 @@ namespace xs::inspector
 	bool show_demo = false;
 	bool show_modal = false;
 	bool show_inspector = false;
+	bool always_on_top = false;
 	char* ini_filename = nullptr;
 
 	enum class theme
@@ -73,6 +74,9 @@ namespace xs::inspector
 	bool next_frame;
 	std::vector<notification> notifications;
 	ImFont* small_font = nullptr;
+	
+	
+	static bool toggle_button(const char* icon, bool state, const char* tip = nullptr);
 }
 
 using namespace xs::inspector;
@@ -81,11 +85,11 @@ using namespace std;
 
 void xs::inspector::initialize()
 {
-    ImGui::CreateContext();
+	ImGui::CreateContext();
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
 	ImPlot::CreateContext();
 #endif
-    ImGui_Impl_Init();
+	ImGui_Impl_Init();
 	
 	auto& io = ImGui::GetIO();
 #if defined(XS_DEBUG) && defined(PLATFORM_PC)
@@ -152,6 +156,10 @@ void xs::inspector::initialize()
 	current_theme = (theme)data::get_number("theme", data::type::user);
 	show_inspector = data::get_bool("show_inspector", data::type::user);
 	apply_theme();
+	
+	always_on_top = data::get_bool("always_on_top", data::type::user);
+	if (always_on_top)
+		device::toggle_on_top();
 }
 
 void xs::inspector::shutdown()
@@ -277,7 +285,15 @@ void xs::inspector::render(double dt)
 			data::save_of_type(data::type::user);
 		}
 		tooltip("Theme");
-
+    	
+    	ImGui::SameLine();
+    	if (toggle_button(ICON_FA_WINDOW_MAXIMIZE, always_on_top, "Always on Top"))
+    	{
+    		// Caller toggles platform state and persists the returned value
+    		always_on_top = device::toggle_on_top();
+    		data::set_bool("always_on_top", always_on_top, data::type::user);
+    		data::save_of_type(data::type::user);
+    	}
 #if SHOW_IMGUI_DEMO
 		ImGui::SameLine();
 		if (ImGui::Button(ICON_FA_LIFE_RING))
@@ -572,6 +588,44 @@ void xs::inspector::pop_menu_theme()
 		ImGui::PopStyleColor(1);
 		break;
 	}
+}
+
+static bool xs::inspector::toggle_button(const char* icon, bool state, const char* tip)
+{
+	ImGui::SameLine();
+
+
+	// base (off) colors from the current theme
+	ImVec4 normal       = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+	ImVec4 normalHover  = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
+	ImVec4 normalActive = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
+
+	// derive "on" (accent) colors from theme: prefer HeaderActive/Hovered, fallback to ButtonActive variants
+	ImVec4 accent       = ImGui::GetStyleColorVec4(ImGuiCol_HeaderActive);
+	ImVec4 accentHover  = ImGui::GetStyleColorVec4(ImGuiCol_HeaderHovered);
+	ImVec4 accentActive = ImGui::GetStyleColorVec4(ImGuiCol_Header);
+
+	// if header colors are basically default/transparent in some themes, fallback to ButtonActive variants
+	auto is_transparent = [](const ImVec4 &c){ return c.x==0.0f && c.y==0.0f && c.z==0.0f && c.w==0.0f; };
+	if (is_transparent(accent) && !is_transparent(normalActive)) {
+		accent       = normalActive;
+		accentHover  = normalHover;
+		accentActive = normalActive;
+	}
+
+	ImGui::PushStyleColor(ImGuiCol_Button,        state ? accent    : normal);
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, state ? accentHover: normalHover);
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive,  state ? accentActive: normalActive);
+
+	bool clicked = ImGui::Button(icon);
+
+	ImGui::PopStyleColor(3);
+
+	if (tip)
+		tooltip(tip);
+
+	// NOTE: do NOT modify `state` here. Caller handles toggling / platform call / persistence.
+	return clicked;
 }
 
 void xs::inspector::embrace_the_darkness()

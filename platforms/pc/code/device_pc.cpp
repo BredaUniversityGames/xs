@@ -217,3 +217,15 @@ void device::set_fullscreen(bool fullscreen)
 	}
 }
 
+bool device::toggle_on_top()
+{
+	if (!internal::window)
+		return false;
+
+	auto flags = SDL_GetWindowFlags(internal::window);
+	bool is_on_top = (flags & SDL_WINDOW_ALWAYS_ON_TOP) != 0;
+	is_on_top = !is_on_top;
+	SDL_SetWindowAlwaysOnTop(internal::window, is_on_top);
+	return is_on_top;
+}
+

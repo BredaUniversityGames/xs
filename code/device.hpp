@@ -45,4 +45,9 @@ namespace xs::device
 	/// </summary>
 	/// <param name="fullscreen">true to enable fullscreen, false for windowed mode</param>
 	void set_fullscreen(bool fullscreen);
+	
+	/// <summary>
+	/// Toggles whether the application window should stay on top of other windows.
+	/// </summary>
+	bool toggle_on_top();
 }
