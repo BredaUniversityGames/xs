@@ -19,17 +19,17 @@
 namespace xs::log
 {
 #ifdef USE_LOG_COLOR
-    constexpr std::string info_color = "\033[38;5;75m";
-    constexpr std::string warn_color = "\033[38;5;214m";
-    constexpr std::string error_color = " \033[38;5;196m";
-    constexpr std::string critical_color = " \033[38;5;196m";
-	constexpr auto reset = "\033[0m";
+    constexpr const char* info_color = "\033[38;5;75m";
+    constexpr const char* warn_color = "\033[38;5;214m";
+    constexpr const char* error_color = "\033[38;5;196m";
+    constexpr const char* critical_color = "\033[38;5;196m";
+	constexpr const char* reset = "\033[0m \n";
 #else
-	constexpr std::string info_color = "";
-    constexpr std::string warn_color = "";
-    constexpr std::string error_color = "";
-    constexpr std::string critical_color = "";
-    constexpr std::string reset = "\n";
+	constexpr const char* info_color = "";
+    constexpr const char* warn_color = "";
+    constexpr const char* error_color = "";
+    constexpr const char* critical_color = "";
+    constexpr const char* reset = "\n";
 #endif
 
 	void initialize();
@@ -57,28 +57,28 @@ namespace xs::log
 template<typename FormatString, typename ...Args>
 inline void xs::log::info(const FormatString& format, const Args & ...args)
 {
-	std::string message = "ℹ️ " + info_color + fmt::format(fmt::runtime(format), args...) + reset;
+	std::string message = std::string("ℹ️ ") + info_color + fmt::format(fmt::runtime(format), args...) + reset;
 	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::warn(const FormatString& format, const Args & ...args)
 {
-	std::string message = "⚠️ " + warn_color + fmt::format(fmt::runtime(format), args...) + reset;
+	std::string message = std::string("⚠️ ") + warn_color + fmt::format(fmt::runtime(format), args...) + reset;
 	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::error(const FormatString& format, const Args & ...args)
 {
-	std::string message = "⛔️ " + error_color + fmt::format(fmt::runtime(format), args...) + reset;
+	std::string message = std::string("⛔️ ") + error_color + fmt::format(fmt::runtime(format), args...) + reset;
 	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::critical(const FormatString& format, const Args & ...args)
 {
-	std::string message = "🚨 " + critical_color + fmt::format(fmt::runtime(format), args...) + reset;
+	std::string message = std::string("🚨 ") + critical_color + fmt::format(fmt::runtime(format), args...) + reset;
 	output_log(message);
 }
 
