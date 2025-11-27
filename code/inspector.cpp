@@ -29,7 +29,7 @@
 #include "device_pc.hpp"
 #endif
 
-#define SHOW_IMGUI_DEMO 0
+#define SHOW_IMGUI_DEMO 1
 
 namespace xs::inspector
 {

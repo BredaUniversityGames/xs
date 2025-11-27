@@ -228,6 +228,14 @@ DEPENDENCIES = {
             'COPYING',
         ],
     },
+    'freetype': {
+        'name': 'FreeType',
+        'type': 'local',
+        'platforms': ['pc', 'apple'],
+        'description': 'Font rendering library (desktop only)',
+        'install_notes': 'Run tools/update_deps/build_freetype.py to build from source',
+        # Note: update_function will be set after the function is defined
+    },
     'glad': {
         'name': 'GLAD',
         'type': 'opensource',
@@ -861,10 +869,56 @@ def copy_sdl3_from_dmg(progress_callback=None) -> Tuple[bool, str]:
         return False, "SDL3 auto-copy only supported on macOS. On Windows, manually extract to external/sdl3/"
 
 
+def build_freetype_from_source(progress_callback=None) -> Tuple[bool, str]:
+    """Build FreeType from source and copy to external/freetype."""
+    logger.info("Starting FreeType build from source")
+    repo_root = get_repo_root()
+    plat = platform.system()
+
+    # FreeType build is supported on Windows and macOS (desktop platforms)
+    if plat not in ["Windows", "Darwin"]:
+        logger.error(f"FreeType build not supported on {plat}")
+        return False, f"FreeType build not supported on {plat}. Please build manually."
+
+    try:
+        # Check if build script exists
+        build_script = repo_root / "tools" / "update_deps" / "build_freetype.py"
+        if not build_script.exists():
+            logger.error(f"Build script not found at {build_script}")
+            return False, f"Build script not found: {build_script}"
+
+        if progress_callback:
+            progress_callback("Running build script...")
+        logger.info(f"Running FreeType build script: {build_script}")
+
+        # Run the build script using Python
+        result = subprocess.run(
+            [sys.executable, str(build_script)],
+            cwd=repo_root,
+            capture_output=True,
+            text=True
+        )
+
+        if result.returncode != 0:
+            logger.error(f"Build script failed: {result.stderr}")
+            return False, f"Build failed: {result.stderr}"
+
+        logger.info("FreeType build completed successfully")
+        if progress_callback:
+            progress_callback("Complete")
+
+        return True, "Successfully built and installed FreeType"
+
+    except Exception as e:
+        logger.error(f"Error building FreeType: {str(e)}")
+        return False, f"Error building FreeType: {e}"
+
+
 # Set function references for dependencies with custom update handlers
 # This must be done after the functions are defined
 DEPENDENCIES['fmod']['update_function'] = copy_fmod_from_program_files
 DEPENDENCIES['sdl3']['update_function'] = copy_sdl3_from_dmg
+DEPENDENCIES['freetype']['update_function'] = build_freetype_from_source
 
 
 class DependencyUpdaterApp(App):
