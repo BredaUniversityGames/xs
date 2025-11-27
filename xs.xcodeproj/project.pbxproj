@@ -782,6 +782,9 @@
 		5AC6A4E72ED2445B00727C61 /* imgui_impl_sdl3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui_impl_sdl3.h; sourceTree = "<group>"; };
 		5AC6A4E82ED2445B00727C61 /* imgui_stdlib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui_stdlib.h; sourceTree = "<group>"; };
 		5AC6A4E92ED2445B00727C61 /* imgui_stdlib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_stdlib.cpp; sourceTree = "<group>"; };
+/* FreeType (mac) */
+		5AF0F0FF2F0BFFF000000001 /* imgui_freetype.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = imgui_freetype.cpp; path = external/imgui/misc/freetype/imgui_freetype.cpp; sourceTree = "<group>"; };
+		5AF0F1012F0C003900000001 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = external/freetype/lib/mac/libfreetype.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -821,6 +824,7 @@
 				5A6012622ECF544A00FDE28A /* SDL3.xcframework in Frameworks */,
 				34866F5E2B28933E0025F40C /* libfmodL.dylib in Frameworks */,
 				34866F5C2B28933E0025F40C /* libfmodstudioL.dylib in Frameworks */,
+				5AF0F1022F0C004500000001 /* libfreetype.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -830,6 +834,7 @@
 		346184252A7867A90014B43C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5AF0F1012F0C003900000001 /* libfreetype.a */,
 				5ABF52D52ECF73B600F039A6 /* libSDL3.dylib */,
 				5A31177D2ECF68FD00049544 /* Metal.framework */,
 				5A31177E2ECF68FD00049544 /* MetalKit.framework */,
@@ -979,6 +984,7 @@
 		3474D5A52B14DFC000441451 /* imgui */ = {
 			isa = PBXGroup;
 			children = (
+				5AF0F0FE2F0BFFCC00000001 /* freetype */,
 				5AC6A4E72ED2445B00727C61 /* imgui_impl_sdl3.h */,
 				5AC6A4E82ED2445B00727C61 /* imgui_stdlib.h */,
 				5AC6A4E92ED2445B00727C61 /* imgui_stdlib.cpp */,
@@ -1005,6 +1011,16 @@
 				3474D5DF2B14DFC000441451 /* imgui_draw.cpp */,
 			);
 			path = imgui;
+			sourceTree = "<group>";
+		};
+/* ImGui FreeType sub-group */
+		5AF0F0FE2F0BFFCC00000001 /* freetype */ = {
+			isa = PBXGroup;
+			children = (
+				5AF0F0FF2F0BFFF000000001 /* imgui_freetype.cpp */,
+			);
+			name = freetype;
+			path = misc/freetype;
 			sourceTree = "<group>";
 		};
 		3474D5A62B14DFC000441451 /* misc */ = {
@@ -1952,6 +1968,8 @@
 				5AC6A4EA2ED2445B00727C61 /* imgui_stdlib.cpp in Sources */,
 				3474D6302B14DFC000441451 /* imgui_tables.cpp in Sources */,
 				346184222A78525C0014B43C /* shaders.metal in Sources */,
+				5AF0F1002F0C000100000001 /* imgui_freetype.cpp in Sources */,
+				5AF0F1002F0C000100000001 /* imgui_freetype.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2235,6 +2253,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/external/fmod/lib/mac",
 					"$(PROJECT_DIR)/external/sdl3/lib/mac",
+					"$(PROJECT_DIR)/external/freetype/lib/mac",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
@@ -2243,6 +2262,31 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(PROJECT_DIR)/code/include",
+					"$(PROJECT_DIR)/external/",
+					"$(PROJECT_DIR)/external/imgui",
+					"$(PROJECT_DIR)/external/wren/include",
+					"$(PROJECT_DIR)/external/wren/optional",
+					"$(PROJECT_DIR)/external/wren/vm",
+					"$(PROJECT_DIR)/external/implot",
+					"$(PROJECT_DIR)/external/miniz/include/miniz",
+					"$(PROJECT_DIR)/external/fmt/include",
+					"$(PROJECT_DIR)/external/cereal/include",
+					"$(PROJECT_DIR)/external/sdl3/inc",
+					"$(PROJECT_DIR)/platforms/apple",
+					"$(PROJECT_DIR)/external/freetype/inc",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"PLATFORM_APPLE=1",
+					PLATFORM_MAC,
+					XS_DEBUG,
+					"PROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"",
+					INSPECTOR,
+					EDITOR,
+					IMGUI_ENABLE_FREETYPE,
+				);
 			};
 			name = Debug;
 		};
@@ -2265,6 +2309,7 @@
 					PLATFORM_MAC,
 					XS_RELEASE,
 					"PROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"",
+					IMGUI_ENABLE_FREETYPE,
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -2278,6 +2323,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/external/fmod/lib/mac",
 					"$(PROJECT_DIR)/external/sdl3/lib/mac",
+					"$(PROJECT_DIR)/external/freetype/lib/mac",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
