@@ -1,0 +1,12 @@
+# Track everything in the freetype directory
+# This makes working with the engine faster since libraries are pre-built
+
+# Keep all files
+!inc/
+!lib/
+!README.md
+!LICENSE.TXT
+
+# Only ignore temporary build artifacts if any
+*.tmp
+*.log
