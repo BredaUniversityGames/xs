@@ -11,8 +11,9 @@ namespace xs::device
 	bool should_close();
 	int get_width();
 	int get_height();
+    void set_window_size(int w, int h);
 	double hdpi_scaling();
-
+    
 	enum platform 
 	{
 		PC = 0,
@@ -43,8 +44,9 @@ namespace xs::device
 	/// <summary>
 	/// Sets fullscreen mode on or off. Maintains aspect ratio with black bars.
 	/// </summary>
-	/// <param name="fullscreen">true to enable fullscreen, false for windowed mode</param>
 	void set_fullscreen(bool fullscreen);
+
+    bool get_fullscreen();
 	
 	/// <summary>
 	/// Toggles whether the application window should stay on top of other windows.

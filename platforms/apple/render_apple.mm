@@ -8,6 +8,7 @@
 #include "device.hpp"
 #include "tools.hpp"
 #include "log.hpp"
+#include "inspector.hpp"
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtc/matrix_transform.hpp>
@@ -377,13 +378,19 @@ void xs::render::render()
     id<CAMetalDrawable> drawable = device::internal::get_current_drawable();
     if (drawable != nil)
     {
+        glm::vec4 clear_color = xs::inspector::get_theme() == inspector::theme::dark ?
+            vec4(1.0, 1.0, 1.0, 1.0) :
+            vec4(1.0, 1.0, 1.0, 1.0);
+        
         // Create screen render pass
         MTLRenderPassDescriptor* screen_rpd = [MTLRenderPassDescriptor renderPassDescriptor];
         screen_rpd.colorAttachments[0].texture = drawable.texture;
         screen_rpd.colorAttachments[0].loadAction = MTLLoadActionClear;
         screen_rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
-        screen_rpd.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
-        
+        screen_rpd.colorAttachments[0].clearColor = MTLClearColorMake(clear_color.x,
+                                                                      clear_color.y,
+                                                                      clear_color.z,
+                                                                      clear_color.w);
         id<MTLRenderCommandEncoder> screen_encoder = [command_buffer renderCommandEncoderWithDescriptor:screen_rpd];
         screen_encoder.label = @"xs screen render pass";
         
@@ -391,26 +398,49 @@ void xs::render::render()
         const float dh = device::get_height();
         const float cw = configuration::width();
         const float ch = configuration::height();
-        const float aspect = (cw / ch) / (dw / dh);
-        const float qw = aspect;
-        const float qh = 1.0f;
-        const screen_vtx_format quadVertices[] =
+        
+        screen_vtx_format quadVertices[6];
+        if(device::get_fullscreen())
         {
-            // Positions      , Texture coordinates
-            { {  qw,  -qh },  { 1.0, 1.0 } },
-            { { -qw,  -qh },  { 0.0, 1.0 } },
-            { { -qw,   qh },  { 0.0, 0.0 } },
+            const float aspect = (cw / ch) / (dw / dh);
+            float qw = aspect;
+            float qh = 1.0f;
+            //                Positions      , Texture coordinates
+            quadVertices[0] = { {  qw,  -qh },  { 1.0, 1.0 } };
+            quadVertices[1] = { { -qw,  -qh },  { 0.0, 1.0 } };
+            quadVertices[2] = { { -qw,   qh },  { 0.0, 0.0 } };
+            quadVertices[3] = { {  qw,  -qh },  { 1.0, 1.0 } };
+            quadVertices[4] = { { -qw,   qh },  { 0.0, 0.0 } };
+            quadVertices[5] = { {  qw,   qh },  { 1.0, 0.0 } };
+        }
+        else
+        {
+            // const float caspect = (cw / ch);
+            // const float dx = dw - cw;
+            // const float dy = dh - ch;
+            //vec2 fr(-1.0f, -0.7);
+            //vec2 to(1.0f, 1.0f);
             
-            { {  qw,  -qh },  { 1.0, 1.0 } },
-            { { -qw,   qh },  { 0.0, 0.0 } },
-            { {  qw,   qh },  { 1.0, 0.0 } },
-        };
+            auto metrics = inspector::get_metrics();
+            vec2 fr(0.0f, metrics.bottom_bar);
+            vec2 to(cw, ch + metrics.bottom_bar);
+            //                Positions      , Texture coordinates
+            quadVertices[0] = { { to.x, to.y },  { 1.0, 1.0 } };
+            quadVertices[1] = { { fr.x, to.y },  { 0.0, 1.0 } };
+            quadVertices[2] = { { fr.x, fr.y },  { 0.0, 0.0 } };
+            quadVertices[3] = { { to.x, to.y },  { 1.0, 1.0 } };
+            quadVertices[4] = { { fr.x, fr.y },  { 0.0, 0.0 } };
+            quadVertices[5] = { { to.x, fr.y },  { 1.0, 0.0 } };
+        }
+                
         
         [screen_encoder setRenderPipelineState:_pipelineState];
-        
         [screen_encoder setVertexBytes:&quadVertices
                                 length:sizeof(quadVertices)
                                atIndex:index_vertices];
+                
+        vec2 resolution(dw, dh);
+        [screen_encoder setVertexBytes:&resolution length:sizeof(vec2) atIndex:index_resolution];
         
         // Set the offscreen texture as the source texture.
         [screen_encoder setFragmentTexture:_renderTargetTexture atIndex:index_sprite_texture];

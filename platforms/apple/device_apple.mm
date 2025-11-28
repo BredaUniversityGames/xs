@@ -30,9 +30,10 @@ namespace xs::device::internal
 {
     SDL_Window* window = nullptr;
     SDL_MetalView metal_view = nullptr;
-    int    width = -1;
-    int    height = -1;
+    int width = -1;
+    int height = -1;
     bool quit = false;
+    bool fullscreen = false;
 
     // Metal objects
     id<MTLDevice> metal_device = nil;
@@ -57,6 +58,9 @@ void device::initialize()
     // Set window size in pixels
     int pixel_width = configuration::width() * configuration::multiplier();
     int pixel_height = configuration::height() * configuration::multiplier();
+    auto metrics = xs::inspector::get_metrics();
+    pixel_height += metrics.bottom_bar + metrics.top_bar;
+    
 
     // Create window with Metal support
     // Note: We create a temporary window first to get the display scale,
@@ -76,7 +80,7 @@ void device::initialize()
     }
 
     // Now get the actual display scale and resize window to achieve desired pixel size
-    float scale = SDL_GetWindowDisplayScale(internal::window);
+    float scale = hdpi_scaling();
     int point_width = static_cast<int>(pixel_width / scale);
     int point_height = static_cast<int>(pixel_height / scale);
     SDL_SetWindowSize(internal::window, point_width, point_height);
@@ -227,18 +231,30 @@ int xs::device::get_height()
     return internal::height;
 }
 
+void xs::device::set_window_size(int w, int h)
+{
+    if(internal::fullscreen)
+        return; // TODO: Not sure for the right course of action here
+    
+    if(SDL_SetWindowSize(internal::window, w, h))
+    {
+        internal::width = w;
+        internal::height = h;
+    }
+}
+
+
 double device::hdpi_scaling()
 {
-    // Since we size the window in points to achieve our desired pixel dimensions,
-    // the effective scaling for rendering purposes is 1.0
-    // The actual display scale is handled by the window sizing logic
-    return 1.0;
+    return SDL_GetWindowDisplayScale(internal::window);
 }
 
 void device::set_fullscreen(bool fullscreen)
 {
     if (!internal::window)
         return;
+    
+    internal::fullscreen = fullscreen;
 
     if (fullscreen)
     {
@@ -252,6 +268,11 @@ void device::set_fullscreen(bool fullscreen)
         internal::height = configuration::height() * configuration::multiplier();
         SDL_SetWindowSize(internal::window, internal::width, internal::height);
     }
+}
+
+bool device::get_fullscreen()
+{
+    return internal::fullscreen;
 }
 
 // Apple-specific: Get Metal layer from SDL window
@@ -301,300 +322,14 @@ void xs::device::internal::set_render_encoder(id<MTLRenderCommandEncoder> encode
     internal::render_encoder = encoder;
 }
 
-
-
-/*
-// Our platform independent renderer class. Implements the MTKViewDelegate protocol which
-// allows it to accept per-frame update and drawable resize callbacks.
-@interface XSRenderer : NSObject <MTKViewDelegate>
-
--(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
-
-@end
-
-namespace xs::device::internal
+bool xs::device::toggle_on_top()
 {
-    MTKView* _view;
-    XSRenderer* _renderer;
-    int _width = -1;
-    int _height = -1;
-    float _scaling = 1.0f;
-    float _hdpi_scale = 1.0f;
-    
-    id<MTLCommandQueue> command_queue;      // The queue tied to the view
-    id<MTLCommandBuffer> command_buffer;    // The buffer tied to the view
-    id<MTLRenderCommandEncoder> render_encoder; // The encoder tied to the view
-    auto prev_time = chrono::high_resolution_clock::now();
+    if (!internal::window)
+        return false;
+
+    auto flags = SDL_GetWindowFlags(internal::window);
+    bool is_on_top = (flags & SDL_WINDOW_ALWAYS_ON_TOP) != 0;
+    is_on_top = !is_on_top;
+    SDL_SetWindowAlwaysOnTop(internal::window, is_on_top);
+    return is_on_top;
 }
-namespace xs::input
-{
-    XsPoint mouse_pos = {0, 0};
-    bool clicked = false;
-    bool clicked_last_frame = false;
-}
-
-using namespace xs;
-using namespace xs::device::internal;
-using namespace xs::input;
-
-@implementation XSRenderer {}
-
--(nonnull instancetype)initWithMetalKitView:(nonnull MTKView *)view;
-{
-    self = [super init];
-    if(self) {}
-    return self;
-}
-
-- (void)drawInMTKView:(nonnull MTKView *)view
-{
-#if defined(PLATFORM_MAC)
-     _view.window.acceptsMouseMovedEvents = true;
-#endif
-    
-    auto current_time = chrono::high_resolution_clock::now();
-    auto elapsed = current_time - prev_time;
-    prev_time = current_time;
-    auto dt = std::chrono::duration<double>(elapsed).count();
-    if (dt > 0.03333)
-        dt = 0.03333;
-    input::update(dt);
-    if (!inspector::paused())
-    {
-        render::clear();
-        script::update(dt);
-        //audio::update(dt);
-        script::render();
-    }
-    device::start_frame();
-    render::render(); // render to texture
-    device::internal::create_render_encoder();
-    render::composite(); // composite into view
-    inspector::render(float(dt));
-    device::end_frame();
-}
-
-- (void)mtkView:(nonnull MTKView *)view drawableSizeWillChange:(CGSize)size
-{
-    _width = size.width;
-    _height = size.height;
-    _scaling = _width / (configuration::width() * configuration::multiplier());
-}
-
-@end
-
-@implementation GameViewController {}
-
-// Serves as an init point
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    
-    _view = (MTKView *)self.view;
-    _view.device = MTLCreateSystemDefaultDevice();
-    
-    if(!_view.device)
-    {
-        NSLog(@"Metal is not supported on this device");
-        self.view = [[IView alloc] initWithFrame:self.view.frame];
-        return;
-    }
-    
-    _renderer = [[XSRenderer alloc] initWithMetalKitView:_view];
-    [_renderer mtkView:_view drawableSizeWillChange:_view.bounds.size];
-    _view.delegate = _renderer;
-    log::initialize();
-    account::initialize();
-    fileio::initialize();
-    data::initialize();
-    script::configure();
-    device::initialize();
-    render::initialize();
-    input::initialize();
-    audio::initialize();
-    inspector::initialize();
-    script::initialize();
-}
-
-#if defined(PLATFORM_MAC)
-
-- (void)mouseUp:(NSEvent *)event
-{
-    input::mouse_pos = [event locationInWindow];
-    input::clicked = false;
-}
-
-- (void)mouseDown:(NSEvent *)event
-{
-    input::mouse_pos = [event locationInWindow];
-    input::clicked = true;
-}
-
-- (void)mouseMoved:(NSEvent*) event
-{
-    input::mouse_pos = [event locationInWindow];
-}
-
-- (void)mouseDragged:(NSEvent *)event
-{
-    input::mouse_pos = [event locationInWindow];
-}
-
-
-#elif TARGET_OS_IOS
-
--(bool)prefersHomeIndicatorAutoHidden{
-    return YES;
-}
-
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    for (UITouch *t in touches)
-    {
-        mouse_pos.x = [t locationInView:t.view].x;
-        mouse_pos.y = configuration::height() - [t locationInView:t.view].y;
-    }
-    input::clicked = true;
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    for (UITouch *t in touches)
-    {
-        mouse_pos.x = [t locationInView:t.view].x;
-        mouse_pos.y = configuration::height() - [t locationInView:t.view].y;
-    }
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    for (UITouch *t in touches)
-    {
-        mouse_pos.x = [t locationInView:t.view].x;
-        mouse_pos.y = configuration::height() - [t locationInView:t.view].y;
-    }
-    input::clicked = false;
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    for (UITouch *t in touches)
-    {
-        mouse_pos.x = -1000000.0f;
-        mouse_pos.y = -1000000.0f;
-    }
-    input::clicked = false;
-}
-
-#endif
-
-@end
-
-void device::initialize()
-{
-    command_queue = [_view.device newCommandQueue];
-#if defined(PLATFORM_MAC)
-    CGFloat w = configuration::width() * configuration::multiplier();
-    CGFloat h = configuration::height() * configuration::multiplier();;
-    auto hdpi_scale = [[NSScreen mainScreen] backingScaleFactor];
-    if(xs::configuration::window_size_in_points())
-        [_view setFrameSize:{w, h}];    // In pixels
-    else
-        [_view setFrameSize:{w / hdpi_scale, h / hdpi_scale}]; // In points
-#endif
-}
-
-void device::shutdown()
-{
-    script::shutdown();
-    inspector::shutdown();
-    //audio::shutdown();
-    input::shutdown();
-    render::shutdown();
-    data::shutdown();
-    account::shutdown();
-}
-
-void device::start_frame()
-{
-    command_buffer = [command_queue commandBuffer];
-    command_buffer.label = @"xs command buffer";
-    input::clicked_last_frame = input::clicked;
-    
-}
-
-void device::end_frame()
-{
-    [render_encoder endEncoding];
-    [command_buffer presentDrawable:_view.currentDrawable];
-    [command_buffer commit];
-}
- 
-
-
-bool device::can_close()
-{
-    return false;
-}
-
-bool device::request_close()
-{
-    return false;
-}
-
-bool device::should_close()
-{
-    return false;
-}
-
-int device::get_width()
-{
-    return _width;
-}
-
-int device::get_height()
-{
-    return _height;
-}
-
-double device::hdpi_scaling()
-{
-    return _hdpi_scale;
-}
-
-MTKView* device::internal::get_view()
-{
-    return _view;
-}
-
-id<MTLCommandQueue> device::internal::get_command_queue()
-{
-    return command_queue;
-}
-
-id<MTLCommandBuffer> device::internal::get_command_buffer()
-{
-    return command_buffer;
-}
-
-id<MTLRenderCommandEncoder> device::internal::get_render_encoder()
-{
-    return render_encoder;
-}
-
-void device::internal::create_render_encoder()
-{
-    MTLRenderPassDescriptor* screen_rpd = _view.currentRenderPassDescriptor;
-    render_encoder = [command_buffer renderCommandEncoderWithDescriptor:screen_rpd];
-    render_encoder.label = @"xs screen render pass";
-}
-
-// void xs::device::begin_frame() {}
-
-
-void xs::device::set_fullscreen(bool) {}
- 
- 
-*/
-
-

@@ -20,9 +20,11 @@
 #include "render_internal.hpp"
 #include "packager.hpp"
 #include "xs.hpp"
+#include "defines.hpp"
 
-#ifdef EDITOR
+#if defined(EDITOR)
 #include "dialogs/portable-file-dialogs.h"
+#include <SDL.h>
 #endif
 
 #if defined(PLATFORM_PC)
@@ -52,29 +54,23 @@ namespace xs::inspector
 	bool show_inspector = false;
 	bool always_on_top = false;
 	char* ini_filename = nullptr;
+    metrics current_metrics = { 70, 55 };
 
-	enum class theme
-	{
-		dark = 0,
-		light = 1,
-		gray = 2,
-		acrylic = 3
-	};
-
-	theme current_theme = theme::acrylic;
-	void apply_theme();
-	void push_menu_theme();
-	void pop_menu_theme();
+	// theme current_theme = theme::dark;
+	void apply_theme(theme t);
+	void push_menu_theme(theme t);
+	void pop_menu_theme(theme t);
 	void embrace_the_darkness();
 	void follow_the_light();
-	void go_gray();
-	void see_through();
 
 	double ok_timer = 0.0f;
 	bool next_frame;
 	std::vector<notification> notifications;
 	ImFont* small_font = nullptr;
 	
+#if defined(EDITOR) && defined(PLATFORM_PC)
+	extern SDL_Window* g_window; // Defined in device_pc.cpp or similar
+#endif
 	
 	static bool toggle_button(const char* icon, bool state, const char* tip = nullptr);
 }
@@ -97,11 +93,12 @@ void xs::inspector::initialize()
 #else
 	io.ConfigFlags &= ~ImGuiConfigFlags_NavEnableKeyboard;
 #endif
-
-	const float UIScale = (float)device::hdpi_scaling();
-	const float fontSize = 16.0f;
-	const float iconSize = 12.0f;
-
+    
+    ui_scale = 1.0f / (float)device::hdpi_scaling();
+    const float font_scale = 1.0f;
+	const float font_size = 16.0f;
+	const float icon_size = 12.0f;
+    
 	ImFontConfig config;
 	config.OversampleH = 8;
 	config.OversampleV = 8;
@@ -116,7 +113,7 @@ void xs::inspector::initialize()
 	// Copy to a heap allocation to ensure it stays valid
 	char* selawk_buffer = new char[selawk_data.size()];
 	memcpy(selawk_buffer, selawk_data.data(), selawk_data.size());
-	auto selawk_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), fontSize * UIScale, &config);
+	auto selawk_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), font_size * font_scale, &config);
 	assert(selawk_font);
 		
 	static const ImWchar icons_ranges[] = { 0xf000, 0xf3ff, 0 }; // will not be copied by AddFont* so keep in scope.
@@ -135,7 +132,7 @@ void xs::inspector::initialize()
 	auto font_awesome_font = io.Fonts->AddFontFromMemoryTTF(
 		font_awesome_buffer,
 		(int)font_awesome_data.size(),
-		iconSize * UIScale,
+		icon_size * font_scale,
 		&config,
 		icons_ranges);
 	assert(font_awesome_font != nullptr);
@@ -143,9 +140,8 @@ void xs::inspector::initialize()
 	// Copy to a heap allocation (again) to ensure it stays valid
 	selawk_buffer = new char[selawk_data.size()];
 	memcpy(selawk_buffer, selawk_data.data(), selawk_data.size());
-	small_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), 12.0f * UIScale, nullptr);
+	small_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), 12.0f * font_scale, nullptr);
 	assert(small_font);
-
 
 	const std::string iniPath = fileio::get_path("[user]/imgui.ini");
 	const char* constStr = iniPath.c_str();
@@ -153,9 +149,14 @@ void xs::inspector::initialize()
 	strcpy(ini_filename, constStr);
 	io.IniFilename = ini_filename;
 
+    /*
 	current_theme = (theme)data::get_number("theme", data::type::user);
 	show_inspector = data::get_bool("show_inspector", data::type::user);
 	apply_theme();
+    */
+    
+    auto current_theme = inspector::get_theme();
+    apply_theme(current_theme);
 	
 	always_on_top = data::get_bool("always_on_top", data::type::user);
 	if (always_on_top)
@@ -184,8 +185,9 @@ static void tooltip(const char* tooltip)
 
 void xs::inspector::render(double dt)
 {
+// TODO: Un-hack
 #ifdef PLATFORM_PS5
-	return;
+    return;
 #endif
 
 	// Use P to pause the game 
@@ -198,208 +200,156 @@ void xs::inspector::render(double dt)
 	ImGui_Impl_NewFrame();
     ImGui::NewFrame();
 	ok_timer -= dt;
-	theme new_theme = current_theme;
+    auto current_theme = get_theme();
 	restart_flag = false;
-	push_menu_theme();
+	push_menu_theme(current_theme);
+    float width = device::get_width();
 	
-    if (xs::script::has_error() ||
-		show_registry			||
-		show_profiler			||
-		show_about				||
-		show_demo				||
-		show_modal				||
-		show_inspector)
-	{
+    {
         ImGui::Begin("Window", nullptr,
-			ImGuiWindowFlags_NoScrollbar |
-			ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoCollapse |
-			ImGuiWindowFlags_NoSavedSettings |
-			ImGuiWindowFlags_NoScrollWithMouse);
-		ImGui::SetWindowPos({ 0, 0 });
-		ImGui::SetWindowSize({-1, -1 });
-    	
-		if (game_paused)
-		{
-			if (ImGui::Button(ICON_FA_PLAY))
-				game_paused = false;
-			tooltip("Play");			
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_FAST_FORWARD))
-				next_frame = true;
-			tooltip("Next Frame");			
-		}
-		else
-		{
-			if (ImGui::Button(ICON_FA_PAUSE))
-				game_paused = true;
-			tooltip("Pause");
-		}
-    	
-    	// Profiler
-    	ImGui::SameLine();
-    	if (ImGui::Button(ICON_FA_CHART_BAR))
-    		show_profiler = !show_profiler;
-    	tooltip("Profiler");
-    	
-		if (xs::get_run_mode() == run_mode::development)
-		{
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_SYNC_ALT) || xs::input::get_key_once(xs::input::KEY_F5))
-			{		
-				script::shutdown();
-				script::configure();
-				script::initialize();
-				if(!xs::script::has_error())
-					ok_timer = 4.0f;
-			}		
-			tooltip("Reload Game");
-    	
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_DATABASE))
-				show_registry = !show_registry;
-			tooltip("Data");
-    	
-			ImGui::SameLine();
-			if (ImGui::Button(ICON_FA_IMAGES))
-			{
-				auto reloaded = render::reload_images();	
-				next_frame = true;
-				if (reloaded == 0)
-					notify(notification_type::info, "No images reloaded", 3.0f);
-				else
-					notify(notification_type::success, to_string(reloaded) + " images reloaded", 3.0f);
-			}
-			tooltip("Reload Art");
-		}
-
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_ADJUST))
-		{
-			int t = (int)current_theme;
-			t = (t + 1) % 4;
-			new_theme = (theme)t;
-			data::set_number("theme", t, data::type::user);
-			data::save_of_type(data::type::user);
-		}
-		tooltip("Theme");
-    	
-    	ImGui::SameLine();
-    	if (toggle_button(ICON_FA_WINDOW_MAXIMIZE, always_on_top, "Always on Top"))
-    	{
-    		// Caller toggles platform state and persists the returned value
-    		always_on_top = device::toggle_on_top();
-    		data::set_bool("always_on_top", always_on_top, data::type::user);
-    		data::save_of_type(data::type::user);
-    	}
+                     ImGuiWindowFlags_NoScrollbar |
+                     ImGuiWindowFlags_NoTitleBar |
+                     ImGuiWindowFlags_NoResize |
+                     ImGuiWindowFlags_NoMove |
+                     ImGuiWindowFlags_NoCollapse |
+                     ImGuiWindowFlags_NoSavedSettings |
+                     ImGuiWindowFlags_NoScrollWithMouse);
+        ImGui::SetWindowPos({ 0, 0 });
+        ImGui::SetWindowSize({width, inspector::current_metrics.top_bar * ui_scale });
+        
+        if (game_paused)
+        {
+            if (ImGui::Button(ICON_FA_PLAY))
+                game_paused = false;
+            tooltip("Play");
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_FAST_FORWARD))
+                next_frame = true;
+            tooltip("Next Frame");
+        }
+        else
+        {
+            if (ImGui::Button(ICON_FA_PAUSE))
+                game_paused = true;
+            tooltip("Pause");
+        }
+        
+        // Profiler
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_FA_CHART_BAR))
+            show_profiler = !show_profiler;
+        tooltip("Profiler");
+        
+        if (xs::get_run_mode() == run_mode::development)
+        {
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_SYNC_ALT) || xs::input::get_key_once(xs::input::KEY_F5))
+            {
+                script::shutdown();
+                script::configure();
+                script::initialize();
+                if(!xs::script::has_error())
+                    ok_timer = 4.0f;
+            }
+            tooltip("Reload Game");
+            
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_DATABASE))
+                show_registry = !show_registry;
+            tooltip("Data");
+            
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_IMAGES))
+            {
+                auto reloaded = render::reload_images();
+                next_frame = true;
+                if (reloaded == 0)
+                    notify(notification_type::info, "No images reloaded", 3.0f);
+                else
+                    notify(notification_type::success, to_string(reloaded) + " images reloaded", 3.0f);
+            }
+            tooltip("Reload Art");
+        }
+        
+        ImGui::SameLine();
+        if (toggle_button(ICON_FA_WINDOW_MAXIMIZE, always_on_top, "Always on Top"))
+        {
+            // Caller toggles platform state and persists the returned value
+            always_on_top = device::toggle_on_top();
+            data::set_bool("always_on_top", always_on_top, data::type::user);
+            data::save_of_type(data::type::user);
+        }
 #if SHOW_IMGUI_DEMO
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_LIFE_RING))
-			show_demo = !show_demo;
-		tooltip("Demo Window");
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_FA_LIFE_RING))
+            show_demo = !show_demo;
+        tooltip("Demo Window");
 #endif
+        
+        // About
+        ImGui::SameLine();
+        if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
+            show_about = true;
+        tooltip("About");
+        
+        ImGui::SameLine();
+        if (xs::script::has_error())
+        {
+            game_paused = true;
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.33f, 0.33f, 1.0f));
+            if (ImGui::Button(ICON_FA_TIMES_CIRCLE))
+            {
+                xs::script::clear_error();
+                game_paused = false;
+            }
+            tooltip("Script Error! Check output.");
+            ImGui::PopStyleColor(1);
+        }
+        
+        if (xs::data::has_chages())
+        {
+            ImGui::SameLine();
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.745f, 0.000f, 0.949f, 1.000f));
+            if (ImGui::Button(ICON_FA_EXCLAMATION_TRIANGLE)) {
+                show_registry = true;
+            }
+            ImGui::PopStyleColor();
+            tooltip("Data has unsaved changes");
+        }
+        
+        ImGui::End();
+    }
+        
+    {	// Bottom stats
+        const auto& io = ImGui::GetIO();
+        ImGui::Begin("Stats", &true_that,
+                     ImGuiWindowFlags_NoScrollbar |
+                     ImGuiWindowFlags_NoTitleBar |
+                     ImGuiWindowFlags_NoResize |
+                     ImGuiWindowFlags_NoMove |
+                     ImGuiWindowFlags_NoCollapse |
+                     ImGuiWindowFlags_NoSavedSettings |
+                     ImGuiWindowFlags_NoScrollWithMouse);
+        ImGui::SetWindowPos({ 0, io.DisplaySize.y - current_metrics.bottom_bar * ui_scale });
+        ImGui::SetWindowSize({width, current_metrics.bottom_bar * ui_scale });
+        ImGui::PushFont(small_font);
+        
+        auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
+        auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
+        auto stats = render::get_stats();
+        auto draw_calls = to_string(stats.draw_calls);
+        auto sprites = to_string(stats.sprites);
+        auto textures =to_string(stats.textures);
 
-    	// About
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_FA_QUESTION_CIRCLE))
-			show_about = true;
-		tooltip("About");
-				
-		ImGui::SameLine();
-		if (xs::script::has_error())
-		{
-			game_paused = true;
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.33f, 0.33f, 1.0f));
-			if (ImGui::Button(ICON_FA_TIMES_CIRCLE))
-			{
-				xs::script::clear_error();
-				game_paused = false;
-			}
-			tooltip("Script Error! Check output.");
-			ImGui::PopStyleColor(1);
-		}
-
-		if (xs::data::has_chages()) {
-			ImGui::SameLine();
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.745f, 0.000f, 0.949f, 1.000f));
-			if (ImGui::Button(ICON_FA_EXCLAMATION_TRIANGLE)) {
-				show_registry = true;
-			}
-			ImGui::PopStyleColor();
-			tooltip("Data has unsaved changes");
-		}
-    	
-    	// Close inspector
-    	ImGui::SameLine();
-    	if (ImGui::Button(ICON_FA_CARET_LEFT))
-    	{
-    		show_inspector = false;
-    		data::set_bool("show_inspector", show_inspector, data::type::user);
-    		data::save_of_type(data::type::user);
-    	}
-    	tooltip("Close Inspector");
-    	
-		ImGui::End();		
-		
-		{	// Bottom stats
-			const auto& io = ImGui::GetIO();
-			ImGui::Begin("Stats", &true_that,
-						 ImGuiWindowFlags_NoScrollbar |
-						 ImGuiWindowFlags_NoTitleBar |
-						 ImGuiWindowFlags_NoResize |
-						 ImGuiWindowFlags_NoMove |
-						 ImGuiWindowFlags_NoCollapse |
-						 ImGuiWindowFlags_NoSavedSettings |
-						 ImGuiWindowFlags_NoScrollWithMouse);
-			ImGui::SetWindowPos({ 0, io.DisplaySize.y - ImGui::GetWindowHeight() });
-			ImGui::SetWindowSize({-1, -1 });
-			ImGui::PushFont(small_font);
-			
-			auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
-			auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
-			auto stats = render::get_stats();
-			auto draw_calls = to_string(stats.draw_calls);
-			auto sprites = to_string(stats.sprites);
-			auto textures =to_string(stats.textures);
-
-        	
-			auto path = fileio::absolute("[game]");
-			ImGui::Text("%sMB | %sDC | %sSP | %s | %s",
-						mem_str.c_str(),
-						draw_calls.c_str(),
-						sprites.c_str(),
-						version::get_version_string(false, true, true).c_str(),
-						path.c_str());
-						
-			ImGui::PopFont();
-			ImGui::End();
-		}
-	}
-	else
-	{
-		ImGui::Begin("Window", nullptr,
-			ImGuiWindowFlags_NoScrollbar |
-			ImGuiWindowFlags_NoTitleBar |
-			ImGuiWindowFlags_NoResize |
-			ImGuiWindowFlags_NoMove |
-			ImGuiWindowFlags_NoCollapse |
-			ImGuiWindowFlags_NoSavedSettings |
-			ImGuiWindowFlags_NoScrollWithMouse);
-		ImGui::SetWindowPos({ 0, 0 });
-		ImGui::SetWindowSize({-1, -1 });
-
-		// A small button to show the inspector
-		if (ImGui::Button(ICON_FA_CARET_SQUARE_RIGHT))
-		{
-			show_inspector = true;
-			data::set_bool("show_inspector", show_inspector, data::type::user);
-			data::save_of_type(data::type::user);
-		}
-		tooltip("Show Inspector");
-		
-		ImGui::End();		
+        auto path = fileio::absolute("[game]");
+        ImGui::Text("%sMB | %sDC | %sSP | %s | %s",
+                    mem_str.c_str(),
+                    draw_calls.c_str(),
+                    sprites.c_str(),
+                    version::get_version_string(false, true, true).c_str(),
+                    path.c_str());
+        ImGui::PopFont();
+        ImGui::End();
 	}
 	
 	{	// Notifications
@@ -457,7 +407,7 @@ void xs::inspector::render(double dt)
 			notifications.end());
 	}
 
-	pop_menu_theme();	
+	pop_menu_theme(current_theme);
 		
 	if (show_registry)
 	{
@@ -487,11 +437,13 @@ void xs::inspector::render(double dt)
 
 	ImGui_Impl_RenderDrawData(ImGui::GetDrawData());	
 
+    /*
 	if (new_theme != current_theme)
 	{
 		current_theme = new_theme;
 		apply_theme();
 	}
+    */
 }
 
 bool xs::inspector::paused()
@@ -523,24 +475,32 @@ void xs::inspector::clear_notification(int id)
 		notifications.end());
 }
 
-void xs::inspector::apply_theme()
+theme xs::inspector::get_theme()
 {
-	switch (current_theme)
+#if defined(EDITOR)
+    auto sdl_theme = SDL_GetSystemTheme();
+    switch (sdl_theme) {
+        case SDL_SYSTEM_THEME_LIGHT: return theme::light;
+        case SDL_SYSTEM_THEME_DARK: return theme::dark;
+        case SDL_SYSTEM_THEME_UNKNOWN: return theme::dark;
+    }
+#endif
+    return theme::dark;
+}
+
+void xs::inspector::apply_theme(theme t)
+{
+	switch (t)
 	{
-	case theme::acrylic:
-		see_through();
-		break;
 	case theme::dark:
 		embrace_the_darkness();
 		break;
 	case theme::light:
 		follow_the_light();
 		break;
-	case theme::gray:
-		go_gray();
-		break;
 	}
 	
+    /*
 	// Avoid cumulative growth when switching themes.
 	const float UIScale = (float)device::hdpi_scaling();
 	static float last_ui_scale = 1.0f; // preserved across calls
@@ -549,49 +509,41 @@ void xs::inspector::apply_theme()
 	if (scale_factor != 1.0f)
 		ImGui::GetStyle().ScaleAllSizes(scale_factor);
 	last_ui_scale = UIScale;
+    */
 }
 
-void xs::inspector::push_menu_theme()
+void xs::inspector::push_menu_theme(theme t)
 {
-	switch (current_theme)
+	switch (t)
 	{
-	case theme::acrylic:
-		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.31f, 0.31f, 0.31f, 0.31f));
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.23f, 0.23f, 0.23f, 0.00f));
+	case theme::dark:
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.00f));
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-		break;
-	case theme::dark:
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.00f));
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);		
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		break;
 	case theme::light:
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.00f));
-		break;
-	case theme::gray:
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.00f));
 		break;
 	}
 }
 
-void xs::inspector::pop_menu_theme()
+void xs::inspector::pop_menu_theme(theme t)
 {
-	switch (current_theme)
+	switch (t)
 	{
-	case theme::acrylic:
-		ImGui::PopStyleVar(1);
-		ImGui::PopStyleColor(2);
-		break;
 	case theme::dark:
-		ImGui::PopStyleVar(1);
 		ImGui::PopStyleColor(1);
+        ImGui::PopStyleVar(2);
 		break;
 	case theme::light:
 		ImGui::PopStyleColor(1);
 		break;
-	case theme::gray:
-		ImGui::PopStyleColor(1);
-		break;
 	}
+}
+
+metrics xs::inspector::get_metrics()
+{
+    return inspector::current_metrics;
 }
 
 static bool xs::inspector::toggle_button(const char* icon, bool state, const char* tip)
@@ -634,10 +586,27 @@ static bool xs::inspector::toggle_button(const char* icon, bool state, const cha
 
 void xs::inspector::embrace_the_darkness()
 {
+	// Try to get system colors for titlebar and window background
+	ImVec4 windowBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+	ImVec4 titleBg = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+	ImVec4 titleBgActive = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+	
+#if defined(PLATFORM_PC)
+	// Windows dark theme: slightly lighter dark gray
+	windowBg = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
+	titleBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+	titleBgActive = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+#elif defined(PLATFORM_APPLE)
+	// macOS dark theme: deeper blacks with subtle warmth
+	windowBg = ImVec4(0.133f, 0.133f, 0.180f, 1.00f);
+    titleBg = ImVec4(0.133f, 0.133f, 0.180f, 1.00f);
+	titleBgActive = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
+#endif
+
 	ImVec4* colors = ImGui::GetStyle().Colors;
 	colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 	colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-	colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+	colors[ImGuiCol_WindowBg] = windowBg;
 	colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 	colors[ImGuiCol_PopupBg] = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
 	colors[ImGuiCol_Border] = ImVec4(0.19f, 0.19f, 0.19f, 0.29f);
@@ -645,8 +614,8 @@ void xs::inspector::embrace_the_darkness()
 	colors[ImGuiCol_FrameBg] = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
 	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
 	colors[ImGuiCol_FrameBgActive] = ImVec4(0.34f, 0.34f, 0.34f, 1.00f);
-	colors[ImGuiCol_TitleBg] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-	colors[ImGuiCol_TitleBgActive] = ImVec4(0.06f, 0.06f, 0.06f, 1.00f);
+	colors[ImGuiCol_TitleBg] = titleBg;
+	colors[ImGuiCol_TitleBgActive] = titleBgActive;
 	colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
 	colors[ImGuiCol_MenuBarBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
 	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
@@ -716,10 +685,27 @@ void xs::inspector::embrace_the_darkness()
 
 void xs::inspector::follow_the_light()
 {
+	// Try to get system colors for titlebar and window background
+	ImVec4 windowBg = ImVec4(0.94f, 0.94f, 0.94f, 1.00f);
+	ImVec4 titleBg = ImVec4(0.96f, 0.96f, 0.96f, 1.00f);
+	ImVec4 titleBgActive = ImVec4(0.82f, 0.82f, 0.82f, 1.00f);
+	
+#if defined(PLATFORM_PC)
+	// Windows light theme: lighter gray for inactive, slightly darker for active
+	windowBg = ImVec4(0.98f, 0.98f, 0.98f, 1.00f);
+	titleBg = ImVec4(0.98f, 0.98f, 0.98f, 1.00f);
+	titleBgActive = ImVec4(0.95f, 0.95f, 0.95f, 1.00f);
+#elif defined(PLATFORM_APPLE)
+	// macOS light theme: very light gray, almost white
+	windowBg = ImVec4(1.0f, 1.0f, 1.0f, 1.00f);
+	titleBg = ImVec4(0.98f, 0.98f, 0.98f, 1.00f);
+	titleBgActive = ImVec4(0.96f, 0.96f, 0.96f, 1.00f);
+#endif
+
 	ImVec4* colors = ImGui::GetStyle().Colors;
 	colors[ImGuiCol_Text] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
 	colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
-	colors[ImGuiCol_WindowBg] = ImVec4(0.94f, 0.94f, 0.94f, 1.00f);
+	colors[ImGuiCol_WindowBg] = windowBg;
 	colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 	colors[ImGuiCol_PopupBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.98f);
 	colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.30f);
@@ -727,8 +713,8 @@ void xs::inspector::follow_the_light()
 	colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
 	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
 	colors[ImGuiCol_FrameBgActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
-	colors[ImGuiCol_TitleBg] = ImVec4(0.96f, 0.96f, 0.96f, 1.00f);
-	colors[ImGuiCol_TitleBgActive] = ImVec4(0.82f, 0.82f, 0.82f, 1.00f);
+	colors[ImGuiCol_TitleBg] = titleBg;
+	colors[ImGuiCol_TitleBgActive] = titleBgActive;
 	colors[ImGuiCol_TitleBgCollapsed] = ImVec4(1.00f, 1.00f, 1.00f, 0.51f);
 	colors[ImGuiCol_MenuBarBg] = ImVec4(0.86f, 0.86f, 0.86f, 1.00f);
 	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.98f, 0.98f, 0.98f, 0.53f);
@@ -776,179 +762,10 @@ void xs::inspector::follow_the_light()
 	style.IndentSpacing = 25;
 	style.ScrollbarSize = 10;
 	style.GrabMinSize = 10;
-	style.WindowBorderSize = 1;
+	style.WindowBorderSize = 0;
 	style.ChildBorderSize = 0;
 	style.PopupBorderSize = 0;
 	style.FrameBorderSize = 0;
-	style.TabBorderSize = 1;
-	style.WindowRounding = 7;
-	style.ChildRounding = 4;
-	style.FrameRounding = 3;
-	style.PopupRounding = 4;
-	style.ScrollbarRounding = 9;
-	style.GrabRounding = 3;
-	style.LogSliderDeadzone = 4;
-	style.TabRounding = 4;
-	style.FrameBorderSize = 0;
-}
-
-void xs::inspector::go_gray()
-{
-	ImVec4* colors = ImGui::GetStyle().Colors;
-	colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-	colors[ImGuiCol_WindowBg] = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
-	colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	colors[ImGuiCol_PopupBg] = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
-	colors[ImGuiCol_Border] = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
-	colors[ImGuiCol_BorderShadow] = ImVec4(0.24f, 0.24f, 0.24f, 0.00f);
-	colors[ImGuiCol_FrameBg] = ImVec4(0.54f, 0.54f, 0.54f, 1.00f);
-	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.26f, 0.26f, 0.54f);
-	colors[ImGuiCol_FrameBgActive] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-	colors[ImGuiCol_TitleBg] = ImVec4(0.22f, 0.22f, 0.22f, 1.00f);
-	colors[ImGuiCol_TitleBgActive] = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
-	colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.41f, 0.41f, 0.41f, 1.00f);
-	colors[ImGuiCol_MenuBarBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-	colors[ImGuiCol_ScrollbarBg] = ImVec4(0.22f, 0.22f, 0.22f, 0.54f);
-	colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.34f, 0.34f, 0.34f, 0.54f);
-	colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
-	colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_CheckMark] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_SliderGrab] = ImVec4(0.34f, 0.34f, 0.34f, 0.54f);
-	colors[ImGuiCol_SliderGrabActive] = ImVec4(0.56f, 0.56f, 0.56f, 0.54f);
-	colors[ImGuiCol_Button] = ImVec4(0.23f, 0.23f, 0.23f, 1.00f);
-	colors[ImGuiCol_ButtonHovered] = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
-	colors[ImGuiCol_ButtonActive] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-	colors[ImGuiCol_Header] = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-	colors[ImGuiCol_HeaderHovered] = ImVec4(0.63f, 0.63f, 0.63f, 1.00f);
-	colors[ImGuiCol_HeaderActive] = ImVec4(0.20f, 0.22f, 0.23f, 0.33f);
-	colors[ImGuiCol_Separator] = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
-	colors[ImGuiCol_SeparatorHovered] = ImVec4(0.44f, 0.44f, 0.44f, 0.29f);
-	colors[ImGuiCol_SeparatorActive] = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
-	colors[ImGuiCol_ResizeGrip] = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
-	colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.44f, 0.44f, 0.44f, 0.29f);
-	colors[ImGuiCol_ResizeGripActive] = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
-	colors[ImGuiCol_Tab] = ImVec4(0.00f, 0.00f, 0.00f, 0.10f);
-	colors[ImGuiCol_TabHovered] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-	colors[ImGuiCol_TabActive] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-	colors[ImGuiCol_TabUnfocused] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-	colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-	colors[ImGuiCol_PlotLines] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-	colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-	colors[ImGuiCol_PlotHistogram] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-	colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-	colors[ImGuiCol_TableHeaderBg] = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
-	colors[ImGuiCol_TableBorderStrong] = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
-	colors[ImGuiCol_TableBorderLight] = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
-	colors[ImGuiCol_TableRowBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	colors[ImGuiCol_TableRowBgAlt] = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
-	colors[ImGuiCol_TextSelectedBg] = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
-	colors[ImGuiCol_DragDropTarget] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-	colors[ImGuiCol_NavHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
-	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
-	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.50f, 0.50f, 0.50f, 0.5f);
-
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.WindowPadding = ImVec2(8.00f, 8.00f);
-	style.FramePadding = ImVec2(5.00f, 2.00f);
-	style.ItemSpacing = ImVec2(6.00f, 6.00f);
-	style.ItemInnerSpacing = ImVec2(6.00f, 6.00f);
-	style.TouchExtraPadding = ImVec2(0.00f, 0.00f);
-	style.IndentSpacing = 25;
-	style.ScrollbarSize = 10;
-	style.GrabMinSize = 10;
-	style.WindowBorderSize = 1;
-	style.ChildBorderSize = 0;
-	style.PopupBorderSize = 0;
-	style.FrameBorderSize = 0;
-	style.TabBorderSize = 1;
-	style.WindowRounding = 7;
-	style.ChildRounding = 4;
-	style.FrameRounding = 3;
-	style.PopupRounding = 4;
-	style.ScrollbarRounding = 9;
-	style.GrabRounding = 3;
-	style.LogSliderDeadzone = 4;
-	style.TabRounding = 4;
-	style.FrameBorderSize = 0;
-}
-
-void xs::inspector::see_through()
-{
-	ImVec4* colors = ImGui::GetStyle().Colors;
-	colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-	colors[ImGuiCol_WindowBg]               = ImVec4(0.10f, 0.10f, 0.10f, 0.86f);
-	colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	colors[ImGuiCol_PopupBg]                = ImVec4(0.19f, 0.19f, 0.19f, 1.00f);
-	colors[ImGuiCol_Border]                 = ImVec4(0.19f, 0.19f, 0.19f, 0.29f);
-	colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	colors[ImGuiCol_FrameBg]                = ImVec4(0.08f, 0.08f, 0.08f, 0.75f);
-	colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.43f, 0.43f, 0.43f, 0.67f);
-	colors[ImGuiCol_FrameBgActive]          = ImVec4(0.34f, 0.34f, 0.34f, 1.00f);
-	colors[ImGuiCol_TitleBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.45f);
-	colors[ImGuiCol_TitleBgActive]          = ImVec4(0.00f, 0.00f, 0.00f, 0.45f);
-	colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 0.10f);
-	colors[ImGuiCol_MenuBarBg]              = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
-	colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.34f, 0.34f, 0.34f, 0.54f);
-	colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.40f, 0.40f, 0.40f, 0.54f);
-	colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.56f, 0.56f, 0.56f, 0.54f);
-	colors[ImGuiCol_CheckMark]              = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_SliderGrab]             = ImVec4(1.00f, 1.00f, 1.00f, 0.56f);
-	colors[ImGuiCol_SliderGrabActive]       = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-	colors[ImGuiCol_Button]                 = ImVec4(0.08f, 0.08f, 0.08f, 1.00f);
-	colors[ImGuiCol_ButtonHovered]          = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-	colors[ImGuiCol_ButtonActive]           = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
-	colors[ImGuiCol_Header]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
-	colors[ImGuiCol_HeaderHovered]          = ImVec4(0.00f, 0.00f, 0.00f, 0.36f);
-	colors[ImGuiCol_HeaderActive]           = ImVec4(0.20f, 0.22f, 0.23f, 0.33f);
-	colors[ImGuiCol_Separator]              = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
-	colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.44f, 0.44f, 0.44f, 0.29f);
-	colors[ImGuiCol_SeparatorActive]        = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
-	colors[ImGuiCol_ResizeGrip]             = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
-	colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.68f, 0.68f, 0.68f, 1.00f);
-	colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
-	colors[ImGuiCol_TabHovered]             = ImVec4(0.40f, 0.40f, 0.40f, 1.00f);
-	colors[ImGuiCol_Tab]                    = ImVec4(0.40f, 0.40f, 0.40f, 0.22f);
-	colors[ImGuiCol_TabSelected]            = ImVec4(0.32f, 0.32f, 0.32f, 1.00f);
-	colors[ImGuiCol_TabSelectedOverline]    = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-	colors[ImGuiCol_TabDimmed]              = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-	colors[ImGuiCol_TabDimmedSelected]      = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-	colors[ImGuiCol_TabDimmedSelectedOverline]  = ImVec4(0.50f, 0.50f, 0.50f, 0.00f);
-	colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-	colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-	colors[ImGuiCol_PlotHistogram]          = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-	colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-	colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
-	colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
-	colors[ImGuiCol_TableBorderLight]       = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
-	colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
-	colors[ImGuiCol_TextLink]               = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-	colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
-	colors[ImGuiCol_DragDropTarget]         = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-	colors[ImGuiCol_NavCursor]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-	colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
-	colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
-	colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(1.00f, 1.00f, 1.00f, 0.40f);
-
-
-
-	ImGuiStyle& style = ImGui::GetStyle();
-	style.WindowPadding = ImVec2(8.00f, 8.00f);
-	style.FramePadding = ImVec2(5.00f, 2.00f);
-	style.ItemSpacing = ImVec2(6.00f, 6.00f);
-	style.ItemInnerSpacing = ImVec2(6.00f, 6.00f);
-	style.TouchExtraPadding = ImVec2(0.00f, 0.00f);
-	style.IndentSpacing = 25;
-	style.ScrollbarSize = 15;
-	style.GrabMinSize = 10;
-	style.WindowBorderSize = 1;
-	style.ChildBorderSize = 1;
-	style.PopupBorderSize = 1;
-	style.FrameBorderSize = 1;
 	style.TabBorderSize = 1;
 	style.WindowRounding = 7;
 	style.ChildRounding = 4;
@@ -970,5 +787,6 @@ bool xs::inspector::paused() { return false; }
 bool xs::inspector::should_restart() { return false; }
 int xs::inspector::notify(notification_type type, const std::string& message, float time) { return 0; }
 void xs::inspector::clear_notification(int id) {}
-
+theme xs::inspector::get_theme() { return theme::dark; }
+metrics xs::inspector::get_metrics() { return {0.0f, 0.0f}; }
 #endif

@@ -40,8 +40,9 @@ typedef struct
 
 typedef enum input_index
 {
-    index_vertices  = 0,
-    index_wvp       = 1,
+    index_vertices = 0,
+    index_wvp = 1,
+    index_resolution = 2
 } input_index;
 
 typedef enum input_texture_index

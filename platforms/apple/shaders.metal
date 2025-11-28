@@ -92,12 +92,14 @@ struct screen_to_fragment
 
 vertex screen_to_fragment vertex_shader_screen(
     uint vertexID [[vertex_id]],
+    constant vec2* p_resolution [[buffer(index_resolution)]],
     constant screen_vtx_format* vertices [[buffer(index_vertices)]])
 {
+    vec2 res = vec2(*p_resolution);
     screen_to_fragment stf;
     stf.position = float4(0.0, 0.0, 0.0, 1.0);
-    stf.position.x = vertices[vertexID].position.x;
-    stf.position.y = vertices[vertexID].position.y;
+    stf.position.x = (vertices[vertexID].position.x / res.x) - 1.0;
+    stf.position.y = (vertices[vertexID].position.y / res.y) - 1.0;
     stf.texture = vertices[vertexID].texcoord;
     return stf;
 }
