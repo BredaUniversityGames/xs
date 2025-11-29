@@ -1,4 +1,5 @@
 #include "xs.hpp"
+#include "defines.hpp"
 #include "fileio.hpp"
 #include "device.hpp"
 #include "input.hpp"
@@ -210,12 +211,14 @@ int xs::main(const std::string& game_path)
 	auto prev_time = chrono::high_resolution_clock::now();
 	while (!device::should_close())
 	{
+		XS_AUTORELEASE_POOL_BEGIN
 		auto current_time = chrono::high_resolution_clock::now();
 		auto elapsed = current_time - prev_time;
 		prev_time = current_time;
 		auto dt = std::chrono::duration<double>(elapsed).count();
 		dt = std::min(dt, 0.03333);
 		xs::update((float)dt);
+		XS_AUTORELEASE_POOL_END
 	}
 	xs::shutdown();
 	return 0;

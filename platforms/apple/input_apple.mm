@@ -41,25 +41,27 @@ void xs::input::shutdown()
 
 void xs::input::update(double dt)
 {
+    @autoreleasepool {
     auto controllers = [GCController controllers];
-    
+
     if(gamepad)
         gamepad_prev_frame = gamepad.capture;
-    
+
     gamepad = nil;
     if(controllers.count > 0)
     {
         GCController* controller = controllers[0];
         gamepad = controller.extendedGamepad.capture;
     }
-    
+
     if(keyboard)
         keyboard_prev_frame = keyboard.capture;
-    
+
     keyboard = nil;
     auto ckeyboard = [GCKeyboard coalescedKeyboard];
     if(ckeyboard != nil)
         keyboard = ckeyboard.keyboardInput.capture;
+    }
 }
 
 double xs::input::get_axis(gamepad_axis axis)

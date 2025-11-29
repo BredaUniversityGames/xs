@@ -134,36 +134,40 @@ void device::shutdown()
 
 void device::begin_frame()
 {
+    @autoreleasepool {
     // Create the command buffer for this frame
     internal::command_buffer = [internal::command_queue commandBuffer];
     internal::command_buffer.label = @"xs frame command buffer";
-    
+
     // Acquire the drawable early so it's available for the frame
     CAMetalLayer* metal_layer = (__bridge CAMetalLayer*)SDL_Metal_GetLayer(internal::metal_view);
     internal::current_drawable = [metal_layer nextDrawable];
+    }
 }
 
 void device::end_frame()
 {
+    @autoreleasepool {
     XS_PROFILE_FUNCTION();
-    
+
     // End the render encoder if active
     if (internal::render_encoder)
     {
         [internal::render_encoder endEncoding];
         internal::render_encoder = nil;
     }
-    
+
     // Present and commit
     if (internal::current_drawable && internal::command_buffer)
     {
         [internal::command_buffer presentDrawable:internal::current_drawable];
         [internal::command_buffer commit];
     }
-    
+
     // Reset for next frame
     internal::command_buffer = nil;
     internal::current_drawable = nil;
+    }
 }
 
 void device::poll_events()

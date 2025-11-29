@@ -205,6 +205,31 @@ void xs::inspector::render(double dt)
 	push_menu_theme(current_theme);
     float width = device::get_width();
 	
+    {   // Game frame
+        const float frame_rounding = 18.0f;
+        const float frame_thickness = frame_rounding;
+        const float top_bar_height = inspector::current_metrics.top_bar * ui_scale;
+        const float bottom_bar_height = inspector::current_metrics.bottom_bar * ui_scale;
+        
+        // Draw the rounded frame border behind all UI
+        ImDrawList* draw_list = ImGui::GetBackgroundDrawList();
+        
+        const float game_height = io.DisplaySize.y - top_bar_height - bottom_bar_height;
+        const float half_thickness = frame_thickness * 0.5f;
+        
+        // Frame rectangle centered on the border line
+        ImVec2 frame_min = ImVec2(-half_thickness, top_bar_height - half_thickness);
+        ImVec2 frame_max = ImVec2(width + half_thickness, top_bar_height + game_height + half_thickness);
+        
+        // Use the window background color from the current theme
+        ImVec4 bg_color = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
+        ImU32 frame_color = ImGui::ColorConvertFloat4ToU32(bg_color);
+        
+        // Draw the rounded rect path with stroke
+        draw_list->PathRect(frame_min, frame_max, frame_rounding);
+        draw_list->PathStroke(frame_color, ImDrawFlags_Closed, frame_thickness);
+    }
+    
     {
         ImGui::Begin("Window", nullptr,
                      ImGuiWindowFlags_NoScrollbar |
@@ -598,8 +623,8 @@ void xs::inspector::embrace_the_darkness()
 	titleBgActive = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
 #elif defined(PLATFORM_APPLE)
 	// macOS dark theme: deeper blacks with subtle warmth
-	windowBg = ImVec4(0.133f, 0.133f, 0.180f, 1.00f);
-    titleBg = ImVec4(0.133f, 0.133f, 0.180f, 1.00f);
+    windowBg = ImColor(35, 34, 48, 255);
+    titleBg = windowBg;
 	titleBgActive = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
 #endif
 

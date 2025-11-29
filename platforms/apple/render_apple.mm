@@ -190,8 +190,9 @@ void xs::render::shutdown()
 
 void xs::render::render()
 {
+    @autoreleasepool {
     XS_PROFILE_SECTION("xs::render::render");
-        
+
     // MTKView* view = device::internal::get_view();
 
     auto w = configuration::width() * 0.5f;
@@ -425,12 +426,12 @@ void xs::render::render()
             vec2 fr(0.0f, metrics.bottom_bar);
             vec2 to(cw, ch + metrics.bottom_bar);
             //                Positions      , Texture coordinates
-            quadVertices[0] = { { to.x, to.y },  { 1.0, 1.0 } };
-            quadVertices[1] = { { fr.x, to.y },  { 0.0, 1.0 } };
-            quadVertices[2] = { { fr.x, fr.y },  { 0.0, 0.0 } };
-            quadVertices[3] = { { to.x, to.y },  { 1.0, 1.0 } };
-            quadVertices[4] = { { fr.x, fr.y },  { 0.0, 0.0 } };
-            quadVertices[5] = { { to.x, fr.y },  { 1.0, 0.0 } };
+            quadVertices[0] = { { to.x, to.y },  { 1.0, 0.0 } };
+            quadVertices[1] = { { fr.x, to.y },  { 0.0, 0.0 } };
+            quadVertices[2] = { { fr.x, fr.y },  { 0.0, 1.0 } };
+            quadVertices[3] = { { to.x, to.y },  { 1.0, 0.0 } };
+            quadVertices[4] = { { fr.x, fr.y },  { 0.0, 1.0 } };
+            quadVertices[5] = { { to.x, fr.y },  { 1.0, 1.0 } };
         }
                 
         
@@ -454,6 +455,7 @@ void xs::render::render()
         // end_frame() will call endEncoding
         device::internal::set_render_encoder(screen_encoder);
     }
+    } // @autoreleasepool
 }
 
 void xs::render::clear()
@@ -465,6 +467,7 @@ void xs::render::create_texture_with_data(
     xs::render::image& img,
     uchar* data)
 {
+    @autoreleasepool {
     MTLTextureDescriptor* texture_descriptor = [[MTLTextureDescriptor alloc] init];
     texture_descriptor.pixelFormat = MTLPixelFormatRGBA8Uint;   // 0-255 RGBA
     //texture_descriptor.pixelFormat = MTLPixelFormatRGBA8;     // 0-255 RGBA
@@ -473,17 +476,18 @@ void xs::render::create_texture_with_data(
     texture_descriptor.usage = MTLTextureUsageShaderRead;
     texture_descriptor.storageMode = MTLStorageModeShared;
     img.texture = [_device newTextureWithDescriptor:texture_descriptor];
-    
+
     MTLRegion region = {
         { 0, 0, 0 },                                                // MTLOrigin
         {texture_descriptor.width, texture_descriptor.height, 1}    // MTLSize
     };
-    
+
     [img.texture
      replaceRegion:region
      mipmapLevel:0
      withBytes:data
      bytesPerRow:texture_descriptor.width * 4];
+    }
 }
 
 // TODO: Deprecated
