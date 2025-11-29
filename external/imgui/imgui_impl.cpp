@@ -134,16 +134,17 @@ void ImGui_Impl_Shutdown()
 
 void ImGui_Impl_NewFrame()
 {
+    @autoreleasepool {
     // SDL3 backend sets DisplaySize from the window - always call this
     ImGui_ImplSDL3_NewFrame();
-    
+
     // Get the current drawable - it was acquired in begin_frame()
     id<CAMetalDrawable> drawable = device::internal::get_current_drawable();
-    
+
     // Create a render pass descriptor for ImGui Metal backend
     // This is required for ImGui to know the framebuffer format
     MTLRenderPassDescriptor* rpd = [MTLRenderPassDescriptor renderPassDescriptor];
-    
+
     if (drawable)
     {
         rpd.colorAttachments[0].texture = drawable.texture;
@@ -160,11 +161,12 @@ void ImGui_Impl_NewFrame()
         texDesc.usage = MTLTextureUsageRenderTarget;
         rpd.colorAttachments[0].texture = [device::internal::get_device() newTextureWithDescriptor:texDesc];
     }
-    
+
     rpd.colorAttachments[0].loadAction = MTLLoadActionLoad;
     rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
-    
+
     ImGui_ImplMetal_NewFrame(rpd);
+    }
 }
 
 void ImGui_Impl_RenderDrawData(ImDrawData* draw_data)
