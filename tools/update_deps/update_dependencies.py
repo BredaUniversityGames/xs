@@ -11,6 +11,10 @@ import subprocess
 import platform
 import asyncio
 import logging
+import tempfile
+import urllib.request
+import zipfile
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -817,8 +821,10 @@ def copy_sdl3_from_dmg(progress_callback=None) -> Tuple[bool, str]:
             if source_framework:
                 headers_src = source_framework / "Headers"
                 if headers_src.exists():
-                    logger.info("Copying shared SDL3 headers")
-                    shutil.copytree(headers_src, inc_dest, dirs_exist_ok=True)
+                    logger.info("Copying shared SDL3 headers to inc/SDL3/")
+                    # Create SDL3 subdirectory to match expected include structure
+                    sdl3_inc = inc_dest / "SDL3"
+                    shutil.copytree(headers_src, sdl3_inc, dirs_exist_ok=True)
 
             if progress_callback:
                 progress_callback("Copying libraries...")
@@ -864,9 +870,147 @@ def copy_sdl3_from_dmg(progress_callback=None) -> Tuple[bool, str]:
             logger.error(f"Error copying SDL3 on macOS: {str(e)}")
             return False, f"Error copying SDL3: {e}"
 
+    elif plat == "Windows":
+        logger.info("Platform: Windows - downloading SDL3 VC libraries")
+
+        temp_dir = None
+        try:
+            if progress_callback:
+                progress_callback("Fetching latest SDL3 release info...")
+
+            # Get latest release info from GitHub API
+            logger.info("Fetching latest SDL3 release from GitHub...")
+            api_url = "https://api.github.com/repos/libsdl-org/SDL/releases/latest"
+
+            with urllib.request.urlopen(api_url) as response:
+                release_data = json.loads(response.read().decode())
+
+            release_tag = release_data['tag_name']
+            logger.info(f"Latest SDL3 release: {release_tag}")
+
+            # Find the VC download URL
+            vc_asset = None
+            for asset in release_data['assets']:
+                if asset['name'].endswith('-VC.zip'):
+                    vc_asset = asset
+                    break
+
+            if not vc_asset:
+                logger.error("Could not find SDL3-VC.zip in latest release")
+                return False, "Could not find SDL3-VC.zip in latest release"
+
+            download_url = vc_asset['browser_download_url']
+            asset_name = vc_asset['name']
+            logger.info(f"Download URL: {download_url}")
+
+            # Create temporary directory
+            temp_dir = Path(tempfile.mkdtemp(prefix="sdl3_update_"))
+            logger.info(f"Created temp directory: {temp_dir}")
+
+            # Download the file
+            zip_path = temp_dir / asset_name
+            logger.info(f"Downloading {asset_name}...")
+            if progress_callback:
+                progress_callback(f"Downloading {asset_name}...")
+
+            def download_progress(block_num, block_size, total_size):
+                if total_size > 0:
+                    percent = min(100, (block_num * block_size * 100) // total_size)
+                    if progress_callback and percent % 10 == 0:
+                        progress_callback(f"Downloading... {percent}%")
+
+            urllib.request.urlretrieve(download_url, zip_path, reporthook=download_progress)
+            logger.info(f"Downloaded to {zip_path}")
+
+            # Extract the zip
+            if progress_callback:
+                progress_callback("Extracting archive...")
+            logger.info("Extracting SDL3-VC.zip...")
+
+            extract_dir = temp_dir / "extracted"
+            extract_dir.mkdir(exist_ok=True)
+
+            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+                zip_ref.extractall(extract_dir)
+
+            # Find the SDL3 folder (should be SDL3-{version} or similar)
+            sdl_source = None
+            for item in extract_dir.iterdir():
+                if item.is_dir() and (item / "include" / "SDL3").exists():
+                    sdl_source = item
+                    logger.info(f"Found SDL3 at {item}")
+                    break
+
+            if not sdl_source:
+                logger.error("Could not find SDL3 folder in extracted archive")
+                return False, "Could not find SDL3 folder in extracted archive"
+
+            # Now copy the files
+            if progress_callback:
+                progress_callback("Installing SDL3...")
+
+            sdl_dest = repo_root / "external" / "sdl3"
+            inc_dest = sdl_dest / "inc"
+            lib_dest = sdl_dest / "lib" / "win"
+
+            # Create directories
+            sdl_dest.mkdir(parents=True, exist_ok=True)
+            inc_dest.mkdir(parents=True, exist_ok=True)
+            lib_dest.mkdir(parents=True, exist_ok=True)
+
+            # Copy LICENSE
+            license_src = sdl_source / "LICENSE.txt"
+            if license_src.exists():
+                logger.info("Copying LICENSE.txt")
+                shutil.copy2(license_src, sdl_dest / "LICENSE.txt")
+
+            # Copy headers
+            headers_src = sdl_source / "include" / "SDL3"
+            if headers_src.exists():
+                logger.info("Copying SDL3 headers to inc/SDL3/")
+                if progress_callback:
+                    progress_callback("Copying headers...")
+                # Create SDL3 subdirectory and copy headers
+                sdl3_inc = inc_dest / "SDL3"
+                sdl3_inc.mkdir(parents=True, exist_ok=True)
+                for header_file in headers_src.glob("*.h"):
+                    shutil.copy2(header_file, sdl3_inc / header_file.name)
+
+            # Copy x64 libraries
+            lib_x64_src = sdl_source / "lib" / "x64"
+            if lib_x64_src.exists():
+                logger.info("Copying x64 libraries to lib/win/")
+                if progress_callback:
+                    progress_callback("Copying libraries...")
+                for lib_file in lib_x64_src.iterdir():
+                    if lib_file.is_file():
+                        shutil.copy2(lib_file, lib_dest / lib_file.name)
+
+            if progress_callback:
+                progress_callback("Complete")
+
+            logger.info(f"Successfully installed SDL3 {release_tag} for Windows")
+            return True, f"Successfully installed SDL3 {release_tag}"
+
+        except urllib.error.URLError as e:
+            logger.error(f"Network error downloading SDL3: {str(e)}")
+            return False, f"Network error: {e}"
+        except Exception as e:
+            logger.error(f"Error installing SDL3 on Windows: {str(e)}")
+            return False, f"Error installing SDL3: {e}"
+        finally:
+            # Clean up temporary directory
+            if temp_dir and temp_dir.exists():
+                logger.info(f"Cleaning up temp directory: {temp_dir}")
+                try:
+                    shutil.rmtree(temp_dir)
+                    logger.info("Temp directory cleaned up")
+                except Exception as e:
+                    logger.warning(f"Could not clean up temp directory: {e}")
+
     else:
-        logger.error(f"SDL3 auto-copy only supported on macOS (platform: {plat})")
-        return False, "SDL3 auto-copy only supported on macOS. On Windows, manually extract to external/sdl3/"
+        logger.error(f"SDL3 auto-copy not supported on {plat}")
+        return False, f"SDL3 auto-copy not supported on {plat}"
 
 
 def build_freetype_from_source(progress_callback=None) -> Tuple[bool, str]:

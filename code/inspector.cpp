@@ -24,7 +24,7 @@
 
 #if defined(EDITOR)
 #include "dialogs/portable-file-dialogs.h"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #endif
 
 #if defined(PLATFORM_PC)
@@ -203,7 +203,7 @@ void xs::inspector::render(double dt)
     auto current_theme = get_theme();
 	restart_flag = false;
 	push_menu_theme(current_theme);
-    float width = device::get_width();
+    float width = (float)device::get_width();
 	
     {   // Game frame
         const float frame_rounding = 18.0f;
