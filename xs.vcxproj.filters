@@ -70,19 +70,7 @@
     <ClCompile Include="external\imgui\imgui_widgets.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\imgui\implot_items.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\imgui\implot.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\imgui\implot_demo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="external\imgui\imgui_tables.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\imgui\misc\cpp\imgui_stdlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="external\miniz\src\miniz.c">
@@ -205,6 +193,24 @@
     <ClCompile Include="platforms\pc\code\main_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="external\implot\implot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\implot\implot_demo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\implot\implot_items.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\imgui_stdlib.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\imgui\misc\freetype\imgui_freetype.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\fluent_glyph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\wren\optional\wren_opt_meta.h">
@@ -292,9 +298,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\fmod\fmod_studio_common.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\imgui\misc\cpp\imgui_stdlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\miniz\include\miniz\miniz.h">
@@ -406,6 +409,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="platforms\prospero\code\platform_ps5.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\platform.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\imgui\imgui_stdlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

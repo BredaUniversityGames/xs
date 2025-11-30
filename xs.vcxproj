@@ -324,6 +324,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\account.hpp" />
+    <ClInclude Include="code\fluent_glyph.hpp" />
     <ClInclude Include="code\platform.hpp" />
     <ClInclude Include="external\imgui\imconfig.h" />
     <ClInclude Include="external\imgui\imgui.h" />

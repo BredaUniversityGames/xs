@@ -44,6 +44,7 @@
 #include "tools.hpp"
 #include "device.hpp"
 #include "profiler.hpp"
+#include "inspector.hpp"
 
 #define XS_DEBUG_EXTENTS 0
 #define XS_QUANTIZED_HASHING 1
@@ -390,19 +391,19 @@ void xs::render::render()
 		GL_COLOR_BUFFER_BIT,
 		GL_NEAREST);
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-		
-	// Blit the render_fbo to the screen (in the middle of the screen)
-	const auto& screen_to_game = xs::configuration::get_scale_to_game(
-		xs::device::get_width(),
-		xs::device::get_height());
+
+	// Blit the render_fbo to the screen, positioned to avoid inspector panels
+	auto frame = xs::inspector::get_frame();
+	int game_width = xs::configuration::width() * xs::configuration::multiplier();
+	int game_height = xs::configuration::height() * xs::configuration::multiplier();
 	glBlitNamedFramebuffer(
 		render_fbo,
 		0,
 		0, 0, width, height,
-		screen_to_game.xmin,
-		screen_to_game.ymin,
-		screen_to_game.xmax,
-		screen_to_game.ymax,
+		0,
+		(int)frame.bottom_bar,
+		game_width,
+		game_height + (int)frame.bottom_bar,
 		GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
 	// Bind the default framebuffer for the editor
