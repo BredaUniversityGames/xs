@@ -15,8 +15,7 @@ namespace xs::data
 
 	void initialize();
 	void shutdown();
-	inline void clear() { /* TODO: Implement this */ }
-	void inspect(bool& show);	
+	void inspect_at(bool& show, int x, int y, int w, int h);
 	bool has_chages();
 
 	double get_number(const std::string& name, type type);

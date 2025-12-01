@@ -422,9 +422,9 @@ void xs::render::render()
             //vec2 fr(-1.0f, -0.7);
             //vec2 to(1.0f, 1.0f);
             
-            auto metrics = inspector::get_metrics();
-            vec2 fr(0.0f, metrics.bottom_bar);
-            vec2 to(cw, ch + metrics.bottom_bar);
+            auto frame = inspector::get_frame();
+            vec2 fr(0.0f, frame.bottom_bar);
+            vec2 to(cw, ch + frame.bottom_bar);
             //                Positions      , Texture coordinates
             quadVertices[0] = { { to.x, to.y },  { 1.0, 0.0 } };
             quadVertices[1] = { { fr.x, to.y },  { 0.0, 0.0 } };

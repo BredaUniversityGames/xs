@@ -7,16 +7,16 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(SolutionDir)external/steam;$(SolutionDir)platforms\pc\external\SDL3\include;$(SolutionDir)platforms\pc\code;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external/steam;$(SolutionDir)external\sdl3\inc;$(SolutionDir)platforms\pc\code;C:\Program Files (x86)\Visual Leak Detector\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>IMGUI_ENABLE_FREETYPE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\Program Files (x86)\Visual Leak Detector\lib\Win64;$(SolutionDir)platforms\pc\external\SDL3\lib\x64;$(SolutionDir)platforms\pc\external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files (x86)\Visual Leak Detector\lib\Win64;$(SolutionDir)external\sdl3\lib\win;$(SolutionDir)platforms\pc\external;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL3.lib;opengl32.lib;fmod/lib/win/fmodstudio$(FMODSuffix)_vc.lib;fmod/lib/win/fmod$(FMODSuffix)_vc.lib;freetype/lib/win/freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>
-copy /Y "$(ProjectDir)platforms\pc\external\SDL3\lib\x64\SDL3.dll" $(OutDir)
+copy /Y "$(ProjectDir)external\sdl3\lib\win\SDL3.dll" $(OutDir)
 copy /Y "$(ProjectDir)external\fmod\lib\win\fmodstudio$(FMODSuffix).dll" $(OutDir)
 copy /Y "$(ProjectDir)external\fmod\lib\win\fmod$(FMODSuffix).dll" $(OutDir)
 copy /Y "$(ProjectDir)external\freetype\lib\win\freetype.dll" $(OutDir)

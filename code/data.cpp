@@ -8,11 +8,12 @@
 #include "render.hpp"
 #include "tools.hpp"
 #include "fileio.hpp"
+#include "inspector.hpp"
 #include "json/json.hpp"
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 #include "imgui/imgui_stdlib.h"
-#include "imgui/IconsFontAwesome5.h"
+#include "fluent_glyph.hpp"
 
 using namespace xs;
 using namespace xs::tools;
@@ -123,18 +124,32 @@ void xs::data::shutdown()
 	history_stack_pointer = 0;
 }
 
-void xs::data::inspect(bool& show)
-{	
+// Render inspector at fixed rectangle (no title bar)
+void xs::data::inspect_at(bool& show, int x, int y, int w, int h)
+{
+	if (!show) return;
+
 	if (history.empty())
 	{
 		auto r(reg);
 		history.push_back(r);
 	}
 
-	ImGui::Begin((const char*)u8"\U0000f1c0  Data", &show);
+	ImGuiWindowFlags flags =
+		ImGuiWindowFlags_NoTitleBar |
+		ImGuiWindowFlags_NoCollapse |
+		ImGuiWindowFlags_NoResize |
+		ImGuiWindowFlags_NoMove |
+		ImGuiWindowFlags_NoScrollbar |
+		ImGuiWindowFlags_NoSavedSettings |
+		ImGuiWindowFlags_NoScrollWithMouse;
+
+	ImGui::SetNextWindowPos(ImVec2((float)x, (float)y));
+	ImGui::SetNextWindowSize(ImVec2((float)w, (float)h));
+	ImGui::Begin("DataPanelWindow", &show, flags);
 
 	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
-	if (ImGui::Button(ICON_FA_UNDO))
+	if (ImGui::Button(ICON_FI_UNDO))
 	{
 		internal::undo();
 	}
@@ -143,7 +158,7 @@ void xs::data::inspect(bool& show)
 	ImGui::SameLine();
 
 	ImGui::BeginDisabled(internal::history_stack_pointer == 0);
-	if (ImGui::Button(ICON_FA_REDO))
+	if (ImGui::Button(ICON_FI_REDO))
 	{
 		internal::redo();
 	}	
@@ -152,20 +167,20 @@ void xs::data::inspect(bool& show)
 	ImGui::SameLine();
 
 	static ImGuiTextFilter filter;
-	filter.Draw(ICON_FA_SEARCH);
+	filter.Draw(ICON_FI_SEARCH);
 	ImGui::SameLine();
-	if (ImGui::Button(ICON_FA_TIMES)) {
+	if (ImGui::Button(ICON_FI_TIMES)) {
 		filter.Clear();
 	}
 	tooltip("Clear filter");
 
 	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
-	if (ImGui::BeginTabBar("DataTabs", tab_bar_flags))
-	{		
-		inspect_of_type("Game Data", string(ICON_FA_GAMEPAD), filter, type::game);
-		inspect_of_type("User (Save) Data", string(ICON_FA_USER), filter, type::player);
-		inspect_of_type("Debug Only Data", string(ICON_FA_BUG), filter, type::debug);
-		inspect_of_type("Project Data", string(ICON_FA_COG), filter, type::project);
+	if (ImGui::BeginTabBar("DataTabsEmbedded", tab_bar_flags))
+	{
+		inspect_of_type("Game Data", string(ICON_FI_GAMEPAD), filter, type::game);
+		inspect_of_type("User (Save) Data", string(ICON_FI_USER), filter, type::player);
+		inspect_of_type("Debug Only Data", string(ICON_FI_BUG), filter, type::debug);
+		inspect_of_type("Project Data", string(ICON_FI_COG), filter, type::project);
 		ImGui::EndTabBar();
 	}
 
@@ -247,7 +262,7 @@ void xs::data::internal::inspect_of_type(
 		{
 			bool ted = ed;
 			if (ted) ImGui::PushStyleColor(ImGuiCol_Button, 0xFF773049);
-			if (ImGui::Button(string(ICON_FA_SAVE).c_str()))
+			if (ImGui::Button(string(ICON_FI_SAVE).c_str()))
 				save_of_type(type);
 			if (ted) ImGui::PopStyleColor();
 			tooltip("Save to a file");
@@ -265,7 +280,8 @@ void xs::data::internal::inspect_of_type(
 		sort(sorted.begin(), sorted.end());
 		
 		ImGui::BeginChild("Child");
-		ImGui::PushItemWidth(90);
+		auto width = inspector::get_frame().right_panel;
+		ImGui::PushItemWidth(width * 0.45f);
 		for (const auto& s : sorted)
 			ed = std::max(ed, inspect_entry(*reg.find(s)));
 		ImGui::PopItemWidth();
@@ -482,11 +498,10 @@ bool xs::data::internal::inspect_entry(
 
 	if (!itr.second.active)
 	{
-
-		//ImGui::SameLine(ImGui::GetWindowWidth() - 40);
-		ImGui::SameLine();
+		ImGui::SameLine(ImGui::GetWindowWidth() - 60);
+		//ImGui::SameLine();
 		ImGui::PushID(itr.first.c_str());
-		if (ImGui::Button((const char*)u8"\U0000f1f8"))
+		if (ImGui::Button(ICON_FI_DELTE))
 		{
 			reg.erase(itr.first);
 			edited = true;

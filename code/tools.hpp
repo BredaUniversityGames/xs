@@ -106,6 +106,6 @@ namespace xs::tools
 	{
 		int id = 0;
 		operator int() const { return id; }
-		
+
 	};
 }
