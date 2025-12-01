@@ -249,6 +249,57 @@ def build_freetype_macos(source_dir: Path, install_dir: Path) -> bool:
     return True
 
 
+def build_freetype_ios(source_dir: Path, install_dir: Path) -> bool:
+    """Build FreeType for iOS using configure (cross-compile from macOS)."""
+    print("Building FreeType for iOS...")
+    
+    # Get the iOS SDK path
+    try:
+        result = subprocess.run(
+            ["xcrun", "--sdk", "iphoneos", "--show-sdk-path"],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        ios_sdk = result.stdout.strip()
+    except subprocess.CalledProcessError:
+        print("Error: Could not find iOS SDK. Make sure Xcode is installed.")
+        return False
+    
+    print(f"Using iOS SDK: {ios_sdk}")
+    
+    # Configure for iOS (arm64)
+    cc = f"{ios_sdk}/usr/bin/clang"
+    configure_args = [
+        "./configure",
+        f"--prefix={install_dir}",
+        f"--host=aarch64-apple-darwin",
+        "--without-zlib",
+        "--without-bzip2",
+        "--without-png",
+        "--without-harfbuzz",
+        "--without-brotli",
+        "--enable-static",
+        "--disable-shared",
+        f"CC={cc}",
+        f"CFLAGS=-arch arm64 -isysroot {ios_sdk} -miphoneos-version-min=11.0",
+        f"LDFLAGS=-arch arm64 -isysroot {ios_sdk}",
+    ]
+    
+    if not run_command(configure_args, cwd=source_dir):
+        return False
+    
+    # Build
+    if not run_command(["make", "-j4"], cwd=source_dir):
+        return False
+    
+    # Install
+    if not run_command(["make", "install"], cwd=source_dir):
+        return False
+    
+    return True
+
+
 def organize_installation(install_dir: Path, dest_dir: Path) -> bool:
     """Organize the installation into the xs external structure."""
     print("Organizing installation...")
@@ -303,6 +354,27 @@ def organize_installation(install_dir: Path, dest_dir: Path) -> bool:
             if lib_src.exists():
                 for lib_file in lib_src.glob("*.a"):
                     shutil.copy2(lib_file, lib_platform_dest / lib_file.name)
+            
+            # Also build for iOS
+            print("Building for iOS...")
+            ios_install_dir = install_dir.parent / "install_ios"
+            ios_source_dir = install_dir.parent.parent / FREETYPE_DIR
+            
+            if ios_source_dir.exists():
+                if build_freetype_ios(ios_source_dir, ios_install_dir):
+                    # Copy iOS libraries
+                    ios_lib_src = ios_install_dir / "lib"
+                    ios_lib_dest = lib_dest / "ios"
+                    ios_lib_dest.mkdir(parents=True, exist_ok=True)
+                    
+                    if ios_lib_src.exists():
+                        for lib_file in ios_lib_src.glob("*.a"):
+                            shutil.copy2(lib_file, ios_lib_dest / lib_file.name)
+                    
+                    # Clean up iOS install directory
+                    shutil.rmtree(ios_install_dir, ignore_errors=True)
+                else:
+                    print("Warning: Failed to build FreeType for iOS, continuing...")
         
         # Copy license
         license_src = install_dir / "share" / "licenses" / "freetype2" / "LICENSE.TXT"
