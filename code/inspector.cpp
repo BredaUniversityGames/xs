@@ -38,14 +38,17 @@ namespace
 {
 	// Frame dimensions
 	#if defined(PLATFORM_APPLE)
+		// Frame
 		constexpr float c_frame_top_bar = 70.0f;
 		constexpr float c_frame_bottom_bar = 55.0f;
+		constexpr float c_right_panel_width = 450.0f;
 		constexpr float c_style_scale = 1.0f;
 
 		// Fonts
 		constexpr float c_font_size = 16.0f;
 		constexpr float c_small_font_size = 12.0f;
 		constexpr float c_icon_font_size = 12.0f;
+		constexpr float c_small_icon_font_size = 12.0f;
 		constexpr float c_icon_vertical_offset = 0.0f;
 
 	#elif defined(PLATFORM_PC)
@@ -88,15 +91,6 @@ namespace
 	constexpr float c_reload_ok_timer = 4.0f;
 	constexpr float c_tooltip_hover_time = 0.6f;
 	constexpr float c_notification_default_time = 3.0f;
-
-	// Style scale multiplier
-	#if defined(PLATFORM_APPLE)
-		constexpr float c_style_scale = 1.0f;
-	#elif defined(PLATFORM_PC)
-		
-	#else
-		constexpr float c_style_scale = 1.0f;
-	#endif
 
 	// Fluent icon font filenames (tokens resolved via fileio::get_path)
 	constexpr const char* kFluentIconFont = "[shared]/fonts/FluentSystemIcons-Regular.ttf";

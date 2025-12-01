@@ -12,7 +12,7 @@
 #include "data.hpp"
 #include "inspector.hpp"
 #include "profiler.hpp"
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #import <Metal/Metal.h>
 #import <QuartzCore/CAMetalLayer.h>
 
