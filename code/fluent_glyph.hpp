@@ -46,6 +46,8 @@ constexpr std::array<char, 5> utf8_from_code(unsigned int cp)
     X(SYNC_ALT,             0xe0aa) \
     X(DATABASE,             0xf0d8) \
     X(IMAGE_RELOAD,         0xe71e) \
+    X(IMAGE,			    0xf487) \
+    X(BARS,				    0xf0191) \
     X(PIN_ON,               0xf600) \
     X(PIN_OFF,              0xe985) \
     X(HELP,                 0xf220) \
@@ -70,6 +72,7 @@ constexpr std::array<char, 5> utf8_from_code(unsigned int cp)
     X(IMAGE_FRAME,          0xf0053) \
     X(FOLDER,               0xe643) \
     X(TAG,                  0xf77c) \
+    X(WINDOW, 			    0xee5d) \
     // Add more here
 
 // Generate string defines using proper UTF-8 encoding
