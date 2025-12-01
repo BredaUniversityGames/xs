@@ -189,6 +189,16 @@ int xs::device::get_height()
 	return internal::height;
 }
 
+void xs::device::set_window_size(int w, int h)
+{
+	if (!internal::window)
+		return;
+	
+	internal::width = w;
+	internal::height = h;
+	SDL_SetWindowSize(internal::window, w, h);
+}
+
 double device::hdpi_scaling()
 {
 	return SDL_GetWindowDisplayScale(internal::window);

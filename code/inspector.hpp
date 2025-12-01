@@ -16,6 +16,6 @@ namespace xs::inspector
     enum class theme { light, dark };
     theme get_theme();
 
-    struct frame { float top_bar = 0.0f; float bottom_bar = 0.0f; };
+    struct frame { float top_bar = 0.0f; float bottom_bar = 0.0f; float right_panel = 0.0f; };
     frame get_frame();
 }

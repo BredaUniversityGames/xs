@@ -50,8 +50,9 @@ namespace
 
 	#elif defined(PLATFORM_PC)
 		// Frame
-		constexpr float c_frame_top_bar = 55.0f;
-		constexpr float c_frame_bottom_bar = 45.0f;
+		constexpr float c_frame_top_bar = 40.0f;
+        constexpr float c_frame_bottom_bar = 40.0f;
+        constexpr float c_right_panel_width = 450.0f;
 		constexpr float c_style_scale = 1.0f;
 
 		// Fonts
@@ -76,7 +77,7 @@ namespace
 
 	// Game frame border
 	constexpr float c_frame_rounding = 18.0f;
-	constexpr float c_frame_thickness = c_frame_rounding;
+	constexpr float c_frame_thickness = c_frame_rounding;	
 
 	// Notifications
 	constexpr float c_notification_offset_x = -10.0f;
@@ -128,7 +129,7 @@ namespace xs::inspector
     bool show_inspector = false;
     bool always_on_top = false;
     char* ini_filename = nullptr;
-    frame current_frame = { c_frame_top_bar, c_frame_bottom_bar };
+    frame current_frame = { c_frame_top_bar, c_frame_bottom_bar, c_right_panel_width };
 
     // color identifiers for inspector-specific palette
     enum class color_id { Green = 0, Blue, Orange, Purple, Pink, Gray, Red, Count };
@@ -273,22 +274,40 @@ void xs::inspector::render(double dt)
 	restart_flag = false;
 	push_menu_theme(current_theme);
     float width = (float)device::get_width();
+
+	// Update right panel width based on whether data registry is shown
+	float new_right_panel = show_registry ? c_right_panel_width * ui_scale : 0.0f;
+	
+	// If right panel size changed, resize the OS window
+	if (new_right_panel != inspector::current_frame.right_panel)
+	{
+		inspector::current_frame.right_panel = new_right_panel;
+		int game_width = configuration::width() * configuration::multiplier();
+		int game_height = configuration::height() * configuration::multiplier();
+		int total_width = game_width + (int)inspector::current_frame.right_panel;
+		int total_height = game_height + 
+			(int)(inspector::current_frame.top_bar * ui_scale) + 
+			(int)(inspector::current_frame.bottom_bar * ui_scale);
+		device::set_window_size(total_width, total_height);
+	}
 	
     {   // Game frame
         const float frame_rounding = c_frame_rounding;
         const float frame_thickness = c_frame_thickness;
         const float top_bar_height = inspector::current_frame.top_bar * ui_scale;
         const float bottom_bar_height = inspector::current_frame.bottom_bar * ui_scale;
+        const float right_panel_width = inspector::current_frame.right_panel;
         
         // Draw the rounded frame border behind all UI
         ImDrawList* draw_list = ImGui::GetBackgroundDrawList();
         
         const float game_height = io.DisplaySize.y - top_bar_height - bottom_bar_height;
+        const float game_width = width - right_panel_width;
         const float half_thickness = frame_thickness * 0.5f;
         
         // Frame rectangle centered on the border line
         ImVec2 frame_min = ImVec2(-half_thickness, top_bar_height - half_thickness);
-        ImVec2 frame_max = ImVec2(width + half_thickness, top_bar_height + game_height + half_thickness);
+        ImVec2 frame_max = ImVec2(game_width + half_thickness, top_bar_height + game_height + half_thickness);
         
         // Use the window background color from the current theme
         ImVec4 bg_color = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
@@ -309,8 +328,9 @@ void xs::inspector::render(double dt)
                      ImGuiWindowFlags_NoSavedSettings |
                      ImGuiWindowFlags_NoScrollWithMouse);
         ImGui::SetWindowPos({ 0, 0 });
-        ImGui::SetWindowSize({width, inspector::current_frame.top_bar * ui_scale });
-        
+        const float top_bar_width = width - inspector::current_frame.right_panel;
+        ImGui::SetWindowSize({top_bar_width, inspector::current_frame.top_bar * ui_scale });
+
         // Playback controls: play/pause + next-frame (next-frame always visible, disabled when not paused)
         if (game_paused)
         {
@@ -333,15 +353,14 @@ void xs::inspector::render(double dt)
         if (xs::get_run_mode() == run_mode::development)
         {
             ImGui::SameLine();
-            if ((ImGui::Button(ICON_FI_SYNC_ALT) || xs::input::get_key_once(xs::input::KEY_F5)))
-             {
+            if (colored_button(ICON_FI_SYNC_ALT, get_color(color_id::Orange), "Reload game scripts (F5)") || xs::input::get_key_once(xs::input::KEY_F5))
+            {
                  script::shutdown();
                  script::configure();
                  script::initialize();
                  if(!xs::script::has_error())
                      ok_timer = c_reload_ok_timer;
              }
-             tooltip("Reload game scripts (F5)");
 
             ImGui::SameLine();
             if (ImGui::Button(ICON_FI_BARS))
@@ -387,12 +406,6 @@ void xs::inspector::render(double dt)
         tooltip("Show ImGui demo window");
 #endif
 
-
-        // About
-        ImGui::SameLine();
-        if (colored_button(ICON_FI_QUESTION_CIRCLE, ImVec4(0.5f, 0.5f, 0.5f, 1.0f), "About"))
-            show_about = true;
-        
         ImGui::SameLine();
         if (xs::script::has_error())
         {
@@ -428,7 +441,8 @@ void xs::inspector::render(double dt)
                      ImGuiWindowFlags_NoSavedSettings |
                      ImGuiWindowFlags_NoScrollWithMouse);
         ImGui::SetWindowPos({ 0, io.DisplaySize.y - current_frame.bottom_bar * ui_scale });
-        ImGui::SetWindowSize({width, current_frame.bottom_bar * ui_scale });
+        const float bottom_bar_width = width - inspector::current_frame.right_panel;
+        ImGui::SetWindowSize({bottom_bar_width, current_frame.bottom_bar * ui_scale });
         ImGui::PushFont(small_font);
 
         auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
@@ -548,7 +562,7 @@ void xs::inspector::render(double dt)
 				ImGuiWindowFlags_NoCollapse |
 				ImGuiWindowFlags_NoSavedSettings |
 				ImGuiWindowFlags_NoScrollWithMouse);
-			ImGui::SetWindowPos({ io.DisplaySize.x - ImGui::GetWindowWidth() + x, io.DisplaySize.y - ImGui::GetWindowHeight() + y });
+			ImGui::SetWindowPos({ io.DisplaySize.x - ImGui::GetWindowWidth() + x - new_right_panel, io.DisplaySize.y - ImGui::GetWindowHeight() + y });
 			// Draw the notification icon
 
 			ImVec4 color;
@@ -594,7 +608,14 @@ void xs::inspector::render(double dt)
 		
 	if (show_registry)
 	{
-		xs::data::inspect(show_registry);
+		const float right_panel_width = inspector::current_frame.right_panel;
+		
+		int panel_x = (int)(width - right_panel_width);
+		int panel_y = 0;  // Start at top of window
+		int panel_w = (int)right_panel_width;
+		int panel_h = (int)io.DisplaySize.y;  // Full window height
+		
+		xs::data::inspect_at(show_registry, panel_x, panel_y, panel_w, panel_h);
 	}
 
 	if (show_profiler)
@@ -692,21 +713,14 @@ void xs::inspector::apply_theme(theme t)
 
 void xs::inspector::push_menu_theme(theme t)
 {	
-	/*
-	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.00f));
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8.0f, 8.0f));
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 4.0f));
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(20.0f, 0.0f));
-	*/
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5.0f, 5.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10.0f, 5.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 0.0f));
 }
 
 void xs::inspector::pop_menu_theme(theme t)
 {
-	/*
-	ImGui::PopStyleColor(1);
-    ImGui::PopStyleVar(4);
-	*/
+    ImGui::PopStyleVar(3);
 }
 
 frame xs::inspector::get_frame()

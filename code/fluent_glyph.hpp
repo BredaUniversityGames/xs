@@ -57,7 +57,7 @@ constexpr std::array<char, 5> utf8_from_code(unsigned int cp)
     X(INFO_CIRCLE,          0xf4a2) \
     X(CHECK_CIRCLE,         0xf297) \
     X(UNDO,                 0xe126) \
-    X(REDO,                 0xf16e) \
+    X(REDO,                 0xe0e4) \
     X(SEARCH,               0xea7c) \
     X(TIMES,                0xf748) \
     X(GAMEPAD,              0xe689) \
