@@ -12,10 +12,4 @@ namespace xs::inspector
 	enum class notification_type { info, success, warning, error };
 	int notify(notification_type type, const std::string& message, float time);
 	void clear_notification(int id);
-
-    enum class theme { light, dark };
-    theme get_theme();
-
-    struct frame { float top_bar = 0.0f; float bottom_bar = 0.0f; float right_panel = 0.0f; };
-    frame get_frame();
 }

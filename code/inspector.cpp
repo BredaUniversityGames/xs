@@ -39,17 +39,14 @@ namespace
 	// Frame dimensions
 	#if defined(PLATFORM_APPLE)
 		// Frame
-		constexpr float c_frame_top_bar = 70.0f;
-		constexpr float c_frame_bottom_bar = 55.0f;
-		constexpr float c_right_panel_width = 450.0f;
 		constexpr float c_style_scale = 1.0f;
 
 		// Fonts
 		constexpr float c_font_size = 16.0f;
 		constexpr float c_small_font_size = 12.0f;
-		constexpr float c_icon_font_size = 12.0f;
-		constexpr float c_small_icon_font_size = 12.0f;
-		constexpr float c_icon_vertical_offset = 0.0f;
+		constexpr float c_icon_font_size = 16.0f;
+		constexpr float c_small_icon_font_size = 14.0f;
+		constexpr float c_icon_vertical_offset = 4.0f;
 
 	#elif defined(PLATFORM_PC)
 		// Frame
@@ -123,7 +120,8 @@ namespace xs::inspector
     bool show_inspector = false;
     bool always_on_top = false;
     char* ini_filename = nullptr;
-    frame current_frame = { c_frame_top_bar, c_frame_bottom_bar, c_right_panel_width };
+    ImGuiID dock_id_top = {};
+    ImGuiID dock_id_bottom = {};
 
     // color identifiers for inspector-specific palette
     enum class color_id { Green = 0, Blue, Orange, Purple, Pink, Gray, Red, Count };
@@ -134,7 +132,9 @@ namespace xs::inspector
         return inspector_colors[(size_t)id];
     }
 
-	// theme current_theme = theme::dark;
+    enum class theme { light, dark };
+    theme get_theme();
+    theme current_theme = theme::dark;
 	void apply_theme(theme t);
 	void push_menu_theme(theme t);
 	void pop_menu_theme(theme t);
@@ -222,7 +222,7 @@ void xs::inspector::initialize()
 	ini_filename = new char[iniPath.size() + 1];
 	strcpy(ini_filename, constStr);
 	io.IniFilename = ini_filename;
-    
+
     auto current_theme = inspector::get_theme();
     apply_theme(current_theme);
 	
@@ -263,7 +263,6 @@ void xs::inspector::render(double dt)
 		game_paused = !game_paused;
 	
 	bool true_that = true;
-	auto& io = ImGui::GetIO();	
 	
 	ImGui_Impl_NewFrame();
     ImGui::NewFrame();
@@ -271,7 +270,6 @@ void xs::inspector::render(double dt)
     auto current_theme = get_theme();
 	restart_flag = false;
 	push_menu_theme(current_theme);
-    float width = (float)device::get_width();
 
 	// Create fullscreen dockspace
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -299,27 +297,21 @@ void xs::inspector::render(double dt)
 		ImGui::DockBuilderRemoveNode(dockspace_id);
 		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
 		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->WorkSize);
-
-		// Calculate exact sizes for top and bottom bars
-		float top_bar_pixels = c_frame_top_bar * ui_scale;
-		float bottom_bar_pixels = c_frame_bottom_bar * ui_scale;
-		float right_panel_pixels = c_right_panel_width * ui_scale;
-
-		// Convert pixels to ratios for DockBuilderSplitNode
-		float top_ratio = top_bar_pixels / viewport->WorkSize.y;
-		float bottom_ratio = bottom_bar_pixels / viewport->WorkSize.y;
-		float right_ratio = right_panel_pixels / viewport->WorkSize.x;
-
+		
 		// Split the dockspace into sections using calculated ratios
-		ImGuiID dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, top_ratio, nullptr, &dockspace_id);
-		ImGuiID dock_id_bottom = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, bottom_ratio, nullptr, &dockspace_id);
-		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, right_ratio, nullptr, &dockspace_id);
-
-		// Configure top and bottom docks: no tab bars and no resizing
+        dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.05f, nullptr, &dockspace_id);
+        ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.5f, nullptr, &dockspace_id);
+		dock_id_bottom = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.01f, nullptr, &dockspace_id);
+		
+		// Configure all docks: no tab bars
 		ImGuiDockNode* node_top = ImGui::DockBuilderGetNode(dock_id_top);
 		ImGuiDockNode* node_bottom = ImGui::DockBuilderGetNode(dock_id_bottom);
+		ImGuiDockNode* node_center = ImGui::DockBuilderGetNode(dockspace_id);
+		ImGuiDockNode* node_right = ImGui::DockBuilderGetNode(dock_id_right);
 		node_top->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
 		node_bottom->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
+		node_center->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+		node_right->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
 
 		// Dock windows into their positions
 		ImGui::DockBuilderDockWindow("Top Bar", dock_id_top);
@@ -330,43 +322,22 @@ void xs::inspector::render(double dt)
 
 		ImGui::DockBuilderFinish(dockspace_id);
 	}
-
-	
-    {   // Game frame
-        const float frame_rounding = c_frame_rounding;
-        const float frame_thickness = c_frame_thickness;
-        const float top_bar_height = inspector::current_frame.top_bar * ui_scale;
-        const float bottom_bar_height = inspector::current_frame.bottom_bar * ui_scale;
-        const float right_panel_width = inspector::current_frame.right_panel;
-        
-        // Draw the rounded frame border behind all UI
-        ImDrawList* draw_list = ImGui::GetBackgroundDrawList();
-        
-        const float game_height = io.DisplaySize.y - top_bar_height - bottom_bar_height;
-        const float game_width = width - right_panel_width;
-        const float half_thickness = frame_thickness * 0.5f;
-        
-        // Frame rectangle centered on the border line
-        ImVec2 frame_min = ImVec2(-half_thickness, top_bar_height - half_thickness);
-        ImVec2 frame_max = ImVec2(game_width + half_thickness, top_bar_height + game_height + half_thickness);
-        
-        // Use the window background color from the current theme
-        ImVec4 bg_color = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
-        ImU32 frame_color = ImGui::ColorConvertFloat4ToU32(bg_color);
-        
-        // Draw the rounded rect path with stroke
-        draw_list->PathRect(frame_min, frame_max, frame_rounding);
-        draw_list->PathStroke(frame_color, ImDrawFlags_Closed, frame_thickness);
-    }
     
     {	// Top bar
+        // Measure desired height (one row example)
+        float desired_h = ImGui::GetFrameHeightWithSpacing(); // convenience: button/input height + spacing
+        desired_h += ImGui::GetStyle().WindowPadding.y * 2.0f; // extra padding
+        ImGuiDockNode* n = ImGui::DockBuilderGetNode(dock_id_top);
+        n->SizeRef.y = desired_h;     // height you want (in pixels)
+        n->Size.y    = desired_h;     // optional, for immediate effect
+        
         ImGui::Begin("Top Bar", nullptr,
                      ImGuiWindowFlags_NoScrollbar |
                      ImGuiWindowFlags_NoTitleBar |
                      ImGuiWindowFlags_NoCollapse |
                      ImGuiWindowFlags_NoScrollWithMouse |
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoResize);
+                     ImGuiWindowFlags_NoResize |
+                     ImGuiWindowFlags_NoMove);
 
         // Playback controls: play/pause + next-frame (next-frame always visible, disabled when not paused)
         if (game_paused)
@@ -467,7 +438,16 @@ void xs::inspector::render(double dt)
         ImGui::End();
     }
         
-    {    // Bottom stats
+    {   // Bottom stats
+        ImGui::PushFont(small_font);
+        
+        // Measure desired height (one row example)
+        float desired_h = ImGui::GetFrameHeightWithSpacing(); // convenience: button/input height + spacing
+        desired_h += ImGui::GetStyle().WindowPadding.y * 2.0f; // extra padding
+        ImGuiDockNode* n = ImGui::DockBuilderGetNode(dock_id_bottom);
+        n->SizeRef.y = desired_h;     // height you want (in pixels)
+        n->Size.y    = desired_h;     // optional, for immediate effect
+        
         ImGui::Begin("Stats", &true_that,
                      ImGuiWindowFlags_NoScrollbar |
                      ImGuiWindowFlags_NoTitleBar |
@@ -475,7 +455,7 @@ void xs::inspector::render(double dt)
                      ImGuiWindowFlags_NoScrollWithMouse |
                      ImGuiWindowFlags_AlwaysAutoResize |
                      ImGuiWindowFlags_NoResize);
-        ImGui::PushFont(small_font);
+        
 
         auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
         auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
@@ -577,8 +557,8 @@ void xs::inspector::render(double dt)
 
         // Pop text color and button colors
         ImGui::PopStyleColor(4);
-         ImGui::PopFont();
-         ImGui::End();
+        ImGui::End();
+        ImGui::PopFont();
  	}
 	
     /*
@@ -640,9 +620,13 @@ void xs::inspector::render(double dt)
 
 	pop_menu_theme(current_theme);
 
-	// Game Viewport Window
-	{
-		ImGui::Begin("Game", nullptr, ImGuiWindowFlags_NoCollapse);
+	
+	{   // Game Viewport Window
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+		ImGui::Begin("Game", nullptr,
+                     ImGuiWindowFlags_NoCollapse |
+                     ImGuiWindowFlags_NoTitleBar |
+                     ImGuiWindowFlags_NoMove);
 
 		// Get the game render target texture
 		auto texture = xs::render::get_render_target_texture();
@@ -674,26 +658,33 @@ void xs::inspector::render(double dt)
 		cursor_pos.y += (available_region.y - image_size.y) * 0.5f;
 		ImGui::SetCursorPos(cursor_pos);
 
-		// Display the game texture
+		// Get screen position for drawing
+		ImVec2 screen_pos = ImGui::GetCursorScreenPos();
+		ImVec2 screen_pos_max = ImVec2(screen_pos.x + image_size.x, screen_pos.y + image_size.y);
+
+		// Draw rounded image using DrawList
+		ImDrawList* draw_list = ImGui::GetWindowDrawList();
+		float rounding = 8.0f;
+
 #if defined(PLATFORM_APPLE)
-		ImGui::Image((ImTextureID)texture, image_size);
+		draw_list->AddImageRounded((ImTextureID)texture, screen_pos, screen_pos_max,
+		                           ImVec2(0, 0), ImVec2(1, 1),
+		                           IM_COL32_WHITE, rounding);
 #elif defined(PLATFORM_PC)
-		ImGui::Image((ImTextureID)texture, image_size, ImVec2(0,1), ImVec2(1,0));
+		draw_list->AddImageRounded((ImTextureID)texture, screen_pos, screen_pos_max,
+		                           ImVec2(0, 1), ImVec2(1, 0),
+		                           IM_COL32_WHITE, rounding);
 #endif
 
+		// Dummy to reserve space
+		ImGui::Dummy(image_size);
 		ImGui::End();
+        ImGui::PopStyleVar();
 	}
 
-	if (show_registry)
+    if (show_registry)
 	{
-		const float right_panel_width = inspector::current_frame.right_panel;
-		
-		int panel_x = (int)(width - right_panel_width);
-		int panel_y = 0;  // Start at top of window
-		int panel_w = (int)right_panel_width;
-		int panel_h = (int)io.DisplaySize.y;  // Full window height
-		
-		xs::data::inspect_at(show_registry, panel_x, panel_y, panel_w, panel_h);
+        xs::data::inspect_at(show_registry, 0, 0, 0, 0);
 	}
 
 	if (show_profiler)
@@ -701,13 +692,14 @@ void xs::inspector::render(double dt)
 		xs::profiler::inspect(show_profiler);
 	}
 	
-	if (show_about)
-	{
-		ImGui::Begin("About", &show_about, ImGuiWindowFlags_Modal);
-		ImGui::Text(" xs %s ", xs::version::get_version_string().c_str());
-		ImGui::Text(" Made with love at Breda University of Applied Sciences ");
-		ImGui::End();
-	}
+    
+	//if (show_about)
+	//{
+	//	ImGui::Begin("About", &show_about, ImGuiWindowFlags_Modal);
+	//	ImGui::Text(" xs %s ", xs::version::get_version_string().c_str());
+	//	ImGui::Text(" Made with love at Breda University of Applied Sciences ");
+	//	ImGui::End();
+	//}
 	
 	if(show_demo)
 	{
@@ -794,19 +786,14 @@ void xs::inspector::apply_theme(theme t)
 
 void xs::inspector::push_menu_theme(theme t)
 {	
-	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5.0f, 5.0f));
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10.0f, 5.0f));
-	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 0.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 4.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5.0f, 5.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5.0f, 0.0f));
 }
 
 void xs::inspector::pop_menu_theme(theme t)
 {
     ImGui::PopStyleVar(3);
-}
-
-frame xs::inspector::get_frame()
-{
-    return inspector::current_frame;
 }
 
 static bool xs::inspector::colored_button(const char* icon, const ImVec4& color, const char* tip)
@@ -885,7 +872,7 @@ void apply_common_style()
 	// Borders
 	style.WindowBorderSize = 0 * c_style_scale;
 	style.ChildBorderSize = 0 * c_style_scale;
-	style.PopupBorderSize = 0 * c_style_scale;
+	style.PopupBorderSize = 1 * c_style_scale;
 	style.FrameBorderSize = 0 * c_style_scale;
 	style.TabBorderSize = 0 * c_style_scale;
 	style.TabBarBorderSize = 0 * c_style_scale;
@@ -927,9 +914,9 @@ void xs::inspector::embrace_the_darkness()
 	colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
 	colors[ImGuiCol_WindowBg] = windowBg;
 	colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-	colors[ImGuiCol_PopupBg] = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
-	colors[ImGuiCol_Border] = ImVec4(0.19f, 0.19f, 0.19f, 0.29f);
-	colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.24f);
+	colors[ImGuiCol_PopupBg] = ImVec4(0.19f, 0.19f, 0.19f, 1.0f);
+	colors[ImGuiCol_Border] = ImVec4(0.19f, 0.19f, 0.19f, 0.00f);  // Invisible (docking separators)
+	colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 	colors[ImGuiCol_FrameBg] = ImVec4(0.24f, 0.24f, 0.24f, 1.00f);
 	colors[ImGuiCol_FrameBgHovered] = ImVec4(0.17f, 0.17f, 0.17f, 1.00f);
 	colors[ImGuiCol_FrameBgActive] = ImVec4(0.34f, 0.34f, 0.34f, 1.00f);
@@ -950,12 +937,12 @@ void xs::inspector::embrace_the_darkness()
 	colors[ImGuiCol_Header] = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
 	colors[ImGuiCol_HeaderHovered] = ImVec4(0.00f, 0.00f, 0.00f, 0.36f);
 	colors[ImGuiCol_HeaderActive] = ImVec4(0.20f, 0.22f, 0.23f, 0.33f);
-	colors[ImGuiCol_Separator] = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
-	colors[ImGuiCol_SeparatorHovered] = ImVec4(0.44f, 0.44f, 0.44f, 0.29f);
-	colors[ImGuiCol_SeparatorActive] = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
-	colors[ImGuiCol_ResizeGrip] = ImVec4(0.28f, 0.28f, 0.28f, 0.29f);
-	colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.44f, 0.44f, 0.44f, 0.29f);
-	colors[ImGuiCol_ResizeGripActive] = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
+	colors[ImGuiCol_Separator] = ImVec4(0.28f, 0.28f, 0.28f, 0.0f);  // Invisible
+	colors[ImGuiCol_SeparatorHovered] = ImVec4(0.44f, 0.44f, 0.44f, 0.50f);  // Visible on hover
+	colors[ImGuiCol_SeparatorActive] = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);  // Visible when active
+	colors[ImGuiCol_ResizeGrip] = ImVec4(0.28f, 0.28f, 0.28f, 0.00f);  // Invisible when not hovered
+	colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.44f, 0.44f, 0.44f, 0.50f);  // Visible on hover
+	colors[ImGuiCol_ResizeGripActive] = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);  // Visible when dragging
 	colors[ImGuiCol_Tab] = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
 	colors[ImGuiCol_TabHovered] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
 	colors[ImGuiCol_TabActive] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
@@ -976,6 +963,8 @@ void xs::inspector::embrace_the_darkness()
 	colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
 	colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
 	colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.75f);
+	colors[ImGuiCol_DockingPreview] = ImVec4(0.33f, 0.67f, 0.86f, 0.70f);
+	colors[ImGuiCol_DockingEmptyBg] = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
 
 	apply_common_style();
 
@@ -1013,8 +1002,8 @@ void xs::inspector::follow_the_light()
     colors[ImGuiCol_TextDisabled] = ImVec4(0.60f, 0.60f, 0.60f, 1.00f);
     colors[ImGuiCol_WindowBg] = ImVec4(0.98f, 0.98f, 0.98f, 1.00f);
     colors[ImGuiCol_ChildBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_PopupBg] = ImVec4(1.00f, 1.00f, 1.00f, 0.98f);
-    colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.30f);
+    colors[ImGuiCol_PopupBg] = ImVec4(0.70f, 0.70f, 0.7f, 1.0f);
+    colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
     colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
     colors[ImGuiCol_FrameBg] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.40f);
