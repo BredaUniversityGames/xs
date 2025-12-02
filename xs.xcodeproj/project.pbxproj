@@ -854,6 +854,8 @@
 		346E733F2A4A29D5006ECAD5 /* code */ = {
 			isa = PBXGroup;
 			children = (
+				3474D5C72B14DFC000441451 /* imgui_impl.cpp */,
+				3474D5CC2B14DFC000441451 /* imgui_impl.h */,
 				5A7BCF7A2ECE307800A4A0C3 /* color.hpp */,
 				5A7BCF7B2ECE307800A4A0C3 /* packager.hpp */,
 				5A7BCF7C2ECE307800A4A0C3 /* packager.cpp */,
@@ -955,9 +957,7 @@
 				3474D5C22B14DFC000441451 /* imgui_widgets.cpp */,
 				3474D5C42B14DFC000441451 /* imstb_truetype.h */,
 				3474D5C52B14DFC000441451 /* IconsFontAwesome5.h */,
-				3474D5C72B14DFC000441451 /* imgui_impl.cpp */,
 				3474D5C92B14DFC000441451 /* imgui_impl_osx.h */,
-				3474D5CC2B14DFC000441451 /* imgui_impl.h */,
 				3474D5CF2B14DFC000441451 /* imgui_impl_metal.mm */,
 				3474D5D02B14DFC000441451 /* imgui.cpp */,
 				3474D5D22B14DFC000441451 /* imgui_internal.h */,

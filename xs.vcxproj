@@ -268,7 +268,7 @@
     <ClCompile Include="external\imgui\imgui.cpp" />
     <ClCompile Include="external\imgui\imgui_demo.cpp" />
     <ClCompile Include="external\imgui\imgui_draw.cpp" />
-    <ClCompile Include="external\imgui\imgui_impl.cpp" />
+    <ClCompile Include="code\imgui_impl.cpp" />
     <ClCompile Include="external\imgui\imgui_impl_opengl3.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
@@ -328,7 +328,7 @@
     <ClInclude Include="code\platform.hpp" />
     <ClInclude Include="external\imgui\imconfig.h" />
     <ClInclude Include="external\imgui\imgui.h" />
-    <ClInclude Include="external\imgui\imgui_impl.h" />
+    <ClInclude Include="code\imgui_impl.h" />
     <ClInclude Include="external\imgui\imgui_internal.h" />
     <ClInclude Include="code\audio.hpp" />
     <ClInclude Include="code\simple_audio.hpp" />

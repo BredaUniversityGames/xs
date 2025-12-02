@@ -58,7 +58,7 @@
     <ClCompile Include="external\imgui\imgui_draw.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\imgui\imgui_impl.cpp">
+    <ClCompile Include="code\imgui_impl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="external\imgui\imgui_impl_opengl3.cpp">
@@ -399,7 +399,7 @@
     <ClInclude Include="external\imgui\imgui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\imgui\imgui_impl.h">
+    <ClInclude Include="code\imgui_impl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\imgui\imgui_internal.h">

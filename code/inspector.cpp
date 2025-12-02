@@ -2,7 +2,7 @@
 
 #ifdef INSPECTOR
 #include <imgui.h>
-#include <imgui_impl.h>
+#include "imgui_impl.h"
 #include <imgui_internal.h>
 #include <implot.h>
 #include "fluent_glyph.hpp"
