@@ -670,12 +670,20 @@ static void input_get_mousebutton_once(WrenVM* vm)
 
 static void input_get_mouse_x(WrenVM* vm)
 {
+#ifdef INSPECTOR
+    wrenSetSlotDouble(vm, 0, inspector::get_game_mouse_x());
+#else
     callFunction_returnType<double>(vm, xs::input::get_mouse_x);
+#endif
 }
 
 static void input_get_mouse_y(WrenVM* vm)
 {
+#ifdef INSPECTOR
+    wrenSetSlotDouble(vm, 0, inspector::get_game_mouse_y());
+#else
     callFunction_returnType<double>(vm, xs::input::get_mouse_y);
+#endif
 }
 
 static void input_get_mouse_wheel(WrenVM* vm)
