@@ -13,6 +13,7 @@ import asyncio
 import logging
 import tempfile
 import urllib.request
+import urllib.error
 import zipfile
 import json
 from datetime import datetime
@@ -51,8 +52,8 @@ DEPENDENCIES = {
         'name': 'Dear ImGui',
         'type': 'opensource',
         'repo': 'https://github.com/ocornut/imgui.git',
-        'branch': 'master',
-        'description': 'Immediate mode GUI library',
+        'branch': 'docking',
+        'description': 'Immediate mode GUI library (docking branch)',
         'include_paths': [
             # Core files
             'imgui.cpp',
@@ -1402,10 +1403,15 @@ def main():
         if isinstance(handler, logging.StreamHandler) and handler.stream == sys.stdout:
             logging.root.removeHandler(handler)
 
-    app = DependencyUpdaterApp()
-    # Textual auto-detects light/dark mode from terminal
-    # You can override with: app.theme = "textual-light" or "textual-dark"
-    app.run()
+    try:
+        app = DependencyUpdaterApp()
+        # Textual auto-detects light/dark mode from terminal
+        # You can override with: app.theme = "textual-light" or "textual-dark"
+        app.run()
+    except Exception as e:
+        logger.exception(f"Fatal error running application: {e}")
+        print(f"Error: {e}", file=sys.stderr)
+        raise
 
 
 if __name__ == '__main__':
