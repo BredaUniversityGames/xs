@@ -58,8 +58,6 @@ void device::initialize()
     // Set window size in pixels
     int pixel_width = configuration::width() * configuration::multiplier();
     int pixel_height = configuration::height() * configuration::multiplier();
-    auto frame = xs::inspector::get_frame();
-    pixel_height += frame.bottom_bar + frame.top_bar;
     
 
     // Create window with Metal support

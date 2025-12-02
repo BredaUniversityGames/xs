@@ -275,8 +275,7 @@ void xs::data::internal::inspect_of_type(
 		sort(sorted.begin(), sorted.end());
 		
 		ImGui::BeginChild("Child");
-		auto width = inspector::get_frame().right_panel;
-		ImGui::PushItemWidth(width * 0.45f);
+		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.45f);
 		for (const auto& s : sorted)
 			ed = std::max(ed, inspect_entry(*reg.find(s)));
 		ImGui::PopItemWidth();
@@ -496,7 +495,7 @@ bool xs::data::internal::inspect_entry(
 		ImGui::SameLine(ImGui::GetWindowWidth() - 60);
 		//ImGui::SameLine();
 		ImGui::PushID(itr.first.c_str());
-		if (ImGui::Button(ICON_FI_DELTE))
+		if (ImGui::Button(ICON_FI_DELETE))
 		{
 			reg.erase(itr.first);
 			edited = true;

@@ -389,27 +389,22 @@ void xs::render::render()
     id<CAMetalDrawable> drawable = device::internal::get_current_drawable();
     if (drawable != nil)
     {
-        glm::vec4 clear_color = xs::inspector::get_theme() == inspector::theme::dark ?
-            vec4(1.0, 1.0, 1.0, 1.0) :
-            vec4(1.0, 1.0, 1.0, 1.0);
-        
         // Create screen render pass
         MTLRenderPassDescriptor* screen_rpd = [MTLRenderPassDescriptor renderPassDescriptor];
         screen_rpd.colorAttachments[0].texture = drawable.texture;
         screen_rpd.colorAttachments[0].loadAction = MTLLoadActionClear;
         screen_rpd.colorAttachments[0].storeAction = MTLStoreActionStore;
-        screen_rpd.colorAttachments[0].clearColor = MTLClearColorMake(clear_color.x,
-                                                                      clear_color.y,
-                                                                      clear_color.z,
-                                                                      clear_color.w);
+        screen_rpd.colorAttachments[0].clearColor = MTLClearColorMake(1.0, 1.0, 1.0, 1.0);
         id<MTLRenderCommandEncoder> screen_encoder = [command_buffer renderCommandEncoderWithDescriptor:screen_rpd];
         screen_encoder.label = @"xs screen render pass";
-        
+
+#ifndef INSPECTOR
+        // When inspector is disabled, draw the game texture directly to screen
         const float dw = device::get_width();
         const float dh = device::get_height();
         const float cw = configuration::width();
         const float ch = configuration::height();
-        
+
         screen_vtx_format quadVertices[6];
         if(device::get_fullscreen())
         {
@@ -426,15 +421,8 @@ void xs::render::render()
         }
         else
         {
-            // const float caspect = (cw / ch);
-            // const float dx = dw - cw;
-            // const float dy = dh - ch;
-            //vec2 fr(-1.0f, -0.7);
-            //vec2 to(1.0f, 1.0f);
-            
-            auto frame = inspector::get_frame();
-            vec2 fr(0.0f, frame.bottom_bar);
-            vec2 to(cw, ch + frame.bottom_bar);
+            vec2 fr(0.0f, 0.0f);
+            vec2 to(cw, ch);
             //                Positions      , Texture coordinates
             quadVertices[0] = { { to.x, to.y },  { 1.0, 0.0 } };
             quadVertices[1] = { { fr.x, to.y },  { 0.0, 0.0 } };
@@ -443,10 +431,7 @@ void xs::render::render()
             quadVertices[4] = { { fr.x, fr.y },  { 0.0, 1.0 } };
             quadVertices[5] = { { to.x, fr.y },  { 1.0, 1.0 } };
         }
-                
-        
-#ifndef INSPECTOR
-        // When inspector is disabled, draw the game texture directly to screen
+
         [screen_encoder setRenderPipelineState:_pipelineState];
         [screen_encoder setVertexBytes:&quadVertices
                                 length:sizeof(quadVertices)
