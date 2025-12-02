@@ -130,7 +130,7 @@ void xs::render::initialize()
         _renderToTextureRenderPassDescriptor = [MTLRenderPassDescriptor new];
         _renderToTextureRenderPassDescriptor.colorAttachments[0].texture = _renderTargetTexture;
         _renderToTextureRenderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-        _renderToTextureRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1);
+        _renderToTextureRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0);  // Transparent clear
         _renderToTextureRenderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
         
         MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
@@ -141,9 +141,11 @@ void xs::render::initialize()
         pipelineStateDescriptor.colorAttachments[0].pixelFormat = _renderTargetTexture.pixelFormat;
         pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
         pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-        pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-        pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
         pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+        pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
+        pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
         
         _renderToTextureRenderPipeline = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
         assert(_renderToTextureRenderPipeline);
@@ -374,7 +376,15 @@ void xs::render::render()
     }
     
     [render_encoder endEncoding];
-    
+
+#ifdef INSPECTOR
+    // When using inspector, add a blit encoder to ensure the render target is finished
+    // before ImGui tries to sample it
+    id<MTLBlitCommandEncoder> blit_encoder = [command_buffer blitCommandEncoder];
+    [blit_encoder synchronizeResource:_renderTargetTexture];
+    [blit_encoder endEncoding];
+#endif
+
     // Composite offscreen texture to screen
     id<CAMetalDrawable> drawable = device::internal::get_current_drawable();
     if (drawable != nil)
@@ -435,23 +445,26 @@ void xs::render::render()
         }
                 
         
+#ifndef INSPECTOR
+        // When inspector is disabled, draw the game texture directly to screen
         [screen_encoder setRenderPipelineState:_pipelineState];
         [screen_encoder setVertexBytes:&quadVertices
                                 length:sizeof(quadVertices)
                                atIndex:index_vertices];
-                
+
         vec2 resolution(dw, dh);
         [screen_encoder setVertexBytes:&resolution length:sizeof(vec2) atIndex:index_resolution];
-        
+
         // Set the offscreen texture as the source texture.
         [screen_encoder setFragmentTexture:_renderTargetTexture atIndex:index_sprite_texture];
-        
+
         // Draw quad with rendered texture.
         [screen_encoder drawPrimitives:MTLPrimitiveTypeTriangle
                            vertexStart:0
                            vertexCount:6];
-        
-        // Store the screen encoder for ImGui to use
+#endif
+
+        // Store the screen encoder for ImGui to use (when inspector is enabled)
         // end_frame() will call endEncoding
         device::internal::set_render_encoder(screen_encoder);
     }
@@ -569,4 +582,9 @@ void xs::render::sprite(
 xs::render::stats xs::render::get_stats()
 {
 	return {};
+}
+
+void* xs::render::get_render_target_texture()
+{
+	return (void*)(intptr_t)_renderTargetTexture;
 }
