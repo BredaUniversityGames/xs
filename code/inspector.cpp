@@ -371,12 +371,7 @@ void xs::inspector::render(double dt)
              }
 
             ImGui::SameLine();
-            if (ImGui::Button(ICON_FI_BARS))
-                show_registry = !show_registry;
-            tooltip("Open data registry");
-
-            ImGui::SameLine();
-            if (ImGui::Button(ICON_FI_IMAGE))
+            if (colored_button(ICON_FI_IMAGE, get_color(color_id::Orange), "Reload art assets"))
              {
                  auto reloaded = render::reload_images();
                  next_frame = true;
@@ -385,15 +380,37 @@ void xs::inspector::render(double dt)
                  else
                      notify(notification_type::success, to_string(reloaded) + " images reloaded", c_notification_default_time);
              }
-            tooltip("Reload art assets");
         }
 
-        // Profiler (use normal button)
+        // Move to right side of window - calculate actual button widths
+        float spacing = ImGui::GetStyle().ItemSpacing.x;
+        float registry_width = ImGui::CalcTextSize(ICON_FI_BARS).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+        float profiler_width = ImGui::CalcTextSize(ICON_FI_PROFILER).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+        const char* pin_icon = always_on_top ? ICON_FI_PIN_ON : ICON_FI_PIN_OFF;
+        float pin_width = ImGui::CalcTextSize(pin_icon).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+
+        float total_width = registry_width + profiler_width + pin_width + spacing * 2;
+
+#if SHOW_IMGUI_DEMO
+        float demo_width = ImGui::CalcTextSize(ICON_FI_WINDOW).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+        total_width += demo_width + spacing;
+#endif
+
+        // Use SameLine with calculated offset to right-align
+        float avail = ImGui::GetContentRegionAvail().x;
+        ImGui::SameLine(ImGui::GetCursorPosX() + avail - total_width);
+
+        // Data Registry button
+        if (ImGui::Button(ICON_FI_BARS))
+            show_registry = !show_registry;
+        tooltip("Open data registry");
+
+        // Profiler button
         ImGui::SameLine();
         if (ImGui::Button(ICON_FI_PROFILER))
             show_profiler = !show_profiler;
         tooltip("Toggle profiler");
-        
+
         ImGui::SameLine();
         // Simpler on-top toggle: show pin icon state and use a normal button for clarity
         {
