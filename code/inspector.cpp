@@ -166,8 +166,12 @@ void xs::inspector::initialize()
 	ImPlot::CreateContext();
 #endif
 	ImGui_Impl_Init();
-	
+
 	auto& io = ImGui::GetIO();
+
+	// Enable docking
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+
 #if defined(XS_DEBUG) && defined(PLATFORM_PC)
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 #else
@@ -269,21 +273,64 @@ void xs::inspector::render(double dt)
 	push_menu_theme(current_theme);
     float width = (float)device::get_width();
 
-	// Update right panel width based on whether data registry is shown
-	float new_right_panel = show_registry ? c_right_panel_width * ui_scale : 0.0f;
-	
-	// If right panel size changed, resize the OS window
-	if (new_right_panel != inspector::current_frame.right_panel)
+	// Create fullscreen dockspace
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->WorkPos);
+	ImGui::SetNextWindowSize(viewport->WorkSize);
+	ImGui::SetNextWindowViewport(viewport->ID);
+
+	ImGuiWindowFlags dockspace_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+	                                   ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+	                                   ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+	                                   ImGuiWindowFlags_NoBackground;
+
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::Begin("DockSpace", nullptr, dockspace_flags);
+	ImGui::PopStyleVar();
+
+	ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+
+	// Set up default docking layout on first run
+	static bool first_time = true;
+	if (first_time)
 	{
-		inspector::current_frame.right_panel = new_right_panel;
-		int game_width = configuration::width() * configuration::multiplier();
-		int game_height = configuration::height() * configuration::multiplier();
-		int total_width = game_width + (int)inspector::current_frame.right_panel;
-		int total_height = game_height + 
-			(int)(inspector::current_frame.top_bar * ui_scale) + 
-			(int)(inspector::current_frame.bottom_bar * ui_scale);
-		device::set_window_size(total_width, total_height);
+		first_time = false;
+		ImGui::DockBuilderRemoveNode(dockspace_id);
+		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
+		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->WorkSize);
+
+		// Calculate exact sizes for top and bottom bars
+		float top_bar_pixels = c_frame_top_bar * ui_scale;
+		float bottom_bar_pixels = c_frame_bottom_bar * ui_scale;
+		float right_panel_pixels = c_right_panel_width * ui_scale;
+
+		// Convert pixels to ratios for DockBuilderSplitNode
+		float top_ratio = top_bar_pixels / viewport->WorkSize.y;
+		float bottom_ratio = bottom_bar_pixels / viewport->WorkSize.y;
+		float right_ratio = right_panel_pixels / viewport->WorkSize.x;
+
+		// Split the dockspace into sections using calculated ratios
+		ImGuiID dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, top_ratio, nullptr, &dockspace_id);
+		ImGuiID dock_id_bottom = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, bottom_ratio, nullptr, &dockspace_id);
+		ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, right_ratio, nullptr, &dockspace_id);
+
+		// Configure top and bottom docks: no tab bars and no resizing
+		ImGuiDockNode* node_top = ImGui::DockBuilderGetNode(dock_id_top);
+		ImGuiDockNode* node_bottom = ImGui::DockBuilderGetNode(dock_id_bottom);
+		node_top->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
+		node_bottom->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
+
+		// Dock windows into their positions
+		ImGui::DockBuilderDockWindow("Top Bar", dock_id_top);
+		ImGui::DockBuilderDockWindow("Stats", dock_id_bottom);
+		ImGui::DockBuilderDockWindow("Data Registry", dock_id_right);
+		ImGui::DockBuilderDockWindow("Game", dockspace_id);  // Game viewport in center
+		ImGui::DockBuilderDockWindow("Profiler", dockspace_id);
+
+		ImGui::DockBuilderFinish(dockspace_id);
 	}
+
 	
     {   // Game frame
         const float frame_rounding = c_frame_rounding;
@@ -313,17 +360,13 @@ void xs::inspector::render(double dt)
     }
     
     {	// Top bar
-        ImGui::Begin("Window", nullptr,
+        ImGui::Begin("Top Bar", nullptr,
                      ImGuiWindowFlags_NoScrollbar |
                      ImGuiWindowFlags_NoTitleBar |
-                     ImGuiWindowFlags_NoResize |
-                     ImGuiWindowFlags_NoMove |
                      ImGuiWindowFlags_NoCollapse |
-                     ImGuiWindowFlags_NoSavedSettings |
-                     ImGuiWindowFlags_NoScrollWithMouse);
-        ImGui::SetWindowPos({ 0, 0 });
-        const float top_bar_width = width - inspector::current_frame.right_panel;
-        ImGui::SetWindowSize({top_bar_width, inspector::current_frame.top_bar * ui_scale });
+                     ImGuiWindowFlags_NoScrollWithMouse |
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoResize);
 
         // Playback controls: play/pause + next-frame (next-frame always visible, disabled when not paused)
         if (game_paused)
@@ -425,18 +468,13 @@ void xs::inspector::render(double dt)
     }
         
     {    // Bottom stats
-        const auto& io = ImGui::GetIO();
         ImGui::Begin("Stats", &true_that,
                      ImGuiWindowFlags_NoScrollbar |
                      ImGuiWindowFlags_NoTitleBar |
-                     ImGuiWindowFlags_NoResize |
-                     ImGuiWindowFlags_NoMove |
                      ImGuiWindowFlags_NoCollapse |
-                     ImGuiWindowFlags_NoSavedSettings |
-                     ImGuiWindowFlags_NoScrollWithMouse);
-        ImGui::SetWindowPos({ 0, io.DisplaySize.y - current_frame.bottom_bar * ui_scale });
-        const float bottom_bar_width = width - inspector::current_frame.right_panel;
-        ImGui::SetWindowSize({bottom_bar_width, current_frame.bottom_bar * ui_scale });
+                     ImGuiWindowFlags_NoScrollWithMouse |
+                     ImGuiWindowFlags_AlwaysAutoResize |
+                     ImGuiWindowFlags_NoResize);
         ImGui::PushFont(small_font);
 
         auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
@@ -543,6 +581,7 @@ void xs::inspector::render(double dt)
          ImGui::End();
  	}
 	
+    /*
 	{	// Notifications
 		float x = c_notification_offset_x;
 		float y = c_notification_offset_y;
@@ -597,9 +636,54 @@ void xs::inspector::render(double dt)
 				[](const notification& n) { return n.time <= 0.0f; }),
 			notifications.end());
 	}
+     */
 
 	pop_menu_theme(current_theme);
-		
+
+	// Game Viewport Window
+	{
+		ImGui::Begin("Game", nullptr, ImGuiWindowFlags_NoCollapse);
+
+		// Get the game render target texture
+		auto texture = xs::render::get_render_target_texture();
+
+		// Get available content region (respects window padding/borders)
+		ImVec2 available_region = ImGui::GetContentRegionAvail();
+
+		// Calculate aspect ratio
+		float game_width = (float)xs::configuration::width();
+		float game_height = (float)xs::configuration::height();
+		float aspect_ratio = game_width / game_height;
+
+		// Calculate size to fit while maintaining aspect ratio
+		ImVec2 image_size = available_region;
+		if (available_region.x / available_region.y > aspect_ratio)
+		{
+			// Window is wider than game - fit to height
+			image_size.x = available_region.y * aspect_ratio;
+		}
+		else
+		{
+			// Window is taller than game - fit to width
+			image_size.y = available_region.x / aspect_ratio;
+		}
+
+		// Center the image in the available space
+		ImVec2 cursor_pos = ImGui::GetCursorPos();
+		cursor_pos.x += (available_region.x - image_size.x) * 0.5f;
+		cursor_pos.y += (available_region.y - image_size.y) * 0.5f;
+		ImGui::SetCursorPos(cursor_pos);
+
+		// Display the game texture
+#if defined(PLATFORM_APPLE)
+		ImGui::Image((ImTextureID)texture, image_size);
+#elif defined(PLATFORM_PC)
+		ImGui::Image((ImTextureID)texture, image_size, ImVec2(0,1), ImVec2(1,0));
+#endif
+
+		ImGui::End();
+	}
+
 	if (show_registry)
 	{
 		const float right_panel_width = inspector::current_frame.right_panel;
@@ -628,8 +712,11 @@ void xs::inspector::render(double dt)
 	if(show_demo)
 	{
 		ImGui::ShowDemoWindow();
-	}	
-	
+	}
+
+	// End dockspace
+	ImGui::End();
+
 	ImGui::Render();    
 
 

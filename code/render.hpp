@@ -131,4 +131,7 @@ namespace xs::render
 
 	/// Draw some text made up of squares
 	void dbg_text(const std::string& text, double x, double y, double size);
+
+	/// Get the game render target texture for display in ImGui (returns platform-specific texture handle as void*)
+	void* get_render_target_texture();
 }
