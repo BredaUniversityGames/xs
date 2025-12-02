@@ -5,11 +5,11 @@
     },
     "Bullet Damage": {
         "type": "number",
-        "value": 10.0
+        "value": 11.039999961853027
     },
     "Bullet Lifetime": {
         "type": "number",
-        "value": 2.0
+        "value": 3.009999990463257
     },
     "Bullet Size": {
         "type": "number",
@@ -18,6 +18,14 @@
     "Bullet Speed": {
         "type": "number",
         "value": 800.0
+    },
+    "Enemy Avoidance Radius": {
+        "type": "number",
+        "value": 80.0
+    },
+    "Enemy Avoidance Strength": {
+        "type": "number",
+        "value": 0.5
     },
     "Enemy Color": {
         "type": "color",
@@ -43,15 +51,15 @@
         "type": "number",
         "value": 150.0
     },
-    "Enemy Avoidance Radius": {
-        "type": "number",
-        "value": 80.0
-    },
-    "Enemy Avoidance Strength": {
-        "type": "number",
-        "value": 0.5
-    },
     "From Color": {
+        "type": "color",
+        "value": 3187733247
+    },
+    "Max Enemies": {
+        "type": "number",
+        "value": 50.0
+    },
+    "Obstacle Color": {
         "type": "color",
         "value": 3187733247
     },
@@ -70,14 +78,6 @@
     "Pickup Value": {
         "type": "number",
         "value": 10.0
-    },
-    "Max Enemies": {
-        "type": "number",
-        "value": 50.0
-    },
-    "Obstacle Color": {
-        "type": "color",
-        "value": 3187733247
     },
     "Player HP": {
         "type": "number",
