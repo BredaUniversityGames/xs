@@ -1,6 +1,7 @@
-import "xs" for Render
+import "xs" for Render, File
 import "xs_ec"for Component, Entity
 import "xs_math"for Vec2
+import "external/json" for JSON
 
 /// Component that stores position and rotation for an entity
 class Transform is Component {
@@ -111,7 +112,48 @@ class Sprite is Renderable {
         _sprite = Render.createSprite(image, s0, t0, s1, t1)
         _rotation = 0.0
         _scale = 1.0
-        _mul = 0xFFFFFFFF        
+        _mul = 0xFFFFFFFF
+        _add = 0x00000000
+        _flags = 0
+    }
+
+    /// Creates a sprite from a spritesheet file (.xssprite) by sprite name
+    /// The spritesheet file contains JSON with an "image" path and "sprites" definitions
+    /// Each sprite has x, y, width, and height in pixels
+    construct new(sheetPath, spriteName) {
+        super()
+        
+        // Read and parse the spritesheet file
+        var jsonText = File.read(sheetPath)
+        var data = JSON.parse(jsonText)
+
+        // Load the image
+        var imagePath = data["image"]
+        var imageId = Render.loadImage(imagePath)
+
+        // Get the sprite definition
+        var sprites = data["sprites"]
+        var spriteData = sprites[spriteName]
+
+        // Get image dimensions for normalizing coordinates
+        var imageWidth = Render.getImageWidth(imageId)
+        var imageHeight = Render.getImageHeight(imageId)
+
+        // Convert pixel coordinates to normalized texture coordinates (0.0 to 1.0)
+        var x = spriteData["x"]
+        var y = spriteData["y"]
+        var width = spriteData["width"]
+        var height = spriteData["height"]
+
+        var s0 = x / imageWidth
+        var t0 = y / imageHeight
+        var s1 = (x + width) / imageWidth
+        var t1 = (y + height) / imageHeight
+        
+        _sprite = Render.createSprite(imageId, s0, t0, s1, t1)
+        _rotation = 0.0
+        _scale = 1.0
+        _mul = 0xFFFFFFFF
         _add = 0x00000000
         _flags = 0
     }
