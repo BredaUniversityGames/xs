@@ -290,7 +290,7 @@ void xs::render::render()
 	// Clear the target FBO (can be MSAA or render_fbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
 	glViewport(0, 0, width, height);
-	glClearColor(0.0, 0.0, 0.0, 0.0f);  // Transparent clear for ImGui display
+	glClearColor(0.0, 0.0, 0.0, 1.0f);  // Transparent clear for ImGui display
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	
 

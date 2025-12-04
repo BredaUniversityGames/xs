@@ -421,6 +421,7 @@ void xs::inspector::render(double dt)
 
         vertical_separator();
 
+		ImGui::SameLine();
         if (xs::script::has_error())
         {
             game_paused = true;
@@ -491,9 +492,8 @@ void xs::inspector::render(double dt)
         // Draw calls
         {
             std::string label = std::string(ICON_FI_IMAGE_PEN) + " " + draw_calls + "##stat_dc";
-            if (ImGui::Button(label.c_str()))
-                ;
-             tooltip("Draw calls this frame (click to toggle profiler)");
+			ImGui::Button(label.c_str());
+            tooltip("Draw calls this frame (click to toggle profiler)");
         }
 
         ImGui::SameLine();
@@ -501,9 +501,8 @@ void xs::inspector::render(double dt)
         // Sprites
         {
             std::string label = std::string(ICON_FI_IMAGE_FRAME) + " " + sprites + "##stat_sprites";
-            if (ImGui::Button(label.c_str()))
-                ;
-             tooltip("Sprites drawn this frame");
+            ImGui::Button(label.c_str());
+            tooltip("Sprites drawn this frame");
         }
 
         ImGui::SameLine();
@@ -511,9 +510,8 @@ void xs::inspector::render(double dt)
         // Textures
         {
             std::string label = std::string(ICON_FI_IMAGES) + " " + textures + "##stat_textures";
-            if (ImGui::Button(label.c_str()))
-                ;
-             tooltip("Number of textures loaded in GPU memory");
+            ImGui::Button(label.c_str());
+            tooltip("Number of textures loaded in GPU memory");
         }
 
         ImGui::SameLine();
