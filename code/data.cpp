@@ -138,15 +138,10 @@ void xs::data::inspect_at(bool& show, int x, int y, int w, int h)
 	ImGuiWindowFlags flags =
 		ImGuiWindowFlags_NoTitleBar |
 		ImGuiWindowFlags_NoCollapse |
-		ImGuiWindowFlags_NoResize |
-		ImGuiWindowFlags_NoMove |
 		ImGuiWindowFlags_NoScrollbar |
-		ImGuiWindowFlags_NoSavedSettings |
 		ImGuiWindowFlags_NoScrollWithMouse;
 
-	ImGui::SetNextWindowPos(ImVec2((float)x, (float)y));
-	ImGui::SetNextWindowSize(ImVec2((float)w, (float)h));
-	ImGui::Begin("DataPanelWindow", &show, flags);
+	ImGui::Begin("Data Registry", &show, flags);
 
 	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
 	if (ImGui::Button(ICON_FI_UNDO))
@@ -280,8 +275,7 @@ void xs::data::internal::inspect_of_type(
 		sort(sorted.begin(), sorted.end());
 		
 		ImGui::BeginChild("Child");
-		auto width = inspector::get_frame().right_panel;
-		ImGui::PushItemWidth(width * 0.45f);
+		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.45f);
 		for (const auto& s : sorted)
 			ed = std::max(ed, inspect_entry(*reg.find(s)));
 		ImGui::PopItemWidth();
@@ -501,7 +495,7 @@ bool xs::data::internal::inspect_entry(
 		ImGui::SameLine(ImGui::GetWindowWidth() - 60);
 		//ImGui::SameLine();
 		ImGui::PushID(itr.first.c_str());
-		if (ImGui::Button(ICON_FI_DELTE))
+		if (ImGui::Button(ICON_FI_DELETE))
 		{
 			reg.erase(itr.first);
 			edited = true;

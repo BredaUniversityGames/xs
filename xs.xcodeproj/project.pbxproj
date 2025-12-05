@@ -142,6 +142,7 @@
 		5AC6A4E62ED2436500727C61 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 5AC6A4DD2ED2436500727C61 /* LICENSE */; };
 		5AC6A4EA2ED2445B00727C61 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4E92ED2445B00727C61 /* imgui_stdlib.cpp */; };
 		5AC6A4EB2ED2445B00727C61 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4E92ED2445B00727C61 /* imgui_stdlib.cpp */; };
+		5AF067552EDEFC49004C24A5 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AF067542EDEFC49004C24A5 /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -212,14 +213,12 @@
 		3474D5C12B14DFC000441451 /* imconfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imconfig.h; sourceTree = "<group>"; };
 		3474D5C22B14DFC000441451 /* imgui_widgets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_widgets.cpp; sourceTree = "<group>"; };
 		3474D5C42B14DFC000441451 /* imstb_truetype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_truetype.h; sourceTree = "<group>"; };
-		3474D5C52B14DFC000441451 /* IconsFontAwesome5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IconsFontAwesome5.h; sourceTree = "<group>"; };
 		3474D5C72B14DFC000441451 /* imgui_impl.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = imgui_impl.cpp; sourceTree = "<group>"; };
 		3474D5C92B14DFC000441451 /* imgui_impl_osx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_impl_osx.h; sourceTree = "<group>"; };
 		3474D5CC2B14DFC000441451 /* imgui_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_impl.h; sourceTree = "<group>"; };
 		3474D5CF2B14DFC000441451 /* imgui_impl_metal.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = imgui_impl_metal.mm; sourceTree = "<group>"; };
 		3474D5D02B14DFC000441451 /* imgui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui.cpp; sourceTree = "<group>"; };
 		3474D5D22B14DFC000441451 /* imgui_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_internal.h; sourceTree = "<group>"; };
-		3474D5D32B14DFC000441451 /* IconsFontAwesome.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IconsFontAwesome.h; sourceTree = "<group>"; };
 		3474D5D52B14DFC000441451 /* imgui_impl_metal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imgui_impl_metal.h; sourceTree = "<group>"; };
 		3474D5D72B14DFC000441451 /* imgui_impl_osx.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = imgui_impl_osx.mm; sourceTree = "<group>"; };
 		3474D5D82B14DFC000441451 /* imstb_rectpack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imstb_rectpack.h; sourceTree = "<group>"; };
@@ -771,6 +770,7 @@
 		5AC6A4E72ED2445B00727C61 /* imgui_impl_sdl3.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui_impl_sdl3.h; sourceTree = "<group>"; };
 		5AC6A4E82ED2445B00727C61 /* imgui_stdlib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = imgui_stdlib.h; sourceTree = "<group>"; };
 		5AC6A4E92ED2445B00727C61 /* imgui_stdlib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_stdlib.cpp; sourceTree = "<group>"; };
+		5AF067542EDEFC49004C24A5 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		5AF0F1012F0C003900000001 /* libfreetype.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfreetype.a; path = external/freetype/lib/mac/libfreetype.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -797,6 +797,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5AF067552EDEFC49004C24A5 /* QuartzCore.framework in Frameworks */,
 				5A3117702ECF673100049544 /* AudioToolbox.framework in Frameworks */,
 				5A31176E2ECF672800049544 /* CoreHaptics.framework in Frameworks */,
 				5A31176C2ECF66BA00049544 /* Carbon.framework in Frameworks */,
@@ -821,6 +822,7 @@
 		346184252A7867A90014B43C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5AF067542EDEFC49004C24A5 /* QuartzCore.framework */,
 				5AF0F1012F0C003900000001 /* libfreetype.a */,
 				5ABF52D52ECF73B600F039A6 /* libSDL3.dylib */,
 				5A31177D2ECF68FD00049544 /* Metal.framework */,
@@ -854,44 +856,44 @@
 		346E733F2A4A29D5006ECAD5 /* code */ = {
 			isa = PBXGroup;
 			children = (
-				3474D5C72B14DFC000441451 /* imgui_impl.cpp */,
-				3474D5CC2B14DFC000441451 /* imgui_impl.h */,
+				346E73472A4A29D5006ECAD5 /* account.hpp */,
+				346E734A2A4A29D5006ECAD5 /* audio.hpp */,
+				346E738E2A4A29D5006ECAD5 /* audio.cpp */,
 				5A7BCF7A2ECE307800A4A0C3 /* color.hpp */,
+				346E73492A4A29D5006ECAD5 /* configuration.hpp */,
+				346E73942A4A29D5006ECAD5 /* configuration.cpp */,
+				346E73482A4A29D5006ECAD5 /* data.hpp */,
+				346E73912A4A29D5006ECAD5 /* data.cpp */,
+				346E734B2A4A29D5006ECAD5 /* defines.hpp */,
+				346E73452A4A29D5006ECAD5 /* device.hpp */,
+				346E738F2A4A29D5006ECAD5 /* device.cpp */,
+				346E734E2A4A29D5006ECAD5 /* fileio.hpp */,
+				346E73902A4A29D5006ECAD5 /* fileio.cpp */,
+				3474D5CC2B14DFC000441451 /* imgui_impl.h */,
+				3474D5C72B14DFC000441451 /* imgui_impl.cpp */,
+				346E73412A4A29D5006ECAD5 /* input.hpp */,
+				346E734F2A4A29D5006ECAD5 /* inspector.hpp */,
+				346E73932A4A29D5006ECAD5 /* inspector.cpp */,
+				346E734C2A4A29D5006ECAD5 /* log.hpp */,
+				346E737E2A4A29D5006ECAD5 /* log.cpp */,
 				5A7BCF7B2ECE307800A4A0C3 /* packager.hpp */,
 				5A7BCF7C2ECE307800A4A0C3 /* packager.cpp */,
 				5A7BCF7D2ECE307800A4A0C3 /* platform.hpp */,
+				346E73512A4A29D5006ECAD5 /* profiler.hpp */,
+				346E737F2A4A29D5006ECAD5 /* profiler.cpp */,
+				346E73522A4A29D5006ECAD5 /* render.hpp */,
+				346E737C2A4A29D5006ECAD5 /* render.cpp */,
+				346E73802A4A29D5006ECAD5 /* render_internal.hpp */,
+				346E73442A4A29D5006ECAD5 /* script.hpp */,
+				346E73812A4A29D5006ECAD5 /* script.cpp */,
+				5A7BCF752ECE29CE00A4A0C3 /* simple_audio.hpp */,
+				5A7BCF762ECE29CE00A4A0C3 /* simple_audio.cpp */,
+				346E734D2A4A29D5006ECAD5 /* tools.hpp */,
+				346E73952A4A29D5006ECAD5 /* tools.cpp */,
+				346E73432A4A29D5006ECAD5 /* version.hpp */,
 				5A7BCF7E2ECE307800A4A0C3 /* version.cpp */,
 				5A7BCF7F2ECE307800A4A0C3 /* xs.hpp */,
 				5A7BCF802ECE307800A4A0C3 /* xs.cpp */,
-				5A7BCF752ECE29CE00A4A0C3 /* simple_audio.hpp */,
-				5A7BCF762ECE29CE00A4A0C3 /* simple_audio.cpp */,
-				346E73412A4A29D5006ECAD5 /* input.hpp */,
-				346E73432A4A29D5006ECAD5 /* version.hpp */,
-				346E73442A4A29D5006ECAD5 /* script.hpp */,
-				346E73452A4A29D5006ECAD5 /* device.hpp */,
-				346E73472A4A29D5006ECAD5 /* account.hpp */,
-				346E73482A4A29D5006ECAD5 /* data.hpp */,
-				346E73492A4A29D5006ECAD5 /* configuration.hpp */,
-				346E734A2A4A29D5006ECAD5 /* audio.hpp */,
-				346E734B2A4A29D5006ECAD5 /* defines.hpp */,
-				346E734C2A4A29D5006ECAD5 /* log.hpp */,
-				346E734D2A4A29D5006ECAD5 /* tools.hpp */,
-				346E734E2A4A29D5006ECAD5 /* fileio.hpp */,
-				346E734F2A4A29D5006ECAD5 /* inspector.hpp */,
-				346E73512A4A29D5006ECAD5 /* profiler.hpp */,
-				346E73522A4A29D5006ECAD5 /* render.hpp */,
-				346E737C2A4A29D5006ECAD5 /* render.cpp */,
-				346E737E2A4A29D5006ECAD5 /* log.cpp */,
-				346E737F2A4A29D5006ECAD5 /* profiler.cpp */,
-				346E73802A4A29D5006ECAD5 /* render_internal.hpp */,
-				346E73812A4A29D5006ECAD5 /* script.cpp */,
-				346E738E2A4A29D5006ECAD5 /* audio.cpp */,
-				346E738F2A4A29D5006ECAD5 /* device.cpp */,
-				346E73902A4A29D5006ECAD5 /* fileio.cpp */,
-				346E73912A4A29D5006ECAD5 /* data.cpp */,
-				346E73932A4A29D5006ECAD5 /* inspector.cpp */,
-				346E73942A4A29D5006ECAD5 /* configuration.cpp */,
-				346E73952A4A29D5006ECAD5 /* tools.cpp */,
 			);
 			path = code;
 			sourceTree = "<group>";
@@ -956,12 +958,10 @@
 				3474D5C12B14DFC000441451 /* imconfig.h */,
 				3474D5C22B14DFC000441451 /* imgui_widgets.cpp */,
 				3474D5C42B14DFC000441451 /* imstb_truetype.h */,
-				3474D5C52B14DFC000441451 /* IconsFontAwesome5.h */,
 				3474D5C92B14DFC000441451 /* imgui_impl_osx.h */,
 				3474D5CF2B14DFC000441451 /* imgui_impl_metal.mm */,
 				3474D5D02B14DFC000441451 /* imgui.cpp */,
 				3474D5D22B14DFC000441451 /* imgui_internal.h */,
-				3474D5D32B14DFC000441451 /* IconsFontAwesome.h */,
 				3474D5D52B14DFC000441451 /* imgui_impl_metal.h */,
 				3474D5D72B14DFC000441451 /* imgui_impl_osx.mm */,
 				3474D5D82B14DFC000441451 /* imstb_rectpack.h */,

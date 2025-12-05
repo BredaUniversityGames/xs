@@ -65,7 +65,7 @@ constexpr std::array<char, 5> utf8_from_code(unsigned int cp)
     X(BUG,                  0xe206) \
     X(COG,                  0xf6a9) \
     X(SAVE,                 0xea43) \
-    X(DELTE,                0xe47b) \
+    X(DELETE,               0xe47b) \
     X(MEMORY,               0xf0f0) \
     X(IMAGE_PEN,            0xf492) \
     X(IMAGES,               0xe725) \

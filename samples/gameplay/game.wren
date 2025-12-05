@@ -1,4 +1,4 @@
-import "xs" for Render, Data
+import "xs" for Render, Data, Input
 import "xs_math" for Math, Color
 import "xs_tools" for ShapeBuilder
 import "xs_ec" for Entity, Component
@@ -56,11 +56,17 @@ class Game {
         __background.render()
         Renderable.render()
         Shadow.render()
-        
+
+        // Draw small circle at mouse position for testing
+        var mouseX = Input.getMouseX()
+        var mouseY = Input.getMouseY()
+        Render.dbgColor(0xff00ff00)  // Green color
+        Render.dbgDisk(mouseX, mouseY, 5, 16)  // Small filled circle with 16 segments
+
         // Render UI
         var scoreText = "Score: %(__score)"
         Render.text(__font, scoreText, -620, 320, 10, 0xffffffff, 0x00000000, 0)
-        
+
         // Render health if player exists
         var players = Entity.withTag(Tag.player)
         if (players.count > 0) {
@@ -71,7 +77,7 @@ class Game {
                 Render.text(__font, healthText, -620, 280, 10, 0xffffffff, 0x00000000, 0)
             }
         }
-        
+
         // Render enemy count
         var enemies = Entity.withTag(Tag.enemy)
         var enemyText = "Enemies: %(enemies.count)"

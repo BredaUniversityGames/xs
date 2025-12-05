@@ -62,8 +62,6 @@ void device::initialize()
 	// Set window size
 	internal::width = configuration::width() * configuration::multiplier();
 	internal::height = configuration::height() * configuration::multiplier();
-	auto frame = xs::inspector::get_frame();
-	internal::height += (int)(frame.bottom_bar + frame.top_bar);
 
 	// Create window
 	internal::window = SDL_CreateWindow(
@@ -226,8 +224,6 @@ void device::set_fullscreen(bool fullscreen)
 		// Restore windowed size
 		internal::width = configuration::width() * configuration::multiplier();
 		internal::height = configuration::height() * configuration::multiplier();
-		auto frame = xs::inspector::get_frame();
-		internal::height += (int)(frame.bottom_bar + frame.top_bar);
 		SDL_SetWindowSize(internal::window, internal::width, internal::height);
 	}
 }

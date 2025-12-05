@@ -290,7 +290,7 @@ void xs::render::render()
 	// Clear the target FBO (can be MSAA or render_fbo)
 	glBindFramebuffer(GL_FRAMEBUFFER, msaa_fbo);
 	glViewport(0, 0, width, height);
-	glClearColor(1.0, 0.0, 1.0, 1.0f);
+	glClearColor(0.0, 0.0, 0.0, 1.0f);  // Transparent clear for ImGui display
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	
 	
 
@@ -392,19 +392,15 @@ void xs::render::render()
 		GL_NEAREST);
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-	// Blit the render_fbo to the screen, positioned to avoid inspector panels
-	auto frame = xs::inspector::get_frame();
-	int game_width = xs::configuration::width() * xs::configuration::multiplier();
-	int game_height = xs::configuration::height() * xs::configuration::multiplier();
+#ifndef INSPECTOR
+	// When inspector is disabled, blit the render_fbo directly to screen
 	glBlitNamedFramebuffer(
 		render_fbo,
 		0,
 		0, 0, width, height,
-		0,
-		(int)frame.bottom_bar,
-		game_width,
-		game_height + (int)frame.bottom_bar,
+		0, 0, width, height,
 		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+#endif
 
 	// Bind the default framebuffer for the editor
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -1027,7 +1023,12 @@ string xs::render::shader_preprocessor::get_parent_path(const string& path)
 	// if we found one of this symbols
 	if (found != string::npos)
 		parent = path.substr(0, found);
-	
+
 	return parent;
+}
+
+void* xs::render::get_render_target_texture()
+{
+	return (void*)(intptr_t)render_texture;
 }
 

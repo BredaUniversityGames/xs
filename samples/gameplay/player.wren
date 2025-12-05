@@ -78,6 +78,7 @@ class Player is Component {
     }
 
     shoot(dt) {
+        _shootInterval = Data.getNumber("Player Shoot Interval")
         _shootCooldown = _shootCooldown - dt
         
         // Auto-shoot when cooldown is ready
