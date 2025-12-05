@@ -23,7 +23,7 @@ namespace xs::data::internal
 {
 	struct registry_value
 	{
-		type type = type::none;		
+		type data_type = type::none;
 		std::variant<double, bool, uint32_t, std::string> value;
 		bool active = false;
 	};
@@ -270,7 +270,7 @@ void xs::data::internal::inspect_of_type(
 
 		vector<string> sorted;
 		for (auto& itr : reg)
-			if (filter.PassFilter(itr.first.c_str()) && itr.second.type == type)
+			if (filter.PassFilter(itr.first.c_str()) && itr.second.data_type == type)
 				sorted.push_back(itr.first);
 		sort(sorted.begin(), sorted.end());
 		
@@ -290,7 +290,7 @@ void xs::data::save_of_type(type type)
 	nlohmann::json j;
 	for (auto& itr : reg)
 	{
-		if (itr.second.type == type)
+		if (itr.second.data_type == type)
 		{
 			auto val_double = std::get_if<double>(&itr.second.value);
 			auto val_bool = std::get_if<bool>(&itr.second.value);
@@ -430,7 +430,7 @@ bool xs::data::internal::inspect_entry(
 						if (is_selected)
 							ImGui::SetItemDefaultFocus();
 					}
-					set(itr.first, (double)vint, itr.second.type, itr.second.active);
+					set(itr.first, (double)vint, itr.second.data_type, itr.second.active);
 					ImGui::EndCombo();
 				}
 				ImGui::PopID();
@@ -441,7 +441,7 @@ bool xs::data::internal::inspect_entry(
 				auto val = std::get<double>(itr.second.value);
 				float flt = (float)val;
 				edited = ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);
-				set(itr.first, flt, itr.second.type, itr.second.active);
+				set(itr.first, flt, itr.second.data_type, itr.second.active);
 			}
 		}
 	}
@@ -451,7 +451,7 @@ bool xs::data::internal::inspect_entry(
 		if (val)
 		{
 			edited = ImGui::Checkbox(itr.first.c_str(), val);
-			set(itr.first, *val, itr.second.type, itr.second.active);
+			set(itr.first, *val, itr.second.data_type, itr.second.active);
 		}
 	}
 
@@ -462,18 +462,18 @@ bool xs::data::internal::inspect_entry(
 			ImVec4 vec = color_convert(*val);
 			edited = ImGui::ColorEdit4(itr.first.c_str(), &vec.x);
 			*val = color_convert(vec);
-			set(itr.first, *val, itr.second.type, itr.second.active);
+			set(itr.first, *val, itr.second.data_type, itr.second.active);
 		}
 	}
 
 	{
 		auto val = std::get_if<string>(&itr.second.value);
 		if (val)
-		{			
+		{
 			ImGui::PushItemWidth(0);
 			edited = ImGui::InputText(itr.first.c_str(), val);
 			ImGui::PopItemWidth();
-			set(itr.first, *val, itr.second.type);
+			set(itr.first, *val, itr.second.data_type);
 		}
 	}
 
