@@ -7,7 +7,7 @@
 #include <fmt/core.h>
 
 // Color support for platforms with ANSI terminal (disabled in Release)
-#if !defined(XS_RELEASE) && (defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_PROSPERO))
+#if !defined(XS_RELEASE) && (defined(PLATFORM_PC) || defined(PLATFORM_LINUX) || defined(PLATFORM_SWITCH) || defined(PLATFORM_PROSPERO))
 #define USE_LOG_COLOR
 #endif
 

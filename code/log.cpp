@@ -3,7 +3,7 @@
 #include "xs.hpp"
 #include <sstream>
 
-#if defined(PLATFORM_PC)
+#if defined(PLATFORM_PC) && defined(_WIN32)
 #include <windows.h>
 #endif
 
@@ -13,7 +13,7 @@ void xs::log::output_log(const std::string& message)
     // Always output to console (if available)
     std::cout << message << "\n" << std::flush;
 
-    #if defined(PLATFORM_PC) && defined(XS_RELEASE)
+    #if defined(PLATFORM_PC) && defined(_WIN32) && defined(XS_RELEASE)
     // In Release builds without console, also output to debugger
     OutputDebugStringA(message.c_str());
     #endif
@@ -46,7 +46,7 @@ namespace
 void xs::log::initialize()
 {
     // Enable UTF-8 output on Windows
-    #if defined(PLATFORM_PC)
+    #if defined(PLATFORM_PC) && defined(_WIN32)
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
     #endif
