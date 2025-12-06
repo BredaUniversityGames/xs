@@ -127,28 +127,19 @@ target_include_directories(xs PRIVATE
     ${CMAKE_SOURCE_DIR}/external/nanosvg/src
     ${CMAKE_SOURCE_DIR}/external/dialogs
     ${CMAKE_SOURCE_DIR}/external/cereal/include
+    ${CMAKE_SOURCE_DIR}/external/sdl3/inc
 )
 
-# Fetch SDL3 from source
-message(STATUS "Fetching SDL3 from GitHub...")
-FetchContent_Declare(
-    SDL3
-    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
-    GIT_TAG main
-    GIT_SHALLOW TRUE
-    GIT_PROGRESS TRUE
+# Find SDL3 library
+find_library(SDL3_LIBRARY
+    NAMES SDL3 libSDL3
+    PATHS ${CMAKE_SOURCE_DIR}/external/sdl3/lib/linux
+    NO_DEFAULT_PATH
+    REQUIRED
 )
-
-# Configure SDL3 options (disable unnecessary features for faster build)
-set(SDL_SHARED ON CACHE BOOL "Build SDL3 as shared library" FORCE)
-set(SDL_STATIC OFF CACHE BOOL "Don't build SDL3 as static library" FORCE)
-set(SDL_TEST_LIBRARY OFF CACHE BOOL "Don't build SDL3 test library" FORCE)
-set(SDL_TESTS OFF CACHE BOOL "Don't build SDL3 tests" FORCE)
-
-FetchContent_MakeAvailable(SDL3)
 
 # Link SDL3
-target_link_libraries(xs PRIVATE SDL3::SDL3)
+target_link_libraries(xs PRIVATE ${SDL3_LIBRARY})
 
 # OpenGL
 find_package(OpenGL REQUIRED)

@@ -267,7 +267,7 @@ DEPENDENCIES = {
         'type': 'local',
         'platforms': ['pc', 'apple'],
         'description': 'Simple DirectMedia Layer 3 (windowing/input)',
-        'install_notes': 'Windows: Download VC libs from releases | macOS: Mount DMG volumes',
+        'install_notes': 'Windows/Linux: Auto-download from GitHub | macOS: Mount DMG volumes',
         # Note: update_function will be set after the function is defined
     },
     'steam': {
@@ -367,6 +367,9 @@ def check_dependency_available(dep_key: str, dep_info: Dict) -> bool:
                 except:
                     pass
                 return False
+            elif plat == "Windows" or plat == "Linux":
+                # Windows and Linux download from GitHub releases - always available
+                return True
             else:
                 return False
 
@@ -999,6 +1002,179 @@ def copy_sdl3_from_dmg(progress_callback=None) -> Tuple[bool, str]:
         except Exception as e:
             logger.error(f"Error installing SDL3 on Windows: {str(e)}")
             return False, f"Error installing SDL3: {e}"
+        finally:
+            # Clean up temporary directory
+            if temp_dir and temp_dir.exists():
+                logger.info(f"Cleaning up temp directory: {temp_dir}")
+                try:
+                    shutil.rmtree(temp_dir)
+                    logger.info("Temp directory cleaned up")
+                except Exception as e:
+                    logger.warning(f"Could not clean up temp directory: {e}")
+
+    elif plat == "Linux":
+        logger.info("Platform: Linux - downloading and building SDL3 from source")
+
+        temp_dir = None
+        try:
+            if progress_callback:
+                progress_callback("Fetching latest SDL3 release info...")
+
+            # Get latest release info from GitHub API
+            logger.info("Fetching latest SDL3 release from GitHub...")
+            api_url = "https://api.github.com/repos/libsdl-org/SDL/releases/latest"
+
+            with urllib.request.urlopen(api_url) as response:
+                release_data = json.loads(response.read().decode())
+
+            release_tag = release_data['tag_name']
+            logger.info(f"Latest SDL3 release: {release_tag}")
+
+            # Find the source tarball
+            tarball_asset = None
+            for asset in release_data['assets']:
+                if asset['name'].endswith('.tar.gz') and 'SDL3' in asset['name']:
+                    tarball_asset = asset
+                    break
+
+            if not tarball_asset:
+                # Fallback to tag tarball if no release asset found
+                tarball_url = f"https://github.com/libsdl-org/SDL/archive/refs/tags/{release_tag}.tar.gz"
+                asset_name = f"SDL-{release_tag}.tar.gz"
+                logger.info(f"Using tag tarball: {tarball_url}")
+            else:
+                tarball_url = tarball_asset['browser_download_url']
+                asset_name = tarball_asset['name']
+                logger.info(f"Download URL: {tarball_url}")
+
+            # Create temporary directory
+            temp_dir = Path(tempfile.mkdtemp(prefix="sdl3_build_"))
+            logger.info(f"Created temp directory: {temp_dir}")
+
+            # Download the tarball
+            tarball_path = temp_dir / asset_name
+            logger.info(f"Downloading {asset_name}...")
+            if progress_callback:
+                progress_callback(f"Downloading {asset_name}...")
+
+            urllib.request.urlretrieve(tarball_url, tarball_path)
+            logger.info(f"Downloaded to {tarball_path}")
+
+            # Extract the tarball
+            if progress_callback:
+                progress_callback("Extracting archive...")
+            logger.info("Extracting SDL3 source...")
+
+            import tarfile
+            with tarfile.open(tarball_path, 'r:gz') as tar_ref:
+                tar_ref.extractall(temp_dir)
+
+            # Find the SDL3 source folder
+            sdl_source = None
+            for item in temp_dir.iterdir():
+                if item.is_dir() and item.name.startswith("SDL"):
+                    sdl_source = item
+                    logger.info(f"Found SDL3 source at {item}")
+                    break
+
+            if not sdl_source:
+                logger.error("Could not find SDL3 folder in extracted archive")
+                return False, "Could not find SDL3 folder in extracted archive"
+
+            # Build SDL3
+            if progress_callback:
+                progress_callback("Configuring SDL3 build...")
+            logger.info("Configuring SDL3 with CMake...")
+
+            build_dir = sdl_source / "build"
+            build_dir.mkdir(exist_ok=True)
+
+            # Configure with CMake
+            cmake_args = [
+                'cmake',
+                '..',
+                '-DCMAKE_BUILD_TYPE=Release',
+                '-DSDL_SHARED=ON',
+                '-DSDL_STATIC=OFF',
+                '-DSDL_TEST_LIBRARY=OFF',
+                '-DSDL_TESTS=OFF',
+            ]
+
+            result = subprocess.run(cmake_args, cwd=build_dir, capture_output=True, text=True)
+            if result.returncode != 0:
+                logger.error(f"CMake configuration failed: {result.stderr}")
+                return False, f"CMake configuration failed: {result.stderr[:200]}"
+
+            # Build with make
+            if progress_callback:
+                progress_callback("Building SDL3 (this may take a few minutes)...")
+            logger.info("Building SDL3...")
+
+            # Use all available cores for faster build
+            import multiprocessing
+            cores = multiprocessing.cpu_count()
+
+            result = subprocess.run(['make', f'-j{cores}'], cwd=build_dir, capture_output=True, text=True)
+            if result.returncode != 0:
+                logger.error(f"Make build failed: {result.stderr}")
+                return False, f"Build failed: {result.stderr[:200]}"
+
+            # Now copy the built files
+            if progress_callback:
+                progress_callback("Installing SDL3...")
+
+            sdl_dest = repo_root / "external" / "sdl3"
+            inc_dest = sdl_dest / "inc"
+            lib_dest = sdl_dest / "lib" / "linux"
+
+            # Create directories
+            sdl_dest.mkdir(parents=True, exist_ok=True)
+            inc_dest.mkdir(parents=True, exist_ok=True)
+            lib_dest.mkdir(parents=True, exist_ok=True)
+
+            # Copy LICENSE
+            license_src = sdl_source / "LICENSE.txt"
+            if license_src.exists():
+                logger.info("Copying LICENSE.txt")
+                shutil.copy2(license_src, sdl_dest / "LICENSE.txt")
+
+            # Copy headers
+            headers_src = sdl_source / "include" / "SDL3"
+            if headers_src.exists():
+                logger.info("Copying SDL3 headers to inc/SDL3/")
+                if progress_callback:
+                    progress_callback("Copying headers...")
+                # Create SDL3 subdirectory and copy headers
+                sdl3_inc = inc_dest / "SDL3"
+                sdl3_inc.mkdir(parents=True, exist_ok=True)
+                for header_file in headers_src.glob("*.h"):
+                    shutil.copy2(header_file, sdl3_inc / header_file.name)
+
+            # Copy built libraries
+            logger.info("Copying built libraries to lib/linux/")
+            if progress_callback:
+                progress_callback("Copying libraries...")
+
+            # Find and copy libSDL3.so*
+            for lib_file in build_dir.glob("libSDL3.so*"):
+                if lib_file.is_file() or lib_file.is_symlink():
+                    shutil.copy2(lib_file, lib_dest / lib_file.name, follow_symlinks=False)
+                    logger.info(f"Copied {lib_file.name}")
+
+            if progress_callback:
+                progress_callback("Complete")
+
+            logger.info(f"Successfully built and installed SDL3 {release_tag} for Linux")
+            return True, f"Successfully built and installed SDL3 {release_tag}"
+
+        except urllib.error.URLError as e:
+            logger.error(f"Network error downloading SDL3: {str(e)}")
+            return False, f"Network error: {e}"
+        except Exception as e:
+            logger.error(f"Error building SDL3 on Linux: {str(e)}")
+            import traceback
+            logger.error(traceback.format_exc())
+            return False, f"Error building SDL3: {e}"
         finally:
             # Clean up temporary directory
             if temp_dir and temp_dir.exists():
