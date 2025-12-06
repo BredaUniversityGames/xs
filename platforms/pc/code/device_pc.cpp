@@ -135,8 +135,8 @@ void device::poll_events()
 			{
 				internal::width = event.window.data1;
 				internal::height = event.window.data2;
-				SDL_SetWindowSize(internal::window, internal::width, internal::height);
-				SDL_GL_MakeCurrent(internal::window, internal::context);
+				// Update OpenGL viewport to match new window size
+				glViewport(0, 0, internal::width, internal::height);
 			}
 			break;
 			// Window focus event
