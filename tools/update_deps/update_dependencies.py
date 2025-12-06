@@ -236,9 +236,9 @@ DEPENDENCIES = {
     'freetype': {
         'name': 'FreeType',
         'type': 'local',
-        'platforms': ['pc', 'apple'],
+        'platforms': ['pc', 'apple'],  # pc includes both Windows and Linux
         'description': 'Font rendering library (desktop only)',
-        'install_notes': 'Run tools/update_deps/build_freetype.py to build from source',
+        'install_notes': 'Auto-builds from source on all platforms',
         # Note: update_function will be set after the function is defined
     },
     'glad': {
@@ -1196,8 +1196,8 @@ def build_freetype_from_source(progress_callback=None) -> Tuple[bool, str]:
     repo_root = get_repo_root()
     plat = platform.system()
 
-    # FreeType build is supported on Windows and macOS (desktop platforms)
-    if plat not in ["Windows", "Darwin"]:
+    # FreeType build is supported on Windows, macOS, and Linux (desktop platforms)
+    if plat not in ["Windows", "Darwin", "Linux"]:
         logger.error(f"FreeType build not supported on {plat}")
         return False, f"FreeType build not supported on {plat}. Please build manually."
 

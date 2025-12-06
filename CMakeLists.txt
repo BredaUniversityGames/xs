@@ -59,7 +59,7 @@ set(GLAD_SOURCES
     external/glad/src/glad.c
 )
 
-# External: ImGui
+# External: ImGui (with FreeType support)
 set(IMGUI_SOURCES
     external/imgui/imgui.cpp
     external/imgui/imgui_demo.cpp
@@ -69,6 +69,7 @@ set(IMGUI_SOURCES
     external/imgui/imgui_impl_opengl3.cpp
     external/imgui/imgui_impl_sdl3.cpp
     external/imgui/imgui_stdlib.cpp
+    external/imgui/misc/freetype/imgui_freetype.cpp
 )
 
 # External: ImPlot
@@ -128,6 +129,7 @@ target_include_directories(xs PRIVATE
     ${CMAKE_SOURCE_DIR}/external/dialogs
     ${CMAKE_SOURCE_DIR}/external/cereal/include
     ${CMAKE_SOURCE_DIR}/external/sdl3/inc
+    ${CMAKE_SOURCE_DIR}/external/freetype/inc
 )
 
 # Find SDL3 library
@@ -138,8 +140,16 @@ find_library(SDL3_LIBRARY
     REQUIRED
 )
 
-# Link SDL3
-target_link_libraries(xs PRIVATE ${SDL3_LIBRARY})
+# Find FreeType library
+find_library(FREETYPE_LIBRARY
+    NAMES freetype libfreetype
+    PATHS ${CMAKE_SOURCE_DIR}/external/freetype/lib/linux
+    NO_DEFAULT_PATH
+    REQUIRED
+)
+
+# Link SDL3 and FreeType
+target_link_libraries(xs PRIVATE ${SDL3_LIBRARY} ${FREETYPE_LIBRARY})
 
 # OpenGL
 find_package(OpenGL REQUIRED)
