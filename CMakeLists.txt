@@ -32,20 +32,23 @@ set(CORE_SOURCES
     code/xs.cpp
 )
 
+# SDL3 sources (shared across PC and Apple platforms)
+set(SDL3_SOURCES
+    code/sdl3/device_sdl.cpp
+    code/sdl3/input_sdl.cpp
+)
+
 # Platform-specific files
-# Use shared PC implementation for device and input (SDL3/OpenGL)
 # Use Linux-specific fileio for XDG paths
 set(PLATFORM_SOURCES
-    platforms/pc/code/device_pc.cpp
     platforms/linux/code/fileio_linux.cpp
-    platforms/pc/code/input_pc.cpp
     platforms/pc/code/account_pc.cpp
 )
 
 # OpenGL rendering backend
 set(OPENGL_SOURCES
-    platforms/opengl/code/opengl.cpp
-    platforms/opengl/code/render_gl.cpp
+    code/opengl/opengl.cpp
+    code/opengl/render_gl.cpp
 )
 
 # Audio implementation (null for Linux until FMOD is available)
@@ -92,6 +95,7 @@ set(MINIZ_SOURCES
 # Combine all sources
 set(ALL_SOURCES
     ${CORE_SOURCES}
+    ${SDL3_SOURCES}
     ${PLATFORM_SOURCES}
     ${OPENGL_SOURCES}
     ${AUDIO_SOURCES}
@@ -108,9 +112,10 @@ add_executable(xs ${ALL_SOURCES})
 # Include directories
 target_include_directories(xs PRIVATE
     ${CMAKE_SOURCE_DIR}/code
+    ${CMAKE_SOURCE_DIR}/code/sdl3
+    ${CMAKE_SOURCE_DIR}/code/opengl
     ${CMAKE_SOURCE_DIR}/platforms/pc/code
     ${CMAKE_SOURCE_DIR}/platforms/linux/code
-    ${CMAKE_SOURCE_DIR}/platforms/opengl/code
     ${CMAKE_SOURCE_DIR}/external
     ${CMAKE_SOURCE_DIR}/external/glad/include
     ${CMAKE_SOURCE_DIR}/external/imgui

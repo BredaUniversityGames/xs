@@ -6,7 +6,7 @@
 #include <SDL3/SDL_gamepad.h>
 
 #include "device.hpp"
-#include "device_pc.hpp"
+#include "device_sdl.hpp"
 #include "configuration.hpp"
 #include "log.hpp"
 #include "data.hpp"
