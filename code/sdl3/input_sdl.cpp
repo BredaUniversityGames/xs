@@ -50,11 +50,19 @@ struct Data
 
 	bool keys_down[SDL_SCANCODE_COUNT];
 	bool prev_keys_down[SDL_SCANCODE_COUNT];
+
+	// Mouse state
+	float mouse_x = 0.0f;
+	float mouse_y = 0.0f;
+	float mouse_wheel = 0.0f;
+	bool mouse_buttons[5] = {false}; // Left, Middle, Right, X1, X2
+	bool prev_mouse_buttons[5] = {false};
 };
 
 gamepad_entry* get_default_gamepad();
 void update_all_gamepads();
 void update_keyboard();
+void update_mouse();
 int get_usb_scancode(int key);
 Data* data = nullptr;
 
@@ -78,11 +86,23 @@ void xs::input::update(double dt)
 {
 	update_all_gamepads();
 	update_keyboard();
+	update_mouse();
 }
 
-double xs::input::get_mouse_x() { return 0.0; }
-double xs::input::get_mouse_y() { return 0.0; }
-double xs::input::get_mouse_wheel() { return 0.0; }
+double xs::input::get_mouse_x()
+{
+	return data ? data->mouse_x : 0.0;
+}
+
+double xs::input::get_mouse_y()
+{
+	return data ? data->mouse_y : 0.0;
+}
+
+double xs::input::get_mouse_wheel()
+{
+	return data ? data->mouse_wheel : 0.0;
+}
 
 int xs::input::get_nr_touches() { return 0; }
 int xs::input::get_touch_id(int index) { return 0; }
@@ -131,13 +151,17 @@ bool xs::input::get_mouse()
 
 bool xs::input::get_mousebutton(mouse_button button)
 {
-	// Get mouse button with SDL3
-	float x, y;
-	Uint32 mouseState = SDL_GetMouseState(&x, &y);
-	return (mouseState & SDL_BUTTON_MASK(button)) != 0;
-
+	if (!data || button < 0 || button >= 5)
+		return false;
+	return data->mouse_buttons[button];
 }
-bool xs::input::get_mousebutton_once(mouse_button button) { return false; }
+
+bool xs::input::get_mousebutton_once(mouse_button button)
+{
+	if (!data || button < 0 || button >= 5)
+		return false;
+	return data->mouse_buttons[button] && !data->prev_mouse_buttons[button];
+}
 
 bool xs::input::get_button(gamepad_button button)
 {
@@ -232,6 +256,25 @@ void xs::input::update_keyboard()
 
 	memcpy(data->prev_keys_down, data->keys_down, size);
 	memcpy(data->keys_down, keys, size);
+}
+
+void xs::input::update_mouse()
+{
+	// Save previous mouse button state
+	memcpy(data->prev_mouse_buttons, data->mouse_buttons, sizeof(data->mouse_buttons));
+
+	// Get current mouse state
+	Uint32 mouse_state = SDL_GetMouseState(&data->mouse_x, &data->mouse_y);
+
+	// Update button states (SDL uses 1-based button indices)
+	data->mouse_buttons[0] = (mouse_state & SDL_BUTTON_LMASK) != 0; // Left
+	data->mouse_buttons[1] = (mouse_state & SDL_BUTTON_MMASK) != 0; // Middle
+	data->mouse_buttons[2] = (mouse_state & SDL_BUTTON_RMASK) != 0; // Right
+	data->mouse_buttons[3] = (mouse_state & SDL_BUTTON_X1MASK) != 0; // X1
+	data->mouse_buttons[4] = (mouse_state & SDL_BUTTON_X2MASK) != 0; // X2
+
+	// Mouse wheel is reset each frame (it's handled via events)
+	data->mouse_wheel = 0.0f;
 }
 
 int xs::input::get_usb_scancode(int key)

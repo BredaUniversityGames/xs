@@ -51,10 +51,10 @@ set(OPENGL_SOURCES
     code/opengl/render_gl.cpp
 )
 
-# Audio implementation (null for Linux until FMOD is available)
+# Audio implementation (SDL3 for Linux)
 set(AUDIO_SOURCES
-    platforms/null/code/audio_null.cpp
-    platforms/null/code/simple_audio_null.cpp
+    code/sdl3/audio_sdl.cpp
+    code/sdl3/simple_audio_sdl.cpp
 )
 
 # External: GLAD
