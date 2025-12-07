@@ -1,5 +1,5 @@
 #include "device.hpp"
-#include "device_pc.hpp"
+#include "device_sdl.hpp"
 #include "log.hpp"
 #include "opengl.hpp"
 #include "configuration.hpp"
