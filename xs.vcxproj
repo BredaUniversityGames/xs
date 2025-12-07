@@ -74,7 +74,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="platforms\opengl\code\render_gl.cpp">
+    <ClCompile Include="code\opengl\render_gl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
@@ -111,7 +111,7 @@
     <ClCompile Include="code\simple_audio.cpp" />
     <ClCompile Include="code\configuration.cpp" />
     <ClCompile Include="code\device.cpp" />
-    <ClCompile Include="platforms\pc\code\device_pc.cpp">
+    <ClCompile Include="code\sdl3\device_sdl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -128,7 +128,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="code\fileio.cpp" />
-    <ClCompile Include="platforms\pc\code\input_pc.cpp">
+    <ClCompile Include="code\sdl3\input_sdl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">true</ExcludedFromBuild>
@@ -154,7 +154,7 @@
     </ClCompile>
     <ClCompile Include="code\inspector.cpp" />
     <ClCompile Include="code\log.cpp" />
-    <ClCompile Include="platforms\opengl\code\opengl.cpp">
+    <ClCompile Include="code\opengl\opengl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Develop|Prospero'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Prospero'">true</ExcludedFromBuild>
@@ -348,7 +348,7 @@
     <ClInclude Include="code\input.hpp" />
     <ClInclude Include="code\inspector.hpp" />
     <ClInclude Include="code\log.hpp" />
-    <ClInclude Include="platforms\opengl\code\opengl.hpp" />
+    <ClInclude Include="code\opengl\opengl.hpp" />
     <ClInclude Include="code\profiler.hpp" />
     <ClInclude Include="code\data.hpp" />
     <ClInclude Include="code\render.hpp" />
@@ -356,7 +356,7 @@
     <ClInclude Include="code\tools.hpp" />
     <ClInclude Include="code\version.hpp" />
     <ClInclude Include="code\xs.hpp" />
-    <ClInclude Include="platforms\opengl\code\platform_opengl.hpp" />
+    <ClInclude Include="code\opengl\platform_opengl.hpp" />
     <ClInclude Include="platforms\prospero\code\address_sanitizer_utils.h" />
     <ClInclude Include="platforms\prospero\code\platform_ps5.hpp" />
     <ClInclude Include="platforms\prospero\code\shaders\camera_srt.h" />
