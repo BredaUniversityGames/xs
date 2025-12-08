@@ -631,16 +631,22 @@ void xs::inspector::render(double dt)
 			image_size.y = game_height * zoom_factor;
 		}
 
+		// Round image size to whole numbers to avoid sampling artifacts
+		image_size.x = floorf(image_size.x);
+		image_size.y = floorf(image_size.y);
+
 		// Center the image in the available space (only if it fits)
 		ImVec2 cursor_pos = ImGui::GetCursorPos();
 		if (image_size.x < available_region.x)
-			cursor_pos.x += (available_region.x - image_size.x) * 0.5f;
+			cursor_pos.x += floorf((available_region.x - image_size.x) * 0.5f);
 		if (image_size.y < available_region.y)
-			cursor_pos.y += (available_region.y - image_size.y) * 0.5f;
+			cursor_pos.y += floorf((available_region.y - image_size.y) * 0.5f);
 		ImGui::SetCursorPos(cursor_pos);
 
-		// Get screen position for drawing
+		// Get screen position for drawing and round to whole numbers
 		ImVec2 screen_pos = ImGui::GetCursorScreenPos();
+		screen_pos.x = floorf(screen_pos.x);
+		screen_pos.y = floorf(screen_pos.y);
 		ImVec2 screen_pos_max = ImVec2(screen_pos.x + image_size.x, screen_pos.y + image_size.y);
 
 		// Store viewport bounds for mouse position API
@@ -648,18 +654,17 @@ void xs::inspector::render(double dt)
 		game_viewport_max = screen_pos_max;
 		game_viewport_size = image_size;
 
-		// Draw rounded image using DrawList
+		// Draw image using DrawList
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
-		float rounding = 8.0f;
 
 #if defined(PLATFORM_APPLE)
-		draw_list->AddImageRounded((ImTextureID)texture, screen_pos, screen_pos_max,
-		                           ImVec2(0, 0), ImVec2(1, 1),
-		                           IM_COL32_WHITE, rounding);
+		draw_list->AddImage((ImTextureID)texture, screen_pos, screen_pos_max,
+		                    ImVec2(0, 0), ImVec2(1, 1),
+		                    IM_COL32_WHITE);
 #elif defined(PLATFORM_PC)
-		draw_list->AddImageRounded((ImTextureID)texture, screen_pos, screen_pos_max,
-		                           ImVec2(0, 1), ImVec2(1, 0),
-		                           IM_COL32_WHITE, rounding);
+		draw_list->AddImage((ImTextureID)texture, screen_pos, screen_pos_max,
+		                    ImVec2(0, 1), ImVec2(1, 0),
+		                    IM_COL32_WHITE);
 #endif
 
 		// Dummy to reserve space
