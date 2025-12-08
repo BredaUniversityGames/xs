@@ -10,6 +10,7 @@
 #include "tools.hpp"
 #include "miniz.h"
 #include "json/json.hpp"
+#include "xs.hpp"
 #include <filesystem>
 
 #define PUBLISH 0
@@ -64,9 +65,26 @@ void xs::fileio::initialize(const std::string& game_path)
 		fs::create_directory(game_save_path);
 	internal::wildcards["[save]"] = game_save_path;
 
-	// Load the engine user settings json (if any) and find the game folder
+	// Determine game folder path
+	// Priority: CLI argument > settings.json > default sample
 	bool success = false;
-	if (exists("[user]/settings.json"))
+
+	// 1. Use CLI-provided game path if available
+	if (!game_path.empty())
+	{
+		if (xs::get_run_mode() == xs::run_mode::development)
+		{
+			string resolved_path = fileio::absolute(game_path);
+			add_wildcard("[game]", resolved_path);
+			log::info("Game folder (from CLI): {} ", resolved_path);
+			success = true;
+		}
+		else if (xs::get_run_mode() == xs::run_mode::packaged) {
+			success = fileio::load_package(game_path);
+		}
+	}
+	// 2. Load from engine user settings json (if any)
+	else if (exists("[user]/settings.json"))
 	{
 		auto settings_str = read_text_file("[user]/settings.json");
 		if (!settings_str.empty())
@@ -82,7 +100,7 @@ void xs::fileio::initialize(const std::string& game_path)
 				if (!game_folder.empty())
 				{
 					add_wildcard("[game]", game_folder);
-					log::info("Game folder {} ", game_folder);
+					log::info("Game folder (from settings): {} ", game_folder);
 					success = true;
 				}
 			}
@@ -92,6 +110,8 @@ void xs::fileio::initialize(const std::string& game_path)
 			log::warn("Could not read the user settings.json file.");
 		}
 	}
+
+	// 3. Fallback to default sample
 	if (!success)
 	{
 		log::warn("Could not find the user settings.json file.");
@@ -126,6 +146,7 @@ void xs::fileio::initialize(const std::string& game_path)
 	}
 	else log::error("Could not find the game project.json file.");
 
-	// Set the shared assets folder - this is where the shared assets are stored
-	add_wildcard("[shared]", "assets");
+	// Set the shared assets folder - this is where the engine assets are stored
+	if(xs::get_run_mode() != xs::run_mode::packaged)
+		add_wildcard("[shared]", "assets");
 }
