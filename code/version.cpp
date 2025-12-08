@@ -17,7 +17,7 @@ namespace xs::version
         // Add build configuration
         if (include_config)
         {
-            #if defined(XS_DEBUG)
+            #if defined(XS_DEBUG) || defined(_DEBUG) || (!defined(NDEBUG) && !defined(XS_RELEASE) && !defined(XS_DEVELOP))
                 version << "-dbg";
             #elif defined(XS_RELEASE)
                 version << "-rel";
@@ -28,19 +28,19 @@ namespace xs::version
             #endif
         }
 
-        // Add platform
+        // Add platform (check specific platforms before generic ones)
         if (include_platform)
         {
-            #if defined(PLATFORM_PC)
-                version << "-pc";
+            #if defined(PLATFORM_LINUX) && defined(__linux__)
+                version << "-linux";
             #elif defined(PLATFORM_SWITCH)
                 version << "-switch";
             #elif defined(PLATFORM_PS5)
                 version << "-ps5";
             #elif defined(PLATFORM_MAC) || defined(__APPLE__)
                 version << "-mac";
-            #elif defined(__linux__)
-                version << "-linux";
+            #elif defined(PLATFORM_PC)
+                version << "-pc";
             #else
                 version << "-unknown";
             #endif
