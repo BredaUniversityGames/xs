@@ -163,6 +163,13 @@ namespace xs::inspector
     static bool colored_button(const char* icon, const ImVec4& color, const char* tip);
     static bool colored_button(const char* icon, color_id color_id, const char* tip);
     static void vertical_separator(float alpha = 0.15f, float height = 0.0f);
+
+    // Forward declarations for render sections
+    static void render_top_bar();
+    static void render_stats_bar();
+    static void render_game_viewport();
+    static void render_notifications(double dt);
+    static void render_right_panel();
 }
 
 using namespace xs::inspector;
@@ -332,24 +339,50 @@ void xs::inspector::render(double dt)
 
 		ImGui::DockBuilderFinish(dockspace_id);
 	}
-    
-    {	// Top bar
-        // Measure desired height (one row example)
-        float desired_h = ImGui::GetFrameHeightWithSpacing(); // convenience: button/input height + spacing
-        desired_h += ImGui::GetStyle().WindowPadding.y * 2.0f; // extra padding
-        ImGuiDockNode* n = ImGui::DockBuilderGetNode(dock_id_top);
-        n->SizeRef.y = desired_h;     // height you want (in pixels)
-        n->Size.y    = desired_h;     // optional, for immediate effect
-        
-        ImGui::Begin("Top Bar", nullptr,
-                     ImGuiWindowFlags_NoScrollbar |
-                     ImGuiWindowFlags_NoTitleBar |
-                     ImGuiWindowFlags_NoCollapse |
-                     ImGuiWindowFlags_NoScrollWithMouse |
-                     ImGuiWindowFlags_NoResize |
-                     ImGuiWindowFlags_NoMove);
 
-        // Playback controls: play/pause + next-frame (next-frame always visible, disabled when not paused)
+	pop_menu_theme(current_theme);
+
+    render_top_bar();
+	render_stats_bar();
+	render_game_viewport();
+	render_notifications(dt);
+	render_right_panel();
+
+	if(show_demo)
+	{
+		ImGui::ShowDemoWindow();
+	}
+
+	// End dockspace
+	ImGui::End();
+
+	ImGui::Render();
+	ImGui_Impl_RenderDrawData(ImGui::GetDrawData());
+}
+
+// Render section implementations
+
+static void xs::inspector::render_top_bar()
+{
+	auto current_theme = get_theme();
+	push_menu_theme(current_theme);
+
+	// Measure desired height (one row example)
+	float desired_h = ImGui::GetFrameHeightWithSpacing(); // convenience: button/input height + spacing
+	desired_h += ImGui::GetStyle().WindowPadding.y * 2.0f; // extra padding
+	ImGuiDockNode* n = ImGui::DockBuilderGetNode(dock_id_top);
+	n->SizeRef.y = desired_h;     // height you want (in pixels)
+	n->Size.y    = desired_h;     // optional, for immediate effect
+
+	ImGui::Begin("Top Bar", nullptr,
+				 ImGuiWindowFlags_NoScrollbar |
+				 ImGuiWindowFlags_NoTitleBar |
+				 ImGuiWindowFlags_NoCollapse |
+				 ImGuiWindowFlags_NoScrollWithMouse |
+				 ImGuiWindowFlags_NoResize |
+				 ImGuiWindowFlags_NoMove);
+
+	// Playback controls: play/pause + next-frame (next-frame always visible, disabled when not paused)
         if (game_paused)
         {
             if (colored_button(ICON_FI_PLAY, get_color(color_id::Green), "Play"))
@@ -446,28 +479,30 @@ void xs::inspector::render(double dt)
             }
         }
 
-        ImGui::SameLine();
-        if (xs::data::has_chages())
-        {
-            if (colored_button(ICON_FI_EXCLAMATION_TRIANGLE, get_color(color_id::Purple), "Data has unsaved changes")) {
-                right_panel = right_panel_mode::data;
-            }
-        }
-        
-        ImGui::End();
-    }
-        
-    {   // Bottom stats
-        ImGui::PushFont(small_font);
-        
-        // Measure desired height (one row example)
-        float desired_h = ImGui::GetFrameHeightWithSpacing(); // convenience: button/input height + spacing
-        desired_h += ImGui::GetStyle().WindowPadding.y * 2.0f; // extra padding
-        ImGuiDockNode* n = ImGui::DockBuilderGetNode(dock_id_bottom);
-        n->SizeRef.y = desired_h;     // height you want (in pixels)
-        n->Size.y    = desired_h;     // optional, for immediate effect
-        
-        ImGui::Begin("Stats", &true_that,
+	ImGui::SameLine();
+	if (xs::data::has_chages())
+	{
+		if (colored_button(ICON_FI_EXCLAMATION_TRIANGLE, get_color(color_id::Purple), "Data has unsaved changes")) {
+			right_panel = right_panel_mode::data;
+		}
+	}
+
+	ImGui::End();
+	pop_menu_theme(current_theme);
+}
+
+static void xs::inspector::render_stats_bar()
+{
+	ImGui::PushFont(small_font);
+
+	// Measure desired height (one row example)
+	float desired_h = ImGui::GetFrameHeightWithSpacing(); // convenience: button/input height + spacing
+	desired_h += ImGui::GetStyle().WindowPadding.y * 2.0f; // extra padding
+	ImGuiDockNode* n = ImGui::DockBuilderGetNode(dock_id_bottom);
+	n->SizeRef.y = desired_h;     // height you want (in pixels)
+	n->Size.y    = desired_h;     // optional, for immediate effect
+
+	ImGui::Begin("Stats", nullptr,
                      ImGuiWindowFlags_NoScrollbar |
                      ImGuiWindowFlags_NoTitleBar |
                      ImGuiWindowFlags_NoCollapse |
@@ -567,16 +602,15 @@ void xs::inspector::render(double dt)
             ImGui::PopStyleColor(3);
         }
 
-        // Pop text color and button colors
-        ImGui::PopStyleColor(4);
-        ImGui::End();
-        ImGui::PopFont();
- 	}
+	// Pop text color and button colors
+	ImGui::PopStyleColor(4);
+	ImGui::End();
+	ImGui::PopFont();
+}
 
-	pop_menu_theme(current_theme);
-	
-	{   // Game Viewport Window
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+static void xs::inspector::render_game_viewport()
+{
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 		// Enable scrollbars for fixed zoom modes
 		ImGuiWindowFlags game_window_flags = ImGuiWindowFlags_NoCollapse |
 		                                     ImGuiWindowFlags_NoTitleBar |
@@ -667,17 +701,52 @@ void xs::inspector::render(double dt)
 		                    IM_COL32_WHITE);
 #endif
 
-		// Dummy to reserve space
-		ImGui::Dummy(image_size);
-		ImGui::End();
-        ImGui::PopStyleVar();
-	}
+		// Draw corner masks on top to create rounded corners
+		float rounding = 8.0f;
+		ImVec4 bg_color = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
+		ImU32 bg_col32 = ImGui::ColorConvertFloat4ToU32(bg_color);
 
-	// Draw notifications over the game viewport (outside the Game window)
-	{
-		float x = c_notification_offset_x;
-		float y = c_notification_offset_y;
-		for (auto& n : notifications)
+		// For each corner, draw a path that covers the corner area but leaves the rounded part
+		// Extend 1 pixel outward to ensure clean edges
+		// Top-left corner
+		draw_list->PathLineTo(ImVec2(screen_pos.x - 1, screen_pos.y - 1));
+		draw_list->PathLineTo(ImVec2(screen_pos.x + rounding, screen_pos.y - 1));
+		draw_list->PathArcTo(ImVec2(screen_pos.x + rounding, screen_pos.y + rounding), rounding, -IM_PI * 0.5f, -IM_PI, 12);
+		draw_list->PathLineTo(ImVec2(screen_pos.x - 1, screen_pos.y + rounding));
+		draw_list->PathFillConvex(bg_col32);
+
+		// Top-right corner
+		draw_list->PathLineTo(ImVec2(screen_pos_max.x + 1, screen_pos.y - 1));
+		draw_list->PathLineTo(ImVec2(screen_pos_max.x + 1, screen_pos.y + rounding));
+		draw_list->PathArcTo(ImVec2(screen_pos_max.x - rounding, screen_pos.y + rounding), rounding, 0.0f, -IM_PI * 0.5f, 12);
+		draw_list->PathLineTo(ImVec2(screen_pos_max.x - rounding, screen_pos.y - 1));
+		draw_list->PathFillConvex(bg_col32);
+
+		// Bottom-left corner
+		draw_list->PathLineTo(ImVec2(screen_pos.x - 1, screen_pos_max.y + 1));
+		draw_list->PathLineTo(ImVec2(screen_pos.x - 1, screen_pos_max.y - rounding));
+		draw_list->PathArcTo(ImVec2(screen_pos.x + rounding, screen_pos_max.y - rounding), rounding, -IM_PI, -IM_PI * 1.5f, 12);
+		draw_list->PathLineTo(ImVec2(screen_pos.x + rounding, screen_pos_max.y + 1));
+		draw_list->PathFillConvex(bg_col32);
+
+		// Bottom-right corner
+		draw_list->PathLineTo(ImVec2(screen_pos_max.x + 1, screen_pos_max.y + 1));
+		draw_list->PathLineTo(ImVec2(screen_pos_max.x - rounding, screen_pos_max.y + 1));
+		draw_list->PathArcTo(ImVec2(screen_pos_max.x - rounding, screen_pos_max.y - rounding), rounding, IM_PI * 0.5f, 0.0f, 12);
+		draw_list->PathLineTo(ImVec2(screen_pos_max.x + 1, screen_pos_max.y - rounding));
+		draw_list->PathFillConvex(bg_col32);
+
+	// Dummy to reserve space
+	ImGui::Dummy(image_size);
+	ImGui::End();
+	ImGui::PopStyleVar();
+}
+
+static void xs::inspector::render_notifications(double dt)
+{
+	float x = c_notification_offset_x;
+	float y = c_notification_offset_y;
+	for (auto& n : notifications)
 		{
 			ImGui::SetNextWindowPos(ImVec2(game_viewport_max.x + x, game_viewport_max.y + y), ImGuiCond_Always, ImVec2(1.0f, 1.0f));
 			ImGui::Begin(to_string(n.id).c_str(), nullptr,
@@ -723,55 +792,27 @@ void xs::inspector::render(double dt)
 			n.time -= (float)dt;
 		}
 
-		notifications.erase(
-			std::remove_if(
-				notifications.begin(),
-				notifications.end(),
-				[](const notification& n) { return n.time <= 0.0f; }),
-			notifications.end());
-	}
+	notifications.erase(
+		std::remove_if(
+			notifications.begin(),
+			notifications.end(),
+			[](const notification& n) { return n.time <= 0.0f; }),
+		notifications.end());
+}
 
-    if (right_panel == right_panel_mode::data)
+static void xs::inspector::render_right_panel()
+{
+	if (right_panel == right_panel_mode::data)
 	{
-        bool open = true;
-        xs::data::inspect_at(open, 0, 0, 0, 0);
+		bool open = true;
+		xs::data::inspect_at(open, 0, 0, 0, 0);
 	}
 
 	if (right_panel == right_panel_mode::profiler)
 	{
-        bool open = true;
+		bool open = true;
 		xs::profiler::inspect(open);
 	}
-	
-    
-	//if (show_about)
-	//{
-	//	ImGui::Begin("About", &show_about, ImGuiWindowFlags_Modal);
-	//	ImGui::Text(" xs %s ", xs::version::get_version_string().c_str());
-	//	ImGui::Text(" Crafted at Breda University of Applied Sciences ");
-	//	ImGui::End();
-	//}
-	
-	if(show_demo)
-	{
-		ImGui::ShowDemoWindow();
-	}
-
-	// End dockspace
-	ImGui::End();
-
-	ImGui::Render();    
-
-
-	ImGui_Impl_RenderDrawData(ImGui::GetDrawData());	
-
-    /*
-	if (new_theme != current_theme)
-	{
-		current_theme = new_theme;
-		apply_theme();
-	}
-    */
 }
 
 bool xs::inspector::paused()
@@ -854,7 +895,7 @@ theme xs::inspector::get_theme()
     switch (sdl_theme) {
         case SDL_SYSTEM_THEME_LIGHT: return theme::light;
         case SDL_SYSTEM_THEME_DARK: return theme::dark;
-        case SDL_SYSTEM_THEME_UNKNOWN: return theme::dark;
+        case SDL_SYSTEM_THEME_UNKNOWN: return theme::light;
     }
 #endif
     return theme::dark;
