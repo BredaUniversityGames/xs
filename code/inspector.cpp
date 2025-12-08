@@ -111,10 +111,13 @@ namespace xs::inspector
 
     enum class right_panel_mode { none, data, profiler };
 
+    enum class zoom_mode { fit, zoom_50, zoom_100, zoom_150, zoom_200 };
+
     bool game_paused = false;
     bool restart_flag = false;
     float ui_scale = 1.0f;
     right_panel_mode right_panel = right_panel_mode::none;
+    zoom_mode current_zoom = zoom_mode::fit;
     bool show_about = false;
     bool show_demo = false;
     bool show_modal = false;
@@ -414,6 +417,17 @@ void xs::inspector::render(double dt)
             data::save_of_type(data::type::user);
         }
 
+        // Zoom dropdown
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(100.0f);
+        const char* zoom_labels[] = { "Fit", "50%", "100%", "150%", "200%" };
+        int current_zoom_idx = (int)current_zoom;
+        if (ImGui::Combo("##zoom", &current_zoom_idx, zoom_labels, IM_ARRAYSIZE(zoom_labels)))
+        {
+            current_zoom = (zoom_mode)current_zoom_idx;
+        }
+        tooltip("Game viewport zoom");
+
 #if SHOW_IMGUI_DEMO
         if (toggle_button(ICON_FI_WINDOW, show_demo, "Show ImGui demo window"))
             show_demo = !show_demo;
@@ -563,10 +577,15 @@ void xs::inspector::render(double dt)
 	
 	{   // Game Viewport Window
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-		ImGui::Begin("Game", nullptr,
-                     ImGuiWindowFlags_NoCollapse |
-                     ImGuiWindowFlags_NoTitleBar |
-                     ImGuiWindowFlags_NoMove);
+		// Enable scrollbars for fixed zoom modes
+		ImGuiWindowFlags game_window_flags = ImGuiWindowFlags_NoCollapse |
+		                                     ImGuiWindowFlags_NoTitleBar |
+		                                     ImGuiWindowFlags_NoMove;
+		if (current_zoom != zoom_mode::fit)
+		{
+			game_window_flags |= ImGuiWindowFlags_HorizontalScrollbar;
+		}
+		ImGui::Begin("Game", nullptr, game_window_flags);
 
 		// Get the game render target texture
 		auto texture = xs::render::get_render_target_texture();
@@ -579,23 +598,45 @@ void xs::inspector::render(double dt)
 		float game_height = (float)xs::configuration::height();
 		float aspect_ratio = game_width / game_height;
 
-		// Calculate size to fit while maintaining aspect ratio
-		ImVec2 image_size = available_region;
-		if (available_region.x / available_region.y > aspect_ratio)
+		// Calculate size based on zoom mode
+		ImVec2 image_size;
+		if (current_zoom == zoom_mode::fit)
 		{
-			// Window is wider than game - fit to height
-			image_size.x = available_region.y * aspect_ratio;
+			// Best fit - maintain aspect ratio
+			image_size = available_region;
+			if (available_region.x / available_region.y > aspect_ratio)
+			{
+				// Window is wider than game - fit to height
+				image_size.x = available_region.y * aspect_ratio;
+			}
+			else
+			{
+				// Window is taller than game - fit to width
+				image_size.y = available_region.x / aspect_ratio;
+			}
 		}
 		else
 		{
-			// Window is taller than game - fit to width
-			image_size.y = available_region.x / aspect_ratio;
+			// Fixed zoom percentages
+			float zoom_factor = 1.0f;
+			switch (current_zoom)
+			{
+				case zoom_mode::zoom_50:  zoom_factor = 0.5f;  break;
+				case zoom_mode::zoom_100: zoom_factor = 1.0f;  break;
+				case zoom_mode::zoom_150: zoom_factor = 1.5f;  break;
+				case zoom_mode::zoom_200: zoom_factor = 2.0f;  break;
+				default: zoom_factor = 1.0f; break;
+			}
+			image_size.x = game_width * zoom_factor;
+			image_size.y = game_height * zoom_factor;
 		}
 
-		// Center the image in the available space
+		// Center the image in the available space (only if it fits)
 		ImVec2 cursor_pos = ImGui::GetCursorPos();
-		cursor_pos.x += (available_region.x - image_size.x) * 0.5f;
-		cursor_pos.y += (available_region.y - image_size.y) * 0.5f;
+		if (image_size.x < available_region.x)
+			cursor_pos.x += (available_region.x - image_size.x) * 0.5f;
+		if (image_size.y < available_region.y)
+			cursor_pos.y += (available_region.y - image_size.y) * 0.5f;
 		ImGui::SetCursorPos(cursor_pos);
 
 		// Get screen position for drawing
