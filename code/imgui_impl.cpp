@@ -6,8 +6,8 @@
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_opengl3.h"
 #include "device.hpp"
-#include "device_sdl.hpp"
-#include "opengl.hpp"
+#include "sdl3/device_sdl.hpp"
+#include "opengl/opengl.hpp"
 
 
 

@@ -28,7 +28,7 @@
 #endif
 
 #if defined(PLATFORM_PC)
-#include "device_sdl.hpp"
+#include "sdl3/device_sdl.hpp"
 #endif
 
 #define SHOW_IMGUI_DEMO 1
