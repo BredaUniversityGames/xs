@@ -1261,4 +1261,17 @@ ImFont* xs::inspector::merge_fluent_icons(ImFont* base_font, float icon_size, fl
     return base_font;
 }
 
+#else
+
+// Stub implementations for non-EDITOR builds
+void xs::inspector::initialize() {}
+void xs::inspector::shutdown() {}
+void xs::inspector::render(double) {}
+bool xs::inspector::paused() { return false;  }
+bool xs::inspector::should_restart() { return false; }
+int xs::inspector::notify(xs::inspector::notification_type, const std::string&, float) { return 0; }
+void xs::inspector::clear_notification(int id) {}
+float xs::inspector::get_game_mouse_x() { return  0.0f; }
+float xs::inspector::get_game_mouse_y() { return  0.0f; }
+
 #endif
