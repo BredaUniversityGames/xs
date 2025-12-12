@@ -1,7 +1,7 @@
 #include "device.hpp"
 #include "device_sdl.hpp"
 #include "log.hpp"
-#include "opengl.hpp"
+#include "opengl/opengl.hpp"
 #include "configuration.hpp"
 #include "fileio.hpp"
 #include "data.hpp"

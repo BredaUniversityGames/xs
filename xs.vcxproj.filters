@@ -91,9 +91,6 @@
     <ClCompile Include="platforms\pc\code\fileio_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\opengl\code\render_gl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="platforms\pc\code\account_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -112,16 +109,10 @@
     <ClCompile Include="code\device.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="platforms\pc\code\device_pc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="platforms\nx\code\device_switch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\fileio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="platforms\pc\code\input_pc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="platforms\nx\code\fileio_switch.cpp">
@@ -134,9 +125,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\log.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="platforms\opengl\code\opengl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="code\profiler.cpp">
@@ -208,7 +196,16 @@
     <ClCompile Include="external\imgui\misc\freetype\imgui_freetype.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="code\fluent_glyph.cpp">
+    <ClCompile Include="code\opengl\render_gl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\sdl3\device_sdl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\sdl3\input_sdl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="code\opengl\opengl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -354,9 +351,6 @@
     <ClInclude Include="code\log.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="platforms\opengl\code\opengl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="code\profiler.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -405,9 +399,6 @@
     <ClInclude Include="external\imgui\imgui_internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="platforms\opengl\code\platform_opengl.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="platforms\prospero\code\platform_ps5.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -415,6 +406,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\imgui\imgui_stdlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\fluent_glyph.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\opengl\opengl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\opengl\platform_opengl.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
