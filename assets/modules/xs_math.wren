@@ -259,6 +259,10 @@ class Vec2 {
         var k = a.dot(b) / b.dot(b)
         return Vec2.new(k * b.x, k * b.y)
     }
+
+    static fromAngle(angle) {
+        return Vec2.new(angle.cos, angle.sin)
+    }
 }
 
 /// Geometric utility functions
