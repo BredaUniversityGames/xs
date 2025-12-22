@@ -250,6 +250,9 @@ void xs::inspector::initialize()
 
 void xs::inspector::shutdown()
 {
+	// Explicitly save ImGui settings before shutdown
+	ImGui::SaveIniSettingsToDisk(ImGui::GetIO().IniFilename);
+
 	ImGui_Impl_Shutdown();
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
 	ImPlot::DestroyContext();

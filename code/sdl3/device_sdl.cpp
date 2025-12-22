@@ -60,8 +60,25 @@ void device::initialize()
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
 	// Set window size
+#if defined(EDITOR)
+	// In editor builds, restore saved window size from user settings
+	int saved_width = (int)data::get_number("EditorWindowWidth", data::type::user);
+	int saved_height = (int)data::get_number("EditorWindowHeight", data::type::user);
+
+	if (saved_width > 0 && saved_height > 0)
+	{
+		internal::width = saved_width;
+		internal::height = saved_height;
+	}
+	else
+	{
+		internal::width = configuration::width() * configuration::multiplier();
+		internal::height = configuration::height() * configuration::multiplier();
+	}
+#else
 	internal::width = configuration::width() * configuration::multiplier();
 	internal::height = configuration::height() * configuration::multiplier();
+#endif
 
 	// Create window
 	internal::window = SDL_CreateWindow(
@@ -105,6 +122,13 @@ void device::initialize()
 
 void device::shutdown()
 {
+#if defined(EDITOR)
+	// Save window size to user settings before shutdown in editor builds
+	data::set_number("EditorWindowWidth", internal::width, data::type::user);
+	data::set_number("EditorWindowHeight", internal::height, data::type::user);
+	data::save_of_type(data::type::user);
+#endif
+
 	SDL_DestroyWindow(internal::window);
 	SDL_Quit();
 }

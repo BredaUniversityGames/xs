@@ -55,18 +55,18 @@ void device::initialize()
 
     log::info("SDL version {}.{}.{}", SDL_MAJOR_VERSION, SDL_MINOR_VERSION, SDL_MICRO_VERSION);
 
-    // Set window size in pixels
-    int pixel_width = configuration::width() * configuration::multiplier();
-    int pixel_height = configuration::height() * configuration::multiplier();
-    
+    // Set initial window size for creation (use default game resolution)
+    // We'll resize after getting the display scale
+    int initial_width = configuration::width() * configuration::multiplier();
+    int initial_height = configuration::height() * configuration::multiplier();
 
     // Create window with Metal support
     // Note: We create a temporary window first to get the display scale,
     // then resize it to the correct point size for our desired pixel size
     internal::window = SDL_CreateWindow(
         configuration::title().c_str(),
-        pixel_width,
-        pixel_height,
+        initial_width,
+        initial_height,
         SDL_WINDOW_METAL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
 
     if (!internal::window)
@@ -77,12 +77,35 @@ void device::initialize()
         exit(EXIT_FAILURE);
     }
 
-    // Now get the actual display scale and resize window to achieve desired pixel size
+    // Now get the actual display scale and determine desired pixel size
     float scale = hdpi_scaling();
+
+    int pixel_width, pixel_height;
+#if defined(EDITOR)
+    // In editor builds, restore saved window size from user settings
+    int saved_width = (int)data::get_number("EditorWindowWidth", data::type::user);
+    int saved_height = (int)data::get_number("EditorWindowHeight", data::type::user);
+
+    if (saved_width > 0 && saved_height > 0)
+    {
+        pixel_width = saved_width *  scale;
+        pixel_height = saved_height * scale;
+    }
+    else
+    {
+        pixel_width = initial_width;
+        pixel_height = initial_height;
+    }
+#else
+    pixel_width = initial_width;
+    pixel_height = initial_height;
+#endif
+
+    // Resize window to achieve desired pixel size
     int point_width = static_cast<int>(pixel_width / scale);
     int point_height = static_cast<int>(pixel_height / scale);
     SDL_SetWindowSize(internal::window, point_width, point_height);
-    
+
     // Store the actual pixel dimensions
     internal::width = pixel_width;
     internal::height = pixel_height;
@@ -122,6 +145,13 @@ void device::initialize()
 
 void device::shutdown()
 {
+#if defined(EDITOR)
+    // Save window size to user settings before shutdown in editor builds
+    data::set_number("EditorWindowWidth", internal::width, data::type::user);
+    data::set_number("EditorWindowHeight", internal::height, data::type::user);
+    data::save_of_type(data::type::user);
+#endif
+
     if (internal::window)
     {
         SDL_DestroyWindow(internal::window);
