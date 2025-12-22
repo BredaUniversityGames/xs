@@ -235,6 +235,8 @@ void xs::inspector::initialize()
 	merge_fluent_icons(small_font, c_small_icon_font_size, font_scale, kFluentIconFont);
 
 	const std::string iniPath = fileio::get_path("[user]/imgui.ini");
+	log::info("ImGui INI file path: {}", iniPath);
+
 	const char* constStr = iniPath.c_str();
 	ini_filename = new char[iniPath.size() + 1];
 	strcpy(ini_filename, constStr);
@@ -242,16 +244,33 @@ void xs::inspector::initialize()
 
     auto current_theme = inspector::get_theme();
     apply_theme(current_theme);
-	
+
 	always_on_top = data::get_bool("always_on_top", data::type::user);
 	if (always_on_top)
 		device::toggle_on_top();
+
+	// Restore right panel state
+	int saved_panel = (int)data::get_number("EditorRightPanel", data::type::user);
+	if (saved_panel >= 0 && saved_panel <= 2)
+		right_panel = static_cast<right_panel_mode>(saved_panel);
+
+	// Restore zoom level
+	int saved_zoom = (int)data::get_number("EditorZoomLevel", data::type::user);
+	if (saved_zoom >= 0 && saved_zoom <= 4)
+		current_zoom = static_cast<zoom_mode>(saved_zoom);
 }
 
 void xs::inspector::shutdown()
 {
+	// Save editor state to user settings
+	data::set_number("EditorRightPanel", static_cast<int>(right_panel), data::type::user);
+	data::set_number("EditorZoomLevel", static_cast<int>(current_zoom), data::type::user);
+	data::save_of_type(data::type::user);
+
 	// Explicitly save ImGui settings before shutdown
-	ImGui::SaveIniSettingsToDisk(ImGui::GetIO().IniFilename);
+	const char* ini_path = ImGui::GetIO().IniFilename;
+	log::info("Saving ImGui INI settings to: {}", ini_path ? ini_path : "NULL");
+	ImGui::SaveIniSettingsToDisk(ini_path);
 
 	ImGui_Impl_Shutdown();
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
@@ -309,20 +328,34 @@ void xs::inspector::render(double dt)
 	ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
 	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 
-	// Set up default docking layout on first run
-	static bool first_time = true;
-	if (first_time)
+	// Set up default docking layout only on very first run ever
+	// Check if we've initialized the layout before (stored in user settings)
+	static bool checked_init = false;
+	static bool should_init = false;
+
+	if (!checked_init)
 	{
-		first_time = false;
+		checked_init = true;
+		should_init = !data::get_bool("EditorDockingInitialized", data::type::user);
+	}
+
+	if (should_init)
+	{
+		should_init = false;
+
+		// Save that we've initialized the layout
+		data::set_bool("EditorDockingInitialized", true, data::type::user);
+		data::save_of_type(data::type::user);
+
 		ImGui::DockBuilderRemoveNode(dockspace_id);
 		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
 		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->WorkSize);
-		
+
 		// Split the dockspace into sections using calculated ratios
         ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
         dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.05f, nullptr, &dockspace_id);
 		dock_id_bottom = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.01f, nullptr, &dockspace_id);
-		
+
 		// Configure all docks: no tab bars
         ImGuiDockNode* node_right = ImGui::DockBuilderGetNode(dock_id_right);
 		ImGuiDockNode* node_top = ImGui::DockBuilderGetNode(dock_id_top);
@@ -341,6 +374,19 @@ void xs::inspector::render(double dt)
 		ImGui::DockBuilderDockWindow("Profiler", dock_id_right);
 
 		ImGui::DockBuilderFinish(dockspace_id);
+	}
+
+	// Look up dock IDs for the top and bottom bars (needed for size adjustments later)
+	// We need to do this every frame when not initializing, as the IDs come from the saved layout
+	if (!should_init)
+	{
+		// Find dock nodes by window name
+		ImGuiWindow* top_window = ImGui::FindWindowByName("Top Bar");
+		ImGuiWindow* stats_window = ImGui::FindWindowByName("Stats");
+		if (top_window && top_window->DockNode)
+			dock_id_top = top_window->DockNode->ID;
+		if (stats_window && stats_window->DockNode)
+			dock_id_bottom = stats_window->DockNode->ID;
 	}
 
 	pop_menu_theme(current_theme);
@@ -374,8 +420,11 @@ static void xs::inspector::render_top_bar()
 	float desired_h = ImGui::GetFrameHeightWithSpacing(); // convenience: button/input height + spacing
 	desired_h += ImGui::GetStyle().WindowPadding.y * 2.0f; // extra padding
 	ImGuiDockNode* n = ImGui::DockBuilderGetNode(dock_id_top);
-	n->SizeRef.y = desired_h;     // height you want (in pixels)
-	n->Size.y    = desired_h;     // optional, for immediate effect
+	if (n)
+	{
+		n->SizeRef.y = desired_h;     // height you want (in pixels)
+		n->Size.y    = desired_h;     // optional, for immediate effect
+	}
 
 	ImGui::Begin("Top Bar", nullptr,
 				 ImGuiWindowFlags_NoScrollbar |
@@ -502,8 +551,11 @@ static void xs::inspector::render_stats_bar()
 	float desired_h = ImGui::GetFrameHeightWithSpacing(); // convenience: button/input height + spacing
 	desired_h += ImGui::GetStyle().WindowPadding.y * 2.0f; // extra padding
 	ImGuiDockNode* n = ImGui::DockBuilderGetNode(dock_id_bottom);
-	n->SizeRef.y = desired_h;     // height you want (in pixels)
-	n->Size.y    = desired_h;     // optional, for immediate effect
+	if (n)
+	{
+		n->SizeRef.y = desired_h;     // height you want (in pixels)
+		n->Size.y    = desired_h;     // optional, for immediate effect
+	}
 
 	ImGui::Begin("Stats", nullptr,
                      ImGuiWindowFlags_NoScrollbar |
