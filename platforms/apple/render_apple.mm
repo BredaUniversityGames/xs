@@ -40,31 +40,38 @@ namespace xs::render
     // The current size of the view, used as an input to the vertex shader.
     vector_uint2 _viewportSize;
 
-    // Texture to render to and then sample from.
-    id<MTLTexture> _renderTargetTexture;
+    // Triple buffering: 3 textures to render to and then sample from
+    static const int BUFFER_COUNT = 3;
+    id<MTLTexture> _renderTargetTextures[BUFFER_COUNT];       // Resolved textures (for sampling)
+    id<MTLTexture> _msaaTextures[BUFFER_COUNT];               // MSAA render targets (8x)
+    id<MTLTexture> _depthTexture = nil;                       // Shared depth buffer for MSAA
+    int _currentTextureIndex = 0;
+    id<MTLTexture> _currentRenderTarget = nil;  // Updated each frame (resolved texture)
 
     // Render pass descriptor to draw to the texture
     MTLRenderPassDescriptor* _renderToTextureRenderPassDescriptor;
 
-    // A pipeline object to render to the offscreen texture.
-    id<MTLRenderPipelineState> _renderToTextureRenderPipeline;
+    // Mesh-based sprite rendering pipeline
+    id<MTLRenderPipelineState> _meshRenderPipeline;
 
     id<MTLRenderPipelineState> _debugRenderPipeline;
 
     MTLRenderPipelineDescriptor* _pipelineStateDescriptor;
 
-    int const                sprite_trigs_max = 21800;
-    int                      sprite_trigs_count = 0;
-    sprite_vtx_format        sprite_trigs_array[sprite_trigs_max * 3];
     void render_to_view();
 
 
-	// TODO: Deprecated
-	struct sprite_data
+	// Metal mesh structure for persistent GPU buffers
+	struct metal_mesh
 	{
-		int image_id	= -1;
-		glm::vec2 from	= {};
-		glm::vec2 to	= {};
+		id<MTLBuffer> vertex_buffer = nil;      // Position data
+		id<MTLBuffer> texcoord_buffer = nil;    // UV coordinates
+		id<MTLBuffer> index_buffer = nil;       // Indices for triangles
+		uint32_t index_count = 0;               // Number of indices
+		int image_id = -1;                      // Associated texture
+		vec4 xy = {};                           // Sprite bounds (min_x, min_y, max_x, max_y)
+		vec4 uv = {};                           // Texture coords (u0, v0, u1, v1)
+		bool is_sprite = false;                 // Sprite vs custom shape
 	};
 
 	struct sprite_queue_entry
@@ -80,7 +87,9 @@ namespace xs::render
 		unsigned int	flags = 0;
 	};
 
-	std::vector<sprite_data>				sprites;
+	// Mesh storage - persistent GPU buffers
+	std::unordered_map<int, metal_mesh> meshes;
+
 	std::vector<sprite_queue_entry>	sprite_queue = {};
 
 }
@@ -102,10 +111,7 @@ void xs::render::initialize()
     // Render to texture
     {
         NSError *error;
-        
-        id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertex_shader"];
-        id<MTLFunction> fragmentFunction = [defaultLibrary newFunctionWithName:@"fragment_shader"];
-				
+
         // Set up a texture for rendering to and sampling from
 		NSUInteger scale = 1;
 		if(!configuration::snap_to_pixels())
@@ -116,59 +122,121 @@ void xs::render::initialize()
 				scale *= device::hdpi_scaling();
 			}
 		}
-									
+
         MTLTextureDescriptor *texDescriptor = [MTLTextureDescriptor new];
         texDescriptor.textureType = MTLTextureType2D;
         texDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
 		texDescriptor.width = configuration::width() * scale;
 		texDescriptor.height = configuration::height() * scale;
         texDescriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
-        
-        _renderTargetTexture = [_device newTextureWithDescriptor:texDescriptor];
-        assert(_renderTargetTexture);
 
+        // Create all 3 resolved textures for triple buffering (these will be sampled)
+        for (int i = 0; i < BUFFER_COUNT; i++) {
+            _renderTargetTextures[i] = [_device newTextureWithDescriptor:texDescriptor];
+            assert(_renderTargetTextures[i]);
+        }
+
+        // Create MSAA textures (8x multisampling for antialiasing)
+        // Check device capabilities and use maximum supported sample count
+        NSUInteger sampleCount = 8;
+        if (![_device supportsTextureSampleCount:sampleCount]) {
+            // Try 4x if 8x not supported
+            sampleCount = 4;
+            if (![_device supportsTextureSampleCount:sampleCount]) {
+                sampleCount = 1; // Fall back to no MSAA
+            }
+        }
+
+        MTLTextureDescriptor *msaaDescriptor = [MTLTextureDescriptor new];
+        msaaDescriptor.textureType = MTLTextureType2DMultisample;
+        msaaDescriptor.pixelFormat = MTLPixelFormatRGBA8Unorm;
+        msaaDescriptor.width = configuration::width() * scale;
+        msaaDescriptor.height = configuration::height() * scale;
+        msaaDescriptor.sampleCount = sampleCount;
+        msaaDescriptor.usage = MTLTextureUsageRenderTarget;
+        msaaDescriptor.storageMode = MTLStorageModePrivate;
+
+        for (int i = 0; i < BUFFER_COUNT; i++) {
+            _msaaTextures[i] = [_device newTextureWithDescriptor:msaaDescriptor];
+            if (!_msaaTextures[i]) {
+                log::critical("Failed to create MSAA texture with sample count {}", sampleCount);
+            }
+            assert(_msaaTextures[i]);
+        }
+
+        log::info("Metal renderer using {}x MSAA", sampleCount);
+
+        // Create depth buffer for MSAA (shared across all frames)
+        MTLTextureDescriptor *depthDescriptor = [MTLTextureDescriptor new];
+        depthDescriptor.textureType = MTLTextureType2DMultisample;
+        depthDescriptor.pixelFormat = MTLPixelFormatDepth32Float;
+        depthDescriptor.width = configuration::width() * scale;
+        depthDescriptor.height = configuration::height() * scale;
+        depthDescriptor.sampleCount = sampleCount;
+        depthDescriptor.usage = MTLTextureUsageRenderTarget;
+        depthDescriptor.storageMode = MTLStorageModePrivate;
+
+        _depthTexture = [_device newTextureWithDescriptor:depthDescriptor];
+        if (!_depthTexture) {
+            log::critical("Failed to create depth texture");
+        }
+        assert(_depthTexture);
+
+        // Initialize render pass descriptor for MSAA (textures will be set per-frame)
         _renderToTextureRenderPassDescriptor = [MTLRenderPassDescriptor new];
-        _renderToTextureRenderPassDescriptor.colorAttachments[0].texture = _renderTargetTexture;
         _renderToTextureRenderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
         _renderToTextureRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0);  // Transparent clear
-        _renderToTextureRenderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
-        
-        MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
-        pipelineStateDescriptor.label = @"xs render to texture pipeline";
-        pipelineStateDescriptor.rasterSampleCount = 1;
-        pipelineStateDescriptor.vertexFunction = vertexFunction;
-        pipelineStateDescriptor.fragmentFunction = fragmentFunction;
-        pipelineStateDescriptor.colorAttachments[0].pixelFormat = _renderTargetTexture.pixelFormat;
-        pipelineStateDescriptor.colorAttachments[0].blendingEnabled = YES;
-        pipelineStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
-        pipelineStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-        pipelineStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        pipelineStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
-        pipelineStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
-        pipelineStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        
-        _renderToTextureRenderPipeline = [_device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-        assert(_renderToTextureRenderPipeline);
-        
+        _renderToTextureRenderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionMultisampleResolve;  // Resolve MSAA
+
+        // Depth attachment
+        _renderToTextureRenderPassDescriptor.depthAttachment.texture = _depthTexture;
+        _renderToTextureRenderPassDescriptor.depthAttachment.loadAction = MTLLoadActionClear;
+        _renderToTextureRenderPassDescriptor.depthAttachment.storeAction = MTLStoreActionDontCare;
+        _renderToTextureRenderPassDescriptor.depthAttachment.clearDepth = 1.0;
+
+        // Debug rendering pipeline
         id<MTLFunction> vertexDebugFunction = [defaultLibrary newFunctionWithName:@"vertex_shader_debug"];
         id<MTLFunction> fragmentDebugFunction = [defaultLibrary newFunctionWithName:@"fragment_shader_debug"];
-                
+
         MTLRenderPipelineDescriptor *debugStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
         debugStateDescriptor.label = @"xs debug render pipeline";
-        debugStateDescriptor.rasterSampleCount = 1;
+        debugStateDescriptor.rasterSampleCount = sampleCount;
         debugStateDescriptor.vertexFunction = vertexDebugFunction;
         debugStateDescriptor.fragmentFunction = fragmentDebugFunction;
-        debugStateDescriptor.colorAttachments[0].pixelFormat = _renderTargetTexture.pixelFormat;
+        debugStateDescriptor.colorAttachments[0].pixelFormat = _renderTargetTextures[0].pixelFormat;
         debugStateDescriptor.colorAttachments[0].blendingEnabled = YES;
         debugStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
         debugStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
         debugStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
         debugStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
-        
+        debugStateDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+
         _debugRenderPipeline = [_device newRenderPipelineStateWithDescriptor:debugStateDescriptor error:&error];
         assert(_debugRenderPipeline);
+
+        // Mesh-based sprite rendering pipeline
+        id<MTLFunction> vertexMeshFunction = [defaultLibrary newFunctionWithName:@"vertex_shader_mesh"];
+        id<MTLFunction> fragmentMeshFunction = [defaultLibrary newFunctionWithName:@"fragment_shader"];
+
+        MTLRenderPipelineDescriptor *meshStateDescriptor = [[MTLRenderPipelineDescriptor alloc] init];
+        meshStateDescriptor.label = @"xs mesh render pipeline";
+        meshStateDescriptor.rasterSampleCount = sampleCount;
+        meshStateDescriptor.vertexFunction = vertexMeshFunction;
+        meshStateDescriptor.fragmentFunction = fragmentMeshFunction;
+        meshStateDescriptor.colorAttachments[0].pixelFormat = _renderTargetTextures[0].pixelFormat;
+        meshStateDescriptor.colorAttachments[0].blendingEnabled = YES;
+        meshStateDescriptor.colorAttachments[0].rgbBlendOperation = MTLBlendOperationAdd;
+        meshStateDescriptor.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
+        meshStateDescriptor.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        meshStateDescriptor.colorAttachments[0].alphaBlendOperation = MTLBlendOperationAdd;
+        meshStateDescriptor.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
+        meshStateDescriptor.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        meshStateDescriptor.depthAttachmentPixelFormat = MTLPixelFormatDepth32Float;
+
+        _meshRenderPipeline = [_device newRenderPipelineStateWithDescriptor:meshStateDescriptor error:&error];
+        assert(_meshRenderPipeline);
     }
-    
+
     // Render to view
     {
         id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertex_shader_screen"];
@@ -195,6 +263,15 @@ void xs::render::render()
     @autoreleasepool {
     XS_PROFILE_SECTION("xs::render::render");
 
+    // Rotate to next texture for triple buffering
+    _currentTextureIndex = (_currentTextureIndex + 1) % BUFFER_COUNT;
+    _currentRenderTarget = _renderTargetTextures[_currentTextureIndex];
+
+    // Update render pass descriptor for MSAA rendering
+    // Render to MSAA texture, resolve to regular texture for sampling
+    _renderToTextureRenderPassDescriptor.colorAttachments[0].texture = _msaaTextures[_currentTextureIndex];
+    _renderToTextureRenderPassDescriptor.colorAttachments[0].resolveTexture = _currentRenderTarget;
+
     // MTKView* view = device::internal::get_view();
 
     auto w = configuration::width() * 0.5f;
@@ -202,118 +279,75 @@ void xs::render::render()
     glm::mat4 p = glm::ortho(-w, w, -h, h, -100.0f, 100.0f);
     glm::mat4 v = glm::lookAt(vec3(0.0f, 0.0f, 100.0f), vec3(0.0f, 0.0f, 0.0f), vec3(0.0f, 1.0f, 0.0f));
     glm::mat4 vp = p * v;
-    
+
     // Sort by depth
     std::stable_sort(sprite_queue.begin(), sprite_queue.end(),
         [](const sprite_queue_entry& lhs, const sprite_queue_entry& rhs) {
             return lhs.z < rhs.z;
         });
-    
+
     // Create a new command buffer for each render pass to the current drawable.
     id<MTLCommandBuffer> command_buffer = device::internal::get_command_buffer();
-    
+
     id<MTLRenderCommandEncoder> render_encoder =
             [command_buffer renderCommandEncoderWithDescriptor:_renderToTextureRenderPassDescriptor];
     render_encoder.label = @"xs offscreen render pass";
-    [render_encoder setRenderPipelineState:_renderToTextureRenderPipeline];
-    
-    int count = 0;
+    [render_encoder setRenderPipelineState:_meshRenderPipeline];
+
+    // Render all sprites using mesh buffers
     for (auto i = 0; i < sprite_queue.size(); i++)
     {
         const auto& spe = sprite_queue[i];
-        const auto& sprite = sprites[spe.sprite_id];
-        const auto& image = images[sprite.image_id];
 
-        auto from_x = 0.0;
-        auto from_y = 0.0;
-        auto to_x = image.width * (sprite.to.x - sprite.from.x) * spe.scale;
-        auto to_y = image.height * (sprite.to.y - sprite.from.y) * spe.scale;
-
-        auto from_u = sprite.from.x;
-        auto from_v = sprite.from.y;
-        auto to_u = sprite.to.x;
-        auto to_v = sprite.to.y;
-
-        if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_x))
-            std::swap(from_u, to_u);
-
-        if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::flip_y))
-            std::swap(from_v, to_v);
-
-        vec4 add_color = to_vec4(spe.add_color);
-        vec4 mul_color = to_vec4(spe.mul_color);
-        
-        sprite_trigs_array[count + 0].position = { from_x, from_y, 0.0, 1.0f };
-        sprite_trigs_array[count + 1].position = { from_x, to_y, 0.0, 1.0f };
-        sprite_trigs_array[count + 2].position = { to_x, to_y, 0.0, 1.0f };
-        sprite_trigs_array[count + 3].position = { to_x, to_y, 0.0, 1.0f };
-        sprite_trigs_array[count + 4].position = { to_x, from_y, 0.0, 1.0f };
-        sprite_trigs_array[count + 5].position = { from_x, from_y, 0.0, 1.0f };
-
-         
-        sprite_trigs_array[count + 0].texture = { from_u, to_v };
-        sprite_trigs_array[count + 1].texture = { from_u, from_v };
-        sprite_trigs_array[count + 2].texture = { to_u, from_v };
-        sprite_trigs_array[count + 3].texture = { to_u, from_v };
-        sprite_trigs_array[count + 4].texture = { to_u, to_v };
-        sprite_trigs_array[count + 5].texture = { from_u, to_v };
-
-        for (int i = 0; i < 6; ++i)
-        {
-            sprite_trigs_array[count + i].add_color = add_color;
-            sprite_trigs_array[count + i].mul_color = mul_color;
-        }
-            
-        vec3 anchor(0.0f, 0.0f, 0.0f);
-        if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_x))
-            anchor.x = (float)((to_x - from_x) * 0.5);
-        if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::center_y))
-            anchor.y = (float)((to_y - from_y) * 0.5);
-        else if (tools::check_bit_flag_overlap(spe.flags, xs::render::sprite_flags::top))
-            anchor.y = (float)(to_y - from_y);
-
-        if (anchor.x != 0.0f || anchor.y != 0.0f)
-        {
-            for (int i = 0; i < 6; i++)
-                sprite_trigs_array[count + i].position -= vec4(anchor, 0.0f);
+        // Look up mesh
+        auto mesh_it = meshes.find(spe.sprite_id);
+        if (mesh_it == meshes.end()) {
+            log::error("Sprite {} not found in mesh cache!", spe.sprite_id);
+            continue;
         }
 
-        if (spe.rotation != 0.0)
-        {
-            for (int i = 0; i < 6; i++)
-                rotate_vector3d(sprite_trigs_array[count + i].position, (float)spe.rotation);
-        }
+        const metal_mesh& mesh = mesh_it->second;
+        const auto& image = images[mesh.image_id];
 
-        for (int i = 0; i < 6; i++)
-        {
-            sprite_trigs_array[count + i].position.x += (float)spe.x;
-            sprite_trigs_array[count + i].position.y += (float)spe.y;
-        }
-        count += 6;
-        
-        bool render_batch = true;
-        
-        if (render_batch)
-        {
-            // Pass in the parameter data.
-            [render_encoder setVertexBytes:sprite_trigs_array
-                length:sizeof(sprite_vtx_format) * count
-                atIndex:index_vertices];
-            
-            [render_encoder setVertexBytes:&vp
-                length:sizeof(mat4)
-                atIndex:index_wvp];
-            
-            [render_encoder setFragmentTexture:image.texture
-                atIndex:index_sprite_texture];
+        // Create instance data for vertex shader
+        sprite_instance_data instance;
+        instance.xy = mesh.xy;
+        instance.uv = mesh.uv;
+        instance.position = vec2((float)spe.x, (float)spe.y);
+        instance.scale = vec2((float)spe.scale, (float)spe.scale);
+        instance.rotation = (float)spe.rotation;
+        instance.mul_color = to_vec4(spe.mul_color);
+        instance.add_color = to_vec4(spe.add_color);
+        instance.flags = spe.flags;
 
-            // Draw the triangles
-            [render_encoder drawPrimitives:MTLPrimitiveTypeTriangle
-                vertexStart:0
-                vertexCount:count];
-            
-            count = 0;
-        }
+        // Bind mesh buffers
+        [render_encoder setVertexBuffer:mesh.vertex_buffer
+            offset:0
+            atIndex:index_vertices];
+
+        [render_encoder setVertexBuffer:mesh.texcoord_buffer
+            offset:0
+            atIndex:index_texcoords];
+
+        // Bind transform/color data
+        [render_encoder setVertexBytes:&vp
+            length:sizeof(mat4)
+            atIndex:index_wvp];
+
+        [render_encoder setVertexBytes:&instance
+            length:sizeof(sprite_instance_data)
+            atIndex:index_instance];
+
+        // Bind texture
+        [render_encoder setFragmentTexture:image.texture
+            atIndex:index_sprite_texture];
+
+        // Draw indexed mesh
+        [render_encoder drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+            indexCount:mesh.index_count
+            indexType:MTLIndexTypeUInt16
+            indexBuffer:mesh.index_buffer
+            indexBufferOffset:0];
     }
         
     if(triangles_count > 0)
@@ -381,7 +415,7 @@ void xs::render::render()
     // When using inspector, add a blit encoder to ensure the render target is finished
     // before ImGui tries to sample it
     id<MTLBlitCommandEncoder> blit_encoder = [command_buffer blitCommandEncoder];
-    [blit_encoder synchronizeResource:_renderTargetTexture];
+    [blit_encoder synchronizeResource:_currentRenderTarget];
     [blit_encoder endEncoding];
 #endif
 
@@ -440,8 +474,8 @@ void xs::render::render()
         vec2 resolution(dw, dh);
         [screen_encoder setVertexBytes:&resolution length:sizeof(vec2) atIndex:index_resolution];
 
-        // Set the offscreen texture as the source texture.
-        [screen_encoder setFragmentTexture:_renderTargetTexture atIndex:index_sprite_texture];
+        // Set the offscreen texture as the source texture (from triple buffering pool)
+        [screen_encoder setFragmentTexture:_currentRenderTarget atIndex:index_sprite_texture];
 
         // Draw quad with rendered texture.
         [screen_encoder drawPrimitives:MTLPrimitiveTypeTriangle
@@ -488,7 +522,6 @@ void xs::render::create_texture_with_data(
     }
 }
 
-// TODO: Deprecated
 int xs::render::create_shape(
 	int image_id,
 	const float *positions,
@@ -497,10 +530,53 @@ int xs::render::create_shape(
 	const unsigned short *indices,
 	unsigned int index_count)
 {
-	return 0;
+	if (image_id < 0 || image_id >= images.size()) {
+		log::error("Can't create shape with image {}!", image_id);
+		return -1;
+	}
+
+	// Generate unique ID for custom shapes (not cached like sprites)
+	static int next_shape_id = 1000000;  // Start high to avoid collision with sprite hashes
+	int shape_id = next_shape_id++;
+
+	// Create Metal buffers for arbitrary geometry
+	metal_mesh mesh;
+
+	mesh.vertex_buffer = [_device newBufferWithBytes:positions
+	                                          length:vertex_count * 2 * sizeof(float)
+	                                         options:MTLResourceStorageModeShared];
+
+	mesh.texcoord_buffer = [_device newBufferWithBytes:texture_coordinates
+	                                            length:vertex_count * 2 * sizeof(float)
+	                                           options:MTLResourceStorageModeShared];
+
+	mesh.index_buffer = [_device newBufferWithBytes:indices
+	                                         length:index_count * sizeof(unsigned short)
+	                                        options:MTLResourceStorageModeShared];
+
+	mesh.index_count = index_count;
+	mesh.image_id = image_id;
+	mesh.xy = vec4(0, 0, 0, 0);  // Not used for custom shapes
+	mesh.uv = vec4(0, 0, 1, 1);  // Full texture by default
+	mesh.is_sprite = false;
+
+	// Store mesh
+	meshes[shape_id] = mesh;
+
+	return shape_id;
 }
 
-void xs::render::destroy_shape(int sprite_id) {}
+void xs::render::destroy_shape(int sprite_id)
+{
+	auto it = meshes.find(sprite_id);
+	if (it == meshes.end()) {
+		return;  // Mesh doesn't exist
+	}
+
+	// Metal buffers are automatically released when ARC decrements ref count
+	// Just remove from map
+	meshes.erase(it);
+}
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
 {
@@ -509,22 +585,74 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 		return -1;
 	}
 
-	const auto epsilon = 0.001;
-	for(int i = 0; i < sprites.size(); i++)
-	{
-		const auto& s = sprites[i];
-		if (s.image_id == image_id &&
-			abs(s.from.x - x0) < epsilon &&
-			abs(s.from.y - y0) < epsilon &&
-			abs(s.to.x - x1) < epsilon &&
-			abs(s.to.y - y1) < epsilon)
-			return i;
-	}
+#if XS_QUANTIZED_HASHING
+	// Precision for the texture coordinates
+	double precision = 10000.0;
+	int xh0 = (int)(x0 * precision);
+	int yh0 = (int)(y0 * precision);
+	int xh1 = (int)(x1 * precision);
+	int yh1 = (int)(y1 * precision);
+	auto key = tools::hash_combine(image_id, xh0, yh0, xh1, yh1);
+#else
+	// Check if the sprite already exists
+	auto key = tools::hash_combine(image_id, x0, y0, x1, y1);
+#endif
 
-	const auto i = sprites.size();
-	sprite_data s = { image_id, { x0, y0 }, { x1, y1 } };
-	sprites.push_back(s);
-	return static_cast<int>(i);
+	auto it = meshes.find(key);
+	if (it != meshes.end())
+		return it->first;
+
+	// Get image dimensions for UV calculation
+	const auto& img = images[image_id];
+	float img_w = (float)img.width;
+	float img_h = (float)img.height;
+
+	// Calculate UV coordinates
+	float u0 = (float)x0 / img_w;
+	float v0 = (float)y0 / img_h;
+	float u1 = (float)x1 / img_w;
+	float v1 = (float)y1 / img_h;
+
+	// Create quad vertices (unit square 0-1, will be scaled by xy in shader)
+	vec2 positions[4] = {
+		vec2(0.0f, 1.0f),  // Bottom-left
+		vec2(0.0f, 0.0f),  // Top-left
+		vec2(1.0f, 0.0f),  // Top-right
+		vec2(1.0f, 1.0f)   // Bottom-right
+	};
+
+	// Texture coordinates
+	vec2 texcoords[4] = {
+		vec2(u0, v0),
+		vec2(u0, v1),
+		vec2(u1, v1),
+		vec2(u1, v0)
+	};
+
+	// Indices for two triangles (quad)
+	unsigned short indices[6] = { 0, 1, 2, 2, 3, 0 };
+
+	// Create Metal buffers
+	metal_mesh mesh;
+	mesh.vertex_buffer = [_device newBufferWithBytes:positions
+	                                          length:sizeof(positions)
+	                                         options:MTLResourceStorageModeShared];
+	mesh.texcoord_buffer = [_device newBufferWithBytes:texcoords
+	                                            length:sizeof(texcoords)
+	                                           options:MTLResourceStorageModeShared];
+	mesh.index_buffer = [_device newBufferWithBytes:indices
+	                                         length:sizeof(indices)
+	                                        options:MTLResourceStorageModeShared];
+	mesh.index_count = 6;
+	mesh.image_id = image_id;
+	mesh.xy = vec4((float)x0, (float)y0, (float)x1, (float)y1);
+	mesh.uv = vec4(u0, v0, u1, v1);
+	mesh.is_sprite = true;
+
+	// Store mesh
+	meshes[key] = mesh;
+
+	return key;
 }
 
 void xs::render::sprite(
@@ -538,11 +666,6 @@ void xs::render::sprite(
 	color add,
 	unsigned int flags)
 {
-	if (sprite_id < 0 || sprite_id >= sprites.size()) {
-		log::error("Can't render sprite {}!", sprite_id);
-		return;
-	}
-
 	if (!tools::check_bit_flag_overlap(flags, sprite_flags::fixed)) {
 		x += offset.x;
 		y += offset.y;
@@ -571,5 +694,5 @@ xs::render::stats xs::render::get_stats()
 
 void* xs::render::get_render_target_texture()
 {
-	return (void*)(intptr_t)_renderTargetTexture;
+	return (void*)(intptr_t)_currentRenderTarget;
 }

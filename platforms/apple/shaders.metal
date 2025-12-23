@@ -6,7 +6,7 @@ using namespace metal;
 #import "shader_types.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-// Sprite rendering
+// Sprite rendering - Mesh-based (new approach)
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct vertex_to_fragment
@@ -17,19 +17,87 @@ struct vertex_to_fragment
     vec2 texture;
 };
 
+vertex vertex_to_fragment vertex_shader_mesh(
+    uint vertexID [[vertex_id]],
+    constant vec2* positions [[buffer(index_vertices)]],
+    constant vec2* texcoords [[buffer(index_texcoords)]],
+    constant mat4* p_worldviewproj [[buffer(index_wvp)]],
+    constant sprite_instance_data* instance [[buffer(index_instance)]])
+{
+    mat4 worldviewproj = mat4(*p_worldviewproj);
+    sprite_instance_data inst = *instance;
+
+    // Get vertex position and texcoord from mesh buffers
+    vec2 pos = positions[vertexID];
+    vec2 uv = texcoords[vertexID];
+
+    // Scale position by sprite bounds
+    float xs = inst.xy.z - inst.xy.x;  // Width
+    float ys = inst.xy.w - inst.xy.y;  // Height
+    vec2 scaled_pos = vec2(pos.x * xs, pos.y * ys);
+
+    // Apply anchor offset based on flags
+    vec2 anchor = vec2(0.0, 0.0);
+    if ((inst.flags & (1u << 3)) != 0) // center_x
+        anchor.x = xs * 0.5;
+    if ((inst.flags & (1u << 4)) != 0) // center_y
+        anchor.y = ys * 0.5;
+    else if ((inst.flags & (1u << 2)) != 0) // top
+        anchor.y = ys;
+
+    scaled_pos -= anchor;
+
+    // Apply rotation
+    if (inst.rotation != 0.0) {
+        float c = cos(inst.rotation);
+        float s = sin(inst.rotation);
+        vec2 rotated = vec2(
+            scaled_pos.x * c - scaled_pos.y * s,
+            scaled_pos.x * s + scaled_pos.y * c
+        );
+        scaled_pos = rotated;
+    }
+
+    // Apply scale
+    scaled_pos *= inst.scale;
+
+    // Apply world position
+    scaled_pos += inst.position;
+
+    // Transform to clip space
+    vertex_to_fragment vtf;
+    vtf.position = vec4(scaled_pos, 0.0, 1.0) * worldviewproj;
+
+    // Handle texture coordinate flipping
+    vec2 final_uv = uv;
+    if ((inst.flags & (1u << 5)) != 0) { // flip_x
+        final_uv.x = inst.uv.x + inst.uv.z - uv.x;
+    }
+    if ((inst.flags & (1u << 6)) != 0) { // flip_y
+        final_uv.y = inst.uv.y + inst.uv.w - uv.y;
+    }
+
+    vtf.texture = final_uv;
+    vtf.add_color = inst.add_color;
+    vtf.mul_color = inst.mul_color;
+
+    return vtf;
+}
+
+// Legacy inline vertex shader (keep for debug geometry)
 vertex vertex_to_fragment vertex_shader(
     uint vertexID [[vertex_id]],
     constant sprite_vtx_format* vertices [[buffer(index_vertices)]],
     constant mat4* p_worldviewproj [[buffer(index_wvp)]])
 {
     mat4 worldviewproj = mat4(*p_worldviewproj);
-    
+
     vertex_to_fragment vtf;
     vtf.position = vertices[vertexID].position * worldviewproj;
     vtf.texture = vertices[vertexID].texture;
     vtf.add_color = vertices[vertexID].add_color;
     vtf.mul_color = vertices[vertexID].mul_color;
-    
+
     return vtf;
 }
 
