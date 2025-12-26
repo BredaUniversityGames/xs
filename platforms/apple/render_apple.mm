@@ -20,6 +20,8 @@
 #import <ModelIO/ModelIO.h>
 #import "shader_types.h"
 
+#define XS_QUANTIZED_HASHING
+
 using namespace glm;
 using namespace std;
 using namespace xs;
@@ -585,7 +587,7 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 		return -1;
 	}
 
-#if XS_QUANTIZED_HASHING
+#if defined(XS_QUANTIZED_HASHING)
 	// Precision for the texture coordinates
 	double precision = 10000.0;
 	int xh0 = (int)(x0 * precision);
@@ -602,16 +604,22 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	if (it != meshes.end())
 		return it->first;
 
-	// Get image dimensions for UV calculation
+	// Get image dimensions
 	const auto& img = images[image_id];
 	float img_w = (float)img.width;
 	float img_h = (float)img.height;
 
-	// Calculate UV coordinates
-	float u0 = (float)x0 / img_w;
-	float v0 = (float)y0 / img_h;
-	float u1 = (float)x1 / img_w;
-	float v1 = (float)y1 / img_h;
+	// Input coordinates are normalized (0-1), convert to pixel dimensions for mesh.xy
+	float from_x = 0.0f;
+	float from_y = 0.0f;
+	float to_x = img_w * (float)(x1 - x0);
+	float to_y = img_h * (float)(y1 - y0);
+
+	// UV coordinates: normalize the input coords (which are already 0-1 range)
+	float u0 = (float)x0;
+	float v0 = (float)y0;
+	float u1 = (float)x1;
+	float v1 = (float)y1;
 
 	// Create quad vertices (unit square 0-1, will be scaled by xy in shader)
 	vec2 positions[4] = {
@@ -645,8 +653,8 @@ int xs::render::create_sprite(int image_id, double x0, double y0, double x1, dou
 	                                        options:MTLResourceStorageModeShared];
 	mesh.index_count = 6;
 	mesh.image_id = image_id;
-	mesh.xy = vec4((float)x0, (float)y0, (float)x1, (float)y1);
-	mesh.uv = vec4(u0, v0, u1, v1);
+	mesh.xy = vec4(from_x, from_y, to_x, to_y);  // Pixel dimensions
+	mesh.uv = vec4(u0, v0, u1, v1);               // Normalized texture coords
 	mesh.is_sprite = true;
 
 	// Store mesh

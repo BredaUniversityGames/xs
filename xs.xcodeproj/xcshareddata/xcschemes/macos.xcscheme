@@ -56,7 +56,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "samples/render"
+            argument = "samples/shape"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
