@@ -31,6 +31,27 @@ vertex vertex_to_fragment vertex_shader_mesh(
     vec2 pos = positions[vertexID];
     vec2 uv = texcoords[vertexID];
 
+    // Shapes are rendered with less transformations
+    // Vertex positions are already in world coordinates
+    const uint is_shape = 1 << 8;  // sprite_flags::is_shape
+    if (inst.flags == is_shape) {
+        // Apply scale and rotation matrix
+        float c = cos(inst.rotation);
+        float s = sin(inst.rotation);
+        vec2 scaled_pos = vec2(
+            pos.x * inst.scale.x * c - pos.y * inst.scale.y * s,
+            pos.x * inst.scale.x * s + pos.y * inst.scale.y * c
+        );
+        scaled_pos += inst.position;
+
+        vertex_to_fragment vtf;
+        vtf.position = vec4(scaled_pos, 0.0, 1.0) * worldviewproj;
+        vtf.texture = uv;
+        vtf.add_color = inst.add_color;
+        vtf.mul_color = inst.mul_color;
+        return vtf;
+    }
+
     // Scale position by sprite bounds
     float xs = inst.xy.z - inst.xy.x;  // Width
     float ys = inst.xy.w - inst.xy.y;  // Height
