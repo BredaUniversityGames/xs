@@ -322,6 +322,11 @@ void xs::render::render()
         instance.add_color = to_vec4(spe.add_color);
         instance.flags = spe.flags;
 
+        // Add is_shape flag for shapes so shader handles them correctly
+        if (!mesh.is_sprite) {
+            instance.flags = sprite_flags::is_shape;
+        }
+
         // Bind mesh buffers
         [render_encoder setVertexBuffer:mesh.vertex_buffer
             offset:0
