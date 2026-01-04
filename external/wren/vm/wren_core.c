@@ -50,6 +50,11 @@ DEF_PRIMITIVE(class_toString)
   RETURN_OBJ(AS_CLASS(args[0])->name);
 }
 
+DEF_PRIMITIVE(class_attributes)
+{
+  RETURN_VAL(AS_CLASS(args[0])->attributes);
+}
+
 DEF_PRIMITIVE(fiber_new)
 {
   if (!validateFn(vm, args[1], "Argument")) return false;
@@ -394,6 +399,13 @@ DEF_PRIMITIVE(list_removeAt)
   RETURN_VAL(wrenListRemoveAt(vm, list, index));
 }
 
+DEF_PRIMITIVE(list_removeValue) {
+  ObjList* list = AS_LIST(args[0]);
+  int index = wrenListIndexOf(vm, list, args[1]);
+  if(index == -1) RETURN_NULL;
+  RETURN_VAL(wrenListRemoveAt(vm, list, index));
+}
+
 DEF_PRIMITIVE(list_indexOf)
 {
   ObjList* list = AS_LIST(args[0]);
@@ -633,6 +645,9 @@ DEF_NUM_CONSTANT(tau,      6.28318530717958647692528676655900577)
 DEF_NUM_CONSTANT(largest,  DBL_MAX)
 DEF_NUM_CONSTANT(smallest, DBL_MIN)
 
+DEF_NUM_CONSTANT(maxSafeInteger, 9007199254740991.0)
+DEF_NUM_CONSTANT(minSafeInteger, -9007199254740991.0)
+
 // Defines a primitive on Num that calls infix [op] and returns [type].
 #define DEF_NUM_INFIX(name, op, type)                                          \
     DEF_PRIMITIVE(num_##name)                                                  \
@@ -677,6 +692,7 @@ DEF_NUM_FN(abs,     fabs)
 DEF_NUM_FN(acos,    acos)
 DEF_NUM_FN(asin,    asin)
 DEF_NUM_FN(atan,    atan)
+DEF_NUM_FN(cbrt,    cbrt)
 DEF_NUM_FN(ceil,    ceil)
 DEF_NUM_FN(cos,     cos)
 DEF_NUM_FN(floor,   floor)
@@ -733,11 +749,15 @@ DEF_PRIMITIVE(num_dotDotDot)
 
 DEF_PRIMITIVE(num_atan2)
 {
+  if (!validateNum(vm, args[1], "x value")) return false;
+
   RETURN_NUM(atan2(AS_NUM(args[0]), AS_NUM(args[1])));
 }
 
 DEF_PRIMITIVE(num_min)
 {
+  if (!validateNum(vm, args[1], "Other value")) return false;
+
   double value = AS_NUM(args[0]);
   double other = AS_NUM(args[1]);
   RETURN_NUM(value <= other ? value : other);
@@ -745,6 +765,8 @@ DEF_PRIMITIVE(num_min)
 
 DEF_PRIMITIVE(num_max)
 {
+  if (!validateNum(vm, args[1], "Other value")) return false;
+
   double value = AS_NUM(args[0]);
   double other = AS_NUM(args[1]);
   RETURN_NUM(value > other ? value : other);
@@ -752,6 +774,9 @@ DEF_PRIMITIVE(num_max)
 
 DEF_PRIMITIVE(num_clamp)
 {
+  if (!validateNum(vm, args[1], "Min value")) return false;
+  if (!validateNum(vm, args[2], "Max value")) return false;
+
   double value = AS_NUM(args[0]);
   double min = AS_NUM(args[1]);
   double max = AS_NUM(args[2]);
@@ -761,13 +786,15 @@ DEF_PRIMITIVE(num_clamp)
 
 DEF_PRIMITIVE(num_pow)
 {
+  if (!validateNum(vm, args[1], "Power value")) return false;
+
   RETURN_NUM(pow(AS_NUM(args[0]), AS_NUM(args[1])));
 }
 
 DEF_PRIMITIVE(num_fraction)
 {
-  double dummy;
-  RETURN_NUM(modf(AS_NUM(args[0]) , &dummy));
+  double unused;
+  RETURN_NUM(modf(AS_NUM(args[0]) , &unused));
 }
 
 DEF_PRIMITIVE(num_isInfinity)
@@ -1230,6 +1257,7 @@ void wrenInitializeCore(WrenVM* vm)
   PRIMITIVE(vm->classClass, "name", class_name);
   PRIMITIVE(vm->classClass, "supertype", class_supertype);
   PRIMITIVE(vm->classClass, "toString", class_toString);
+  PRIMITIVE(vm->classClass, "attributes", class_attributes);
 
   // Finally, we can define Object's metaclass which is a subclass of Class.
   ObjClass* objectMetaclass = defineClass(vm, coreModule, "Object metaclass");
@@ -1328,6 +1356,8 @@ void wrenInitializeCore(WrenVM* vm)
   PRIMITIVE(vm->numClass->obj.classObj, "tau", num_tau);
   PRIMITIVE(vm->numClass->obj.classObj, "largest", num_largest);
   PRIMITIVE(vm->numClass->obj.classObj, "smallest", num_smallest);
+  PRIMITIVE(vm->numClass->obj.classObj, "maxSafeInteger", num_maxSafeInteger);
+  PRIMITIVE(vm->numClass->obj.classObj, "minSafeInteger", num_minSafeInteger);
   PRIMITIVE(vm->numClass, "-(_)", num_minus);
   PRIMITIVE(vm->numClass, "+(_)", num_plus);
   PRIMITIVE(vm->numClass, "*(_)", num_multiply);
@@ -1345,6 +1375,7 @@ void wrenInitializeCore(WrenVM* vm)
   PRIMITIVE(vm->numClass, "acos", num_acos);
   PRIMITIVE(vm->numClass, "asin", num_asin);
   PRIMITIVE(vm->numClass, "atan", num_atan);
+  PRIMITIVE(vm->numClass, "cbrt", num_cbrt);
   PRIMITIVE(vm->numClass, "ceil", num_ceil);
   PRIMITIVE(vm->numClass, "cos", num_cos);
   PRIMITIVE(vm->numClass, "floor", num_floor);
@@ -1409,6 +1440,7 @@ void wrenInitializeCore(WrenVM* vm)
   PRIMITIVE(vm->listClass, "iterate(_)", list_iterate);
   PRIMITIVE(vm->listClass, "iteratorValue(_)", list_iteratorValue);
   PRIMITIVE(vm->listClass, "removeAt(_)", list_removeAt);
+  PRIMITIVE(vm->listClass, "remove(_)", list_removeValue);
   PRIMITIVE(vm->listClass, "indexOf(_)", list_indexOf);
   PRIMITIVE(vm->listClass, "swap(_,_)", list_swap);
 

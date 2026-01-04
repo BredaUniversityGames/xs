@@ -66,6 +66,7 @@ typedef enum
   TOKEN_STAR,
   TOKEN_SLASH,
   TOKEN_PERCENT,
+  TOKEN_HASH,
   TOKEN_PLUS,
   TOKEN_MINUS,
   TOKEN_LTLT,
@@ -293,6 +294,11 @@ typedef struct
   // The name of the class.
   ObjString* name;
   
+  // Attributes for the class itself
+  ObjMap* classAttributes;
+  // Attributes for methods in this class
+  ObjMap* methodAttributes;
+
   // Symbol table for the fields of the class.
   SymbolTable fields;
 
@@ -355,7 +361,20 @@ struct sCompiler
   // The function being compiled.
   ObjFn* fn;
   
+  // The constants for the function being compiled.
   ObjMap* constants;
+
+  // Whether or not the compiler is for a constructor initializer
+  bool isInitializer;
+
+  // The number of attributes seen while parsing.
+  // We track this separately as compile time attributes
+  // are not stored, so we can't rely on attributes->count
+  // to enforce an error message when attributes are used
+  // anywhere other than methods or classes.
+  int numAttributes;
+  // Attributes for the next class or method.
+  ObjMap* attributes;
 };
 
 // Describes where a variable is declared.
@@ -381,6 +400,14 @@ typedef struct
   // Where the variable is declared.
   Scope scope;
 } Variable;
+
+// Forward declarations
+static void disallowAttributes(Compiler* compiler);
+static void addToAttributeGroup(Compiler* compiler, Value group, Value key, Value value);
+static void emitClassAttributes(Compiler* compiler, ClassInfo* classInfo);
+static void copyAttributes(Compiler* compiler, ObjMap* into);
+static void copyMethodAttributes(Compiler* compiler, bool isForeign, 
+            bool isStatic, const char* fullSignature, int32_t length);
 
 // The stack effect of each opcode. The index in the array is the opcode, and
 // the value is the stack effect of that instruction.
@@ -509,11 +536,13 @@ static void initCompiler(Compiler* compiler, Parser* parser, Compiler* parent,
   compiler->parent = parent;
   compiler->loop = NULL;
   compiler->enclosingClass = NULL;
+  compiler->isInitializer = false;
   
   // Initialize these to NULL before allocating in case a GC gets triggered in
   // the middle of initializing the compiler.
   compiler->fn = NULL;
   compiler->constants = NULL;
+  compiler->attributes = NULL;
 
   parser->vm->compiler = compiler;
 
@@ -552,6 +581,8 @@ static void initCompiler(Compiler* compiler, Parser* parser, Compiler* parent,
     compiler->scopeDepth = 0;
   }
   
+  compiler->numAttributes = 0;
+  compiler->attributes = wrenNewMap(parser->vm);
   compiler->fn = wrenNewFunction(parser->vm, parser->module,
                                  compiler->numLocals);
 }
@@ -784,11 +815,16 @@ static void readNumber(Parser* parser)
 }
 
 // Finishes lexing an identifier. Handles reserved words.
-static void readName(Parser* parser, TokenType type)
+static void readName(Parser* parser, TokenType type, char firstChar)
 {
+  ByteBuffer string;
+  wrenByteBufferInit(&string);
+  wrenByteBufferWrite(parser->vm, &string, firstChar);
+
   while (isName(peekChar(parser)) || isDigit(peekChar(parser)))
   {
-    nextChar(parser);
+    char c = nextChar(parser);
+    wrenByteBufferWrite(parser->vm, &string, c);
   }
 
   // Update the type if it's a keyword.
@@ -803,6 +839,10 @@ static void readName(Parser* parser, TokenType type)
     }
   }
   
+  parser->next.value = wrenNewStringLength(parser->vm,
+                                            (char*)string.data, string.count);
+
+  wrenByteBufferClear(parser->vm, &string);
   makeToken(parser, type);
 }
 
@@ -849,6 +889,83 @@ static void readUnicodeEscape(Parser* parser, ByteBuffer* string, int length)
   }
 }
 
+static void readRawString(Parser* parser)
+{
+  ByteBuffer string;
+  wrenByteBufferInit(&string);
+  TokenType type = TOKEN_STRING;
+
+  //consume the second and third "
+  nextChar(parser);
+  nextChar(parser);
+
+  int skipStart = 0;
+  int firstNewline = -1;
+
+  int skipEnd = -1;
+  int lastNewline = -1;
+
+  for (;;)
+  {
+    char c = nextChar(parser);
+    char c1 = peekChar(parser);
+    char c2 = peekNextChar(parser);
+
+    if (c == '\r') continue;
+
+    if (c == '\n') {
+      lastNewline = string.count;
+      skipEnd = lastNewline;
+      firstNewline = firstNewline == -1 ? string.count : firstNewline;
+    }
+
+    if (c == '"' && c1 == '"' && c2 == '"') break;
+    
+    bool isWhitespace = c == ' ' || c == '\t';
+    skipEnd = c == '\n' || isWhitespace ? skipEnd : -1;
+
+    // If we haven't seen a newline or other character yet, 
+    // and still seeing whitespace, count the characters 
+    // as skippable till we know otherwise
+    bool skippable = skipStart != -1 && isWhitespace && firstNewline == -1;
+    skipStart = skippable ? string.count + 1 : skipStart;
+    
+    // We've counted leading whitespace till we hit something else, 
+    // but it's not a newline, so we reset skipStart since we need these characters
+    if (firstNewline == -1 && !isWhitespace && c != '\n') skipStart = -1;
+
+    if (c == '\0' || c1 == '\0' || c2 == '\0')
+    {
+      lexError(parser, "Unterminated raw string.");
+
+      // Don't consume it if it isn't expected. Keeps us from reading past the
+      // end of an unterminated string.
+      parser->currentChar--;
+      break;
+    }
+ 
+    wrenByteBufferWrite(parser->vm, &string, c);
+  }
+
+  //consume the second and third "
+  nextChar(parser);
+  nextChar(parser);
+
+  int offset = 0;
+  int count = string.count;
+
+  if(firstNewline != -1 && skipStart == firstNewline) offset = firstNewline + 1;
+  if(lastNewline != -1 && skipEnd == lastNewline) count = lastNewline;
+
+  count -= (offset > count) ? count : offset;
+
+  parser->next.value = wrenNewStringLength(parser->vm, 
+                         ((char*)string.data) + offset, count);
+  
+  wrenByteBufferClear(parser->vm, &string);
+  makeToken(parser, type);
+}
+
 // Finishes lexing a string literal.
 static void readString(Parser* parser)
 {
@@ -860,6 +977,7 @@ static void readString(Parser* parser)
   {
     char c = nextChar(parser);
     if (c == '"') break;
+    if (c == '\r') continue;
 
     if (c == '\0')
     {
@@ -897,6 +1015,7 @@ static void readString(Parser* parser)
         case '0':  wrenByteBufferWrite(parser->vm, &string, '\0'); break;
         case 'a':  wrenByteBufferWrite(parser->vm, &string, '\a'); break;
         case 'b':  wrenByteBufferWrite(parser->vm, &string, '\b'); break;
+        case 'e':  wrenByteBufferWrite(parser->vm, &string, '\33'); break;
         case 'f':  wrenByteBufferWrite(parser->vm, &string, '\f'); break;
         case 'n':  wrenByteBufferWrite(parser->vm, &string, '\n'); break;
         case 'r':  wrenByteBufferWrite(parser->vm, &string, '\r'); break;
@@ -976,6 +1095,17 @@ static void nextToken(Parser* parser)
       case ',': makeToken(parser, TOKEN_COMMA); return;
       case '*': makeToken(parser, TOKEN_STAR); return;
       case '%': makeToken(parser, TOKEN_PERCENT); return;
+      case '#': {
+        // Ignore shebang on the first line.
+        if (parser->currentLine == 1 && peekChar(parser) == '!' && peekNextChar(parser) == '/')
+        {
+          skipLineComment(parser);
+          break;
+        }
+        // Otherwise we treat it as a token
+        makeToken(parser, TOKEN_HASH); 
+        return;
+      }
       case '^': makeToken(parser, TOKEN_CARET); return;
       case '+': makeToken(parser, TOKEN_PLUS); return;
       case '-': makeToken(parser, TOKEN_MINUS); return;
@@ -1051,10 +1181,16 @@ static void nextToken(Parser* parser)
         }
         break;
 
-      case '"': readString(parser); return;
+      case '"': {
+        if(peekChar(parser) == '"' && peekNextChar(parser)  == '"') {
+          readRawString(parser);
+          return;
+        }
+        readString(parser); return;
+      }
       case '_':
         readName(parser,
-                 peekChar(parser) == '_' ? TOKEN_STATIC_FIELD : TOKEN_FIELD);
+                 peekChar(parser) == '_' ? TOKEN_STATIC_FIELD : TOKEN_FIELD, c);
         return;
 
       case '0':
@@ -1068,15 +1204,9 @@ static void nextToken(Parser* parser)
         return;
 
       default:
-        if (parser->currentLine == 1 && c == '#' && peekChar(parser) == '!')
-        {
-          // Ignore shebang on the first line.
-          skipLineComment(parser);
-          break;
-        }
         if (isName(c))
         {
-          readName(parser, TOKEN_NAME);
+          readName(parser, TOKEN_NAME, c);
         }
         else if (isDigit(c))
         {
@@ -1668,13 +1798,13 @@ static bool finishBlock(Compiler* compiler)
 
 // Parses a method or function body, after the initial "{" has been consumed.
 //
-// It [isInitializer] is `true`, this is the body of a constructor initializer.
-// In that case, this adds the code to ensure it returns `this`.
-static void finishBody(Compiler* compiler, bool isInitializer)
+// If [Compiler->isInitializer] is `true`, this is the body of a constructor
+// initializer. In that case, this adds the code to ensure it returns `this`.
+static void finishBody(Compiler* compiler)
 {
   bool isExpressionBody = finishBlock(compiler);
 
-  if (isInitializer)
+  if (compiler->isInitializer)
   {
     // If the initializer body evaluates to a value, discard it.
     if (isExpressionBody) emitOp(compiler, CODE_POP);
@@ -1722,8 +1852,14 @@ static void finishParameterList(Compiler* compiler, Signature* signature)
 // Gets the symbol for a method [name] with [length].
 static int methodSymbol(Compiler* compiler, const char* name, int length)
 {
-  return wrenSymbolTableEnsure(compiler->parser->vm,
+  int symbol = wrenSymbolTableEnsure(compiler->parser->vm,
       &compiler->parser->vm->methodNames, name, length);
+
+  if (symbol > MAX_METHODS) {
+    error(compiler, "Method limit of %d reached.", MAX_METHODS);
+  }
+
+  return symbol;
 }
 
 // Appends characters to [name] (and updates [length]) for [numParams] "_"
@@ -1883,6 +2019,9 @@ static void methodCall(Compiler* compiler, Code instruction,
   {
     called.type = SIG_METHOD;
 
+    // Allow new line before an empty argument list
+    ignoreNewlines(compiler);
+
     // Allow empty an argument list.
     if (peek(compiler) != TOKEN_RIGHT_PAREN)
     {
@@ -1913,7 +2052,7 @@ static void methodCall(Compiler* compiler, Code instruction,
 
     fnCompiler.fn->arity = fnSignature.arity;
 
-    finishBody(&fnCompiler, false);
+    finishBody(&fnCompiler);
 
     // Name the function based on the method its passed to.
     char blockName[MAX_METHOD_SIGNATURE + 15];
@@ -2554,6 +2693,9 @@ static void parameterList(Compiler* compiler, Signature* signature)
   
   signature->type = SIG_METHOD;
   
+  // Allow new line before an empty argument list
+  ignoreNewlines(compiler);
+
   // Allow an empty parameter list.
   if (match(compiler, TOKEN_RIGHT_PAREN)) return;
 
@@ -2626,6 +2768,7 @@ GrammarRule rules[] =
   /* TOKEN_STAR          */ INFIX_OPERATOR(PREC_FACTOR, "*"),
   /* TOKEN_SLASH         */ INFIX_OPERATOR(PREC_FACTOR, "/"),
   /* TOKEN_PERCENT       */ INFIX_OPERATOR(PREC_FACTOR, "%"),
+  /* TOKEN_HASH          */ UNUSED,
   /* TOKEN_PLUS          */ INFIX_OPERATOR(PREC_TERM, "+"),
   /* TOKEN_MINUS         */ OPERATOR("-"),
   /* TOKEN_LTLT          */ INFIX_OPERATOR(PREC_BITWISE_SHIFT, "<<"),
@@ -2720,8 +2863,8 @@ void expression(Compiler* compiler)
   parsePrecedence(compiler, PREC_LOWEST);
 }
 
-// Returns the number of arguments to the instruction at [ip] in [fn]'s
-// bytecode.
+// Returns the number of bytes for the arguments to the instruction 
+// at [ip] in [fn]'s bytecode.
 static int getByteCountForArguments(const uint8_t* bytecode,
                             const Value* constants, int ip)
 {
@@ -2748,6 +2891,7 @@ static int getByteCountForArguments(const uint8_t* bytecode,
     case CODE_FOREIGN_CONSTRUCT:
     case CODE_FOREIGN_CLASS:
     case CODE_END_MODULE:
+    case CODE_END_CLASS:
       return 0;
 
     case CODE_LOAD_LOCAL:
@@ -3084,11 +3228,18 @@ void statement(Compiler* compiler)
     // Compile the return value.
     if (peek(compiler) == TOKEN_LINE)
     {
-      // Implicitly return null if there is no value.
-      emitOp(compiler, CODE_NULL);
+      // If there's no expression after return, initializers should 
+      // return 'this' and regular methods should return null
+      Code result = compiler->isInitializer ? CODE_LOAD_LOCAL_0 : CODE_NULL;
+      emitOp(compiler, result);
     }
     else
     {
+      if (compiler->isInitializer)
+      {
+        error(compiler, "A constructor cannot return a value.");
+      }
+
       expression(compiler);
     }
 
@@ -3196,12 +3347,96 @@ static int declareMethod(Compiler* compiler, Signature* signature,
   return symbol;
 }
 
+static Value consumeLiteral(Compiler* compiler, const char* message) 
+{
+  if(match(compiler, TOKEN_FALSE))  return FALSE_VAL;
+  if(match(compiler, TOKEN_TRUE))   return TRUE_VAL;
+  if(match(compiler, TOKEN_NUMBER)) return compiler->parser->previous.value;
+  if(match(compiler, TOKEN_STRING)) return compiler->parser->previous.value;
+  if(match(compiler, TOKEN_NAME))   return compiler->parser->previous.value;
+
+  error(compiler, message);
+  nextToken(compiler->parser);
+  return NULL_VAL;
+}
+
+static bool matchAttribute(Compiler* compiler) {
+
+  if(match(compiler, TOKEN_HASH)) 
+  {
+    compiler->numAttributes++;
+    bool runtimeAccess = match(compiler, TOKEN_BANG);
+    if(match(compiler, TOKEN_NAME)) 
+    {
+      Value group = compiler->parser->previous.value;
+      TokenType ahead = peek(compiler);
+      if(ahead == TOKEN_EQ || ahead == TOKEN_LINE)
+      {
+        Value key = group;
+        Value value = NULL_VAL;
+        if(match(compiler, TOKEN_EQ)) 
+        {
+          value = consumeLiteral(compiler, "Expect a Bool, Num, String or Identifier literal for an attribute value.");
+        }
+        if(runtimeAccess) addToAttributeGroup(compiler, NULL_VAL, key, value);
+      }
+      else if(match(compiler, TOKEN_LEFT_PAREN))
+      {
+        ignoreNewlines(compiler);
+        if(match(compiler, TOKEN_RIGHT_PAREN))
+        {
+          error(compiler, "Expected attributes in group, group cannot be empty.");
+        } 
+        else 
+        {
+          while(peek(compiler) != TOKEN_RIGHT_PAREN)
+          {
+            consume(compiler, TOKEN_NAME, "Expect name for attribute key.");
+            Value key = compiler->parser->previous.value;
+            Value value = NULL_VAL;
+            if(match(compiler, TOKEN_EQ))
+            {
+              value = consumeLiteral(compiler, "Expect a Bool, Num, String or Identifier literal for an attribute value.");
+            }
+            if(runtimeAccess) addToAttributeGroup(compiler, group, key, value);
+            ignoreNewlines(compiler);
+            if(!match(compiler, TOKEN_COMMA)) break;
+            ignoreNewlines(compiler);
+          }
+
+          ignoreNewlines(compiler);
+          consume(compiler, TOKEN_RIGHT_PAREN, 
+            "Expected ')' after grouped attributes.");
+        }
+      }
+      else
+      {
+        error(compiler, "Expect an equal, newline or grouping after an attribute key.");
+      }
+    }
+    else 
+    {
+      error(compiler, "Expect an attribute definition after #.");
+    }
+
+    consumeLine(compiler, "Expect newline after attribute.");
+    return true;
+  }
+
+  return false;
+}
+
 // Compiles a method definition inside a class body.
 //
 // Returns `true` if it compiled successfully, or `false` if the method couldn't
 // be parsed.
 static bool method(Compiler* compiler, Variable classVariable)
 {
+  // Parse any attributes before the method and store them
+  if(matchAttribute(compiler)) {
+    return method(compiler, classVariable);
+  }
+
   // TODO: What about foreign constructors?
   bool isForeign = match(compiler, TOKEN_FOREIGN);
   bool isStatic = match(compiler, TOKEN_STATIC);
@@ -3225,6 +3460,8 @@ static bool method(Compiler* compiler, Variable classVariable)
 
   // Compile the method signature.
   signatureFn(&methodCompiler, &signature);
+
+  methodCompiler.isInitializer = signature.type == SIG_INITIALIZER;
   
   if (isStatic && signature.type == SIG_INITIALIZER)
   {
@@ -3235,6 +3472,9 @@ static bool method(Compiler* compiler, Variable classVariable)
   char fullSignature[MAX_METHOD_SIGNATURE];
   int length;
   signatureToString(&signature, fullSignature, &length);
+
+  // Copy any attributes the compiler collected into the enclosing class 
+  copyMethodAttributes(compiler, isForeign, isStatic, fullSignature, length);
 
   // Check for duplicate methods. Doesn't matter that it's already been
   // defined, error will discard bytecode anyway.
@@ -3254,7 +3494,7 @@ static bool method(Compiler* compiler, Variable classVariable)
   else
   {
     consume(compiler, TOKEN_LEFT_BRACE, "Expect '{' to begin method body.");
-    finishBody(&methodCompiler, signature.type == SIG_INITIALIZER);
+    finishBody(&methodCompiler);
     endCompiler(&methodCompiler, fullSignature, length);
   }
   
@@ -3329,6 +3569,15 @@ static void classDefinition(Compiler* compiler, bool isForeign)
   classInfo.isForeign = isForeign;
   classInfo.name = className;
 
+  // Allocate attribute maps if necessary. 
+  // A method will allocate the methods one if needed
+  classInfo.classAttributes = compiler->attributes->count > 0 
+        ? wrenNewMap(compiler->parser->vm) 
+        : NULL;
+  classInfo.methodAttributes = NULL;
+  // Copy any existing attributes into the class
+  copyAttributes(compiler, classInfo.classAttributes);
+
   // Set up a symbol table for the class's fields. We'll initially compile
   // them to slots starting at zero. When the method is bound to the class, the
   // bytecode will be adjusted by [wrenBindMethod] to take inherited fields
@@ -3354,6 +3603,20 @@ static void classDefinition(Compiler* compiler, bool isForeign)
     consumeLine(compiler, "Expect newline after definition in class.");
   }
   
+  // If any attributes are present, 
+  // instantiate a ClassAttributes instance for the class
+  // and send it over to CODE_END_CLASS
+  bool hasAttr = classInfo.classAttributes != NULL || 
+                 classInfo.methodAttributes != NULL;
+  if(hasAttr) {
+    emitClassAttributes(compiler, &classInfo);
+    loadVariable(compiler, classVariable);
+    // At the moment, we don't have other uses for CODE_END_CLASS,
+    // so we put it inside this condition. Later, we can always
+    // emit it and use it as needed.
+    emitOp(compiler, CODE_END_CLASS);
+  }
+
   // Update the class with the number of fields.
   if (!isForeign)
   {
@@ -3469,16 +3732,26 @@ static void variableDefinition(Compiler* compiler)
 // like the non-curly body of an if or while.
 void definition(Compiler* compiler)
 {
+  if(matchAttribute(compiler)) {
+    definition(compiler);
+    return;
+  }
+
   if (match(compiler, TOKEN_CLASS))
   {
     classDefinition(compiler, false);
+    return;
   }
   else if (match(compiler, TOKEN_FOREIGN))
   {
     consume(compiler, TOKEN_CLASS, "Expect 'class' after 'foreign'.");
     classDefinition(compiler, true);
+    return;
   }
-  else if (match(compiler, TOKEN_IMPORT))
+
+  disallowAttributes(compiler);
+
+  if (match(compiler, TOKEN_IMPORT))
   {
     import(compiler);
   }
@@ -3646,13 +3919,222 @@ void wrenMarkCompiler(WrenVM* vm, Compiler* compiler)
   {
     wrenGrayObj(vm, (Obj*)compiler->fn);
     wrenGrayObj(vm, (Obj*)compiler->constants);
+    wrenGrayObj(vm, (Obj*)compiler->attributes);
     
     if (compiler->enclosingClass != NULL)
     {
       wrenBlackenSymbolTable(vm, &compiler->enclosingClass->fields);
+
+      if(compiler->enclosingClass->methodAttributes != NULL) 
+      {
+        wrenGrayObj(vm, (Obj*)compiler->enclosingClass->methodAttributes);
+      }
+      if(compiler->enclosingClass->classAttributes != NULL) 
+      {
+        wrenGrayObj(vm, (Obj*)compiler->enclosingClass->classAttributes);
+      }
     }
     
     compiler = compiler->parent;
   }
   while (compiler != NULL);
+}
+
+// Helpers for Attributes
+
+// Throw an error if any attributes were found preceding, 
+// and clear the attributes so the error doesn't keep happening.
+static void disallowAttributes(Compiler* compiler)
+{
+  if (compiler->numAttributes > 0)
+  {
+    error(compiler, "Attributes can only specified before a class or a method");
+    wrenMapClear(compiler->parser->vm, compiler->attributes);
+    compiler->numAttributes = 0;
+  }
+}
+
+// Add an attribute to a given group in the compiler attribues map
+static void addToAttributeGroup(Compiler* compiler, 
+                                Value group, Value key, Value value) 
+{
+  WrenVM* vm = compiler->parser->vm;
+
+  if(IS_OBJ(group)) wrenPushRoot(vm, AS_OBJ(group));
+  if(IS_OBJ(key))   wrenPushRoot(vm, AS_OBJ(key));
+  if(IS_OBJ(value)) wrenPushRoot(vm, AS_OBJ(value));
+
+  Value groupMapValue = wrenMapGet(compiler->attributes, group);
+  if(IS_UNDEFINED(groupMapValue)) 
+  {
+    groupMapValue = OBJ_VAL(wrenNewMap(vm));
+    wrenMapSet(vm, compiler->attributes, group, groupMapValue);
+  }
+
+  //we store them as a map per so we can maintain duplicate keys 
+  //group = { key:[value, ...], }
+  ObjMap* groupMap = AS_MAP(groupMapValue);
+
+  //var keyItems = group[key]
+  //if(!keyItems) keyItems = group[key] = [] 
+  Value keyItemsValue = wrenMapGet(groupMap, key);
+  if(IS_UNDEFINED(keyItemsValue)) 
+  {
+    keyItemsValue = OBJ_VAL(wrenNewList(vm, 0));
+    wrenMapSet(vm, groupMap, key, keyItemsValue);
+  }
+
+  //keyItems.add(value)
+  ObjList* keyItems = AS_LIST(keyItemsValue);
+  wrenValueBufferWrite(vm, &keyItems->elements, value);
+
+  if(IS_OBJ(group)) wrenPopRoot(vm);
+  if(IS_OBJ(key))   wrenPopRoot(vm);
+  if(IS_OBJ(value)) wrenPopRoot(vm);
+}
+
+
+// Emit the attributes in the give map onto the stack
+static void emitAttributes(Compiler* compiler, ObjMap* attributes) 
+{
+  // Instantiate a new map for the attributes
+  loadCoreVariable(compiler, "Map");
+  callMethod(compiler, 0, "new()", 5);
+
+  // The attributes are stored as group = { key:[value, value, ...] }
+  // so our first level is the group map
+  for(uint32_t groupIdx = 0; groupIdx < attributes->capacity; groupIdx++)
+  {
+    const MapEntry* groupEntry = &attributes->entries[groupIdx];
+    if(IS_UNDEFINED(groupEntry->key)) continue;
+    //group key
+    emitConstant(compiler, groupEntry->key);
+
+    //group value is gonna be a map
+    loadCoreVariable(compiler, "Map");
+    callMethod(compiler, 0, "new()", 5);
+
+    ObjMap* groupItems = AS_MAP(groupEntry->value);
+    for(uint32_t itemIdx = 0; itemIdx < groupItems->capacity; itemIdx++)
+    {
+      const MapEntry* itemEntry = &groupItems->entries[itemIdx];
+      if(IS_UNDEFINED(itemEntry->key)) continue;
+
+      emitConstant(compiler, itemEntry->key);
+      // Attribute key value, key = []
+      loadCoreVariable(compiler, "List");
+      callMethod(compiler, 0, "new()", 5);
+      // Add the items to the key list
+      ObjList* items = AS_LIST(itemEntry->value);
+      for(int itemIdx = 0; itemIdx < items->elements.count; ++itemIdx)
+      {
+        emitConstant(compiler, items->elements.data[itemIdx]);
+        callMethod(compiler, 1, "addCore_(_)", 11);
+      }
+      // Add the list to the map
+      callMethod(compiler, 2, "addCore_(_,_)", 13);
+    }
+
+    // Add the key/value to the map
+    callMethod(compiler, 2, "addCore_(_,_)", 13);
+  }
+
+}
+
+// Methods are stored as method <-> attributes, so we have to have 
+// an indirection to resolve for methods
+static void emitAttributeMethods(Compiler* compiler, ObjMap* attributes)
+{
+    // Instantiate a new map for the attributes
+  loadCoreVariable(compiler, "Map");
+  callMethod(compiler, 0, "new()", 5);
+
+  for(uint32_t methodIdx = 0; methodIdx < attributes->capacity; methodIdx++)
+  {
+    const MapEntry* methodEntry = &attributes->entries[methodIdx];
+    if(IS_UNDEFINED(methodEntry->key)) continue;
+    emitConstant(compiler, methodEntry->key);
+    ObjMap* attributeMap = AS_MAP(methodEntry->value);
+    emitAttributes(compiler, attributeMap);
+    callMethod(compiler, 2, "addCore_(_,_)", 13);
+  }
+}
+
+
+// Emit the final ClassAttributes that exists at runtime
+static void emitClassAttributes(Compiler* compiler, ClassInfo* classInfo)
+{
+  loadCoreVariable(compiler, "ClassAttributes");
+
+  classInfo->classAttributes 
+    ? emitAttributes(compiler, classInfo->classAttributes) 
+    : null(compiler, false);
+
+  classInfo->methodAttributes 
+    ? emitAttributeMethods(compiler, classInfo->methodAttributes) 
+    : null(compiler, false);
+
+  callMethod(compiler, 2, "new(_,_)", 8);
+}
+
+// Copy the current attributes stored in the compiler into a destination map
+// This also resets the counter, since the intent is to consume the attributes
+static void copyAttributes(Compiler* compiler, ObjMap* into)
+{
+  compiler->numAttributes = 0;
+
+  if(compiler->attributes->count == 0) return;
+  if(into == NULL) return;
+
+  WrenVM* vm = compiler->parser->vm;
+  
+  // Note we copy the actual values as is since we'll take ownership 
+  // and clear the original map
+  for(uint32_t attrIdx = 0; attrIdx < compiler->attributes->capacity; attrIdx++)
+  {
+    const MapEntry* attrEntry = &compiler->attributes->entries[attrIdx];
+    if(IS_UNDEFINED(attrEntry->key)) continue;
+    wrenMapSet(vm, into, attrEntry->key, attrEntry->value);
+  }
+  
+  wrenMapClear(vm, compiler->attributes);
+}
+
+// Copy the current attributes stored in the compiler into the method specific
+// attributes for the current enclosingClass.
+// This also resets the counter, since the intent is to consume the attributes
+static void copyMethodAttributes(Compiler* compiler, bool isForeign,
+            bool isStatic, const char* fullSignature, int32_t length) 
+{
+  compiler->numAttributes = 0;
+
+  if(compiler->attributes->count == 0) return;
+
+  WrenVM* vm = compiler->parser->vm;
+  
+  // Make a map for this method to copy into
+  ObjMap* methodAttr = wrenNewMap(vm);
+  wrenPushRoot(vm, (Obj*)methodAttr);
+  copyAttributes(compiler, methodAttr);
+
+  // Include 'foreign static ' in front as needed
+  int32_t fullLength = length;
+  if(isForeign) fullLength += 8;
+  if(isStatic) fullLength += 7;
+  char fullSignatureWithPrefix[MAX_METHOD_SIGNATURE + 8 + 7];
+  const char* foreignPrefix = isForeign ? "foreign " : "";
+  const char* staticPrefix = isStatic ? "static " : "";
+  sprintf(fullSignatureWithPrefix, "%s%s%.*s", foreignPrefix, staticPrefix, 
+                                               length, fullSignature);
+  fullSignatureWithPrefix[fullLength] = '\0';
+
+  if(compiler->enclosingClass->methodAttributes == NULL) {
+    compiler->enclosingClass->methodAttributes = wrenNewMap(vm);
+  }
+  
+  // Store the method attributes in the class map
+  Value key = wrenNewStringLength(vm, fullSignatureWithPrefix, fullLength);
+  wrenMapSet(vm, compiler->enclosingClass->methodAttributes, key, OBJ_VAL(methodAttr));
+
+  wrenPopRoot(vm);
 }
