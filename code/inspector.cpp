@@ -746,14 +746,18 @@ static void xs::inspector::render_game_viewport()
 		// Draw image using DrawList
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
+		// Use alpha=254 to signal nearest-neighbor filtering for pixel art
+		// (alpha ~= 254/255 = 0.996, detected by shader to use nearest filtering)
+		const ImU32 NEAREST_FILTER_COLOR = IM_COL32(255, 255, 255, 254);
+
 #if defined(PLATFORM_APPLE)
 		draw_list->AddImage((ImTextureID)texture, screen_pos, screen_pos_max,
 		                    ImVec2(0, 0), ImVec2(1, 1),
-		                    IM_COL32_WHITE);
+		                    NEAREST_FILTER_COLOR);
 #elif defined(PLATFORM_PC)
 		draw_list->AddImage((ImTextureID)texture, screen_pos, screen_pos_max,
 		                    ImVec2(0, 1), ImVec2(1, 0),
-		                    IM_COL32_WHITE);
+		                    NEAREST_FILTER_COLOR);
 #endif
 
 		// Draw corner masks on top to create rounded corners
