@@ -349,6 +349,32 @@ void xs::script::render()
     }
 }
 
+void xs::script::ec_inspect(bool& open)
+{
+    if (!initialized)
+        return;
+
+    // Try to get the Entity class from xs_ec module
+    wrenEnsureSlots(vm, 2);
+    wrenGetVariable(vm, "xs_ec", "Entity", 0);
+
+    // Check if the class was found (not null)
+    if (wrenGetSlotType(vm, 0) == WREN_TYPE_NULL)
+        return;
+
+    // Call Entity.inspect()
+    WrenHandle* entity_class = wrenGetSlotHandle(vm, 0);
+    WrenHandle* inspect_method = wrenMakeCallHandle(vm, "inspect()");
+
+    wrenEnsureSlots(vm, 1);
+    wrenSetSlotHandle(vm, 0, entity_class);
+    wrenCall(vm, inspect_method);
+
+    // Clean up handles
+    wrenReleaseHandle(vm, inspect_method);
+    wrenReleaseHandle(vm, entity_class);
+}
+
 bool xs::script::has_error()
 {
     return error;

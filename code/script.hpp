@@ -12,6 +12,7 @@ namespace xs::script
 	void shutdown();
 	void update(double dt);
 	void render();
+	void ec_inspect(bool& open);
 	bool has_error();
 	void clear_error();
 	void bind_api();

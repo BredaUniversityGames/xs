@@ -109,7 +109,7 @@ namespace xs::inspector
         float time;
     };
 
-    enum class right_panel_mode { none, data, profiler };
+    enum class right_panel_mode { none, data, profiler, ecs };
 
     enum class zoom_mode { fit, zoom_50, zoom_100, zoom_150, zoom_200 };
 
@@ -492,6 +492,12 @@ static void xs::inspector::render_top_bar()
             {
                 right_panel = (right_panel == right_panel_mode::profiler) ? right_panel_mode::none : right_panel_mode::profiler;
             }
+
+            // ECS Inspector toggle button
+            if (toggle_button(ICON_FI_PUZZLE_CUBE, right_panel == right_panel_mode::ecs, "Entities"))
+            {
+                right_panel = (right_panel == right_panel_mode::ecs) ? right_panel_mode::none : right_panel_mode::ecs;
+            }
         }
 
         // Always on top toggle button
@@ -871,6 +877,12 @@ static void xs::inspector::render_right_panel()
 	{
 		bool open = true;
 		xs::profiler::inspect(open);
+	}
+
+	if (right_panel == right_panel_mode::ecs)
+	{
+		bool open = true;
+		xs::script::ec_inspect(open);
 	}
 }
 

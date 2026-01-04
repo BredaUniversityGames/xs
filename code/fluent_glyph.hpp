@@ -73,6 +73,7 @@ constexpr std::array<char, 5> utf8_from_code(unsigned int cp)
     X(FOLDER,               0xe643) \
     X(TAG,                  0xf77c) \
     X(WINDOW, 			    0xee5d) \
+    X(PUZZLE_CUBE,          0xf0a83) \
     // Add more here
 
 // Generate string defines using proper UTF-8 encoding

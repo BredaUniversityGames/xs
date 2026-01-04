@@ -268,6 +268,13 @@ class Entity {
         System.print("<<<<<<<<<<<<< end >>>>>>>>>>>>>")
     }
 
+    /// Displays entity inspector UI (called from C++ inspector)
+    static inspect() {
+        System.print("Entity.inspect() called - %(__entities.count) entities active")
+        // TODO: Use ImGui to render entity list and properties
+        // For now, just print to verify integration works
+    }
+
     /// Removes components marked for deletion (used internally)
     removeDeletedComponents_() {
         for(c in _compDeleteQueue) {
