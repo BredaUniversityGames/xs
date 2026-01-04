@@ -122,10 +122,9 @@ class Sprite is Renderable {
     /// Each sprite has x, y, width, and height in pixels
     construct new(sheetPath, spriteName) {
         super()
-        
-        // Read and parse the spritesheet file
-        var jsonText = File.read(sheetPath)
-        var data = JSON.parse(jsonText)
+
+        // Read and parse the spritesheet file (with caching)
+        var data = JSON.load(sheetPath)
 
         // Load the image
         var imagePath = data["image"]
