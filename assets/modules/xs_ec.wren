@@ -1,5 +1,6 @@
 import "xs_math" for Math, Bits
 import "xs_tools" for Tools
+import "xs" for Inspector
 
 /// Base class for components that can be added to entities
 /// Components should inherit from this class and override initialize(), update(), and/or finalize()
@@ -270,9 +271,41 @@ class Entity {
 
     /// Displays entity inspector UI (called from C++ inspector)
     static inspect() {
-        System.print("Entity.inspect() called - %(__entities.count) entities active")
-        // TODO: Use ImGui to render entity list and properties
-        // For now, just print to verify integration works
+        Inspector.text("Entities: %(__entities.count)")
+        Inspector.separator()
+        Inspector.spacing()
+
+        var i = 0
+        for (entity in __entities) {
+            var entityLabel = entity.name.isEmpty ? "Entity %(i)" : entity.name
+
+            if (Inspector.treeNode(entityLabel)) {
+                Inspector.indent()
+
+                Inspector.text("Tag: %(entity.tag)")
+                Inspector.spacing()
+
+                if (entity.components.count > 0) {
+                    Inspector.text("Components:")
+                    for (component in entity.components) {
+                        var componentName = component.type.name
+                        if (Inspector.treeNode(componentName)) {
+                            Inspector.text("Type: %(componentName)")
+                            Inspector.text("Enabled: %(component.enabled)")
+                            Inspector.text("Initialized: %(component.initialized_)")
+                            Inspector.treePop()
+                        }
+                    }
+                } else {
+                    Inspector.text("No components")
+                }
+
+                Inspector.unindent()
+                Inspector.treePop()
+            }
+
+            i = i + 1
+        }
     }
 
     /// Removes components marked for deletion (used internally)

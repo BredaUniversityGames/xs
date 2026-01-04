@@ -24,7 +24,8 @@
 #include "device.hpp"
 #include "inspector.hpp"
 #include "color.hpp"
-    
+#include <imgui.h>
+
 // Check if we are running MSVC
 #ifdef _MSC_VER
 // Disable warning about zero-sized arrays in structs
@@ -354,13 +355,24 @@ void xs::script::ec_inspect(bool& open)
     if (!initialized)
         return;
 
+    // Create ImGui window for the ECS inspector
+    if (!ImGui::Begin("ECS Inspector", &open, ImGuiWindowFlags_NoCollapse))
+    {
+        ImGui::End();
+        return;
+    }
+
     // Try to get the Entity class from xs_ec module
     wrenEnsureSlots(vm, 2);
     wrenGetVariable(vm, "xs_ec", "Entity", 0);
 
     // Check if the class was found (not null)
     if (wrenGetSlotType(vm, 0) == WREN_TYPE_NULL)
+    {
+        ImGui::Text("No entities module loaded");
+        ImGui::End();
         return;
+    }
 
     // Call Entity.inspect()
     WrenHandle* entity_class = wrenGetSlotHandle(vm, 0);
@@ -373,6 +385,8 @@ void xs::script::ec_inspect(bool& open)
     // Clean up handles
     wrenReleaseHandle(vm, inspect_method);
     wrenReleaseHandle(vm, entity_class);
+
+    ImGui::End();
 }
 
 bool xs::script::has_error()
@@ -1135,9 +1149,55 @@ void profiler_end_section(WrenVM* vm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// 
+// Inspector (ImGui bindings)
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void inspector_text(WrenVM* vm)
+{
+	auto text = wrenGetParameter<string>(vm, 1);
+	ImGui::Text("%s", text.c_str());
+}
+
+void inspector_tree_node(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	bool result = ImGui::TreeNode(label.c_str());
+	wrenSetSlotBool(vm, 0, result);
+}
+
+void inspector_tree_pop(WrenVM* vm)
+{
+	ImGui::TreePop();
+}
+
+void inspector_separator(WrenVM* vm)
+{
+	ImGui::Separator();
+}
+
+void inspector_same_line(WrenVM* vm)
+{
+	ImGui::SameLine();
+}
+
+void inspector_indent(WrenVM* vm)
+{
+	ImGui::Indent();
+}
+
+void inspector_unindent(WrenVM* vm)
+{
+	ImGui::Unindent();
+}
+
+void inspector_spacing(WrenVM* vm)
+{
+	ImGui::Spacing();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //											Bind xs API
-// 
+//
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void xs::script::bind_api()
 {
@@ -1237,4 +1297,14 @@ void xs::script::bind_api()
     // Profiler
     bind("xs", "Profiler", true, "begin(_)", profiler_begin_section);
     bind("xs", "Profiler", true, "end(_)", profiler_end_section);
+
+    // Inspector
+    bind("xs", "Inspector", true, "text(_)", inspector_text);
+    bind("xs", "Inspector", true, "treeNode(_)", inspector_tree_node);
+    bind("xs", "Inspector", true, "treePop()", inspector_tree_pop);
+    bind("xs", "Inspector", true, "separator()", inspector_separator);
+    bind("xs", "Inspector", true, "sameLine()", inspector_same_line);
+    bind("xs", "Inspector", true, "indent()", inspector_indent);
+    bind("xs", "Inspector", true, "unindent()", inspector_unindent);
+    bind("xs", "Inspector", true, "spacing()", inspector_spacing);
 }

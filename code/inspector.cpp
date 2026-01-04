@@ -372,6 +372,7 @@ void xs::inspector::render(double dt)
 		ImGui::DockBuilderDockWindow("Data Registry", dock_id_right);
 		ImGui::DockBuilderDockWindow("Game", dockspace_id);  // Game viewport in center
 		ImGui::DockBuilderDockWindow("Profiler", dock_id_right);
+		ImGui::DockBuilderDockWindow("ECS Inspector", dock_id_right);
 
 		ImGui::DockBuilderFinish(dockspace_id);
 	}

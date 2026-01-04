@@ -573,3 +573,30 @@ class Profiler {
     /// Ends a named profiler section
     foreign static end(name)
 }
+
+/// ImGui-based inspector utilities for entity debugging
+class Inspector {
+    /// Displays text in the inspector
+    foreign static text(label)
+
+    /// Starts a collapsible tree node, returns true if open
+    foreign static treeNode(label)
+
+    /// Ends a tree node (must be called if treeNode returned true)
+    foreign static treePop()
+
+    /// Draws a horizontal separator line
+    foreign static separator()
+
+    /// Places the next widget on the same line
+    foreign static sameLine()
+
+    /// Increases indent level
+    foreign static indent()
+
+    /// Decreases indent level
+    foreign static unindent()
+
+    /// Adds vertical spacing
+    foreign static spacing()
+}
