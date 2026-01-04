@@ -94,6 +94,8 @@ namespace xs::render
 
 	std::vector<sprite_queue_entry>	sprite_queue = {};
 
+	xs::render::stats render_stats = {};
+
 }
 
 void xs::render::initialize()
@@ -264,6 +266,7 @@ void xs::render::render()
 {
     @autoreleasepool {
     XS_PROFILE_SECTION("xs::render::render");
+    render_stats = {};
 
     // Rotate to next texture for triple buffering
     _currentTextureIndex = (_currentTextureIndex + 1) % BUFFER_COUNT;
@@ -355,6 +358,8 @@ void xs::render::render()
             indexType:MTLIndexTypeUInt16
             indexBuffer:mesh.index_buffer
             indexBufferOffset:0];
+
+        render_stats.draw_calls++;
     }
         
     if(triangles_count > 0)
@@ -380,10 +385,11 @@ void xs::render::render()
             [render_encoder drawPrimitives:MTLPrimitiveTypeTriangle
                 vertexStart:0
                 vertexCount:count * 3];
-            
+
+            render_stats.draw_calls++;
             idx += count * 3;
         }
-        
+
         triangles_count = 0;
     }
     
@@ -409,10 +415,11 @@ void xs::render::render()
             [render_encoder drawPrimitives:MTLPrimitiveTypeLine
                 vertexStart:0
                 vertexCount:count * 2];
-            
+
+            render_stats.draw_calls++;
             idx += count * 2;
         }
-        
+
         lines_count = 0;
     }
     
@@ -494,6 +501,9 @@ void xs::render::render()
         // end_frame() will call endEncoding
         device::internal::set_render_encoder(screen_encoder);
     }
+
+    render_stats.sprites = (int)meshes.size();
+    render_stats.textures = (int)images.size();
     } // @autoreleasepool
 }
 
@@ -580,9 +590,13 @@ void xs::render::destroy_shape(int sprite_id)
 		return;  // Mesh doesn't exist
 	}
 
-	// Metal buffers are automatically released when ARC decrements ref count
-	// Just remove from map
-	meshes.erase(it);
+	const metal_mesh& mesh = it->second;
+	// Only destroy custom shapes, not cached sprites
+	if (!mesh.is_sprite) {
+		// Metal buffers are automatically released when ARC decrements ref count
+		// Just remove from map
+		meshes.erase(it);
+	}
 }
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
@@ -702,7 +716,7 @@ void xs::render::sprite(
 
 xs::render::stats xs::render::get_stats()
 {
-	return {};
+	return render_stats;
 }
 
 void* xs::render::get_render_target_texture()
