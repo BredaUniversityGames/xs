@@ -5,6 +5,7 @@ import "xs" for Inspector
 // Module-level temporary storage for reflection (used by Entity.inspect)
 var ReflectionTarget = null
 var ReflectionValue = null
+var SelectedEntityIndex = -1
 
 /// Base class for components that can be added to entities
 /// Components should inherit from this class and override initialize(), update(), and/or finalize()
@@ -275,51 +276,62 @@ class Entity {
 
     /// Displays entity inspector UI (called from C++ inspector)
     static inspect() {
-        // Scene Outline Header
-        Inspector.text("SCENE OUTLINE")
-        Inspector.separator()
-        Inspector.spacing()
-
         if (__entities.count == 0) {
             Inspector.text("No entities in scene")
             return
         }
 
-        // Entity list
+        // Entity List
+        Inspector.text("ENTITIES")
+        Inspector.separator()
+
         var i = 0
         for (entity in __entities) {
             var entityLabel = entity.name.isEmpty ? "Entity %(i)" : entity.name
+            var uniqueLabel = "%(entityLabel)##entity_%(i)"
+            var isSelected = (i == SelectedEntityIndex)
 
-            if (Inspector.treeNode(entityLabel)) {
-                Inspector.spacing()
-
-                // Entity info
-                Inspector.text("Tag: %(entity.tag)")
-                Inspector.separator()
-                Inspector.spacing()
-
-                // Component list
-                if (entity.components.count > 0) {
-                    for (component in entity.components) {
-                        inspectComponent_(component)
-                        Inspector.spacing()
-                    }
-                } else {
-                    Inspector.text("No components")
-                }
-
-                Inspector.treePop()
+            if (Inspector.selectable(uniqueLabel, isSelected)) {
+                SelectedEntityIndex = i
             }
 
             i = i + 1
         }
+
+        // Selected Entity Inspector
+        if (SelectedEntityIndex >= 0 && SelectedEntityIndex < __entities.count) {
+            Inspector.spacing()
+            Inspector.separator()
+            Inspector.spacing()
+
+            var selectedEntity = __entities[SelectedEntityIndex]
+            var entityLabel = selectedEntity.name.isEmpty ? "Entity %(SelectedEntityIndex)" : selectedEntity.name
+
+            Inspector.text("%(entityLabel)")
+            Inspector.text("Tag: %(selectedEntity.tag)")
+            Inspector.separator()
+            Inspector.spacing()
+
+            // Component inspector
+            if (selectedEntity.components.count > 0) {
+                var compIndex = 0
+                for (component in selectedEntity.components) {
+                    inspectComponent_(component, compIndex)
+                    Inspector.spacing()
+                    compIndex = compIndex + 1
+                }
+            } else {
+                Inspector.text("No components")
+            }
+        }
     }
 
     /// Inspects a single component, showing its properties via attributes
-    static inspectComponent_(component) {
+    static inspectComponent_(component, compIndex) {
         var componentName = component.type.name
+        var uniqueLabel = "%(componentName)##comp_%(compIndex)"
 
-        if (Inspector.treeNode(componentName)) {
+        if (Inspector.treeNode(uniqueLabel)) {
             Inspector.spacing()
 
             // Get inspectable properties via attributes
@@ -329,14 +341,22 @@ class Entity {
                 for (prop in props) {
                     var propName = prop["name"]
                     var metadata = prop["metadata"]
+                    var hasSetter = hasSetter_(component, propName)
 
                     // Get the property value
                     var value = getPropertyValue_(component, propName)
-                    var valueStr = formatValue_(value)
 
-                    // Display property
-                    var typeHint = metadata.containsKey("type") ? " (%(metadata["type"]))" : ""
-                    Inspector.text("%(propName): %(valueStr)%(typeHint)")
+                    // Display editable or read-only property
+                    if (hasSetter) {
+                        var newValue = displayEditableProperty_(componentName, propName, value, metadata)
+                        if (newValue != value) {
+                            setPropertyValue_(component, propName, newValue)
+                        }
+                    } else {
+                        var valueStr = formatValue_(value)
+                        var typeHint = metadata.containsKey("type") ? " (%(metadata["type"]))" : ""
+                        Inspector.text("%(propName): %(valueStr)%(typeHint)")
+                    }
                 }
             } else {
                 Inspector.text("No inspectable properties")
@@ -344,6 +364,39 @@ class Entity {
 
             Inspector.treePop()
         }
+    }
+
+    /// Displays an editable property and returns the new value
+    static displayEditableProperty_(componentName, propName, value, metadata) {
+        var type = metadata.containsKey("type") ? metadata["type"] : "unknown"
+        var uniqueId = "##%(componentName)_%(propName)"
+
+        if (type == "angle" || type == "number") {
+            if (value is Num) {
+                return Inspector.dragFloat("%(propName)%(uniqueId)", value)
+            }
+        } else if (type == "vec2") {
+            if (value is List && value.count >= 2) {
+                Inspector.text("%(propName):")
+                Inspector.indent()
+                var x = Inspector.dragFloat("x%(uniqueId)_x", value[0])
+                var y = Inspector.dragFloat("y%(uniqueId)_y", value[1])
+                Inspector.unindent()
+                if (x != value[0] || y != value[1]) {
+                    return [x, y]
+                }
+                return value
+            }
+        } else if (value is Bool) {
+            return Inspector.checkbox("%(propName)%(uniqueId)", value)
+        } else if (value is Num) {
+            return Inspector.dragFloat("%(propName)%(uniqueId)", value)
+        }
+
+        // Fallback: read-only display
+        var valueStr = formatValue_(value)
+        Inspector.text("%(propName): %(valueStr) (%(type))")
+        return value
     }
 
     /// Gets all inspectable properties from a component using attributes
@@ -417,6 +470,44 @@ class Entity {
         ReflectionValue = null
 
         return value
+    }
+
+    /// Sets a property value on a component using reflection
+    static setPropertyValue_(component, propName, value) {
+        import "meta" for Meta
+
+        // Use module-level temp variables for eval
+        ReflectionTarget = component
+        ReflectionValue = value
+
+        var code = "ReflectionTarget.%(propName) = ReflectionValue"
+
+        var fiber = Fiber.new { Meta.eval(code) }
+        var result = fiber.try()
+
+        ReflectionTarget = null
+        ReflectionValue = null
+
+        if (fiber.error != null) {
+            System.print("Error setting %(propName): %(fiber.error)")
+            return false
+        }
+
+        return true
+    }
+
+    /// Checks if a component has a setter for a property
+    static hasSetter_(component, propName) {
+        var cls = component.type
+        var attrs = cls.attributes
+
+        if (attrs == null || attrs.methods == null) {
+            return false
+        }
+
+        // Check for setter signature: "propName=(_)"
+        var setterSig = "%(propName)=(_)"
+        return attrs.methods.containsKey(setterSig)
     }
 
     /// Formats a value for display

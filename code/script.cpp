@@ -1194,6 +1194,49 @@ void inspector_spacing(WrenVM* vm)
 	ImGui::Spacing();
 }
 
+void inspector_selectable(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto selected = wrenGetParameter<bool>(vm, 2);
+	bool result = ImGui::Selectable(label.c_str(), selected);
+	wrenSetSlotBool(vm, 0, result);
+}
+
+void inspector_input_float(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto value = wrenGetParameter<double>(vm, 2);
+	float f = (float)value;
+	bool changed = ImGui::InputFloat(label.c_str(), &f);
+	if (changed) {
+		wrenSetSlotDouble(vm, 0, (double)f);
+	} else {
+		wrenSetSlotDouble(vm, 0, value);
+	}
+}
+
+void inspector_drag_float(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto value = wrenGetParameter<double>(vm, 2);
+	float f = (float)value;
+	bool changed = ImGui::DragFloat(label.c_str(), &f, 0.1f);
+	if (changed) {
+		wrenSetSlotDouble(vm, 0, (double)f);
+	} else {
+		wrenSetSlotDouble(vm, 0, value);
+	}
+}
+
+void inspector_checkbox(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto value = wrenGetParameter<bool>(vm, 2);
+	bool b = value;
+	ImGui::Checkbox(label.c_str(), &b);
+	wrenSetSlotBool(vm, 0, b);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //											Bind xs API
@@ -1307,4 +1350,8 @@ void xs::script::bind_api()
     bind("xs", "Inspector", true, "indent()", inspector_indent);
     bind("xs", "Inspector", true, "unindent()", inspector_unindent);
     bind("xs", "Inspector", true, "spacing()", inspector_spacing);
+    bind("xs", "Inspector", true, "selectable(_,_)", inspector_selectable);
+    bind("xs", "Inspector", true, "inputFloat(_,_)", inspector_input_float);
+    bind("xs", "Inspector", true, "dragFloat(_,_)", inspector_drag_float);
+    bind("xs", "Inspector", true, "checkbox(_,_)", inspector_checkbox);
 }

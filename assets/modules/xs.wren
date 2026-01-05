@@ -599,4 +599,16 @@ class Inspector {
 
     /// Adds vertical spacing
     foreign static spacing()
+
+    /// Selectable item for lists, returns true if clicked
+    foreign static selectable(label, selected)
+
+    /// Input field for float values, returns new value
+    foreign static inputFloat(label, value)
+
+    /// Drag widget for float values, returns new value
+    foreign static dragFloat(label, value)
+
+    /// Checkbox for boolean values, returns new value
+    foreign static checkbox(label, value)
 }
