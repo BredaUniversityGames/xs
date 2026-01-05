@@ -2,6 +2,10 @@ import "xs_math" for Math, Bits
 import "xs_tools" for Tools
 import "xs" for Inspector
 
+// Module-level temporary storage for reflection (used by Entity.inspect)
+var ReflectionTarget = null
+var ReflectionValue = null
+
 /// Base class for components that can be added to entities
 /// Components should inherit from this class and override initialize(), update(), and/or finalize()
 /// Each entity can only have one component of each type
@@ -271,40 +275,166 @@ class Entity {
 
     /// Displays entity inspector UI (called from C++ inspector)
     static inspect() {
-        Inspector.text("Entities: %(__entities.count)")
+        // Scene Outline Header
+        Inspector.text("SCENE OUTLINE")
         Inspector.separator()
         Inspector.spacing()
 
+        if (__entities.count == 0) {
+            Inspector.text("No entities in scene")
+            return
+        }
+
+        // Entity list
         var i = 0
         for (entity in __entities) {
             var entityLabel = entity.name.isEmpty ? "Entity %(i)" : entity.name
 
             if (Inspector.treeNode(entityLabel)) {
-                Inspector.indent()
-
-                Inspector.text("Tag: %(entity.tag)")
                 Inspector.spacing()
 
+                // Entity info
+                Inspector.text("Tag: %(entity.tag)")
+                Inspector.separator()
+                Inspector.spacing()
+
+                // Component list
                 if (entity.components.count > 0) {
-                    Inspector.text("Components:")
                     for (component in entity.components) {
-                        var componentName = component.type.name
-                        if (Inspector.treeNode(componentName)) {
-                            Inspector.text("Type: %(componentName)")
-                            Inspector.text("Enabled: %(component.enabled)")
-                            Inspector.text("Initialized: %(component.initialized_)")
-                            Inspector.treePop()
-                        }
+                        inspectComponent_(component)
+                        Inspector.spacing()
                     }
                 } else {
                     Inspector.text("No components")
                 }
 
-                Inspector.unindent()
                 Inspector.treePop()
             }
 
             i = i + 1
+        }
+    }
+
+    /// Inspects a single component, showing its properties via attributes
+    static inspectComponent_(component) {
+        var componentName = component.type.name
+
+        if (Inspector.treeNode(componentName)) {
+            Inspector.spacing()
+
+            // Get inspectable properties via attributes
+            var props = getInspectableProperties_(component)
+
+            if (props.count > 0) {
+                for (prop in props) {
+                    var propName = prop["name"]
+                    var metadata = prop["metadata"]
+
+                    // Get the property value
+                    var value = getPropertyValue_(component, propName)
+                    var valueStr = formatValue_(value)
+
+                    // Display property
+                    var typeHint = metadata.containsKey("type") ? " (%(metadata["type"]))" : ""
+                    Inspector.text("%(propName): %(valueStr)%(typeHint)")
+                }
+            } else {
+                Inspector.text("No inspectable properties")
+            }
+
+            Inspector.treePop()
+        }
+    }
+
+    /// Gets all inspectable properties from a component using attributes
+    static getInspectableProperties_(component) {
+        var props = []
+        var cls = component.type
+        var attrs = cls.attributes
+
+        if (attrs == null || attrs.methods == null) {
+            return props
+        }
+
+        // Find all methods with #!inspect attribute
+        for (methodSig in attrs.methods.keys) {
+            var methodAttrMap = attrs.methods[methodSig]
+
+            for (groupKey in methodAttrMap.keys) {
+                var attrMap = methodAttrMap[groupKey]
+
+                var hasInspect = (groupKey == "inspect")
+                var metadata = {}
+
+                for (attrName in attrMap.keys) {
+                    var attrValues = attrMap[attrName]
+                    if (attrName == "inspect") {
+                        hasInspect = true
+                    }
+                    if (attrValues.count > 0) {
+                        metadata[attrName] = attrValues[0]
+                    }
+                }
+
+                if (hasInspect) {
+                    // Extract property name from signature
+                    var propName = methodSig
+                    if (methodSig.endsWith("()")) {
+                        propName = methodSig[0...-2]
+                    }
+                    // Skip setters
+                    if (!methodSig.contains("=(")) {
+                        props.add({
+                            "name": propName,
+                            "metadata": metadata
+                        })
+                    }
+                    break
+                }
+            }
+        }
+
+        return props
+    }
+
+    /// Gets a property value from a component using reflection
+    static getPropertyValue_(component, propName) {
+        import "meta" for Meta
+
+        // Use module-level temp variables for eval
+        ReflectionTarget = component
+        var code = "ReflectionValue = ReflectionTarget.%(propName)"
+
+        var fiber = Fiber.new { Meta.eval(code) }
+        var result = fiber.try()
+
+        if (fiber.error != null) {
+            return "<error>"
+        }
+
+        var value = ReflectionValue
+        ReflectionTarget = null
+        ReflectionValue = null
+
+        return value
+    }
+
+    /// Formats a value for display
+    static formatValue_(value) {
+        if (value is List) {
+            return "[%(value.join(", "))]"
+        } else if (value is Num) {
+            if (value == value.floor) {
+                return value.toString
+            } else {
+                return value.toString
+            }
+        } else if (value is String) {
+            return "\"%(value)\""
+        } else if (value is Bool) {
+            return value.toString
+        } else {
+            return value.toString
         }
     }
 
