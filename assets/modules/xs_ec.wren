@@ -1,4 +1,4 @@
-import "xs_math" for Math, Bits
+import "xs_math" for Math, Bits, Vec2
 import "xs_tools" for Tools
 import "xs" for Inspector
 
@@ -382,17 +382,9 @@ class Entity {
             if (value is Num) {
                 return Inspector.dragFloat("%(propName)%(uniqueId)", value)
             }
-        } else if (type == "vec2") {
+        } else if (value == Vec2) {
             if (value is List && value.count >= 2) {
-                Inspector.text("%(propName):")
-                Inspector.indent()
-                var x = Inspector.dragFloat("x%(uniqueId)_x", value[0])
-                var y = Inspector.dragFloat("y%(uniqueId)_y", value[1])
-                Inspector.unindent()
-                if (x != value[0] || y != value[1]) {
-                    return [x, y]
-                }
-                return value
+                return Inspector.dragFloat2("%(propName)%(uniqueId)", value)
             }
         } else if (value is Bool) {
             return Inspector.checkbox("%(propName)%(uniqueId)", value)

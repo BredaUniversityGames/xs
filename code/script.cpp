@@ -943,7 +943,6 @@ void shape_handle_finalize(void* data)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Audio
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
 void audio_load(WrenVM* vm)
 {
     callFunction_returnType_args<int, string, int>(vm, xs::audio::load);
@@ -996,7 +995,7 @@ void audio_unload_bank(WrenVM* vm)
 
 void audio_start_event(WrenVM* vm)
 {
-    callFunction_returnType_args<int, string>(vm, xs::audio::start_event);
+    callFunction_returnType_args<int, int>(vm, xs::audio::play);
 }
 
 void audio_set_parameter_number(WrenVM* vm)
@@ -1149,6 +1148,13 @@ void profiler_end_section(WrenVM* vm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// Inspector (ImGui bindings) - Forward declarations
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void inspector_checkbox(WrenVM* vm);
+void inspector_begin_child(WrenVM* vm);
+void inspector_end_child(WrenVM* vm);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // Inspector (ImGui bindings)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void inspector_text(WrenVM* vm)
@@ -1228,13 +1234,37 @@ void inspector_drag_float(WrenVM* vm)
 	}
 }
 
+void inspector_collapsing_header(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	bool result = ImGui::CollapsingHeader(label.c_str());
+	wrenSetSlotBool(vm, 0, result);
+}
+
+void inspector_drag_float2(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto x = wrenGetParameter<double>(vm, 2);
+	auto y = wrenGetParameter<double>(vm, 3);
+	
+	float values[2] = { (float)x, (float)y };
+	bool changed = ImGui::DragFloat2(label.c_str(), values, 0.1f);
+	
+	// Return as a list [x, y]
+	wrenEnsureSlots(vm, 3);
+	wrenSetSlotNewList(vm, 0);
+	wrenSetSlotDouble(vm, 1, (double)values[0]);
+	wrenInsertInList(vm, 0, 0, 1);
+	wrenSetSlotDouble(vm, 2, (double)values[1]);
+	wrenInsertInList(vm, 0, 1, 2);
+}
+
 void inspector_checkbox(WrenVM* vm)
 {
 	auto label = wrenGetParameter<string>(vm, 1);
 	auto value = wrenGetParameter<bool>(vm, 2);
-	bool b = value;
-	ImGui::Checkbox(label.c_str(), &b);
-	wrenSetSlotBool(vm, 0, b);
+	bool changed = ImGui::Checkbox(label.c_str(), &value);
+	wrenSetSlotBool(vm, 0, value);
 }
 
 void inspector_begin_child(WrenVM* vm)
@@ -1249,13 +1279,6 @@ void inspector_begin_child(WrenVM* vm)
 void inspector_end_child(WrenVM* vm)
 {
 	ImGui::EndChild();
-}
-
-void inspector_collapsing_header(WrenVM* vm)
-{
-	auto label = wrenGetParameter<string>(vm, 1);
-	bool result = ImGui::CollapsingHeader(label.c_str());
-	wrenSetSlotBool(vm, 0, result);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1378,4 +1401,5 @@ void xs::script::bind_api()
     bind("xs", "Inspector", true, "beginChild(_,_,_,_)", inspector_begin_child);
     bind("xs", "Inspector", true, "endChild()", inspector_end_child);
     bind("xs", "Inspector", true, "collapsingHeader(_)", inspector_collapsing_header);
+    bind("xs", "Inspector", true, "dragFloat2_(_,_,_)", inspector_drag_float2);
 }

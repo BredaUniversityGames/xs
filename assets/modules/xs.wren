@@ -1,3 +1,5 @@
+import "xs_math" for Vec2
+
 /// Handle for shapes and sprites in the rendering system.
 /// Used to correctly manage resources via the GC. Not to be created directly.
 foreign class ShapeHandle {}
@@ -624,4 +626,17 @@ class Inspector {
     /// Ends the current child window region
     /// Must be called after beginChild
     foreign static endChild()
+
+    /// Private: Drag widget for 2D float vector (x, y as separate params)
+    /// Returns a list [x, y] with the new values
+    foreign static dragFloat2_(label, x, y)
+
+    /// Drag widget for 2D vector, returns new Vec2 value
+    /// Works with xs_math Vec2 objects
+    static dragFloat2(label, vec) {
+        var result = dragFloat2_(label, vec.x, vec.y)
+        vec.x = result[0]
+        vec.y = result[1]
+        return vec
+    }
 }
