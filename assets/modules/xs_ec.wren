@@ -281,9 +281,12 @@ class Entity {
             return
         }
 
-        // Entity List
+        // Top panel: Entity List (full width, fixed height, with border)
+        Inspector.beginChild("EntityList", 0, 150, true)
+        
         Inspector.text("ENTITIES")
         Inspector.separator()
+        Inspector.spacing()
 
         var i = 0
         for (entity in __entities) {
@@ -298,18 +301,20 @@ class Entity {
             i = i + 1
         }
 
-        // Selected Entity Inspector
-        if (SelectedEntityIndex >= 0 && SelectedEntityIndex < __entities.count) {
-            Inspector.spacing()
-            Inspector.separator()
-            Inspector.spacing()
+        Inspector.endChild()
 
+        // Bottom panel: Selected Entity Inspector (full width, remaining height, with border)
+        Inspector.beginChild("EntityInspector", 0, 0, true)
+
+        Inspector.separator()
+
+        if (SelectedEntityIndex >= 0 && SelectedEntityIndex < __entities.count) {
             var selectedEntity = __entities[SelectedEntityIndex]
-            var entityLabel = selectedEntity.name.isEmpty ? "Entity %(SelectedEntityIndex)" : selectedEntity.name
+            var entityLabel = selectedEntity.name.isEmpty ? "Entity %(SelectedEntityIndex)" : selectedEntity.name            
 
             Inspector.text("%(entityLabel)")
             Inspector.text("Tag: %(selectedEntity.tag)")
-            Inspector.separator()
+            
             Inspector.spacing()
 
             // Component inspector
@@ -323,7 +328,11 @@ class Entity {
             } else {
                 Inspector.text("No components")
             }
+        } else {
+            Inspector.text("Select an entity to inspect")
         }
+
+        Inspector.endChild()
     }
 
     /// Inspects a single component, showing its properties via attributes
@@ -331,7 +340,7 @@ class Entity {
         var componentName = component.type.name
         var uniqueLabel = "%(componentName)##comp_%(compIndex)"
 
-        if (Inspector.treeNode(uniqueLabel)) {
+        if (Inspector.collapsingHeader(uniqueLabel)) {
             Inspector.spacing()
 
             // Get inspectable properties via attributes
@@ -361,8 +370,6 @@ class Entity {
             } else {
                 Inspector.text("No inspectable properties")
             }
-
-            Inspector.treePop()
         }
     }
 

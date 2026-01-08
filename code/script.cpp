@@ -1237,6 +1237,27 @@ void inspector_checkbox(WrenVM* vm)
 	wrenSetSlotBool(vm, 0, b);
 }
 
+void inspector_begin_child(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto width = wrenGetParameter<double>(vm, 2);
+	auto height = wrenGetParameter<double>(vm, 3);
+	auto border = wrenGetParameter<bool>(vm, 4);
+	ImGui::BeginChild(label.c_str(), ImVec2((float)width, (float)height), border);
+}
+
+void inspector_end_child(WrenVM* vm)
+{
+	ImGui::EndChild();
+}
+
+void inspector_collapsing_header(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	bool result = ImGui::CollapsingHeader(label.c_str());
+	wrenSetSlotBool(vm, 0, result);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 //
 //											Bind xs API
@@ -1354,4 +1375,7 @@ void xs::script::bind_api()
     bind("xs", "Inspector", true, "inputFloat(_,_)", inspector_input_float);
     bind("xs", "Inspector", true, "dragFloat(_,_)", inspector_drag_float);
     bind("xs", "Inspector", true, "checkbox(_,_)", inspector_checkbox);
+    bind("xs", "Inspector", true, "beginChild(_,_,_,_)", inspector_begin_child);
+    bind("xs", "Inspector", true, "endChild()", inspector_end_child);
+    bind("xs", "Inspector", true, "collapsingHeader(_)", inspector_collapsing_header);
 }

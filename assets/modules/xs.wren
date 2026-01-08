@@ -611,4 +611,17 @@ class Inspector {
 
     /// Checkbox for boolean values, returns new value
     foreign static checkbox(label, value)
+
+    /// Creates a collapsing header section (cleaner than treeNode for headers)
+    /// Returns true if the section is open/expanded
+    foreign static collapsingHeader(label)
+
+    /// Begins a child window region with optional border
+    /// width and height: size in pixels (0 = auto-size)
+    /// border: whether to draw a border around the child
+    foreign static beginChild(label, width, height, border)
+
+    /// Ends the current child window region
+    /// Must be called after beginChild
+    foreign static endChild()
 }
