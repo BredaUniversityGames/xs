@@ -73,19 +73,7 @@ namespace xs::script::internal
         if (strcmp(text, "\n") == 0)
             return;
 
-#ifdef USE_UTF8_LOG
-        // Modern UTF-8 version with emoji
-        std::cout << "📜 " << text << endl;
-#else
-        // Basic ASCII version with color
-        #if defined(PLATFORM_PC)
-        static auto magenta = "\033[35m";
-        static auto reset = "\033[0m";
-        std::cout << "[" << magenta << "script" << reset << "] " << text << endl;
-        #else
-        std::cout << "[script] " << text << endl;
-        #endif
-#endif
+        xs::log::script("{}", text);
     }
 
     void errorFn(
@@ -350,17 +338,10 @@ void xs::script::render()
     }
 }
 
-void xs::script::ec_inspect(bool& open)
+void xs::script::ec_inspect()
 {
     if (!initialized)
         return;
-
-    // Create ImGui window for the ECS inspector
-    if (!ImGui::Begin("ECS Inspector", &open, ImGuiWindowFlags_NoCollapse))
-    {
-        ImGui::End();
-        return;
-    }
 
     // Try to get the Entity class from xs_ec module
     wrenEnsureSlots(vm, 2);
@@ -385,8 +366,6 @@ void xs::script::ec_inspect(bool& open)
     // Clean up handles
     wrenReleaseHandle(vm, inspect_method);
     wrenReleaseHandle(vm, entity_class);
-
-    ImGui::End();
 }
 
 bool xs::script::has_error()

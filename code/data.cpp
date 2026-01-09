@@ -63,7 +63,7 @@ namespace xs::data::internal
 	}
 
 	bool inspect_entry(std::pair<const std::string, registry_value>& itr);
-	void inspect_of_type(const std::string& name, const std::string& icon, ImGuiTextFilter& filter, type type);	
+	void inspect_of_type(const std::string& name, const std::string& icon, type type);
 	void load_of_type(type type);
 	const string& get_file_path(type type);
 
@@ -124,62 +124,18 @@ void xs::data::shutdown()
 	history_stack_pointer = 0;
 }
 
-// Render inspector at fixed rectangle (no title bar)
-void xs::data::inspect_at(bool& show, int x, int y, int w, int h)
+// Render inspector at a fixed rectangle (no title bar)
+void xs::data::inspect()
 {
-	if (!show) return;
-
-	if (history.empty())
-	{
-		auto r(reg);
-		history.push_back(r);
-	}
-
-	ImGuiWindowFlags flags =
-		ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoCollapse |
-		ImGuiWindowFlags_NoScrollbar |
-		ImGuiWindowFlags_NoScrollWithMouse;
-
-	ImGui::Begin("Data Registry", &show, flags);
-
-	ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
-	if (ImGui::Button(ICON_FI_UNDO))
-	{
-		internal::undo();
-	}
-	tooltip("Undo");
-	ImGui::EndDisabled();
-	ImGui::SameLine();
-
-	ImGui::BeginDisabled(internal::history_stack_pointer == 0);
-	if (ImGui::Button(ICON_FI_REDO))
-	{
-		internal::redo();
-	}	
-	tooltip("Redo");
-	ImGui::EndDisabled();
-	ImGui::SameLine();
-
-	static ImGuiTextFilter filter;
-	filter.Draw(ICON_FI_SEARCH);
-	ImGui::SameLine();
-	if (ImGui::Button(ICON_FI_TIMES)) {
-		filter.Clear();
-	}
-	tooltip("Clear filter");
-
-	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None | ImGuiTabBarFlags_DrawSelectedOverline;
 	if (ImGui::BeginTabBar("DataTabsEmbedded", tab_bar_flags))
 	{
-		inspect_of_type("Game Data", string(ICON_FI_GAMEPAD), filter, type::game);
-		inspect_of_type("User (Save) Data", string(ICON_FI_USER), filter, type::player);
-		inspect_of_type("Debug Only Data", string(ICON_FI_BUG), filter, type::debug);
-		inspect_of_type("Project Data", string(ICON_FI_COG), filter, type::project);
+		inspect_of_type("Game Data", string(ICON_FI_GAMEPAD) + " Game", type::game);
+		inspect_of_type("User (Save) Data", string(ICON_FI_USER) + " User", type::player);
+		inspect_of_type("Debug Only Data", string(ICON_FI_BUG) + " Debug", type::debug);
+		inspect_of_type("Project Data", string(ICON_FI_COG) + " Project", type::project);
 		ImGui::EndTabBar();
 	}
-
-	ImGui::End();
 }
 
 bool xs::data::has_chages()
@@ -243,23 +199,54 @@ void xs::data::save()
 void xs::data::internal::inspect_of_type(
 	const std::string& name,
 	const std::string& icon,
-	ImGuiTextFilter& filter,
 	type type)
 {	
 	int flags = ImGuiTabItemFlags_None;
 	if(edited[type])
 		flags |= ImGuiTabItemFlags_UnsavedDocument;
 
+
 	if (ImGui::BeginTabItem(icon.c_str(), NULL, flags))
 	{
 		tooltip(name.c_str());
+
+		if (history.empty())
+		{
+			auto r(reg);
+			history.push_back(r);
+		}
+
+		ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
+		if (ImGui::Button(ICON_FI_UNDO))
+		{
+			internal::undo();
+		}
+		tooltip("Undo");
+		ImGui::EndDisabled();
+		ImGui::SameLine();
+
+		ImGui::BeginDisabled(internal::history_stack_pointer == 0);
+		if (ImGui::Button(ICON_FI_REDO))
+		{
+			internal::redo();
+		}
+		tooltip("Redo");
+		ImGui::EndDisabled();
+		ImGui::SameLine();
+
+		static ImGuiTextFilter filter;
+		filter.Draw(ICON_FI_SEARCH);
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_FI_CLEAR_FILTER)) {
+			filter.Clear();
+		}
+		tooltip("Clear filter");
+
 		bool& ed = edited[type];
 		{
 			bool ted = ed;
-			if (ted) ImGui::PushStyleColor(ImGuiCol_Button, 0xFF773049);
 			if (ImGui::Button(string(ICON_FI_SAVE).c_str()))
 				save_of_type(type);
-			if (ted) ImGui::PopStyleColor();
 			tooltip("Save to a file");
 			ImGui::SameLine();
 
@@ -282,7 +269,11 @@ void xs::data::internal::inspect_of_type(
 		ImGui::EndChild();
 
 		ImGui::EndTabItem();
-	}		
+	}
+	else
+	{
+		tooltip(name.c_str());
+	}
 }
 
 void xs::data::save_of_type(type type)
