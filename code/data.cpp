@@ -205,7 +205,6 @@ void xs::data::internal::inspect_of_type(
 	if(edited[type])
 		flags |= ImGuiTabItemFlags_UnsavedDocument;
 
-
 	if (ImGui::BeginTabItem(icon.c_str(), NULL, flags))
 	{
 		tooltip(name.c_str());
@@ -483,9 +482,13 @@ bool xs::data::internal::inspect_entry(
 
 	if (!itr.second.active)
 	{
-		ImGui::SameLine(ImGui::GetWindowWidth() - 60);
-		//ImGui::SameLine();
+		ImGui::SameLine();
 		ImGui::PushID(itr.first.c_str());
+		// Make the text 0.5 transparent
+		auto color = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+		color.w = 0.5f;
+		ImGui::PushStyleColor(ImGuiCol_Text, color);
+
 		if (ImGui::Button(ICON_FI_DELETE))
 		{
 			reg.erase(itr.first);
@@ -494,6 +497,8 @@ bool xs::data::internal::inspect_entry(
 			history.push_back(r);
 		}
 		ImGui::PopID();
+
+		ImGui::PopStyleColor();
 	}
 
 	return edited;

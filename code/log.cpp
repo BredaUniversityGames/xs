@@ -57,12 +57,13 @@ void xs::log::initialize()
 
     output_log(banner.str());
 
-    // Test all message types
+#ifdef TEST_LOGGING
     xs::log::info("This is an info message");
     xs::log::warn("This is a warning message");
     xs::log::error("This is an error message");
     xs::log::critical("This is a critical message");
     xs::log::script("This is a script message");
+#endif
 }
 
 // Basic ASCII with color codes (or plain ASCII in Release)

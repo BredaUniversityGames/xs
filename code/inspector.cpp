@@ -50,9 +50,6 @@ namespace
 
 	#elif defined(PLATFORM_PC)
 		// Frame
-		constexpr float c_frame_top_bar = 40.0f;
-        constexpr float c_frame_bottom_bar = 40.0f;
-        constexpr float c_right_panel_width = 450.0f;
 		constexpr float c_style_scale = 1.0f;
 
 		// Fonts
@@ -77,7 +74,6 @@ namespace
 
 	// Game frame border
 	constexpr float c_frame_rounding = 18.0f;
-	constexpr float c_frame_thickness = c_frame_rounding;	
 
 	// Notifications
 	constexpr float c_notification_offset_x = -10.0f;
@@ -109,15 +105,15 @@ namespace xs::inspector
         float time;
     };
 
-    enum class right_panel_mode { none, data, profiler, ecs };
-
     enum class zoom_mode { fit, zoom_50, zoom_100, zoom_150, zoom_200 };
 
     bool game_paused = false;
     bool restart_flag = false;
     float ui_scale = 1.0f;
-    right_panel_mode right_panel = right_panel_mode::none;
     zoom_mode current_zoom = zoom_mode::fit;
+    bool show_data_registry = false;
+    bool show_profiler = false;
+    bool show_entities = false;
     bool show_about = false;
     bool show_demo = false;
     bool show_modal = false;
@@ -126,7 +122,6 @@ namespace xs::inspector
     char* ini_filename = nullptr;
     ImGuiID dock_id_top = {};
     ImGuiID dock_id_bottom = {};
-	ImGuiID dock_id_right = {};
 
     // Game viewport bounds (screen space)
     ImVec2 game_viewport_min = {};
@@ -150,6 +145,8 @@ namespace xs::inspector
 	void pop_menu_theme(theme t);
 	void dark_theme();
 	void light_theme();
+	void push_side_panel_theme();
+	void pop_side_panel_theme();
 
 	// Helper function to merge Fluent icons into a font
 	ImFont* merge_fluent_icons(ImFont* base_font, float icon_size, float font_scale, const std::string& font_file = std::string());
@@ -169,7 +166,9 @@ namespace xs::inspector
     static void render_stats_bar();
     static void render_game_viewport();
     static void render_notifications(double dt);
-    static void render_right_panel();
+    static void render_data_registry();
+    static void render_profiler();
+    static void render_entities();
 }
 
 using namespace xs::inspector;
@@ -249,10 +248,10 @@ void xs::inspector::initialize()
 	if (always_on_top)
 		device::toggle_on_top();
 
-	// Restore right panel state
-	int saved_panel = (int)data::get_number("EditorRightPanel", data::type::user);
-	if (saved_panel >= 0 && saved_panel <= 2)
-		right_panel = static_cast<right_panel_mode>(saved_panel);
+	// Restore window states
+	show_data_registry = data::get_bool("EditorShowDataRegistry", data::type::user);
+	show_profiler = data::get_bool("EditorShowProfiler", data::type::user);
+	show_entities = data::get_bool("EditorShowEntities", data::type::user);
 
 	// Restore zoom level
 	int saved_zoom = (int)data::get_number("EditorZoomLevel", data::type::user);
@@ -263,7 +262,9 @@ void xs::inspector::initialize()
 void xs::inspector::shutdown()
 {
 	// Save editor state to user settings
-	data::set_number("EditorRightPanel", static_cast<int>(right_panel), data::type::user);
+	data::set_bool("EditorShowDataRegistry", show_data_registry, data::type::user);
+	data::set_bool("EditorShowProfiler", show_profiler, data::type::user);
+	data::set_bool("EditorShowEntities", show_entities, data::type::user);
 	data::set_number("EditorZoomLevel", static_cast<int>(current_zoom), data::type::user);
 	data::save_of_type(data::type::user);
 
@@ -352,24 +353,20 @@ void xs::inspector::render(double dt)
 		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->WorkSize);
 
 		// Split the dockspace into sections using calculated ratios
-        dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
         dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.05f, nullptr, &dockspace_id);
 		dock_id_bottom = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.01f, nullptr, &dockspace_id);
 
-		// Configure all docks: no tab bars
-        ImGuiDockNode* node_right = ImGui::DockBuilderGetNode(dock_id_right);
+		// Configure all docks: no tab bars for top/bottom, allow tabs for center
 		ImGuiDockNode* node_top = ImGui::DockBuilderGetNode(dock_id_top);
 		ImGuiDockNode* node_bottom = ImGui::DockBuilderGetNode(dock_id_bottom);
 		ImGuiDockNode* node_center = ImGui::DockBuilderGetNode(dockspace_id);
 		node_top->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
 		node_bottom->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
 		node_center->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-		node_right->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
 
 		// Dock windows into their positions
 		ImGui::DockBuilderDockWindow("Top Bar", dock_id_top);
 		ImGui::DockBuilderDockWindow("Stats", dock_id_bottom);
-		ImGui::DockBuilderDockWindow("Side Panel", dock_id_right);
 		ImGui::DockBuilderDockWindow("Game", dockspace_id);  // Game viewport in center
 		ImGui::DockBuilderFinish(dockspace_id);
 	}
@@ -393,7 +390,9 @@ void xs::inspector::render(double dt)
 	render_stats_bar();
 	render_game_viewport();
 	render_notifications(dt);
-	render_right_panel();
+	render_data_registry();
+	render_profiler();
+	render_entities();
 
 	if(show_demo)
 	{
@@ -480,21 +479,21 @@ static void xs::inspector::render_top_bar()
             vertical_separator();
 
             // Data Registry toggle button
-            if (toggle_button(ICON_FI_BARS, right_panel == right_panel_mode::data, "Data Registry"))
+            if (toggle_button(ICON_FI_BARS, show_data_registry, "Data Registry"))
             {
-                right_panel = (right_panel == right_panel_mode::data) ? right_panel_mode::none : right_panel_mode::data;
+                show_data_registry = !show_data_registry;
             }
 
             // Profiler toggle button
-            if (toggle_button(ICON_FI_PROFILER, right_panel == right_panel_mode::profiler, "Profiler"))
+            if (toggle_button(ICON_FI_PROFILER, show_profiler, "Profiler"))
             {
-                right_panel = (right_panel == right_panel_mode::profiler) ? right_panel_mode::none : right_panel_mode::profiler;
+                show_profiler = !show_profiler;
             }
 
-            // ECS Inspector toggle button
-            if (toggle_button(ICON_FI_PUZZLE_CUBE, right_panel == right_panel_mode::ecs, "Entities"))
+            // Entities toggle button
+            if (toggle_button(ICON_FI_PUZZLE_CUBE, show_entities, "Entities"))
             {
-                right_panel = (right_panel == right_panel_mode::ecs) ? right_panel_mode::none : right_panel_mode::ecs;
+                show_entities = !show_entities;
             }
         }
 
@@ -539,7 +538,7 @@ static void xs::inspector::render_top_bar()
 	if (xs::data::has_chages())
 	{
 		if (colored_button(ICON_FI_EXCLAMATION_TRIANGLE, get_color(color_id::Purple), "Data has unsaved changes")) {
-			right_panel = right_panel_mode::data;
+			show_data_registry = true;
 		}
 	}
 
@@ -863,57 +862,74 @@ static void xs::inspector::render_notifications(double dt)
 		notifications.end());
 }
 
-static void xs::inspector::render_right_panel()
+static void xs::inspector::render_data_registry()
 {
-	if (right_panel == right_panel_mode::none)
+	if (!show_data_registry)
 		return;
 
-	ImGuiWindowFlags flags =
-		ImGuiWindowFlags_NoTitleBar |
-		ImGuiWindowFlags_NoCollapse |
-		ImGuiWindowFlags_NoScrollbar |
-		ImGuiWindowFlags_NoScrollWithMouse;
+	push_side_panel_theme();
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
-	// Make the side panel slightly darker (3%)
-	ImVec4 bg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
-	if (current_theme == theme::dark)
-		bg = ImVec4(bg.x + 0.03f, bg.y + 0.03f, bg.z + 0.03f, bg.w);
-	else
-		bg = ImVec4(bg.x * 0.97f, bg.y * 0.97f, bg.z * 0.97f, bg.w);
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, bg);
+	// Disable window menu button in tab bar
+	ImGuiWindowClass window_class;
+	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoWindowMenuButton;
 
-	ImGui::Begin("Side Panel", nullptr, flags);
-
-	// Add a fake title header with icon
-	std::string title = "";
-	if (right_panel == right_panel_mode::data)
-		title = std::string(ICON_FI_BARS) + " Data Registry";
-	else if (right_panel == right_panel_mode::profiler)
-		title = std::string(ICON_FI_PROFILER) + " Profiler";
-	else if (right_panel == right_panel_mode::ecs)
-		title = std::string(ICON_FI_PUZZLE_CUBE) + " Entities";
-
-	ImGui::SeparatorText(title.c_str());
-
-	if (right_panel == right_panel_mode::data)
+	ImGui::SetNextWindowClass(&window_class);
+	ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0,0,0, 0.0f));
+	if (ImGui::Begin(
+		(std::string(ICON_FI_BARS) + " Data Registry").c_str(),
+		nullptr, flags))
+	{
 		data::inspect();
+	}
+	ImGui::PopStyleColor();
+	ImGui::End();
+	pop_side_panel_theme();
+}
 
-	if (right_panel == right_panel_mode::profiler)
-		profiler::inspect();
+static void xs::inspector::render_profiler()
+{
+	if (!show_profiler)
+		return;
 
-	if (right_panel == right_panel_mode::ecs)
+	push_side_panel_theme();
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+
+	// Disable window menu button in tab bar
+	ImGuiWindowClass window_class;
+	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoWindowMenuButton;
+	ImGui::SetNextWindowClass(&window_class);
+
+	ImGui::Begin((std::string(ICON_FI_PROFILER) + " Profiler").c_str(), nullptr, flags);
+	profiler::inspect();
+	ImGui::End();
+	pop_side_panel_theme();
+}
+
+static void xs::inspector::render_entities()
+{
+	if (!show_entities)
+		return;
+
+	push_side_panel_theme();
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+
+	// Disable window menu button in tab bar
+	ImGuiWindowClass window_class;
+	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoWindowMenuButton;
+	ImGui::SetNextWindowClass(&window_class);
+
+	if (ImGui::Begin((std::string(ICON_FI_PUZZLE_CUBE) + " Entities").c_str(),
+		nullptr, flags))
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2 * c_style_scale);
-		// auto border = ImGui::GetStyleColorVec4(ImGuiCol_Border);
-		// border.w = 1.0;
-		// ImGui::PushStyleColor(ImGuiCol_Border, border);
+		// ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyle().Colors[ImGuiCol_WindowBg]);
 		script::ec_inspect();
 		// ImGui::PopStyleColor();
 		ImGui::PopStyleVar();
 	}
-
 	ImGui::End();
-	ImGui::PopStyleColor();
+	pop_side_panel_theme();
 }
 
 bool xs::inspector::paused()
@@ -1334,6 +1350,21 @@ void xs::inspector::light_theme()
     inspector_colors[(size_t)color_id::Pink] = ImVec4(0.75f, 0.28f, 0.65f, 1.0f);
     inspector_colors[(size_t)color_id::Gray] = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
     inspector_colors[(size_t)color_id::Red] = ImVec4(0.85f, 0.15f, 0.15f, 1.0f);
+}
+
+void inspector::push_side_panel_theme()
+{
+	ImVec4 bg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
+	if (current_theme == theme::dark)
+		bg = ImVec4(bg.x + 0.03f, bg.y + 0.03f, bg.z + 0.03f, bg.w);
+	else
+		bg = ImVec4(bg.x * 0.97f, bg.y * 0.97f, bg.z * 0.97f, bg.w);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, bg);
+}
+
+void inspector::pop_side_panel_theme()
+{
+	ImGui::PopStyleColor();
 }
 
 // Add missing helper implementations
