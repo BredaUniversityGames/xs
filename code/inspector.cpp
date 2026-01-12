@@ -527,7 +527,7 @@ static void xs::inspector::render_top_bar()
         if (xs::script::has_error())
         {
             game_paused = true;
-            if (colored_button(ICON_FI_TIMES_CIRCLE, get_color(color_id::Red), "Script Error! Check output."))
+            if (colored_button(ICON_FI_EXCLAMATION_CIRCLE, get_color(color_id::Red), "Script Error! Check output."))
             {
                 xs::script::clear_error();
                 game_paused = false;
@@ -537,7 +537,7 @@ static void xs::inspector::render_top_bar()
 	ImGui::SameLine();
 	if (xs::data::has_chages())
 	{
-		if (colored_button(ICON_FI_EXCLAMATION_TRIANGLE, get_color(color_id::Purple), "Data has unsaved changes")) {
+		if (colored_button(ICON_FI_EXCLAMATION_CIRCLE, get_color(color_id::Purple), "Data has unsaved changes")) {
 			show_data_registry = true;
 		}
 	}
@@ -837,11 +837,11 @@ static void xs::inspector::render_notifications(double dt)
 				break;
 			case notification_type::warning:
 				color = get_color(color_id::Orange);
-				icon = ICON_FI_EXCLAMATION_TRIANGLE;
+				icon = ICON_FI_EXCLAMATION_CIRCLE;
 				break;
 			case notification_type::error:
 				color = get_color(color_id::Red);
-				icon = ICON_FI_TIMES_CIRCLE;
+				icon = ICON_FI_EXCLAMATION_CIRCLE;
 				break;
 			}
 			ImGui::PushStyleColor(ImGuiCol_Text, color);

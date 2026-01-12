@@ -52,8 +52,7 @@ constexpr std::array<char, 5> utf8_from_code(unsigned int cp)
     X(PIN_OFF,              0xe985) \
     X(HELP,                 0xf220) \
     X(QUESTION_CIRCLE,      0xf63c) \
-    X(TIMES_CIRCLE,         0xf749) \
-    X(EXCLAMATION_TRIANGLE, 0xf3f0) \
+    X(EXCLAMATION_CIRCLE,   0xf3f0) \
     X(INFO_CIRCLE,          0xf4a2) \
     X(CHECK_CIRCLE,         0xf297) \
     X(UNDO,                 0xe126) \
@@ -75,6 +74,7 @@ constexpr std::array<char, 5> utf8_from_code(unsigned int cp)
     X(WINDOW, 			    0xee5d) \
     X(PUZZLE_CUBE,          0xf0a83) \
     X(CLEAR_FILTER,         0xe60c) \
+
     // Add more here
 
 // Generate string defines using proper UTF-8 encoding
