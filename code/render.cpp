@@ -28,12 +28,15 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 #pragma clang diagnostic pop
-#else
+#elif defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 #pragma GCC diagnostic pop
+#else
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
 #endif
 
 // Include stb_truetype
@@ -44,11 +47,13 @@
 #pragma clang diagnostic ignored "-Wunused-function"
 #include <stb/stb_easy_font.h>
 #pragma clang diagnostic pop
-#else
+#elif defined(__GNUC__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-function"
 #include <stb/stb_easy_font.h>
 #pragma GCC diagnostic pop
+#else
+#include <stb/stb_easy_font.h>
 #endif
 
 // Write image for debugging
@@ -418,8 +423,8 @@ int render::load_shape(const std::string& shape_file)
 	
 	// Create triangles for fan mesh
 	// Each triangle connects center (index 0) with consecutive path points
-	for (size_t i = 1; i < path_points.size(); i++) {
-		size_t next_i = (i % (path_points.size() - 1)) + 1;
+	for (unsigned short i = 1; i < path_points.size(); i++) {
+		 unsigned short next_i = (i % (path_points.size() - 1)) + 1;
 		
 		// Triangle: center -> current point -> next point
 		indices.push_back(0);        // center

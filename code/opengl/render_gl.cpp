@@ -33,7 +33,7 @@
 	#pragma clang diagnostic ignored "-Wunused-function"
 	#include <stb/stb_easy_font.h>
 	#pragma clang diagnostic pop
-#else
+#elif defined(__GNUC__)
 	#pragma GCC diagnostic push
 	#pragma GCC diagnostic ignored "-Wunused-function"
 	#include <stb/stb_easy_font.h>
