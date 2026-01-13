@@ -378,10 +378,8 @@ class Entity {
             if (value is Num) {
                 return Inspector.dragFloat("%(propName)%(uniqueId)", value)
             }
-        } else if (value == Vec2) {
-            if (value is List && value.count >= 2) {
-                return Inspector.dragFloat2("%(propName)%(uniqueId)", value)
-            }
+        } else if (value is Vec2) {
+            return Inspector.dragFloat2("%(propName)%(uniqueId)", value)
         } else if (value is Bool) {
             return Inspector.checkbox("%(propName)%(uniqueId)", value)
         } else if (value is Num) {
@@ -447,6 +445,7 @@ class Entity {
 
     /// Gets a property value from a component using reflection
     static getPropertyValue_(component, propName) {
+        System.print("Getting property %(propName) from %(component.type.name)")
         import "meta" for Meta
 
         // Use module-level temp variables for eval
