@@ -34,7 +34,10 @@
 	#include <stb/stb_easy_font.h>
 	#pragma clang diagnostic pop
 #else
+	#pragma GCC diagnostic push
+	#pragma GCC diagnostic ignored "-Wunused-function"
 	#include <stb/stb_easy_font.h>
+	#pragma GCC diagnostic pop
 	#include <filesystem>
 #endif
 

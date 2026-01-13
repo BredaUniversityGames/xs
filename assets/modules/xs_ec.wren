@@ -1,6 +1,6 @@
 import "xs_math" for Math, Bits, Vec2
 import "xs_tools" for Tools
-import "xs" for Inspector
+import "xs" for Inspector, Profiler
 
 // Module-level temporary storage for reflection (used by Entity.inspect)
 var ReflectionTarget = null
@@ -276,6 +276,8 @@ class Entity {
 
     /// Displays entity inspector UI (called from C++ inspector)
     static inspect() {
+        Profiler.begin("Entity.inspect")
+
         if (__entities.count == 0) {
             Inspector.text("No entities in scene")
             return
@@ -284,10 +286,6 @@ class Entity {
         // Top panel: Entity List (full width, fixed height, with border)
         Inspector.beginChild("EntityList", 0, 150, true)
         
-        Inspector.text("ENTITIES")
-        Inspector.separator()
-        Inspector.spacing()
-
         var i = 0
         for (entity in __entities) {
             var entityLabel = entity.name.isEmpty ? "Entity %(i)" : entity.name
@@ -306,15 +304,11 @@ class Entity {
         // Bottom panel: Selected Entity Inspector (full width, remaining height, with border)
         Inspector.beginChild("EntityInspector", 0, 0, true)
 
-        Inspector.separator()
-
         if (SelectedEntityIndex >= 0 && SelectedEntityIndex < __entities.count) {
             var selectedEntity = __entities[SelectedEntityIndex]
             var entityLabel = selectedEntity.name.isEmpty ? "Entity %(SelectedEntityIndex)" : selectedEntity.name            
 
-            Inspector.text("%(entityLabel)")
-            Inspector.text("Tag: %(selectedEntity.tag)")
-            
+            Inspector.text("  %(entityLabel) | Tag: %(selectedEntity.tag)")            
             Inspector.spacing()
 
             // Component inspector
@@ -333,6 +327,8 @@ class Entity {
         }
 
         Inspector.endChild()
+
+        Profiler.end("Entity.inspect")
     }
 
     /// Inspects a single component, showing its properties via attributes

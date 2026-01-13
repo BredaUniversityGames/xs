@@ -50,9 +50,6 @@ namespace
 
 	#elif defined(PLATFORM_PC)
 		// Frame
-		constexpr float c_frame_top_bar = 40.0f;
-        constexpr float c_frame_bottom_bar = 40.0f;
-        constexpr float c_right_panel_width = 450.0f;
 		constexpr float c_style_scale = 1.0f;
 
 		// Fonts
@@ -77,7 +74,6 @@ namespace
 
 	// Game frame border
 	constexpr float c_frame_rounding = 18.0f;
-	constexpr float c_frame_thickness = c_frame_rounding;	
 
 	// Notifications
 	constexpr float c_notification_offset_x = -10.0f;
@@ -109,15 +105,15 @@ namespace xs::inspector
         float time;
     };
 
-    enum class right_panel_mode { none, data, profiler, ecs };
-
     enum class zoom_mode { fit, zoom_50, zoom_100, zoom_150, zoom_200 };
 
     bool game_paused = false;
     bool restart_flag = false;
     float ui_scale = 1.0f;
-    right_panel_mode right_panel = right_panel_mode::none;
     zoom_mode current_zoom = zoom_mode::fit;
+    bool show_data_registry = false;
+    bool show_profiler = false;
+    bool show_entities = false;
     bool show_about = false;
     bool show_demo = false;
     bool show_modal = false;
@@ -147,8 +143,10 @@ namespace xs::inspector
 	void apply_theme(theme t);
 	void push_menu_theme(theme t);
 	void pop_menu_theme(theme t);
-	void embrace_the_darkness();
-	void follow_the_light();
+	void dark_theme();
+	void light_theme();
+	void push_side_panel_theme();
+	void pop_side_panel_theme();
 
 	// Helper function to merge Fluent icons into a font
 	ImFont* merge_fluent_icons(ImFont* base_font, float icon_size, float font_scale, const std::string& font_file = std::string());
@@ -161,7 +159,6 @@ namespace xs::inspector
 	// Forward declarations for UI helpers
     static bool toggle_button(const char* icon, bool state, const char* tip);
     static bool colored_button(const char* icon, const ImVec4& color, const char* tip);
-    static bool colored_button(const char* icon, color_id color_id, const char* tip);
     static void vertical_separator(float alpha = 0.15f, float height = 0.0f);
 
     // Forward declarations for render sections
@@ -169,7 +166,9 @@ namespace xs::inspector
     static void render_stats_bar();
     static void render_game_viewport();
     static void render_notifications(double dt);
-    static void render_right_panel();
+    static void render_data_registry();
+    static void render_profiler();
+    static void render_entities();
 }
 
 using namespace xs::inspector;
@@ -249,10 +248,10 @@ void xs::inspector::initialize()
 	if (always_on_top)
 		device::toggle_on_top();
 
-	// Restore right panel state
-	int saved_panel = (int)data::get_number("EditorRightPanel", data::type::user);
-	if (saved_panel >= 0 && saved_panel <= 2)
-		right_panel = static_cast<right_panel_mode>(saved_panel);
+	// Restore window states
+	show_data_registry = data::get_bool("EditorShowDataRegistry", data::type::user);
+	show_profiler = data::get_bool("EditorShowProfiler", data::type::user);
+	show_entities = data::get_bool("EditorShowEntities", data::type::user);
 
 	// Restore zoom level
 	int saved_zoom = (int)data::get_number("EditorZoomLevel", data::type::user);
@@ -263,7 +262,9 @@ void xs::inspector::initialize()
 void xs::inspector::shutdown()
 {
 	// Save editor state to user settings
-	data::set_number("EditorRightPanel", static_cast<int>(right_panel), data::type::user);
+	data::set_bool("EditorShowDataRegistry", show_data_registry, data::type::user);
+	data::set_bool("EditorShowProfiler", show_profiler, data::type::user);
+	data::set_bool("EditorShowEntities", show_entities, data::type::user);
 	data::set_number("EditorZoomLevel", static_cast<int>(current_zoom), data::type::user);
 	data::save_of_type(data::type::user);
 
@@ -352,28 +353,21 @@ void xs::inspector::render(double dt)
 		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->WorkSize);
 
 		// Split the dockspace into sections using calculated ratios
-        ImGuiID dock_id_right = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Right, 0.4f, nullptr, &dockspace_id);
         dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.05f, nullptr, &dockspace_id);
 		dock_id_bottom = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.01f, nullptr, &dockspace_id);
 
-		// Configure all docks: no tab bars
-        ImGuiDockNode* node_right = ImGui::DockBuilderGetNode(dock_id_right);
+		// Configure all docks: no tab bars for top/bottom, allow tabs for center
 		ImGuiDockNode* node_top = ImGui::DockBuilderGetNode(dock_id_top);
 		ImGuiDockNode* node_bottom = ImGui::DockBuilderGetNode(dock_id_bottom);
 		ImGuiDockNode* node_center = ImGui::DockBuilderGetNode(dockspace_id);
 		node_top->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
 		node_bottom->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
 		node_center->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-		node_right->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
 
 		// Dock windows into their positions
 		ImGui::DockBuilderDockWindow("Top Bar", dock_id_top);
 		ImGui::DockBuilderDockWindow("Stats", dock_id_bottom);
-		ImGui::DockBuilderDockWindow("Data Registry", dock_id_right);
 		ImGui::DockBuilderDockWindow("Game", dockspace_id);  // Game viewport in center
-		ImGui::DockBuilderDockWindow("Profiler", dock_id_right);
-		ImGui::DockBuilderDockWindow("ECS Inspector", dock_id_right);
-
 		ImGui::DockBuilderFinish(dockspace_id);
 	}
 
@@ -396,7 +390,9 @@ void xs::inspector::render(double dt)
 	render_stats_bar();
 	render_game_viewport();
 	render_notifications(dt);
-	render_right_panel();
+	render_data_registry();
+	render_profiler();
+	render_entities();
 
 	if(show_demo)
 	{
@@ -483,21 +479,21 @@ static void xs::inspector::render_top_bar()
             vertical_separator();
 
             // Data Registry toggle button
-            if (toggle_button(ICON_FI_BARS, right_panel == right_panel_mode::data, "Data registry"))
+            if (toggle_button(ICON_FI_BARS, show_data_registry, "Data Registry"))
             {
-                right_panel = (right_panel == right_panel_mode::data) ? right_panel_mode::none : right_panel_mode::data;
+                show_data_registry = !show_data_registry;
             }
 
             // Profiler toggle button
-            if (toggle_button(ICON_FI_PROFILER, right_panel == right_panel_mode::profiler, "Profiler"))
+            if (toggle_button(ICON_FI_PROFILER, show_profiler, "Profiler"))
             {
-                right_panel = (right_panel == right_panel_mode::profiler) ? right_panel_mode::none : right_panel_mode::profiler;
+                show_profiler = !show_profiler;
             }
 
-            // ECS Inspector toggle button
-            if (toggle_button(ICON_FI_PUZZLE_CUBE, right_panel == right_panel_mode::ecs, "Entities"))
+            // Entities toggle button
+            if (toggle_button(ICON_FI_PUZZLE_CUBE, show_entities, "Entities"))
             {
-                right_panel = (right_panel == right_panel_mode::ecs) ? right_panel_mode::none : right_panel_mode::ecs;
+                show_entities = !show_entities;
             }
         }
 
@@ -531,7 +527,7 @@ static void xs::inspector::render_top_bar()
         if (xs::script::has_error())
         {
             game_paused = true;
-            if (colored_button(ICON_FI_TIMES_CIRCLE, get_color(color_id::Red), "Script Error! Check output."))
+            if (colored_button(ICON_FI_EXCLAMATION_CIRCLE, get_color(color_id::Red), "Script Error! Check output."))
             {
                 xs::script::clear_error();
                 game_paused = false;
@@ -541,8 +537,8 @@ static void xs::inspector::render_top_bar()
 	ImGui::SameLine();
 	if (xs::data::has_chages())
 	{
-		if (colored_button(ICON_FI_EXCLAMATION_TRIANGLE, get_color(color_id::Purple), "Data has unsaved changes")) {
-			right_panel = right_panel_mode::data;
+		if (colored_button(ICON_FI_EXCLAMATION_CIRCLE, get_color(color_id::Purple), "Data has unsaved changes")) {
+			show_data_registry = true;
 		}
 	}
 
@@ -554,7 +550,7 @@ static void xs::inspector::render_stats_bar()
 {
 	ImGui::PushFont(small_font);
 
-	// Measure desired height (one row example)
+	// Measure the desired height (one row example)
 	float desired_h = ImGui::GetFrameHeightWithSpacing(); // convenience: button/input height + spacing
 	desired_h += ImGui::GetStyle().WindowPadding.y * 2.0f; // extra padding
 	ImGuiDockNode* n = ImGui::DockBuilderGetNode(dock_id_bottom);
@@ -595,7 +591,7 @@ static void xs::inspector::render_stats_bar()
             if (ImGui::Button(label.c_str())) {
                  notify(notification_type::info, std::string("Memory: ") + mem_str + " MB", c_notification_default_time);
              }
-             tooltip("Memory allocated (MB)");
+             tooltip("Memory allocated by Wren VM (MB)");
         }
 
         ImGui::SameLine();
@@ -604,7 +600,7 @@ static void xs::inspector::render_stats_bar()
         {
             std::string label = std::string(ICON_FI_IMAGE_PEN) + " " + draw_calls + "##stat_dc";
 			ImGui::Button(label.c_str());
-            tooltip("Draw calls this frame (click to toggle profiler)");
+            tooltip("Draw calls this frame");
         }
 
         ImGui::SameLine();
@@ -640,9 +636,9 @@ static void xs::inspector::render_stats_bar()
 
         ImGui::SameLine();
 
-        // Path (clickable) - use remaining width so full path is visible
+        // Path (clickable) - use the remaining width so a full path is visible
         {
-            // ensure we're on the same line with previous separator already placed
+            // ensure we're on the same line with the previous separator already placed
             std::string full_path = path;
             std::string label = std::string(ICON_FI_FOLDER) + " " + full_path + "##stat_path";
 
@@ -698,7 +694,7 @@ static void xs::inspector::render_game_viewport()
 		ImVec2 image_size;
 		if (current_zoom == zoom_mode::fit)
 		{
-			// Best fit - maintain aspect ratio
+			// Best fit - maintain an aspect ratio
 			image_size = available_region;
 			if (available_region.x / available_region.y > aspect_ratio)
 			{
@@ -841,11 +837,11 @@ static void xs::inspector::render_notifications(double dt)
 				break;
 			case notification_type::warning:
 				color = get_color(color_id::Orange);
-				icon = ICON_FI_EXCLAMATION_TRIANGLE;
+				icon = ICON_FI_EXCLAMATION_CIRCLE;
 				break;
 			case notification_type::error:
 				color = get_color(color_id::Red);
-				icon = ICON_FI_TIMES_CIRCLE;
+				icon = ICON_FI_EXCLAMATION_CIRCLE;
 				break;
 			}
 			ImGui::PushStyleColor(ImGuiCol_Text, color);
@@ -866,25 +862,74 @@ static void xs::inspector::render_notifications(double dt)
 		notifications.end());
 }
 
-static void xs::inspector::render_right_panel()
+static void xs::inspector::render_data_registry()
 {
-	if (right_panel == right_panel_mode::data)
-	{
-		bool open = true;
-		xs::data::inspect_at(open, 0, 0, 0, 0);
-	}
+	if (!show_data_registry)
+		return;
 
-	if (right_panel == right_panel_mode::profiler)
-	{
-		bool open = true;
-		xs::profiler::inspect(open);
-	}
+	push_side_panel_theme();
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
 
-	if (right_panel == right_panel_mode::ecs)
+	// Disable window menu button in tab bar
+	ImGuiWindowClass window_class;
+	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoWindowMenuButton;
+
+	ImGui::SetNextWindowClass(&window_class);
+	ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0,0,0, 0.0f));
+	if (ImGui::Begin(
+		(std::string(ICON_FI_BARS) + " Data Registry").c_str(),
+		nullptr, flags))
 	{
-		bool open = true;
-		xs::script::ec_inspect(open);
+		data::inspect();
 	}
+	ImGui::PopStyleColor();
+	ImGui::End();
+	pop_side_panel_theme();
+}
+
+static void xs::inspector::render_profiler()
+{
+	if (!show_profiler)
+		return;
+
+	push_side_panel_theme();
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+
+	// Disable window menu button in tab bar
+	ImGuiWindowClass window_class;
+	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoWindowMenuButton;
+	ImGui::SetNextWindowClass(&window_class);
+
+	ImGui::Begin((std::string(ICON_FI_PROFILER) + " Profiler").c_str(), nullptr, flags);
+	profiler::inspect();
+	ImGui::End();
+	pop_side_panel_theme();
+}
+
+static void xs::inspector::render_entities()
+{
+	if (!show_entities)
+		return;
+
+	push_side_panel_theme();
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+
+	// Disable window menu button in tab bar
+	ImGuiWindowClass window_class;
+	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoWindowMenuButton;
+	ImGui::SetNextWindowClass(&window_class);
+
+	if (ImGui::Begin((std::string(ICON_FI_PUZZLE_CUBE) + " Entities").c_str(),
+		nullptr, flags))
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2 * c_style_scale);
+		// ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyle().Colors[ImGuiCol_WindowBg]);
+		script::ec_inspect();
+		// ImGui::PopStyleColor();
+		ImGui::PopStyleVar();
+	}
+	ImGui::End();
+	pop_side_panel_theme();
 }
 
 bool xs::inspector::paused()
@@ -978,10 +1023,10 @@ void xs::inspector::apply_theme(theme t)
     switch (t)
     {
     case theme::dark:
-        embrace_the_darkness();
+        dark_theme();
         break;
     case theme::light:
-        follow_the_light();
+        light_theme();
         break;
     }
 
@@ -1015,13 +1060,6 @@ static bool xs::inspector::colored_button(const char* icon, const ImVec4& color,
         tooltip(tip);
 
     return clicked;
-}
-
-// Implement overload that uses inspector_color_id
-static bool xs::inspector::colored_button(const char* icon, color_id color_id, const char* tip)
-{
-    ImVec4 c = get_color(color_id);
-    return colored_button(icon, c, tip);
 }
 
 // Implement toggle_button
@@ -1095,6 +1133,7 @@ void apply_common_style()
 	style.IndentSpacing = 25 * c_style_scale;
 	style.ScrollbarSize = 15 * c_style_scale;
 	style.GrabMinSize = 10 * c_style_scale;
+	style.TabBarOverlineSize = 2 * c_style_scale;
 
 	// Borders
 	style.WindowBorderSize = 0 * c_style_scale;
@@ -1111,13 +1150,13 @@ void apply_common_style()
 	style.PopupRounding = 4 * c_style_scale;
 	style.ScrollbarRounding = 9 * c_style_scale;
 	style.GrabRounding = 3 * c_style_scale;
-	style.TabRounding = 4 * c_style_scale;
+	style.TabRounding = 0 * c_style_scale;
 
 	// Other
 	style.LogSliderDeadzone = 4 * c_style_scale;
 }
 
-void xs::inspector::embrace_the_darkness()
+void xs::inspector::dark_theme()
 {
 	// Try to get system colors for titlebar and window background
 	ImVec4 windowBg = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
@@ -1136,69 +1175,74 @@ void xs::inspector::embrace_the_darkness()
 	titleBgActive = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
 #endif
 
-	ImVec4* colors = ImGui::GetStyle().Colors;    
-    colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
-    colors[ImGuiCol_WindowBg]               = ImVec4(0.14f, 0.13f, 0.19f, 1.00f);
-    colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_PopupBg]                = ImVec4(0.23f, 0.22f, 0.31f, 1.00f);
-    colors[ImGuiCol_Border]                 = ImVec4(0.19f, 0.19f, 0.19f, 0.00f);
-    colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_FrameBg]                = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
-    colors[ImGuiCol_FrameBgHovered]         = ImVec4(1.00f, 1.00f, 1.00f, 0.20f);
-    colors[ImGuiCol_FrameBgActive]          = ImVec4(1.00f, 1.00f, 1.00f, 0.29f);
-    colors[ImGuiCol_TitleBg]                = ImVec4(0.14f, 0.13f, 0.19f, 1.00f);
-    colors[ImGuiCol_TitleBgActive]          = ImVec4(0.18f, 0.18f, 0.18f, 1.00f);
-    colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-    colors[ImGuiCol_ScrollbarBg]            = ImVec4(1.00f, 1.00f, 1.00f, 0.00f);
-    colors[ImGuiCol_ScrollbarGrab]          = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
-    colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(1.00f, 1.00f, 1.00f, 0.20f);
-    colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(1.00f, 1.00f, 1.00f, 0.29f);
-    colors[ImGuiCol_CheckMark]              = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-    colors[ImGuiCol_SliderGrab]             = ImVec4(0.34f, 0.34f, 0.34f, 0.54f);
-    colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.56f, 0.56f, 0.56f, 0.54f);
-    colors[ImGuiCol_Button]                 = ImVec4(1.00f, 1.00f, 1.00f, 0.00f);
-    colors[ImGuiCol_ButtonHovered]          = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
-    colors[ImGuiCol_ButtonActive]           = ImVec4(1.00f, 1.00f, 1.00f, 0.20f);
-    colors[ImGuiCol_Header]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
-    colors[ImGuiCol_HeaderHovered]          = ImVec4(0.00f, 0.00f, 0.00f, 0.36f);
-    colors[ImGuiCol_HeaderActive]           = ImVec4(0.20f, 0.22f, 0.23f, 0.33f);
-    colors[ImGuiCol_Separator]              = ImVec4(0.28f, 0.28f, 0.28f, 0.00f);
-    colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.44f, 0.44f, 0.44f, 0.50f);
-    colors[ImGuiCol_SeparatorActive]        = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
-    colors[ImGuiCol_ResizeGrip]             = ImVec4(0.28f, 0.28f, 0.28f, 0.00f);
-    colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.44f, 0.44f, 0.44f, 0.50f);
-    colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
-    colors[ImGuiCol_InputTextCursor]        = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_TabHovered]             = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
-    colors[ImGuiCol_Tab]                    = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_TabSelected]            = ImVec4(1.00f, 1.00f, 1.00f, 0.20f);
-    colors[ImGuiCol_TabSelectedOverline]    = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_TabDimmed]              = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_TabDimmedSelected]      = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
-    colors[ImGuiCol_TabDimmedSelectedOverline]  = ImVec4(0.50f, 0.50f, 0.50f, 0.00f);
-    colors[ImGuiCol_DockingPreview]         = ImVec4(0.33f, 0.67f, 0.86f, 0.70f);
-    colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
-    colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_PlotHistogram]          = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
-    colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
-    colors[ImGuiCol_TableBorderLight]       = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
-    colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
-    colors[ImGuiCol_TextLink]               = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
-    colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
-    colors[ImGuiCol_TreeLines]              = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
-    colors[ImGuiCol_DragDropTarget]         = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-    colors[ImGuiCol_DragDropTargetBg]       = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_UnsavedMarker]          = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
-    colors[ImGuiCol_NavCursor]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-    colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
-    colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
-    colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.00f, 0.00f, 0.00f, 0.75f);
+	ImVec4* colors = ImGui::GetStyle().Colors;
+	colors[ImGuiCol_Text]                   = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	colors[ImGuiCol_TextDisabled]           = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
+	colors[ImGuiCol_WindowBg]               = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
+	colors[ImGuiCol_ChildBg]                = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	colors[ImGuiCol_PopupBg]                = ImVec4(0.31f, 0.31f, 0.31f, 1.00f);
+	colors[ImGuiCol_Border]                 = ImVec4(0.19f, 0.19f, 0.19f, 0.00f);
+	colors[ImGuiCol_BorderShadow]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	colors[ImGuiCol_FrameBg]                = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+	colors[ImGuiCol_FrameBgHovered]         = ImVec4(1.00f, 1.00f, 1.00f, 0.20f);
+	colors[ImGuiCol_FrameBgActive]          = ImVec4(1.00f, 1.00f, 1.00f, 0.29f);
+	colors[ImGuiCol_TitleBg]                = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+	colors[ImGuiCol_TitleBgActive]          = ImVec4(0.15f, 0.15f, 0.15f, 1.00f);
+	colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_MenuBarBg]              = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+	colors[ImGuiCol_ScrollbarBg]            = ImVec4(1.00f, 1.00f, 1.00f, 0.00f);
+	colors[ImGuiCol_ScrollbarGrab]          = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
+	colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(1.00f, 1.00f, 1.00f, 0.20f);
+	colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(1.00f, 1.00f, 1.00f, 0.29f);
+	colors[ImGuiCol_CheckMark]              = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
+	colors[ImGuiCol_SliderGrab]             = ImVec4(0.34f, 0.34f, 0.34f, 0.54f);
+	colors[ImGuiCol_SliderGrabActive]       = ImVec4(0.56f, 0.56f, 0.56f, 0.54f);
+	colors[ImGuiCol_Button]                 = ImVec4(1.00f, 1.00f, 1.00f, 0.00f);
+	colors[ImGuiCol_ButtonHovered]          = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
+	colors[ImGuiCol_ButtonActive]           = ImVec4(1.00f, 1.00f, 1.00f, 0.20f);
+	colors[ImGuiCol_Header]                 = ImVec4(0.00f, 0.00f, 0.00f, 0.52f);
+	colors[ImGuiCol_HeaderHovered]          = ImVec4(0.00f, 0.00f, 0.00f, 0.36f);
+	colors[ImGuiCol_HeaderActive]           = ImVec4(0.20f, 0.22f, 0.23f, 0.33f);
+	colors[ImGuiCol_Separator]              = ImVec4(0.28f, 0.28f, 0.28f, 1.00f);
+	colors[ImGuiCol_SeparatorHovered]       = ImVec4(0.44f, 0.44f, 0.44f, 0.50f);
+	colors[ImGuiCol_SeparatorActive]        = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
+	colors[ImGuiCol_ResizeGrip]             = ImVec4(0.28f, 0.28f, 0.28f, 0.00f);
+	colors[ImGuiCol_ResizeGripHovered]      = ImVec4(0.44f, 0.44f, 0.44f, 0.50f);
+	colors[ImGuiCol_ResizeGripActive]       = ImVec4(0.40f, 0.44f, 0.47f, 1.00f);
+	colors[ImGuiCol_InputTextCursor]        = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	colors[ImGuiCol_TabHovered]             = ImVec4(1.00f, 1.00f, 1.00f, 0.10f);
+	colors[ImGuiCol_Tab]                    = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	colors[ImGuiCol_TabSelected]            = ImVec4(1.00f, 1.00f, 1.00f, 0.00f);
+	colors[ImGuiCol_TabSelectedOverline]    = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
+	colors[ImGuiCol_TabDimmed]              = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	colors[ImGuiCol_TabDimmedSelected]      = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
+	colors[ImGuiCol_TabDimmedSelectedOverline]  = ImVec4(0.50f, 0.50f, 0.50f, 0.00f);
+	colors[ImGuiCol_DockingPreview]         = ImVec4(0.33f, 0.67f, 0.86f, 0.70f);
+	colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
+	colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_PlotHistogram]          = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_PlotHistogramHovered]   = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_TableHeaderBg]          = ImVec4(0.19f, 0.19f, 0.20f, 1.00f);
+	colors[ImGuiCol_TableBorderStrong]      = ImVec4(0.31f, 0.31f, 0.35f, 1.00f);
+	colors[ImGuiCol_TableBorderLight]       = ImVec4(0.23f, 0.23f, 0.25f, 1.00f);
+	colors[ImGuiCol_TableRowBg]             = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	colors[ImGuiCol_TableRowBgAlt]          = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
+	colors[ImGuiCol_TextLink]               = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	colors[ImGuiCol_TextSelectedBg]         = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
+	colors[ImGuiCol_TreeLines]              = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
+	colors[ImGuiCol_DragDropTarget]         = ImVec4(0.26f, 0.59f, 0.98f, 1.00f);
+	colors[ImGuiCol_DragDropTargetBg]       = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+	colors[ImGuiCol_UnsavedMarker]          = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+	colors[ImGuiCol_NavCursor]              = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
+	colors[ImGuiCol_NavWindowingHighlight]  = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
+	colors[ImGuiCol_NavWindowingDimBg]      = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
+	colors[ImGuiCol_ModalWindowDimBg]       = ImVec4(0.00f, 0.00f, 0.00f, 0.75f);
+	colors[ImGuiCol_ChildBg]                = ImVec4(0.12f, 0.12f, 0.12f, 1.00f);
+	colors[ImGuiCol_Header]                 = ImVec4(1.00f, 1.00f, 1.00f, 0.14f);
+	colors[ImGuiCol_HeaderHovered]          = ImVec4(1.00f, 1.00f, 1.00f, 0.21f);
+	colors[ImGuiCol_HeaderActive]           = ImVec4(1.00f, 1.00f, 1.00f, 0.38f);
+
 	colors[ImGuiCol_WindowBg] = windowBg;
 	colors[ImGuiCol_TitleBg] = titleBg;
 	colors[ImGuiCol_TitleBgActive] = titleBgActive;
@@ -1215,7 +1259,7 @@ void xs::inspector::embrace_the_darkness()
     inspector_colors[(size_t)color_id::Red] = ImVec4(0.9f, 0.2f, 0.2f, 1.0f);
 }
 
-void xs::inspector::follow_the_light()
+void xs::inspector::light_theme()
 {
 	// Try to get system colors for titlebar and window backgrounds
 	ImVec4 windowBg = ImVec4(0.94f, 0.94f, 0.94f, 1.00f);
@@ -1268,7 +1312,7 @@ void xs::inspector::follow_the_light()
     colors[ImGuiCol_ResizeGrip] = ImVec4(0.80f, 0.80f, 0.80f, 0.56f);
     colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.67f);
     colors[ImGuiCol_ResizeGripActive] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
-    colors[ImGuiCol_InputTextCursor] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[ImGuiCol_InputTextCursor] = ImVec4(0.0f, 0.0f, 0.0f, 1.00f);
     colors[ImGuiCol_TabHovered] = ImVec4(0.00f, 0.00f, 0.00f, 0.16f);
     colors[ImGuiCol_Tab] = ImVec4(1.00f, 1.00f, 1.00f, 0.00f);
     colors[ImGuiCol_TabSelected] = ImVec4(0.00f, 0.00f, 0.00f, 0.08f);
@@ -1290,7 +1334,7 @@ void xs::inspector::follow_the_light()
     colors[ImGuiCol_TreeLines] = ImVec4(0.43f, 0.43f, 0.50f, 0.50f);
     colors[ImGuiCol_DragDropTarget] = ImVec4(0.26f, 0.59f, 0.98f, 0.95f);
     colors[ImGuiCol_DragDropTargetBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
-    colors[ImGuiCol_UnsavedMarker] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
+    colors[ImGuiCol_UnsavedMarker] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
     colors[ImGuiCol_NavCursor] = ImVec4(0.26f, 0.59f, 0.98f, 0.80f);
     colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.70f, 0.70f, 0.70f, 0.70f);
     colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.20f);
@@ -1306,6 +1350,21 @@ void xs::inspector::follow_the_light()
     inspector_colors[(size_t)color_id::Pink] = ImVec4(0.75f, 0.28f, 0.65f, 1.0f);
     inspector_colors[(size_t)color_id::Gray] = ImVec4(0.35f, 0.35f, 0.35f, 1.0f);
     inspector_colors[(size_t)color_id::Red] = ImVec4(0.85f, 0.15f, 0.15f, 1.0f);
+}
+
+void inspector::push_side_panel_theme()
+{
+	ImVec4 bg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
+	if (current_theme == theme::dark)
+		bg = ImVec4(bg.x + 0.03f, bg.y + 0.03f, bg.z + 0.03f, bg.w);
+	else
+		bg = ImVec4(bg.x * 0.97f, bg.y * 0.97f, bg.z * 0.97f, bg.w);
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, bg);
+}
+
+void inspector::pop_side_panel_theme()
+{
+	ImGui::PopStyleColor();
 }
 
 // Add missing helper implementations

@@ -113,7 +113,7 @@ namespace packager
 
 			std::stringstream stream;
 
-			for (int i = 0; i < sub_dirs.size(); ++i)
+			for (size_t i = 0; i < sub_dirs.size(); ++i)
 			{
 				if (blacklist.find(sub_dirs[i]) == blacklist.end())
 				{

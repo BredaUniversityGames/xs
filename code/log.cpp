@@ -24,25 +24,6 @@ void xs::log::output_log(const std::string& message)
 
 using namespace std;
 
-namespace
-{
-    std::string get_mode_name()
-    {
-		auto mode = xs::get_run_mode();
-        switch (mode)
-        {
-        case xs::run_mode::development:
-            return "development";
-        case xs::run_mode::packaged:
-            return "packaged";
-        case xs::run_mode::packaging:
-            return "packaging";
-        default:
-            return "unknown";
-        }
-    }
-}
-
 void xs::log::initialize()
 {
     // Enable UTF-8 output on Windows
@@ -75,6 +56,14 @@ void xs::log::initialize()
 #endif
 
     output_log(banner.str());
+
+#ifdef TEST_LOGGING
+    xs::log::info("This is an info message");
+    xs::log::warn("This is a warning message");
+    xs::log::error("This is an error message");
+    xs::log::critical("This is a critical message");
+    xs::log::script("This is a script message");
+#endif
 }
 
 // Basic ASCII with color codes (or plain ASCII in Release)
