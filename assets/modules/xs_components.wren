@@ -13,13 +13,17 @@ class Transform is Component {
     }
 
     /// Gets the position as a Vec2
+    #!inspect(type = "vec2")
     position { _position }
     /// Sets the position
+    #!inspect
     position=(p) { _position = p }
 
     /// Gets the rotation in radians
+    #!inspect(type = "angle")
     rotation { _rotation }
     /// Sets the rotation in radians
+    #!inspect
     rotation=(r) { _rotation = r }
 
     toString { "[Transform position:%(_position) rotation:%(_rotation)]" }
@@ -35,13 +39,17 @@ class Body is Component {
     }
 
     /// Gets the size of the body
+    #!inspect(type = "vec2")
     size { _scale }
     /// Gets the velocity as a Vec2
+    #!inspect(type = "vec2")
     velocity { _velocity }
 
     /// Sets the size of the body
+    #!inspect
     size=(s) { _scale = s }
     /// Sets the velocity
+    #!inspect
     velocity=(v) { _velocity = v }
 
     /// Updates the position based on velocity and delta time
@@ -70,8 +78,10 @@ class Renderable is Component {
     }
 
     /// Gets the rendering layer (higher values render on top)
+    #!inspect(type = "number")
     layer { _layer }
     /// Sets the rendering layer
+    #!inspect
     layer=(l) { _layer = l }
 
     /// Renders all Renderable components in all entities
@@ -122,10 +132,9 @@ class Sprite is Renderable {
     /// Each sprite has x, y, width, and height in pixels
     construct new(sheetPath, spriteName) {
         super()
-        
-        // Read and parse the spritesheet file
-        var jsonText = File.read(sheetPath)
-        var data = JSON.parse(jsonText)
+
+        // Read and parse the spritesheet file (with caching)
+        var data = JSON.load(sheetPath)
 
         // Load the image
         var imagePath = data["image"]
@@ -178,28 +187,37 @@ class Sprite is Renderable {
     }
 
     /// Gets the additive color (0xRRGGBBAA format)
+    #!inspect(type = "color")
     add { _add }
     /// Sets the additive color
+    #!inspect
     add=(a) { _add = a }
 
     /// Gets the multiply color (0xRRGGBBAA format)
+    #!inspect(type = "color")
     mul { _mul }
     /// Sets the multiply color
+    #!inspect
     mul=(m) { _mul = m }
 
     /// Gets the sprite flags (flipping, centering, etc.)
+    #!inspect(type = "number")
     flags { _flags }
     /// Sets the sprite flags
+    #!inspect
     flags=(f) { _flags = f }
 
     /// Gets the sprite scale
+    #!inspect(type = "number")
     scale { _scale }
     /// Sets the sprite scale
+    #!inspect
     scale=(s) { _scale = s }
 
     /// Sets the sprite ID
     sprite_=(s) { _sprite = s }
     /// Gets the sprite ID
+    #!inspect(type = "number")
     sprite { _sprite }
 
     toString { "[Sprite sprite:%(_sprite)] -> " + super.toString }

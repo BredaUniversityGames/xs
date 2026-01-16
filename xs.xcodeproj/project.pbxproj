@@ -15,8 +15,8 @@
 		3435D9EF2A968ADA00335383 /* fileio_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3435D9EC2A968ADA00335383 /* fileio_apple.mm */; };
 		344B22752B19016B004B1EA2 /* inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73932A4A29D5006ECAD5 /* inspector.cpp */; };
 		344B22792B1D15DD004B1EA2 /* inspector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73932A4A29D5006ECAD5 /* inspector.cpp */; };
-		3458E5832B6ADEAE00B775A1 /* libfmodL_iphoneos.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3458E5822B6ADEAE00B775A1 /* libfmodL_iphoneos.a */; };
-		3458E5852B6ADEC600B775A1 /* libfmodstudioL_iphoneos.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3458E5842B6ADEC600B775A1 /* libfmodstudioL_iphoneos.a */; };
+		3458E5832B6ADEAE00B775A1 /* libfmod_iphoneos.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3458E5822B6ADEAE00B775A1 /* libfmod_iphoneos.a */; };
+		3458E5852B6ADEC600B775A1 /* libfmodstudio_iphoneos.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3458E5842B6ADEC600B775A1 /* libfmodstudio_iphoneos.a */; };
 		346184202A78525C0014B43C /* shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3461841F2A78525C0014B43C /* shaders.metal */; };
 		346184222A78525C0014B43C /* shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 3461841F2A78525C0014B43C /* shaders.metal */; };
 		346184242A7852C80014B43C /* render_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F952A4C706C00DA6B15 /* render_apple.mm */; };
@@ -60,10 +60,10 @@
 		3474D63A2B14DFC000441451 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5DF2B14DFC000441451 /* imgui_draw.cpp */; };
 		3474D63C2B14DFC000441451 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5DF2B14DFC000441451 /* imgui_draw.cpp */; };
 		3474D63E2B14E91100441451 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3474D63D2B14E91100441451 /* GameController.framework */; };
-		34866F5C2B28933E0025F40C /* libfmodstudioL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */; };
-		34866F5D2B28933E0025F40C /* libfmodstudioL.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		34866F5E2B28933E0025F40C /* libfmodL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmodL.dylib */; };
-		34866F5F2B28933E0025F40C /* libfmodL.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmodL.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		34866F5C2B28933E0025F40C /* libfmodstudio.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 34866F5A2B28933E0025F40C /* libfmodstudio.dylib */; };
+		34866F5D2B28933E0025F40C /* libfmodstudio.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 34866F5A2B28933E0025F40C /* libfmodstudio.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		34866F5E2B28933E0025F40C /* libfmod.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmod.dylib */; };
+		34866F5F2B28933E0025F40C /* libfmod.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmod.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		3486CA8B2B94DFCF00E9A3B8 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 3486CA722B94DFCF00E9A3B8 /* LICENSE */; };
 		3486CA8C2B94DFCF00E9A3B8 /* readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 3486CA7B2B94DFCF00E9A3B8 /* readme.md */; };
 		3486CA932B94DFCF00E9A3B8 /* miniz.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA872B94DFCF00E9A3B8 /* miniz.c */; };
@@ -153,8 +153,8 @@
 			dstSubfolderSpec = 10;
 			files = (
 				5ABF52D92ECFCE3F00F039A6 /* SDL3.xcframework in Embed Libraries */,
-				34866F5D2B28933E0025F40C /* libfmodstudioL.dylib in Embed Libraries */,
-				34866F5F2B28933E0025F40C /* libfmodL.dylib in Embed Libraries */,
+				34866F5D2B28933E0025F40C /* libfmodstudio.dylib in Embed Libraries */,
+				34866F5F2B28933E0025F40C /* libfmod.dylib in Embed Libraries */,
 			);
 			name = "Embed Libraries";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -166,8 +166,8 @@
 		34011A382A7DB12600521FCD /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		34011A3A2A7DB16B00521FCD /* ModelIO.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ModelIO.framework; path = System/Library/Frameworks/ModelIO.framework; sourceTree = SDKROOT; };
 		3435D9EC2A968ADA00335383 /* fileio_apple.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = fileio_apple.mm; sourceTree = "<group>"; };
-		3458E5822B6ADEAE00B775A1 /* libfmodL_iphoneos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfmodL_iphoneos.a; path = external/fmod/lib/ios/libfmodL_iphoneos.a; sourceTree = "<group>"; };
-		3458E5842B6ADEC600B775A1 /* libfmodstudioL_iphoneos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfmodstudioL_iphoneos.a; path = external/fmod/lib/ios/libfmodstudioL_iphoneos.a; sourceTree = "<group>"; };
+		3458E5822B6ADEAE00B775A1 /* libfmod_iphoneos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfmod_iphoneos.a; path = external/fmod/lib/ios/libfmod_iphoneos.a; sourceTree = "<group>"; };
+		3458E5842B6ADEC600B775A1 /* libfmodstudio_iphoneos.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfmodstudio_iphoneos.a; path = external/fmod/lib/ios/libfmodstudio_iphoneos.a; sourceTree = "<group>"; };
 		3461841D2A784EBE0014B43C /* device_apple.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = device_apple.h; sourceTree = "<group>"; };
 		3461841E2A7852080014B43C /* shader_types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = shader_types.h; sourceTree = "<group>"; };
 		3461841F2A78525C0014B43C /* shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = shaders.metal; sourceTree = "<group>"; };
@@ -226,8 +226,8 @@
 		3474D5DD2B14DFC000441451 /* imgui_demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_demo.cpp; sourceTree = "<group>"; };
 		3474D5DF2B14DFC000441451 /* imgui_draw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_draw.cpp; sourceTree = "<group>"; };
 		3474D63D2B14E91100441451 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
-		34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmodstudioL.dylib; path = external/fmod/lib/mac/libfmodstudioL.dylib; sourceTree = "<group>"; };
-		34866F5B2B28933E0025F40C /* libfmodL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmodL.dylib; path = external/fmod/lib/mac/libfmodL.dylib; sourceTree = "<group>"; };
+		34866F5A2B28933E0025F40C /* libfmodstudio.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmodstudio.dylib; path = external/fmod/lib/mac/libfmodstudio.dylib; sourceTree = "<group>"; };
+		34866F5B2B28933E0025F40C /* libfmod.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfmod.dylib; path = external/fmod/lib/mac/libfmod.dylib; sourceTree = "<group>"; };
 		3486CA722B94DFCF00E9A3B8 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		3486CA752B94DFCF00E9A3B8 /* miniz_zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miniz_zip.h; sourceTree = "<group>"; };
 		3486CA762B94DFCF00E9A3B8 /* miniz_tinfl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = miniz_tinfl.h; sourceTree = "<group>"; };
@@ -249,22 +249,22 @@
 		34EB6C9B2A4C6E6100DA6B15 /* fmod_codec.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_codec.h; sourceTree = "<group>"; };
 		34EB6C9C2A4C6E6100DA6B15 /* fmod.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = fmod.hpp; sourceTree = "<group>"; };
 		34EB6C9D2A4C6E6100DA6B15 /* fmod_switch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_switch.h; sourceTree = "<group>"; };
-		34EB6C9F2A4C6E6100DA6B15 /* libfmodL_stub_weak.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmodL_stub_weak.a; sourceTree = "<group>"; };
+		34EB6C9F2A4C6E6100DA6B15 /* libfmod_stub_weak.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmod_stub_weak.a; sourceTree = "<group>"; };
 		34EB6CA02A4C6E6100DA6B15 /* libfmod.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmod.a; sourceTree = "<group>"; };
-		34EB6CA12A4C6E6100DA6B15 /* libfmodL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmodL.a; sourceTree = "<group>"; };
-		34EB6CA22A4C6E6100DA6B15 /* fmodL_vc.lib */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = fmodL_vc.lib; sourceTree = "<group>"; };
+		34EB6CA12A4C6E6100DA6B15 /* libfmod.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmod.a; sourceTree = "<group>"; };
+		34EB6CA22A4C6E6100DA6B15 /* fmod_vc.lib */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = fmod_vc.lib; sourceTree = "<group>"; };
 		34EB6CA32A4C6E6100DA6B15 /* fmod.dll */ = {isa = PBXFileReference; lastKnownFileType = file; path = fmod.dll; sourceTree = "<group>"; };
-		34EB6CA42A4C6E6100DA6B15 /* fmodL.dll */ = {isa = PBXFileReference; lastKnownFileType = file; path = fmodL.dll; sourceTree = "<group>"; };
+		34EB6CA42A4C6E6100DA6B15 /* fmod.dll */ = {isa = PBXFileReference; lastKnownFileType = file; path = fmod.dll; sourceTree = "<group>"; };
 		34EB6CA52A4C6E6100DA6B15 /* fmodstudio_vc.lib */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = fmodstudio_vc.lib; sourceTree = "<group>"; };
-		34EB6CA62A4C6E6100DA6B15 /* fmodstudioL.dll */ = {isa = PBXFileReference; lastKnownFileType = file; path = fmodstudioL.dll; sourceTree = "<group>"; };
-		34EB6CA72A4C6E6100DA6B15 /* fmodstudioL_vc.lib */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = fmodstudioL_vc.lib; sourceTree = "<group>"; };
-		34EB6CA82A4C6E6100DA6B15 /* libfmodstudioL_stub_weak.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmodstudioL_stub_weak.a; sourceTree = "<group>"; };
+		34EB6CA62A4C6E6100DA6B15 /* fmodstudio.dll */ = {isa = PBXFileReference; lastKnownFileType = file; path = fmodstudio.dll; sourceTree = "<group>"; };
+		34EB6CA72A4C6E6100DA6B15 /* fmodstudio_vc.lib */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = fmodstudio_vc.lib; sourceTree = "<group>"; };
+		34EB6CA82A4C6E6100DA6B15 /* libfmodstudio_stub_weak.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmodstudio_stub_weak.a; sourceTree = "<group>"; };
 		34EB6CA92A4C6E6100DA6B15 /* libfmodstudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmodstudio.a; sourceTree = "<group>"; };
 		34EB6CAA2A4C6E6100DA6B15 /* libfmod_stub_weak.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmod_stub_weak.a; sourceTree = "<group>"; };
 		34EB6CAB2A4C6E6100DA6B15 /* fmodstudio.dll */ = {isa = PBXFileReference; lastKnownFileType = file; path = fmodstudio.dll; sourceTree = "<group>"; };
 		34EB6CAC2A4C6E6100DA6B15 /* fmod_vc.lib */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = fmod_vc.lib; sourceTree = "<group>"; };
 		34EB6CAD2A4C6E6100DA6B15 /* libfmodstudio_stub_weak.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmodstudio_stub_weak.a; sourceTree = "<group>"; };
-		34EB6CAE2A4C6E6100DA6B15 /* libfmodstudioL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmodstudioL.a; sourceTree = "<group>"; };
+		34EB6CAE2A4C6E6100DA6B15 /* libfmodstudio.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libfmodstudio.a; sourceTree = "<group>"; };
 		34EB6CAF2A4C6E6100DA6B15 /* fmod_studio_common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_studio_common.h; sourceTree = "<group>"; };
 		34EB6CB02A4C6E6100DA6B15 /* fmod_common.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_common.h; sourceTree = "<group>"; };
 		34EB6CB12A4C6E6100DA6B15 /* fmod_dsp_effects.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_dsp_effects.h; sourceTree = "<group>"; };
@@ -788,8 +788,8 @@
 				5A3117742ECF686800049544 /* Foundation.framework in Frameworks */,
 				5A3117722ECF684800049544 /* UIKit.framework in Frameworks */,
 				5A6012612ECF543700FDE28A /* SDL3.xcframework in Frameworks */,
-				3458E5852B6ADEC600B775A1 /* libfmodstudioL_iphoneos.a in Frameworks */,
-				3458E5832B6ADEAE00B775A1 /* libfmodL_iphoneos.a in Frameworks */,
+				3458E5852B6ADEC600B775A1 /* libfmodstudio_iphoneos.a in Frameworks */,
+				3458E5832B6ADEAE00B775A1 /* libfmod_iphoneos.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -811,8 +811,8 @@
 				346184272A7867A90014B43C /* MetalKit.framework in Frameworks */,
 				5A6012622ECF544A00FDE28A /* SDL3.xcframework in Frameworks */,
 				5A0C9A262ED97BB200DC349F /* libfreetype.a in Frameworks */,
-				34866F5E2B28933E0025F40C /* libfmodL.dylib in Frameworks */,
-				34866F5C2B28933E0025F40C /* libfmodstudioL.dylib in Frameworks */,
+				34866F5E2B28933E0025F40C /* libfmod.dylib in Frameworks */,
+				34866F5C2B28933E0025F40C /* libfmodstudio.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -841,10 +841,10 @@
 				5A3117652ECF669400049544 /* IOKit.framework */,
 				5A3117632ECF668400049544 /* Cocoa.framework */,
 				5A6012602ECF543700FDE28A /* SDL3.xcframework */,
-				3458E5842B6ADEC600B775A1 /* libfmodstudioL_iphoneos.a */,
-				3458E5822B6ADEAE00B775A1 /* libfmodL_iphoneos.a */,
-				34866F5B2B28933E0025F40C /* libfmodL.dylib */,
-				34866F5A2B28933E0025F40C /* libfmodstudioL.dylib */,
+				3458E5842B6ADEC600B775A1 /* libfmodstudio_iphoneos.a */,
+				3458E5822B6ADEAE00B775A1 /* libfmod_iphoneos.a */,
+				34866F5B2B28933E0025F40C /* libfmod.dylib */,
+				34866F5A2B28933E0025F40C /* libfmodstudio.dylib */,
 				3474D63D2B14E91100441451 /* GameController.framework */,
 				34011A3A2A7DB16B00521FCD /* ModelIO.framework */,
 				34011A382A7DB12600521FCD /* Metal.framework */,
@@ -1075,22 +1075,22 @@
 		34EB6C9E2A4C6E6100DA6B15 /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				34EB6C9F2A4C6E6100DA6B15 /* libfmodL_stub_weak.a */,
+				34EB6C9F2A4C6E6100DA6B15 /* libfmod_stub_weak.a */,
 				34EB6CA02A4C6E6100DA6B15 /* libfmod.a */,
-				34EB6CA12A4C6E6100DA6B15 /* libfmodL.a */,
-				34EB6CA22A4C6E6100DA6B15 /* fmodL_vc.lib */,
+				34EB6CA12A4C6E6100DA6B15 /* libfmod.a */,
+				34EB6CA22A4C6E6100DA6B15 /* fmod_vc.lib */,
 				34EB6CA32A4C6E6100DA6B15 /* fmod.dll */,
-				34EB6CA42A4C6E6100DA6B15 /* fmodL.dll */,
+				34EB6CA42A4C6E6100DA6B15 /* fmod.dll */,
 				34EB6CA52A4C6E6100DA6B15 /* fmodstudio_vc.lib */,
-				34EB6CA62A4C6E6100DA6B15 /* fmodstudioL.dll */,
-				34EB6CA72A4C6E6100DA6B15 /* fmodstudioL_vc.lib */,
-				34EB6CA82A4C6E6100DA6B15 /* libfmodstudioL_stub_weak.a */,
+				34EB6CA62A4C6E6100DA6B15 /* fmodstudio.dll */,
+				34EB6CA72A4C6E6100DA6B15 /* fmodstudio_vc.lib */,
+				34EB6CA82A4C6E6100DA6B15 /* libfmodstudio_stub_weak.a */,
 				34EB6CA92A4C6E6100DA6B15 /* libfmodstudio.a */,
 				34EB6CAA2A4C6E6100DA6B15 /* libfmod_stub_weak.a */,
 				34EB6CAB2A4C6E6100DA6B15 /* fmodstudio.dll */,
 				34EB6CAC2A4C6E6100DA6B15 /* fmod_vc.lib */,
 				34EB6CAD2A4C6E6100DA6B15 /* libfmodstudio_stub_weak.a */,
-				34EB6CAE2A4C6E6100DA6B15 /* libfmodstudioL.a */,
+				34EB6CAE2A4C6E6100DA6B15 /* libfmodstudio.a */,
 			);
 			path = lib;
 			sourceTree = "<group>";

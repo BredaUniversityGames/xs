@@ -1,3 +1,5 @@
+import "xs_math" for Vec2
+
 /// Handle for shapes and sprites in the rendering system.
 /// Used to correctly manage resources via the GC. Not to be created directly.
 foreign class ShapeHandle {}
@@ -572,4 +574,72 @@ class Profiler {
 
     /// Ends a named profiler section
     foreign static end(name)
+}
+
+/// ImGui-based inspector utilities for entity debugging
+class Inspector {
+    /// Displays text in the inspector
+    foreign static text(label)
+
+    /// Starts a collapsible tree node, returns true if open
+    foreign static treeNode(label)
+
+    /// Ends a tree node (must be called if treeNode returned true)
+    foreign static treePop()
+
+    /// Draws a horizontal separator line
+    foreign static separator()
+
+    /// Draws a horizontal separator line with text in the middle
+    foreign static separatorText(text)
+
+    /// Places the next widget on the same line
+    foreign static sameLine()
+
+    /// Increases indent level
+    foreign static indent()
+
+    /// Decreases indent level
+    foreign static unindent()
+
+    /// Adds vertical spacing
+    foreign static spacing()
+
+    /// Selectable item for lists, returns true if clicked
+    foreign static selectable(label, selected)
+
+    /// Input field for float values, returns new value
+    foreign static inputFloat(label, value)
+
+    /// Drag widget for float values, returns new value
+    foreign static dragFloat(label, value)
+
+    /// Checkbox for boolean values, returns new value
+    foreign static checkbox(label, value)
+
+    /// Creates a collapsing header section (cleaner than treeNode for headers)
+    /// Returns true if the section is open/expanded
+    foreign static collapsingHeader(label)
+
+    /// Begins a child window region with optional border
+    /// width and height: size in pixels (0 = auto-size)
+    /// border: whether to draw a border around the child
+    foreign static beginChild(label, width, height, border)
+
+    /// Ends the current child window region
+    /// Must be called after beginChild
+    foreign static endChild()
+
+    /// Private: Drag widget for 2D float vector (x, y as separate params)
+    /// Returns a list [x, y] with the new values
+    foreign static dragFloat2_(label, x, y)
+
+    /// Drag widget for 2D vector, returns new Vec2 value
+    /// Works with xs_math Vec2 objects
+    static dragFloat2(label, vec) {
+        var result = dragFloat2_(label, vec.x, vec.y)
+        vec.x = result[0]
+        vec.y = result[1]
+        return vec
+    }
 }

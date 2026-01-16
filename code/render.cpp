@@ -28,6 +28,12 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+#pragma GCC diagnostic pop
 #else
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
@@ -41,6 +47,11 @@
 #pragma clang diagnostic ignored "-Wunused-function"
 #include <stb/stb_easy_font.h>
 #pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#include <stb/stb_easy_font.h>
+#pragma GCC diagnostic pop
 #else
 #include <stb/stb_easy_font.h>
 #endif
@@ -91,9 +102,9 @@ int xs::render::load_font(const std::string& font_file, double size)
 {	
 	// Find image first
 	auto id = std::hash<std::string>{}(font_file + std::to_string(size));
-	for (int i = 0; i < fonts.size(); i++)
+	for (size_t i = 0; i < fonts.size(); i++)
 		if (fonts[i].string_id == id)
-			return i;
+			return static_cast<int>(i);
 
 	int font_id = (int)fonts.size();
 	fonts.push_back(font_atlas());
@@ -180,7 +191,7 @@ int xs::render::load_font(const std::string& font_file, double size)
 
 int xs::render::get_image_height(int image_id)
 {
-	if (image_id < 0 || image_id >= images.size()) {
+	if (image_id < 0 || image_id >= static_cast<int>(images.size())) {
 		log::error("get_image_height() image_id={} is invalid!", image_id);
 		return -1;
 	}
@@ -190,7 +201,7 @@ int xs::render::get_image_height(int image_id)
 
 int xs::render::get_image_width(int image_id)
 {
-	if (image_id < 0 || image_id >= images.size()) {
+	if (image_id < 0 || image_id >= static_cast<int>(images.size())) {
 		log::error("get_image_width() image_id={} is invalid!", image_id);
 		return -1;
 	}
@@ -219,7 +230,7 @@ void xs::render::text(
 	color add,
 	unsigned int flags)
 {
-	if(font_id < 0 || font_id >= fonts.size())
+	if(font_id < 0 || font_id >= static_cast<int>(fonts.size()))
 	{
 		log::error("render_text() font_id={} is invalid!", font_id);
 		return;
@@ -291,9 +302,9 @@ int xs::render::load_image(const std::string& image_file)
 {	
 	// Find image first
 	auto id = std::hash<std::string>{}(image_file);
-	for (int i = 0; i < images.size(); i++)
+	for (size_t i = 0; i < images.size(); i++)
 		if (images[i].string_id == id)
-			return i;
+			return static_cast<int>(i);
 
 	auto buffer = fileio::read_binary_file(image_file);	
 	image img;
@@ -412,8 +423,8 @@ int render::load_shape(const std::string& shape_file)
 	
 	// Create triangles for fan mesh
 	// Each triangle connects center (index 0) with consecutive path points
-	for (int i = 1; i < path_points.size(); i++) {
-		int next_i = (i % (path_points.size() - 1)) + 1;
+	for (unsigned short i = 1; i < path_points.size(); i++) {
+		 unsigned short next_i = (i % (path_points.size() - 1)) + 1;
 		
 		// Triangle: center -> current point -> next point
 		indices.push_back(0);        // center
@@ -611,7 +622,7 @@ void xs::render::dbg_text(const std::string& text, double x, double y, double si
 int xs::render::reload_images()
 {
 	int reloaded = 0;
-	for (int i = 0; i < images.size(); i++) {
+	for (size_t i = 0; i < images.size(); i++) {
 		auto& image = images[i];
 
 		if (image.file.empty())

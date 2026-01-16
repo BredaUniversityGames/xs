@@ -151,6 +151,8 @@ class Vec2 {
     magnitudeSq { x * x + y * y }
     /// Returns a normalized copy of the vector (length = 1)
     normal { this / this.magnitude }
+    /// Returns a normalized copy of the vector (length = 1)
+    normalized { this / this.magnitude }
     /// Normalizes this vector in place
     normalize() {
         _x = _x / magnitude

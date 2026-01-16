@@ -24,7 +24,8 @@
 #include "device.hpp"
 #include "inspector.hpp"
 #include "color.hpp"
-    
+#include <imgui.h>
+
 // Check if we are running MSVC
 #ifdef _MSC_VER
 // Disable warning about zero-sized arrays in structs
@@ -72,19 +73,7 @@ namespace xs::script::internal
         if (strcmp(text, "\n") == 0)
             return;
 
-#ifdef USE_UTF8_LOG
-        // Modern UTF-8 version with emoji
-        std::cout << "📜 " << text << endl;
-#else
-        // Basic ASCII version with color
-        #if defined(PLATFORM_PC)
-        static auto magenta = "\033[35m";
-        static auto reset = "\033[0m";
-        std::cout << "[" << magenta << "script" << reset << "] " << text << endl;
-        #else
-        std::cout << "[script] " << text << endl;
-        #endif
-#endif
+        xs::log::script("{}", text);
     }
 
     void errorFn(
@@ -347,6 +336,36 @@ void xs::script::render()
         wrenSetSlotHandle(vm, 0, game_class);
         wrenCall(vm, render_method);
     }
+}
+
+void xs::script::ec_inspect(const std::string& filter)
+{
+    if (!initialized)
+        return;
+
+    // Try to get the Entity class from xs_ec module
+    wrenEnsureSlots(vm, 2);
+    wrenGetVariable(vm, "xs_ec", "Entity", 0);
+
+    // Check if the class was found (not null)
+    if (wrenGetSlotType(vm, 0) == WREN_TYPE_NULL)
+    {
+        ImGui::Text("No entities module loaded");
+        return;
+    }
+
+    // Call Entity.inspect(filter)
+    WrenHandle* entity_class = wrenGetSlotHandle(vm, 0);
+    WrenHandle* inspect_method = wrenMakeCallHandle(vm, "inspect(_)");
+
+    wrenEnsureSlots(vm, 2);
+    wrenSetSlotHandle(vm, 0, entity_class);
+    wrenSetSlotString(vm, 1, filter.c_str());
+    wrenCall(vm, inspect_method);
+
+    // Clean up handles
+    wrenReleaseHandle(vm, inspect_method);
+    wrenReleaseHandle(vm, entity_class);
 }
 
 bool xs::script::has_error()
@@ -903,7 +922,6 @@ void shape_handle_finalize(void* data)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Audio
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
 void audio_load(WrenVM* vm)
 {
     callFunction_returnType_args<int, string, int>(vm, xs::audio::load);
@@ -956,7 +974,7 @@ void audio_unload_bank(WrenVM* vm)
 
 void audio_start_event(WrenVM* vm)
 {
-    callFunction_returnType_args<int, string>(vm, xs::audio::start_event);
+    callFunction_returnType_args<int, int>(vm, xs::audio::play);
 }
 
 void audio_set_parameter_number(WrenVM* vm)
@@ -1109,9 +1127,155 @@ void profiler_end_section(WrenVM* vm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// 
+// Inspector (ImGui bindings) - Forward declarations
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void inspector_checkbox(WrenVM* vm);
+void inspector_begin_child(WrenVM* vm);
+void inspector_end_child(WrenVM* vm);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// Inspector (ImGui bindings)
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void inspector_text(WrenVM* vm)
+{
+	auto text = wrenGetParameter<string>(vm, 1);
+	ImGui::Text("%s", text.c_str());
+}
+
+void inspector_tree_node(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	bool result = ImGui::TreeNode(label.c_str());
+	wrenSetSlotBool(vm, 0, result);
+}
+
+void inspector_tree_pop(WrenVM* vm)
+{
+	ImGui::TreePop();
+}
+
+void inspector_separator(WrenVM* vm)
+{
+	ImGui::Separator();
+}
+
+void inspector_separator_text(WrenVM* vm)
+{
+	auto text = wrenGetParameter<string>(vm, 1);
+	ImGui::SeparatorText(text.c_str());
+}
+
+void inspector_same_line(WrenVM* vm)
+{
+	ImGui::SameLine();
+}
+
+void inspector_indent(WrenVM* vm)
+{
+	ImGui::Indent();
+}
+
+void inspector_unindent(WrenVM* vm)
+{
+	ImGui::Unindent();
+}
+
+void inspector_spacing(WrenVM* vm)
+{
+	ImGui::Spacing();
+}
+
+void inspector_selectable(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto selected = wrenGetParameter<bool>(vm, 2);
+	bool result = ImGui::Selectable(label.c_str(), selected);
+	wrenSetSlotBool(vm, 0, result);
+}
+
+void inspector_input_float(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto value = wrenGetParameter<double>(vm, 2);
+	float f = (float)value;
+	bool changed = ImGui::InputFloat(label.c_str(), &f);
+	if (changed) {
+		wrenSetSlotDouble(vm, 0, (double)f);
+	} else {
+		wrenSetSlotDouble(vm, 0, value);
+	}
+}
+
+void inspector_drag_float(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto value = wrenGetParameter<double>(vm, 2);
+	float f = (float)value;
+	bool changed = ImGui::DragFloat(label.c_str(), &f, 0.1f);
+	if (changed) {
+		wrenSetSlotDouble(vm, 0, (double)f);
+	} else {
+		wrenSetSlotDouble(vm, 0, value);
+	}
+}
+
+void inspector_collapsing_header(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	bool result = ImGui::CollapsingHeader(label.c_str());
+	wrenSetSlotBool(vm, 0, result);
+}
+
+void inspector_drag_float2(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto x = wrenGetParameter<double>(vm, 2);
+	auto y = wrenGetParameter<double>(vm, 3);
+	
+	float values[2] = { (float)x, (float)y };
+	bool changed = ImGui::DragFloat2(label.c_str(), values, 0.1f);
+	
+	// Return as a list [x, y]
+	wrenEnsureSlots(vm, 3);
+	wrenSetSlotNewList(vm, 0);
+	wrenSetSlotDouble(vm, 1, (double)values[0]);
+	wrenInsertInList(vm, 0, 0, 1);
+	wrenSetSlotDouble(vm, 2, (double)values[1]);
+	wrenInsertInList(vm, 0, 1, 2);
+}
+
+void inspector_checkbox(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto value = wrenGetParameter<bool>(vm, 2);
+	bool changed = ImGui::Checkbox(label.c_str(), &value);
+	wrenSetSlotBool(vm, 0, value);
+}
+
+void inspector_begin_child(WrenVM* vm)
+{
+	auto label = wrenGetParameter<string>(vm, 1);
+	auto width = wrenGetParameter<double>(vm, 2);
+	auto height = wrenGetParameter<double>(vm, 3);
+	auto border = wrenGetParameter<bool>(vm, 4);
+
+	// If size is between 0 and 1 (exclusive), treat as fraction of available space
+	ImVec2 available = ImGui::GetContentRegionAvail();
+	float w = (width > 0.0 && width < 1.0) ? (float)(width * available.x) : (float)width;
+	float h = (height > 0.0 && height < 1.0) ? (float)(height * available.y) : (float)height;
+
+	ImGui::BeginChild(label.c_str(), ImVec2(w, h), border);
+}
+
+void inspector_end_child(WrenVM* vm)
+{
+	ImGui::EndChild();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//
 //											Bind xs API
-// 
+//
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void xs::script::bind_api()
 {
@@ -1211,4 +1375,23 @@ void xs::script::bind_api()
     // Profiler
     bind("xs", "Profiler", true, "begin(_)", profiler_begin_section);
     bind("xs", "Profiler", true, "end(_)", profiler_end_section);
+
+    // Inspector
+    bind("xs", "Inspector", true, "text(_)", inspector_text);
+    bind("xs", "Inspector", true, "treeNode(_)", inspector_tree_node);
+    bind("xs", "Inspector", true, "treePop()", inspector_tree_pop);
+    bind("xs", "Inspector", true, "separator()", inspector_separator);
+    bind("xs", "Inspector", true, "separatorText(_)", inspector_separator_text);
+    bind("xs", "Inspector", true, "sameLine()", inspector_same_line);
+    bind("xs", "Inspector", true, "indent()", inspector_indent);
+    bind("xs", "Inspector", true, "unindent()", inspector_unindent);
+    bind("xs", "Inspector", true, "spacing()", inspector_spacing);
+    bind("xs", "Inspector", true, "selectable(_,_)", inspector_selectable);
+    bind("xs", "Inspector", true, "inputFloat(_,_)", inspector_input_float);
+    bind("xs", "Inspector", true, "dragFloat(_,_)", inspector_drag_float);
+    bind("xs", "Inspector", true, "checkbox(_,_)", inspector_checkbox);
+    bind("xs", "Inspector", true, "beginChild(_,_,_,_)", inspector_begin_child);
+    bind("xs", "Inspector", true, "endChild()", inspector_end_child);
+    bind("xs", "Inspector", true, "collapsingHeader(_)", inspector_collapsing_header);
+    bind("xs", "Inspector", true, "dragFloat2_(_,_,_)", inspector_drag_float2);
 }

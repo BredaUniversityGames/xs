@@ -76,11 +76,9 @@ double xs::profiler::end_timing()
 #endif
 }
 
-void xs::profiler::inspect(bool& show)
+void xs::profiler::inspect()
 {
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE) || defined(PLATFORM_LINUX)
-    ImGui::Begin("Profiler", &show, ImGuiWindowFlags_NoCollapse);
-
     for (auto& itr : times)
     {
         auto& e = itr.second;
@@ -118,8 +116,6 @@ void xs::profiler::inspect(bool& show)
 
     for (auto& itr : times)
         ImGui::LabelText(itr.first.c_str(), "%fms count:%d", itr.second.avg, itr.second.count);
-
-    ImGui::End();
 
     for (auto& itr : times)
     {

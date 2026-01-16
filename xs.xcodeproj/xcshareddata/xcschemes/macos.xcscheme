@@ -56,7 +56,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "samples/gameplay"
+            argument = "samples/shape"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

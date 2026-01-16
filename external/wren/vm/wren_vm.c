@@ -36,6 +36,11 @@ static void* defaultReallocate(void* ptr, size_t newSize, void* _)
   return realloc(ptr, newSize);
 }
 
+int wrenGetVersionNumber() 
+{ 
+  return WREN_VERSION_NUMBER;
+}
+
 void wrenInitConfiguration(WrenConfiguration* config)
 {
   config->reallocateFn = defaultReallocate;
@@ -56,8 +61,8 @@ WrenVM* wrenNewVM(WrenConfiguration* config)
   WrenReallocateFn reallocate = defaultReallocate;
   void* userData = NULL;
   if (config != NULL) {
-    reallocate = config->reallocateFn;
     userData = config->userData;
+    reallocate = config->reallocateFn ? config->reallocateFn : defaultReallocate;
   }
   
   WrenVM* vm = (WrenVM*)reallocate(NULL, sizeof(*vm), userData);
@@ -67,6 +72,10 @@ WrenVM* wrenNewVM(WrenConfiguration* config)
   if (config != NULL)
   {
     memcpy(&vm->config, config, sizeof(WrenConfiguration));
+
+    // We choose to set this after copying, 
+    // rather than modifying the user config pointer
+    vm->config.reallocateFn = reallocate;
   }
   else
   {
@@ -598,6 +607,27 @@ static void bindForeignClass(WrenVM* vm, ObjClass* classObj, ObjModule* module)
   }
 }
 
+// Completes the process for creating a new class.
+//
+// The class attributes instance and the class itself should be on the 
+// top of the fiber's stack. 
+//
+// This process handles moving the attribute data for a class from
+// compile time to runtime, since it now has all the attributes associated
+// with a class, including for methods.
+static void endClass(WrenVM* vm) 
+{
+  // Pull the attributes and class off the stack
+  Value attributes = vm->fiber->stackTop[-2];
+  Value classValue = vm->fiber->stackTop[-1];
+
+  // Remove the stack items
+  vm->fiber->stackTop -= 2;
+
+  ObjClass* classObj = AS_CLASS(classValue);
+    classObj->attributes = attributes;
+}
+
 // Creates a new class.
 //
 // If [numFields] is -1, the class is a foreign class. The name and superclass
@@ -709,7 +739,7 @@ static Value importModule(WrenVM* vm, Value name)
   wrenPushRoot(vm, AS_OBJ(name));
 
   WrenLoadModuleResult result = {0};
-  // const char* source = NULL;
+  const char* source = NULL;
   
   // Let the host try to provide the module.
   if (vm->config.loadModuleFn != NULL)
@@ -1136,7 +1166,7 @@ static WrenInterpretResult runInterpreter(WrenVM* vm, register ObjFiber* fiber)
       uint16_t offset = READ_SHORT();
       Value condition = POP();
 
-      if (IS_FALSE(condition) || IS_NULL(condition)) ip += offset;
+      if (wrenIsFalsyValue(condition)) ip += offset;
       DISPATCH();
     }
 
@@ -1145,7 +1175,7 @@ static WrenInterpretResult runInterpreter(WrenVM* vm, register ObjFiber* fiber)
       uint16_t offset = READ_SHORT();
       Value condition = PEEK();
 
-      if (IS_FALSE(condition) || IS_NULL(condition))
+      if (wrenIsFalsyValue(condition))
       {
         // Short-circuit the right hand side.
         ip += offset;
@@ -1163,7 +1193,7 @@ static WrenInterpretResult runInterpreter(WrenVM* vm, register ObjFiber* fiber)
       uint16_t offset = READ_SHORT();
       Value condition = PEEK();
 
-      if (IS_FALSE(condition) || IS_NULL(condition))
+      if (wrenIsFalsyValue(condition))
       {
         // Discard the condition and evaluate the right hand side.
         DROP();
@@ -1262,6 +1292,13 @@ static WrenInterpretResult runInterpreter(WrenVM* vm, register ObjFiber* fiber)
           closure->upvalues[i] = frame->closure->upvalues[index];
         }
       }
+      DISPATCH();
+    }
+
+    CASE_CODE(END_CLASS):
+    {
+      endClass(vm);
+      if (wrenHasError(fiber)) RUNTIME_ERROR();
       DISPATCH();
     }
 
@@ -1381,6 +1418,7 @@ WrenHandle* wrenMakeCallHandle(WrenVM* vm, const char* signature)
   // Add the signatue to the method table.
   int method =  wrenSymbolTableEnsure(vm, &vm->methodNames,
                                       signature, signatureLength);
+  ASSERT(method <= MAX_METHODS, "Method limit reached.");
   
   // Create a little stub function that assumes the arguments are on the stack
   // and calls the method.
@@ -1822,6 +1860,7 @@ bool wrenGetMapContainsKey(WrenVM* vm, int mapSlot, int keySlot)
   ASSERT(IS_MAP(vm->apiStack[mapSlot]), "Slot must hold a map.");
 
   Value key = vm->apiStack[keySlot];
+  ASSERT(wrenMapIsValidKey(key), "Key must be a value type");
   if (!validateKey(vm, key)) return false;
 
   ObjMap* map = AS_MAP(vm->apiStack[mapSlot]);
@@ -1854,6 +1893,8 @@ void wrenSetMapValue(WrenVM* vm, int mapSlot, int keySlot, int valueSlot)
   ASSERT(IS_MAP(vm->apiStack[mapSlot]), "Must insert into a map.");
   
   Value key = vm->apiStack[keySlot];
+  ASSERT(wrenMapIsValidKey(key), "Key must be a value type");
+
   if (!validateKey(vm, key)) {
     return;
   }

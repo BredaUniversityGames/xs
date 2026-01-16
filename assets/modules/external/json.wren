@@ -1,3 +1,5 @@
+import "xs" for File
+
 
 class JSON {
   static parse(string) {
@@ -10,6 +12,28 @@ class JSON {
 
   static tokenize(string) {
     return JSONScanner.new(string).tokenize
+  }
+
+  // Cache for parsed JSON files to avoid repeated file reading and parsing
+  static load(filename) {
+    // Initialize cache on first use
+    if (__cache == null) {
+      __cache = {}
+    }
+
+    // Return cached data if available
+    if (__cache.containsKey(filename)) {
+      return __cache[filename]
+    }
+
+    // Read and parse the JSON file
+    var fileContent = File.read(filename)
+    var jsonData = parse(fileContent)
+
+    // Cache the parsed data
+    __cache[filename] = jsonData
+
+    return jsonData
   }
 }
 

@@ -49,6 +49,9 @@ namespace xs::log
 	template<typename FormatString, typename... Args>
 	void critical(const FormatString& fmt, const Args&... args);
 
+	template<typename FormatString, typename... Args>
+	void script(const FormatString& fmt, const Args&... args);
+
 	void flush();
 }
 
@@ -57,28 +60,35 @@ namespace xs::log
 template<typename FormatString, typename ...Args>
 inline void xs::log::info(const FormatString& format, const Args & ...args)
 {
-	std::string message = std::string("ℹ️ ") + info_color + fmt::format(fmt::runtime(format), args...) + reset;
+	std::string message = std::string("ℹ️\t") + info_color + fmt::format(fmt::runtime(format), args...) + reset;
 	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::warn(const FormatString& format, const Args & ...args)
 {
-	std::string message = std::string("⚠️ ") + warn_color + fmt::format(fmt::runtime(format), args...) + reset;
+	std::string message = std::string("⚠️\t") + warn_color + fmt::format(fmt::runtime(format), args...) + reset;
 	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::error(const FormatString& format, const Args & ...args)
 {
-	std::string message = std::string("⛔️ ") + error_color + fmt::format(fmt::runtime(format), args...) + reset;
+	std::string message = std::string("⛔️\t") + error_color + fmt::format(fmt::runtime(format), args...) + reset;
 	output_log(message);
 }
 
 template<typename FormatString, typename ...Args>
 inline void xs::log::critical(const FormatString& format, const Args & ...args)
 {
-	std::string message = std::string("🚨 ") + critical_color + fmt::format(fmt::runtime(format), args...) + reset;
+	std::string message = std::string("🚨\t") + critical_color + fmt::format(fmt::runtime(format), args...) + reset;
+	output_log(message);
+}
+
+template<typename FormatString, typename ...Args>
+inline void xs::log::script(const FormatString& format, const Args & ...args)
+{
+	std::string message = std::string("📜\t") + fmt::format(fmt::runtime(format), args...);
 	output_log(message);
 }
 
@@ -109,6 +119,13 @@ template<typename FormatString, typename ...Args>
 inline void xs::log::critical(const FormatString& format, const Args & ...args)
 {
 	std::string message = fmt::format("[{}error{}] ", error_color, reset) + fmt::format(fmt::runtime(format), args...);
+	output_log(message);
+}
+
+template<typename FormatString, typename ...Args>
+inline void xs::log::script(const FormatString& format, const Args & ...args)
+{
+	std::string message = fmt::format("[script] ") + fmt::format(fmt::runtime(format), args...);
 	output_log(message);
 }
 

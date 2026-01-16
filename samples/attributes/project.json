@@ -1,0 +1,30 @@
+{
+    "Always on top": {
+        "type": "bool",
+        "value": false
+    },
+    "Fullscreen": {
+        "type": "bool",
+        "value": false
+    },
+    "Height": {
+        "type": "number",
+        "value": 720.0
+    },
+    "Main": {
+        "type": "string",
+        "value": "game.wren"
+    },
+    "Multiplier": {
+        "type": "number",
+        "value": 1.0
+    },
+    "Title": {
+        "type": "string",
+        "value": "xs - attributes test"
+    },
+    "Width": {
+        "type": "number",
+        "value": 1280.0
+    }
+}

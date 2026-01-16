@@ -50,6 +50,7 @@ ObjClass* wrenNewSingleClass(WrenVM* vm, int numFields, ObjString* name)
   classObj->superclass = NULL;
   classObj->numFields = numFields;
   classObj->name = name;
+  classObj->attributes = NULL_VAL;
 
   wrenPushRoot(vm, (Obj*)classObj);
   wrenMethodBufferInit(&classObj->methods);
@@ -1028,6 +1029,8 @@ static void blackenClass(WrenVM* vm, ObjClass* classObj)
 
   wrenGrayObj(vm, (Obj*)classObj->name);
 
+  if(!IS_NULL(classObj->attributes)) wrenGrayObj(vm, AS_OBJ(classObj->attributes));
+
   // Keep track of how much memory is still in use.
   vm->bytesAllocated += sizeof(ObjClass);
   vm->bytesAllocated += classObj->methods.capacity * sizeof(Method);
@@ -1085,6 +1088,9 @@ static void blackenFn(WrenVM* vm, ObjFn* fn)
 {
   // Mark the constants.
   wrenGrayBuffer(vm, &fn->constants);
+
+  // Mark the module it belongs to, in case it's been unloaded.
+  wrenGrayObj(vm, (Obj*)fn->module);
 
   // Keep track of how much memory is still in use.
   vm->bytesAllocated += sizeof(ObjFn);
