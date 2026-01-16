@@ -82,10 +82,13 @@ class Entity {
             c.finalize()
             // remove from the delete list (if it was there)
             Tools.removeFromList(_compDeleteQueue, c.type)
-            // _compDeleteQueue.remove(c.type)
         }
 
-        // TODO: Check if it already it has an owner
+        // Check if it already it has an owner
+        if(component.owner != null) {
+            owner.remove(component.type)            
+        }
+
         component.owner = this
         _components[component.type] = component
 
@@ -95,7 +98,6 @@ class Entity {
     /// Gets a component of the matching type, or null if not found
     /// Example: var transform = entity.get(Transform)
     get(type) {
-        // TODO: Check if v is a type
         if (_components.containsKey(type)) {
             return _components[type]            
         }
@@ -110,8 +112,7 @@ class Entity {
     /// Marks a component for removal at the end of the current update frame
     /// The component's finalize() method will be called before removal
     remove(type) {
-        // TODO: Make the compoenent aware that it is being removed
-        // by setting its owner to null
+        // TODO: Add the option of removing by instance instead of type
         if (_components.containsKey(type)) {
             _compDeleteQueue.add(type)
         } else {
@@ -190,6 +191,7 @@ class Entity {
             var e = __entities[i]
             if(e.deleted) {
                 for(c in e.components) {
+                    c.owner = null
                     c.finalize()
                 }
                 __entities.removeAt(i)
