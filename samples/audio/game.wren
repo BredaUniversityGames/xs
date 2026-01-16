@@ -1,5 +1,5 @@
-import "xs" for Input, Render, Data, SimpleAudio
-import "xs_math" for Math, Color
+import "xs/core" for Input, Render, Data, SimpleAudio
+import "xs/math" for Math, Color
 
 class Game {
     static initialize() {

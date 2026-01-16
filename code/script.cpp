@@ -343,6 +343,12 @@ void xs::script::ec_inspect(const std::string& filter)
     if (!initialized)
         return;
 
+    if (modules.find("xs_ec") == modules.end())
+    {
+        ImGui::Text("The Entity Component (xs.ec) module is not loaded");
+        return;
+    }
+
     // Try to get the Entity class from xs_ec module
     wrenEnsureSlots(vm, 2);
     wrenGetVariable(vm, "xs_ec", "Entity", 0);
@@ -350,7 +356,7 @@ void xs::script::ec_inspect(const std::string& filter)
     // Check if the class was found (not null)
     if (wrenGetSlotType(vm, 0) == WREN_TYPE_NULL)
     {
-        ImGui::Text("No entities module loaded");
+        ImGui::Text("The Entity Component (xs.ec) module is not loaded");
         return;
     }
 
@@ -366,6 +372,11 @@ void xs::script::ec_inspect(const std::string& filter)
     // Clean up handles
     wrenReleaseHandle(vm, inspect_method);
     wrenReleaseHandle(vm, entity_class);
+}
+
+bool script::is_module_loaded(const std::string& module)
+{
+    return modules.find(module) != modules.end();
 }
 
 bool xs::script::has_error()
@@ -793,7 +804,7 @@ static void render_load_shape(WrenVM* vm)
 {
     auto shape_path = wrenGetParameter<string>(vm, 1);
     auto shape_id = xs::render::load_shape(shape_path);
-    wrenGetVariable(vm, "xs", "ShapeHandle", 0);
+    wrenGetVariable(vm, "xs/core", "ShapeHandle", 0);
     auto handle = (int*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
     *handle = shape_id;
     
@@ -819,7 +830,7 @@ static void render_create_sprite(WrenVM* vm)
     auto y1 = wrenGetParameter<double>(vm, 5);
     auto sprite_id = xs::render::create_sprite(image_id, x0, y0, x1, y1);
 
-    wrenGetVariable(vm, "xs", "ShapeHandle", 0);
+    wrenGetVariable(vm, "xs/core", "ShapeHandle", 0);
     auto handle = (int*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
     *handle = sprite_id;
     
@@ -840,7 +851,7 @@ static void render_create_shape(WrenVM* vm)
 		indices.data(),
 		(unsigned int)indices.size());
 
-    wrenGetVariable(vm, "xs", "ShapeHandle", 0);
+    wrenGetVariable(vm, "xs/core", "ShapeHandle", 0);
 	auto handle = (int*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(int));
 	*handle = shape_id;
 }
@@ -1280,118 +1291,118 @@ void inspector_end_child(WrenVM* vm)
 void xs::script::bind_api()
 {
     // Input
-    bind("xs", "Input", true, "getAxis(_)", input_get_axis);
-    bind("xs", "Input", true, "getAxisOnce(_,_)", input_get_axis_once);
-    bind("xs", "Input", true, "getButton(_)", input_get_button);
-    bind("xs", "Input", true, "getButtonOnce(_)", input_get_button_once);
-    bind("xs", "Input", true, "getKey(_)", input_get_key);
-    bind("xs", "Input", true, "getKeyOnce(_)", input_get_key_once);
-    bind("xs", "Input", true, "getMouse()", input_get_mouse);
-    bind("xs", "Input", true, "getMouseButton(_)", input_get_mousebutton);
-    bind("xs", "Input", true, "getMouseButtonOnce(_)", input_get_mousebutton_once);
-    bind("xs", "Input", true, "getMouseX()", input_get_mouse_x);
-    bind("xs", "Input", true, "getMouseY()", input_get_mouse_y);
-    bind("xs", "Input", true, "getMouseWheel()", input_get_mouse_wheel);
-    bind("xs", "Input", true, "getNrTouches()", input_get_nr_touches);
-    bind("xs", "Input", true, "getTouchId(_)", input_get_touch_id);
-    bind("xs", "Input", true, "getTouchX(_)", input_get_touch_x);
-    bind("xs", "Input", true, "getTouchY(_)", input_get_touch_y);
-    bind("xs", "Input", true, "setPadVibration(_,_,_)", input_set_gamepad_vibration);
-    bind("xs", "Input", true, "setPadLightbarColor(_,_,_)", input_set_lightbar_color);
-    bind("xs", "Input", true, "resetPadLightbarColor()", input_reset_lightbar);
+    bind("xs/core", "Input", true, "getAxis(_)", input_get_axis);
+    bind("xs/core", "Input", true, "getAxisOnce(_,_)", input_get_axis_once);
+    bind("xs/core", "Input", true, "getButton(_)", input_get_button);
+    bind("xs/core", "Input", true, "getButtonOnce(_)", input_get_button_once);
+    bind("xs/core", "Input", true, "getKey(_)", input_get_key);
+    bind("xs/core", "Input", true, "getKeyOnce(_)", input_get_key_once);
+    bind("xs/core", "Input", true, "getMouse()", input_get_mouse);
+    bind("xs/core", "Input", true, "getMouseButton(_)", input_get_mousebutton);
+    bind("xs/core", "Input", true, "getMouseButtonOnce(_)", input_get_mousebutton_once);
+    bind("xs/core", "Input", true, "getMouseX()", input_get_mouse_x);
+    bind("xs/core", "Input", true, "getMouseY()", input_get_mouse_y);
+    bind("xs/core", "Input", true, "getMouseWheel()", input_get_mouse_wheel);
+    bind("xs/core", "Input", true, "getNrTouches()", input_get_nr_touches);
+    bind("xs/core", "Input", true, "getTouchId(_)", input_get_touch_id);
+    bind("xs/core", "Input", true, "getTouchX(_)", input_get_touch_x);
+    bind("xs/core", "Input", true, "getTouchY(_)", input_get_touch_y);
+    bind("xs/core", "Input", true, "setPadVibration(_,_,_)", input_set_gamepad_vibration);
+    bind("xs/core", "Input", true, "setPadLightbarColor(_,_,_)", input_set_lightbar_color);
+    bind("xs/core", "Input", true, "resetPadLightbarColor()", input_reset_lightbar);
 
     // Render
-    bind("xs", "Render", true, "loadImage(_)", render_load_image);
-    bind("xs", "Render", true, "loadShape(_)", render_load_shape);
-    bind("xs", "Render", true, "getImageWidth(_)", render_get_image_width);
-    bind("xs", "Render", true, "getImageHeight(_)", render_get_image_height);
-    bind("xs", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
-    bind("xs", "Render", true, "createShape(_,_,_,_)", render_create_shape);
-    bind("xs", "Render", true, "setOffset(_,_)", render_set_offset);
-    bind("xs", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite);
-    bind("xs", "Render", true, "shape(_,_,_,_,_,_,_,_)", render_shape);
-    bind("xs", "Render", true, "loadFont(_,_)", render_load_font);
-    bind("xs", "Render", true, "text(_,_,_,_,_,_,_,_)", render_text);
-    bind("xs", "Render", true, "destroyShape(_)", render_destroy_shape);
-    bind("xs", "Render", true, "dbgBegin(_)", render_dbg_begin);
-    bind("xs", "Render", true, "dbgEnd()", render_dbg_end);
-    bind("xs", "Render", true, "dbgVertex(_,_)", render_dbg_vertex);
-    bind("xs", "Render", true, "dbgColor(_)", render_dbg_color);
-    bind("xs", "Render", true, "dbgText(_,_,_,_)", render_dbg_text);
-    bind("xs", "Render", true, "dbgLine(_,_,_,_)", render_dbg_line);
+    bind("xs/core", "Render", true, "loadImage(_)", render_load_image);
+    bind("xs/core", "Render", true, "loadShape(_)", render_load_shape);
+    bind("xs/core", "Render", true, "getImageWidth(_)", render_get_image_width);
+    bind("xs/core", "Render", true, "getImageHeight(_)", render_get_image_height);
+    bind("xs/core", "Render", true, "createSprite(_,_,_,_,_)", render_create_sprite);
+    bind("xs/core", "Render", true, "createShape(_,_,_,_)", render_create_shape);
+    bind("xs/core", "Render", true, "setOffset(_,_)", render_set_offset);
+    bind("xs/core", "Render", true, "sprite(_,_,_,_,_,_,_,_,_)", render_sprite);
+    bind("xs/core", "Render", true, "shape(_,_,_,_,_,_,_,_)", render_shape);
+    bind("xs/core", "Render", true, "loadFont(_,_)", render_load_font);
+    bind("xs/core", "Render", true, "text(_,_,_,_,_,_,_,_)", render_text);
+    bind("xs/core", "Render", true, "destroyShape(_)", render_destroy_shape);
+    bind("xs/core", "Render", true, "dbgBegin(_)", render_dbg_begin);
+    bind("xs/core", "Render", true, "dbgEnd()", render_dbg_end);
+    bind("xs/core", "Render", true, "dbgVertex(_,_)", render_dbg_vertex);
+    bind("xs/core", "Render", true, "dbgColor(_)", render_dbg_color);
+    bind("xs/core", "Render", true, "dbgText(_,_,_,_)", render_dbg_text);
+    bind("xs/core", "Render", true, "dbgLine(_,_,_,_)", render_dbg_line);
 
 
     // ShapeHandle
     WrenForeignClassMethods shape_handle_methods{};
     shape_handle_methods.allocate = shape_handle_allocate;
     shape_handle_methods.finalize = shape_handle_finalize;
-    bind_class("xs", "ShapeHandle", shape_handle_methods);
+    bind_class("xs/core", "ShapeHandle", shape_handle_methods);
 
     // Audio
-    bind("xs", "Audio", true, "load(_,_)", audio_load);
-    bind("xs", "Audio", true, "play(_)", audio_play);
-    bind("xs", "Audio", true, "getGroupVolume(_)", audio_get_group_volume);
-    bind("xs", "Audio", true, "setGroupVolume(_,_)", audio_set_group_volume);
-    bind("xs", "Audio", true, "getChannelVolume(_)", audio_get_channel_volume);
-    bind("xs", "Audio", true, "setChannelVolume(_,_)", audio_set_channel_volume);
-    bind("xs", "Audio", true, "getBusVolume(_)", audio_get_bus_volume);
-    bind("xs", "Audio", true, "setBusVolume(_,_)", audio_set_bus_volume);
-    bind("xs", "Audio", true, "loadBank(_)", audio_load_bank);
-    bind("xs", "Audio", true, "unloadBank(_)", audio_unload_bank);
-    bind("xs", "Audio", true, "startEvent(_)", audio_start_event);
-    bind("xs", "Audio", true, "setParameterNumber(_,_,_)", audio_set_parameter_number);
-    bind("xs", "Audio", true, "setParameterLabel(_,_,_)", audio_set_parameter_label);
+    bind("xs/core", "Audio", true, "load(_,_)", audio_load);
+    bind("xs/core", "Audio", true, "play(_)", audio_play);
+    bind("xs/core", "Audio", true, "getGroupVolume(_)", audio_get_group_volume);
+    bind("xs/core", "Audio", true, "setGroupVolume(_,_)", audio_set_group_volume);
+    bind("xs/core", "Audio", true, "getChannelVolume(_)", audio_get_channel_volume);
+    bind("xs/core", "Audio", true, "setChannelVolume(_,_)", audio_set_channel_volume);
+    bind("xs/core", "Audio", true, "getBusVolume(_)", audio_get_bus_volume);
+    bind("xs/core", "Audio", true, "setBusVolume(_,_)", audio_set_bus_volume);
+    bind("xs/core", "Audio", true, "loadBank(_)", audio_load_bank);
+    bind("xs/core", "Audio", true, "unloadBank(_)", audio_unload_bank);
+    bind("xs/core", "Audio", true, "startEvent(_)", audio_start_event);
+    bind("xs/core", "Audio", true, "setParameterNumber(_,_,_)", audio_set_parameter_number);
+    bind("xs/core", "Audio", true, "setParameterLabel(_,_,_)", audio_set_parameter_label);
 
     // SimpleAudio
-    bind("xs", "SimpleAudio", true, "load(_)", simple_audio_load);
-    bind("xs", "SimpleAudio", true, "play(_,_)", simple_audio_play);
-    bind("xs", "SimpleAudio", true, "setVolume(_,_)", simple_audio_set_volume);
-    bind("xs", "SimpleAudio", true, "getVolume(_)", simple_audio_get_volume);
-    bind("xs", "SimpleAudio", true, "stop(_)", simple_audio_stop);
-    bind("xs", "SimpleAudio", true, "stopAll()", simple_audio_stop_all);
-    bind("xs", "SimpleAudio", true, "isPlaying(_)", simple_audio_is_playing);
+    bind("xs/core", "SimpleAudio", true, "load(_)", simple_audio_load);
+    bind("xs/core", "SimpleAudio", true, "play(_,_)", simple_audio_play);
+    bind("xs/core", "SimpleAudio", true, "setVolume(_,_)", simple_audio_set_volume);
+    bind("xs/core", "SimpleAudio", true, "getVolume(_)", simple_audio_get_volume);
+    bind("xs/core", "SimpleAudio", true, "stop(_)", simple_audio_stop);
+    bind("xs/core", "SimpleAudio", true, "stopAll()", simple_audio_stop_all);
+    bind("xs/core", "SimpleAudio", true, "isPlaying(_)", simple_audio_is_playing);
 
     // Data
-    bind("xs", "Data", true, "getNumber(_,_)", data_get_number);
-    bind("xs", "Data", true, "getColor(_,_)", data_get_color);
-    bind("xs", "Data", true, "getBool(_,_)", data_get_bool);
-    bind("xs", "Data", true, "getString(_,_)", data_get_string);
-    bind("xs", "Data", true, "setNumber(_,_,_)", data_set_number);
-    bind("xs", "Data", true, "setColor(_,_,_)", data_set_color);
-    bind("xs", "Data", true, "setBool(_,_,_)", data_set_bool);
-    bind("xs", "Data", true, "setString(_,_,_)", data_set_string);
+    bind("xs/core", "Data", true, "getNumber(_,_)", data_get_number);
+    bind("xs/core", "Data", true, "getColor(_,_)", data_get_color);
+    bind("xs/core", "Data", true, "getBool(_,_)", data_get_bool);
+    bind("xs/core", "Data", true, "getString(_,_)", data_get_string);
+    bind("xs/core", "Data", true, "setNumber(_,_,_)", data_set_number);
+    bind("xs/core", "Data", true, "setColor(_,_,_)", data_set_color);
+    bind("xs/core", "Data", true, "setBool(_,_,_)", data_set_bool);
+    bind("xs/core", "Data", true, "setString(_,_,_)", data_set_string);
 
     // File
-    bind("xs", "File", true, "read(_)", file_read);
-    bind("xs", "File", true, "write(_,_)", file_write);
-    bind("xs", "File", true, "exists(_)", file_exists);
+    bind("xs/core", "File", true, "read(_)", file_read);
+    bind("xs/core", "File", true, "write(_,_)", file_write);
+    bind("xs/core", "File", true, "exists(_)", file_exists);
 
     // Device
-    bind("xs", "Device", true, "getPlatform()", device_get_platform);
-    bind("xs", "Device", true, "canClose()", device_can_close);
-    bind("xs", "Device", true, "requestClose()", device_request_close);
-    bind("xs", "Device", true, "setFullscreen(_)", device_set_fullscreen);
+    bind("xs/core", "Device", true, "getPlatform()", device_get_platform);
+    bind("xs/core", "Device", true, "canClose()", device_can_close);
+    bind("xs/core", "Device", true, "requestClose()", device_request_close);
+    bind("xs/core", "Device", true, "setFullscreen(_)", device_set_fullscreen);
 
     // Profiler
-    bind("xs", "Profiler", true, "begin(_)", profiler_begin_section);
-    bind("xs", "Profiler", true, "end(_)", profiler_end_section);
+    bind("xs/core", "Profiler", true, "begin(_)", profiler_begin_section);
+    bind("xs/core", "Profiler", true, "end(_)", profiler_end_section);
 
     // Inspector
-    bind("xs", "Inspector", true, "text(_)", inspector_text);
-    bind("xs", "Inspector", true, "treeNode(_)", inspector_tree_node);
-    bind("xs", "Inspector", true, "treePop()", inspector_tree_pop);
-    bind("xs", "Inspector", true, "separator()", inspector_separator);
-    bind("xs", "Inspector", true, "separatorText(_)", inspector_separator_text);
-    bind("xs", "Inspector", true, "sameLine()", inspector_same_line);
-    bind("xs", "Inspector", true, "indent()", inspector_indent);
-    bind("xs", "Inspector", true, "unindent()", inspector_unindent);
-    bind("xs", "Inspector", true, "spacing()", inspector_spacing);
-    bind("xs", "Inspector", true, "selectable(_,_)", inspector_selectable);
-    bind("xs", "Inspector", true, "inputFloat(_,_)", inspector_input_float);
-    bind("xs", "Inspector", true, "dragFloat(_,_)", inspector_drag_float);
-    bind("xs", "Inspector", true, "checkbox(_,_)", inspector_checkbox);
-    bind("xs", "Inspector", true, "beginChild(_,_,_,_)", inspector_begin_child);
-    bind("xs", "Inspector", true, "endChild()", inspector_end_child);
-    bind("xs", "Inspector", true, "collapsingHeader(_)", inspector_collapsing_header);
-    bind("xs", "Inspector", true, "dragFloat2_(_,_,_)", inspector_drag_float2);
+    bind("xs/core", "Inspector", true, "text(_)", inspector_text);
+    bind("xs/core", "Inspector", true, "treeNode(_)", inspector_tree_node);
+    bind("xs/core", "Inspector", true, "treePop()", inspector_tree_pop);
+    bind("xs/core", "Inspector", true, "separator()", inspector_separator);
+    bind("xs/core", "Inspector", true, "separatorText(_)", inspector_separator_text);
+    bind("xs/core", "Inspector", true, "sameLine()", inspector_same_line);
+    bind("xs/core", "Inspector", true, "indent()", inspector_indent);
+    bind("xs/core", "Inspector", true, "unindent()", inspector_unindent);
+    bind("xs/core", "Inspector", true, "spacing()", inspector_spacing);
+    bind("xs/core", "Inspector", true, "selectable(_,_)", inspector_selectable);
+    bind("xs/core", "Inspector", true, "inputFloat(_,_)", inspector_input_float);
+    bind("xs/core", "Inspector", true, "dragFloat(_,_)", inspector_drag_float);
+    bind("xs/core", "Inspector", true, "checkbox(_,_)", inspector_checkbox);
+    bind("xs/core", "Inspector", true, "beginChild(_,_,_,_)", inspector_begin_child);
+    bind("xs/core", "Inspector", true, "endChild()", inspector_end_child);
+    bind("xs/core", "Inspector", true, "collapsingHeader(_)", inspector_collapsing_header);
+    bind("xs/core", "Inspector", true, "dragFloat2_(_,_,_)", inspector_drag_float2);
 }

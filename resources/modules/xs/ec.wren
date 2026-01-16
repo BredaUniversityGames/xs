@@ -1,6 +1,6 @@
-import "xs_math" for Math, Bits, Vec2
-import "xs_tools" for Tools
-import "xs" for Inspector, Profiler
+import "xs/core" for Inspector, Profiler
+import "xs/math" for Math, Bits, Vec2
+import "xs/tools" for Tools
 
 // Module-level temporary storage for reflection (used by Entity.inspect)
 var ReflectionTarget = null

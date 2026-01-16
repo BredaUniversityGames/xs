@@ -1,4 +1,4 @@
-import "xs_math" for Vec2
+import "xs/math" for Vec2
 
 /// Handle for shapes and sprites in the rendering system.
 /// Used to correctly manage resources via the GC. Not to be created directly.

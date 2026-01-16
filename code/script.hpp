@@ -13,6 +13,7 @@ namespace xs::script
 	void update(double dt);
 	void render();
 	void ec_inspect(const std::string& filter);
+	bool is_module_loaded(const std::string& module);
 	bool has_error();
 	void clear_error();
 	void bind_api();

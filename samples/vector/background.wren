@@ -1,5 +1,5 @@
-import "xs" for Render, Data
-import "xs_math" for Math, Color
+import "xs/core" for Render, Data
+import "xs/math" for Math, Color
 
 class Background {
 

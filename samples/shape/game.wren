@@ -1,6 +1,6 @@
-import "xs" for Render, Data
-import "xs_math" for Math, Color
-import "xs_tools" for ShapeBuilder
+import "xs/core" for Render, Data
+import "xs/math" for Math, Color
+import "xs/tools" for ShapeBuilder
 import "background" for Background
 
 class Game {

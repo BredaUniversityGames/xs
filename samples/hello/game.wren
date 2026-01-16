@@ -3,10 +3,10 @@
 System.print("Wren just got compiled to bytecode")
 
 // The xs module is where the inteface to the engine is
-import "xs" for Render, Data
+import "xs/core" for Render, Data
 // The xs_math module where you will find the math tools and 
 // a handy color class
-import "xs_math" for Math, Color
+import "xs/math" for Math, Color
 
 // The game class it the entry point to your game
 class Game {

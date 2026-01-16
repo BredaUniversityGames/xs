@@ -1,8 +1,8 @@
-import "xs" for Render, Data, Input
-import "xs_math" for Math, Color
-import "xs_tools" for ShapeBuilder
-import "xs_ec" for Entity, Component
-import "xs_components" for Transform, Body, Renderable, Sprite
+import "xs/core" for Render, Data, Input
+import "xs/math" for Math, Color
+import "xs/tools" for ShapeBuilder
+import "xs/ec" for Entity, Component
+import "xs/components" for Transform, Body, Renderable, Sprite
 import "background" for Background
 import "shadow" for Shadow
 

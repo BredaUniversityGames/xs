@@ -1,8 +1,8 @@
 // Attribute Testing Sample for xs engine
 // Testing Wren's attribute system for inspector capabilities
 
-import "xs" for Render
-import "xs_math" for Color
+import "xs/core" for Render
+import "xs/math" for Color
 import "meta" for Meta
 
 // Simulated Transform component - EXPLICIT getter/setter marking
@@ -466,10 +466,7 @@ class Game {
     }
 
     static render() {
-        // Simple background
-        var bg = Color.new(0.1, 0.1, 0.15)
-        Render.clear(bg.toNum)
-
+        
         // Display status
         var y = -300
         Render.text(__font, "Wren Attribute-Based Inspector", 0, y, 1, 0xffffffff, 0x00000000, Render.spriteCenterX)

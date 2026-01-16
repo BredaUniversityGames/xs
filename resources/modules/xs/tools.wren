@@ -1,4 +1,4 @@
-import "xs" for Render
+import "xs/core" for Render
 import "random" for Random
 
 /// Utility functions and helpers for common operations

@@ -1,7 +1,7 @@
-import "xs" for Data
-import "xs_ec" for Entity, Component
-import "xs_math" for Vec2
-import "xs_components" for Transform, Body
+import "xs/core" for Data
+import "xs/ec" for Entity, Component
+import "xs/math" for Vec2
+import "xs/components" for Transform, Body
 
 // Pickup component - collectible that increases score
 class Pickup is Component {

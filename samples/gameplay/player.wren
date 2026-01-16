@@ -1,7 +1,7 @@
-import "xs" for Input, Render, Data
-import "xs_ec"for Entity, Component
-import "xs_math"for Math, Bits, Vec2, Color
-import "xs_components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
+import "xs/core" for Input, Render, Data
+import "xs/ec"for Entity, Component
+import "xs/math"for Math, Bits, Vec2, Color
+import "xs/components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite, Relation
 import "random" for Random
 
 class Player is Component {

@@ -1,5 +1,4 @@
-import "xs" for File
-
+import "xs/core" for File
 
 class JSON {
   static parse(string) {

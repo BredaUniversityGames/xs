@@ -1,6 +1,6 @@
-import "xs" for Render, File
-import "xs_ec"for Component, Entity
-import "xs_math"for Vec2
+import "xs/core" for Render, File
+import "xs/ec"for Component, Entity
+import "xs/math"for Vec2
 import "external/json" for JSON
 
 /// Component that stores position and rotation for an entity

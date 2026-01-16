@@ -1,6 +1,6 @@
-import "xs" for Input, Render, Data, Device
+import "xs/core" for Input, Render, Data, Device
+import "xs/math" for Math, Vec2
 import "random" for Random
-import "xs_math" for Math, Vec2
 
 class Game {
 

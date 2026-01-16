@@ -148,5 +148,5 @@ void xs::fileio::initialize(const std::string& game_path)
 
 	// Set the shared assets folder - this is where the engine assets are stored
 	if(xs::get_run_mode() != xs::run_mode::packaged)
-		add_wildcard("[shared]", "assets");
+		add_wildcard("[shared]", "resources");
 }

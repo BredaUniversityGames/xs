@@ -480,21 +480,16 @@ static void xs::inspector::render_top_bar()
 
             // Data Registry toggle button
             if (toggle_button(ICON_FI_BARS, show_data_registry, "Data Registry"))
-            {
                 show_data_registry = !show_data_registry;
-            }
 
             // Profiler toggle button
             if (toggle_button(ICON_FI_PROFILER, show_profiler, "Profiler"))
-            {
                 show_profiler = !show_profiler;
-            }
 
-            // Entities toggle button
-            if (toggle_button(ICON_FI_PUZZLE_CUBE, show_entities, "Entities"))
-            {
+        	// Entities toggle button
+        	if (script::is_module_loaded("xs/ec") &&
+        		toggle_button(ICON_FI_PUZZLE_CUBE, show_entities, "Entities"))
                 show_entities = !show_entities;
-            }
         }
 
         // Always on top toggle button

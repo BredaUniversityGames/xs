@@ -1,7 +1,7 @@
-import "xs" for Data
-import "xs_ec" for Entity, Component
-import "xs_math" for Vec2, Math
-import "xs_components" for Transform, Body
+import "xs/core" for Data
+import "xs/ec" for Entity, Component
+import "xs/math" for Vec2, Math
+import "xs/components" for Transform, Body
 
 // Bullet component - damages enemies on collision
 class Bullet is Component {

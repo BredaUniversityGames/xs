@@ -1,8 +1,8 @@
 // Import the necessary modules
-import "xs" for Render, Input, Data // The engine-level xs API
-import "xs_math" for Math, Color    // Math and Color functionality
-import "xs_containers" for Grid   
-import "xs_math" for Bits
+import "xs/core" for Render, Input, Data // The engine-level xs API
+import "xs/math" for Math, Color    // Math and Color functionality
+import "xs/containers" for Grid   
+import "xs/math" for Bits
 import "background" for Background  // Wobbly background - local module
 import "random" for Random          // Random number generator - system module
 
