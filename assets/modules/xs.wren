@@ -590,6 +590,9 @@ class Inspector {
     /// Draws a horizontal separator line
     foreign static separator()
 
+    /// Draws a horizontal separator line with text in the middle
+    foreign static separatorText(text)
+
     /// Places the next widget on the same line
     foreign static sameLine()
 

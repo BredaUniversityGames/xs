@@ -338,7 +338,7 @@ void xs::script::render()
     }
 }
 
-void xs::script::ec_inspect()
+void xs::script::ec_inspect(const std::string& filter)
 {
     if (!initialized)
         return;
@@ -351,16 +351,16 @@ void xs::script::ec_inspect()
     if (wrenGetSlotType(vm, 0) == WREN_TYPE_NULL)
     {
         ImGui::Text("No entities module loaded");
-        ImGui::End();
         return;
     }
 
-    // Call Entity.inspect()
+    // Call Entity.inspect(filter)
     WrenHandle* entity_class = wrenGetSlotHandle(vm, 0);
-    WrenHandle* inspect_method = wrenMakeCallHandle(vm, "inspect()");
+    WrenHandle* inspect_method = wrenMakeCallHandle(vm, "inspect(_)");
 
-    wrenEnsureSlots(vm, 1);
+    wrenEnsureSlots(vm, 2);
     wrenSetSlotHandle(vm, 0, entity_class);
+    wrenSetSlotString(vm, 1, filter.c_str());
     wrenCall(vm, inspect_method);
 
     // Clean up handles
@@ -1159,6 +1159,12 @@ void inspector_separator(WrenVM* vm)
 	ImGui::Separator();
 }
 
+void inspector_separator_text(WrenVM* vm)
+{
+	auto text = wrenGetParameter<string>(vm, 1);
+	ImGui::SeparatorText(text.c_str());
+}
+
 void inspector_same_line(WrenVM* vm)
 {
 	ImGui::SameLine();
@@ -1252,7 +1258,13 @@ void inspector_begin_child(WrenVM* vm)
 	auto width = wrenGetParameter<double>(vm, 2);
 	auto height = wrenGetParameter<double>(vm, 3);
 	auto border = wrenGetParameter<bool>(vm, 4);
-	ImGui::BeginChild(label.c_str(), ImVec2((float)width, (float)height), border);
+
+	// If size is between 0 and 1 (exclusive), treat as fraction of available space
+	ImVec2 available = ImGui::GetContentRegionAvail();
+	float w = (width > 0.0 && width < 1.0) ? (float)(width * available.x) : (float)width;
+	float h = (height > 0.0 && height < 1.0) ? (float)(height * available.y) : (float)height;
+
+	ImGui::BeginChild(label.c_str(), ImVec2(w, h), border);
 }
 
 void inspector_end_child(WrenVM* vm)
@@ -1369,6 +1381,7 @@ void xs::script::bind_api()
     bind("xs", "Inspector", true, "treeNode(_)", inspector_tree_node);
     bind("xs", "Inspector", true, "treePop()", inspector_tree_pop);
     bind("xs", "Inspector", true, "separator()", inspector_separator);
+    bind("xs", "Inspector", true, "separatorText(_)", inspector_separator_text);
     bind("xs", "Inspector", true, "sameLine()", inspector_same_line);
     bind("xs", "Inspector", true, "indent()", inspector_indent);
     bind("xs", "Inspector", true, "unindent()", inspector_unindent);

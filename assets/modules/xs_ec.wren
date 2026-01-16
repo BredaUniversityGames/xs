@@ -248,6 +248,74 @@ class Entity {
     /// Gets all entities active in the system
     static entities { __entities }
 
+    /// Displays entity inspector UI with filtering (called from C++ inspector)
+    /// filter: string to filter entities by name or tag
+    static inspect(filter) {
+        Profiler.begin("Entity.inspect")
+
+        // Top panel: Entity List (full width, fixed height, with border)
+        Inspector.beginChild("EntityList", 0, 0.3, true)
+
+        if (__entities != null && __entities.count > 0) {
+            var i = 0
+            for (entity in __entities) {
+                var entityLabel = entity.name.isEmpty ? "Entity %(i)" : entity.name
+                var tagStr = entity.tag.toString
+
+                // Filter by name OR tag
+                var passesFilter = filter.isEmpty ||
+                                   entityLabel.contains(filter) ||
+                                   tagStr.contains(filter)
+
+                if (passesFilter) {
+                    var uniqueLabel = "%(entityLabel)##entity_%(i)"
+                    var isSelected = (i == SelectedEntityIndex)
+
+                    if (Inspector.selectable(uniqueLabel, isSelected)) {
+                        SelectedEntityIndex = i
+                    }
+                }
+
+                i = i + 1
+            }
+        }
+
+        Inspector.endChild()
+
+        Inspector.separatorText("Components")
+
+        // Bottom panel: Selected Entity Inspector (full width, remaining height, with border)
+        Inspector.beginChild("EntityInspector", 0, 0, true)
+
+        if (__entities == null || __entities.count == 0) {
+            Inspector.text("No entities in scene")
+        } else if (SelectedEntityIndex >= 0 && SelectedEntityIndex < __entities.count) {
+            var selectedEntity = __entities[SelectedEntityIndex]
+            var entityLabel = selectedEntity.name.isEmpty ? "Entity %(SelectedEntityIndex)" : selectedEntity.name
+
+            Inspector.text("  %(entityLabel) | Tag: %(selectedEntity.tag)")
+            Inspector.spacing()
+
+            // Component inspector
+            if (selectedEntity.components.count > 0) {
+                var compIndex = 0
+                for (component in selectedEntity.components) {
+                    inspectComponent_(component, compIndex)
+                    Inspector.spacing()
+                    compIndex = compIndex + 1
+                }
+            } else {
+                Inspector.text("No components")
+            }
+        } else {
+            Inspector.text("Select an entity to inspect")
+        }
+
+        Inspector.endChild()
+
+        Profiler.end("Entity.inspect")
+    }
+
     /// Returns a string representation of this entity
     toString {
         var s = "{ Name: %(name) Tag: %(tag)"
@@ -272,63 +340,6 @@ class Entity {
             i = i + 1
         }
         System.print("<<<<<<<<<<<<< end >>>>>>>>>>>>>")
-    }
-
-    /// Displays entity inspector UI (called from C++ inspector)
-    static inspect() {
-        Profiler.begin("Entity.inspect")
-
-        if (__entities.count == 0) {
-            Inspector.text("No entities in scene")
-            return
-        }
-
-        // Top panel: Entity List (full width, fixed height, with border)
-        Inspector.beginChild("EntityList", 0, 150, true)
-        
-        var i = 0
-        for (entity in __entities) {
-            var entityLabel = entity.name.isEmpty ? "Entity %(i)" : entity.name
-            var uniqueLabel = "%(entityLabel)##entity_%(i)"
-            var isSelected = (i == SelectedEntityIndex)
-
-            if (Inspector.selectable(uniqueLabel, isSelected)) {
-                SelectedEntityIndex = i
-            }
-
-            i = i + 1
-        }
-
-        Inspector.endChild()
-
-        // Bottom panel: Selected Entity Inspector (full width, remaining height, with border)
-        Inspector.beginChild("EntityInspector", 0, 0, true)
-
-        if (SelectedEntityIndex >= 0 && SelectedEntityIndex < __entities.count) {
-            var selectedEntity = __entities[SelectedEntityIndex]
-            var entityLabel = selectedEntity.name.isEmpty ? "Entity %(SelectedEntityIndex)" : selectedEntity.name            
-
-            Inspector.text("  %(entityLabel) | Tag: %(selectedEntity.tag)")            
-            Inspector.spacing()
-
-            // Component inspector
-            if (selectedEntity.components.count > 0) {
-                var compIndex = 0
-                for (component in selectedEntity.components) {
-                    inspectComponent_(component, compIndex)
-                    Inspector.spacing()
-                    compIndex = compIndex + 1
-                }
-            } else {
-                Inspector.text("No components")
-            }
-        } else {
-            Inspector.text("Select an entity to inspect")
-        }
-
-        Inspector.endChild()
-
-        Profiler.end("Entity.inspect")
     }
 
     /// Inspects a single component, showing its properties via attributes
