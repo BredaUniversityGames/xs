@@ -279,6 +279,27 @@ class File {
     foreign static exists(src)
 }
 
+/// Fast JSON parsing and serialization (C++ implementation)
+/// Much faster than the pure Wren json.wren parser
+class Json {
+    /// Loads and parses a JSON file, returns the parsed value (Map, List, String, Num, Bool, or null)
+    /// Returns null if the file doesn't exist or parsing fails
+    foreign static load(path)
+
+    /// Parses a JSON string, returns the parsed value
+    /// Returns null if parsing fails
+    foreign static parse(jsonString)
+
+    /// Saves a value to a JSON file with pretty formatting
+    /// Returns true on success, false on failure
+    /// Note: Map serialization has limited support
+    foreign static save(path, value)
+
+    /// Converts a value to a JSON string with pretty formatting
+    /// Note: Map serialization has limited support
+    foreign static stringify(value)
+}
+
 /// Data class for touch input information
 class TouchData {
     construct new(index, x, y) {

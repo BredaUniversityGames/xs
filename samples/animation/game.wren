@@ -39,7 +39,7 @@ class Game {
         var angle = __time.sin * 0.5 + 0.5
         for(i in 0...16) {            
             var x = (i + 1) * -128 + 640
-            var offset = (__time + i ).sin * 40.0
+            var offset = (__time + i).sin * 40.0
             var t = i / 16  
             var color = fromColor * (1 - t) + toColor * t
             Render.sprite(__sprite, x + offset, -360, -i, 320, Math.pi * -0.25, color.toNum, 0x00000000, 0)    

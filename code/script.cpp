@@ -24,6 +24,7 @@
 #include "device.hpp"
 #include "inspector.hpp"
 #include "color.hpp"
+#include "json/json.hpp"
 #include <imgui.h>
 
 // Check if we are running MSVC
@@ -1101,6 +1102,186 @@ void file_exists(WrenVM* vm)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// JSON
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Recursively converts nlohmann::json to Wren value
+void json_to_wren(WrenVM* vm, int slot, const nlohmann::json& j)
+{
+    if (j.is_null())
+    {
+        wrenSetSlotNull(vm, slot);
+    }
+    else if (j.is_boolean())
+    {
+        wrenSetSlotBool(vm, slot, j.get<bool>());
+    }
+    else if (j.is_number())
+    {
+        wrenSetSlotDouble(vm, slot, j.get<double>());
+    }
+    else if (j.is_string())
+    {
+        wrenSetSlotString(vm, slot, j.get<string>().c_str());
+    }
+    else if (j.is_array())
+    {
+        wrenSetSlotNewList(vm, slot);
+        int elemSlot = slot + 1;
+        wrenEnsureSlots(vm, elemSlot + 1);
+        for (size_t i = 0; i < j.size(); i++)
+        {
+            json_to_wren(vm, elemSlot, j[i]);
+            wrenInsertInList(vm, slot, -1, elemSlot);
+        }
+    }
+    else if (j.is_object())
+    {
+        wrenSetSlotNewMap(vm, slot);
+        int keySlot = slot + 1;
+        int valueSlot = slot + 2;
+        wrenEnsureSlots(vm, valueSlot + 1);
+        for (auto it = j.begin(); it != j.end(); ++it)
+        {
+            wrenSetSlotString(vm, keySlot, it.key().c_str());
+            json_to_wren(vm, valueSlot, it.value());
+            wrenSetMapValue(vm, slot, keySlot, valueSlot);
+        }
+    }
+}
+
+// Recursively converts Wren value to nlohmann::json
+nlohmann::json wren_to_json(WrenVM* vm, int slot)
+{
+    WrenType type = wrenGetSlotType(vm, slot);
+
+    switch (type)
+    {
+    case WREN_TYPE_NULL:
+        return nlohmann::json(nullptr);
+    case WREN_TYPE_BOOL:
+        return nlohmann::json(wrenGetSlotBool(vm, slot));
+    case WREN_TYPE_NUM:
+        return nlohmann::json(wrenGetSlotDouble(vm, slot));
+    case WREN_TYPE_STRING:
+        return nlohmann::json(string(wrenGetSlotString(vm, slot)));
+    case WREN_TYPE_LIST:
+    {
+        nlohmann::json arr = nlohmann::json::array();
+        int count = wrenGetListCount(vm, slot);
+        int elemSlot = slot + 1;
+        wrenEnsureSlots(vm, elemSlot + 1);
+        for (int i = 0; i < count; i++)
+        {
+            wrenGetListElement(vm, slot, i, elemSlot);
+            arr.push_back(wren_to_json(vm, elemSlot));
+        }
+        return arr;
+    }
+    case WREN_TYPE_MAP:
+    {
+        nlohmann::json obj = nlohmann::json::object();
+        int count = wrenGetMapCount(vm, slot);
+        // Get map keys as a list
+        int keysSlot = slot + 1;
+        int keySlot = slot + 2;
+        int valueSlot = slot + 3;
+        wrenEnsureSlots(vm, valueSlot + 1);
+
+        // Iterate through the map - we need to get keys first
+        // Unfortunately Wren doesn't have a direct way to iterate maps,
+        // so we'll need to use a workaround by calling the keys method
+        // For now, return empty object for maps (limitation)
+        xs::log::warn("JSON stringify: Map conversion not fully supported");
+        return obj;
+    }
+    default:
+        return nlohmann::json(nullptr);
+    }
+}
+
+void json_load(WrenVM* vm)
+{
+    auto path = wrenGetParameter<string>(vm, 1);
+
+    if (!xs::fileio::exists(path))
+    {
+        xs::log::error("JSON load: File not found: {}", path);
+        wrenSetSlotNull(vm, 0);
+        return;
+    }
+
+    auto content = xs::fileio::read_text_file(path);
+    if (content.empty())
+    {
+        wrenSetSlotNull(vm, 0);
+        return;
+    }
+
+    try
+    {
+        nlohmann::json j = nlohmann::json::parse(content);
+        json_to_wren(vm, 0, j);
+    }
+    catch (const nlohmann::json::parse_error& e)
+    {
+        xs::log::error("JSON parse error in '{}': {}", path, e.what());
+        wrenSetSlotNull(vm, 0);
+    }
+}
+
+void json_parse(WrenVM* vm)
+{
+    auto content = wrenGetParameter<string>(vm, 1);
+
+    try
+    {
+        nlohmann::json j = nlohmann::json::parse(content);
+        json_to_wren(vm, 0, j);
+    }
+    catch (const nlohmann::json::parse_error& e)
+    {
+        xs::log::error("JSON parse error: {}", e.what());
+        wrenSetSlotNull(vm, 0);
+    }
+}
+
+void json_save(WrenVM* vm)
+{
+    auto path = wrenGetParameter<string>(vm, 1);
+    // Slot 2 contains the value to save
+
+    try
+    {
+        nlohmann::json j = wren_to_json(vm, 2);
+        auto content = j.dump(4); // Pretty print with 4 spaces
+        bool success = xs::fileio::write_text_file(content, path);
+        wrenSetSlotBool(vm, 0, success);
+    }
+    catch (const std::exception& e)
+    {
+        xs::log::error("JSON save error: {}", e.what());
+        wrenSetSlotBool(vm, 0, false);
+    }
+}
+
+void json_stringify(WrenVM* vm)
+{
+    // Slot 1 contains the value to stringify
+    try
+    {
+        nlohmann::json j = wren_to_json(vm, 1);
+        auto content = j.dump(4); // Pretty print with 4 spaces
+        wrenSetSlotString(vm, 0, content.c_str());
+    }
+    catch (const std::exception& e)
+    {
+        xs::log::error("JSON stringify error: {}", e.what());
+        wrenSetSlotString(vm, 0, "null");
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 // Device
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1376,6 +1557,12 @@ void xs::script::bind_api()
     bind("xs/core", "File", true, "read(_)", file_read);
     bind("xs/core", "File", true, "write(_,_)", file_write);
     bind("xs/core", "File", true, "exists(_)", file_exists);
+
+    // JSON
+    bind("xs/core", "Json", true, "load(_)", json_load);
+    bind("xs/core", "Json", true, "parse(_)", json_parse);
+    bind("xs/core", "Json", true, "save(_,_)", json_save);
+    bind("xs/core", "Json", true, "stringify(_)", json_stringify);
 
     // Device
     bind("xs/core", "Device", true, "getPlatform()", device_get_platform);

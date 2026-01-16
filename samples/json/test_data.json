@@ -1,0 +1,19 @@
+{
+    "name": "Test Entity",
+    "position": {
+        "x": 100.5,
+        "y": 200.0
+    },
+    "tags": ["player", "movable", "collidable"],
+    "stats": {
+        "health": 100,
+        "speed": 5.5,
+        "isAlive": true
+    },
+    "inventory": [
+        {"item": "sword", "count": 1},
+        {"item": "potion", "count": 5},
+        {"item": "gold", "count": 250}
+    ],
+    "nullValue": null
+}
