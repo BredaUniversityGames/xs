@@ -109,6 +109,10 @@
 		5A31177C2ECF68B200049544 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A31177B2ECF68B200049544 /* CoreMotion.framework */; };
 		5A31177F2ECF68FD00049544 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A31177D2ECF68FD00049544 /* Metal.framework */; };
 		5A3117802ECF68FD00049544 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A31177E2ECF68FD00049544 /* MetalKit.framework */; };
+		5A3D86642F22A63B00017FF1 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A3D86632F22A63B00017FF1 /* AudioToolbox.framework */; };
+		5A3D86662F22A66800017FF1 /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A3D86652F22A66800017FF1 /* IOKit.framework */; };
+		5A3D86682F22A6BE00017FF1 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A3D86672F22A6BE00017FF1 /* AVFoundation.framework */; };
+		5A3D866A2F22A84A00017FF1 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A3D86692F22A84A00017FF1 /* GameController.framework */; };
 		5A488BC32ED3AEAA0088DA69 /* resources in Resources */ = {isa = PBXBuildFile; fileRef = 5A488BC22ED3AE910088DA69 /* resources */; };
 		5A48B06A2ED125CD0003ACC5 /* device_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */; };
 		5A48B06B2ED125CD0003ACC5 /* device_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */; };
@@ -740,6 +744,10 @@
 		5A31177B2ECF68B200049544 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/CoreMotion.framework; sourceTree = DEVELOPER_DIR; };
 		5A31177D2ECF68FD00049544 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/Metal.framework; sourceTree = DEVELOPER_DIR; };
 		5A31177E2ECF68FD00049544 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/MetalKit.framework; sourceTree = DEVELOPER_DIR; };
+		5A3D86632F22A63B00017FF1 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.2.sdk/System/Library/Frameworks/AudioToolbox.framework; sourceTree = DEVELOPER_DIR; };
+		5A3D86652F22A66800017FF1 /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.2.sdk/System/Library/Frameworks/IOKit.framework; sourceTree = DEVELOPER_DIR; };
+		5A3D86672F22A6BE00017FF1 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.2.sdk/System/Library/Frameworks/AVFoundation.framework; sourceTree = DEVELOPER_DIR; };
+		5A3D86692F22A84A00017FF1 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.2.sdk/System/Library/Frameworks/GameController.framework; sourceTree = DEVELOPER_DIR; };
 		5A488BC22ED3AE910088DA69 /* resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resources; sourceTree = "<group>"; };
 		5A48B06C2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_sdl3.cpp; sourceTree = "<group>"; };
 		5A6012602ECF543700FDE28A /* SDL3.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDL3.xcframework; path = external/sdl3/frameworks/SDL3.xcframework; sourceTree = "<group>"; };
@@ -771,6 +779,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5A3D866A2F22A84A00017FF1 /* GameController.framework in Frameworks */,
+				5A3D86682F22A6BE00017FF1 /* AVFoundation.framework in Frameworks */,
+				5A3D86662F22A66800017FF1 /* IOKit.framework in Frameworks */,
+				5A3D86642F22A63B00017FF1 /* AudioToolbox.framework in Frameworks */,
 				5A31177F2ECF68FD00049544 /* Metal.framework in Frameworks */,
 				5A3117802ECF68FD00049544 /* MetalKit.framework in Frameworks */,
 				5A31177C2ECF68B200049544 /* CoreMotion.framework in Frameworks */,
@@ -814,6 +826,10 @@
 		346184252A7867A90014B43C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5A3D86692F22A84A00017FF1 /* GameController.framework */,
+				5A3D86672F22A6BE00017FF1 /* AVFoundation.framework */,
+				5A3D86652F22A66800017FF1 /* IOKit.framework */,
+				5A3D86632F22A63B00017FF1 /* AudioToolbox.framework */,
 				5AF067542EDEFC49004C24A5 /* QuartzCore.framework */,
 				5AF0F1012F0C003900000001 /* libfreetype.a */,
 				5ABF52D52ECF73B600F039A6 /* libSDL3.dylib */,
@@ -2057,6 +2073,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3JY2438PPJ;
@@ -2066,6 +2083,7 @@
 					PLATFORM_APPLE_IOS,
 				);
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -2085,6 +2103,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = BoyanEndrovski.xs;
 				PRODUCT_NAME = xs;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2096,6 +2115,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3JY2438PPJ;
@@ -2104,6 +2124,7 @@
 					PLATFORM_APPLE_IOS,
 				);
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -2123,6 +2144,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = BoyanEndrovski.xs;
 				PRODUCT_NAME = xs;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2144,6 +2166,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3JY2438PPJ;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"PLATFORM_APPLE=1",
@@ -2207,6 +2230,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 3JY2438PPJ;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readwrite;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					PLATFORM_APPLE,
 					PLATFORM_MAC,

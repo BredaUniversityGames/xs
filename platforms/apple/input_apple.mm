@@ -58,9 +58,13 @@ void xs::input::update(double dt)
         keyboard_prev_frame = keyboard.capture;
 
     keyboard = nil;
-    auto ckeyboard = [GCKeyboard coalescedKeyboard];
-    if(ckeyboard != nil)
-        keyboard = ckeyboard.keyboardInput.capture;
+    
+    // GCKeyboard is only available on iOS 14.0+
+    if (@available(iOS 14.0, macOS 11.0, tvOS 14.0, *)) {
+        auto ckeyboard = [GCKeyboard coalescedKeyboard];
+        if(ckeyboard != nil)
+            keyboard = ckeyboard.keyboardInput.capture;
+    }
     }
 }
 
@@ -322,54 +326,58 @@ bool xs::input::internal::get_button_pressed(GCExtendedGamepad* pad, gamepad_but
 
 bool xs::input::internal::get_key_pressed(GCKeyboardInput* keyboardInput, int key)
 {
-    GCKeyCode keyCode = 0;
+    if (@available(iOS 14.0, macOS 11.0, tvOS 14.0, *)) {
+        GCKeyCode keyCode = 0;
 
-    // Convert from xs key (GLFW_KEY_SOMETHING) to GCKeyCode
-    switch(key)
-    {
-        case 32: keyCode = GCKeyCodeSpacebar; break;
-        case 65: keyCode = GCKeyCodeKeyA; break;
-        case 66: keyCode = GCKeyCodeKeyB; break;
-        case 67: keyCode = GCKeyCodeKeyC; break;
-        case 68: keyCode = GCKeyCodeKeyD; break;
-        case 69: keyCode = GCKeyCodeKeyE; break;
-        case 70: keyCode = GCKeyCodeKeyF; break;
-        case 71: keyCode = GCKeyCodeKeyG; break;
-        case 72: keyCode = GCKeyCodeKeyH; break;
-        case 73: keyCode = GCKeyCodeKeyI; break;
-        case 74: keyCode = GCKeyCodeKeyJ; break;
-        case 75: keyCode = GCKeyCodeKeyK; break;
-        case 76: keyCode = GCKeyCodeKeyL; break;
-        case 77: keyCode = GCKeyCodeKeyM; break;
-        case 78: keyCode = GCKeyCodeKeyN; break;
-        case 79: keyCode = GCKeyCodeKeyO; break;
-        case 80: keyCode = GCKeyCodeKeyP; break;
-        case 81: keyCode = GCKeyCodeKeyQ; break;
-        case 82: keyCode = GCKeyCodeKeyR; break;
-        case 83: keyCode = GCKeyCodeKeyS; break;
-        case 84: keyCode = GCKeyCodeKeyT; break;
-        case 85: keyCode = GCKeyCodeKeyU; break;
-        case 86: keyCode = GCKeyCodeKeyV; break;
-        case 87: keyCode = GCKeyCodeKeyW; break;
-        case 88: keyCode = GCKeyCodeKeyX; break;
-        case 89: keyCode = GCKeyCodeKeyY; break;
-        case 90: keyCode = GCKeyCodeKeyZ; break;
-        case 92: keyCode = GCKeyCodeBackslash; break;
-        case 256: keyCode = GCKeyCodeEscape; break;
-        case 258: keyCode = GCKeyCodeTab; break;
-        case 260: keyCode = GCKeyCodeInsert; break;
-        case 262: keyCode = GCKeyCodeRightArrow; break;
-        case 263: keyCode = GCKeyCodeLeftArrow; break;
-        case 264: keyCode = GCKeyCodeDownArrow; break;
-        case 265: keyCode = GCKeyCodeUpArrow; break;
-        case 266: keyCode = GCKeyCodePageUp; break;
-        case 267: keyCode = GCKeyCodePageDown; break;
-        case 268: keyCode = GCKeyCodeHome; break;
-        case 269: keyCode = GCKeyCodeEnd; break;
-        case 280: keyCode = GCKeyCodeCapsLock; break;
-        case 281: keyCode = GCKeyCodeScrollLock; break;
+        // Convert from xs key (GLFW_KEY_SOMETHING) to GCKeyCode
+        switch(key)
+        {
+            case 32: keyCode = GCKeyCodeSpacebar; break;
+            case 65: keyCode = GCKeyCodeKeyA; break;
+            case 66: keyCode = GCKeyCodeKeyB; break;
+            case 67: keyCode = GCKeyCodeKeyC; break;
+            case 68: keyCode = GCKeyCodeKeyD; break;
+            case 69: keyCode = GCKeyCodeKeyE; break;
+            case 70: keyCode = GCKeyCodeKeyF; break;
+            case 71: keyCode = GCKeyCodeKeyG; break;
+            case 72: keyCode = GCKeyCodeKeyH; break;
+            case 73: keyCode = GCKeyCodeKeyI; break;
+            case 74: keyCode = GCKeyCodeKeyJ; break;
+            case 75: keyCode = GCKeyCodeKeyK; break;
+            case 76: keyCode = GCKeyCodeKeyL; break;
+            case 77: keyCode = GCKeyCodeKeyM; break;
+            case 78: keyCode = GCKeyCodeKeyN; break;
+            case 79: keyCode = GCKeyCodeKeyO; break;
+            case 80: keyCode = GCKeyCodeKeyP; break;
+            case 81: keyCode = GCKeyCodeKeyQ; break;
+            case 82: keyCode = GCKeyCodeKeyR; break;
+            case 83: keyCode = GCKeyCodeKeyS; break;
+            case 84: keyCode = GCKeyCodeKeyT; break;
+            case 85: keyCode = GCKeyCodeKeyU; break;
+            case 86: keyCode = GCKeyCodeKeyV; break;
+            case 87: keyCode = GCKeyCodeKeyW; break;
+            case 88: keyCode = GCKeyCodeKeyX; break;
+            case 89: keyCode = GCKeyCodeKeyY; break;
+            case 90: keyCode = GCKeyCodeKeyZ; break;
+            case 92: keyCode = GCKeyCodeBackslash; break;
+            case 256: keyCode = GCKeyCodeEscape; break;
+            case 258: keyCode = GCKeyCodeTab; break;
+            case 260: keyCode = GCKeyCodeInsert; break;
+            case 262: keyCode = GCKeyCodeRightArrow; break;
+            case 263: keyCode = GCKeyCodeLeftArrow; break;
+            case 264: keyCode = GCKeyCodeDownArrow; break;
+            case 265: keyCode = GCKeyCodeUpArrow; break;
+            case 266: keyCode = GCKeyCodePageUp; break;
+            case 267: keyCode = GCKeyCodePageDown; break;
+            case 268: keyCode = GCKeyCodeHome; break;
+            case 269: keyCode = GCKeyCodeEnd; break;
+            case 280: keyCode = GCKeyCodeCapsLock; break;
+            case 281: keyCode = GCKeyCodeScrollLock; break;
+        }
+        
+        GCControllerButtonInput* button = [keyboardInput buttonForKeyCode: keyCode];
+        return button.pressed;
     }
     
-    GCControllerButtonInput* button = [keyboardInput buttonForKeyCode: keyCode];
-    return button.pressed;
+    return false;
 }
