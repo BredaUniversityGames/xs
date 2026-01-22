@@ -32,7 +32,7 @@ w = width / 2
 h = height / 2
 
 # Create SVG surface
-surface = cairo.SVGSurface("assets/images/icon_small.svg", width, height)
+surface = cairo.SVGSurface("resources/images/icon_small.svg", width, height)
 ctx = cairo.Context(surface)
 
 # Move to the center of the surface

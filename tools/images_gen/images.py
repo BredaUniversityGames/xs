@@ -22,5 +22,5 @@ for i in range(0, width, 80):
         ctx.fill()
 
 # save the image as a PNG file
-surface.write_to_png("assets/images/checkerboard_720p.png")
+surface.write_to_png("resources/images/checkerboard_720p.png")
 

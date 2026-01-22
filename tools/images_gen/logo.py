@@ -90,4 +90,4 @@ ctx.close_path()
 ctx.fill()
 
 # Save the image as a PNG file
-surface.write_to_png("assets/images/icon_small.png")
+surface.write_to_png("resources/images/icon_small.png")

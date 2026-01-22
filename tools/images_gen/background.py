@@ -61,4 +61,4 @@ for i in range(steps):
     x -= thickness * math.sqrt(2) - 1
 
 # Save the image as a PNG file
-surface.write_to_png("assets/images/background.png")
+surface.write_to_png("resources/images/background.png")

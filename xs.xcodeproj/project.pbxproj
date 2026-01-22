@@ -117,7 +117,7 @@
 		5A31177C2ECF68B200049544 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A31177B2ECF68B200049544 /* CoreMotion.framework */; };
 		5A31177F2ECF68FD00049544 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A31177D2ECF68FD00049544 /* Metal.framework */; };
 		5A3117802ECF68FD00049544 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A31177E2ECF68FD00049544 /* MetalKit.framework */; };
-		5A488BC32ED3AEAA0088DA69 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 5A488BC22ED3AE910088DA69 /* assets */; };
+		5A488BC32ED3AEAA0088DA69 /* resources in Resources */ = {isa = PBXBuildFile; fileRef = 5A488BC22ED3AE910088DA69 /* resources */; };
 		5A48B06A2ED125CD0003ACC5 /* device_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */; };
 		5A48B06B2ED125CD0003ACC5 /* device_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */; };
 		5A48B06D2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A48B06C2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp */; };
@@ -748,7 +748,7 @@
 		5A31177B2ECF68B200049544 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/CoreMotion.framework; sourceTree = DEVELOPER_DIR; };
 		5A31177D2ECF68FD00049544 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/Metal.framework; sourceTree = DEVELOPER_DIR; };
 		5A31177E2ECF68FD00049544 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.1.sdk/System/Library/Frameworks/MetalKit.framework; sourceTree = DEVELOPER_DIR; };
-		5A488BC22ED3AE910088DA69 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = "<group>"; };
+		5A488BC22ED3AE910088DA69 /* resources */ = {isa = PBXFileReference; lastKnownFileType = folder; path = resources; sourceTree = "<group>"; };
 		5A48B06C2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = imgui_impl_sdl3.cpp; sourceTree = "<group>"; };
 		5A6012602ECF543700FDE28A /* SDL3.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDL3.xcframework; path = external/sdl3/frameworks/SDL3.xcframework; sourceTree = "<group>"; };
 		5A7BCF752ECE29CE00A4A0C3 /* simple_audio.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = simple_audio.hpp; sourceTree = "<group>"; };
@@ -926,7 +926,7 @@
 		346EBF922A49F33C00771230 = {
 			isa = PBXGroup;
 			children = (
-				5A488BC22ED3AE910088DA69 /* assets */,
+				5A488BC22ED3AE910088DA69 /* resources */,
 				5A9B5B182D510FE300A0E5FB /* platforms */,
 				34EB6C932A4C6E6100DA6B15 /* external */,
 				346E733F2A4A29D5006ECAD5 /* code */,
@@ -1812,7 +1812,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5A488BC32ED3AEAA0088DA69 /* assets in Resources */,
+				5A488BC32ED3AEAA0088DA69 /* resources in Resources */,
 				34F823952A9352E1003F362C /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

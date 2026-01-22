@@ -155,7 +155,7 @@ These require manual installation first, then can be updated through the UI:
 
 - The script creates backups before updating and restores them if the update fails
 - Git is required for updating open-source dependencies
-- **FMOD headers are shared** across all platforms (version consistency for game assets)
+- **FMOD headers are shared** across all platforms (version consistency for game resources)
 - **FMOD libraries are platform-specific** and stored in separate `lib/<platform>/` directories
 - **Steam API**: Must be installed and copied manually
 - The script will show platform-specific installation status for local dependencies

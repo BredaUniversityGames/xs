@@ -24,7 +24,7 @@ namespace xs::fileio::internal
 
 void fileio::initialize(const std::string& game_path)
 {
-    // Get bundle resources path for resolving bundled assets
+    // Get bundle resources path for resolving bundled resources
     string bundle_resources = internal::get_bundle_resources_path();
     log::info("Bundle resources path: {}", bundle_resources);
 
@@ -98,20 +98,20 @@ void fileio::initialize(const std::string& game_path)
     }
     else log::error("Could not find the game project.json file.");
 
-    // Set the shared assets folder - this is where the engine assets are stored
+    // Set the shared resources folder - this is where the engine resources are stored
     // First check bundle resources, then fall back to relative path (for development)
     if (xs::get_run_mode() != xs::run_mode::packaged)
     {
-        string bundled_assets = bundle_resources + "/assets";
-        if (filesystem::exists(bundled_assets))
+        string bundled_resources = bundle_resources + "/resources";
+        if (filesystem::exists(bundled_resources))
         {
-            add_wildcard("[shared]", bundled_assets);
-            log::info("Shared assets (from bundle): {}", bundled_assets);
+            add_wildcard("[shared]", bundled_resources);
+            log::info("Shared resources (from bundle): {}", bundled_resources);
         }
         else
         {
-            add_wildcard("[shared]", "assets");
-            log::info("Shared assets (relative): assets");
+            add_wildcard("[shared]", "resources");
+            log::info("Shared resources (relative): resources");
         }
     }
 }

@@ -133,7 +133,7 @@ void fileio::initialize(const std::string& game_path)
 	}
 	else log::error("Could not find the game project.json file.");
 
-	// Set the shared assets folder - this is where the engine assets are stored
+	// Set the shared resources folder - this is where the engine resources are stored
 	if(xs::get_run_mode() != xs::run_mode::packaged)
-		add_wildcard("[shared]", "assets");
+		add_wildcard("[shared]", "resources");
 }

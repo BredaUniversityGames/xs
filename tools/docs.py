@@ -31,7 +31,7 @@ class config:
     repo = "github.com/BredaUniversityGames/xs"
     branch = "blob/main"
     docs = "docs"
-    path = "assets/modules"
+    path = "resources/modules"
 
 import re
 import glob
