@@ -121,6 +121,8 @@ int xs::dispatch(int argc, char* argv[])
 
 int xs::package(std::string& input, std::string& output)
 {
+    
+#if defined(PLATFORM_DESKTOP)
 	// Initialize fileio with input path to set up [game] wildcard
 	// This is needed for packager to find the files
 	log::initialize();
@@ -152,7 +154,7 @@ int xs::package(std::string& input, std::string& output)
 		xs::log::error("Failed to create package");
 
 	data::shutdown();
-
+#endif
 	return 0;
 }
 

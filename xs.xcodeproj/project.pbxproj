@@ -40,12 +40,6 @@
 		346E74122A4A29D5006ECAD5 /* configuration.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73942A4A29D5006ECAD5 /* configuration.cpp */; };
 		346E74132A4A29D5006ECAD5 /* tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73952A4A29D5006ECAD5 /* tools.cpp */; };
 		346E74152A4A29D5006ECAD5 /* tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73952A4A29D5006ECAD5 /* tools.cpp */; };
-		3474D5FB2B14DFC000441451 /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3474D5B82B14DFC000441451 /* Roboto-Medium.ttf */; };
-		3474D5FE2B14DFC000441451 /* DroidSans.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3474D5B92B14DFC000441451 /* DroidSans.ttf */; };
-		3474D6012B14DFC000441451 /* ProggyTiny.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3474D5BA2B14DFC000441451 /* ProggyTiny.ttf */; };
-		3474D6042B14DFC000441451 /* ProggyClean.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3474D5BB2B14DFC000441451 /* ProggyClean.ttf */; };
-		3474D6072B14DFC000441451 /* Cousine-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3474D5BC2B14DFC000441451 /* Cousine-Regular.ttf */; };
-		3474D60A2B14DFC000441451 /* Karla-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3474D5BD2B14DFC000441451 /* Karla-Regular.ttf */; };
 		3474D6102B14DFC000441451 /* imgui_widgets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C22B14DFC000441451 /* imgui_widgets.cpp */; };
 		3474D6122B14DFC000441451 /* imgui_widgets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C22B14DFC000441451 /* imgui_widgets.cpp */; };
 		3474D6182B14DFC000441451 /* imgui_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3474D5C72B14DFC000441451 /* imgui_impl.cpp */; };
