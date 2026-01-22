@@ -57,8 +57,7 @@ namespace
 		constexpr float c_small_font_size = 13.0f;
 		constexpr float c_icon_font_size = 19.0f;
 		constexpr float c_small_icon_font_size = 16.0f;
-		constexpr float c_icon_vertical_offset = 4.8f;
-
+		constexpr float c_icon_vertical_offset = 4.8f;	
 	#else
 		constexpr float c_frame_top_bar = 70.0f;
 		constexpr float c_frame_bottom_bar = 55.0f;
@@ -67,6 +66,7 @@ namespace
 		// Fonts
 		constexpr float c_font_size = 16.0f;
 		constexpr float c_small_font_size = 12.0f;
+		constexpr float c_small_icon_font_size = 10.0f;
 		constexpr float c_icon_font_size = 12.0f;
 		constexpr float c_icon_vertical_offset = 0.0f;
 
@@ -200,6 +200,10 @@ void xs::inspector::initialize()
 #elif defined(PLATFORM_PC)
 	const float font_scale = (float)device::hdpi_scaling();
 	ui_scale = 1.0f;
+#else
+	const float font_scale = 1.0f;
+	ui_scale = 1.0f;
+
 #endif
 	const float font_size = c_font_size;
 	const float icon_size = c_icon_font_size;

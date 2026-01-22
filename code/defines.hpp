@@ -7,8 +7,12 @@
     #define UNUSED(x) (void)(x)
 #endif
 
-#if defined(PLATFORM_PC) || defined(PLATFORM_MAC)
+#if defined(PLATFORM_PC) || defined(PLATFORM_MAC) || defined(PLATFORM_LINUX)
 #define PLATFORM_DESKTOP
+#endif
+
+#if defined(PLATFORM_PC) || defined(PLATFORM_LINUX) || defined(PLATFORM_SWITCH)
+#define PLATFORM_OPENGL 
 #endif
 
 // Autorelease pool macros for Apple platforms

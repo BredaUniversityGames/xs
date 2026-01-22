@@ -208,6 +208,9 @@
     <ClCompile Include="code\opengl\opengl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="platforms\nx\code\imgui_impl_switch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\wren\optional\wren_opt_meta.h">
@@ -415,6 +418,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\opengl\platform_opengl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="platforms\nx\code\imgui_impl_switch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

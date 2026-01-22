@@ -340,9 +340,13 @@ def check_dependency_available(dep_key: str, dep_info: Dict) -> bool:
 
         if dep_key == 'fmod':
             if plat == "Windows":
-                # Check for Windows Program Files installation
+                # Check for Windows Program Files installation (including console platforms)
                 fmod_base = Path(r"C:\Program Files (x86)\FMOD SoundSystem")
-                return (fmod_base / "FMOD Studio API Windows").exists()
+                has_windows = (fmod_base / "FMOD Studio API Windows").exists()
+                has_switch = (fmod_base / "FMOD Studio API Switch").exists()
+                has_ps5 = (fmod_base / "FMOD Studio API PS5").exists()
+                # Return true if at least one SDK is available
+                return has_windows or has_switch or has_ps5
             elif plat == "Darwin":
                 # Check for mounted DMG volumes
                 volumes_base = Path("/Volumes")
@@ -572,7 +576,7 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
 
 
 def copy_fmod_from_program_files(progress_callback=None) -> Tuple[bool, str]:
-    """Copy FMOD files from Program Files installation to external/fmod."""
+    """Copy FMOD files from Program Files installation to external/fmod and platform-specific locations."""
     logger.info("Starting FMOD copy operation")
     repo_root = get_repo_root()
     plat = platform.system()
@@ -591,7 +595,7 @@ def copy_fmod_from_program_files(progress_callback=None) -> Tuple[bool, str]:
                 progress_callback("Copying headers...")
             logger.info("Copying FMOD headers and libraries")
 
-            # Source paths
+            # Source paths for Windows
             core_inc = fmod_windows / "api" / "core" / "inc"
             core_lib = fmod_windows / "api" / "core" / "lib" / "x64"
             studio_inc = fmod_windows / "api" / "studio" / "inc"
@@ -613,7 +617,7 @@ def copy_fmod_from_program_files(progress_callback=None) -> Tuple[bool, str]:
                 shutil.copytree(studio_inc, inc_dest, dirs_exist_ok=True)
 
             if progress_callback:
-                progress_callback("Copying libraries...")
+                progress_callback("Copying Windows libraries...")
 
             # Copy lib files (Windows-specific)
             if core_lib.exists():
@@ -621,11 +625,63 @@ def copy_fmod_from_program_files(progress_callback=None) -> Tuple[bool, str]:
             if studio_lib.exists():
                 shutil.copytree(studio_lib, lib_dest, dirs_exist_ok=True)
 
+            copied_platforms = ["Windows"]
+
+            # Check for console platform FMOD installations
+            # NX (Nintendo Switch) FMOD
+            fmod_switch = fmod_base / "FMOD Studio API Switch"
+            if fmod_switch.exists():
+                if progress_callback:
+                    progress_callback("Copying NX libraries...")
+                logger.info(f"Found FMOD for NX at {fmod_switch}, copying to platforms/nx/external/fmod/lib/")
+                
+                # NX libraries are in nx64 subdirectory, copy only those (flatten structure)
+                nx_core_lib = fmod_switch / "api" / "core" / "lib" / "nx64"
+                nx_studio_lib = fmod_switch / "api" / "studio" / "lib" / "nx64"
+                nx_dest = repo_root / "platforms" / "nx" / "external" / "fmod" / "lib"
+                
+                nx_dest.mkdir(parents=True, exist_ok=True)
+                
+                # Copy nx64 library files directly to lib/ (flatten the directory structure)
+                if nx_core_lib.exists():
+                    for file in nx_core_lib.iterdir():
+                        if file.is_file():
+                            shutil.copy2(file, nx_dest / file.name)
+                if nx_studio_lib.exists():
+                    for file in nx_studio_lib.iterdir():
+                        if file.is_file():
+                            shutil.copy2(file, nx_dest / file.name)
+                
+                copied_platforms.append("NX")
+                logger.info("Successfully copied FMOD for NX")
+
+            # Prospero (PlayStation 5) FMOD
+            fmod_ps5 = fmod_base / "FMOD Studio API PS5"
+            if fmod_ps5.exists():
+                if progress_callback:
+                    progress_callback("Copying Prospero libraries...")
+                logger.info(f"Found FMOD for Prospero at {fmod_ps5}, copying to platforms/prospero/external/fmod/lib/")
+                
+                ps5_core_lib = fmod_ps5 / "api" / "core" / "lib"
+                ps5_studio_lib = fmod_ps5 / "api" / "studio" / "lib"
+                ps5_dest = repo_root / "platforms" / "prospero" / "external" / "fmod" / "lib"
+                
+                ps5_dest.mkdir(parents=True, exist_ok=True)
+                
+                if ps5_core_lib.exists():
+                    shutil.copytree(ps5_core_lib, ps5_dest, dirs_exist_ok=True)
+                if ps5_studio_lib.exists():
+                    shutil.copytree(ps5_studio_lib, ps5_dest, dirs_exist_ok=True)
+                
+                copied_platforms.append("Prospero")
+                logger.info("Successfully copied FMOD for Prospero")
+
             if progress_callback:
                 progress_callback("Complete")
 
-            logger.info("Successfully copied FMOD for Windows")
-            return True, "Successfully copied FMOD"
+            platforms_str = ", ".join(copied_platforms)
+            logger.info(f"Successfully copied FMOD for {platforms_str}")
+            return True, f"Successfully copied FMOD for {platforms_str}"
 
         except Exception as e:
             logger.error(f"Error copying FMOD on Windows: {str(e)}")
