@@ -58,8 +58,6 @@
 		34866F5D2B28933E0025F40C /* libfmodstudio.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 34866F5A2B28933E0025F40C /* libfmodstudio.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		34866F5E2B28933E0025F40C /* libfmod.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmod.dylib */; };
 		34866F5F2B28933E0025F40C /* libfmod.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 34866F5B2B28933E0025F40C /* libfmod.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		3486CA8B2B94DFCF00E9A3B8 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 3486CA722B94DFCF00E9A3B8 /* LICENSE */; };
-		3486CA8C2B94DFCF00E9A3B8 /* readme.md in Resources */ = {isa = PBXBuildFile; fileRef = 3486CA7B2B94DFCF00E9A3B8 /* readme.md */; };
 		3486CA932B94DFCF00E9A3B8 /* miniz.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA872B94DFCF00E9A3B8 /* miniz.c */; };
 		3486CA942B94DFCF00E9A3B8 /* miniz_tdef.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA882B94DFCF00E9A3B8 /* miniz_tdef.c */; };
 		3486CA952B94DFCF00E9A3B8 /* miniz_zip.c in Sources */ = {isa = PBXBuildFile; fileRef = 3486CA892B94DFCF00E9A3B8 /* miniz_zip.c */; };
@@ -116,6 +114,7 @@
 		5A48B06B2ED125CD0003ACC5 /* device_apple.mm in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6F9F2A4CCC2700DA6B15 /* device_apple.mm */; };
 		5A48B06D2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A48B06C2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp */; };
 		5A48B06E2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A48B06C2ED1307D0003ACC5 /* imgui_impl_sdl3.cpp */; };
+		5A4D1C3B2F2253AC00E2B64C /* resources in Resources */ = {isa = PBXBuildFile; fileRef = 5A488BC22ED3AE910088DA69 /* resources */; };
 		5A6012612ECF543700FDE28A /* SDL3.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A6012602ECF543700FDE28A /* SDL3.xcframework */; };
 		5A6012622ECF544A00FDE28A /* SDL3.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A6012602ECF543700FDE28A /* SDL3.xcframework */; };
 		5A7BCF782ECE29CE00A4A0C3 /* simple_audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A7BCF762ECE29CE00A4A0C3 /* simple_audio.cpp */; };
@@ -133,7 +132,6 @@
 		5AC6A4E32ED2436500727C61 /* implot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4D92ED2436500727C61 /* implot.cpp */; };
 		5AC6A4E42ED2436500727C61 /* implot_demo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4DA2ED2436500727C61 /* implot_demo.cpp */; };
 		5AC6A4E52ED2436500727C61 /* implot_items.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4DC2ED2436500727C61 /* implot_items.cpp */; };
-		5AC6A4E62ED2436500727C61 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 5AC6A4DD2ED2436500727C61 /* LICENSE */; };
 		5AC6A4EA2ED2445B00727C61 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4E92ED2445B00727C61 /* imgui_stdlib.cpp */; };
 		5AC6A4EB2ED2445B00727C61 /* imgui_stdlib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5AC6A4E92ED2445B00727C61 /* imgui_stdlib.cpp */; };
 		5AF067552EDEFC49004C24A5 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AF067542EDEFC49004C24A5 /* QuartzCore.framework */; };
@@ -1789,15 +1787,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3474D6012B14DFC000441451 /* ProggyTiny.ttf in Resources */,
-				3474D60A2B14DFC000441451 /* Karla-Regular.ttf in Resources */,
-				3474D6072B14DFC000441451 /* Cousine-Regular.ttf in Resources */,
-				3486CA8B2B94DFCF00E9A3B8 /* LICENSE in Resources */,
-				3474D6042B14DFC000441451 /* ProggyClean.ttf in Resources */,
-				3474D5FE2B14DFC000441451 /* DroidSans.ttf in Resources */,
-				3474D5FB2B14DFC000441451 /* Roboto-Medium.ttf in Resources */,
-				3486CA8C2B94DFCF00E9A3B8 /* readme.md in Resources */,
-				5AC6A4E62ED2436500727C61 /* LICENSE in Resources */,
+				5A4D1C3B2F2253AC00E2B64C /* resources in Resources */,
 				346E73B02A4A29D5006ECAD5 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
