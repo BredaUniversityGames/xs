@@ -1,4 +1,5 @@
 #include "packager.hpp"
+#include "defines.hpp"
 #include "fileio.hpp"
 #include "log.hpp"
 #include "version.hpp"
@@ -98,9 +99,9 @@ namespace packager
 				".png",			// images
 				".bank",		// audio
 				".wav",			// audio
-				".mp3"			// audio
-				".jpg"			// images
-				".ogg"			// audio
+				".mp3",			// audio
+				".jpg",			// images
+				".ogg",			// audio
 				".flac"			// audio
 			};
 			return file_formats;
@@ -150,6 +151,8 @@ namespace packager
 	// ------------------------------------------------------------------------
 	// Package Creation - Cross-platform packaging using cereal
 	// ------------------------------------------------------------------------
+
+#ifdef PLATFORM_DESKTOP
 
 	namespace
 	{
@@ -334,6 +337,8 @@ namespace packager
 			return false;
 		}
 	}
+
+#endif // PLATFORM_DESKTOP
 
 	// Package Loading - Load cross-platform packages created with create_package
 	bool load_package(const std::string& package_path, package& out_package)

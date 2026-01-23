@@ -155,10 +155,44 @@ def save_generic_icons():
     surface.write_to_png(path)
     print(f"Generated: {path}")
 
+
+def save_nx_icon():
+    """Generate Nintendo Switch icon (1024x1024 BMP format) without rounded corners."""
+    output_dir = "platforms/nx/build"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Create 1024x1024 icon without rounding for Nintendo Switch
+    surface = create_base_icon(1024, with_rounding=False)
+    
+    # Save as PNG first
+    png_path = os.path.join(output_dir, "icon_temp.png")
+    surface.write_to_png(png_path)
+    
+    # Convert PNG to BMP using PIL/Pillow
+    try:
+        from PIL import Image
+        img = Image.open(png_path)
+        bmp_path = os.path.join(output_dir, "icon.bmp")
+        img.save(bmp_path, "BMP")
+        print(f"Generated: {bmp_path}")
+        
+        # Clean up temporary PNG
+        os.remove(png_path)
+    except ImportError:
+        print("Error: PIL/Pillow is required to generate BMP files")
+        print("Install it with: pip install Pillow")
+        os.rename(png_path, os.path.join(output_dir, "icon.png"))
+        print(f"Saved as PNG instead: {os.path.join(output_dir, 'icon.png')}")
+    except Exception as e:
+        print(f"Error converting to BMP: {e}")
+        if os.path.exists(png_path):
+            os.rename(png_path, os.path.join(output_dir, "icon.png"))
+            print(f"Saved as PNG instead: {os.path.join(output_dir, 'icon.png')}")
+
 # Parse command line arguments
 if len(sys.argv) < 2:
     print("Usage: python logo.py <platform>")
-    print("Platforms: macos, ios, all")
+    print("Platforms: macos, ios, nx, generic")
     sys.exit(1)
 
 platform = sys.argv[1].lower()
@@ -170,12 +204,16 @@ if platform == "macos":
 elif platform == "ios":
     print("Generating iOS icons (square, no rounding)...")
     save_ios_icons()
+elif platform == "nx":
+    print("Generating Nintendo Switch icon (1024x1024 BMP)...")
+    save_nx_icon()
 elif platform == "generic":
     print("Generating all generic...")
     save_generic_icons()
+
 else:
     print(f"Unknown platform: {platform}")
-    print("Valid platforms: macos, ios, all")
+    print("Valid platforms: macos, ios, nx, generic")
     sys.exit(1)
 
 print("Done!")

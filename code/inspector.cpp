@@ -53,9 +53,9 @@ namespace
 		constexpr float c_style_scale = 1.0f;
 
 		// Fonts
-		constexpr float c_font_size = 16.0f;
+		constexpr float c_font_size = 15.0f;
 		constexpr float c_small_font_size = 13.0f;
-		constexpr float c_icon_font_size = 19.0f;
+		constexpr float c_icon_font_size = 18.0f;
 		constexpr float c_small_icon_font_size = 16.0f;
 		constexpr float c_icon_vertical_offset = 4.8f;	
 	#else
@@ -208,9 +208,9 @@ void xs::inspector::initialize()
 	const float font_size = c_font_size;
 	const float icon_size = c_icon_font_size;
     
-	ImFontConfig config;
-	config.OversampleH = 8;
-	config.OversampleV = 8;
+	//ImFontConfig config;
+	//config.OversampleH = 8;
+	//config.OversampleV = 8;
 	
 	auto selawk = fileio::get_path("[shared]/fonts/selawk.ttf");
 	if(!fileio::exists(selawk))
@@ -222,7 +222,7 @@ void xs::inspector::initialize()
 	// Copy to a heap allocation to ensure it stays valid
 	char* selawk_buffer = new char[selawk_data.size()];
 	memcpy(selawk_buffer, selawk_data.data(), selawk_data.size());
-	auto selawk_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), font_size * font_scale, &config);
+	auto selawk_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), font_size * font_scale, nullptr);
 	assert(selawk_font);
 
 	// Merge Fluent icons into main font
@@ -756,7 +756,7 @@ static void xs::inspector::render_game_viewport()
 		draw_list->AddImage((ImTextureID)texture, screen_pos, screen_pos_max,
 		                    ImVec2(0, 0), ImVec2(1, 1),
 		                    NEAREST_FILTER_COLOR);
-#elif defined(PLATFORM_PC)
+#elif defined(PLATFORM_OPENGL)
 		draw_list->AddImage((ImTextureID)texture, screen_pos, screen_pos_max,
 		                    ImVec2(0, 1), ImVec2(1, 0),
 		                    NEAREST_FILTER_COLOR);
