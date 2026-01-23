@@ -20,8 +20,40 @@ def round_rectangle(ctx : cairo.Context,
     ctx.arc(x + r, y + r, r, math.pi, 3 * math.pi / 2)
     ctx.close_path()    
 
+
+def save_scaled_surface(source_surface: cairo.Surface,
+                        base_width: int,
+                        base_height: int,
+                        target_width: int,
+                        target_height: int,
+                        path: str):
+    scaled_surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, target_width, target_height)
+    scaled_ctx = cairo.Context(scaled_surface)
+    scaled_ctx.scale(target_width / base_width, target_height / base_height)
+    scaled_ctx.set_source_surface(source_surface, 0, 0)
+    scaled_ctx.paint()
+    scaled_surface.write_to_png(path)
+
+
+def save_mipmap_chain(base_surface: cairo.Surface,
+                      base_width: int,
+                      base_height: int,
+                      min_size: int = 16):
+    current_width = base_width
+    current_height = base_height
+    while current_width >= min_size and current_height >= min_size:
+        path = f"resources/images/macos_{current_width}.png"
+        save_scaled_surface(base_surface,
+                            base_width,
+                            base_height,
+                            current_width,
+                            current_height,
+                            path)
+        current_width //= 2
+        current_height //= 2
+
 # Set the radius of the circle and the rounding radius
-scale = 1.0 / 2
+scale = 4.0
 width = int(256 * scale)
 height = int(256 * scale)
 R = int(44 * scale)
@@ -90,4 +122,5 @@ ctx.close_path()
 ctx.fill()
 
 # Save the image as a PNG file
-surface.write_to_png("resources/images/icon_small.png")
+surface.write_to_png("resources/images/macos_icon.png")
+save_mipmap_chain(surface, width, height)
