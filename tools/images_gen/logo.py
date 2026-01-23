@@ -1,12 +1,14 @@
 import cairo
 import math
+import sys
+import os
 
 def int_to_rgb(i):
     return ((i >> 16) & 0xff) / 255, ((i >> 8) & 0xff) / 255, (i & 0xff) / 255
 
 def int_to_rgba(i):
     return ((i >> 24) & 0xff) / 255, ((i >> 16) & 0xff) / 255, ((i >> 8) & 0xff) / 255, (i & 0xff) / 255
-    
+
 def round_rectangle(ctx : cairo.Context,
                x : float,
                y : float,
@@ -35,92 +37,152 @@ def save_scaled_surface(source_surface: cairo.Surface,
     scaled_surface.write_to_png(path)
 
 
-def save_mipmap_chain(base_surface: cairo.Surface,
-                      base_width: int,
-                      base_height: int,
-                      min_size: int = 16):
-    current_width = base_width
-    current_height = base_height
-    while current_width >= min_size and current_height >= min_size:
-        path = f"resources/images/macos_{current_width}.png"
-        save_scaled_surface(base_surface,
-                            base_width,
-                            base_height,
-                            current_width,
-                            current_height,
-                            path)
-        current_width //= 2
-        current_height //= 2
+def create_base_icon(size: int, with_rounding: bool = True):
+    R = 0.15 * size
+    r = 0.1 * size if with_rounding else 0
+    steps = 7
+    thickness = (size / steps) * math.sqrt(2.0)
+    w = (size / 2) * math.sqrt(2.0)
+    h = (size / 2) * math.sqrt(2.0)
 
-# Set the radius of the circle and the rounding radius
-scale = 4.0
-width = int(256 * scale)
-height = int(256 * scale)
-R = int(44 * scale)
-r = int(18 * scale)
-thickness = 30 * scale
-steps = 13
-w = width / 2
-h = height / 2
 
-surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-ctx = cairo.Context(surface)
+    toColor = int_to_rgba(3187733247)
+    fromColor = int_to_rgba(4289593599)
 
-# Move to the center of the surface
-ctx.translate(width / 2, height / 2)
-ctx.scale(1, -1)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
+    ctx = cairo.Context(surface)
 
-# draw a rectangle in the middle
-ctx.set_source_rgb(1, 1, 1)
-round_rectangle(ctx, -w, -h, width, height, r)
-ctx.clip()
+    # draw a rectangle in the middle
+    #ctx.set_source_rgb(1, 1, 1)
+    #round_rectangle(ctx, -w, -h, size, size, r)
+    #ctx.clip()
 
-# Draw 45 degree lines in the logo
-ctx.set_line_width(thickness)
+    ctx.translate(size / 2, size / 2)
+    ctx.rotate(math.radians(45))
 
-x = thickness + 40 * scale
-y = -w - thickness - 0.5
-fromColor = int_to_rgba(3187733247)
-toColor = int_to_rgba(4289593599)
-for i in range(steps):
-    t = i / steps
-    ctx.set_source_rgb(fromColor[0] + t * (toColor[0] - fromColor[0]),
-                       fromColor[1] + t * (toColor[1] - fromColor[1]),
-                       fromColor[2] + t * (toColor[2] - fromColor[2]))
-    ctx.move_to(x, y)
-    ctx.line_to(x + width * 2, y + width * 2)
-    ctx.stroke()
-    x -= thickness * math.sqrt(2) - 1
 
-# Set to white
-ctx.set_source_rgb(1, 1, 1)
+    ctx.set_line_width(thickness)
 
-# Draw the half circles of the logo
-# bottom of the x
-x = -1.5 * R
-y = -R
-ctx.arc(x, y, R, 0, math.pi)
-ctx.close_path()
-ctx.fill()
-# top of the x
-x = -1.5*R
-y = R
-ctx.arc(x, y, R, math.pi, 2 * math.pi)
-ctx.close_path()
-ctx.fill()
-# bottom of the s
-x =  0.5 * R
-y = 0
-ctx.arc(x, y, R, math.pi, 2 * math.pi)
-ctx.close_path()
-ctx.fill()
-# top of the s
-x = 1.5 * R
-y = 0
-ctx.arc(x, y, R, 0, math.pi)
-ctx.close_path()
-ctx.fill()
+    x = -w + thickness * 0.5 # thickness + 39 * unit
+    y = -h
 
-# Save the image as a PNG file
-surface.write_to_png("resources/images/macos_icon.png")
-save_mipmap_chain(surface, width, height)
+    for i in range(steps):
+        t = i / steps
+        ctx.set_source_rgb(fromColor[0] + t * (toColor[0] - fromColor[0]),
+                           fromColor[1] + t * (toColor[1] - fromColor[1]),
+                           fromColor[2] + t * (toColor[2] - fromColor[2]))
+        ctx.move_to(x, y)
+        ctx.line_to(x, y + h * 2)
+        ctx.stroke()
+        x += thickness
+
+
+    # Reset transformations
+    ctx.identity_matrix()
+    ctx.translate(size / 2, size / 2)
+    ctx.scale(1, -1)
+
+    # Set to white
+    ctx.set_source_rgb(1, 1, 1)
+
+    # Draw the half circles of the logo
+    # bottom of the x
+    x = -1.5 * R
+    y = -R
+    ctx.arc(x, y, R, 0, math.pi)
+    ctx.close_path()
+    ctx.fill()
+    # top of the x
+    x = -1.5*R
+    y = R
+    ctx.arc(x, y, R, math.pi, 2 * math.pi)
+    ctx.close_path()
+    ctx.fill()
+    # bottom of the s
+    x =  0.5 * R
+    y = 0
+    ctx.arc(x, y, R, math.pi, 2 * math.pi)
+    ctx.close_path()
+    ctx.fill()
+    # top of the s
+    x = 1.5 * R
+    y = 0
+    ctx.arc(x, y, R, 0, math.pi)
+    ctx.close_path()
+    ctx.fill()
+
+    return surface
+
+
+def save_macos_icons():
+    """Generate macOS app icons in all required sizes without rounded corners."""
+    output_dir = "platforms/apple/shared/Assets.xcassets/AppIcon macOS.appiconset"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # macOS requires these unique sizes (Contents.json handles @1x and @2x reuse)
+    sizes = [
+        16,    # Used for 16x16 @1x
+        32,    # Used for 16x16 @2x and 32x32 @1x
+        64,    # Used for 32x32 @2x
+        128,   # Used for 128x128 @1x
+        256,   # Used for 128x128 @2x and 256x256 @1x
+        512,   # Used for 256x256 @2x and 512x512 @1x
+        1024,  # Used for 512x512 @2x
+    ]
+
+    for size in sizes:
+        # Create square icon without rounding (macOS adds its own)
+        surface = create_base_icon(size, with_rounding=False)
+        filename = f"macos_{size}.png"
+        path = os.path.join(output_dir, filename)
+        surface.write_to_png(path)
+        print(f"Generated: {path}")
+
+
+def save_ios_icons():
+    """Generate iOS app icon (single 1024x1024 for modern iOS) without rounded corners."""
+    output_dir = "platforms/apple/shared/Assets.xcassets/AppIcon iOS.appiconset"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # iOS uses a single 1024x1024 icon without rounding (iOS adds its own)
+    surface = create_base_icon(1024, with_rounding=False)
+    path = os.path.join(output_dir, "icon.png")
+    surface.write_to_png(path)
+    print(f"Generated: {path}")
+
+
+def save_generic_icons():
+    """Generate generic icon sizes in resources/images with rounded corners."""
+    output_dir = "resources/images"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Save main icon with rounding for generic use
+    surface = create_base_icon(256, with_rounding=True)
+    path = os.path.join(output_dir, "icon.png")
+    surface.write_to_png(path)
+    print(f"Generated: {path}")
+
+# Parse command line arguments
+if len(sys.argv) < 2:
+    print("Usage: python logo.py <platform>")
+    print("Platforms: macos, ios, all")
+    sys.exit(1)
+
+platform = sys.argv[1].lower()
+
+# Generate icons based on platform
+if platform == "macos":
+    print("Generating macOS icons (square, no rounding)...")
+    save_macos_icons()
+elif platform == "ios":
+    print("Generating iOS icons (square, no rounding)...")
+    save_ios_icons()
+elif platform == "generic":
+    print("Generating all generic...")
+    save_generic_icons()
+else:
+    print(f"Unknown platform: {platform}")
+    print("Valid platforms: macos, ios, all")
+    sys.exit(1)
+
+print("Done!")
