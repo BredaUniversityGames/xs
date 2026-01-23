@@ -38,9 +38,9 @@ def save_scaled_surface(source_surface: cairo.Surface,
 
 
 def create_base_icon(size: int, with_rounding: bool = True):
-    R = 0.15 * size
+    R = 0.18 * size
     r = 0.1 * size if with_rounding else 0
-    steps = 7
+    steps = 5
     thickness = (size / steps) * math.sqrt(2.0)
     w = (size / 2) * math.sqrt(2.0)
     h = (size / 2) * math.sqrt(2.0)
@@ -52,16 +52,9 @@ def create_base_icon(size: int, with_rounding: bool = True):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
     ctx = cairo.Context(surface)
 
-    # draw a rectangle in the middle
-    #ctx.set_source_rgb(1, 1, 1)
-    #round_rectangle(ctx, -w, -h, size, size, r)
-    #ctx.clip()
-
     ctx.translate(size / 2, size / 2)
     ctx.rotate(math.radians(45))
-
-
-    ctx.set_line_width(thickness)
+    ctx.set_line_width(thickness + 2) # slight overlap to avoid gaps  
 
     x = -w + thickness * 0.5 # thickness + 39 * unit
     y = -h
@@ -146,7 +139,7 @@ def save_ios_icons():
 
     # iOS uses a single 1024x1024 icon without rounding (iOS adds its own)
     surface = create_base_icon(1024, with_rounding=False)
-    path = os.path.join(output_dir, "icon.png")
+    path = os.path.join(output_dir, "ios.png")
     surface.write_to_png(path)
     print(f"Generated: {path}")
 
@@ -158,7 +151,7 @@ def save_generic_icons():
 
     # Save main icon with rounding for generic use
     surface = create_base_icon(256, with_rounding=True)
-    path = os.path.join(output_dir, "icon.png")
+    path = os.path.join(output_dir, "ios.png")
     surface.write_to_png(path)
     print(f"Generated: {path}")
 

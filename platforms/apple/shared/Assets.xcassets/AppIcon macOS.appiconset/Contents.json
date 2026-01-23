@@ -7,7 +7,7 @@
       "size" : "16x16"
     },
     {
-      "filename" : "macos_32 1.png",
+      "filename" : "macos_32.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "16x16"
@@ -31,7 +31,7 @@
       "size" : "128x128"
     },
     {
-      "filename" : "macos_256 1.png",
+      "filename" : "macos_256.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "128x128"
@@ -43,7 +43,7 @@
       "size" : "256x256"
     },
     {
-      "filename" : "macos_512 1.png",
+      "filename" : "macos_512.png",
       "idiom" : "mac",
       "scale" : "2x",
       "size" : "256x256"
