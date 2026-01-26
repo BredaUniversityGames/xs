@@ -3,6 +3,13 @@
 #include "xs.hpp"
 #include <sstream>
 
+// Unified format macro - switches between std::format and fmt::format
+#if XS_HAS_STD_FORMAT
+    #define XS_FORMAT std::format
+#else
+    #define XS_FORMAT fmt::format
+#endif
+
 #if defined(PLATFORM_PC) && defined(_WIN32)
 #include <windows.h>
 #endif
@@ -38,7 +45,7 @@ void xs::log::initialize()
     banner << "\n";
     banner << "\033[38;5;208m╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\033[0m\n";
     banner << "\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n";
-    banner << fmt::format("\033[38;5;208m│\033[0m  \033[38;5;208m▀▄▀ █▀▀\033[0m   version: {:<75}  \033[38;5;208m│\033[0m\n",
+    banner << XS_FORMAT("\033[38;5;208m│\033[0m  \033[38;5;208m▀▄▀ █▀▀\033[0m   version: {:<75}  \033[38;5;208m│\033[0m\n",
         xs::version::get_version_string(false, true, true));
     banner << "\033[38;5;208m│\033[0m  \033[38;5;208m█ █ ▄▄█\033[0m   Breda University of Applied Sciences                                                  \033[38;5;208m│\033[0m\n";
     banner << "\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n";
@@ -48,7 +55,7 @@ void xs::log::initialize()
     banner << "\n";
     banner << "╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\n";
     banner << "│                                                                                                  │\n";
-    banner << fmt::format("│  ▀▄▀ █▀▀   version: {:<75}  │\n",
+    banner << XS_FORMAT("│  ▀▄▀ █▀▀   version: {:<75}  │\n",
         xs::version::get_version_string(false, true, true));
     banner << "│  █ █ ▄▄█   Breda University of Applied Sciences                                                 │\n";
     banner << "│                                                                                                  │\n";
@@ -73,10 +80,10 @@ void xs::log::initialize()
 {
     std::ostringstream banner;
     banner << "\n";
-    banner << fmt::format(" {}  __ __ _____  {}   xs game engine {}\n", warn_color, reset, xs::version::get_version_string().c_str());
-    banner << fmt::format(" {} |  |  |   __| {}\n", warn_color, reset);
-    banner << fmt::format(" {} |-   -|__   | {}   Crafted at Breda University of Applied Sciences\n", warn_color, reset);
-    banner << fmt::format(" {} |__|__|_____| {}\n", warn_color, reset);
+    banner << XS_FORMAT(" {}  __ __ _____  {}   xs game engine {}\n", warn_color, reset, xs::version::get_version_string().c_str());
+    banner << XS_FORMAT(" {} |  |  |   __| {}\n", warn_color, reset);
+    banner << XS_FORMAT(" {} |-   -|__   | {}   Crafted at Breda University of Applied Sciences\n", warn_color, reset);
+    banner << XS_FORMAT(" {} |__|__|_____| {}\n", warn_color, reset);
     banner << "\n";
 
     output_log(banner.str());

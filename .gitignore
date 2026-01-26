@@ -76,3 +76,4 @@ games/game
 .claude/settings.local.json
 xs.xcodeproj/project.xcworkspace/xcuserdata
 imgui.ini
+.gamepath

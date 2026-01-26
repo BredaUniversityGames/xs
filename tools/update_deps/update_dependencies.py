@@ -107,8 +107,8 @@ DEPENDENCIES = {
         'name': 'fmt',
         'type': 'opensource',
         'repo': 'https://github.com/fmtlib/fmt.git',
-        'branch': 'master',
-        'description': 'Modern formatting library',
+        'branch': '10.2.1',  # Pinned to 10.2.1 - last stable version before C++20 FMT_STRING issues
+        'description': 'Modern formatting library (v10.2.1 for C++17 compatibility)',
         'include_paths': [
             'include/',
             'src/',
@@ -329,6 +329,31 @@ def check_git_available() -> bool:
     return success
 
 
+def remove_readonly(func, path, excinfo):
+    """Error handler for Windows readonly files during rmtree."""
+    import stat
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+
+def safe_rmtree(path):
+    """Safely remove a directory tree, handling Windows readonly files."""
+    if platform.system() == "Windows":
+        # Python 3.12+ uses onexc instead of onerror
+        import sys
+        if sys.version_info >= (3, 12):
+            def handle_remove_readonly(func, path, exc_info):
+                """Error handler for Python 3.12+"""
+                import stat
+                os.chmod(path, stat.S_IWRITE)
+                func(path)
+            shutil.rmtree(path, onexc=handle_remove_readonly)
+        else:
+            shutil.rmtree(path, onerror=remove_readonly)
+    else:
+        shutil.rmtree(path)
+
+
 def check_dependency_available(dep_key: str, dep_info: Dict) -> bool:
     """Check if dependency source is available to copy/update from."""
     if dep_info['type'] == 'opensource':
@@ -480,7 +505,7 @@ def copy_filtered_paths(src_dir: Path, dst_dir: Path, include_paths: List) -> No
             # Copy entire directory
             dst_path.parent.mkdir(parents=True, exist_ok=True)
             if dst_path.exists():
-                shutil.rmtree(dst_path)
+                safe_rmtree(dst_path)
             shutil.copytree(src_path, dst_path)
 
 
@@ -512,7 +537,7 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
         # Remove .git directory from clone
         git_dir = temp_dir / '.git'
         if git_dir.exists():
-            shutil.rmtree(git_dir)
+            safe_rmtree(git_dir)
 
         # Backup existing dependency
         backup_path = None
@@ -522,7 +547,7 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
             logger.info(f"Creating backup for {dep_key}")
             backup_path = repo_root / 'external' / f'.backup_{dep_key}'
             if backup_path.exists():
-                shutil.rmtree(backup_path)
+                safe_rmtree(backup_path)
             shutil.move(str(dep_path), str(backup_path))
 
         # Copy filtered files/directories
@@ -545,12 +570,12 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
 
         # Clean up temp directory
         if temp_dir.exists():
-            shutil.rmtree(temp_dir)
+            safe_rmtree(temp_dir)
 
         # Remove backup if successful
         if backup_path and backup_path.exists():
             logger.info(f"Removing backup for {dep_key}")
-            shutil.rmtree(backup_path)
+            safe_rmtree(backup_path)
 
         if progress_callback:
             progress_callback("Complete")
@@ -565,12 +590,12 @@ def update_opensource_dependency(dep_key: str, dep_info: Dict, progress_callback
         if backup_path and backup_path.exists():
             logger.info(f"Restoring backup for {dep_key}")
             if dep_path.exists():
-                shutil.rmtree(dep_path)
+                safe_rmtree(dep_path)
             shutil.move(str(backup_path), str(dep_path))
 
         # Clean up temp directory
         if temp_dir.exists():
-            shutil.rmtree(temp_dir)
+            safe_rmtree(temp_dir)
 
         return False, str(e)
 
@@ -849,7 +874,7 @@ def copy_sdl3_from_dmg(progress_callback=None) -> Tuple[bool, str]:
             if progress_callback:
                 progress_callback("Copying xcframework...")
             if xcframework_dest.exists():
-                shutil.rmtree(xcframework_dest)
+                safe_rmtree(xcframework_dest)
             shutil.copytree(xcframework_path, xcframework_dest)
 
             # Also extract headers and binaries for convenience
@@ -1063,7 +1088,7 @@ def copy_sdl3_from_dmg(progress_callback=None) -> Tuple[bool, str]:
             if temp_dir and temp_dir.exists():
                 logger.info(f"Cleaning up temp directory: {temp_dir}")
                 try:
-                    shutil.rmtree(temp_dir)
+                    safe_rmtree(temp_dir)
                     logger.info("Temp directory cleaned up")
                 except Exception as e:
                     logger.warning(f"Could not clean up temp directory: {e}")
@@ -1087,7 +1112,7 @@ def copy_sdl3_from_dmg(progress_callback=None) -> Tuple[bool, str]:
             logger.info(f"Latest SDL3 release: {release_tag}")
 
             # Find the source tarball
-            tarball_asset = None
+            tarball_asset = None;
             for asset in release_data['assets']:
                 if asset['name'].endswith('.tar.gz') and 'SDL3' in asset['name']:
                     tarball_asset = asset
@@ -1236,7 +1261,7 @@ def copy_sdl3_from_dmg(progress_callback=None) -> Tuple[bool, str]:
             if temp_dir and temp_dir.exists():
                 logger.info(f"Cleaning up temp directory: {temp_dir}")
                 try:
-                    shutil.rmtree(temp_dir)
+                    safe_rmtree(temp_dir)
                     logger.info("Temp directory cleaned up")
                 except Exception as e:
                     logger.warning(f"Could not clean up temp directory: {e}")

@@ -306,8 +306,6 @@ void xs::inspector::render(double dt)
 	if (input::get_key_once( input::KEY_P))
 		game_paused = !game_paused;
 	
-	bool true_that = true;
-	
 	ImGui_Impl_NewFrame();
     ImGui::NewFrame();
 	ok_timer -= dt;

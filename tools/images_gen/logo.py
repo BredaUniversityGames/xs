@@ -37,22 +37,22 @@ def save_scaled_surface(source_surface: cairo.Surface,
     scaled_surface.write_to_png(path)
 
 
-def create_base_icon(size: int, with_rounding: bool = True):
+def create_base_icon(width: int, height: int, steps: int = 5, with_rounding: bool = True):
+    size = max(width, height)  # Use max for R calculation to maintain proportions
     R = 0.18 * size
     r = 0.1 * size if with_rounding else 0
-    steps = 5
-    thickness = (size / steps) * math.sqrt(2.0)
-    w = (size / 2) * math.sqrt(2.0)
-    h = (size / 2) * math.sqrt(2.0)
+    thickness = (width / steps) * math.sqrt(2.0)
+    w = (width / 2) * math.sqrt(2.0)
+    h = (height / 2) * math.sqrt(2.0)
 
 
     toColor = int_to_rgba(3187733247)
     fromColor = int_to_rgba(4289593599)
 
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     ctx = cairo.Context(surface)
 
-    ctx.translate(size / 2, size / 2)
+    ctx.translate(width / 2, height / 2)
     ctx.rotate(math.radians(45))
     ctx.set_line_width(thickness + 2) # slight overlap to avoid gaps  
 
@@ -125,7 +125,7 @@ def save_macos_icons():
 
     for size in sizes:
         # Create square icon without rounding (macOS adds its own)
-        surface = create_base_icon(size, with_rounding=False)
+        surface = create_base_icon(size, size, with_rounding=False)
         filename = f"macos_{size}.png"
         path = os.path.join(output_dir, filename)
         surface.write_to_png(path)
@@ -138,7 +138,7 @@ def save_ios_icons():
     os.makedirs(output_dir, exist_ok=True)
 
     # iOS uses a single 1024x1024 icon without rounding (iOS adds its own)
-    surface = create_base_icon(1024, with_rounding=False)
+    surface = create_base_icon(1024, 1024, with_rounding=False)
     path = os.path.join(output_dir, "ios.png")
     surface.write_to_png(path)
     print(f"Generated: {path}")
@@ -150,7 +150,7 @@ def save_generic_icons():
     os.makedirs(output_dir, exist_ok=True)
 
     # Save main icon with rounding for generic use
-    surface = create_base_icon(256, with_rounding=True)
+    surface = create_base_icon(256, 256, with_rounding=True)
     path = os.path.join(output_dir, "ios.png")
     surface.write_to_png(path)
     print(f"Generated: {path}")
@@ -162,7 +162,7 @@ def save_nx_icon():
     os.makedirs(output_dir, exist_ok=True)
 
     # Create 1024x1024 icon without rounding for Nintendo Switch
-    surface = create_base_icon(1024, with_rounding=False)
+    surface = create_base_icon(1024, 1024, with_rounding=False)
     
     # Save as PNG first
     png_path = os.path.join(output_dir, "icon_temp.png")
