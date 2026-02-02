@@ -645,7 +645,7 @@ int xs::render::reload_images()
 			if (data != nullptr)
 			{
 				log::info("Image {} reloaded!", image.file);
-				auto message = fmt::format("Image {} reloaded!", image.file);
+				auto message = XS_FORMAT("Image {} reloaded!", image.file);
 				inspector::notify(inspector::notification_type::success, message, 4.0f);
 				last_write_times[i] = new_time;
 				create_texture_with_data(image, data);
@@ -655,7 +655,7 @@ int xs::render::reload_images()
 			else
 			{
 				log::error("Image {} could not be reloaded!", image.file);
-				auto message = fmt::format("Image {} could not be reloaded!", image.file);
+				auto message = XS_FORMAT("Image {} could not be reloaded!", image.file);
 				inspector::notify(inspector::notification_type::error, message, 5.0f);
 			}
 		}

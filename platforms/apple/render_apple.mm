@@ -110,7 +110,33 @@ void xs::render::initialize()
     _viewportSize.y = configuration::height();
     
     // Load all the shader files with a .metal file extension in the project.
+    // First try the default library (works when launched as .app bundle)
     id<MTLLibrary> defaultLibrary = [_device newDefaultLibrary];
+
+    // If that fails (e.g., running executable directly via symlink), load from explicit path
+    if (defaultLibrary == nil) {
+        NSBundle* bundle = [NSBundle mainBundle];
+        NSString* libraryPath = [bundle pathForResource:@"default" ofType:@"metallib"];
+        if (libraryPath == nil) {
+            // Try to find metallib relative to executable, resolving symlinks
+            NSString* execPath = [[NSProcessInfo processInfo] arguments][0];
+            // Resolve symlinks to get actual executable path
+            NSURL* execURL = [NSURL fileURLWithPath:execPath];
+            NSURL* resolvedURL = [execURL URLByResolvingSymlinksInPath];
+            NSString* resolvedPath = [resolvedURL path];
+            // Navigate from .app/Contents/MacOS/xs to .app/Contents/Resources/default.metallib
+            NSString* bundlePath = [[resolvedPath stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
+            libraryPath = [bundlePath stringByAppendingPathComponent:@"Resources/default.metallib"];
+        }
+        if (libraryPath != nil) {
+            NSURL* libraryURL = [NSURL fileURLWithPath:libraryPath];
+            defaultLibrary = [_device newLibraryWithURL:libraryURL error:&error];
+        }
+        if (defaultLibrary == nil) {
+            log::critical("Failed to load Metal shader library: {}",
+                error ? [[error localizedDescription] UTF8String] : "unknown error");
+        }
+    }
 
     // Render to texture
     {
@@ -189,7 +215,7 @@ void xs::render::initialize()
         // Initialize render pass descriptor for MSAA (textures will be set per-frame)
         _renderToTextureRenderPassDescriptor = [MTLRenderPassDescriptor new];
         _renderToTextureRenderPassDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
-        _renderToTextureRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0);  // Transparent clear
+        _renderToTextureRenderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 1.0);  // Transparent clear
         _renderToTextureRenderPassDescriptor.colorAttachments[0].storeAction = MTLStoreActionMultisampleResolve;  // Resolve MSAA
 
         // Depth attachment

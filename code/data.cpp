@@ -359,7 +359,7 @@ const string& xs::data::internal::get_file_path(type type)
 	static std::string game_path = "[game]/game.json";
 	static std::string player_path = "[save]/player.json";
 	static std::string project_path = "[game]/project.json";
-	static std::string debug_path = "[save]/debug.json";
+	static std::string debug_path = "[game]/debug.json";
 	static std::string user_path = "[user]/settings.json";
 	static std::string no_path = "";
 
