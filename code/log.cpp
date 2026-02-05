@@ -37,11 +37,9 @@ void xs::log::initialize()
     // Modern UTF-8 version with rounded borders and gradient colors
     banner << "\n";
     banner << "\033[38;5;208m╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\033[0m\n";
-    banner << "\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n";
     banner << XS_FORMAT("\033[38;5;208m│\033[0m  \033[38;5;208m▀▄▀ █▀▀\033[0m   version: {:<75}  \033[38;5;208m│\033[0m\n",
         xs::version::get_version_string(false, true, true));
-    banner << "\033[38;5;208m│\033[0m  \033[38;5;208m█ █ ▄▄█\033[0m   Breda University of Applied Sciences                           \033[38;5;208m│\033[0m\n";
-    banner << "\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n";
+    banner << "\033[38;5;208m│\033[0m  \033[38;5;208m█ █ ▄▄█\033[0m   Breda University of Applied Sciences                                                  \033[38;5;208m│\033[0m\n";
     banner << "\033[38;5;208m╰──────────────────────────────────────────────────────────────────────────────────────────────────╯\033[0m\n";
 #else
     // UTF-8 version without colors
