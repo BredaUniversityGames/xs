@@ -37,13 +37,18 @@ def save_scaled_surface(source_surface: cairo.Surface,
     scaled_surface.write_to_png(path)
 
 
-def create_base_icon(width: int, height: int, steps: int = 5, with_rounding: bool = True):
+def create_base_icon(width: int,
+                    height: int,
+                    draw_background = True,
+                    draw_foreground = True,
+                    steps: int = 5,
+                    with_rounding: bool = True):
     size = max(width, height)  # Use max for R calculation to maintain proportions
     R = 0.18 * size
     r = 0.1 * size if with_rounding else 0
     thickness = (width / steps) * math.sqrt(2.0)
     w = (width / 2) * math.sqrt(2.0)
-    h = (height / 2) * math.sqrt(2.0)
+    h = (width / 2) * math.sqrt(2.0)
 
 
     toColor = int_to_rgba(3187733247)
@@ -52,57 +57,59 @@ def create_base_icon(width: int, height: int, steps: int = 5, with_rounding: boo
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     ctx = cairo.Context(surface)
 
-    ctx.translate(width / 2, height / 2)
-    ctx.rotate(math.radians(45))
-    ctx.set_line_width(thickness + 2) # slight overlap to avoid gaps  
+    if draw_background:
+        ctx.translate(width / 2, height / 2)
+        ctx.rotate(math.radians(45))
+        ctx.set_line_width(thickness + 2) # slight overlap to avoid gaps  
 
-    x = -w + thickness * 0.5 # thickness + 39 * unit
-    y = -h
+        x = -w + thickness * 0.5 # thickness + 39 * unit
+        y = -h
 
-    for i in range(steps):
-        t = i / steps
-        ctx.set_source_rgb(fromColor[0] + t * (toColor[0] - fromColor[0]),
-                           fromColor[1] + t * (toColor[1] - fromColor[1]),
-                           fromColor[2] + t * (toColor[2] - fromColor[2]))
-        ctx.move_to(x, y)
-        ctx.line_to(x, y + h * 2)
-        ctx.stroke()
-        x += thickness
+        for i in range(steps):
+            t = i / steps
+            ctx.set_source_rgb(fromColor[0] + t * (toColor[0] - fromColor[0]),
+                            fromColor[1] + t * (toColor[1] - fromColor[1]),
+                            fromColor[2] + t * (toColor[2] - fromColor[2]))
+            ctx.move_to(x, y)
+            ctx.line_to(x, y + h * 2)
+            ctx.stroke()
+            x += thickness
 
 
-    # Reset transformations
-    ctx.identity_matrix()
-    ctx.translate(size / 2, size / 2)
-    ctx.scale(1, -1)
+    if draw_foreground:
+        # Reset transformations
+        ctx.identity_matrix()
+        ctx.translate(width / 2, height / 2)
+        ctx.scale(1, -1)
 
-    # Set to white
-    ctx.set_source_rgb(1, 1, 1)
+        # Set to white
+        ctx.set_source_rgb(1, 1, 1)
 
-    # Draw the half circles of the logo
-    # bottom of the x
-    x = -1.5 * R
-    y = -R
-    ctx.arc(x, y, R, 0, math.pi)
-    ctx.close_path()
-    ctx.fill()
-    # top of the x
-    x = -1.5*R
-    y = R
-    ctx.arc(x, y, R, math.pi, 2 * math.pi)
-    ctx.close_path()
-    ctx.fill()
-    # bottom of the s
-    x =  0.5 * R
-    y = 0
-    ctx.arc(x, y, R, math.pi, 2 * math.pi)
-    ctx.close_path()
-    ctx.fill()
-    # top of the s
-    x = 1.5 * R
-    y = 0
-    ctx.arc(x, y, R, 0, math.pi)
-    ctx.close_path()
-    ctx.fill()
+        # Draw the half circles of the logo
+        # bottom of the x
+        x = -1.5 * R
+        y = -R
+        ctx.arc(x, y, R, 0, math.pi)
+        ctx.close_path()
+        ctx.fill()
+        # top of the x
+        x = -1.5*R
+        y = R
+        ctx.arc(x, y, R, math.pi, 2 * math.pi)
+        ctx.close_path()
+        ctx.fill()
+        # bottom of the s
+        x =  0.5 * R
+        y = 0
+        ctx.arc(x, y, R, math.pi, 2 * math.pi)
+        ctx.close_path()
+        ctx.fill()
+        # top of the s
+        x = 1.5 * R
+        y = 0
+        ctx.arc(x, y, R, 0, math.pi)
+        ctx.close_path()
+        ctx.fill()
 
     return surface
 
@@ -152,6 +159,22 @@ def save_generic_icons():
     # Save main icon with rounding for generic use
     surface = create_base_icon(256, 256, with_rounding=True)
     path = os.path.join(output_dir, "ios.png")
+    surface.write_to_png(path)
+    print(f"Generated: {path}")
+
+def save_background_image():
+    """Generate generic background image (1920x1080) with rounded corners."""
+    output_dir = "resources/images"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Create 1920x1080 background image with rounding
+    surface = create_base_icon(4096,
+                               2160,
+                               steps=15,
+                               with_rounding=True,
+                               draw_foreground=True,
+                               draw_background=False)
+    path = os.path.join(output_dir, "background.png")
     surface.write_to_png(path)
     print(f"Generated: {path}")
 
@@ -210,6 +233,7 @@ elif platform == "nx":
 elif platform == "generic":
     print("Generating all generic...")
     save_generic_icons()
+    save_background_image()
 
 else:
     print(f"Unknown platform: {platform}")
