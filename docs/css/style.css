@@ -369,6 +369,33 @@ footer {
   margin-top: 1rem;
 }
 
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 2rem;
+}
+
+.footer-text {
+  flex: 1;
+  text-align: center;
+}
+
+.footer-logo-left,
+.footer-logo-right {
+  flex-shrink: 0;
+}
+
+.sponsor-logo {
+  max-height: 60px;
+  height: auto;
+  width: auto;
+  max-width: 150px;
+  display: block;
+}
+
 footer p {
   margin: 0.2rem 0;
 }
@@ -389,6 +416,15 @@ footer a {
     flex-direction: column;
     gap: 0.5rem;
     text-align: center;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .sponsor-logo {
+    max-height: 50px;
   }
 
   .hero-section h1 {

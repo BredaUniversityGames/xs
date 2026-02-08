@@ -33,437 +33,450 @@
   <!-- Main Content -->
   <div class="container api-section">
     <h1>Math & Vectors</h1>
-    <p><em>Source: <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren">assets/modules/xs_math.wren</a></em></p>
+    <p><em>Source: <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren">resources\modules\xs\math.wren</a></em></p>
 
 <hr>
-<h2>Class Math <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L4" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Math <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L4" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Mathematical utility functions for 2D game development</p>
 </div>
 
-<h3><code>static pi</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L6" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static pi</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L6" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>The mathematical constant pi</p>
 </div>
 
-<h3><code>static lerp(a, b, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L11" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static lerp(a, b, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L11" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Linear interpolation between two values</p>
 <p>Returns a value between a and b based on parameter t (0.0 to 1.0)</p>
 <p>t=0 returns a, t=1 returns b, t=0.5 returns midpoint</p>
 </div>
 
-<h3><code>static damp(a, b, lambda, dt)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L16" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static damp(a, b, lambda, dt)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L16" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Smooth damping interpolation using exponential decay</p>
 <p>Useful for camera following and smooth movement - gives frame-rate independent smoothing</p>
 <p>Higher lambda values = faster convergence (try values like 5.0 to 20.0)</p>
 </div>
 
-<h3><code>static min(l, r)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L19" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static min(l, r)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L19" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns the minimum of two values</p>
 </div>
 
-<h3><code>static max(l, r)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L21" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static max(l, r)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L21" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns the maximum of two values</p>
 </div>
 
-<h3><code>static atan2(y, x)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L23" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static atan2(y, x)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L23" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns the arctangent of y/x in radians</p>
 </div>
 
-<h3><code>static invLerp(a, b, v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L25" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static invLerp(a, b, v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L25" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Inverse linear interpolation - returns t such that lerp(a, b, t) = v</p>
 </div>
 
-<h3><code>static remap(iF, iT, oF, oT, v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L32" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static remap(iF, iT, oF, oT, v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L32" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Remaps a value from one range to another</p>
 </div>
 
-<h3><code>static radians(deg)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L38" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static radians(deg)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L38" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Converts degrees to radians</p>
 </div>
 
-<h3><code>static degrees(rad)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L40" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static degrees(rad)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L40" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Converts radians to degrees</p>
 </div>
 
-<h3><code>static mod(x, m)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L42" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static mod(x, m)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L42" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Modulo operation that always returns positive results</p>
 </div>
 
-<h3><code>static fmod(x, m)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L44" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static fmod(x, m)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L44" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Floating-point modulo operation</p>
 </div>
 
-<h3><code>static clamp(a, f, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L46" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static clamp(a, f, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L46" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Clamps a value between min (f) and max (t)</p>
 </div>
 
-<h3><code>static slerp(a,  b,  t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L48" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static slerp(a,  b,  t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L48" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Spherical linear interpolation for angles</p>
 </div>
 
-<h3><code>static vslerp(a, b, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L54" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static vslerp(a, b, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L54" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Vector spherical linear interpolation</p>
 </div>
 
-<h3><code>static arc(a, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L61" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static arc(a, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L61" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns the shortest angular distance between two angles</p>
 </div>
 
-<h3><code>static sdamp(a, b, lambda, dt)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L71" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static sdamp(a, b, lambda, dt)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L71" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Smooth damping for angles (spherical)</p>
 </div>
 
-<h3><code>static quadraticBezier(a, b, c, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L74" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static quadraticBezier(a, b, c, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L74" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Quadratic Bezier curve interpolation</p>
 </div>
 
-<h3><code>static cubicBezier(a, b, c, d, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L81" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static cubicBezier(a, b, c, d, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L81" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Cubic Bezier curve interpolation</p>
 </div>
 
-<h3><code>static catmullRom(a, b, c, d, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L88" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static catmullRom(a, b, c, d, t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L88" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Catmull-Rom spline interpolation</p>
 </div>
 
 <hr>
-<h2>Class Bits <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L99" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Bits <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L99" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Utility functions for bitwise operations and bit flags</p>
 </div>
 
-<h3><code>static switchOnBitFlag(flags, bit)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L101" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static switchOnBitFlag(flags, bit)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L101" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Turns on a specific bit flag</p>
 </div>
 
-<h3><code>static switchOffBitFlag(flags, bit)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L103" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static switchOffBitFlag(flags, bit)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L103" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Turns off a specific bit flag</p>
 </div>
 
-<h3><code>static checkBitFlag(flags, bit)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L105" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static checkBitFlag(flags, bit)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L105" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if all bits in &#x27;bit&#x27; are set in &#x27;flags&#x27;</p>
 </div>
 
-<h3><code>static checkBitFlagOverlap(flag0, flag1)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L107" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static checkBitFlagOverlap(flag0, flag1)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L107" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if any bits overlap between two flags</p>
 </div>
 
 <hr>
-<h2>Class Vec2 <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L112" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Vec2 <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L112" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>2D vector class for position, velocity, and direction calculations</p>
 <p>Supports standard vector operations: addition, subtraction, scaling, dot product, cross product, rotation</p>
 </div>
 
-<h3><code>construct new()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L114" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L114" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a zero vector (0, 0)</p>
 </div>
 
-<h3><code>construct new(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L120" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L120" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a vector with the given x and y components</p>
 </div>
 
-<h3><code>x</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L126" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>x</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L126" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the x component</p>
 </div>
 
-<h3><code>y</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L128" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>y</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L128" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the y component</p>
 </div>
 
-<h3><code>x=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L130" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>x=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L130" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the x component</p>
 </div>
 
-<h3><code>y=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L132" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>y=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L132" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the y component</p>
 </div>
 
-<h3><code>+(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L135" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>+(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L135" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds two vectors</p>
 </div>
 
-<h3><code>-</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L137" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>-</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L137" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Negates the vector</p>
 </div>
 
-<h3><code>-(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L139" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>-(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L139" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Subtracts two vectors</p>
 </div>
 
-<h3><code>*(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L141" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>*(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L141" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Multiplies vector by a scalar</p>
 </div>
 
-<h3><code>/(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L143" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>/(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L143" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Divides vector by a scalar</p>
 </div>
 
-<h3><code>==(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L145" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>==(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L145" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if two vectors are equal</p>
 </div>
 
-<h3><code>!=(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L147" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>!=(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L147" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if two vectors are not equal</p>
 </div>
 
-<h3><code>magnitude</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L149" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>magnitude</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L149" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the length of the vector</p>
 </div>
 
-<h3><code>magnitudeSq</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L151" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>magnitudeSq</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L151" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the squared length of the vector (faster than magnitude)</p>
 </div>
 
-<h3><code>normal</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L153" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>normal</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L153" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns a normalized copy of the vector (length = 1)</p>
 </div>
 
-<h3><code>normalize()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L155" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>normalized</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L155" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<div class="api-method">
+<p>Returns a normalized copy of the vector (length = 1)</p>
+</div>
+
+<h3><code>normalize()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L157" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Normalizes this vector in place</p>
 </div>
 
-<h3><code>dot(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L161" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>dot(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L163" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Computes the dot product with another vector</p>
 <p>Returns a scalar: positive if vectors point same direction, negative if opposite, 0 if perpendicular</p>
 </div>
 
-<h3><code>cross(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L164" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>cross(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L166" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Computes the 2D cross product (returns scalar)</p>
 <p>Returns the z-component of the 3D cross product - useful for determining rotation direction</p>
 </div>
 
-<h3><code>rotate(a)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L166" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>rotate(a)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L168" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Rotates this vector by angle a (in radians) in place</p>
 </div>
 
-<h3><code>rotated(a)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L172" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>rotated(a)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L174" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns a rotated copy of this vector</p>
 </div>
 
-<h3><code>perp</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L178" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>perp</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L180" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns a perpendicular vector rotated 90 degrees counter-clockwise</p>
 <p>Useful for calculating normals and perpendicular directions</p>
 </div>
 
-<h3><code>clear()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L180" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>clear()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L182" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the vector to (0, 0)</p>
 </div>
 
-<h3><code>atan2</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L186" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>atan2</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L188" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns the angle of this vector in radians</p>
 </div>
 
-<h3><code>clamp(min, max)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L206" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>clamp(min, max)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L208" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Clamps this vector&#x27;s components between min and max</p>
 </div>
 
-<h3><code>toString</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L212" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>toString</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L214" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns a string representation of this vector</p>
 </div>
 
-<h3><code>serialize</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L215" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>serialize</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L217" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Serializes the vector to a list</p>
 </div>
 
-<h3><code>construct deserialize(data)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L218" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct deserialize(data)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L220" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a vector from serialized data</p>
 </div>
 
-<h3><code>static distance(a, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L224" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static distance(a, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L226" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Computes the distance between two vectors</p>
 </div>
 
-<h3><code>static distanceSq(a, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L231" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static distanceSq(a, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L233" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Computes the squared distance between two vectors (faster than distance)</p>
 </div>
 
-<h3><code>static randomDirection()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L238" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static randomDirection()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L240" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns a random unit direction vector</p>
 </div>
 
-<h3><code>static reflect(incident, normal)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L253" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static reflect(incident, normal)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L255" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Reflects an incident vector off a surface with the given normal vector</p>
 <p>The normal should be normalized (unit length) for correct results</p>
 </div>
 
-<h3><code>static project(a, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L258" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static project(a, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L260" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Projects vector a onto vector b</p>
 </div>
 
 <hr>
-<h2>Class Geom <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L265" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Geom <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L271" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Geometric utility functions</p>
 </div>
 
-<h3><code>static distanceSegmentToPoint(a, b, c)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L269" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static distanceSegmentToPoint(a, b, c)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L275" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Computes the distance from a line segment (a to b) to a point c</p>
 <p>Based on https://stackoverflow.com/questions/1073336/circle-line-segment-collision-detection-algorithm</p>
 </div>
 
 <hr>
-<h2>Class Color <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L296" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Color <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L302" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>RGBA color class with utility functions</p>
 <p>Color components are integers from 0-255</p>
 <p>Supports arithmetic operations and conversion to/from 32-bit integers</p>
 </div>
 
-<h3><code>construct new(r, g, b, a)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L298" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(r, g, b, a)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L304" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a color with RGBA components (0-255)</p>
 </div>
 
-<h3><code>construct new(r, g, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L305" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>construct new(r, g, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L311" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a color with RGB components (alpha defaults to 255)</p>
 </div>
 
-<h3><code>a</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L313" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>a</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L319" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the alpha component</p>
 </div>
 
-<h3><code>r</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L315" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>r</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L321" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the red component</p>
 </div>
 
-<h3><code>g</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L317" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>g</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L323" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the green component</p>
 </div>
 
-<h3><code>b</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L319" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>b</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L325" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the blue component</p>
 </div>
 
-<h3><code>a=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L321" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>a=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L327" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the alpha component</p>
 </div>
 
-<h3><code>r=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L323" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>r=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L329" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the red component</p>
 </div>
 
-<h3><code>g=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L325" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>g=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L331" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the green component</p>
 </div>
 
-<h3><code>b=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L327" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>b=(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L333" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the blue component</p>
 </div>
 
-<h3><code>+(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L330" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>+(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L336" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds two colors component-wise</p>
 </div>
 
-<h3><code>-(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L332" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>-(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L338" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Subtracts two colors component-wise</p>
 </div>
 
-<h3><code>*(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L334" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>*(other)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L340" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Multiplies color by another color or scalar</p>
 </div>
 
-<h3><code>toNum</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L343" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>toNum</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L349" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Converts the color to a 32-bit integer (0xRRGGBBAA format)</p>
 </div>
 
-<h3><code>static fromNum(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L345" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static fromNum(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L351" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a color from a 32-bit integer</p>
 </div>
 
-<h3><code>static add(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L354" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static add(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L360" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds two colors represented as 32-bit integers (including alpha channel)</p>
 </div>
 
-<h3><code>static mul(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L367" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static mul(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L373" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Multiplies two colors represented as 32-bit integers (including alpha channel)</p>
 </div>
 
-<h3><code>toString</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/assets/modules/xs_math.wren#L382" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>toString</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\math.wren#L388" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns a string representation of this color</p>
 </div>
 
   </div>
 
-  <!-- Footer -->
+    <!-- FOOTER_START -->
   <footer>
-    <p>xs - lovingly made at Breda University of Applied Sciences</p>
-    <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+    <div class="footer-content">
+      <a href="https://www.buas.nl/" target="_blank" class="footer-logo-left"><img src="../img/buas.png" alt="Breda University of Applied Sciences" class="sponsor-logo"></a>
+      <div class="footer-text">
+        <p>Crafted at Breda University of Applied Sciences</p>
+        <p>The development of this software is supported by an AMD hardware grant</p>
+        <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+      </div>
+      <a href="https://www.amd.com/" target="_blank" class="footer-logo-right"><img src="../img/amd.png" alt="AMD" class="sponsor-logo"></a>
+    </div>
   </footer>
+  <!-- FOOTER_END -->
 
   <!-- JavaScript -->
   <script src="../js/main.js"></script>
