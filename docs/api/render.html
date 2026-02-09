@@ -33,73 +33,73 @@
   <!-- Main Content -->
   <div class="container api-section">
     <h1>Core API (Render, Input, etc.)</h1>
-    <p><em>Source: <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren">resources\modules\xs\core.wren</a></em></p>
+    <p><em>Source: <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren">resources/modules/xs/core.wren</a></em></p>
 
 <hr>
-<h2>Class ShapeHandle <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L5" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class ShapeHandle <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L5" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Handle for shapes and sprites in the rendering system.</p>
 <p>Used to correctly manage resources via the GC. Not to be created directly.</p>
 </div>
 
 <hr>
-<h2>Class Render <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L9" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Render <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L9" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Core rendering API for sprites, shapes, text, and debug drawing</p>
 <p>Provides functionality for rendering images, texts and shapes</p>
 </div>
 
-<h3><code>static loadImage(path)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L13" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static loadImage(path)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L13" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Loads an image from a file and returns an image ID</p>
 <p>Supports PNG and JPG formats. Use relative paths like &quot;[game]/textures/flower.png&quot;</p>
 </div>
 
-<h3><code>static loadShape(path)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L17" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static loadShape(path)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L17" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Loads a shape from a file and returns a shape ID</p>
 <p>Supports SVG format</p>
 </div>
 
-<h3><code>static loadFont(font, size)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L21" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static loadFont(font, size)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L21" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Loads a font into a font atlas and returns a font ID</p>
 <p>Font will be rasterized at the specified size</p>
 </div>
 
-<h3><code>static getImageWidth(imageId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L24" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getImageWidth(imageId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L24" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the width in pixels of a loaded image</p>
 </div>
 
-<h3><code>static getImageHeight(imageId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L27" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getImageHeight(imageId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L27" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the height in pixels of a loaded image</p>
 </div>
 
-<h3><code>static createSprite(imageId, x0, y0, x1, y1)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L31" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static createSprite(imageId, x0, y0, x1, y1)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L31" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a sprite from a section of an image using texture coordinates</p>
 <p>Coordinates are normalized (0.0 to 1.0): x0, y0 (top-left), x1, y1 (bottom-right)</p>
 </div>
 
-<h3><code>static createShape(imageId, positions, textureCoords, indices)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L34" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static createShape(imageId, positions, textureCoords, indices)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L34" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a custom mesh shape from vertices, texture coordinates, and indices</p>
 </div>
 
-<h3><code>static destroyShape(shapeId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L37" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static destroyShape(shapeId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L37" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Destroys a shape and frees its resources</p>
 </div>
 
-<h3><code>static setOffset(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L41" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setOffset(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L41" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the offset for subsequent sprite draw calls</p>
 <p>All sprites will be offset by (x, y) until new values are set</p>
 </div>
 
-<h3><code>static sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L52" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static sprite(spriteId, x, y, z, scale, rotation, mul, add, flags)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L52" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a sprite with full control over appearance</p>
 <p>- spriteId: Valid sprite ID created with createSprite (not an image ID)</p>
@@ -112,661 +112,661 @@
 <p>- flags: Combination of sprite flags (spriteBottom, spriteCenter, etc.)</p>
 </div>
 
-<h3><code>static shape(shapeId, x, y, z, scale, rotation, mul, add)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L55" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static shape(shapeId, x, y, z, scale, rotation, mul, add)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L55" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a shape at a position with transformation</p>
 </div>
 
-<h3><code>static text(fontId, txt, x, y, z, mul, add, flags)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L59" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static text(fontId, txt, x, y, z, mul, add, flags)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L59" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws text at a position with styling</p>
 <p>Note: Text always renders above sprites currently</p>
 </div>
 
-<h3><code>static spriteNone</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L62" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static spriteNone</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L62" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Don&#x27;t apply any flags</p>
 </div>
 
-<h3><code>static spriteBottom</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L65" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static spriteBottom</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L65" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draw the sprite at the bottom</p>
 </div>
 
-<h3><code>static spriteTop</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L68" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static spriteTop</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L68" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draw the sprite at the top</p>
 </div>
 
-<h3><code>static spriteCenterX</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L71" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static spriteCenterX</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L71" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Center the sprite on the x-axis</p>
 </div>
 
-<h3><code>static spriteCenterY</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L74" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static spriteCenterY</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L74" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Center the sprite on the y-axis</p>
 </div>
 
-<h3><code>static spriteFlipX</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L77" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static spriteFlipX</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L77" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Flip the sprite on the x-axis</p>
 </div>
 
-<h3><code>static spriteFlipY</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L80" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static spriteFlipY</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L80" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Flip the sprite on the y-axis</p>
 </div>
 
-<h3><code>static spriteFixed</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L83" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static spriteFixed</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L83" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Overlay the sprite as overlay (no offset applied)</p>
 </div>
 
-<h3><code>static spriteCenter</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L86" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static spriteCenter</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L86" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Center the sprite on the x and y-axis</p>
 </div>
 
-<h3><code>static spriteShape</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L89" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static spriteShape</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L89" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>This is not a sprite but a shape, so handle it differently</p>
 </div>
 
-<h3><code>static lines</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L92" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static lines</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L92" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Primitive type for line rendering</p>
 </div>
 
-<h3><code>static triangles</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L95" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static triangles</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L95" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Primitive type for triangle rendering</p>
 </div>
 
-<h3><code>static dbgBegin(primitive)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L100" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgBegin(primitive)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L100" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Begins a debug primitive batch</p>
 <p>Call dbgVertex() to add vertices, then dbgEnd() to finish</p>
 <p>Primitive can be lines or triangles</p>
 </div>
 
-<h3><code>static dbgEnd()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L104" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgEnd()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L104" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Ends a debug primitive batch and renders it</p>
 <p>Number of vertices must match primitive type (divisible by 2 for lines, 3 for triangles)</p>
 </div>
 
-<h3><code>static dbgVertex(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L108" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgVertex(x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L108" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds a vertex to the current debug primitive</p>
 <p>Must be called between dbgBegin() and dbgEnd()</p>
 </div>
 
-<h3><code>static dbgColor(color)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L112" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgColor(color)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L112" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the color for the next debug vertices</p>
 <p>Color format: 0xRRGGBBAA (e.g., 0xF0C0D0FF)</p>
 </div>
 
-<h3><code>static dbgLine(x0, y0, x1, y1)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L115" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgLine(x0, y0, x1, y1)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L115" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a debug line from (x0, y0) to (x1, y1)</p>
 </div>
 
-<h3><code>static dbgText(text, x, y, size)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L119" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgText(text, x, y, size)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L119" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws debug text on screen with specified size</p>
 <p>Uses built-in debug font</p>
 </div>
 
-<h3><code>static dbgLine(a, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L122" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgLine(a, b)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L122" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a debug line between two vector points</p>
 </div>
 
-<h3><code>static dbgRect(fromX, fromY, toX, toY)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L127" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgRect(fromX, fromY, toX, toY)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L127" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a filled debug rectangle</p>
 </div>
 
-<h3><code>static dbgSquare(centerX, centerY, size)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L140" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgSquare(centerX, centerY, size)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L140" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a filled debug square centered at position</p>
 </div>
 
-<h3><code>static dbgDisk(x, y, r, divs)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L147" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgDisk(x, y, r, divs)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L147" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a filled debug circle (disk)</p>
 <p>divs controls the number of triangular segments</p>
 </div>
 
-<h3><code>static dbgCircle(x, y, r, divs)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L166" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgCircle(x, y, r, divs)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L166" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a debug circle outline</p>
 <p>divs controls the number of line segments</p>
 </div>
 
-<h3><code>static dbgArc(x, y, r, angle, divs)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L184" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgArc(x, y, r, angle, divs)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L184" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a debug arc (partial circle outline)</p>
 <p>angle is in radians, divs controls line segment count</p>
 </div>
 
-<h3><code>static dbgPie(x, y, r, angle, divs)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L206" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgPie(x, y, r, angle, divs)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L206" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a filled debug pie/wedge shape</p>
 <p>angle is in radians, divs controls triangle count</p>
 </div>
 
-<h3><code>static dbgVertex(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L226" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dbgVertex(v)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L226" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds a vector point as a debug vertex</p>
 </div>
 
-<h3><code>static sprite(spriteId, x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L232" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static sprite(spriteId, x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L232" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a sprite at position with default settings</p>
 <p>Equivalent to: sprite(spriteId, x, y, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x00000000, spriteBottom)</p>
 </div>
 
-<h3><code>static sprite(spriteId, x, y, z)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L237" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static sprite(spriteId, x, y, z)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L237" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a sprite at position with z-sorting</p>
 </div>
 
-<h3><code>static sprite(spriteId, x, y, z, flags)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L242" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static sprite(spriteId, x, y, z, flags)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L242" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a sprite at position with z-sorting and custom flags</p>
 </div>
 
-<h3><code>static createGridSprite(imageId, columns, rows,  c, r)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L247" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static createGridSprite(imageId, columns, rows,  c, r)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L247" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a sprite from a grid/sprite sheet by column and row</p>
 </div>
 
-<h3><code>static createGridSprite(imageId, columns, rows,  idx)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L257" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static createGridSprite(imageId, columns, rows,  idx)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L257" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a sprite from a grid/sprite sheet by index</p>
 <p>Index starts at 0 from top-left, going row by row</p>
 </div>
 
 <hr>
-<h2>Class File <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L271" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class File <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L271" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>File I/O operations</p>
 </div>
 
-<h3><code>static read(src)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L273" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static read(src)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L273" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Reads the contents of a file as a string</p>
 </div>
 
-<h3><code>static write(text, dst)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L276" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static write(text, dst)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L276" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Writes text content to a file</p>
 </div>
 
-<h3><code>static exists(src)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L279" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static exists(src)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L279" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if a file exists at the given path</p>
 </div>
 
 <hr>
-<h2>Class Json <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L284" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Json <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L284" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Fast JSON parsing and serialization (C++ implementation)</p>
 <p>Much faster than the pure Wren json.wren parser</p>
 </div>
 
-<h3><code>static load(path)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L287" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static load(path)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L287" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Loads and parses a JSON file, returns the parsed value (Map, List, String, Num, Bool, or null)</p>
 <p>Returns null if the file doesn&#x27;t exist or parsing fails</p>
 </div>
 
-<h3><code>static parse(jsonString)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L291" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static parse(jsonString)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L291" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Parses a JSON string, returns the parsed value</p>
 <p>Returns null if parsing fails</p>
 </div>
 
-<h3><code>static save(path, value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L296" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static save(path, value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L296" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Saves a value to a JSON file with pretty formatting</p>
 <p>Returns true on success, false on failure</p>
 <p>Note: Map serialization has limited support</p>
 </div>
 
-<h3><code>static stringify(value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L300" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static stringify(value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L300" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Converts a value to a JSON string with pretty formatting</p>
 <p>Note: Map serialization has limited support</p>
 </div>
 
 <hr>
-<h2>Class TouchData <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L304" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class TouchData <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L304" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Data class for touch input information</p>
 </div>
 
 <hr>
-<h2>Class Input <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L317" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Input <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L317" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Input handling for keyboard, mouse, gamepad, and touch</p>
 </div>
 
-<h3><code>static getAxis(axis)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L319" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getAxis(axis)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L319" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the current value of a gamepad axis (-1.0 to 1.0)</p>
 </div>
 
-<h3><code>static getAxisOnce(axis, threshold)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L322" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getAxisOnce(axis, threshold)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L322" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets axis value once when it crosses threshold (prevents repeating)</p>
 </div>
 
-<h3><code>static getButton(button)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L325" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getButton(button)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L325" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if a gamepad button is currently pressed</p>
 </div>
 
-<h3><code>static getButtonOnce(button)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L328" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getButtonOnce(button)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L328" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if a gamepad button was just pressed (doesn&#x27;t repeat while held)</p>
 </div>
 
-<h3><code>static getKey(key)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L331" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getKey(key)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L331" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if a keyboard key is currently pressed</p>
 </div>
 
-<h3><code>static getKeyOnce(key)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L334" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getKeyOnce(key)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L334" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if a keyboard key was just pressed (doesn&#x27;t repeat while held)</p>
 </div>
 
-<h3><code>static getMouse()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L337" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getMouse()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L337" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets mouse state information</p>
 </div>
 
-<h3><code>static getMouseButton(button)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L340" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getMouseButton(button)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L340" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if a mouse button is currently pressed</p>
 </div>
 
-<h3><code>static getMouseButtonOnce(button)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L343" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getMouseButtonOnce(button)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L343" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if a mouse button was just pressed (doesn&#x27;t repeat while held)</p>
 </div>
 
-<h3><code>static getMouseX()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L346" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getMouseX()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L346" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the current mouse X position in screen coordinates</p>
 </div>
 
-<h3><code>static getMouseY()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L349" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getMouseY()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L349" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the current mouse Y position in screen coordinates</p>
 </div>
 
-<h3><code>static getMouseWheel()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L352" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getMouseWheel()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L352" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the mouse wheel delta for this frame</p>
 </div>
 
-<h3><code>static getNrTouches()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L355" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getNrTouches()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L355" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the number of active touch points</p>
 </div>
 
-<h3><code>static getTouchId(index)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L358" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getTouchId(index)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L358" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the unique ID for a touch at the given index</p>
 </div>
 
-<h3><code>static getTouchX(index)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L361" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getTouchX(index)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L361" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the X position for a touch at the given index</p>
 </div>
 
-<h3><code>static getTouchY(index)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L364" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getTouchY(index)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L364" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the Y position for a touch at the given index</p>
 </div>
 
-<h3><code>static setPadVibration(lowRumble, highRumble, time)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L368" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setPadVibration(lowRumble, highRumble, time)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L368" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets gamepad vibration motors (DualSense, Xbox controllers)</p>
 <p>time is in milliseconds</p>
 </div>
 
-<h3><code>static setPadLightbarColor(red, green, blue)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L372" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setPadLightbarColor(red, green, blue)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L372" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the gamepad lightbar color (DualSense controller)</p>
 <p>Colors are 0-255</p>
 </div>
 
-<h3><code>static resetPadLightbarColor()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L375" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static resetPadLightbarColor()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L375" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Resets gamepad lightbar to default color</p>
 </div>
 
-<h3><code>static getTouchData()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L378" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getTouchData()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L378" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets all touch data as a list of TouchData objects</p>
 </div>
 
-<h3><code>static getTouchData(index)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L386" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getTouchData(index)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L386" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets touch data for a specific touch index</p>
 </div>
 
-<h3><code>static getMousePosition()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L391" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getMousePosition()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L391" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the mouse position as a two-element list [x, y]</p>
 </div>
 
 <hr>
-<h2>Class Audio <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L460" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Audio <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L460" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Audio playback using FMOD</p>
 </div>
 
-<h3><code>static load(name, groupId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L463" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static load(name, groupId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L463" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Loads a sound file into a group and returns a sound ID</p>
 </div>
 
-<h3><code>static play(soundId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L466" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static play(soundId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L466" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Plays a loaded sound and returns a channel ID</p>
 </div>
 
-<h3><code>static getGroupVolume(groupId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L469" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getGroupVolume(groupId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L469" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the volume level of a sound group (0.0 to 1.0)</p>
 </div>
 
-<h3><code>static setGroupVolume(groupId, volume)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L472" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setGroupVolume(groupId, volume)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L472" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the volume level of a sound group (0.0 to 1.0)</p>
 </div>
 
-<h3><code>static getChannelVolume(channelId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L475" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getChannelVolume(channelId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L475" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the volume level of a specific channel (0.0 to 1.0)</p>
 </div>
 
-<h3><code>static setChannelVolume(channelId, volume)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L478" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setChannelVolume(channelId, volume)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L478" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the volume level of a specific channel (0.0 to 1.0)</p>
 </div>
 
-<h3><code>static getBusVolume(busName)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L481" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getBusVolume(busName)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L481" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the volume level of an FMOD bus by name (0.0 to 1.0)</p>
 </div>
 
-<h3><code>static setBusVolume(busName, volume)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L484" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setBusVolume(busName, volume)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L484" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the volume level of an FMOD bus by name (0.0 to 1.0)</p>
 </div>
 
-<h3><code>static loadBank(bankId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L487" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static loadBank(bankId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L487" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Loads an FMOD sound bank</p>
 </div>
 
-<h3><code>static unloadBank(bankId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L490" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static unloadBank(bankId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L490" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Unloads an FMOD sound bank</p>
 </div>
 
-<h3><code>static startEvent(eventName)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L493" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static startEvent(eventName)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L493" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Starts an FMOD event and returns an event instance ID</p>
 </div>
 
-<h3><code>static setParameterNumber(eventId, paramName, newValue)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L496" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setParameterNumber(eventId, paramName, newValue)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L496" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets a numeric parameter on an FMOD event instance</p>
 </div>
 
-<h3><code>static setParameterLabel(eventId, paramName, newValue)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L499" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setParameterLabel(eventId, paramName, newValue)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L499" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets a labeled parameter on an FMOD event instance</p>
 </div>
 
-<h3><code>static load(path)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L507" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static load(path)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L507" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Load an audio file and return an audio id</p>
 </div>
 
-<h3><code>static play(audioId, volume)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L510" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static play(audioId, volume)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L510" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Play a loaded audio file with specified volume (0.0 to 1.0)</p>
 </div>
 
-<h3><code>static play(audioId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L513" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static play(audioId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L513" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Play a loaded audio file with default volume (1.0)</p>
 </div>
 
-<h3><code>static setVolume(channelId, volume)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L518" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setVolume(channelId, volume)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L518" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Set the volume of a playing channel (0.0 to 1.0)</p>
 </div>
 
-<h3><code>static getVolume(channelId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L521" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getVolume(channelId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L521" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Get the volume of a playing channel</p>
 </div>
 
-<h3><code>static stop(channelId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L524" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static stop(channelId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L524" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Stop a playing channel</p>
 </div>
 
-<h3><code>static stopAll()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L527" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static stopAll()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L527" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Stop all playing channels</p>
 </div>
 
-<h3><code>static isPlaying(channelId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L530" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static isPlaying(channelId)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L530" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Check if a channel is currently playing</p>
 </div>
 
-<h3><code>static getNumber(name)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L535" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getNumber(name)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L535" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets a number value from the game scope</p>
 </div>
 
-<h3><code>static getColor(name)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L538" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getColor(name)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L538" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets a color value from the game scope</p>
 </div>
 
-<h3><code>static getBool(name)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L541" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getBool(name)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L541" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets a boolean value from the game scope</p>
 </div>
 
-<h3><code>static getNumber(name, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L544" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getNumber(name, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L544" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets a number value from a specific data scope</p>
 </div>
 
-<h3><code>static getColor(name, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L547" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getColor(name, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L547" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets a color value from a specific data scope</p>
 </div>
 
-<h3><code>static getBool(name, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L550" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getBool(name, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L550" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets a boolean value from a specific data scope</p>
 </div>
 
-<h3><code>static getString(name, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L553" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getString(name, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L553" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets a string value from a specific data scope</p>
 </div>
 
-<h3><code>static setNumber(name, value, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L556" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setNumber(name, value, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L556" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets a number value in a specific data scope</p>
 </div>
 
-<h3><code>static setColor(name, value, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L559" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setColor(name, value, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L559" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets a color value in a specific data scope</p>
 </div>
 
-<h3><code>static setBool(name, value, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L562" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setBool(name, value, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L562" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets a boolean value in a specific data scope</p>
 </div>
 
-<h3><code>static setString(name, value, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L565" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setString(name, value, type)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L565" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets a string value in a specific data scope</p>
 </div>
 
 <hr>
-<h2>Class Device <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L574" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Device <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L574" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>Platform and device information</p>
 </div>
 
-<h3><code>static getPlatform()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L577" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static getPlatform()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L577" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the current platform identifier</p>
 </div>
 
-<h3><code>static canClose()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L580" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static canClose()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L580" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if the application can be closed (always false on consoles)</p>
 </div>
 
-<h3><code>static requestClose()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L583" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static requestClose()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L583" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Requests the application to close</p>
 </div>
 
 <hr>
-<h2>Class Profiler <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L592" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Profiler <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L592" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>CPU profiling utilities</p>
 </div>
 
-<h3><code>static begin(name)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L594" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static begin(name)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L594" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Begins a named profiler section</p>
 </div>
 
-<h3><code>static end(name)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L597" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static end(name)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L597" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Ends a named profiler section</p>
 </div>
 
 <hr>
-<h2>Class Inspector <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L601" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
+<h2>Class Inspector <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L601" style="font-size: 0.6em; opacity: 0.6;">↗</a></h2>
 <div class="api-method">
 <p>ImGui-based inspector utilities for entity debugging</p>
 </div>
 
-<h3><code>static text(label)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L603" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static text(label)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L603" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Displays text in the inspector</p>
 </div>
 
-<h3><code>static treeNode(label)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L606" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static treeNode(label)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L606" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Starts a collapsible tree node, returns true if open</p>
 </div>
 
-<h3><code>static treePop()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L609" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static treePop()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L609" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Ends a tree node (must be called if treeNode returned true)</p>
 </div>
 
-<h3><code>static separator()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L612" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static separator()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L612" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a horizontal separator line</p>
 </div>
 
-<h3><code>static separatorText(text)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L615" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static separatorText(text)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L615" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Draws a horizontal separator line with text in the middle</p>
 </div>
 
-<h3><code>static sameLine()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L618" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static sameLine()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L618" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Places the next widget on the same line</p>
 </div>
 
-<h3><code>static indent()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L621" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static indent()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L621" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Increases indent level</p>
 </div>
 
-<h3><code>static unindent()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L624" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static unindent()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L624" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Decreases indent level</p>
 </div>
 
-<h3><code>static spacing()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L627" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static spacing()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L627" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds vertical spacing</p>
 </div>
 
-<h3><code>static selectable(label, selected)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L630" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static selectable(label, selected)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L630" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Selectable item for lists, returns true if clicked</p>
 </div>
 
-<h3><code>static inputFloat(label, value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L633" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static inputFloat(label, value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L633" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Input field for float values, returns new value</p>
 </div>
 
-<h3><code>static dragFloat(label, value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L636" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dragFloat(label, value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L636" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Drag widget for float values, returns new value</p>
 </div>
 
-<h3><code>static checkbox(label, value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L639" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static checkbox(label, value)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L639" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checkbox for boolean values, returns new value</p>
 </div>
 
-<h3><code>static collapsingHeader(label)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L643" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static collapsingHeader(label)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L643" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Creates a collapsing header section (cleaner than treeNode for headers)</p>
 <p>Returns true if the section is open/expanded</p>
 </div>
 
-<h3><code>static beginChild(label, width, height, border)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L648" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static beginChild(label, width, height, border)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L648" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Begins a child window region with optional border</p>
 <p>width and height: size in pixels (0 = auto-size)</p>
 <p>border: whether to draw a border around the child</p>
 </div>
 
-<h3><code>static endChild()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L652" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static endChild()</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L652" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Ends the current child window region</p>
 <p>Must be called after beginChild</p>
 </div>
 
-<h3><code>static dragFloat2_(label, x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L656" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dragFloat2_(label, x, y)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L656" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Private: Drag widget for 2D float vector (x, y as separate params)</p>
 <p>Returns a list [x, y] with the new values</p>
 </div>
 
-<h3><code>static dragFloat2(label, vec)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources\modules\xs\core.wren#L660" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static dragFloat2(label, vec)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/core.wren#L660" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Drag widget for 2D vector, returns new Vec2 value</p>
 <p>Works with xs_math Vec2 objects</p>
@@ -780,7 +780,7 @@
       <a href="https://www.buas.nl/" target="_blank" class="footer-logo-left"><img src="../img/buas.png" alt="Breda University of Applied Sciences" class="sponsor-logo"></a>
       <div class="footer-text">
         <p>Crafted at Breda University of Applied Sciences</p>
-        <p>The development of this software is supported by an AMD hardware grant</p>
+        <p>The development of xs is supported by an AMD hardware grant</p>
         <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
       </div>
       <a href="https://www.amd.com/" target="_blank" class="footer-logo-right"><img src="../img/amd.png" alt="AMD" class="sponsor-logo"></a>

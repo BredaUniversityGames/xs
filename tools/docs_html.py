@@ -29,7 +29,7 @@ def getFooterContent(relative_img_path):
       <a href="https://www.buas.nl/" target="_blank" class="footer-logo-left"><img src="{relative_img_path}buas.png" alt="Breda University of Applied Sciences" class="sponsor-logo"></a>
       <div class="footer-text">
         <p>Crafted at Breda University of Applied Sciences</p>
-        <p>The development of this software is supported by an AMD hardware grant</p>
+        <p>The development of xs is supported by an AMD hardware grant</p>
         <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
       </div>
       <a href="https://www.amd.com/" target="_blank" class="footer-logo-right"><img src="{relative_img_path}amd.png" alt="AMD" class="sponsor-logo"></a>
