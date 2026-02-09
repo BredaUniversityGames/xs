@@ -2,6 +2,7 @@ import cairo
 import math
 import sys
 import os
+import xml.etree.ElementTree as ET
 
 def int_to_rgb(i):
     return ((i >> 16) & 0xff) / 255, ((i >> 8) & 0xff) / 255, (i & 0xff) / 255
@@ -200,6 +201,102 @@ def save_background_image():
     print(f"Generated: {path}")
 
 
+def add_svg_animation(svg_path: str, width: int, height: int):
+    """Post-process SVG to add animations to the half circles."""
+    size = max(width, height)
+    R = 0.18 * size
+    
+    tree = ET.parse(svg_path)
+    root = tree.getroot()
+
+    # Define namespace
+    ns = {'svg': 'http://www.w3.org/2000/svg'}
+    ET.register_namespace('', 'http://www.w3.org/2000/svg')
+
+    # Get all path elements (the half circles)
+    paths = root.findall('.//svg:path', ns)
+
+    if len(paths) >= 4:
+        # Calculate animation values
+        x_vertical_offset = R
+        s_horizontal_offset = R / 2
+        
+        # Remove all clipPath elements to prevent bounding box constraints
+        defs = root.find('.//svg:defs', ns)
+        if defs is not None:
+            for clippath in root.findall('.//svg:clipPath', ns):
+                defs.remove(clippath)
+        
+        # Remove all clip-path attributes from groups
+        for group in root.findall('.//{http://www.w3.org/2000/svg}g', ns):
+            if 'clip-path' in group.attrib:
+                del group.attrib['clip-path']
+        
+        # Add animations to each half circle
+        # Bottom of X
+        if len(paths) > 0:
+            x_bottom = paths[-4]
+            anim = ET.Element('{http://www.w3.org/2000/svg}animateTransform')
+            anim.set('attributeName', 'transform')
+            anim.set('type', 'translate')
+            anim.set('values', f"0,0; 0,0; 0,-{x_vertical_offset}; 0,-{x_vertical_offset}; 0,0; 0,0")
+            anim.set('dur', '3s')
+            anim.set('keyTimes', '0; 0.25; 0.35; 0.65; 0.75; 1')
+            anim.set('repeatCount', 'indefinite')
+            anim.set('calcMode', 'spline')
+            anim.set('keySplines', '0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1')
+            anim.set('additive', 'sum')
+            x_bottom.append(anim)
+        
+        # Top of X
+        if len(paths) > 1:
+            x_top = paths[-3]
+            anim = ET.Element('{http://www.w3.org/2000/svg}animateTransform')
+            anim.set('attributeName', 'transform')
+            anim.set('type', 'translate')
+            anim.set('values', f"0,0; 0,0; 0,{x_vertical_offset}; 0,{x_vertical_offset}; 0,0; 0,0")
+            anim.set('dur', '3s')
+            anim.set('keyTimes', '0; 0.25; 0.35; 0.65; 0.75; 1')
+            anim.set('repeatCount', 'indefinite')
+            anim.set('calcMode', 'spline')
+            anim.set('keySplines', '0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1')
+            anim.set('additive', 'sum')
+            x_top.append(anim)
+        
+        # Bottom of S
+        if len(paths) > 2:
+            s_bottom = paths[-2]
+            anim = ET.Element('{http://www.w3.org/2000/svg}animateTransform')
+            anim.set('attributeName', 'transform')
+            anim.set('type', 'translate')
+            anim.set('values', f"0,0; 0,0; {s_horizontal_offset},0; {s_horizontal_offset},0; 0,0; 0,0")
+            anim.set('dur', '3s')
+            anim.set('keyTimes', '0; 0.25; 0.35; 0.65; 0.75; 1')
+            anim.set('repeatCount', 'indefinite')
+            anim.set('calcMode', 'spline')
+            anim.set('keySplines', '0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1')
+            anim.set('additive', 'sum')
+            s_bottom.append(anim)
+        
+        # Top of S
+        if len(paths) > 3:
+            s_top = paths[-1]
+            anim = ET.Element('{http://www.w3.org/2000/svg}animateTransform')
+            anim.set('attributeName', 'transform')
+            anim.set('type', 'translate')
+            anim.set('values', f"0,0; 0,0; -{s_horizontal_offset},0; -{s_horizontal_offset},0; 0,0; 0,0")
+            anim.set('dur', '3s')
+            anim.set('keyTimes', '0; 0.25; 0.35; 0.65; 0.75; 1')
+            anim.set('repeatCount', 'indefinite')
+            anim.set('calcMode', 'spline')
+            anim.set('keySplines', '0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1')
+            anim.set('additive', 'sum')
+            s_top.append(anim)
+
+    # Save the modified SVG
+    tree.write(svg_path, encoding='utf-8', xml_declaration=True)
+
+
 def save_svg_icon():
     """Generate SVG icon with rounded corners."""
     output_dir = "resources/images"
@@ -208,12 +305,22 @@ def save_svg_icon():
     width = 128
     height = 128
 
+    # Generate static SVG
     path = os.path.join(output_dir, "icon_small.svg")
     surface = cairo.SVGSurface(path, width, height)
     ctx = cairo.Context(surface)
     draw_icon(ctx, width, height, draw_background=True, draw_foreground=True, steps=5, with_rounding=True)
     surface.finish()
     print(f"Generated: {path}")
+    
+    # Generate animated SVG
+    animated_path = os.path.join(output_dir, "icon_small_animated.svg")
+    surface = cairo.SVGSurface(animated_path, width, height)
+    ctx = cairo.Context(surface)
+    draw_icon(ctx, width, height, draw_background=True, draw_foreground=True, steps=5, with_rounding=True)
+    surface.finish()
+    add_svg_animation(animated_path, width, height)
+    print(f"Generated: {animated_path}")
 
 
 def save_nx_icon():
