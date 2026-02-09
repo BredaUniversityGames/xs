@@ -55,6 +55,7 @@ nav .nav-logo img {
   height: 50px;
   width: 50px;
   filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.5));
+  border-radius: 10%;
 }
 
 nav .logo {
@@ -107,6 +108,7 @@ nav .nav-links a {
 nav .nav-links a .icon-svg {
   height: 2rem;
   margin: -1.5rem 0;
+  border-radius: 10%;
 }
 
 nav .nav-links a:hover {

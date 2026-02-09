@@ -43,7 +43,7 @@ def draw_icon(ctx: cairo.Context,
               height: int,
               draw_background = True,
               draw_foreground = True,
-              steps: int = 5,
+              steps: int = 7,
               with_rounding: bool = True):
     """Draw the icon on the provided Cairo context."""
     size = max(width, height)  # Use max for R calculation to maintain proportions
@@ -66,7 +66,7 @@ def draw_icon(ctx: cairo.Context,
         ctx.rotate(math.radians(45))
         ctx.set_line_width(thickness + 2) # slight overlap to avoid gaps  
 
-        x = -w + thickness * 0.5 # thickness + 39 * unit
+        x = -w + thickness * 0.5
         y = -h
 
         for i in range(steps):
@@ -221,17 +221,6 @@ def add_svg_animation(svg_path: str, width: int, height: int):
         x_vertical_offset = R
         s_horizontal_offset = R / 2
         
-        # Remove all clipPath elements to prevent bounding box constraints
-        defs = root.find('.//svg:defs', ns)
-        if defs is not None:
-            for clippath in root.findall('.//svg:clipPath', ns):
-                defs.remove(clippath)
-        
-        # Remove all clip-path attributes from groups
-        for group in root.findall('.//{http://www.w3.org/2000/svg}g', ns):
-            if 'clip-path' in group.attrib:
-                del group.attrib['clip-path']
-        
         # Add animations to each half circle
         # Bottom of X
         if len(paths) > 0:
@@ -313,11 +302,11 @@ def save_svg_icon():
     surface.finish()
     print(f"Generated: {path}")
     
-    # Generate animated SVG
+    # Generate animated SVG (without Cairo clipping, we'll add SVG-level clipping)
     animated_path = os.path.join(output_dir, "icon_small_animated.svg")
     surface = cairo.SVGSurface(animated_path, width, height)
     ctx = cairo.Context(surface)
-    draw_icon(ctx, width, height, draw_background=True, draw_foreground=True, steps=5, with_rounding=True)
+    draw_icon(ctx, width, height, draw_background=True, draw_foreground=True, steps=7, with_rounding=False)
     surface.finish()
     add_svg_animation(animated_path, width, height)
     print(f"Generated: {animated_path}")
