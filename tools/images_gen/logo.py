@@ -37,25 +37,28 @@ def save_scaled_surface(source_surface: cairo.Surface,
     scaled_surface.write_to_png(path)
 
 
-def create_base_icon(width: int,
-                    height: int,
-                    draw_background = True,
-                    draw_foreground = True,
-                    steps: int = 5,
-                    with_rounding: bool = True):
+def draw_icon(ctx: cairo.Context,
+              width: int,
+              height: int,
+              draw_background = True,
+              draw_foreground = True,
+              steps: int = 5,
+              with_rounding: bool = True):
+    """Draw the icon on the provided Cairo context."""
     size = max(width, height)  # Use max for R calculation to maintain proportions
     R = 0.18 * size
-    r = 0.1 * size if with_rounding else 0
+    corner_radius = 0.1 * size if with_rounding else 0
     thickness = (width / steps) * math.sqrt(2.0)
     w = (width / 2) * math.sqrt(2.0)
     h = (width / 2) * math.sqrt(2.0)
 
-
     toColor = int_to_rgba(3187733247)
     fromColor = int_to_rgba(4289593599)
 
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
-    ctx = cairo.Context(surface)
+    # Apply rounded rectangle clipping if requested
+    if with_rounding:
+        round_rectangle(ctx, 0, 0, width, height, corner_radius)
+        ctx.clip()
 
     if draw_background:
         ctx.translate(width / 2, height / 2)
@@ -111,6 +114,17 @@ def create_base_icon(width: int,
         ctx.close_path()
         ctx.fill()
 
+
+def create_base_icon(width: int,
+                    height: int,
+                    draw_background = True,
+                    draw_foreground = True,
+                    steps: int = 5,
+                    with_rounding: bool = True):
+    """Create a PNG icon with the specified parameters."""
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
+    ctx = cairo.Context(surface)
+    draw_icon(ctx, width, height, draw_background, draw_foreground, steps, with_rounding)
     return surface
 
 
@@ -156,11 +170,18 @@ def save_generic_icons():
     output_dir = "resources/images"
     os.makedirs(output_dir, exist_ok=True)
 
-    # Save main icon with rounding for generic use
-    surface = create_base_icon(256, 256, with_rounding=True)
-    path = os.path.join(output_dir, "ios.png")
-    surface.write_to_png(path)
-    print(f"Generated: {path}")
+    # Generate icons matching existing naming convention
+    icons = [
+        (32, "icon_tiny.png"),
+        (64, "icon_small.png"),
+        (256, "icon.png"),
+    ]
+    
+    for size, filename in icons:
+        surface = create_base_icon(size, size, with_rounding=True)
+        path = os.path.join(output_dir, filename)
+        surface.write_to_png(path)
+        print(f"Generated: {path}")
 
 def save_background_image():
     """Generate generic background image (1920x1080) with rounded corners."""
@@ -176,6 +197,22 @@ def save_background_image():
                                draw_background=False)
     path = os.path.join(output_dir, "background.png")
     surface.write_to_png(path)
+    print(f"Generated: {path}")
+
+
+def save_svg_icon():
+    """Generate SVG icon with rounded corners."""
+    output_dir = "resources/images"
+    os.makedirs(output_dir, exist_ok=True)
+
+    width = 128
+    height = 128
+
+    path = os.path.join(output_dir, "icon_small.svg")
+    surface = cairo.SVGSurface(path, width, height)
+    ctx = cairo.Context(surface)
+    draw_icon(ctx, width, height, draw_background=True, draw_foreground=True, steps=5, with_rounding=True)
+    surface.finish()
     print(f"Generated: {path}")
 
 
@@ -212,32 +249,42 @@ def save_nx_icon():
             os.rename(png_path, os.path.join(output_dir, "icon.png"))
             print(f"Saved as PNG instead: {os.path.join(output_dir, 'icon.png')}")
 
-# Parse command line arguments
-if len(sys.argv) < 2:
-    print("Usage: python logo.py <platform>")
-    print("Platforms: macos, ios, nx, generic")
-    sys.exit(1)
 
-platform = sys.argv[1].lower()
+def main():
+    if len(sys.argv) >= 2:
+        platform = sys.argv[1].lower()
 
-# Generate icons based on platform
-if platform == "macos":
-    print("Generating macOS icons (square, no rounding)...")
-    save_macos_icons()
-elif platform == "ios":
-    print("Generating iOS icons (square, no rounding)...")
-    save_ios_icons()
-elif platform == "nx":
-    print("Generating Nintendo Switch icon (1024x1024 BMP)...")
-    save_nx_icon()
-elif platform == "generic":
-    print("Generating all generic...")
-    save_generic_icons()
-    save_background_image()
+        # Generate icons based on platform
+        if platform == "macos":
+            print("Generating macOS icons (square, no rounding)...")
+            save_macos_icons()
+        elif platform == "ios":
+            print("Generating iOS icons (square, no rounding)...")
+            save_ios_icons()
+        elif platform == "nx":
+            print("Generating Nintendo Switch icon (1024x1024 BMP)...")
+            save_nx_icon()
+        elif platform == "generic":
+            print("Generating all generic...")
+            save_generic_icons()
+            save_background_image()
+        elif platform == "svg":
+            print("Generating SVG icon...")
+            save_svg_icon()
+        else:
+            print(f"Unknown platform: {platform}")
+            print("Valid platforms: macos, ios, nx, generic, svg")
+            sys.exit(1)
+    else:
+        print("No platform specified. Generating all icons...")
+        save_macos_icons()
+        save_ios_icons()
+        save_nx_icon()
+        save_generic_icons()
+        save_background_image()
+        save_svg_icon()
 
-else:
-    print(f"Unknown platform: {platform}")
-    print("Valid platforms: macos, ios, nx, generic")
-    sys.exit(1)
+    print("Done!")
 
-print("Done!")
+if __name__ == "__main__":
+    main()    
