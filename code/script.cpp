@@ -986,7 +986,7 @@ void audio_unload_bank(WrenVM* vm)
 
 void audio_start_event(WrenVM* vm)
 {
-    callFunction_returnType_args<int, int>(vm, xs::audio::play);
+    callFunction_returnType_args<int, string>(vm, xs::audio::start_event);
 }
 
 void audio_set_parameter_number(WrenVM* vm)
