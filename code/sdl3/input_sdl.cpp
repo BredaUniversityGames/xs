@@ -146,7 +146,7 @@ bool xs::input::get_key_once(int key)
 
 bool xs::input::get_mouse()
 {
-	return false;
+	return true;
 }
 
 bool xs::input::get_mousebutton(mouse_button button)
