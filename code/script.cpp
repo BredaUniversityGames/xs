@@ -344,20 +344,20 @@ void xs::script::ec_inspect(const std::string& filter)
     if (!initialized)
         return;
 
-    if (modules.find("xs_ec") == modules.end())
+    if (modules.find("xs/ec") == modules.end())
     {
-        ImGui::Text("The Entity Component (xs.ec) module is not loaded");
+        ImGui::Text("The Entity Component (xs/ec) module is not loaded");
         return;
     }
 
     // Try to get the Entity class from xs_ec module
     wrenEnsureSlots(vm, 2);
-    wrenGetVariable(vm, "xs_ec", "Entity", 0);
+    wrenGetVariable(vm, "xs/ec", "Entity", 0);
 
     // Check if the class was found (not null)
     if (wrenGetSlotType(vm, 0) == WREN_TYPE_NULL)
     {
-        ImGui::Text("The Entity Component (xs.ec) module is not loaded");
+        ImGui::Text("The Entity Component (xs/ec) module is not loaded");
         return;
     }
 

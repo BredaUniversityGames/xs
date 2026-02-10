@@ -3,7 +3,7 @@
 #include <cassert>
 #include <string>
 #include <iostream>
-#include <defines.hpp>
+#include "defines.hpp"
 
 // Detect std::format availability
 // C++20 std::format is available on:
@@ -71,6 +71,8 @@ namespace xs::log
 
 // Use C++20 std::format
 #include <format>
+
+#define XS_FORMAT std::format
 
 #ifdef USE_UTF8_LOG
 
@@ -153,6 +155,7 @@ inline void xs::log::script(const FormatString& format, const Args & ...args)
 // Fallback to fmt library
 #define FMT_HEADER_ONLY
 #include <fmt/core.h>
+#define XS_FORMAT fmt::format
 
 #ifdef USE_UTF8_LOG
 

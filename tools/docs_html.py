@@ -19,6 +19,26 @@ class config:
     branch = "blob/main"
     docs = "docs/api"
     path = "resources/modules"
+    docs_root = "docs"
+
+def getFooterContent(relative_img_path):
+    """Generate footer content with correct relative image path"""
+    return f"""  <!-- FOOTER_START -->
+  <footer>
+    <div class="footer-content">
+      <a href="https://www.buas.nl/" target="_blank" class="footer-logo-left"><img src="{relative_img_path}buas.png" alt="Breda University of Applied Sciences" class="sponsor-logo"></a>
+      <div class="footer-text">
+        <p>Crafted at Breda University of Applied Sciences</p>
+        <p>The development of xs is supported by an AMD hardware grant</p>
+        <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+      </div>
+      <a href="https://www.amd.com/" target="_blank" class="footer-logo-right"><img src="{relative_img_path}amd.png" alt="AMD" class="sponsor-logo"></a>
+    </div>
+  </footer>
+  <!-- FOOTER_END -->"""
+
+# Centralized footer content (for generated API docs in docs/api/)
+FOOTER_CONTENT = getFooterContent("../img/")
 
 import re
 import sys
@@ -103,7 +123,8 @@ def getTripleSlashComments(content, file):
 
             nextline = ""
             nextlineStart = i
-            while i < len(lines) and lines[i].strip() == "":
+            # Skip empty lines and attribute lines (starting with #)
+            while i < len(lines) and (lines[i].strip() == "" or lines[i].strip().startswith('#')):
                 i += 1
 
             if i < len(lines):
@@ -165,6 +186,22 @@ def getComments(content, file):
                     continue
 
                 nextlineStart = end + len(endCommentChar)
+                # Skip whitespace and attribute lines (lines starting with #)
+                tempPos = nextlineStart
+                while tempPos < len(content):
+                    # Skip whitespace
+                    while tempPos < len(content) and content[tempPos] in ' \t\n\r':
+                        tempPos += 1
+                    # Check if we hit an attribute line
+                    if tempPos < len(content) and content[tempPos] == '#':
+                        # Skip to end of line
+                        while tempPos < len(content) and content[tempPos] != '\n':
+                            tempPos += 1
+                        if tempPos < len(content):
+                            tempPos += 1  # Skip the newline
+                    else:
+                        break
+                nextlineStart = tempPos
                 nextlineEnd = content.find(openCurlyBraceChar, nextlineStart)
                 if nextlineEnd >= 0:
                     nextline = content[nextlineStart:nextlineEnd].rstrip()  # Exclude brace and trim
@@ -207,7 +244,7 @@ def saveFile(path, content):
     """Save content to file, creating directories if needed"""
     parent = Path(path).parent
     parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w+") as file:
+    with open(path, "w+", encoding="utf-8") as file:
         file.write(content)
 
 def makeHTMLFile(comments, file):
@@ -221,13 +258,13 @@ def makeHTMLFile(comments, file):
 
     # Map module names to friendly titles
     title_map = {
-        "xs": "Core API (Render, Input, etc.)",
-        "xs_math": "Math & Vectors",
-        "xs_ec": "Entity-Component System",
-        "xs_components": "Built-in Components",
-        "xs_shapes": "Shapes",
-        "xs_containers": "Containers",
-        "xs_tools": "Tools",
+        "core": "Core API (Render, Input, etc.)",
+        "math": "Math & Vectors",
+        "ec": "Entity-Component System",
+        "components": "Built-in Components",
+        "shapes": "Shapes",
+        "containers": "Containers",
+        "tools": "Tools",
     }
 
     if filename_base in title_map:
@@ -316,11 +353,8 @@ def makeHTMLFile(comments, file):
     html += """
   </div>
 
-  <!-- Footer -->
-  <footer>
-    <p>xs - lovingly made at Breda University of Applied Sciences</p>
-    <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
-  </footer>
+"""
+    html += FOOTER_CONTENT + """
 
   <!-- JavaScript -->
   <script src="../js/main.js"></script>
@@ -330,13 +364,13 @@ def makeHTMLFile(comments, file):
 
     # Determine output filename - use friendly names
     filename_map = {
-        "xs": "render",
-        "xs_math": "math",
-        "xs_ec": "ec",
-        "xs_components": "components",
-        "xs_shapes": "shapes",
-        "xs_containers": "containers",
-        "xs_tools": "tools",
+        "core": "render",
+        "math": "math",
+        "ec": "ec",
+        "components": "components",
+        "shapes": "shapes",
+        "containers": "containers",
+        "tools": "tools",
     }
 
     name = filename_base
@@ -352,6 +386,47 @@ def makeHTMLFile(comments, file):
     saveFile(doc, html)
     print(f"Generated: {doc}")
 
+def updateAllFooters():
+    """Update footer in all HTML files in the docs directory"""
+    import os
+    docs_path = Path(config.docs_root)
+    html_files = list(docs_path.glob('**/*.html'))
+    
+    footer_pattern = re.compile(r'<!-- FOOTER_START -->.*?<!-- FOOTER_END -->', re.DOTALL)
+    updated_count = 0
+    
+    for html_file in html_files:
+        try:
+            with open(html_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Check if the file has footer markers
+            if '<!-- FOOTER_START -->' in content and '<!-- FOOTER_END -->' in content:
+                # Determine the correct relative path based on file location
+                relative_to_docs = html_file.relative_to(docs_path)
+                depth = len(relative_to_docs.parts) - 1  # How many folders deep from docs/
+                
+                if depth == 0:
+                    # File is in docs/ directly
+                    img_path = "img/"
+                else:
+                    # File is in a subdirectory (e.g., docs/api/)
+                    img_path = "../img/"
+                
+                footer_content = getFooterContent(img_path)
+                new_content = footer_pattern.sub(footer_content, content)
+                
+                # Only write if content changed
+                if new_content != content:
+                    with open(html_file, 'w', encoding='utf-8') as f:
+                        f.write(new_content)
+                    updated_count += 1
+        except Exception as e:
+            print(f"Warning: Could not update footer in {html_file}: {e}")
+    
+    if updated_count > 0:
+        print(f"Updated footer in {updated_count} existing HTML file(s)")
+
 def main():
     files = getFiles(config.path)
     total = 0
@@ -361,6 +436,9 @@ def main():
         if len(comments) > 0:
             total += len(comments)
             makeHTMLFile(comments, file)
+
+    # Update footers in all HTML files
+    updateAllFooters()
 
     print(f"\\nJobs Done! Found {len(files)} files, parsed {total} comments.")
     print(f"HTML docs saved in `{getDocPath()}`")

@@ -50,8 +50,9 @@
     <p><img src="img/cmd.webp" alt="xs command line" style="max-width: 100%; border-radius: 8px; margin: 1rem 0;"></p>
 
     <p>The "hello" sample looks like the image below and should run without errors.</p>
-
-    <p><img src="img/hello.webp" alt="xs hello sample" style="max-width: 100%; border-radius: 8px; margin: 1rem 0;"></p>
+    <div class="hero-visual hero-visual--embedded">
+      <img src="img/hello_sample.png" alt="xs hello sample">
+    </div>
 
     <p>Great, xs is up and running! <i class="fas fa-check-circle" style="color: #f89020;"></i></p>
     <hr>
@@ -63,8 +64,9 @@
       The xs Visual Studio Code extension provides integrated development features such as visual editors, launch commands/buttons, and debug templates to enhance your game development experience.-->
 
     <h2><i class="fas fa-folder-plus"></i> Creating a New Project</h2>
-    <p>Creating a new project in xs is quite simple. An xs project is just a folder, with a <code>project.json</code> file in it that contains the project settings, most important one being the path to the game code in the <code>Main</code> field. You main class file should be a Wren file located in the same folder or a subfolder.</p>
-    
+    <p>Creating a new project in xs is quite simple. An xs project is just a folder, with a <code>project.json</code> file in it that contains the project settings, most important one being the path to the game code in the <code>Main</code> field. Your main class file should be a Wren file located in the same folder or a subfolder.</p>
+    <p>The <code>project.json</code> file inside every project folder now holds the runtime data (including window size, fullscreen, and whether xs floats above other windows).</p>
+
     <p>The <code>Game</code> class needs to have three <code>static</code> methods:</p>
     <ul>
       <li><code>initialize</code> - Called as soon as all systems have been created</li>
@@ -97,22 +99,20 @@ class Game {
       <p>If you don't have Visual Studio Code, <a href="https://code.visualstudio.com/">download it here</a></p>
     </div>
 
-    <p>xs can be instructed (from the <code>system.json</code>) to run on top of other windows. This can be useful when developing or debugging with it. Running xs from the built-in terminal in VS Code will give a "single window"-like experience.</p>
-
     <hr>
 
     <h2><i class="fas fa-puzzle-piece"></i> Wren Modules</h2>
     <p>A module in Wren is usually another <code>.wren</code> file that you can <code>import</code> into your code. xs ships with a few modules that let you interact with the engine:</p>
 
     <ul>
-      <li><strong><code>xs</code></strong> - Core API for rendering, audio, input, and more</li>
-      <li><strong><code>xs_math</code></strong> - 2D vector math, colors, and bit operations</li>
-      <li><strong><code>xs_ec</code></strong> - Simple Entity-Component framework</li>
-      <li><strong><code>xs_components</code></strong> - Pre-built components for common game functionality</li>
+      <li><strong><code>xs/core</code></strong> - Core API for rendering, audio, input, and more</li>
+      <li><strong><code>xs/math</code></strong> - 2D vector math, colors, and bit operations</li>
+      <li><strong><code>xs/ec</code></strong> - Simple Entity-Component framework</li>
+      <li><strong><code>xs/components</code></strong> - Pre-built components for common game functionality</li>
     </ul>
 
     <p>The "hello" example starts with importing functionality:</p>
-    <pre><code>import "xs" for Render, Data</code></pre>
+    <pre><code>import "xs/core" for Render, Data</code></pre>
 
     <p>These modules are located in the <code>assets/modules/</code> folder, so feel free to explore their contents.</p>
 
@@ -121,20 +121,67 @@ class Game {
     <ul>
       <li><strong>Core classes</strong> - Numbers, lists, maps, etc. (automatically imported)</li>
       <li><strong><code>random</code></strong> - Random number generation</li>
+      <li><strong><code>meta</code></strong> - Reflection and metadata</li>
     </ul>
 
     <hr>
 
     <h2><i class="fas fa-folder-open"></i> Working with Paths</h2>
-    <p>Paths in xs are relative and should start with one of the wildcards. For example, you can use the <code>[game]</code> wildcard to access asset files in your game:</p>
+    <p>Paths in xs are relative and should start with one of the <code>[]</code> wildcards. For example, you can use the <code>[game]</code> wildcard to access asset files in your game:</p>
     <pre><code>var image = Render.loadImage("[game]/images/cat.png")</code></pre>
+    <p>The engine pre-defines several wildcards so you can reach shared resources, save data, or the currently running game without hardcoding absolute directories. On desktop platforms you get:</p>
+    <ul class="path-list">
+      <li><code>[game]</code> — the folder you launched with (CLI argument, settings, or default sample).</li>
+      <li><code>[shared]</code> — the engine's shared <code>resources/</code> folder.</li>
+      <li><code>[user]</code> — the OS-specific user data directory (e.g., <code>%APPDATA%\xs</code> on Windows). Only available in the editor.</li>
+      <li><code>[save]</code> — a shorthand for the player's save folder (per game). It uses cloud saves on supported platforms.</li>
+    </ul>
 
     <hr>
-
     <h2><i class="fas fa-file-image"></i> Supported Assets</h2>
     <p>xs supports <code>.png</code> images and a variety of sound files, with <code>.flac</code> being the preferred format.</p>
 
     <hr>
+
+    <h2><i class="fas fa-th-list"></i> Sample Games</h2>
+    <p>Explore the sample games included with xs to see practical examples of how to use the engine's features.</p>
+    <div class="sample-gallery">
+      <article class="sample-card">
+        <img src="img/hello_sample.png" alt="Colorful hello sample screen">
+        <div class="sample-card-content">
+          <h3>Hello</h3>
+          <p>Animated gradient, sprite, and font demo that introduces how to render sprites, text, and use UI-driven color tweaks.</p>
+        </div>
+      </article>
+      <article class="sample-card">
+        <img src="img/grid_sample.png" alt="Grid sample showing tiles and player">
+        <div class="sample-card-content">
+          <h3>Grid</h3>
+          <p>Tile-based sandbox with random terrain, roads, and a WASD player so you can feel how the grid world and input hooks work.</p>
+        </div>
+      </article>
+      <article class="sample-card">
+        <img src="img/shape_sample.png" alt="Morphing shape sample">
+        <div class="sample-card-content">
+          <h3>Shape</h3>
+          <p>Procedural shape builder demo that morphs a flower/circle outline over time while rendering textured shapes.</p>
+        </div>
+      </article>
+      <article class="sample-card">
+        <img src="img/render_sample.png" alt="Render sample showcasing sprite transforms">
+        <div class="sample-card-content">
+          <h3>Render</h3>
+          <p>Sprite rendering showcase with flip flags, offsets, fullscreen toggles, and debug helpers so you can inspect every draw call.</p>
+        </div>
+      </article>
+      <article class="sample-card">
+        <img src="img/gameplay_sample.png" alt="Gameplay sample action scene">
+        <div class="sample-card-content">
+          <h3>Gameplay</h3>
+          <p>Survivors-style action sample with ECS-driven enemies, obstacle avoidance, auto-shooting bullets, and pickups [WIP].</p>
+        </div>
+      </article>
+    </div>
 
     <h2>Next Steps</h2>
     <p>Now that you're set up, check out the <a href="api/index.html">API Reference</a> to learn about all the available modules and functions!</p>
@@ -160,11 +207,19 @@ class Game {
     </div>
   </div>
 
-  <!-- Footer -->
+                <!-- FOOTER_START -->
   <footer>
-    <p>xs - lovingly made at Breda University of Applied Sciences</p>
-    <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+    <div class="footer-content">
+      <a href="https://www.buas.nl/" target="_blank" class="footer-logo-left"><img src="img/buas.png" alt="Breda University of Applied Sciences" class="sponsor-logo"></a>
+      <div class="footer-text">
+        <p>Crafted at Breda University of Applied Sciences</p>
+        <p>The development of xs is supported by an AMD hardware grant</p>
+        <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+      </div>
+      <a href="https://www.amd.com/" target="_blank" class="footer-logo-right"><img src="img/amd.png" alt="AMD" class="sponsor-logo"></a>
+    </div>
   </footer>
+  <!-- FOOTER_END -->
 
   <!-- JavaScript -->
   <script src="js/main.js"></script>

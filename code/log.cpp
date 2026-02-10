@@ -3,13 +3,6 @@
 #include "xs.hpp"
 #include <sstream>
 
-// Unified format macro - switches between std::format and fmt::format
-#if XS_HAS_STD_FORMAT
-    #define XS_FORMAT std::format
-#else
-    #define XS_FORMAT fmt::format
-#endif
-
 #if defined(PLATFORM_PC) && defined(_WIN32)
 #include <windows.h>
 #endif
@@ -44,20 +37,17 @@ void xs::log::initialize()
     // Modern UTF-8 version with rounded borders and gradient colors
     banner << "\n";
     banner << "\033[38;5;208m╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\033[0m\n";
-    banner << "\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n";
     banner << XS_FORMAT("\033[38;5;208m│\033[0m  \033[38;5;208m▀▄▀ █▀▀\033[0m   version: {:<75}  \033[38;5;208m│\033[0m\n",
         xs::version::get_version_string(false, true, true));
     banner << "\033[38;5;208m│\033[0m  \033[38;5;208m█ █ ▄▄█\033[0m   Breda University of Applied Sciences                                                  \033[38;5;208m│\033[0m\n";
-    banner << "\033[38;5;208m│\033[0m                                                                                                  \033[38;5;208m│\033[0m\n";
     banner << "\033[38;5;208m╰──────────────────────────────────────────────────────────────────────────────────────────────────╯\033[0m\n";
 #else
     // UTF-8 version without colors
     banner << "\n";
     banner << "╭──────────────────────────────────────────────────────────────────────────────────────────────────╮\n";
     banner << "│                                                                                                  │\n";
-    banner << XS_FORMAT("│  ▀▄▀ █▀▀   version: {:<75}  │\n",
-        xs::version::get_version_string(false, true, true));
-    banner << "│  █ █ ▄▄█   Breda University of Applied Sciences                                                 │\n";
+    banner << XS_FORMAT("│  ▀▄▀ █▀▀   version: {:<75}  │\n", xs::version::get_version_string(false, true, true));
+    banner << "│  █ █ ▄▄█   Breda University of Applied Sciences                                                  │\n";
     banner << "│                                                                                                  │\n";
     banner << "╰──────────────────────────────────────────────────────────────────────────────────────────────────╯\n";
 #endif

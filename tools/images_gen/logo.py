@@ -2,6 +2,7 @@ import cairo
 import math
 import sys
 import os
+import xml.etree.ElementTree as ET
 
 def int_to_rgb(i):
     return ((i >> 16) & 0xff) / 255, ((i >> 8) & 0xff) / 255, (i & 0xff) / 255
@@ -37,73 +38,94 @@ def save_scaled_surface(source_surface: cairo.Surface,
     scaled_surface.write_to_png(path)
 
 
-def create_base_icon(width: int, height: int, steps: int = 5, with_rounding: bool = True):
+def draw_icon(ctx: cairo.Context,
+              width: int,
+              height: int,
+              draw_background = True,
+              draw_foreground = True,
+              steps: int = 7,
+              with_rounding: bool = True):
+    """Draw the icon on the provided Cairo context."""
     size = max(width, height)  # Use max for R calculation to maintain proportions
     R = 0.18 * size
-    r = 0.1 * size if with_rounding else 0
+    corner_radius = 0.1 * size if with_rounding else 0
     thickness = (width / steps) * math.sqrt(2.0)
     w = (width / 2) * math.sqrt(2.0)
-    h = (height / 2) * math.sqrt(2.0)
-
+    h = (width / 2) * math.sqrt(2.0)
 
     toColor = int_to_rgba(3187733247)
     fromColor = int_to_rgba(4289593599)
 
+    # Apply rounded rectangle clipping if requested
+    if with_rounding:
+        round_rectangle(ctx, 0, 0, width, height, corner_radius)
+        ctx.clip()
+
+    if draw_background:
+        ctx.translate(width / 2, height / 2)
+        ctx.rotate(math.radians(45))
+        ctx.set_line_width(thickness + 2) # slight overlap to avoid gaps  
+
+        x = -w + thickness * 0.5
+        y = -h
+
+        for i in range(steps):
+            t = i / steps
+            ctx.set_source_rgb(fromColor[0] + t * (toColor[0] - fromColor[0]),
+                            fromColor[1] + t * (toColor[1] - fromColor[1]),
+                            fromColor[2] + t * (toColor[2] - fromColor[2]))
+            ctx.move_to(x, y)
+            ctx.line_to(x, y + h * 2)
+            ctx.stroke()
+            x += thickness
+
+
+    if draw_foreground:
+        # Reset transformations
+        ctx.identity_matrix()
+        ctx.translate(width / 2, height / 2)
+        ctx.scale(1, -1)
+
+        # Set to white
+        ctx.set_source_rgb(1, 1, 1)
+
+        # Draw the half circles of the logo
+        # bottom of the x
+        x = -1.5 * R
+        y = -R
+        ctx.arc(x, y, R, 0, math.pi)
+        ctx.close_path()
+        ctx.fill()
+        # top of the x
+        x = -1.5*R
+        y = R
+        ctx.arc(x, y, R, math.pi, 2 * math.pi)
+        ctx.close_path()
+        ctx.fill()
+        # bottom of the s
+        x =  0.5 * R
+        y = 0
+        ctx.arc(x, y, R, math.pi, 2 * math.pi)
+        ctx.close_path()
+        ctx.fill()
+        # top of the s
+        x = 1.5 * R
+        y = 0
+        ctx.arc(x, y, R, 0, math.pi)
+        ctx.close_path()
+        ctx.fill()
+
+
+def create_base_icon(width: int,
+                    height: int,
+                    draw_background = True,
+                    draw_foreground = True,
+                    steps: int = 5,
+                    with_rounding: bool = True):
+    """Create a PNG icon with the specified parameters."""
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
     ctx = cairo.Context(surface)
-
-    ctx.translate(width / 2, height / 2)
-    ctx.rotate(math.radians(45))
-    ctx.set_line_width(thickness + 2) # slight overlap to avoid gaps  
-
-    x = -w + thickness * 0.5 # thickness + 39 * unit
-    y = -h
-
-    for i in range(steps):
-        t = i / steps
-        ctx.set_source_rgb(fromColor[0] + t * (toColor[0] - fromColor[0]),
-                           fromColor[1] + t * (toColor[1] - fromColor[1]),
-                           fromColor[2] + t * (toColor[2] - fromColor[2]))
-        ctx.move_to(x, y)
-        ctx.line_to(x, y + h * 2)
-        ctx.stroke()
-        x += thickness
-
-
-    # Reset transformations
-    ctx.identity_matrix()
-    ctx.translate(size / 2, size / 2)
-    ctx.scale(1, -1)
-
-    # Set to white
-    ctx.set_source_rgb(1, 1, 1)
-
-    # Draw the half circles of the logo
-    # bottom of the x
-    x = -1.5 * R
-    y = -R
-    ctx.arc(x, y, R, 0, math.pi)
-    ctx.close_path()
-    ctx.fill()
-    # top of the x
-    x = -1.5*R
-    y = R
-    ctx.arc(x, y, R, math.pi, 2 * math.pi)
-    ctx.close_path()
-    ctx.fill()
-    # bottom of the s
-    x =  0.5 * R
-    y = 0
-    ctx.arc(x, y, R, math.pi, 2 * math.pi)
-    ctx.close_path()
-    ctx.fill()
-    # top of the s
-    x = 1.5 * R
-    y = 0
-    ctx.arc(x, y, R, 0, math.pi)
-    ctx.close_path()
-    ctx.fill()
-
+    draw_icon(ctx, width, height, draw_background, draw_foreground, steps, with_rounding)
     return surface
 
 
@@ -149,11 +171,145 @@ def save_generic_icons():
     output_dir = "resources/images"
     os.makedirs(output_dir, exist_ok=True)
 
-    # Save main icon with rounding for generic use
-    surface = create_base_icon(256, 256, with_rounding=True)
-    path = os.path.join(output_dir, "ios.png")
+    # Generate icons matching existing naming convention
+    icons = [
+        (32, "icon_tiny.png"),
+        (64, "icon_small.png"),
+        (256, "icon.png"),
+    ]
+    
+    for size, filename in icons:
+        surface = create_base_icon(size, size, with_rounding=True)
+        path = os.path.join(output_dir, filename)
+        surface.write_to_png(path)
+        print(f"Generated: {path}")
+
+def save_background_image():
+    """Generate generic background image (1920x1080) with rounded corners."""
+    output_dir = "resources/images"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Create 1920x1080 background image with rounding
+    surface = create_base_icon(4096,
+                               2160,
+                               steps=15,
+                               with_rounding=True,
+                               draw_foreground=True,
+                               draw_background=False)
+    path = os.path.join(output_dir, "background.png")
     surface.write_to_png(path)
     print(f"Generated: {path}")
+
+
+def add_svg_animation(svg_path: str, width: int, height: int):
+    """Post-process SVG to add animations to the half circles."""
+    size = max(width, height)
+    R = 0.18 * size
+    
+    tree = ET.parse(svg_path)
+    root = tree.getroot()
+
+    # Define namespace
+    ns = {'svg': 'http://www.w3.org/2000/svg'}
+    ET.register_namespace('', 'http://www.w3.org/2000/svg')
+
+    # Get all path elements (the half circles)
+    paths = root.findall('.//svg:path', ns)
+
+    if len(paths) >= 4:
+        # Calculate animation values
+        x_vertical_offset = R
+        s_horizontal_offset = R / 2
+        
+        # Add animations to each half circle
+        # Bottom of X
+        if len(paths) > 0:
+            x_bottom = paths[-4]
+            anim = ET.Element('{http://www.w3.org/2000/svg}animateTransform')
+            anim.set('attributeName', 'transform')
+            anim.set('type', 'translate')
+            anim.set('values', f"0,0; 0,0; 0,-{x_vertical_offset}; 0,-{x_vertical_offset}; 0,0; 0,0")
+            anim.set('dur', '3s')
+            anim.set('keyTimes', '0; 0.25; 0.35; 0.65; 0.75; 1')
+            anim.set('repeatCount', 'indefinite')
+            anim.set('calcMode', 'spline')
+            anim.set('keySplines', '0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1')
+            anim.set('additive', 'sum')
+            x_bottom.append(anim)
+        
+        # Top of X
+        if len(paths) > 1:
+            x_top = paths[-3]
+            anim = ET.Element('{http://www.w3.org/2000/svg}animateTransform')
+            anim.set('attributeName', 'transform')
+            anim.set('type', 'translate')
+            anim.set('values', f"0,0; 0,0; 0,{x_vertical_offset}; 0,{x_vertical_offset}; 0,0; 0,0")
+            anim.set('dur', '3s')
+            anim.set('keyTimes', '0; 0.25; 0.35; 0.65; 0.75; 1')
+            anim.set('repeatCount', 'indefinite')
+            anim.set('calcMode', 'spline')
+            anim.set('keySplines', '0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1')
+            anim.set('additive', 'sum')
+            x_top.append(anim)
+        
+        # Bottom of S
+        if len(paths) > 2:
+            s_bottom = paths[-2]
+            anim = ET.Element('{http://www.w3.org/2000/svg}animateTransform')
+            anim.set('attributeName', 'transform')
+            anim.set('type', 'translate')
+            anim.set('values', f"0,0; 0,0; {s_horizontal_offset},0; {s_horizontal_offset},0; 0,0; 0,0")
+            anim.set('dur', '3s')
+            anim.set('keyTimes', '0; 0.25; 0.35; 0.65; 0.75; 1')
+            anim.set('repeatCount', 'indefinite')
+            anim.set('calcMode', 'spline')
+            anim.set('keySplines', '0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1')
+            anim.set('additive', 'sum')
+            s_bottom.append(anim)
+        
+        # Top of S
+        if len(paths) > 3:
+            s_top = paths[-1]
+            anim = ET.Element('{http://www.w3.org/2000/svg}animateTransform')
+            anim.set('attributeName', 'transform')
+            anim.set('type', 'translate')
+            anim.set('values', f"0,0; 0,0; -{s_horizontal_offset},0; -{s_horizontal_offset},0; 0,0; 0,0")
+            anim.set('dur', '3s')
+            anim.set('keyTimes', '0; 0.25; 0.35; 0.65; 0.75; 1')
+            anim.set('repeatCount', 'indefinite')
+            anim.set('calcMode', 'spline')
+            anim.set('keySplines', '0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1')
+            anim.set('additive', 'sum')
+            s_top.append(anim)
+
+    # Save the modified SVG
+    tree.write(svg_path, encoding='utf-8', xml_declaration=True)
+
+
+def save_svg_icon():
+    """Generate SVG icon with rounded corners."""
+    output_dir = "resources/images"
+    os.makedirs(output_dir, exist_ok=True)
+
+    width = 128
+    height = 128
+
+    # Generate static SVG
+    path = os.path.join(output_dir, "icon_small.svg")
+    surface = cairo.SVGSurface(path, width, height)
+    ctx = cairo.Context(surface)
+    draw_icon(ctx, width, height, draw_background=True, draw_foreground=True, steps=5, with_rounding=True)
+    surface.finish()
+    print(f"Generated: {path}")
+    
+    # Generate animated SVG (without Cairo clipping, we'll add SVG-level clipping)
+    animated_path = os.path.join(output_dir, "icon_small_animated.svg")
+    surface = cairo.SVGSurface(animated_path, width, height)
+    ctx = cairo.Context(surface)
+    draw_icon(ctx, width, height, draw_background=True, draw_foreground=True, steps=7, with_rounding=False)
+    surface.finish()
+    add_svg_animation(animated_path, width, height)
+    print(f"Generated: {animated_path}")
 
 
 def save_nx_icon():
@@ -189,31 +345,42 @@ def save_nx_icon():
             os.rename(png_path, os.path.join(output_dir, "icon.png"))
             print(f"Saved as PNG instead: {os.path.join(output_dir, 'icon.png')}")
 
-# Parse command line arguments
-if len(sys.argv) < 2:
-    print("Usage: python logo.py <platform>")
-    print("Platforms: macos, ios, nx, generic")
-    sys.exit(1)
 
-platform = sys.argv[1].lower()
+def main():
+    if len(sys.argv) >= 2:
+        platform = sys.argv[1].lower()
 
-# Generate icons based on platform
-if platform == "macos":
-    print("Generating macOS icons (square, no rounding)...")
-    save_macos_icons()
-elif platform == "ios":
-    print("Generating iOS icons (square, no rounding)...")
-    save_ios_icons()
-elif platform == "nx":
-    print("Generating Nintendo Switch icon (1024x1024 BMP)...")
-    save_nx_icon()
-elif platform == "generic":
-    print("Generating all generic...")
-    save_generic_icons()
+        # Generate icons based on platform
+        if platform == "macos":
+            print("Generating macOS icons (square, no rounding)...")
+            save_macos_icons()
+        elif platform == "ios":
+            print("Generating iOS icons (square, no rounding)...")
+            save_ios_icons()
+        elif platform == "nx":
+            print("Generating Nintendo Switch icon (1024x1024 BMP)...")
+            save_nx_icon()
+        elif platform == "generic":
+            print("Generating all generic...")
+            save_generic_icons()
+            save_background_image()
+        elif platform == "svg":
+            print("Generating SVG icon...")
+            save_svg_icon()
+        else:
+            print(f"Unknown platform: {platform}")
+            print("Valid platforms: macos, ios, nx, generic, svg")
+            sys.exit(1)
+    else:
+        print("No platform specified. Generating all icons...")
+        save_macos_icons()
+        save_ios_icons()
+        save_nx_icon()
+        save_generic_icons()
+        save_background_image()
+        save_svg_icon()
 
-else:
-    print(f"Unknown platform: {platform}")
-    print("Valid platforms: macos, ios, nx, generic")
-    sys.exit(1)
+    print("Done!")
 
-print("Done!")
+if __name__ == "__main__":
+    main()    

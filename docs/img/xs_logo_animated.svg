@@ -1,40 +1,14 @@
 <?xml version='1.0' encoding='utf-8'?>
 <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<defs>
-</defs>
-<g>
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(74.509804%, 0%, 94.901961%)" stroke-opacity="1" stroke-miterlimit="10" d="M 35 -79.5 L 291 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(76.470588%, 5.248869%, 87.60181%)" stroke-opacity="1" stroke-miterlimit="10" d="M 14.785156 -79.5 L 270.785156 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(78.431373%, 10.497738%, 80.301659%)" stroke-opacity="1" stroke-miterlimit="10" d="M -5.425781 -79.5 L 250.574219 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(80.392157%, 15.746606%, 73.001508%)" stroke-opacity="1" stroke-miterlimit="10" d="M -25.640625 -79.5 L 230.359375 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(82.352941%, 20.995475%, 65.701357%)" stroke-opacity="1" stroke-miterlimit="10" d="M -45.851562 -79.5 L 210.148438 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(84.313725%, 26.244344%, 58.401207%)" stroke-opacity="1" stroke-miterlimit="10" d="M -66.066406 -79.5 L 189.933594 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(86.27451%, 31.493213%, 51.101056%)" stroke-opacity="1" stroke-miterlimit="10" d="M -86.277344 -79.5 L 169.722656 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(88.235294%, 36.742081%, 43.800905%)" stroke-opacity="1" stroke-miterlimit="10" d="M -106.492188 -79.5 L 149.507812 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(90.196078%, 41.99095%, 36.500754%)" stroke-opacity="1" stroke-miterlimit="10" d="M -126.707031 -79.5 L 129.292969 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(92.156863%, 47.239819%, 29.200603%)" stroke-opacity="1" stroke-miterlimit="10" d="M -146.917969 -79.5 L 109.082031 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(94.117647%, 52.488688%, 21.900452%)" stroke-opacity="1" stroke-miterlimit="10" d="M -167.132812 -79.5 L 88.867188 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(96.078431%, 57.737557%, 14.600302%)" stroke-opacity="1" stroke-miterlimit="10" d="M -187.34375 -79.5 L 68.65625 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-<path fill="none" stroke-width="15" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(98.039216%, 62.986425%, 7.300151%)" stroke-opacity="1" stroke-miterlimit="10" d="M -207.558594 -79.5 L 48.441406 176.5 " transform="matrix(1, 0, 0, -1, 64, 64)" />
-</g>
-<g>
-<g>
-<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 59.25 83 C 59.25 72.507812 50.742188 64 40.25 64 C 29.757812 64 21.25 72.507812 21.25 83 Z M 59.25 83 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 0,-19; 0,-19; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
-</g>
-</g>
-<g>
-<g>
-<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 21.25 45 C 21.25 55.492188 29.757812 64 40.25 64 C 50.742188 64 59.25 55.492188 59.25 45 Z M 21.25 45 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 0,19; 0,19; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
-</g>
-</g>
-<g>
-<g>
-<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 59.25 64 C 59.25 74.492188 67.757812 83 78.25 83 C 88.742188 83 97.25 74.492188 97.25 64 Z M 59.25 64 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 9.5,0; 9.5,0; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
-</g>
-</g>
-<g>
-<g>
-<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 116.25 64 C 116.25 53.507812 107.742188 45 97.25 45 C 86.757812 45 78.25 53.507812 78.25 64 Z M 116.25 64 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; -9.5,0; -9.5,0; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
-</g>
-</g>
+<path fill="none" stroke-width="27.859905" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(100%, 68.235294%, 0%)" stroke-opacity="1" stroke-miterlimit="10" d="M -77.577348 -90.509668 L -77.577348 90.509668 " transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 64, 64)" />
+<path fill="none" stroke-width="27.859905" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(96.358543%, 58.487395%, 13.557423%)" stroke-opacity="1" stroke-miterlimit="10" d="M -51.718232 -90.509668 L -51.718232 90.509668 " transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 64, 64)" />
+<path fill="none" stroke-width="27.859905" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(92.717087%, 48.739496%, 27.114846%)" stroke-opacity="1" stroke-miterlimit="10" d="M -25.859116 -90.509668 L -25.859116 90.509668 " transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 64, 64)" />
+<path fill="none" stroke-width="27.859905" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(89.07563%, 38.991597%, 40.672269%)" stroke-opacity="1" stroke-miterlimit="10" d="M 0 -90.509668 L 0 90.509668 " transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 64, 64)" />
+<path fill="none" stroke-width="27.859905" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(85.434174%, 29.243697%, 54.229692%)" stroke-opacity="1" stroke-miterlimit="10" d="M 25.859116 -90.509668 L 25.859116 90.509668 " transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 64, 64)" />
+<path fill="none" stroke-width="27.859905" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(81.792717%, 19.495798%, 67.787115%)" stroke-opacity="1" stroke-miterlimit="10" d="M 51.718232 -90.509668 L 51.718232 90.509668 " transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 64, 64)" />
+<path fill="none" stroke-width="27.859905" stroke-linecap="butt" stroke-linejoin="miter" stroke="rgb(78.151261%, 9.747899%, 81.344538%)" stroke-opacity="1" stroke-miterlimit="10" d="M 77.577348 -90.509668 L 77.577348 90.509668 " transform="matrix(0.707107, 0.707107, -0.707107, 0.707107, 64, 64)" />
+<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 59.902344 84.480469 C 59.902344 73.167969 50.734375 64 39.425781 64 C 28.113281 64 18.945312 73.167969 18.945312 84.480469 Z M 59.902344 84.480469 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 0,-20.48; 0,-20.48; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
+<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 18.945312 43.519531 C 18.945312 54.832031 28.113281 64 39.425781 64 C 50.734375 64 59.902344 54.832031 59.902344 43.519531 Z M 18.945312 43.519531 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 0,20.48; 0,20.48; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
+<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 57.855469 64 C 57.855469 75.3125 67.023438 84.480469 78.335938 84.480469 C 89.648438 84.480469 98.816406 75.3125 98.816406 64 Z M 57.855469 64 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; 10.24,0; 10.24,0; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
+<path fill-rule="nonzero" fill="rgb(100%, 100%, 100%)" fill-opacity="1" d="M 119.296875 64 C 119.296875 52.6875 110.125 43.519531 98.816406 43.519531 C 87.503906 43.519531 78.335938 52.6875 78.335938 64 Z M 119.296875 64 "><animateTransform attributeName="transform" type="translate" values="0,0; 0,0; -10.24,0; -10.24,0; 0,0; 0,0" dur="3s" keyTimes="0; 0.25; 0.35; 0.65; 0.75; 1" repeatCount="indefinite" calcMode="spline" keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0 0 0 0; 0.42 0 0.58 1; 0.42 0 0.58 1" additive="sum" /></path>
 </svg>
