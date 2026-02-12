@@ -155,8 +155,8 @@ DEPENDENCIES = {
     'wren': {
         'name': 'Wren',
         'type': 'opensource',
-        'repo': 'https://github.com/wren-lang/wren.git',
-        'branch': 'main',
+        'repo': 'https://github.com/enci/wren.git',
+        'branch': 'type-annotations',
         'description': 'Scripting language',
         'include_paths': [
             ('src/include/', 'include/'),
