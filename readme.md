@@ -1,8 +1,10 @@
 <img src="docs/img/top_banner.png" alt="xs animated logo">
 
+xs is a tiny 2D game engine: a code-first tool for rapid iteration with a focus on procedural generation.
+
+
 ![Roguelike sample](docs/img/roguelike.png)
 
-xs is a tiny 2D game engine: a code-first tool for rapid iteration with a focus on procedural generation.
 
 ## Highlights
 - Gameplay in Wren; engine in C++
