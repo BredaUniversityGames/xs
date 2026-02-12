@@ -1,4 +1,4 @@
-# An <img src="docs/img/xs_logo_animated.svg" alt="xs animated logo" width="64"> game engine
+<img src="docs/img/top_banner.png" alt="xs animated logo">
 
 ![Roguelike sample](docs/img/roguelike.png)
 
