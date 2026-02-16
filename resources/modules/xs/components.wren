@@ -1,7 +1,6 @@
-import "xs/core" for Render, File
+import "xs/core" for Render, File, Json
 import "xs/ec"for Component, Entity
 import "xs/math"for Vec2
-import "external/json" for JSON
 
 /// Component that stores position and rotation for an entity
 class Transform is Component {
@@ -128,13 +127,13 @@ class Sprite is Renderable {
     }
 
     /// Creates a sprite from a spritesheet file (.xssprite) by sprite name
-    /// The spritesheet file contains JSON with an "image" path and "sprites" definitions
+    /// The spritesheet file contains Json with an "image" path and "sprites" definitions
     /// Each sprite has x, y, width, and height in pixels
     construct new(sheetPath, spriteName) {
         super()
 
         // Read and parse the spritesheet file (with caching)
-        var data = JSON.load(sheetPath)
+        var data = Json.load(sheetPath)
 
         // Load the image
         var imagePath = data["image"]
