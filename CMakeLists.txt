@@ -184,3 +184,11 @@ target_compile_definitions(xs PRIVATE
 message(STATUS "XS Game Engine - Linux build configured")
 message(STATUS "C++ Standard: ${CMAKE_CXX_STANDARD}")
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+# Install rules for Linux desktop integration
+install(TARGETS xs DESTINATION bin)
+install(FILES platforms/linux/xs.desktop
+    DESTINATION share/applications)
+install(FILES resources/images/icon.png
+    DESTINATION share/icons/hicolor/256x256/apps
+    RENAME xs.png)
