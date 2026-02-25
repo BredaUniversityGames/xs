@@ -9,7 +9,7 @@ class Tools {
     }
 
     /// Converts a range to a list
-    static toList(range) {
+    static toList(range: Range) -> List {
         var l = []
         for(i in range) {
             l.add(i)
@@ -18,7 +18,7 @@ class Tools {
     }
 
     /// Creates a list of numbers from 'from' to 'to'
-    static toList(from, to) {
+    static toList(from: Num, to: Num) -> List {
         var l = []
         for (i in from...to) {
             l.add(from + i)
@@ -27,7 +27,7 @@ class Tools {
     }
 
     /// Removes the first occurrence of an element from a list
-    static removeFromList(list, element) {
+    static removeFromList(list: List, element) {
         for(i in 0...list.count) {
             if(list[i] == element) {
                 list.removeAt(i)
@@ -37,12 +37,12 @@ class Tools {
     }
 
     /// Returns a random element from the list
-    static pickOne(list) {
+    static pickOne(list: List) {
         return list[__random.int(list.count)]
     }
 
     /// Gets the shared random number generator
-    static random { __random }
+    static random -> Random { __random }
 }
 
 Tools.initialize()
@@ -61,14 +61,14 @@ class ShapeBuilder {
 
     /// Adds a position vertex from a Vec2
     /// Must be paired with a corresponding addTexture() call to maintain equal array lengths
-    addPosition(position) {
+    addPosition(position: Vec2) {
         _position.add(position.x)
         _position.add(position.y)
     }
 
     /// Adds a position vertex from coordinates
     /// Must be paired with a corresponding addTexture() call to maintain equal array lengths
-    addPosition(x, y) {
+    addPosition(x: Num, y: Num) {
         _position.add(x)
         _position.add(y)
     }
@@ -76,7 +76,7 @@ class ShapeBuilder {
     /// Adds a texture coordinate from a Vec2
     /// UV coordinates should be normalized (0.0 to 1.0)
     /// Must be paired with a corresponding addPosition() call to maintain equal array lengths
-    addTexture(texture) {
+    addTexture(texture: Vec2) {
         _texture.add(texture.x)
         _texture.add(texture.y)
     }
@@ -84,7 +84,7 @@ class ShapeBuilder {
     /// Adds a texture coordinate from UV values
     /// UV coordinates should be normalized (0.0 to 1.0)
     /// Must be paired with a corresponding addPosition() call to maintain equal array lengths
-    addTexture(x, y) {
+    addTexture(x: Num, y: Num) {
         _texture.add(x)
         _texture.add(y)
     }
@@ -92,19 +92,19 @@ class ShapeBuilder {
     /// Adds a triangle index referencing a vertex by its order
     /// Indices must form complete triangles (count must be divisible by 3)
     /// Each index must be >= 0 and < number of vertices added
-    addIndex(index) {
+    addIndex(index: Num) {
         _indices.add(index)
     }
 
     /// Validates that the shape data is correct
     /// Checks: position/texture arrays are equal length, indices are divisible by 3, indices are in valid range
-    validate() {
+    validate() -> Bool {
         // Check the arrays have same length
         if( _position.count != _texture.count)  return false
 
         // Check if the indices array is a multiple of 3 and if the positions array has the right size
         if( _indices.count % 3 != 0) return false
-    
+
         // Check if the indices array is not out of bounds
         for(i in 0..._indices.count) {
             if(_indices[i] >= _position.count || _indices[i] < 0) return false
@@ -115,7 +115,7 @@ class ShapeBuilder {
 
     /// Builds and returns the shape with the given texture image, or null if validation fails
     /// Returns null if position/texture counts don't match, indices aren't divisible by 3, or indices are out of range
-    build(image) {
+    build(image: Num) {
         if(!validate()) return null
         var shape = Render.createShape(image, _position, _texture, _indices)
         return shape

@@ -34,26 +34,26 @@ class Component {
     /// Called once per frame with delta time in seconds
     /// Put your game logic here - this is only called when the component is enabled
     /// dt is typically 1/60 (0.0166...) for 60 FPS
-    update(dt) {}
+    update(dt: Num) {}
 
     /// Gets the Entity object that owns this component
-    owner { _owner }
+    owner -> Entity { _owner }
 
     /// Sets the owner (used internally by Entity)
-    owner=(o) { _owner = o }
+    owner=(o: Entity) { _owner = o }
 
     /// Checks if the component is enabled
     /// If not enabled, the update() function will not be called
-    enabled { _enabled }
+    enabled -> Bool { _enabled }
 
     /// Sets the enabled state of the component
-    enabled=(e) { _enabled = e }
+    enabled=(e: Bool) { _enabled = e }
 
     /// Gets the initialized state (used internally by Entity)
-    initialized_ { _initialized }
+    initialized_ -> Bool { _initialized }
 
     /// Sets the initialized state (used internally by Entity)
-    initialized_=(i) { _initialized = i }
+    initialized_=(i: Bool) { _initialized = i }
 }
 
 /// Represents a game object that can contain multiple components
@@ -76,7 +76,7 @@ class Entity {
     /// The component must be a subclass of Component
     /// If a component of the same type already exists, it will be finalized and replaced
     /// Components are initialized and updated in the order they were added
-    add(component) {
+    add(component: Component) -> Component {
         var c = get(component.type)
         if(c != null) {
             c.finalize()
@@ -86,7 +86,7 @@ class Entity {
 
         // Check if it already it has an owner
         if(component.owner != null) {
-            owner.remove(component.type)            
+            owner.remove(component.type)
         }
 
         component.owner = this
@@ -99,11 +99,11 @@ class Entity {
     /// Example: var transform = entity.get(Transform)
     get(type) {
         if (_components.containsKey(type)) {
-            return _components[type]            
+            return _components[type]
         }
         for(v in _components.values) {
             if(v is type) {
-                return v    
+                return v
             }
         }
         return null
@@ -120,33 +120,33 @@ class Entity {
                 if(v is type) {
                     _compDeleteQueue.add(v.type)
                 }
-            }   
-        }        
+            }
+        }
     }
 
     /// Gets all components attached to this entity
-    components { _components.values }
+    components -> Sequence { _components.values }
 
     /// Checks if the entity is marked for deletion
     /// If true, you should set any references to this entity to null to avoid accessing deleted entities
-    deleted { _deleted }
+    deleted -> Bool { _deleted }
 
     /// Marks the entity for removal at the end of the current update frame
     /// All components will have their finalize() methods called before the entity is removed
     delete() { _deleted = true }
 
     /// Gets the name of the entity (useful for debugging)
-    name { _name }
+    name -> String { _name }
     /// Sets the name of the entity
-    name=(n){ _name = n }
+    name=(n: String) { _name = n }
 
     /// Gets the tag (used as a bitflag when filtering entities)
-    tag { _tag }
+    tag -> Num { _tag }
     /// Sets the tag
-    tag=(t) { _tag = t }
+    tag=(t: Num) { _tag = t }
 
     /// Sets the enabled state of all components
-    enabled=(e) {
+    enabled=(e: Bool) {
         for(c in _components.values) {
             c.enabled = e
         }
@@ -164,7 +164,7 @@ class Entity {
     /// Call this from your game's update(dt) method
     /// Handles adding new entities, removing deleted ones, and updating all component logic
     /// Example: Entity.update(dt)
-    static update(dt) {
+    static update(dt: Num) {
         for (e in __entities) {
             e.removeDeletedComponents_()
         }
@@ -203,7 +203,7 @@ class Entity {
 
     /// Gets all entities where the tag matches exactly with the given tag (using bitwise AND)
     /// Use this when you need entities with ALL specified tag bits set
-    static withTag(tag) {
+    static withTag(tag: Num) -> List {
         var found = []
         for (e in __entities) {
                 if(Bits.checkBitFlag(e.tag, tag)) {
@@ -215,7 +215,7 @@ class Entity {
 
     /// Gets all entities where the tag has ANY bit overlap with the given tag
     /// Use this when you need entities with at least one matching tag bit
-    static withTagOverlap(tag) {
+    static withTagOverlap(tag: Num) -> List {
         var found = []
         for (e in __entities) {
                 if(Bits.checkBitFlagOverlap(e.tag, tag)) {
@@ -226,7 +226,7 @@ class Entity {
     }
 
     /// Gets all entities where the tag does not have bit overlap with the given tag
-    static withoutTagOverlap(tag) {
+    static withoutTagOverlap(tag: Num) -> List {
         var found = []
         for (e in __entities) {
                 if(!Bits.checkBitFlagOverlap(e.tag, tag)) {
@@ -237,7 +237,7 @@ class Entity {
     }
 
     /// Sets the enabled state for all entities with matching tag overlap
-    static setEnabled(tag, enabled) {
+    static setEnabled(tag: Num, enabled: Bool) {
         for (e in __entities) {
             if(Bits.checkBitFlagOverlap(e.tag, tag)) {
                 for(c in e.components) {
@@ -248,11 +248,11 @@ class Entity {
     }
 
     /// Gets all entities active in the system
-    static entities { __entities }
+    static entities -> List { __entities }
 
     /// Displays entity inspector UI with filtering (called from C++ inspector)
     /// filter: string to filter entities by name or tag
-    static inspect(filter) {
+    static inspect(filter: String) {
         Profiler.begin("Entity.inspect")
 
         // Top panel: Entity List (full width, fixed height, with border)
@@ -319,7 +319,7 @@ class Entity {
     }
 
     /// Returns a string representation of this entity
-    toString {
+    toString -> String {
         var s = "{ Name: %(name) Tag: %(tag)"
             for(c in _components) {
                 s = s + "     %(c)"

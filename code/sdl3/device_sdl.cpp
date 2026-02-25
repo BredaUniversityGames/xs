@@ -113,11 +113,22 @@ void device::initialize()
 
 	SDL_ShowWindow(internal::window);
 
-	// Set application icon
-	std::string path = fileio::get_path("[shared]/images/icon.png");
-	SDL_Surface* icon = SDL_LoadBMP(path.c_str());
-	SDL_SetWindowIcon(internal::window, icon);
-	SDL_DestroySurface(icon);
+	// Set application icon (load PNG via stb_image, then create SDL surface)
+	{
+		std::string path = fileio::get_path("[shared]/images/icon.png");
+		int w, h, channels;
+		unsigned char* pixels = stbi_load(path.c_str(), &w, &h, &channels, 4);
+		if (pixels)
+		{
+			SDL_Surface* icon = SDL_CreateSurfaceFrom(w, h, SDL_PIXELFORMAT_RGBA32, pixels, w * 4);
+			if (icon)
+			{
+				SDL_SetWindowIcon(internal::window, icon);
+				SDL_DestroySurface(icon);
+			}
+			stbi_image_free(pixels);
+		}
+	}
 }
 
 void device::shutdown()

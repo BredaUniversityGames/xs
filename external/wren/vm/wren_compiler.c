@@ -69,6 +69,7 @@ typedef enum
   TOKEN_HASH,
   TOKEN_PLUS,
   TOKEN_MINUS,
+  TOKEN_ARROW,       // [WREN_TYPE_ANNOTATIONS] ->
   TOKEN_LTLT,
   TOKEN_GTGT,
   TOKEN_PIPE,
@@ -1108,7 +1109,7 @@ static void nextToken(Parser* parser)
       }
       case '^': makeToken(parser, TOKEN_CARET); return;
       case '+': makeToken(parser, TOKEN_PLUS); return;
-      case '-': makeToken(parser, TOKEN_MINUS); return;
+      case '-': twoCharToken(parser, '>', TOKEN_ARROW, TOKEN_MINUS); return; // [WREN_TYPE_ANNOTATIONS]
       case '~': makeToken(parser, TOKEN_TILDE); return;
       case '?': makeToken(parser, TOKEN_QUESTION); return;
         
@@ -1290,6 +1291,28 @@ static bool matchLine(Compiler* compiler)
 static void ignoreNewlines(Compiler* compiler)
 {
   matchLine(compiler);
+}
+
+// [WREN_TYPE_ANNOTATIONS] Optionally consumes a colon-based type annotation
+// (": TypeName") after a variable name or parameter. The annotation is parsed
+// and discarded (no effect on code generation).
+static void consumeTypeAnnotation(Compiler* compiler)
+{
+  if (match(compiler, TOKEN_COLON))
+  {
+    consume(compiler, TOKEN_NAME, "Expect type name after ':'.");
+  }
+}
+
+// [WREN_TYPE_ANNOTATIONS] Optionally consumes a return type annotation
+// ("-> TypeName") after a method signature. The annotation is parsed and
+// discarded (no effect on code generation).
+static void consumeReturnTypeAnnotation(Compiler* compiler)
+{
+  if (match(compiler, TOKEN_ARROW))
+  {
+    consume(compiler, TOKEN_NAME, "Expect return type name after '->'.");
+  }
 }
 
 // Consumes the current token. Emits an error if it is not a newline. Then
@@ -1845,6 +1868,7 @@ static void finishParameterList(Compiler* compiler, Signature* signature)
 
     // Define a local variable in the method for the parameter.
     declareNamedVariable(compiler);
+    consumeTypeAnnotation(compiler); // [WREN_TYPE_ANNOTATIONS] param: Type
   }
   while (match(compiler, TOKEN_COMMA));
 }
@@ -2611,6 +2635,7 @@ void infixSignature(Compiler* compiler, Signature* signature)
   // Parse the parameter name.
   consume(compiler, TOKEN_LEFT_PAREN, "Expect '(' after operator name.");
   declareNamedVariable(compiler);
+  consumeTypeAnnotation(compiler); // [WREN_TYPE_ANNOTATIONS]
   consume(compiler, TOKEN_RIGHT_PAREN, "Expect ')' after parameter name.");
 }
 
@@ -2636,6 +2661,7 @@ void mixedSignature(Compiler* compiler, Signature* signature)
 
     // Parse the parameter name.
     declareNamedVariable(compiler);
+    consumeTypeAnnotation(compiler); // [WREN_TYPE_ANNOTATIONS]
     consume(compiler, TOKEN_RIGHT_PAREN, "Expect ')' after parameter name.");
   }
 }
@@ -2661,6 +2687,7 @@ static bool maybeSetter(Compiler* compiler, Signature* signature)
   // Parse the value parameter.
   consume(compiler, TOKEN_LEFT_PAREN, "Expect '(' after '='.");
   declareNamedVariable(compiler);
+  consumeTypeAnnotation(compiler); // [WREN_TYPE_ANNOTATIONS]
   consume(compiler, TOKEN_RIGHT_PAREN, "Expect ')' after parameter name.");
 
   signature->arity++;
@@ -2771,6 +2798,7 @@ GrammarRule rules[] =
   /* TOKEN_HASH          */ UNUSED,
   /* TOKEN_PLUS          */ INFIX_OPERATOR(PREC_TERM, "+"),
   /* TOKEN_MINUS         */ OPERATOR("-"),
+  /* TOKEN_ARROW         */ UNUSED,                                       // [WREN_TYPE_ANNOTATIONS]
   /* TOKEN_LTLT          */ INFIX_OPERATOR(PREC_BITWISE_SHIFT, "<<"),
   /* TOKEN_GTGT          */ INFIX_OPERATOR(PREC_BITWISE_SHIFT, ">>"),
   /* TOKEN_PIPE          */ INFIX_OPERATOR(PREC_BITWISE_OR, "|"),
@@ -3067,6 +3095,8 @@ static void forStatement(Compiler* compiler)
   // Remember the name of the loop variable.
   const char* name = compiler->parser->previous.start;
   int length = compiler->parser->previous.length;
+
+  consumeTypeAnnotation(compiler); // [WREN_TYPE_ANNOTATIONS] for (i: Type in ...)
 
   consume(compiler, TOKEN_IN, "Expect 'in' after loop variable.");
   ignoreNewlines(compiler);
@@ -3461,6 +3491,8 @@ static bool method(Compiler* compiler, Variable classVariable)
   // Compile the method signature.
   signatureFn(&methodCompiler, &signature);
 
+  consumeReturnTypeAnnotation(compiler); // [WREN_TYPE_ANNOTATIONS] -> ReturnType
+
   methodCompiler.isInitializer = signature.type == SIG_INITIALIZER;
   
   if (isStatic && signature.type == SIG_INITIALIZER)
@@ -3709,6 +3741,8 @@ static void variableDefinition(Compiler* compiler)
   // in scope in its own initializer.
   consume(compiler, TOKEN_NAME, "Expect variable name.");
   Token nameToken = compiler->parser->previous;
+
+  consumeTypeAnnotation(compiler); // [WREN_TYPE_ANNOTATIONS] var x: Type
 
   // Compile the initializer.
   if (match(compiler, TOKEN_EQ))

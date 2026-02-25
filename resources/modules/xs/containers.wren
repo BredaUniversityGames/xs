@@ -2,7 +2,7 @@
 class Grid {
 
     /// Creates a new grid with the given dimensions, filled with a default value
-    construct new(width, height, zero) {
+    construct new(width: Num, height: Num, zero) {
         _grid = []
         _width = width
         _height = height
@@ -15,41 +15,41 @@ class Grid {
     }
 
     /// The number of columns in the grid.
-    width { _width }
+    width -> Num { _width }
 
     /// The number of rows in the grid.
-    height { _height }
+    height -> Num { _height }
 
     /// Swaps the values of two given grid cells.
-    swapValues(x1, y1, x2, y2) {
+    swapValues(x1: Num, y1: Num, x2: Num, y2: Num) -> Bool {
         if (!valid(x1,y1) || !valid(x2,y2)) {
             return false
         }
-        
+
         var val1 = this[x1,y1]
         var val2 = this[x2,y2]
         this[x1, y1] = val2
-        this[x2, y2] = val1        
+        this[x2, y2] = val1
         return true
     }
 
     /// Checks if a given cell position exists in the grid.
-    valid(x, y) {
+    valid(x: Num, y: Num) -> Bool {
         return x >= 0 && x < _width && y >= 0 && y < _height
-    }    
+    }
 
-    /// Returns the value stored at the given grid cell.    
-    [x, y] {
+    /// Returns the value stored at the given grid cell.
+    [x: Num, y: Num] {
         return _grid[y * _width + x]
     }
 
-    /// Assigns a given value to a given grid cell.    
-    [x, y]=(v) {
+    /// Assigns a given value to a given grid cell.
+    [x: Num, y: Num]=(v) {
         _grid[y * _width + x] = v
     }
 
     /// Constructs a string representation of this grid.
-    toString {
+    toString -> String {
         var str = ""
         for (y in (_height-1)..0) {
             for (x in 0..._width) {
@@ -68,24 +68,24 @@ class SparseGrid {
     construct new() {
         _grid = {}
     }
-    
+
     /// Creates a unique identifier for a given cell position.
-    static makeId(x, y) { x << 16 | y }  // |
+    static makeId(x: Num, y: Num) -> Num { x << 16 | y }  // |
 
     /// Checks if a given cell position exists in the grid.
-    has(x, y) {
+    has(x: Num, y: Num) -> Bool {
         var id =  SparseGrid.makeId(x, y)
         return _grid.containsKey(id)
     }
 
     /// Removes the value stored at the given grid cell.
-    remove(x, y) {
+    remove(x: Num, y: Num) {
         var id =  SparseGrid.makeId(x, y)
         _grid.remove(id)
     }
 
-    /// Returns the value stored at the given grid cell.    
-    [x, y] {
+    /// Returns the value stored at the given grid cell.
+    [x: Num, y: Num] {
         var id =  SparseGrid.makeId(x, y)
         if(_grid.containsKey(id)) {
             return _grid[id]
@@ -95,8 +95,8 @@ class SparseGrid {
         }
     }
 
-    /// Assigns a given value to a given grid cell.    
-    [x, y]=(v) {
+    /// Assigns a given value to a given grid cell.
+    [x: Num, y: Num]=(v) {
         var id = SparseGrid.makeId(x, y)
         _grid[id] = v
     }
@@ -107,7 +107,7 @@ class SparseGrid {
     }
 
     /// Returns the values stored in the grid.
-    values { _grid.values }
+    values -> Sequence { _grid.values }
 
 }
 
@@ -134,7 +134,7 @@ class Queue {
     }
 
     /// Checks if the queue is empty
-    empty() { _data.count == 0 }
+    empty() -> Bool { _data.count == 0 }
  }
 
 /// Last-in-first-out (LIFO) data structure (stack)
@@ -160,13 +160,13 @@ class Dequeue {
     }
 
     /// Checks if the dequeue is empty
-    empty() { _data.count == 0 }
+    empty() -> Bool { _data.count == 0 }
  }
 
 /// A simple ring buffer (circular buffer) implementation
 class RingBuffer {
     /// Creates a new ring buffer of the given size, filled with a default value
-    construct new(size, value) {
+    construct new(size: Num, value) {
         _size = size
         _buffer = []
         for(i in 0..._size) _buffer.add(value)
@@ -183,12 +183,12 @@ class RingBuffer {
     peek() { _buffer[_index - 1] }
 
     /// Gets a value at the given offset from the current position
-    [index] {
+    [index: Num] {
         return _buffer[(_index + index) % _size]
     }
 
     /// Gets the size of the ring buffer
-    size { _size }
+    size -> Num { _size }
 
-    toString { _buffer.toString }
+    toString -> String { _buffer.toString }
 }
