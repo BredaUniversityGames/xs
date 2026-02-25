@@ -1,0 +1,42 @@
+{
+    "Always on top": {
+        "type": "bool",
+        "value": false
+    },
+    "Height": {
+        "type": "number",
+        "value": 360.0
+    },
+    "Main": {
+        "type": "string",
+        "value": "code/game.wren"
+    },
+    "Multiplier": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Snap to pixels": {
+        "type": "bool",
+        "value": false
+    },
+    "Texture Filter": {
+        "type": "bool",
+        "value": false
+    },
+    "Texture Repeat": {
+        "type": "bool",
+        "value": false
+    },
+    "Title": {
+        "type": "string",
+        "value": "Rogue"
+    },
+    "Width": {
+        "type": "number",
+        "value": 640.0
+    },
+    "Window size in points": {
+        "type": "bool",
+        "value": false
+    }
+}
