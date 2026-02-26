@@ -47,6 +47,9 @@ namespace xs::render
 	/// Load an image from a file (png or jpg)
 	int load_image(const std::string& image_file);
 
+	/// Create a procedural image from pixel data (RGBA, 4 bytes per pixel)
+	int create_image(int width, int height, const uint32_t* pixel_data);
+
 	/// Load a shape from a file (svg)
 	int load_shape(const std::string& shape_file);
 

@@ -801,6 +801,24 @@ static void render_load_image(WrenVM* vm)
     callFunction_returnType_args<int, string>(vm, xs::render::load_image);
 }
 
+static void render_create_image(WrenVM* vm)
+{
+    auto width = wrenGetParameter<int>(vm, 1);
+    auto height = wrenGetParameter<int>(vm, 2);
+    auto pixels = wrenGetListParameter<uint32_t>(vm, 3);
+
+    if ((int)pixels.size() != width * height)
+    {
+        xs::log::error("createImage: pixel list size ({}) does not match width * height ({}x{} = {})",
+            pixels.size(), width, height, width * height);
+        wrenSetSlotDouble(vm, 0, -1);
+        return;
+    }
+
+    auto image_id = xs::render::create_image(width, height, pixels.data());
+    wrenSetSlotDouble(vm, 0, (double)image_id);
+}
+
 static void render_load_shape(WrenVM* vm)
 {
     auto shape_path = wrenGetParameter<string>(vm, 1);
@@ -1494,6 +1512,7 @@ void xs::script::bind_api()
 
     // Render
     bind("xs/core", "Render", true, "loadImage(_)", render_load_image);
+    bind("xs/core", "Render", true, "createImage(_,_,_)", render_create_image);
     bind("xs/core", "Render", true, "loadShape(_)", render_load_shape);
     bind("xs/core", "Render", true, "getImageWidth(_)", render_get_image_width);
     bind("xs/core", "Render", true, "getImageHeight(_)", render_get_image_height);

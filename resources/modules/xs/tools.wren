@@ -121,3 +121,37 @@ class ShapeBuilder {
         return shape
     }
 }
+
+/// Builder class for creating procedural images from pixel data
+/// Pixels are packed RGBA values — use ImageBuilder.pack(r, g, b, a) to create them
+class ImageBuilder {
+    /// Creates a new image builder with the given dimensions, filled with opaque black
+    construct new(width, height) {
+        _width = width
+        _height = height
+        _pixels = List.filled(width * height, 0xFF000000)
+    }
+
+    /// Image width in pixels
+    width { _width }
+
+    /// Image height in pixels
+    height { _height }
+
+    /// Packs r, g, b, a (0-255 each) into a single pixel value
+    static pack(r, g, b, a) { r + g * 256 + b * 65536 + a * 16777216 }
+
+    /// Sets a pixel at (x, y) to the given packed color value
+    setPixel(x, y, color) { _pixels[y * _width + x] = color }
+
+    /// Gets the packed color value at (x, y)
+    getPixel(x, y) { _pixels[y * _width + x] }
+
+    /// Fills the entire image with a packed color value
+    fill(color) {
+        for (i in 0..._pixels.count) _pixels[i] = color
+    }
+
+    /// Builds the image and returns an image ID for use with Render.createSprite()
+    build() { Render.createImage(_width, _height, _pixels) }
+}

@@ -343,6 +343,24 @@ int xs::render::load_image(const std::string& image_file)
 	return static_cast<int>(i);
 }
 
+static std::size_t procedural_image_counter = 0;
+
+int xs::render::create_image(int width, int height, const uint32_t* pixel_data)
+{
+	image img;
+	img.width = width;
+	img.height = height;
+	img.channels = 4;
+	img.string_id = std::hash<std::string>{}("procedural_" + std::to_string(procedural_image_counter++));
+
+	create_texture_with_data(img, (uchar*)pixel_data);
+
+	const auto i = images.size();
+	images.push_back(img);
+
+	return static_cast<int>(i);
+}
+
 struct shape
 {
 	int image_id = -1;

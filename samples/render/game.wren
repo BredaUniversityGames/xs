@@ -1,5 +1,6 @@
 import "xs/core" for Input, Render, Data, Device
 import "xs/math" for Math, Vec2
+import "xs/tools" for ImageBuilder
 import "random" for Random
 
 class Game {
@@ -13,8 +14,21 @@ class Game {
 
         __w = Data.getNumber("Width", Data.system) * 0.5
         __h = Data.getNumber("Height", Data.system) * 0.5
-        
+
         __fullscreen = false
+
+        // Procedural checkerboard image
+        var size = 8
+        var ib = ImageBuilder.new(size, size)
+        var white = ImageBuilder.pack(255, 255, 255, 255)
+        var red   = ImageBuilder.pack(255, 0, 0, 255)
+        for (row in 0...size) {
+            for (col in 0...size) {
+                ib.setPixel(col, row, (row + col) % 2 == 0 ? white : red)
+            }
+        }
+        var procImage = ib.build()
+        __procSprite = Render.createSprite(procImage, 0, 0, 1, 1)
     }
     
     static update(dt) {
@@ -120,9 +134,12 @@ class Game {
         x = x + dx
         Render.sprite(__sprite, x, y, z, 1, rot, 0xffffffff, 0x00000000, Render.spriteCenter | Render.spriteFlipX | Render.spriteFlipY) 
         cross(x, y)
-        x = x + 2.5 * dx   
+        x = x + 2.5 * dx
         y = y + 0.25 * dy
         Render.sprite(__sprite, x, y, z, 1.5, rot, 0xffffffff, 0x00000000, Render.spriteCenter | Render.spriteFlipX)
         cross(x, y)
+
+        // Procedural checkerboard
+        Render.sprite(__procSprite, 400, -300, 0, 16, 0, 0xffffffff, 0x00000000, Render.spriteCenter)
     }
 }

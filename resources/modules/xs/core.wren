@@ -12,6 +12,10 @@ class Render {
     /// Supports PNG and JPG formats. Use relative paths like "[game]/textures/flower.png"
     foreign static loadImage(path: String) -> Num
 
+    /// Creates a procedural image from pixel data and returns an image ID
+    /// pixels is a flat list of width*height packed RGBA values (use ImageBuilder.pack())
+    foreign static createImage(width: Num, height: Num, pixels: List) -> Num
+
     /// Loads a shape from a file and returns a shape ID
     /// Supports SVG format
     foreign static loadShape(path: String) -> Num

@@ -56,7 +56,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/bojanendrovski/Documents/Dev/hexturn"
+            argument = "/Users/bojanendrovski/Documents/Dev/xs/samples/render"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
