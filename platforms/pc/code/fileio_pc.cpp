@@ -12,6 +12,10 @@
 #include "xs.hpp"
 #include <filesystem>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #define PUBLISH 0
 
 namespace fs = std::filesystem;
@@ -135,5 +139,46 @@ void fileio::initialize(const std::string& game_path)
 
 	// Set the shared resources folder - this is where the engine resources are stored
 	if(xs::get_run_mode() != xs::run_mode::packaged)
-		add_wildcard("[shared]", "resources");
+	{
+		std::string local_resources = "resources";  // Relative to pwd (development)
+		
+		// Get executable directory for installed engine path
+		std::string exe_dir;
+#ifdef _WIN32
+		char buffer[MAX_PATH];
+		GetModuleFileNameA(NULL, buffer, MAX_PATH);
+		std::string exe_path(buffer);
+		exe_dir = exe_path.substr(0, exe_path.find_last_of("\\/"));
+#else
+		// On Linux/Unix, use /proc/self/exe
+		char buffer[PATH_MAX];
+		ssize_t len = readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+		if (len != -1)
+		{
+			buffer[len] = '\0';
+			std::string exe_path(buffer);
+			exe_dir = exe_path.substr(0, exe_path.find_last_of("/"));
+		}
+#endif
+		
+		std::string installed_resources = exe_dir + "/resources";
+		
+		// Priority: Check pwd-relative first (development), then exe-relative (installed)
+		if (fs::exists(local_resources))
+		{
+			add_wildcard("[shared]", local_resources);
+			log::info("Using local resources: {}", fs::absolute(local_resources).string());
+		}
+		else if (fs::exists(installed_resources))
+		{
+			add_wildcard("[shared]", installed_resources);
+			log::info("Using installed engine resources: {}", installed_resources);
+		}
+		else
+		{
+			log::warn("Could not find shared resources folder! Tried: {} and {}", 
+				fs::absolute(local_resources).string(), installed_resources);
+			add_wildcard("[shared]", local_resources);  // Set anyway as fallback
+		}
+	}
 }
