@@ -13,7 +13,7 @@
     },
     "From Color": {
         "type": "color",
-        "value": 419477247
+        "value": 184570111
     },
     "Hero Damage": {
         "type": "number",
@@ -77,6 +77,6 @@
     },
     "To Color": {
         "type": "color",
-        "value": 100675071
+        "value": 117454847
     }
 }

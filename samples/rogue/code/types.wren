@@ -21,6 +21,7 @@ class Type {
     static armor    { 1 << 19 }
     static sword    { 1 << 20 }
     static food     { 1 << 21 }
+    static floorAlt { 1 << 22 }
         
     // Combine multiple types
     static monster { (bat | spider | ghost | boss | scorpion | snake) }

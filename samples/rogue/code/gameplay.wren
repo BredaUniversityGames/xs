@@ -18,7 +18,11 @@ class Level {
         __tileSize = Data.getNumber("Tile Size", Data.game)
         __width = Data.getNumber("Level Width", Data.game)
         __height = Data.getNumber("Level Height", Data.game)
-        __grid = Grid.new(__width, __height, Type.empty)    
+        
+        __grid = Grid.new(__width, __height, Type.empty)   //  -remove depedency on one grid
+
+        // __gameplay
+        // __rendering
     }
 
     /// Calculate the position of a tile in the level
@@ -391,7 +395,8 @@ class Gameplay {
         var c = 22
         __tiles = {
             Type.empty: Render.createGridSprite(preview, r, c, 624),
-            Type.floor: Render.createGridSprite(preview, r, c, 68),
+            Type.floor: Render.createGridSprite(preview, r, c, 538),
+            Type.floorAlt: Render.createGridSprite(preview, r, c, 881),            
             Type.wall: Render.createGridSprite(preview, r, c, 843),
             Type.player: Render.createGridSprite(preview, r, c, 28),
             Type.enemy: Render.createGridSprite(preview, r, c, 323),
@@ -419,8 +424,10 @@ class Gameplay {
         var playerColor = Data.getColor("Player Color", Data.game)
         var itemColor = Data.getColor("Item Color", Data.game)
         __colors = {
-            Type.empty: 0xFFFFFF80,
-            Type.floor: 0xFFFFFFA0,
+            Type.empty: 0xFFFFFF20,
+            Type.floor: 0xFFFFFF20,
+            Type.floorAlt: 0xFFFFFF20,
+            Type.wall: 0xFFFFFFC0,
             Type.player: playerColor,
             Type.enemy: enemyColor,
             Type.bat: enemyColor,
@@ -478,19 +485,22 @@ class Gameplay {
             for (y in 0...Level.height) {
                 var px = sx + x * s
                 var py = sy + y * s
-                var t = Level[x, y]                
+                var t = Level[x, y]        
+                
+                // Checkerboard pattern for floor tiles
+                if(t == Type.floor && (x + y) % 2 == 0) t = Type.floorAlt
+                var sprite = __tiles[t]            
+                var color = __colors[t] == null ? 0xFFFFFFFF : __colors[t]
+                if(sprite != null) {
+                    Render.sprite(sprite, px, py, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)
+                }
+
                 var tile = Tile.get(x, y)          
                 if(tile != null) {                    
                     var pos = Level.calculatePos(tile)
                     var sprite = __tiles[tile.owner.tag]
                     var color = __colors[tile.owner.tag] == null ? 0xFFFFFFFF : __colors[tile.owner.tag]
                     Render.sprite(sprite, pos.x, pos.y, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)
-                } else {
-                    var sprite = __tiles[t]
-                    var color = __colors[t] == null ? 0xFFFFFFFF : __colors[t]
-                    if(sprite != null) {                        
-                        Render.sprite(sprite, px, py, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)
-                    }
                 }
             }
         }

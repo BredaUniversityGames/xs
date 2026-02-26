@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(code --list-extensions)",
+      "Bash(code --command xs.run)",
+      "Bash(echo \"exit: $?\")",
+      "Bash(code --help)",
+      "Read(//c/Users/encie/.vscode/extensions/**)"
+    ]
+  }
+}
