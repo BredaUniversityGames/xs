@@ -1,0 +1,10 @@
+{
+    "Debug Draw": {
+        "type": "bool",
+        "value": true
+    },
+    "Visualize Generation": {
+        "type": "bool",
+        "value": true
+    }
+}

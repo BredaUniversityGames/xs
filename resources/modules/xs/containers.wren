@@ -48,6 +48,16 @@ class Grid {
         _grid[y * _width + x] = v
     }
 
+    /// Get using a coordinate pair.
+    [coord: Vec2] {
+        return this[coord.x, coord.y]
+    }
+
+    /// Assign using a coordinate pair.
+    [coord: Vec2]=(v) {
+        this[coord.x, coord.y] = v
+    }    
+
     /// Constructs a string representation of this grid.
     toString -> String {
         var str = ""
@@ -189,6 +199,6 @@ class RingBuffer {
 
     /// Gets the size of the ring buffer
     size -> Num { _size }
-
+ 
     toString -> String { _buffer.toString }
 }
