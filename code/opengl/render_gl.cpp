@@ -66,6 +66,7 @@ namespace xs::render
 
 	void compile_draw_shader();
 	void compile_sprite_shader();
+	void compile_crt_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool compile_shader(
 		const GLchar* vertex_shader,
@@ -83,7 +84,12 @@ namespace xs::render
 
 	unsigned int msaa_fbo		= 0;
 	unsigned int msaa_texture	= 0;
-	
+
+	unsigned int crt_fbo		= 0;
+	unsigned int crt_texture	= 0;
+	unsigned int crt_program	= 0;
+	unsigned int crt_vao		= 0;
+
 	unsigned int shader_program = 0;
 	unsigned int lines_vao = 0;
 	unsigned int lines_vbo = 0;
@@ -179,6 +185,11 @@ void xs::render::initialize()
 	create_frame_buffers();
 	compile_draw_shader();
 	compile_sprite_shader();
+	compile_crt_shader();
+
+	// Empty VAO for fullscreen triangle draw (CRT pass)
+	glGenVertexArrays(1, &crt_vao);
+	gl_label(GL_VERTEX_ARRAY, crt_vao, "crt vao");
 
 	///////// UBO //////////////////////
 	instances_data = new instance_struct[c_max_instances];
@@ -263,6 +274,8 @@ void xs::render::shutdown()
 	// Shaders
 	glDeleteProgram(main_program);
 	glDeleteProgram(shader_program);
+	glDeleteProgram(crt_program);
+	glDeleteVertexArrays(1, &crt_vao);
 
 	// Frame buffer
 	delete_frame_buffers();
@@ -389,20 +402,40 @@ void xs::render::render()
 	glBlitNamedFramebuffer(
 		msaa_fbo,
 		render_fbo,
-		0, 0, width, height,			
+		0, 0, width, height,
 		0, 0, width, height,
 		GL_COLOR_BUFFER_BIT,
 		GL_NEAREST);
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
+	bool crt_enabled = data::get_bool("CRT Effect", data::type::project);
+	int out_w = device::get_width();
+	int out_h = device::get_height();
+
+	if (crt_enabled)
+	{
+		// CRT post-process pass: render render_texture through CRT shader into crt_fbo
+		glBindFramebuffer(GL_FRAMEBUFFER, crt_fbo);
+		glViewport(0, 0, out_w, out_h);
+		glDisable(GL_BLEND);
+		glUseProgram(crt_program);
+		glUniform2f(0, (float)width, (float)height);
+		glUniform2f(1, (float)out_w, (float)out_h);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, render_texture);
+		glUniform1i(2, 0);
+		glBindVertexArray(crt_vao);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		XS_DEBUG_ONLY(glBindVertexArray(0));
+		XS_DEBUG_ONLY(glUseProgram(0));
+		render_stats.draw_calls++;
+	}
+
 #ifndef INSPECTOR
-	// When inspector is disabled, blit the render_fbo directly to screen
-	glBlitNamedFramebuffer(
-		render_fbo,
-		0,
-		0, 0, width, height,
-		0, 0, width, height,
-		GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	if (crt_enabled)
+		glBlitNamedFramebuffer(crt_fbo, 0, 0, 0, out_w, out_h, 0, 0, out_w, out_h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	else
+		glBlitNamedFramebuffer(render_fbo, 0, 0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 #endif
 
 	// Bind the default framebuffer for the editor
@@ -577,6 +610,31 @@ void xs::render::create_frame_buffers()
 	}
 	
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+	{ // CRT post-process FBO (at device/window resolution)
+		int crt_w = device::get_width();
+		int crt_h = device::get_height();
+
+		glGenFramebuffers(1, &crt_fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, crt_fbo);
+
+		glGenTextures(1, &crt_texture);
+		glBindTexture(GL_TEXTURE_2D, crt_texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, crt_w, crt_h, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, crt_texture, 0);
+
+		unsigned int crt_attachments[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, crt_attachments);
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+			assert(false);
+
+		gl_label(GL_FRAMEBUFFER, crt_fbo, "crt fbo");
+		gl_label(GL_TEXTURE, crt_texture, "crt texture");
+	}
+
+	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 }
 
 void xs::render::delete_frame_buffers()
@@ -586,6 +644,9 @@ void xs::render::delete_frame_buffers()
 
 	glDeleteTextures(1, &msaa_texture);
 	glDeleteFramebuffers(1, &msaa_fbo);
+
+	glDeleteTextures(1, &crt_texture);
+	glDeleteFramebuffers(1, &crt_fbo);
 }
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
@@ -930,15 +991,36 @@ bool xs::render::link_program(GLuint program)
 	return status != 0;
 }
 
+void xs::render::compile_crt_shader()
+{
+	const auto* const vs_source =
+		"#version 450 core\n"
+		"out vec2 v_uv;\n"
+		"void main() {\n"
+		"    vec2 pos = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2));\n"
+		"    v_uv = pos;\n"
+		"    gl_Position = vec4(pos * 2.0 - 1.0, 0.0, 1.0);\n"
+		"}";
+
+	auto preprocessor = render::shader_preprocessor();
+	auto fs_str = preprocessor.read("[shared]/shaders/crt.frag");
+	const char* const fs_source = fs_str.c_str();
+	bool success = compile_shader(vs_source, nullptr, fs_source, &crt_program);
+	if (!success)
+		log::error("Failed to compile CRT shader");
+}
+
 void xs::render::reload_shaders()
 {
 	// Delete the old shaders
 	glDeleteProgram(main_program);
 	glDeleteProgram(shader_program);
+	glDeleteProgram(crt_program);
 
 	// Recompile the shaders
 	compile_draw_shader();
 	compile_sprite_shader();
+	compile_crt_shader();
 }
 
 using namespace std;
@@ -1032,6 +1114,8 @@ string xs::render::shader_preprocessor::get_parent_path(const string& path)
 
 void* xs::render::get_render_target_texture()
 {
+	if (data::get_bool("CRT Effect", data::type::project))
+		return (void*)(intptr_t)crt_texture;
 	return (void*)(intptr_t)render_texture;
 }
 
