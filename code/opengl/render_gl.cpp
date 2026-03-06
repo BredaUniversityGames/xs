@@ -414,12 +414,17 @@ void xs::render::render()
 
 	if (crt_enabled)
 	{
-		// CRT compute shader pass
+		// Postprocess compute shader pass
 		glUseProgram(crt_program);
 		
 		// Set uniforms
 		glUniform2f(0, (float)width, (float)height);
 		glUniform2f(1, (float)out_w, (float)out_h);
+		
+		// Effect toggles - for now, enable all effects
+		// TODO: Add data settings for individual toggles
+		glUniform1i(2, 1); // u_enable_warp
+		glUniform1i(3, 1); // u_enable_vignette
 		
 		// Bind input texture to texture unit 0 (for sampling)
 		glActiveTexture(GL_TEXTURE0);
@@ -569,8 +574,8 @@ void xs::render::create_frame_buffers()
 	glGenTextures(1, &render_texture);
 	glBindTexture(GL_TEXTURE_2D, render_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, render_texture, 0);
 
 	// Create the depth buffer
@@ -1002,16 +1007,16 @@ bool xs::render::link_program(GLuint program)
 
 void xs::render::compile_crt_shader()
 {
-	// Load and compile compute shader
+	// Load and compile postprocess compute shader
 	auto preprocessor = render::shader_preprocessor();
-	auto cs_str = preprocessor.read("[shared]/shaders/crt.comp");
+	auto cs_str = preprocessor.read("[shared]/shaders/postprocess.comp");
 	const char* const cs_source = cs_str.c_str();
 	
 	GLuint compute_shader = 0;
 	bool res = compile_shader(&compute_shader, GL_COMPUTE_SHADER, cs_source);
 	if (!res)
 	{
-		log::error("Failed to compile CRT compute shader");
+		log::error("Failed to compile postprocess compute shader");
 		return;
 	}
 	
@@ -1020,7 +1025,7 @@ void xs::render::compile_crt_shader()
 	
 	bool success = link_program(crt_program);
 	if (!success)
-		log::error("Failed to link CRT compute shader program");
+		log::error("Failed to link postprocess compute shader program");
 	
 	glDeleteShader(compute_shader);
 }

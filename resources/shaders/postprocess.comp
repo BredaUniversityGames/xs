@@ -13,6 +13,9 @@ layout(binding = 1, rgba8) uniform image2D u_output_texture;
 layout(location = 0) uniform vec2 u_input_size;
 // Output screen resolution  
 layout(location = 1) uniform vec2 u_output_size;
+// Effect toggles
+layout(location = 2) uniform int u_enable_warp;
+layout(location = 3) uniform int u_enable_vignette;
 
 // Screen warp amounts (x=horizontal influence, y=vertical)
 #define WARP_X (1.0 / 48.0)
@@ -30,13 +33,24 @@ void main() {
     // Convert pixel coordinates to normalized UV [0,1]
     vec2 uv = (vec2(pixel_coords) + 0.5) / u_output_size;
     
-    // Convert to [-1, 1] range for barrel warp
+    // Convert to [-1, 1] range for effects
     vec2 pos = uv * 2.0 - 1.0;
     
-    // Apply barrel warp distortion
-    pos *= vec2(
-        1.0 + (pos.y * pos.y) * WARP_X,
-        1.0 + (pos.x * pos.x) * WARP_Y);
+    // Initialize vignette factor (no darkening by default)
+    float vignette = 1.0;
+    
+    // Apply barrel warp distortion (if enabled)
+    if (u_enable_warp != 0) {
+        pos *= vec2(
+            1.0 + (pos.y * pos.y) * WARP_X,
+            1.0 + (pos.x * pos.x) * WARP_Y);
+    }
+    
+    // Calculate vignette (if enabled)
+    if (u_enable_vignette != 0) {
+        vignette = 1.0 - (abs(pos.x) * abs(pos.x) + abs(pos.y) * abs(pos.y)) * 0.2;
+        vignette = clamp(vignette, 0.0, 1.0);
+    }
     
     // Convert back to [0, 1] UV space
     uv = pos * 0.5 + 0.5;
@@ -45,6 +59,8 @@ void main() {
     vec3 color = vec3(0.0);
     if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
         color = texture(u_input_texture, uv).rgb;
+        // Apply vignette darkening
+        color *= vignette;
     }
     
     // Write to output
