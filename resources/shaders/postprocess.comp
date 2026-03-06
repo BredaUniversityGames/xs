@@ -16,10 +16,26 @@ layout(location = 1) uniform vec2 u_output_size;
 // Effect toggles
 layout(location = 2) uniform int u_enable_warp;
 layout(location = 3) uniform int u_enable_vignette;
+layout(location = 4) uniform int u_enable_scanlines;
+layout(location = 5) uniform int u_enable_phosphor;
+layout(location = 6) uniform int u_enable_chromatic;
 
 // Screen warp amounts (x=horizontal influence, y=vertical)
 #define WARP_X (1.0 / 48.0)
 #define WARP_Y (1.0 / 24.0)
+
+// Scanline parameters
+#define SCANLINE_STRENGTH 0.3  // How dark the scanlines are (0=none, 1=black)
+#define SCANLINE_THICKNESS 0.35 // How thick scanlines are (lower=more spaced out)
+
+// Phosphor mask (aperture grille pattern)
+#define PHOSPHOR_STRENGTH 0.15  // How dark the mask is (0=none, 1=black)
+
+// Chromatic aberration
+#define CHROMATIC_OFFSET 1.5  // Pixel offset for color channels
+
+// Brightness compensation to offset darkening from effects
+#define BRIGHTNESS_BOOST 1.3  // Multiplier to compensate for darkening
 
 void main() {
     // Get the pixel coordinates we're computing
@@ -58,9 +74,47 @@ void main() {
     // Black out areas outside valid texture bounds (warped edges)
     vec3 color = vec3(0.0);
     if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
-        color = texture(u_input_texture, uv).rgb;
+        // Sample color with optional chromatic aberration
+        if (u_enable_chromatic != 0) {
+            // Offset each color channel slightly for chromatic aberration effect
+            vec2 offset = CHROMATIC_OFFSET / u_output_size;
+            vec2 uv_r = clamp(uv - vec2(offset.x, 0.0), 0.0, 1.0);
+            vec2 uv_b = clamp(uv + vec2(offset.x, 0.0), 0.0, 1.0);
+            float r = texture(u_input_texture, uv_r).r;
+            float g = texture(u_input_texture, uv).g;
+            float b = texture(u_input_texture, uv_b).b;
+            color = vec3(r, g, b);
+        } else {
+            color = texture(u_input_texture, uv).rgb;
+        }
+        
         // Apply vignette darkening
         color *= vignette;
+        
+        // Apply scanlines (if enabled)
+        if (u_enable_scanlines != 0) {
+            float scanline_y = float(pixel_coords.y);
+            float scanline = sin(scanline_y * 3.14159265359 * SCANLINE_THICKNESS) * 0.5 + 0.5;
+            scanline = 1.0 - (scanline * SCANLINE_STRENGTH);
+            color *= scanline;
+        }
+        
+        // Apply phosphor mask (if enabled) - aperture grille pattern
+        if (u_enable_phosphor != 0) {
+            vec3 mask = vec3(1.0);
+            float x = mod(float(pixel_coords.x), 3.0);
+            if (x < 1.0) {
+                mask.r = 1.0 - PHOSPHOR_STRENGTH;
+            } else if (x < 2.0) {
+                mask.g = 1.0 - PHOSPHOR_STRENGTH;
+            } else {
+                mask.b = 1.0 - PHOSPHOR_STRENGTH;
+            }
+            color *= mask;
+        }
+        
+        // Apply brightness compensation to offset darkening from effects
+        color *= BRIGHTNESS_BOOST;
     }
     
     // Write to output

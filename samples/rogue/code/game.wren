@@ -10,7 +10,7 @@ import "xs/components" for Transform, Body, Renderable, Sprite, GridSprite, Anim
 import "types" for Type
 import "directions" for Directions
 import "gameplay" for Level
-import "background" for Background
+import "decorator" for Decorator
 
 // There needs class called Game in you main file
 class Game {
@@ -32,10 +32,10 @@ class Game {
         Create.initialize()
         Gameplay.initialize()
                 
-        __time = 0        
+        __time = 0.0
         __state = generating // Skip loading
 
-        var alg = Data.getNumber("Algorithm|Single Room|Randy|RandomWalk|BSP")
+        var alg = Data.getNumber("Algorithm|Single Room|Randy|Random Walk|BSP")
         if(alg == 0) {
             __alg = SingleRoom
         } else if(alg == 1) {
@@ -44,16 +44,15 @@ class Game {
             __alg = RandomWalk            
         } else if(alg == 3) {
             __alg = BSPer
-        } else if(alg == 4) {
-            __alg = MyRandomWalker
         } else {
             System.print("Invalid algorithm number, using default")
             __alg = SingleRoom.new()
         }
-
         
-        __genFiber =  Fiber.new { __alg.generate() }
-        __background = Background.new()
+        __genFiber =  Fiber.new {
+            __alg.generate()
+            Decorator.decorate()
+        }
     }   
     
     // Update the game, which means updating all the systems
@@ -66,7 +65,6 @@ class Game {
 
         Entity.update(dt)        
         __alg.debugRender()
-        __background.update(dt)
     }
 
     // This function is called when the game is in the generating state
@@ -75,6 +73,11 @@ class Game {
     static genStep(dt) {
         var visualize = Data.getBool("Visualize Generation", Data.debug)
         if(visualize) {
+            if(__time == null) {
+                System.print("Error: __time is null, setting to 0")
+                __time = 0.0
+            }
+
             __time = __time - dt
             if(__time <= 0.0) {
                 if(!__genFiber.isDone) {
@@ -87,18 +90,17 @@ class Game {
             while(!__genFiber.isDone) {
                 __genFiber.call()
             } 
-            __state = playing
+            __state = Game.playing
         }
     }
 
     // Render the game, which means rendering all the systems and entities
     static render() {    
-        __background.render()
         Gameplay.render()
     }
  }
 
 /// Import classes from other files that might have circular dependencies (import each other)
 import "create" for Create
-import "generators" for SingleRoom, Randy, BSPer, RandomWalk, MyRandomWalker    //If you create a new Generator then add it's classname here 
+import "generators" for SingleRoom, Randy, BSPer, RandomWalk // If you create a new Generator then add it's classname here 
 import "gameplay" for Hero, Tile, Gameplay

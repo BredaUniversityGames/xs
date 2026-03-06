@@ -7,6 +7,7 @@ import "directions" for Directions
 import "random" for Random
 
 class SingleRoom {
+    construct new() {}
 
     static generate(){
         //get some data that we will use later
@@ -18,22 +19,22 @@ class SingleRoom {
         // Init all tiles to floor
         for (x in 0...width) {
             for (y in 0...height) {
-                Level[x, y] = Type.floor
+                Level.gameplay[x, y] = Type.floor
             }
             Fiber.yield(shortBrake) //Wait for duration "shortBrake"
         }
 
         // Top and bottom to wall
         for (x in 0...width) {
-            Level[x, 0] = Type.wall
-            Level[x, height-1] = Type.wall
+            Level.gameplay[x, 0] = Type.wall
+            Level.gameplay[x, height-1] = Type.wall
             Fiber.yield(shortBrake)
         }
 
         // Left and right edge to wall
         for (y in 0...height) {
-            Level[0, y] = Type.wall
-            Level[width-1, y] = Type.wall
+            Level.gameplay[0, y] = Type.wall
+            Level.gameplay[width-1, y] = Type.wall
             Fiber.yield(shortBrake)
         }
 
@@ -65,22 +66,22 @@ class Randy {
         // Init all tiles to floor
         for (x in 0...width) {
             for (y in 0...height) {
-                Level[x, y] = Type.floor
+                Level.gameplay[x, y] = Type.floor
             }
             Fiber.yield(shortBrake)
         }
 
         // Top and bottom to wall
         for (x in 0...width) {
-            Level[x, 0] = Type.wall
-            Level[x, height-1] = Type.wall
+            Level.gameplay[x, 0] = Type.wall
+            Level.gameplay[x, height-1] = Type.wall
             Fiber.yield(shortBrake)
         }
 
         // Left and right edge to wall
         for (y in 0...height) {
-            Level[0, y] = Type.wall
-            Level[width-1, y] = Type.wall
+            Level.gameplay[0, y] = Type.wall
+            Level.gameplay[width-1, y] = Type.wall
             Fiber.yield(shortBrake)
         }
 
@@ -89,13 +90,13 @@ class Randy {
         for(i in 0...5) {
             var x = random.int(1, hw)
             var y = random.int(1, hh)
-            Level[x + hw, y + hh] = Type.wall
+            Level.gameplay[x + hw, y + hh] = Type.wall
             Fiber.yield(longBrake)
-            Level[x + hw, hh - y] = Type.wall
+            Level.gameplay[x + hw, hh - y] = Type.wall
             Fiber.yield(longBrake)            
-            Level[hw - x, y + hh] = Type.wall
+            Level.gameplay[hw - x, y + hh] = Type.wall
             Fiber.yield(longBrake)
-            Level[hw - x, hh - y] = Type.wall
+            Level.gameplay[hw - x, hh - y] = Type.wall
             Fiber.yield(longBrake)
         }
 
@@ -116,7 +117,7 @@ class Randy {
         for(i in 1...100) {
             var x = random.int(1, Level.width - 1)
             var y = random.int(1, Level.height - 1)
-            if(Level.contains(x, y) && Level[x, y] == Type.floor && Tile.get(x,y) == null) {
+            if(Level.gameplay.valid(x, y) && Level.gameplay[x, y] == Type.floor && Tile.get(x,y) == null) {
                 return Vec2.new(x,y)
             }
         }
@@ -131,7 +132,7 @@ class Walker {
         _direction = direction
         _random = random
         _steps = 0
-        Level[_position] = Type.floor
+        Level.gameplay[_position] = Type.floor
     }
 
     direction { _direction }
@@ -149,7 +150,7 @@ class Walker {
         }
         _position = _position + Directions[_direction]
         if(inBounds && _steps < 39) {
-            Level[_position] = Type.floor
+            Level.gameplay[_position] = Type.floor
             if( turn &&
                 Gameplay.getFlags(_position.x, _position.y) == Type.floor &&
                 _random.float(0.0, 1.0) < 0.25) {
@@ -172,7 +173,7 @@ class RandomWalk {
         
         for (x in 0...Level.width) {
             for (y in 0...Level.height) {
-                Level[x, y] = Type.wall
+                Level.gameplay[x, y] = Type.wall
             }
         }
 
@@ -211,8 +212,8 @@ class RandomWalk {
                 var found = true
                 for (nx in x-1..x+1) {
                     for (ny in y-1..y+1) {
-                        if(Level.contains(nx, ny)) {
-                            if(Level[nx, ny] != Type.wall) {
+                        if(Level.gameplay.valid(nx, ny)) {
+                            if(Level.gameplay[nx, ny] != Type.wall) {
                                 found = false
                             }
                         }
@@ -226,7 +227,7 @@ class RandomWalk {
 
         var count = 0
         for(r in rem) {
-            Level[r.x, r.y] = Type.empty
+            Level.gameplay[r.x, r.y] = Type.empty
             count = count + 1
             if(count % 10 == 0) {
                 Fiber.yield(brake)
@@ -237,12 +238,12 @@ class RandomWalk {
         
         for (x in 1...Level.width - 1) {
             for (y in 1...Level.height - 1) {
-                if(Level[x, y] == Type.wall) {
-                    if( Level[x - 1, y] == Type.floor &&
-                        Level[x + 1, y] == Type.floor &&
-                        Level[x, y - 1] == Type.floor &&
-                        Level[x, y + 1] == Type.floor) {
-                        Level[x, y] = Type.floor
+                if(Level.gameplay[x, y] == Type.wall) {
+                    if( Level.gameplay[x - 1, y] == Type.floor &&
+                        Level.gameplay[x + 1, y] == Type.floor &&
+                        Level.gameplay[x, y - 1] == Type.floor &&
+                        Level.gameplay[x, y + 1] == Type.floor) {
+                        Level.gameplay[x, y] = Type.floor
                         rem.add(Vec2.new(x, y))
                     }                     
                 }                
@@ -251,11 +252,11 @@ class RandomWalk {
 
         for (x in 1...Level.width - 1) {
             for (y in 1...Level.height - 1) {
-                if(Level[x, y] == Type.wall) {
-                    if(Level[x - 1, y] == Type.floor && Level[x + 1, y] == Type.floor) {
+                if(Level.gameplay[x, y] == Type.wall) {
+                    if(Level.gameplay[x - 1, y] == Type.floor && Level.gameplay[x + 1, y] == Type.floor) {
                         rem.add(Vec2.new(x, y))    
                     } 
-                    if(Level[x, y - 1] == Type.floor && Level[x, y + 1] == Type.floor) {
+                    if(Level.gameplay[x, y - 1] == Type.floor && Level.gameplay[x, y + 1] == Type.floor) {
                         rem.add(Vec2.new(x, y))    
                     } 
                 }                
@@ -263,7 +264,7 @@ class RandomWalk {
         }      
 
         for(r in rem) {
-            Level[r.x, r.y] = Type.floor
+            Level.gameplay[r.x, r.y] = Type.floor
             Fiber.yield(brake)
         }  
     }
@@ -272,7 +273,7 @@ class RandomWalk {
         for(i in 1...100) {
             var x = __random.int(1, Level.width - 1)
             var y = __random.int(1, Level.height - 1)
-            if(Level.contains(x, y) && Level[x, y] == Type.floor && Tile.get(x,y) == null) {
+            if(Level.gameplay.valid(x, y) && Level.gameplay[x, y] == Type.floor && Tile.get(x,y) == null) {
                 return Vec2.new(x,y)
             }
         }
@@ -314,7 +315,7 @@ class BSPer {
         // Start will walls everywhere
         for (x in 0...Level.width) {
             for (y in 0...Level.height) {
-                Level[x, y] = Type.wall
+                Level.gameplay[x, y] = Type.wall
             }
             Fiber.yield(0.0)
         }
@@ -378,10 +379,10 @@ class BSPer {
             // Carve out rooms
             for (x in room.from.x...room.to.x) {
                 for (y in room.from.y...room.to.y) {
-                    Level[x, y] = Type.floor
+                    Level.gameplay[x, y] = Type.floor
                 }                
             }    
-            Fiber.yield(brake)                    
+            Fiber.yield(brake)
         }
 
         System.print("rooms: %(__rooms.count)")
@@ -436,13 +437,13 @@ class BSPer {
                 mid.y = mid.y.round
                 var up = mid + dir * -3
                 var down = mid + dir * 3
-                if( Level[up.x, up.y] == Type.floor &&
-                    Level[down.x, down.y] == Type.floor) {
+                if( Level.gameplay[up.x, up.y] == Type.floor &&
+                    Level.gameplay[down.x, down.y] == Type.floor) {
                     for(j in -2..2) {
                         var pos = mid + dir * j
                         pos.x = pos.x.round
                         pos.y = pos.y.round
-                        Level[pos.x, pos.y] = Type.floor
+                        Level.gameplay[pos.x, pos.y] = Type.floor
                     }
                     var from = mid + dir * -2
                     var to = mid + dir * 2
@@ -463,8 +464,8 @@ class BSPer {
                 var found = true
                 for (nx in x-1..x+1) {
                     for (ny in y-1..y+1) {
-                        if(Level.contains(nx, ny)) {
-                            if(Level[nx, ny] != Type.wall) {
+                        if(Level.gameplay.valid(nx, ny)) {
+                            if(Level.gameplay[nx, ny] != Type.wall) {
                                 found = false
                             }
                         }
@@ -476,9 +477,13 @@ class BSPer {
             }
         }
 
-        for(r in rem) {
-            Level[r.x, r.y] = Type.empty
-            Fiber.yield(brake)
+        var i : Num = 0
+        for(r in rem) {            
+            Level.gameplay[r.x, r.y] = Type.empty            
+            if(i % 10 == 0) {
+                Fiber.yield(brake)
+            }
+            i = i + 1
         }
     }
 
@@ -553,7 +558,7 @@ class BSPer {
         for(i in 1...100) {
             var x = __random.int(rect.from.x, rect.to.x)
             var y = __random.int(rect.from.y, rect.to.y)
-            if(Level.contains(x, y) && Level[x, y] == Type.floor && Tile.get(x,y) == null) {
+            if(Level.gameplay.valid(x, y) && Level.gameplay[x, y] == Type.floor && Tile.get(x,y) == null) {
                 return Vec2.new(x,y)
             }
         }
@@ -580,7 +585,7 @@ class BSPer {
         }
 
         for(hall in __halls) {         
-            var color = __colors[(hall.from.x + hall.from.y + hall.to.x + hall.to.y) % __colors.count]
+            var color : Color = __colors[(hall.from.x + hall.from.y + hall.to.x + hall.to.y) % __colors.count]
             Render.dbgColor(color | 0x000000FF) // Make opaque |
             var from = Level.calculatePos(
                 hall.from.x,
@@ -596,9 +601,8 @@ class BSPer {
         // Render the graph
         Render.dbgColor(0xFFFFFFFF)
         for(node in __graph.keys) {
-            var from = __rooms[node]
-
-            var fromPos = Level.calculatePos(
+            var from : Rect = __rooms[node]
+            var fromPos : Vec2 = Level.calculatePos(
             from.from.x + (from.to.x - from.from.x) / 2,
             from.from.y + (from.to.y - from.from.y) / 2)
             var connections =  __graph[node].count  
@@ -607,7 +611,7 @@ class BSPer {
             Render.dbgText("%(node)-%(connections)-%(distance)", fromPos.x, fromPos.y, 1)
 
             for(to in __graph[node]) {
-                var to = __rooms[to]
+                var to : Rect = __rooms[to]
                 var toPos = Level.calculatePos(
                     to.from.x + (to.to.x - to.from.x) / 2,
                     to.from.y + (to.to.y - to.from.y) / 2)
@@ -617,160 +621,6 @@ class BSPer {
     }
 
     static inset { __random.int(1, 3) }    
-}
-
-class MyRandomWalker {
-    //Rene's first attempt at creating some proc gen recipe
-    //1 pick random point in room, x distance from walls
-    //2 pick random direction
-    //3 create room of size min/max
-    //4 pick a spot on the wall
-    //5 store direction, create a door
-    //6 create corridor of size min/max
-    //7 decide to go back to 3 based on ???
-    //8 end 
-
-    static generate(){
-        //get some data that we will use later
-        var shortBrake = Data.getNumber("Short Brake")
-        var longBrake = Data.getNumber("Long Brake")
-        var width = Level.width
-        var height = Level.height
-        var minRoomSizeX = 2    //room size is without the walls
-        var maxRoomSizeX = 6
-        var minRoomSizeY = 3    
-        var maxRoomSizeY = 8
-        var corridorMinSize = 5
-        var corridorMaxSize = 8
-
-        __random = Random.new()
-
-
-    //1 pick random point in room, 
-        var posX = __random.int(1,width) 
-        var posY = __random.int(1,height)
-        Create.hero(posX, posY) //place a hero so I can see position
-
-        Fiber.yield(longBrake)      
-        
-    //2 pick random direction
-        var dir = __random.int(0,4)
-        Fiber.yield(longBrake)      
-
-    //3 create room of size min/max. TODO: fix rounding and do corners
-        var roomSizeX = __random.int(minRoomSizeX, maxRoomSizeX)
-        var roomSizeY = __random.int(minRoomSizeY, maxRoomSizeY)
-        var halfSizeX = (roomSizeX/2).round     //TODO: rounding effectively only gives even random numbers. may need to add code for this.
-        var halfSizeY = (roomSizeY/2).round     
-        var walls = [] //used to store a list of created walls for later use
-        var wallDirection = []
-
-        //make sure that the room will fit on the screen
-        var overflow = posX + halfSizeX + 1 - width //check right
-        if (overflow > 0){
-            posX = posX - overflow                
-        } 
-        overflow = posX - halfSizeX - 1 //check left
-        if (overflow < 0){
-            posX = posX - overflow                
-        } 
-        overflow = posY + halfSizeY + 1 - height //check top
-        if (overflow > 0){
-            posY = posY - overflow                
-        }
-        overflow = posY - halfSizeY - 1 //check bottom
-        if (overflow < 0){
-            posY = posY - overflow                
-        }
-       //Create.monster(posX, posY) //use monster as visualizer of changed PosX, PosY
-
-        //start 2D for loop to create the room and put walls around it
-        for (x in posX - halfSizeX ... posX + halfSizeX) {
-            for (y in posY - halfSizeY ... posY + halfSizeY){
-                Level[x, y] = Type.floor
-                if (x == posX - halfSizeX) {    //left wall
-                    Level[x-1, y] = Type.wall
-                    walls.add(Vec2.new(x-1, y)) 
-                    wallDirection.add(3)
-                }
-                if (x == posX + halfSizeX - 1) {  //right wall
-                    Level[x+1, y] = Type.wall
-                    walls.add(Vec2.new(x+1, y))
-                    wallDirection.add(1)                    
-                }
-                if (y == posY - halfSizeY) {  //bottom wall
-                    Level[x, y-1] = Type.wall
-                    walls.add(Vec2.new(x, y-1))
-                    wallDirection.add(2)
-                }
-                if (y == posY + halfSizeY - 1) {  //top wall
-                    Level[x, y+1] = Type.wall
-                    walls.add(Vec2.new(x, y+1))
-                    wallDirection.add(0)                    
-                }
-            }
-        }
-        Fiber.yield(longBrake)      
-
-    //4 pick a spot on the wall
-    //5 store direction, create a door
-        var doorIndex = __random.int(0,walls.count)
-        var doorPos = walls[doorIndex]
-        Level[doorPos] = Type.floor
-        Fiber.yield(longBrake)      
-         
-    //6 create corridor of size min/max TODO: fix edge of screen
-        var corridorSize = __random.int(corridorMinSize, corridorMaxSize)
-        System.print(corridorSize)
-
-        //Check direction of the coridor        
-        var directionMultiplier = Vec2.new(0,0)
-        if (wallDirection[doorIndex] == 0){ //Up
-            directionMultiplier = Vec2.new(0,1)
-            System.print("Up")
-        } else if (wallDirection[doorIndex] == 1){ //Right
-            directionMultiplier = Vec2.new(1,0)
-            System.print("Right")
-        } else if (wallDirection[doorIndex] == 2){ //Down
-            directionMultiplier = Vec2.new(0,-1)
-            System.print("Down")
-        } else if (wallDirection[doorIndex] == 3){ //Left
-            directionMultiplier = Vec2.new(-1,0)
-            System.print("Left")
-        }
-
-        //create actual corridor
-        for (i in 1 ... corridorSize + 1){
-           var corridorPos = Vec2.new(doorPos.x + (i * directionMultiplier.x), doorPos.y + (i * directionMultiplier.y))
-            if (directionMultiplier.x == 0){ //vertical
-                Level[corridorPos.x - 1, corridorPos.y] = Type.wall
-                Level[corridorPos.x + 1, corridorPos.y] = Type.wall
-            } else{ //horizontal
-                Level[corridorPos.x, corridorPos.y - 1] = Type.wall
-                Level[corridorPos.x, corridorPos.y + 1] = Type.wall
-            }
-           Level[corridorPos] = Type.floor
-        }
-        Fiber.yield(longBrake)      
-
-    //7 decide to go back to 3 based on ??? (requires refactor into functions)
-
-    //8 populate gameplay objects 
-       var monsterSpawnChance = 0.1
-        for (x in 0...width){
-            for (y in 0...height){
-                if (Level[x,y] == Type.floor && __random.float(0.0, 1.0) < monsterSpawnChance){
-                    Create.monster(x,y)
-                }
-                //System.print("hi")
-            }
-        }
-        Fiber.yield(longBrake)      
-
-        return 0.0
-    }
-
-    static debugRender() {}
 }
 
 import "create" for Create

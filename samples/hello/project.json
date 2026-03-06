@@ -3,6 +3,10 @@
         "type": "bool",
         "value": false
     },
+    "CRT Effect": {
+        "type": "bool",
+        "value": true
+    },
     "Fullscreen": {
         "type": "bool",
         "value": false

@@ -3,6 +3,10 @@
         "type": "bool",
         "value": false
     },
+    "CRT Effect": {
+        "type": "bool",
+        "value": true
+    },
     "Height": {
         "type": "number",
         "value": 720.0

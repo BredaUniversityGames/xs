@@ -53,8 +53,11 @@ vec4 crt_tone(float contrast, float saturation, float thin, float mask) {
 }
 
 void main() {
+	// Normalize UV coordinates from fullscreen triangle [0,2] to [0,1] 
+	vec2 uv = v_uv * 0.5;
+	
 	// Pixel coordinates in output space (origin bottom-left)
-	vec2 fragCoord = v_uv * u_output_size;
+	vec2 fragCoord = uv * u_output_size;
 
 	vec2 rcpIn  = 1.0 / u_input_size;
 	vec2 rcpOut = 1.0 / u_output_size;
@@ -111,7 +114,7 @@ void main() {
 		(a0 * w0 + a1 * w1 + a2 * w2 + a3 * w3) * sA +
 		(b0 * w0 + b1 * w1 + b2 * w2 + b3 * w3) * sB;
 
-	// Phosphor mask
+	// Phosphor mask - use normalized screen coordinates  
 	color *= crt_mask(fragCoord, MASK);
 
 	// Auto-exposure + contrast + saturation (tonal curve)

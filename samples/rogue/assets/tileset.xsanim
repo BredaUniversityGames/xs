@@ -1,0 +1,7 @@
+{
+  "image": "[game]/assets/tileset.png",
+  "columns": 16,
+  "rows": 16,
+  "fps": 10,
+  "animations": {}
+}

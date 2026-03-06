@@ -425,6 +425,9 @@ void xs::render::render()
 		// TODO: Add data settings for individual toggles
 		glUniform1i(2, 1); // u_enable_warp
 		glUniform1i(3, 1); // u_enable_vignette
+		glUniform1i(4, 1); // u_enable_scanlines
+		glUniform1i(5, 1); // u_enable_phosphor
+		glUniform1i(6, 1); // u_enable_chromatic
 		
 		// Bind input texture to texture unit 0 (for sampling)
 		glActiveTexture(GL_TEXTURE0);

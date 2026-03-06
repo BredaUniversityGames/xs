@@ -19,19 +19,17 @@ class Level {
         __width = Data.getNumber("Level Width", Data.game)
         __height = Data.getNumber("Level Height", Data.game)
         
-        __grid = Grid.new(__width, __height, Type.empty)   //  -remove depedency on one grid
-
-        // __gameplay
-        // __rendering
+        __grid = Grid.new(__width, __height, Type.empty)
+        __rendering = Grid.new(__width, __height, null)
     }
 
     /// Calculate the position of a tile in the level
-    static calculatePos(tile) {
+    static calculatePos(tile : Tile) -> Vec2 {
         return calculatePos(tile.x, tile.y)
     }
 
     /// Calculate the position of a tile in the level
-    static calculatePos(tx, ty) {
+    static calculatePos(tx : Num, ty : Num) -> Vec2 {
         var sx = (__width - 1) * -__tileSize / 2.0
         var sy = (__height - 1)  * -__tileSize / 2.0
         var px = sx + tx * __tileSize
@@ -40,7 +38,7 @@ class Level {
     }
 
     /// Calculate the tile position of a given position in the level
-    static calculateTile(pos) {
+    static calculateTile(pos : Vec2) -> Vec2 {
         var sx = (__width - 1.0) * -__tileSize / 2.0
         var sy = (__height - 1.0)  * -__tileSize / 2.0
         var tx = (pos.x - sx) / __tileSize
@@ -49,31 +47,22 @@ class Level {
     }
 
     /// Get the tile at a given position (used for rendering)
-    static tileSize { __tileSize }
+    static tileSize -> Num { __tileSize }
     
     /// Get the width of the level (in tiles)
-    static width { __width }
+    static width -> Num { __width }
 
     /// Get the height of the level (in tiles)
-    static height { __height }
+    static height -> Num { __height }
 
     /// The random number generator used in the level
-    static random { __random }
+    static random -> Random { __random }
 
-    /// Check if a tile position is inside the level
-    static contains(x, y) { __grid.valid(x, y) }    
+    /// The grid that contains the logical representation of the level (used for gameplay)
+    static gameplay -> Grid { __grid }
 
-    /// Get the tile at a given position
-    static [x, y] { __grid[x, y] }
-
-    /// Set the tile at a given position
-    static [x, y]=(v) { __grid[x, y] = v }
-
-    /// Get the tile at a given position
-    static [pos] { __grid[pos.x, pos.y] }
-
-    /// Set the tile at a given position
-    static [pos]=(v) { __grid[pos.x, pos.y] = v }
+    /// The grid that contains the rendering representation of the level (used for rendering)
+    static rendering -> Grid { __rendering }
 }
 
 // A compenent that represents a tile in the level
@@ -87,13 +76,13 @@ class Tile is Component {
     }
 
     /// Get the tile at a given position
-    static get(x, y) {
+    static get(x : Num, y : Num) {
         if(__tiles.has(x, y)) return __tiles[x, y]
         return null
     }
 
     /// Create a new tile at a given position
-    construct new(x, y) {
+    construct new(x : Num, y : Num) {
         _x = x
         _y = y
         System.print("Creating tile at position [%(x),%(y)]")
@@ -101,7 +90,7 @@ class Tile is Component {
     }
 
     /// Move the tile to a new position with a given offset
-    move(dx, dy) {  
+    move(dx : Num, dy : Num) {  
         __tiles.remove(_x, _y)
         _x = _x + dx
         _y = _y + dy
@@ -117,14 +106,14 @@ class Tile is Component {
     }
     
     /// Get the x position of the tile
-    x { _x }
+    x -> Num { _x }
 
     /// Get the y position of the tile
-    y { _y }
+    y -> Num { _y }
 }
 
 class Stats is Component {
-    construct new(health, damage, armor, drop) {
+    construct new(health : Num, damage : Num, armor : Num, drop : Num) {
         _health = health    // Health points
         _damage = damage    // Damage points
         _armor = armor      // Armor points
@@ -134,24 +123,24 @@ class Stats is Component {
     /// Clone the stats - used to create a copy of the stats and modify them
     /// without changing the original. Useful for creating new entities with
     /// similar stats
-    clone() { Stats.new(_health, _damage, _armor, _drop) }
+    clone() -> Stats { Stats.new(_health, _damage, _armor, _drop) }
 
-    add(other) {
+    add(other : Stats) {
         _health = _health + other.health
         _damage = _damage + other.damage
         _armor = _armor + other.armor
         _drop = _drop + other.drop
     }
 
-    health { _health }
-    damage { _damage }
-    armor { _armor }
-    drop { _drop }
+    health -> Num { _health }
+    damage -> Num { _damage }
+    armor -> Num { _armor }
+    drop -> Num { _drop }
 
-    health=(v) { _health = v }
-    damage=(v) { _damage = v }
-    armor=(v) { _armor = v }
-    drop=(v) { _drop = v }
+    health=(v : Num) { _health = v }
+    damage=(v : Num) { _damage = v }
+    armor=(v : Num) { _armor = v }
+    drop=(v : Num) { _drop = v }
 }
 
 /// A base class for all characters in the game
@@ -186,7 +175,7 @@ class Character is Component {
         var d = Directions[dir]
         var x = _tile.x + d.x
         var y = _tile.y + d.y
-        var flag = Level[x, y]
+        var flag = Level.gameplay[x, y]
         var t = Tile.get(x, y)
         if(t != null) flag = flag | t.owner.tag // |
         return Bits.checkBitFlagOverlap(type, flag)
@@ -350,7 +339,7 @@ class Monster is Character {
                 var next = open.pop()
                 for(i in 0...4) {
                     var nghb = next + Directions[i]
-                    if(Level.contains(nghb.x, nghb.y) && !__fill.has(nghb.x, nghb.y)) {
+                    if(Level.gameplay.valid(nghb.x, nghb.y) && !__fill.has(nghb.x, nghb.y)) {
                         var flags = Gameplay.getFlags(nghb.x, nghb.y)
                         if(!Bits.checkBitFlagOverlap(flags, Type.monsterBlock)) {
                             __fill[nghb.x, nghb.y] = (i + 2) % 4 // Opposite direction 
@@ -373,7 +362,7 @@ class Monster is Character {
                         var dr = Directions[__fill[x, y]]
                         var fr = Level.calculatePos(x, y)
                         var to = Level.calculatePos(x + dr.x, y + dr.y)
-                        Render.line(fr.x, fr.y, to.x, to.y)
+                        Render.dbgLine(fr.x, fr.y, to.x, to.y)
                     }
                 }
             }
@@ -390,36 +379,39 @@ class Gameplay {
         __state = playerTurn
         __font = Render.loadFont("[game]/assets/FutilePro.ttf", 14)
 
-        var preview = Render.loadImage("[game]/assets/monochrome-transparent_packed.png")
-        var r = 49
-        var c = 22
+        var preview = Render.loadImage("[game]/assets/tileset.png")
+        var r = 16
+        var c = 16
         __tiles = {
-            Type.empty: Render.createGridSprite(preview, r, c, 624),
-            Type.floor: Render.createGridSprite(preview, r, c, 538),
-            Type.floorAlt: Render.createGridSprite(preview, r, c, 881),            
-            Type.wall: Render.createGridSprite(preview, r, c, 843),
-            Type.player: Render.createGridSprite(preview, r, c, 28),
-            Type.enemy: Render.createGridSprite(preview, r, c, 323),
-            Type.door: Render.createGridSprite(preview, r, c, 799),
-            Type.lever: Render.createGridSprite(preview, r, c, 259),
-            Type.spikes: Render.createGridSprite(preview, r, c, 259),
-            Type.chest: Render.createGridSprite(preview, r, c, 259),
-            Type.crate: Render.createGridSprite(preview, r, c, 259),
-            Type.pot: Render.createGridSprite(preview, r, c, 259),
-            Type.stairs: Render.createGridSprite(preview, r, c, 259),
-            Type.light: Render.createGridSprite(preview, r, c, 259),
-            Type.bat: Render.createGridSprite(preview, r, c, 418),
-            Type.spider: Render.createGridSprite(preview, r, c, 273),
-            Type.ghost: Render.createGridSprite(preview, r, c, 320),
-            Type.boss: Render.createGridSprite(preview, r, c, 324),
-            Type.scorpion: Render.createGridSprite(preview, r, c, 269),
-            Type.snake: Render.createGridSprite(preview, r, c, 420),
-            Type.helmet: Render.createGridSprite(preview, r, c, 33),
-            Type.armor: Render.createGridSprite(preview, r, c, 82),
-            Type.sword: Render.createGridSprite(preview, r, c, 130),
-            Type.food: Render.createGridSprite(preview, r, c, 817)
+            Type.empty: Render.createGridSprite(preview, r, c, 0),
+            Type.floor: Render.createGridSprite(preview, r, c, 66),
+            Type.wall: Render.createGridSprite(preview, r, c, 18),
+            Type.player: Render.createGridSprite(preview, r, c, 128),
+
+
+
+            // Type.enemy: Render.createGridSprite(preview, r, c, 323),
+            //Type.door: Render.createGridSprite(preview, r, c, 799),
+            //Type.lever: Render.createGridSprite(preview, r, c, 259),
+            //Type.spikes: Render.createGridSprite(preview, r, c, 259),
+            //Type.chest: Render.createGridSprite(preview, r, c, 259),
+            //Type.crate: Render.createGridSprite(preview, r, c, 259),
+            //Type.pot: Render.createGridSprite(preview, r, c, 259),
+            //Type.stairs: Render.createGridSprite(preview, r, c, 259),
+            //Type.light: Render.createGridSprite(preview, r, c, 259),
+            //Type.bat: Render.createGridSprite(preview, r, c, 418),
+            //Type.spider: Render.createGridSprite(preview, r, c, 273),
+            //Type.ghost: Render.createGridSprite(preview, r, c, 320),
+            //Type.boss: Render.createGridSprite(preview, r, c, 324),
+            //Type.scorpion: Render.createGridSprite(preview, r, c, 269),
+            //Type.snake: Render.createGridSprite(preview, r, c, 420),
+            //Type.helmet: Render.createGridSprite(preview, r, c, 33),
+            //Type.armor: Render.createGridSprite(preview, r, c, 82),
+            //Type.sword: Render.createGridSprite(preview, r, c, 130),
+            //Type.food: Render.createGridSprite(preview, r, c, 817)
         }        
 
+        /*
         var enemyColor = Data.getColor("Enemy Color", Data.game)
         var playerColor = Data.getColor("Player Color", Data.game)
         var itemColor = Data.getColor("Item Color", Data.game)
@@ -441,6 +433,7 @@ class Gameplay {
             Type.sword: itemColor,     
             Type.food: itemColor       
         }
+        */
 
         __message = "A hero is born"
         __timer = Data.getNumber("Message Time", Data.game)
@@ -466,8 +459,8 @@ class Gameplay {
     }
 
     static getFlags(x, y) {
-        if(Level.contains(x, y)) {
-            var flag = Level[x, y]
+        if(Level.gameplay.valid(x, y)) {
+            var flag = Level.gameplay[x, y]
             var t = Tile.get(x, y)
             if(t != null) flag = flag | t.owner.tag // |
             return flag
@@ -485,23 +478,18 @@ class Gameplay {
             for (y in 0...Level.height) {
                 var px = sx + x * s
                 var py = sy + y * s
-                var t = Level[x, y]        
-                
-                // Checkerboard pattern for floor tiles
-                if(t == Type.floor && (x + y) % 2 == 0) t = Type.floorAlt
-                var sprite = __tiles[t]            
-                var color = __colors[t] == null ? 0xFFFFFFFF : __colors[t]
-                if(sprite != null) {
-                    Render.sprite(sprite, px, py, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)
+                var t = Level.gameplay[x, y]
+                var r = Level.rendering[x, y]
+
+                if(r != null) {
+                    Render.sprite(r, px, py, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+                    continue
                 }
 
-                var tile = Tile.get(x, y)          
-                if(tile != null) {                    
-                    var pos = Level.calculatePos(tile)
-                    var sprite = __tiles[tile.owner.tag]
-                    var color = __colors[tile.owner.tag] == null ? 0xFFFFFFFF : __colors[tile.owner.tag]
-                    Render.sprite(sprite, pos.x, pos.y, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)
-                }
+                if(t == Type.empty) continue
+                var color : Num = 0xFFFFFFFF
+                var sprite = __tiles[t]
+                Render.sprite(sprite, px, py, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)                
             }
         }
 
