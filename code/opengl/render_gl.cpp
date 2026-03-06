@@ -414,19 +414,28 @@ void xs::render::render()
 
 	if (crt_enabled)
 	{
-		// CRT post-process pass: render render_texture through CRT shader into crt_fbo
-		glBindFramebuffer(GL_FRAMEBUFFER, crt_fbo);
-		glViewport(0, 0, out_w, out_h);
-		glDisable(GL_BLEND);
+		// CRT compute shader pass
 		glUseProgram(crt_program);
+		
+		// Set uniforms
 		glUniform2f(0, (float)width, (float)height);
 		glUniform2f(1, (float)out_w, (float)out_h);
+		
+		// Bind input texture to texture unit 0 (for sampling)
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, render_texture);
-		glUniform1i(2, 0);
-		glBindVertexArray(crt_vao);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		XS_DEBUG_ONLY(glBindVertexArray(0));
+		
+		// Bind output texture to image unit 1 (for writing)
+		glBindImageTexture(1, crt_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
+		
+		// Dispatch compute shader - one thread per 8x8 pixel block
+		unsigned int num_groups_x = (out_w + 7) / 8;
+		unsigned int num_groups_y = (out_h + 7) / 8;
+		glDispatchCompute(num_groups_x, num_groups_y, 1);
+		
+		// Memory barrier to ensure writes complete before reading
+		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		
 		XS_DEBUG_ONLY(glUseProgram(0));
 		render_stats.draw_calls++;
 	}
@@ -620,7 +629,7 @@ void xs::render::create_frame_buffers()
 
 		glGenTextures(1, &crt_texture);
 		glBindTexture(GL_TEXTURE_2D, crt_texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, crt_w, crt_h, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, crt_w, crt_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, crt_texture, 0);
@@ -993,21 +1002,27 @@ bool xs::render::link_program(GLuint program)
 
 void xs::render::compile_crt_shader()
 {
-	const auto* const vs_source =
-		"#version 450 core\n"
-		"out vec2 v_uv;\n"
-		"void main() {\n"
-		"    vec2 pos = vec2(float((gl_VertexID << 1) & 2), float(gl_VertexID & 2));\n"
-		"    v_uv = pos;\n"
-		"    gl_Position = vec4(pos * 2.0 - 1.0, 0.0, 1.0);\n"
-		"}";
-
+	// Load and compile compute shader
 	auto preprocessor = render::shader_preprocessor();
-	auto fs_str = preprocessor.read("[shared]/shaders/crt.frag");
-	const char* const fs_source = fs_str.c_str();
-	bool success = compile_shader(vs_source, nullptr, fs_source, &crt_program);
+	auto cs_str = preprocessor.read("[shared]/shaders/crt.comp");
+	const char* const cs_source = cs_str.c_str();
+	
+	GLuint compute_shader = 0;
+	bool res = compile_shader(&compute_shader, GL_COMPUTE_SHADER, cs_source);
+	if (!res)
+	{
+		log::error("Failed to compile CRT compute shader");
+		return;
+	}
+	
+	crt_program = glCreateProgram();
+	glAttachShader(crt_program, compute_shader);
+	
+	bool success = link_program(crt_program);
 	if (!success)
-		log::error("Failed to compile CRT shader");
+		log::error("Failed to link CRT compute shader program");
+	
+	glDeleteShader(compute_shader);
 }
 
 void xs::render::reload_shaders()
