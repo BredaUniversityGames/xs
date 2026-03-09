@@ -34,12 +34,12 @@ class Decorator {
             2: [254],      // E
             3: [254],      // NE corner
             4: [254],      // S
-            5: [254],      // NS vertical
+            5: [18, 20, 22, 24, 26, 28],      // NS vertical
             6: [2, 6, 10],      // SE corner
             7: [254],      // NES T-junction
             8: [254],      // W
             9: [254],      // NW corner
-            10: [11],    // EW horizontal
+            10: [3, 7, 11, 34, 36, 38, 40, 42, 44],    // EW horizontal
             11: [254],    // NEW T-junction
             12: [4, 8 , 12],    // SW corner
             13: [254],    // NSW T-junction
@@ -47,6 +47,7 @@ class Decorator {
             15: [254]     // NESW cross/full
         }
         
+        var rightOfWall = [17, 21, 25, 33, 37, 41]
         var floorMap = {
             0: [255],     // No neighbors - isolated floor
             1: [255],     // N
@@ -60,7 +61,7 @@ class Decorator {
             9: [255],     // NW
             10: [255],    // EW
             11: [255],    // NEW
-            12: [255],    // SW
+            12: [1, 5, 9],  // SW
             13: [255],    // NSW
             14: [255],    // ESW
             15: [255]     // NESW

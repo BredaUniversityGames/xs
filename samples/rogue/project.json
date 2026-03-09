@@ -3,6 +3,10 @@
         "type": "bool",
         "value": false
     },
+    "CRT Effect": {
+        "type": "bool",
+        "value": false
+    },
     "Height": {
         "type": "number",
         "value": 360.0
@@ -13,7 +17,7 @@
     },
     "Multiplier": {
         "type": "number",
-        "value": 2.0
+        "value": 3.0
     },
     "Snap to pixels": {
         "type": "bool",
