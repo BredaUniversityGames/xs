@@ -93,16 +93,16 @@ void main() {
         
         // Apply scanlines (if enabled)
         if (u_enable_scanlines != 0) {
-            float scanline_y = float(pixel_coords.y);
+            float scanline_y = uv.y * u_input_size.y;
             float scanline = sin(scanline_y * 3.14159265359 * SCANLINE_THICKNESS) * 0.5 + 0.5;
             scanline = 1.0 - (scanline * SCANLINE_STRENGTH);
             color *= scanline;
         }
-        
+
         // Apply phosphor mask (if enabled) - aperture grille pattern
         if (u_enable_phosphor != 0) {
             vec3 mask = vec3(1.0);
-            float x = mod(float(pixel_coords.x), 3.0);
+            float x = mod(uv.x * u_input_size.x, 3.0);
             if (x < 1.0) {
                 mask.r = 1.0 - PHOSPHOR_STRENGTH;
             } else if (x < 2.0) {
