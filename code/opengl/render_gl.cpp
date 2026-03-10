@@ -408,7 +408,7 @@ void xs::render::render()
 		GL_NEAREST);
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-	bool crt_enabled = data::get_bool("CRT Effect", data::type::project);
+	bool crt_enabled = data::get_bool("Render.CRTEffect", data::type::project);
 	int out_w = device::get_width();
 	int out_h = device::get_height();
 
@@ -539,10 +539,10 @@ void xs::render::create_texture_with_data(xs::render::image& img, uchar* data)
 		assert(false);
 	}
 
-	bool filter_flag = data::get_bool("Texture Filter", data::type::project);
+	bool filter_flag = data::get_bool("Render.TextureFilter", data::type::project);
 	auto filter = filter_flag ? GL_LINEAR : GL_NEAREST;
 
-	bool repeat_flag = data::get_bool("Texture Repeat", data::type::project);
+	bool repeat_flag = data::get_bool("Render.TextureRepeat", data::type::project);
 	auto repeat = repeat_flag ? GL_REPEAT : GL_CLAMP_TO_EDGE;
 
 	glGenTextures(1, &img.texture);
@@ -1139,7 +1139,7 @@ string xs::render::shader_preprocessor::get_parent_path(const string& path)
 
 void* xs::render::get_render_target_texture()
 {
-	if (data::get_bool("CRT Effect", data::type::project))
+	if (data::get_bool("Render.CRTEffect", data::type::project))
 		return (void*)(intptr_t)crt_texture;
 	return (void*)(intptr_t)render_texture;
 }

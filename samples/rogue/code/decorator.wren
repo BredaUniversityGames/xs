@@ -27,44 +27,46 @@ class Decorator {
         }
 
         // Manual mapping: mask value -> sprite indices (can be multiple options)
-        // TODO: Fill in with actual sprite indices from your tileset
+        var bottom = [3, 7, 11, 34, 36, 38, 40, 42, 44]
+        var middle = [18, 20, 22, 24, 26, 28]
         var wallMap = {
             0: [13, 14, 15],    // No neighbors - isolated wall
-            1: [18, 20, 22, 24, 26, 28],      // N
-            2: [254],      // E
-            3: [254],      // NE corner
-            4: [254],      // S
-            5: [18, 20, 22, 24, 26, 28],      // NS vertical
+            1: middle,      // N
+            2: middle,      // E
+            3: bottom,      // NE corner
+            4: middle,      // S
+            5: middle,      // NS vertical
             6: [2, 6, 10],      // SE corner
-            7: [254],      // NES T-junction
-            8: [254],      // W
-            9: [254],      // NW corner
-            10: [3, 7, 11, 34, 36, 38, 40, 42, 44],    // EW horizontal
-            11: [254],    // NEW T-junction
+            7: middle,      // NES T-junction
+            8: middle,      // W
+            9: bottom,      // NW corner
+            10: bottom,    // EW horizontal
+            11: bottom,    // NEW T-junction
             12: [4, 8 , 12],    // SW corner
-            13: [254],    // NSW T-junction
-            14: [254],    // ESW T-junction
-            15: [254]     // NESW cross/full
+            13: middle,    // NSW T-junction
+            14: middle,    // ESW T-junction
+            15: middle     // NESW cross/full
         }
         
         var rightOfWall = [17, 21, 25, 33, 37, 41]
+        var floor = [48, 64]
         var floorMap = {
             0: [255],     // No neighbors - isolated floor
-            1: [255],     // N
-            2: [255],     // E
-            3: [255],     // NE
-            4: [255],     // S
-            5: [255],     // NS
-            6: [255],     // SE
-            7: [255],     // NES
-            8: [255],     // W
-            9: [255],     // NW
-            10: [255],    // EW
-            11: [255],    // NEW
+            1: floor,     // N
+            2: floor,     // E
+            3: floor,     // NE
+            4: floor,     // S
+            5: floor,     // NS
+            6: floor,     // SE
+            7: floor,     // NES
+            8: rightOfWall,     // W
+            9: rightOfWall,     // NW
+            10: floor,    // EW
+            11: floor,    // NEW
             12: [1, 5, 9],  // SW
-            13: [255],    // NSW
-            14: [255],    // ESW
-            15: [255]     // NESW
+            13: rightOfWall,    // NSW
+            14: floor,    // ESW
+            15: floor     // NESW
         }
 
         // Calculate autotile masks for each tile
@@ -85,9 +87,10 @@ class Decorator {
                     
                     // Store sprite in rendering grid
                     Level.rendering[x, y] = sprite
-                    System.print("Tile [%(x),%(y)] type=%(tileType) mask=%(mask) sprite=%(spriteIndex)")
-                }
+                    // System.print("Tile [%(x),%(y)] type=%(tileType) mask=%(mask) sprite=%(spriteIndex)")
+                } 
             }
+            Fiber.yield(0.0)
         }
 
         return 0.0

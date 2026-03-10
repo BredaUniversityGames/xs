@@ -1,45 +1,45 @@
 {
-    "Always on top": {
+    "Device.AlwaysOnTop": {
         "type": "bool",
         "value": false
     },
-    "CRT Effect": {
-        "type": "bool",
-        "value": false
-    },
-    "Height": {
+    "Device.Height": {
         "type": "number",
-        "value": 360.0
+        "value": 240.0
+    },
+    "Device.Multiplier": {
+        "type": "number",
+        "value": 3.0
+    },
+    "Device.Title": {
+        "type": "string",
+        "value": "Rogue"
+    },
+    "Device.Width": {
+        "type": "number",
+        "value": 426.0
+    },
+    "Device.WindowSizeInPoints": {
+        "type": "bool",
+        "value": false
     },
     "Main": {
         "type": "string",
         "value": "code/game.wren"
     },
-    "Multiplier": {
-        "type": "number",
-        "value": 3.0
-    },
-    "Snap to pixels": {
+    "Render.CRTEffect": {
         "type": "bool",
         "value": false
     },
-    "Texture Filter": {
+    "Render.SnapToPixels": {
         "type": "bool",
         "value": false
     },
-    "Texture Repeat": {
+    "Render.TextureFilter": {
         "type": "bool",
         "value": false
     },
-    "Title": {
-        "type": "string",
-        "value": "Rogue"
-    },
-    "Width": {
-        "type": "number",
-        "value": 640.0
-    },
-    "Window size in points": {
+    "Render.TextureRepeat": {
         "type": "bool",
         "value": false
     }

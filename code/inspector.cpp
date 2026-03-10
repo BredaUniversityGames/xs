@@ -248,17 +248,17 @@ void xs::inspector::initialize()
     auto current_theme = inspector::get_theme();
     apply_theme(current_theme);
 
-	always_on_top = data::get_bool("always_on_top", data::type::user);
+	always_on_top = data::get_bool("Editor.AlwaysOnTop", data::type::user);
 	if (always_on_top)
 		device::toggle_on_top();
 
 	// Restore window states
-	show_data_registry = data::get_bool("EditorShowDataRegistry", data::type::user);
-	show_profiler = data::get_bool("EditorShowProfiler", data::type::user);
-	show_entities = data::get_bool("EditorShowEntities", data::type::user);
+	show_data_registry = data::get_bool("Editor.ShowDataRegistry", data::type::user);
+	show_profiler = data::get_bool("Editor.ShowProfiler", data::type::user);
+	show_entities = data::get_bool("Editor.ShowEntities", data::type::user);
 
 	// Restore zoom level
-	int saved_zoom = (int)data::get_number("EditorZoomLevel", data::type::user);
+	int saved_zoom = (int)data::get_number("Editor.ZoomLevel", data::type::user);
 	if (saved_zoom >= 0 && saved_zoom <= 4)
 		current_zoom = static_cast<zoom_mode>(saved_zoom);
 }
@@ -266,10 +266,10 @@ void xs::inspector::initialize()
 void xs::inspector::shutdown()
 {
 	// Save editor state to user settings
-	data::set_bool("EditorShowDataRegistry", show_data_registry, data::type::user);
-	data::set_bool("EditorShowProfiler", show_profiler, data::type::user);
-	data::set_bool("EditorShowEntities", show_entities, data::type::user);
-	data::set_number("EditorZoomLevel", static_cast<int>(current_zoom), data::type::user);
+	data::set_bool("Editor.ShowDataRegistry", show_data_registry, data::type::user);
+	data::set_bool("Editor.ShowProfiler", show_profiler, data::type::user);
+	data::set_bool("Editor.ShowEntities", show_entities, data::type::user);
+	data::set_number("Editor.ZoomLevel", static_cast<int>(current_zoom), data::type::user);
 	data::save_of_type(data::type::user);
 
 	// Explicitly save ImGui settings before shutdown
@@ -339,7 +339,7 @@ void xs::inspector::render(double dt)
 	if (!checked_init)
 	{
 		checked_init = true;
-		should_init = !data::get_bool("EditorDockingInitialized", data::type::user);
+		should_init = !data::get_bool("Editor.DockingInitialized", data::type::user);
 	}
 
 	if (should_init)
@@ -347,7 +347,7 @@ void xs::inspector::render(double dt)
 		should_init = false;
 
 		// Save that we've initialized the layout
-		data::set_bool("EditorDockingInitialized", true, data::type::user);
+		data::set_bool("Editor.DockingInitialized", true, data::type::user);
 		data::save_of_type(data::type::user);
 
 		ImGui::DockBuilderRemoveNode(dockspace_id);
@@ -498,7 +498,7 @@ static void xs::inspector::render_top_bar()
         if (toggle_button(always_on_top ? ICON_FI_PIN_ON : ICON_FI_PIN_OFF, always_on_top, "Always on Top"))
         {
             always_on_top = device::toggle_on_top();
-            data::set_bool("always_on_top", always_on_top, data::type::user);
+            data::set_bool("Editor.AlwaysOnTop", always_on_top, data::type::user);
             data::save_of_type(data::type::user);
         }
 

@@ -338,7 +338,7 @@ class BSPer {
         var shortBrake = Data.getNumber("Short Brake")
         var longBrake = Data.getNumber("Long Brake")
         var maxRoomSize = Data.getNumber("BSP Max Room Size")
-        var padd = 4 // Leave this much on both sides when cutting
+        var padd = 6 // Leave this much on both sides when cutting
         var dx = to.x - from.x
         var dy = to.y - from.y
 

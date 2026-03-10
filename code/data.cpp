@@ -1,5 +1,6 @@
 #include "data.hpp"
 #include <unordered_map>
+#include <map>
 #include <memory>
 #include <any>
 #include <variant>
@@ -62,8 +63,30 @@ namespace xs::data::internal
 			((color >> 0) & 0xFF) * s);
 	}
 
-	bool inspect_entry(std::pair<const std::string, registry_value>& itr);
 	void inspect_of_type(const std::string& name, const std::string& icon, type type);
+
+	// Returns the group prefix (before the first '.', ignoring any '|' enum suffix).
+	// Returns empty string if there is no dot.
+	static string get_group(const string& key)
+	{
+		auto base_end = key.find('|');
+		auto base = (base_end != string::npos) ? key.substr(0, base_end) : key;
+		auto dot = base.find('.');
+		return (dot != string::npos) ? base.substr(0, dot) : "";
+	}
+
+	// Returns the display label for a key: strips the group prefix and enum options.
+	// "Device.Width"             -> "Width"
+	// "Render.Mode|Opt1|Opt2"    -> "Mode"
+	// "Volume"                   -> "Volume"
+	// "Mode|Opt1|Opt2"           -> "Mode"
+	static string get_display_name(const string& key)
+	{
+		auto base_end = key.find('|');
+		auto base = (base_end != string::npos) ? key.substr(0, base_end) : key;
+		auto dot = base.find('.');
+		return (dot != string::npos) ? base.substr(dot + 1) : base;
+	}
 	void load_of_type(type type);
 	const string& get_file_path(type type);
 
@@ -259,11 +282,145 @@ void xs::data::internal::inspect_of_type(
 			if (filter.PassFilter(itr.first.c_str()) && itr.second.data_type == type)
 				sorted.push_back(itr.first);
 		sort(sorted.begin(), sorted.end());
-		
+
+		// Lambda that renders a single registry entry.
+		// display_name is the short label to show in the widget (without group prefix or enum options).
+		auto render_entry = [&](std::pair<const std::string, registry_value>& itr, const std::string& display_name) -> bool
+		{
+			bool entry_edited = false;
+
+			ImGui::PushID(itr.first.c_str());
+
+			{
+				auto val = std::get_if<double>(&itr.second.value);
+				if (val)
+				{
+					auto pos = itr.first.find('|');
+					if (pos != string::npos)
+					{
+						int vint = (int)*val;
+						auto enum_options_string = itr.first.substr(pos + 1);
+						auto enum_options = tools::string_split(enum_options_string, "|");
+
+						if (ImGui::BeginCombo(display_name.c_str(), enum_options[vint].c_str()))
+						{
+							for (size_t i = 0; i < enum_options.size(); i++)
+							{
+								bool is_selected = vint == (int)i;
+								if (ImGui::Selectable(enum_options[i].c_str(), is_selected))
+								{
+									vint = (int)i;
+									entry_edited = true;
+								}
+								if (is_selected)
+									ImGui::SetItemDefaultFocus();
+							}
+							set(itr.first, (double)vint, itr.second.data_type, itr.second.active);
+							ImGui::EndCombo();
+						}
+					}
+					else
+					{
+						float flt = (float)*val;
+						entry_edited = ImGui::DragFloat(display_name.c_str(), &flt, 0.01f);
+						set(itr.first, (double)flt, itr.second.data_type, itr.second.active);
+					}
+				}
+			}
+
+			{
+				auto val = std::get_if<bool>(&itr.second.value);
+				if (val)
+				{
+					entry_edited = ImGui::Checkbox(display_name.c_str(), val);
+					set(itr.first, *val, itr.second.data_type, itr.second.active);
+				}
+			}
+
+			{
+				auto val = std::get_if<uint32_t>(&itr.second.value);
+				if (val)
+				{
+					ImVec4 vec = color_convert(*val);
+					entry_edited = ImGui::ColorEdit4(display_name.c_str(), &vec.x);
+					*val = color_convert(vec);
+					set(itr.first, *val, itr.second.data_type, itr.second.active);
+				}
+			}
+
+			{
+				auto val = std::get_if<string>(&itr.second.value);
+				if (val)
+				{
+					ImGui::PushItemWidth(0);
+					entry_edited = ImGui::InputText(display_name.c_str(), val);
+					ImGui::PopItemWidth();
+					set(itr.first, *val, itr.second.data_type);
+				}
+			}
+
+			if (ImGui::IsItemDeactivatedAfterEdit())
+			{
+				if (history_stack_pointer > 0)
+				{
+					history.resize(history.size() - history_stack_pointer);
+					history_stack_pointer = 0;
+				}
+				regsitry_type r(reg);
+				history.push_back(r);
+			}
+
+			if (!itr.second.active)
+			{
+				ImGui::SameLine();
+				auto color = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+				color.w = 0.5f;
+				ImGui::PushStyleColor(ImGuiCol_Text, color);
+
+				if (ImGui::Button(ICON_FI_DELETE))
+				{
+					reg.erase(itr.first);
+					entry_edited = true;
+					regsitry_type r(reg);
+					history.push_back(r);
+				}
+
+				ImGui::PopStyleColor();
+			}
+
+			ImGui::PopID();
+
+			return entry_edited;
+		};
+
+		// Partition sorted keys into ungrouped and grouped entries.
+		vector<string> ungrouped;
+		map<string, vector<string>> groups;
+		for (const auto& s : sorted)
+		{
+			auto g = get_group(s);
+			if (g.empty())
+				ungrouped.push_back(s);
+			else
+				groups[g].push_back(s);
+		}
+
 		ImGui::BeginChild("Child");
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.45f);
-		for (const auto& s : sorted)
-			ed = std::max(ed, inspect_entry(*reg.find(s)));
+
+		for (const auto& s : ungrouped)
+			ed = std::max(ed, render_entry(*reg.find(s), get_display_name(s)));
+
+		for (auto& [group, members] : groups)
+		{
+			if (ImGui::TreeNodeEx(group.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				for (const auto& s : members)
+					ed = std::max(ed, render_entry(*reg.find(s), get_display_name(s)));
+				ImGui::TreePop();
+			}
+		}
+
 		ImGui::PopItemWidth();
 		ImGui::EndChild();
 
@@ -380,128 +537,6 @@ const string& xs::data::internal::get_file_path(type type)
 	}
 
 	return no_path;
-}
-
-bool xs::data::internal::inspect_entry(
-	std::pair<const std::string,
-	xs::data::internal::registry_value>& itr)
-{
-	bool edited = false;
-	{
-		auto val = std::get_if<double>(&itr.second.value);
-		if(val)
-		{
-			// Check if the value is an enum and display a combo box
-			// Enums are just numbers with a separator in the name,
-			// followed by the options separated
-			// Example: "Name|One|Two|Three|Four"
-			auto name = itr.first;
-			auto pos = name.find('|');
-			if (pos != string::npos)
-			{
-				int vint = (int)*val;
-				auto enum_name = name.substr(0, pos);
-				auto enum_options_string = name.substr(pos + 1);
-				auto enum_options = tools::string_split(enum_options_string, "|");
-
-				// If the name options have changed, then we need a new id based on the new full name
-				ImGui::PushID(name.c_str());
-				if (ImGui::BeginCombo(enum_name.c_str(), enum_options[vint].c_str()))
-				{
-					// Iterate over the options
-					for (size_t i = 0; i < enum_options.size(); i++)
-					{
-						bool is_selected = vint == i;
-						if (ImGui::Selectable(enum_options[i].c_str(), is_selected))
-						{
-							vint = (int)i;
-							edited = true;
-						}
-						if (is_selected)
-							ImGui::SetItemDefaultFocus();
-					}
-					set(itr.first, (double)vint, itr.second.data_type, itr.second.active);
-					ImGui::EndCombo();
-				}
-				ImGui::PopID();
-			}
-			else
-			{
-				// Other values are just numbers
-				auto val = std::get<double>(itr.second.value);
-				float flt = (float)val;
-				edited = ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);
-				set(itr.first, flt, itr.second.data_type, itr.second.active);
-			}
-		}
-	}
-
-	{
-		auto val = std::get_if<bool>(&itr.second.value);
-		if (val)
-		{
-			edited = ImGui::Checkbox(itr.first.c_str(), val);
-			set(itr.first, *val, itr.second.data_type, itr.second.active);
-		}
-	}
-
-	{
-		auto val = std::get_if<uint32_t>(&itr.second.value);
-		if (val)
-		{
-			ImVec4 vec = color_convert(*val);
-			edited = ImGui::ColorEdit4(itr.first.c_str(), &vec.x);
-			*val = color_convert(vec);
-			set(itr.first, *val, itr.second.data_type, itr.second.active);
-		}
-	}
-
-	{
-		auto val = std::get_if<string>(&itr.second.value);
-		if (val)
-		{
-			ImGui::PushItemWidth(0);
-			edited = ImGui::InputText(itr.first.c_str(), val);
-			ImGui::PopItemWidth();
-			set(itr.first, *val, itr.second.data_type);
-		}
-	}
-
-	if (ImGui::IsItemDeactivatedAfterEdit())
-	{
-		if (history_stack_pointer > 0)
-		{
-			history.resize(history.size() - history_stack_pointer);
-			history_stack_pointer = 0;
-		}
-
-		regsitry_type r(reg);
-		history.push_back(r);
-	}
-
-
-	if (!itr.second.active)
-	{
-		ImGui::SameLine();
-		ImGui::PushID(itr.first.c_str());
-		// Make the text 0.5 transparent
-		auto color = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-		color.w = 0.5f;
-		ImGui::PushStyleColor(ImGuiCol_Text, color);
-
-		if (ImGui::Button(ICON_FI_DELETE))
-		{
-			reg.erase(itr.first);
-			edited = true;
-			regsitry_type r(reg);
-			history.push_back(r);
-		}
-		ImGui::PopID();
-
-		ImGui::PopStyleColor();
-	}
-
-	return edited;
 }
 
 void xs::data::internal::tooltip(const char* tooltip)

@@ -1,41 +1,33 @@
 {
-    "Always on top": {
+    "Device.AlwaysOnTop": {
         "type": "bool",
         "value": false
     },
-    "Fullscreen": {
-        "type": "bool",
-        "value": false
-    },
-    "Height": {
+    "Device.Height": {
         "type": "number",
         "value": 360.0
+    },
+    "Device.Multiplier": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Device.Title": {
+        "type": "string",
+        "value": "xs - grid"
+    },
+    "Device.Width": {
+        "type": "number",
+        "value": 640.0
     },
     "Main": {
         "type": "string",
         "value": "game.wren"
     },
-    "Multiplier": {
-        "type": "number",
-        "value": 2.0
-    },
-    "Texture Filter": {
+    "Render.TextureFilter": {
         "type": "bool",
         "value": false
     },
-    "Texture Repeat": {
-        "type": "bool",
-        "value": false
-    },
-    "Title": {
-        "type": "string",
-        "value": "xs - grid"
-    },
-    "Width": {
-        "type": "number",
-        "value": 640.0
-    },
-    "texture filter": {
+    "Render.TextureRepeat": {
         "type": "bool",
         "value": false
     }
