@@ -294,7 +294,7 @@ void xs::data::internal::inspect_of_type(
 		}
 		tooltip("Clear filter");
 
-		bool& ed = edited[type];
+		bool ed = edited[type];
 		{
 			if (ed)
 			{

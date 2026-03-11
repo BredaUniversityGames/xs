@@ -408,7 +408,8 @@ void xs::render::render()
 		GL_NEAREST);
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-	bool postprocess_enabled = data::get_bool("Render.Postprocess.Enabled", data::type::project);
+	bool postprocess_enabled = data::get_bool("Render.Postprocess.Enabled", data::type::project)
+		&& postprocess_program != 0;
 	int out_w = width * configuration::multiplier();
 	int out_h = height * configuration::multiplier();
 
@@ -448,18 +449,22 @@ void xs::render::render()
 		unsigned int num_groups_y = (out_h + 7) / 8;
 		glDispatchCompute(num_groups_x, num_groups_y, 1);
 		
-		// Memory barrier to ensure writes complete before reading
-		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
+		// Memory barrier: ensure image writes are visible to framebuffer reads (blit) and texture fetches (inspector)
+		glMemoryBarrier(GL_FRAMEBUFFER_BARRIER_BIT | GL_TEXTURE_FETCH_BARRIER_BIT);
 		
 		XS_DEBUG_ONLY(glUseProgram(0));
 		render_stats.draw_calls++;
 	}
 
 #ifndef INSPECTOR
-	if (postprocess_enabled)
-		glBlitNamedFramebuffer(postprocess_fbo, 0, 0, 0, out_w, out_h, 0, 0, out_w, out_h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-	else
-		glBlitNamedFramebuffer(render_fbo, 0, 0, 0, width, height, 0, 0, out_w, out_h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	{
+		int dst_w = device::get_width();
+		int dst_h = device::get_height();
+		if (postprocess_enabled)
+			glBlitNamedFramebuffer(postprocess_fbo, 0, 0, 0, out_w, out_h, 0, 0, dst_w, dst_h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		else
+			glBlitNamedFramebuffer(render_fbo, 0, 0, 0, width, height, 0, 0, dst_w, dst_h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	}
 #endif
 
 	// Bind the default framebuffer for the editor
@@ -971,18 +976,16 @@ bool xs::render::compile_shader(GLuint* shader, GLenum type, const GLchar* sourc
 
 	glCompileShader(*shader);
 
-#if defined(XS_DEBUG)
 	GLint log_length = 0;
 	glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &log_length);
 	if (log_length > 1)
 	{
-		GLchar* log = static_cast<GLchar*>(malloc(log_length));
-		glGetShaderInfoLog(*shader, log_length, &log_length, log);
-		if (log)
-			xs::log::error("Program compile log: {}", log);
-		free(log);
+		GLchar* log_str = static_cast<GLchar*>(malloc(log_length));
+		glGetShaderInfoLog(*shader, log_length, &log_length, log_str);
+		if (log_str)
+			xs::log::error("Shader compile log: {}", log_str);
+		free(log_str);
 	}
-#endif
 
 	glGetShaderiv(*shader, GL_COMPILE_STATUS, &status);
 	if (status == 0)
@@ -1000,18 +1003,16 @@ bool xs::render::link_program(GLuint program)
 
 	glLinkProgram(program);
 
-#if defined(XS_DEBUG)
 	GLint logLength = 0;
 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
 	if (logLength > 1)
 	{
-		GLchar* log = static_cast<GLchar*>(malloc(logLength));
-		glGetProgramInfoLog(program, logLength, &logLength, log);
-		if (log)
-			xs::log::error("Program link log: {}", log);
-		free(log);
+		GLchar* log_str = static_cast<GLchar*>(malloc(logLength));
+		glGetProgramInfoLog(program, logLength, &logLength, log_str);
+		if (log_str)
+			xs::log::error("Program link log: {}", log_str);
+		free(log_str);
 	}
-#endif
 
 	glGetProgramiv(program, GL_LINK_STATUS, &status);
 	return status != 0;

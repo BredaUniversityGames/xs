@@ -1,15 +1,7 @@
 {
-    "Device.AlwaysOnTop": {
-        "type": "bool",
-        "value": false
-    },
     "Device.Height": {
         "type": "number",
         "value": 720.0
-    },
-    "Device.Multiplier": {
-        "type": "number",
-        "value": 1.0
     },
     "Device.Title": {
         "type": "string",
@@ -22,25 +14,5 @@
     "Main": {
         "type": "string",
         "value": "game.wren"
-    },
-    "Render.Postprocess.Enabled": {
-        "type": "bool",
-        "value": true
-    },
-    "Render.SnapToPixels": {
-        "type": "bool",
-        "value": false
-    },
-    "Render.TextureFilter": {
-        "type": "bool",
-        "value": false
-    },
-    "Render.TextureRepeat": {
-        "type": "bool",
-        "value": false
-    },
-    "Device.WindowSizeInPoints": {
-        "type": "bool",
-        "value": false
     }
 }
