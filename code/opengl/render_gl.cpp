@@ -409,8 +409,8 @@ void xs::render::render()
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 	bool crt_enabled = data::get_bool("Render.Postprocess.Enabled", data::type::project);
-	int out_w = device::get_width();
-	int out_h = device::get_height();
+	int out_w = width * configuration::multiplier();
+	int out_h = height * configuration::multiplier();
 
 	if (crt_enabled)
 	{
@@ -459,7 +459,7 @@ void xs::render::render()
 	if (crt_enabled)
 		glBlitNamedFramebuffer(crt_fbo, 0, 0, 0, out_w, out_h, 0, 0, out_w, out_h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	else
-		glBlitNamedFramebuffer(render_fbo, 0, 0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+		glBlitNamedFramebuffer(render_fbo, 0, 0, 0, width, height, 0, 0, out_w, out_h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 #endif
 
 	// Bind the default framebuffer for the editor
@@ -637,9 +637,9 @@ void xs::render::create_frame_buffers()
 	
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-	{ // CRT post-process FBO (at device/window resolution)
-		int crt_w = device::get_width();
-		int crt_h = device::get_height();
+	{ // CRT post-process FBO (at game's native multiplied resolution)
+		int crt_w = width * configuration::multiplier();
+		int crt_h = height * configuration::multiplier();
 
 		glGenFramebuffers(1, &crt_fbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, crt_fbo);

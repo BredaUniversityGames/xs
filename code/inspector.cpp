@@ -686,6 +686,9 @@ static void xs::inspector::render_game_viewport()
 		float game_width = (float)xs::configuration::width();
 		float game_height = (float)xs::configuration::height();
 		float aspect_ratio = game_width / game_height;
+		// Natural display size is the multiplied resolution
+		float display_width  = game_width  * xs::configuration::multiplier();
+		float display_height = game_height * xs::configuration::multiplier();
 
 		// Calculate size based on zoom mode
 		ImVec2 image_size;
@@ -706,7 +709,7 @@ static void xs::inspector::render_game_viewport()
 		}
 		else
 		{
-			// Fixed zoom percentages
+			// Fixed zoom percentages relative to the multiplied (natural) resolution
 			float zoom_factor = 1.0f;
 			switch (current_zoom)
 			{
@@ -716,8 +719,8 @@ static void xs::inspector::render_game_viewport()
 				case zoom_mode::zoom_200: zoom_factor = 2.0f;  break;
 				default: zoom_factor = 1.0f; break;
 			}
-			image_size.x = game_width * zoom_factor;
-			image_size.y = game_height * zoom_factor;
+			image_size.x = display_width  * zoom_factor;
+			image_size.y = display_height * zoom_factor;
 		}
 
 		// Round image size to whole numbers to avoid sampling artifacts
