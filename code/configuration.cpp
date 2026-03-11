@@ -5,36 +5,22 @@ using namespace xs::configuration;
 
 int xs::configuration::width()
 {
-	int width = (int)xs::data::get_number("Device.Width", xs::data::type::project);
-	return width != 0 ? width : 640;
+	return (int)xs::data::get_number("Device.Width", xs::data::type::project, 640.0);
 }
 
 int xs::configuration::height()
 {
-	int height = (int)data::get_number("Device.Height", data::type::project);
-	return height != 0.0 ? height : 360;
+	return (int)data::get_number("Device.Height", data::type::project, 360.0);
 }
 
 std::string xs::configuration::title()
 {
-	auto title = data::get_string("Device.Title", data::type::project);
-	return !title.empty() ? title : "xs - window";
-}
-
-bool xs::configuration::fullscreen()
-{
-	return false;
+	return data::get_string("Device.Title", data::type::project, "xs");
 }
 
 int xs::configuration::multiplier()
 {
-	int mult = (int)data::get_number("Device.Multiplier", data::type::project);
-	return mult != 0 ? mult : 1;
-}
-
-bool xs::configuration::on_top()
-{
-	return data::get_bool("Device.AlwaysOnTop", data::type::project);
+	return (int)data::get_number("Device.Multiplier", data::type::project, 1.0);
 }
 
 bool xs::configuration::snap_to_pixels()
@@ -47,12 +33,6 @@ bool xs::configuration::window_size_in_points()
     return data::get_bool("Device.WindowSizeInPoints", data::type::project);
 }
 
-/*
-bool xs::configuration::msaa_enabled()
-{
-	return data::get_bool("MSAA", data::type::project);
-}
-*/
 
 scale_parameters xs::configuration::get_scale_to_game(int input_width, int input_height)
 {

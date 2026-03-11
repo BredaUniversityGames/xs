@@ -408,7 +408,7 @@ void xs::render::render()
 		GL_NEAREST);
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-	bool crt_enabled = data::get_bool("Render.CRTEffect", data::type::project);
+	bool crt_enabled = data::get_bool("Render.Postprocess.Enabled", data::type::project);
 	int out_w = device::get_width();
 	int out_h = device::get_height();
 
@@ -423,11 +423,18 @@ void xs::render::render()
 		
 		// Effect toggles - for now, enable all effects
 		// TODO: Add data settings for individual toggles
-		glUniform1i(2, 1); // u_enable_warp
-		glUniform1i(3, 1); // u_enable_vignette
-		glUniform1i(4, 1); // u_enable_scanlines
-		glUniform1i(5, 1); // u_enable_phosphor
-		glUniform1i(6, 1); // u_enable_chromatic
+		glUniform1i(2, data::get_bool("Render.Postprocess.Warp",      data::type::project, true)  ? 1 : 0); // u_enable_warp
+		glUniform1i(3, data::get_bool("Render.Postprocess.Vignette",   data::type::project, true)  ? 1 : 0); // u_enable_vignette
+		glUniform1i(4, data::get_bool("Render.Postprocess.Scanlines",  data::type::project, true)  ? 1 : 0); // u_enable_scanlines
+		glUniform1i(5, data::get_bool("Render.Postprocess.Phosphor",   data::type::project, true)  ? 1 : 0); // u_enable_phosphor
+		glUniform1i(6, data::get_bool("Render.Postprocess.Chromatic",  data::type::project, true)  ? 1 : 0); // u_enable_chromatic
+		glUniform1f(7,  (float)data::get_number("Render.Postprocess.WarpX",             data::type::project, 1.0 / 48.0)); // u_warp_x
+		glUniform1f(8,  (float)data::get_number("Render.Postprocess.WarpY",             data::type::project, 1.0 / 24.0)); // u_warp_y
+		glUniform1f(9,  (float)data::get_number("Render.Postprocess.ScanlineStrength",  data::type::project, 0.3));        // u_scanline_strength
+		glUniform1f(10, (float)data::get_number("Render.Postprocess.ScanlineThickness", data::type::project, 0.35));       // u_scanline_thickness
+		glUniform1f(11, (float)data::get_number("Render.Postprocess.PhosphorStrength",  data::type::project, 0.15));       // u_phosphor_strength
+		glUniform1f(12, (float)data::get_number("Render.Postprocess.ChromaticOffset",   data::type::project, 1.5));        // u_chromatic_offset
+		glUniform1f(13, (float)data::get_number("Render.Postprocess.BrightnessBoost",   data::type::project, 1.3));        // u_brightness_boost
 		
 		// Bind input texture to texture unit 0 (for sampling)
 		glActiveTexture(GL_TEXTURE0);
@@ -1139,7 +1146,7 @@ string xs::render::shader_preprocessor::get_parent_path(const string& path)
 
 void* xs::render::get_render_target_texture()
 {
-	if (data::get_bool("Render.CRTEffect", data::type::project))
+	if (data::get_bool("Render.Postprocess.Enabled", data::type::project))
 		return (void*)(intptr_t)crt_texture;
 	return (void*)(intptr_t)render_texture;
 }

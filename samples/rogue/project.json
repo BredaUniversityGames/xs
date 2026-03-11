@@ -27,7 +27,7 @@
         "type": "string",
         "value": "code/game.wren"
     },
-    "Render.CRTEffect": {
+    "Render.Postprocess.Enabled": {
         "type": "bool",
         "value": false
     },

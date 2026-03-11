@@ -38,7 +38,7 @@ namespace xs::data::internal
 	std::unordered_map<xs::data::type, bool> edited;
 
 	template<class T>
-	T get(const std::string& name, type type);
+	T get(const std::string& name, type type, const T& default_value = T{});
 
 	template<typename T>
 	void set(const std::string& name, const T& reg_value, type type, bool active = false);
@@ -65,28 +65,59 @@ namespace xs::data::internal
 
 	void inspect_of_type(const std::string& name, const std::string& icon, type type);
 
-	// Returns the group prefix (before the first '.', ignoring any '|' enum suffix).
-	// Returns empty string if there is no dot.
-	static string get_group(const string& key)
+	// Returns the leaf display label: last dot-segment of the base name (before any '|').
+	// "Render.Postprocess.Enabled"  -> "Enabled"
+	// "Device.Width"                -> "Width"
+	// "Volume"                      -> "Volume"
+	// "Render.Mode|Opt1|Opt2"       -> "Mode"
+	static string get_leaf_name(const string& key)
 	{
 		auto base_end = key.find('|');
 		auto base = (base_end != string::npos) ? key.substr(0, base_end) : key;
-		auto dot = base.find('.');
-		return (dot != string::npos) ? base.substr(0, dot) : "";
-	}
-
-	// Returns the display label for a key: strips the group prefix and enum options.
-	// "Device.Width"             -> "Width"
-	// "Render.Mode|Opt1|Opt2"    -> "Mode"
-	// "Volume"                   -> "Volume"
-	// "Mode|Opt1|Opt2"           -> "Mode"
-	static string get_display_name(const string& key)
-	{
-		auto base_end = key.find('|');
-		auto base = (base_end != string::npos) ? key.substr(0, base_end) : key;
-		auto dot = base.find('.');
+		auto dot = base.rfind('.');
 		return (dot != string::npos) ? base.substr(dot + 1) : base;
 	}
+
+	// Recursive tree node: sub-groups keyed by name, leaf registry keys at this level.
+	struct tree_node
+	{
+		map<string, tree_node> children;
+		vector<string>         entries;
+	};
+
+	// Build a recursive tree from a sorted list of registry keys.
+	// "Render.Postprocess.Enabled" -> root["Render"]["Postprocess"].entries << key
+	// "Volume"                     -> root.entries << key
+	static tree_node build_tree(const vector<string>& keys)
+	{
+		tree_node root;
+		for (const auto& key : keys)
+		{
+			auto base_end = key.find('|');
+			auto base = (base_end != string::npos) ? key.substr(0, base_end) : key;
+
+			// Split base on '.'
+			vector<string> segments;
+			size_t start = 0;
+			size_t pos;
+			while ((pos = base.find('.', start)) != string::npos)
+			{
+				segments.push_back(base.substr(start, pos - start));
+				start = pos + 1;
+			}
+			// leaf segment (last or only part)
+			segments.push_back(base.substr(start));
+
+			// Navigate / create tree nodes for all but the last segment
+			tree_node* node = &root;
+			for (size_t i = 0; i + 1 < segments.size(); ++i)
+				node = &node->children[segments[i]];
+
+			node->entries.push_back(key);
+		}
+		return root;
+	}
+
 	void load_of_type(type type);
 	const string& get_file_path(type type);
 
@@ -96,7 +127,7 @@ namespace xs::data::internal
 }
 
 template<class T>
-T xs::data::internal::get(const std::string& name, type type)
+T xs::data::internal::get(const std::string& name, type type, const T& default_value)
 {
 	auto itr = internal::reg.find(name);
 	if (itr != internal::reg.end())
@@ -114,12 +145,11 @@ T xs::data::internal::get(const std::string& name, type type)
 	}
 	else
 	{
-		xs::log::warn("Data value with name '{}' not found. Adding default to data.", name);
-		T t = {};
-		internal::reg[name] = { type, t, true };
+		xs::log::info("Data value '{}' not found, using default: {}.", name, default_value);
+		internal::reg[name] = { type, default_value, true };
 	}
 	
-	return {};
+	return default_value;
 }
 
 template<typename T>
@@ -166,24 +196,24 @@ bool xs::data::has_chages()
 	return edited[type::debug] || edited[type::game] || edited[type::project];
 }
 
-double xs::data::get_number(const std::string& name, type type)
+double xs::data::get_number(const std::string& name, type type, double default_value)
 {
-	return get<double>(name, type);
+	return get<double>(name, type, default_value);
 }
 
-uint32_t xs::data::get_color(const std::string& name, type type)
+uint32_t xs::data::get_color(const std::string& name, type type, uint32_t default_value)
 {
-	return get<uint32_t>(name, type);
+	return get<uint32_t>(name, type, default_value);
 }
 
-bool xs::data::get_bool(const std::string& name, type type)
+bool xs::data::get_bool(const std::string& name, type type, bool default_value)
 {
-	return get<bool>(name, type);
+	return get<bool>(name, type, default_value);
 }
 
-std::string xs::data::get_string(const std::string& name, type type)
+std::string xs::data::get_string(const std::string& name, type type, const std::string& default_value)
 {
-	return get<string>(name, type);
+	return get<string>(name, type, default_value);
 }
 
 void xs::data::set_number(const std::string& name, double value, type tp)
@@ -279,7 +309,7 @@ void xs::data::internal::inspect_of_type(
 
 		vector<string> sorted;
 		for (auto& itr : reg)
-			if (filter.PassFilter(itr.first.c_str()) && itr.second.data_type == type)
+			if (filter.PassFilter(itr.first.c_str()) && itr.second.data_type == type && itr.first != "Main")
 				sorted.push_back(itr.first);
 		sort(sorted.begin(), sorted.end());
 
@@ -393,33 +423,27 @@ void xs::data::internal::inspect_of_type(
 			return entry_edited;
 		};
 
-		// Partition sorted keys into ungrouped and grouped entries.
-		vector<string> ungrouped;
-		map<string, vector<string>> groups;
-		for (const auto& s : sorted)
-		{
-			auto g = get_group(s);
-			if (g.empty())
-				ungrouped.push_back(s);
-			else
-				groups[g].push_back(s);
-		}
+		// Build recursive tree from sorted keys and render it.
+		tree_node root = build_tree(sorted);
+
+		// Recursive renderer using a self-referencing lambda.
+		auto render_node = [&](auto& self, const tree_node& node) -> void {
+			for (const auto& s : node.entries)
+				ed = std::max(ed, render_entry(*reg.find(s), get_leaf_name(s)));
+			for (auto& [group_name, child] : node.children)
+			{
+				if (ImGui::TreeNodeEx(group_name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					self(self, child);
+					ImGui::TreePop();
+				}
+			}
+		};
 
 		ImGui::BeginChild("Child");
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.45f);
 
-		for (const auto& s : ungrouped)
-			ed = std::max(ed, render_entry(*reg.find(s), get_display_name(s)));
-
-		for (auto& [group, members] : groups)
-		{
-			if (ImGui::TreeNodeEx(group.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				for (const auto& s : members)
-					ed = std::max(ed, render_entry(*reg.find(s), get_display_name(s)));
-				ImGui::TreePop();
-			}
-		}
+		render_node(render_node, root);
 
 		ImGui::PopItemWidth();
 		ImGui::EndChild();

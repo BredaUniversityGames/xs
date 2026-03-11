@@ -23,10 +23,6 @@
         "type": "string",
         "value": "game.wren"
     },
-    "Render.MSAA": {
-        "type": "bool",
-        "value": true
-    },
     "Render.TextureFilter": {
         "type": "bool",
         "value": false
