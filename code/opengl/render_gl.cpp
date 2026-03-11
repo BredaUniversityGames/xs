@@ -406,7 +406,7 @@ void xs::render::render()
 		0, 0, width, height,
 		GL_COLOR_BUFFER_BIT,
 		GL_NEAREST);
-	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	bool postprocess_enabled = data::get_bool("Render.Postprocess.Enabled", data::type::project)
 		&& postprocess_program != 0;
@@ -467,9 +467,6 @@ void xs::render::render()
 	}
 #endif
 
-	// Bind the default framebuffer for the editor
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	
 	render_stats.sprites = (int)meshes.size();
 	render_stats.textures = (int)images.size();
 }
