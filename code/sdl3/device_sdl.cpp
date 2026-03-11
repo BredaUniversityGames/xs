@@ -62,8 +62,8 @@ void device::initialize()
 	// Set window size
 #if defined(EDITOR)
 	// In editor builds, restore saved window size from user settings
-	int saved_width = (int)data::get_number("EditorWindowWidth", data::type::user);
-	int saved_height = (int)data::get_number("EditorWindowHeight", data::type::user);
+	int saved_width = (int)data::get_number("Editor.WindowWidth", data::type::user);
+	int saved_height = (int)data::get_number("Editor.WindowHeight", data::type::user);
 
 	if (saved_width > 0 && saved_height > 0)
 	{
@@ -135,8 +135,8 @@ void device::shutdown()
 {
 #if defined(EDITOR)
 	// Save window size to user settings before shutdown in editor builds
-	data::set_number("EditorWindowWidth", internal::width, data::type::user);
-	data::set_number("EditorWindowHeight", internal::height, data::type::user);
+	data::set_number("Editor.WindowWidth", internal::width, data::type::user);
+	data::set_number("Editor.WindowHeight", internal::height, data::type::user);
 	data::save_of_type(data::type::user);
 #endif
 

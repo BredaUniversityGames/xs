@@ -41,8 +41,8 @@ class Game {
     // The render method is called once per tick, right after update.
     static render() {
         // Render a gradient background
-        var fromColor = Data.getColor("From Color")
-        var toColor = Data.getColor("To Color")
+        var fromColor = Data.getColor("Gradient.FromColor")
+        var toColor = Data.getColor("Gradient.ToColor")
         fromColor = Color.fromNum(fromColor)
         toColor = Color.fromNum(toColor)
         var angle = __time.sin * 0.5 + 0.5

@@ -1,5 +1,6 @@
 #include "data.hpp"
 #include <unordered_map>
+#include <map>
 #include <memory>
 #include <any>
 #include <variant>
@@ -37,7 +38,7 @@ namespace xs::data::internal
 	std::unordered_map<xs::data::type, bool> edited;
 
 	template<class T>
-	T get(const std::string& name, type type);
+	T get(const std::string& name, type type, const T& default_value = T{});
 
 	template<typename T>
 	void set(const std::string& name, const T& reg_value, type type, bool active = false);
@@ -62,8 +63,61 @@ namespace xs::data::internal
 			((color >> 0) & 0xFF) * s);
 	}
 
-	bool inspect_entry(std::pair<const std::string, registry_value>& itr);
 	void inspect_of_type(const std::string& name, const std::string& icon, type type);
+
+	// Returns the leaf display label: last dot-segment of the base name (before any '|').
+	// "Render.Postprocess.Enabled"  -> "Enabled"
+	// "Device.Width"                -> "Width"
+	// "Volume"                      -> "Volume"
+	// "Render.Mode|Opt1|Opt2"       -> "Mode"
+	static string get_leaf_name(const string& key)
+	{
+		auto base_end = key.find('|');
+		auto base = (base_end != string::npos) ? key.substr(0, base_end) : key;
+		auto dot = base.rfind('.');
+		return (dot != string::npos) ? base.substr(dot + 1) : base;
+	}
+
+	// Recursive tree node: sub-groups keyed by name, leaf registry keys at this level.
+	struct tree_node
+	{
+		map<string, tree_node> children;
+		vector<string>         entries;
+	};
+
+	// Build a recursive tree from a sorted list of registry keys.
+	// "Render.Postprocess.Enabled" -> root["Render"]["Postprocess"].entries << key
+	// "Volume"                     -> root.entries << key
+	static tree_node build_tree(const vector<string>& keys)
+	{
+		tree_node root;
+		for (const auto& key : keys)
+		{
+			auto base_end = key.find('|');
+			auto base = (base_end != string::npos) ? key.substr(0, base_end) : key;
+
+			// Split base on '.'
+			vector<string> segments;
+			size_t start = 0;
+			size_t pos;
+			while ((pos = base.find('.', start)) != string::npos)
+			{
+				segments.push_back(base.substr(start, pos - start));
+				start = pos + 1;
+			}
+			// leaf segment (last or only part)
+			segments.push_back(base.substr(start));
+
+			// Navigate / create tree nodes for all but the last segment
+			tree_node* node = &root;
+			for (size_t i = 0; i + 1 < segments.size(); ++i)
+				node = &node->children[segments[i]];
+
+			node->entries.push_back(key);
+		}
+		return root;
+	}
+
 	void load_of_type(type type);
 	const string& get_file_path(type type);
 
@@ -73,7 +127,7 @@ namespace xs::data::internal
 }
 
 template<class T>
-T xs::data::internal::get(const std::string& name, type type)
+T xs::data::internal::get(const std::string& name, type type, const T& default_value)
 {
 	auto itr = internal::reg.find(name);
 	if (itr != internal::reg.end())
@@ -91,12 +145,11 @@ T xs::data::internal::get(const std::string& name, type type)
 	}
 	else
 	{
-		xs::log::warn("Data value with name '{}' not found. Adding default to data.", name);
-		T t = {};
-		internal::reg[name] = { type, t, true };
+		xs::log::info("Data value '{}' not found, using default: {}.", name, default_value);
+		internal::reg[name] = { type, default_value, true };
 	}
 	
-	return {};
+	return default_value;
 }
 
 template<typename T>
@@ -131,7 +184,7 @@ void xs::data::inspect()
 	if (ImGui::BeginTabBar("DataTabsEmbedded", tab_bar_flags))
 	{
 		inspect_of_type("Game Data", string(ICON_FI_GAMEPAD) + " Game", type::game);
-		inspect_of_type("User (Save) Data", string(ICON_FI_USER) + " User", type::player);
+		inspect_of_type("Player (Save) Data", string(ICON_FI_USER) + " Player", type::player);
 		inspect_of_type("Debug Only Data", string(ICON_FI_BUG) + " Debug", type::debug);
 		inspect_of_type("Project Data", string(ICON_FI_COG) + " Project", type::project);
 		ImGui::EndTabBar();
@@ -143,24 +196,24 @@ bool xs::data::has_chages()
 	return edited[type::debug] || edited[type::game] || edited[type::project];
 }
 
-double xs::data::get_number(const std::string& name, type type)
+double xs::data::get_number(const std::string& name, type type, double default_value)
 {
-	return get<double>(name, type);
+	return get<double>(name, type, default_value);
 }
 
-uint32_t xs::data::get_color(const std::string& name, type type)
+uint32_t xs::data::get_color(const std::string& name, type type, uint32_t default_value)
 {
-	return get<uint32_t>(name, type);
+	return get<uint32_t>(name, type, default_value);
 }
 
-bool xs::data::get_bool(const std::string& name, type type)
+bool xs::data::get_bool(const std::string& name, type type, bool default_value)
 {
-	return get<bool>(name, type);
+	return get<bool>(name, type, default_value);
 }
 
-std::string xs::data::get_string(const std::string& name, type type)
+std::string xs::data::get_string(const std::string& name, type type, const std::string& default_value)
 {
-	return get<string>(name, type);
+	return get<string>(name, type, default_value);
 }
 
 void xs::data::set_number(const std::string& name, double value, type tp)
@@ -241,11 +294,17 @@ void xs::data::internal::inspect_of_type(
 		}
 		tooltip("Clear filter");
 
-		bool& ed = edited[type];
+		bool ed = edited[type];
 		{
-			bool ted = ed;
+			if (ed)
+			{
+				auto c = inspector::get_color(inspector::color_id::Purple);
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(c.r, c.g, c.b, c.a));
+			}
 			if (ImGui::Button(string(ICON_FI_SAVE).c_str()))
 				save_of_type(type);
+			if (ed)
+				ImGui::PopStyleColor();
 			tooltip("Save to a file");
 			ImGui::SameLine();
 
@@ -256,14 +315,142 @@ void xs::data::internal::inspect_of_type(
 
 		vector<string> sorted;
 		for (auto& itr : reg)
-			if (filter.PassFilter(itr.first.c_str()) && itr.second.data_type == type)
+			if (filter.PassFilter(itr.first.c_str()) && itr.second.data_type == type && itr.first != "Main")
 				sorted.push_back(itr.first);
 		sort(sorted.begin(), sorted.end());
-		
+
+		// Lambda that renders a single registry entry.
+		// display_name is the short label to show in the widget (without group prefix or enum options).
+		auto render_entry = [&](std::pair<const std::string, registry_value>& itr, const std::string& display_name) -> bool
+		{
+			bool entry_edited = false;
+
+			ImGui::PushID(itr.first.c_str());
+
+			{
+				auto val = std::get_if<double>(&itr.second.value);
+				if (val)
+				{
+					auto pos = itr.first.find('|');
+					if (pos != string::npos)
+					{
+						int vint = (int)*val;
+						auto enum_options_string = itr.first.substr(pos + 1);
+						auto enum_options = tools::string_split(enum_options_string, "|");
+
+						if (ImGui::BeginCombo(display_name.c_str(), enum_options[vint].c_str()))
+						{
+							for (size_t i = 0; i < enum_options.size(); i++)
+							{
+								bool is_selected = vint == (int)i;
+								if (ImGui::Selectable(enum_options[i].c_str(), is_selected))
+								{
+									vint = (int)i;
+									entry_edited = true;
+								}
+								if (is_selected)
+									ImGui::SetItemDefaultFocus();
+							}
+							set(itr.first, (double)vint, itr.second.data_type, itr.second.active);
+							ImGui::EndCombo();
+						}
+					}
+					else
+					{
+						float flt = (float)*val;
+						entry_edited = ImGui::DragFloat(display_name.c_str(), &flt, 0.01f);
+						set(itr.first, (double)flt, itr.second.data_type, itr.second.active);
+					}
+				}
+			}
+
+			{
+				auto val = std::get_if<bool>(&itr.second.value);
+				if (val)
+				{
+					entry_edited = ImGui::Checkbox(display_name.c_str(), val);
+					set(itr.first, *val, itr.second.data_type, itr.second.active);
+				}
+			}
+
+			{
+				auto val = std::get_if<uint32_t>(&itr.second.value);
+				if (val)
+				{
+					ImVec4 vec = color_convert(*val);
+					entry_edited = ImGui::ColorEdit4(display_name.c_str(), &vec.x);
+					*val = color_convert(vec);
+					set(itr.first, *val, itr.second.data_type, itr.second.active);
+				}
+			}
+
+			{
+				auto val = std::get_if<string>(&itr.second.value);
+				if (val)
+				{
+					ImGui::PushItemWidth(0);
+					entry_edited = ImGui::InputText(display_name.c_str(), val);
+					ImGui::PopItemWidth();
+					set(itr.first, *val, itr.second.data_type);
+				}
+			}
+
+			if (ImGui::IsItemDeactivatedAfterEdit())
+			{
+				if (history_stack_pointer > 0)
+				{
+					history.resize(history.size() - history_stack_pointer);
+					history_stack_pointer = 0;
+				}
+				regsitry_type r(reg);
+				history.push_back(r);
+			}
+
+			if (!itr.second.active)
+			{
+				ImGui::SameLine();
+				auto color = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+				color.w = 0.5f;
+				ImGui::PushStyleColor(ImGuiCol_Text, color);
+
+				if (ImGui::Button(ICON_FI_DELETE))
+				{
+					reg.erase(itr.first);
+					entry_edited = true;
+					regsitry_type r(reg);
+					history.push_back(r);
+				}
+
+				ImGui::PopStyleColor();
+			}
+
+			ImGui::PopID();
+
+			return entry_edited;
+		};
+
+		// Build recursive tree from sorted keys and render it.
+		tree_node root = build_tree(sorted);
+
+		// Recursive renderer using a self-referencing lambda.
+		auto render_node = [&](auto& self, const tree_node& node) -> void {
+			for (const auto& s : node.entries)
+				ed = std::max(ed, render_entry(*reg.find(s), get_leaf_name(s)));
+			for (auto& [group_name, child] : node.children)
+			{
+				if (ImGui::TreeNodeEx(group_name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					self(self, child);
+					ImGui::TreePop();
+				}
+			}
+		};
+
 		ImGui::BeginChild("Child");
 		ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.45f);
-		for (const auto& s : sorted)
-			ed = std::max(ed, inspect_entry(*reg.find(s)));
+
+		render_node(render_node, root);
+
 		ImGui::PopItemWidth();
 		ImGui::EndChild();
 
@@ -380,128 +567,6 @@ const string& xs::data::internal::get_file_path(type type)
 	}
 
 	return no_path;
-}
-
-bool xs::data::internal::inspect_entry(
-	std::pair<const std::string,
-	xs::data::internal::registry_value>& itr)
-{
-	bool edited = false;
-	{
-		auto val = std::get_if<double>(&itr.second.value);
-		if(val)
-		{
-			// Check if the value is an enum and display a combo box
-			// Enums are just numbers with a separator in the name,
-			// followed by the options separated
-			// Example: "Name|One|Two|Three|Four"
-			auto name = itr.first;
-			auto pos = name.find('|');
-			if (pos != string::npos)
-			{
-				int vint = (int)*val;
-				auto enum_name = name.substr(0, pos);
-				auto enum_options_string = name.substr(pos + 1);
-				auto enum_options = tools::string_split(enum_options_string, "|");
-
-				// If the name options have changed, then we need a new id based on the new full name
-				ImGui::PushID(name.c_str());
-				if (ImGui::BeginCombo(enum_name.c_str(), enum_options[vint].c_str()))
-				{
-					// Iterate over the options
-					for (size_t i = 0; i < enum_options.size(); i++)
-					{
-						bool is_selected = vint == i;
-						if (ImGui::Selectable(enum_options[i].c_str(), is_selected))
-						{
-							vint = (int)i;
-							edited = true;
-						}
-						if (is_selected)
-							ImGui::SetItemDefaultFocus();
-					}
-					set(itr.first, (double)vint, itr.second.data_type, itr.second.active);
-					ImGui::EndCombo();
-				}
-				ImGui::PopID();
-			}
-			else
-			{
-				// Other values are just numbers
-				auto val = std::get<double>(itr.second.value);
-				float flt = (float)val;
-				edited = ImGui::DragFloat(itr.first.c_str(), &flt, 0.01f);
-				set(itr.first, flt, itr.second.data_type, itr.second.active);
-			}
-		}
-	}
-
-	{
-		auto val = std::get_if<bool>(&itr.second.value);
-		if (val)
-		{
-			edited = ImGui::Checkbox(itr.first.c_str(), val);
-			set(itr.first, *val, itr.second.data_type, itr.second.active);
-		}
-	}
-
-	{
-		auto val = std::get_if<uint32_t>(&itr.second.value);
-		if (val)
-		{
-			ImVec4 vec = color_convert(*val);
-			edited = ImGui::ColorEdit4(itr.first.c_str(), &vec.x);
-			*val = color_convert(vec);
-			set(itr.first, *val, itr.second.data_type, itr.second.active);
-		}
-	}
-
-	{
-		auto val = std::get_if<string>(&itr.second.value);
-		if (val)
-		{
-			ImGui::PushItemWidth(0);
-			edited = ImGui::InputText(itr.first.c_str(), val);
-			ImGui::PopItemWidth();
-			set(itr.first, *val, itr.second.data_type);
-		}
-	}
-
-	if (ImGui::IsItemDeactivatedAfterEdit())
-	{
-		if (history_stack_pointer > 0)
-		{
-			history.resize(history.size() - history_stack_pointer);
-			history_stack_pointer = 0;
-		}
-
-		regsitry_type r(reg);
-		history.push_back(r);
-	}
-
-
-	if (!itr.second.active)
-	{
-		ImGui::SameLine();
-		ImGui::PushID(itr.first.c_str());
-		// Make the text 0.5 transparent
-		auto color = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-		color.w = 0.5f;
-		ImGui::PushStyleColor(ImGuiCol_Text, color);
-
-		if (ImGui::Button(ICON_FI_DELETE))
-		{
-			reg.erase(itr.first);
-			edited = true;
-			regsitry_type r(reg);
-			history.push_back(r);
-		}
-		ImGui::PopID();
-
-		ImGui::PopStyleColor();
-	}
-
-	return edited;
 }
 
 void xs::data::internal::tooltip(const char* tooltip)

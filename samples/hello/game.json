@@ -1,9 +1,9 @@
 {
-    "From Color": {
+    "Gradient.FromColor": {
         "type": "color",
         "value": 3187733247
     },
-    "To Color": {
+    "Gradient.ToColor": {
         "type": "color",
         "value": 4289593599
     }

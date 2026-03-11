@@ -1062,22 +1062,22 @@ void simple_audio_is_playing(WrenVM* vm)
 
 void data_get_number(WrenVM* vm)
 {
-    callFunction_returnType_args<double, string, xs::data::type>(vm, xs::data::get_number);
+    callFunction_returnType_args<double, string, xs::data::type>(vm, [](string n, xs::data::type t) { return xs::data::get_number(n, t); });
 }
 
 void data_get_bool(WrenVM* vm)
 {
-    callFunction_returnType_args<bool, string, xs::data::type>(vm, xs::data::get_bool);
+    callFunction_returnType_args<bool, string, xs::data::type>(vm, [](string n, xs::data::type t) { return xs::data::get_bool(n, t); });
 }
 
 void data_get_color(WrenVM* vm)
 {
-    callFunction_returnType_args<uint32_t, string, xs::data::type>(vm, xs::data::get_color);
+    callFunction_returnType_args<uint32_t, string, xs::data::type>(vm, [](string n, xs::data::type t) { return xs::data::get_color(n, t); });
 }
 
 void data_get_string(WrenVM* vm)
 {
-    callFunction_returnType_args<string, string, xs::data::type>(vm, xs::data::get_string);
+    callFunction_returnType_args<string, string, xs::data::type>(vm, [](string n, xs::data::type t) { return xs::data::get_string(n, t); });
 }
 
 void data_set_bool(WrenVM* vm)

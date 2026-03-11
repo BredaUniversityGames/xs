@@ -5,6 +5,6 @@
     },
     "Visualize Generation": {
         "type": "bool",
-        "value": false
+        "value": true
     }
 }
