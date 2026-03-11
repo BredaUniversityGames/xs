@@ -184,7 +184,7 @@ void xs::data::inspect()
 	if (ImGui::BeginTabBar("DataTabsEmbedded", tab_bar_flags))
 	{
 		inspect_of_type("Game Data", string(ICON_FI_GAMEPAD) + " Game", type::game);
-		inspect_of_type("User (Save) Data", string(ICON_FI_USER) + " User", type::player);
+		inspect_of_type("Player (Save) Data", string(ICON_FI_USER) + " Player", type::player);
 		inspect_of_type("Debug Only Data", string(ICON_FI_BUG) + " Debug", type::debug);
 		inspect_of_type("Project Data", string(ICON_FI_COG) + " Project", type::project);
 		ImGui::EndTabBar();
@@ -296,9 +296,15 @@ void xs::data::internal::inspect_of_type(
 
 		bool& ed = edited[type];
 		{
-			bool ted = ed;
+			if (ed)
+			{
+				auto c = inspector::get_color(inspector::color_id::Purple);
+				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(c.r, c.g, c.b, c.a));
+			}
 			if (ImGui::Button(string(ICON_FI_SAVE).c_str()))
 				save_of_type(type);
+			if (ed)
+				ImGui::PopStyleColor();
 			tooltip("Save to a file");
 			ImGui::SameLine();
 

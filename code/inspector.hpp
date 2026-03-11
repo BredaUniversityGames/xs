@@ -13,6 +13,10 @@ namespace xs::inspector
 	int notify(notification_type type, const std::string& message, float time);
 	void clear_notification(int id);
 
+	enum class color_id { Green = 0, Blue, Orange, Purple, Pink, Gray, Red, Count };
+	struct color { float r, g, b, a; };
+	color get_color(color_id id);
+
 	// Get mouse X position in game viewport coordinates (virtual resolution)
 	// Returns 0.0 if mouse is outside game viewport, clamped to game bounds
 	float get_game_mouse_x();
