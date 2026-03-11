@@ -1,6 +1,9 @@
 name: Build
 
 on:
+  push:
+    branches:
+      - main
   pull_request
 
 env:
@@ -35,7 +38,7 @@ jobs:
 
       - name: Test version command
         run: |
-          $exe = "executable\x64\${{ matrix.Configuration }}\xs.exe"
+          $exe = "build\executable\x64\${{ matrix.Configuration }}\xs.exe"
           if (!(Test-Path $exe)) {
             Write-Error "Executable not found at $exe"
             exit 1
