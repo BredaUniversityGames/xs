@@ -1100,6 +1100,11 @@ void data_set_string(WrenVM* vm)
     callFunction_args<string, string, xs::data::type>(vm, xs::data::set_string);
 }
 
+void data_save(WrenVM* vm)
+{
+    callFunction_args<xs::data::type>(vm, xs::data::save_of_type);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // File
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1571,6 +1576,7 @@ void xs::script::bind_api()
     bind("xs/core", "Data", true, "setColor(_,_,_)", data_set_color);
     bind("xs/core", "Data", true, "setBool(_,_,_)", data_set_bool);
     bind("xs/core", "Data", true, "setString(_,_,_)", data_set_string);
+    bind("xs/core", "Data", true, "save(_)", data_save);
 
     // File
     bind("xs/core", "File", true, "read(_)", file_read);

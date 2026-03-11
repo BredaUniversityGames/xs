@@ -568,6 +568,9 @@ class Data {
     /// Sets a string value in a specific data scope
     foreign static setString(name: String, value: String, type: Num)
 
+    /// Saves all data of a specific data scope to its own file
+    foreign static save(type: Num)
+
     static system -> Num { 2 }
     static debug -> Num { 3 }
     static game -> Num { 4 }
