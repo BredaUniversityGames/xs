@@ -66,7 +66,7 @@ namespace xs::render
 
 	void compile_draw_shader();
 	void compile_sprite_shader();
-	void compile_crt_shader();
+	void compile_postprocess_shader();
 	bool compile_shader(GLuint* shader, GLenum type, const GLchar* source);
 	bool compile_shader(
 		const GLchar* vertex_shader,
@@ -85,10 +85,10 @@ namespace xs::render
 	unsigned int msaa_fbo		= 0;
 	unsigned int msaa_texture	= 0;
 
-	unsigned int crt_fbo		= 0;
-	unsigned int crt_texture	= 0;
-	unsigned int crt_program	= 0;
-	unsigned int crt_vao		= 0;
+	unsigned int postprocess_fbo		= 0;
+	unsigned int postprocess_texture	= 0;
+	unsigned int postprocess_program	= 0;
+	unsigned int postprocess_vao		= 0;
 
 	unsigned int shader_program = 0;
 	unsigned int lines_vao = 0;
@@ -185,11 +185,11 @@ void xs::render::initialize()
 	create_frame_buffers();
 	compile_draw_shader();
 	compile_sprite_shader();
-	compile_crt_shader();
+	compile_postprocess_shader();
 
 	// Empty VAO for fullscreen triangle draw (CRT pass)
-	glGenVertexArrays(1, &crt_vao);
-	gl_label(GL_VERTEX_ARRAY, crt_vao, "crt vao");
+	glGenVertexArrays(1, &postprocess_vao);
+	gl_label(GL_VERTEX_ARRAY, postprocess_vao, "postprocess vao");
 
 	///////// UBO //////////////////////
 	instances_data = new instance_struct[c_max_instances];
@@ -274,8 +274,8 @@ void xs::render::shutdown()
 	// Shaders
 	glDeleteProgram(main_program);
 	glDeleteProgram(shader_program);
-	glDeleteProgram(crt_program);
-	glDeleteVertexArrays(1, &crt_vao);
+	glDeleteProgram(postprocess_program);
+	glDeleteVertexArrays(1, &postprocess_vao);
 
 	// Frame buffer
 	delete_frame_buffers();
@@ -408,14 +408,14 @@ void xs::render::render()
 		GL_NEAREST);
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-	bool crt_enabled = data::get_bool("Render.Postprocess.Enabled", data::type::project);
+	bool postprocess_enabled = data::get_bool("Render.Postprocess.Enabled", data::type::project);
 	int out_w = width * configuration::multiplier();
 	int out_h = height * configuration::multiplier();
 
-	if (crt_enabled)
+	if (postprocess_enabled)
 	{
 		// Postprocess compute shader pass
-		glUseProgram(crt_program);
+		glUseProgram(postprocess_program);
 		
 		// Set uniforms
 		glUniform2f(0, (float)width, (float)height);
@@ -441,7 +441,7 @@ void xs::render::render()
 		glBindTexture(GL_TEXTURE_2D, render_texture);
 		
 		// Bind output texture to image unit 1 (for writing)
-		glBindImageTexture(1, crt_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
+		glBindImageTexture(1, postprocess_texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA8);
 		
 		// Dispatch compute shader - one thread per 8x8 pixel block
 		unsigned int num_groups_x = (out_w + 7) / 8;
@@ -456,8 +456,8 @@ void xs::render::render()
 	}
 
 #ifndef INSPECTOR
-	if (crt_enabled)
-		glBlitNamedFramebuffer(crt_fbo, 0, 0, 0, out_w, out_h, 0, 0, out_w, out_h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+	if (postprocess_enabled)
+		glBlitNamedFramebuffer(postprocess_fbo, 0, 0, 0, out_w, out_h, 0, 0, out_w, out_h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 	else
 		glBlitNamedFramebuffer(render_fbo, 0, 0, 0, width, height, 0, 0, out_w, out_h, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 #endif
@@ -637,27 +637,27 @@ void xs::render::create_frame_buffers()
 	
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-	{ // CRT post-process FBO (at game's native multiplied resolution)
-		int crt_w = width * configuration::multiplier();
-		int crt_h = height * configuration::multiplier();
+	{ // Postprocess FBO (at game's native multiplied resolution)
+		int postprocess_w = width * configuration::multiplier();
+		int postprocess_h = height * configuration::multiplier();
 
-		glGenFramebuffers(1, &crt_fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, crt_fbo);
+		glGenFramebuffers(1, &postprocess_fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, postprocess_fbo);
 
-		glGenTextures(1, &crt_texture);
-		glBindTexture(GL_TEXTURE_2D, crt_texture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, crt_w, crt_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+		glGenTextures(1, &postprocess_texture);
+		glBindTexture(GL_TEXTURE_2D, postprocess_texture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, postprocess_w, postprocess_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, crt_texture, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, postprocess_texture, 0);
 
-		unsigned int crt_attachments[1] = { GL_COLOR_ATTACHMENT0 };
-		glDrawBuffers(1, crt_attachments);
+		unsigned int postprocess_attachments[1] = { GL_COLOR_ATTACHMENT0 };
+		glDrawBuffers(1, postprocess_attachments);
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 			assert(false);
 
-		gl_label(GL_FRAMEBUFFER, crt_fbo, "crt fbo");
-		gl_label(GL_TEXTURE, crt_texture, "crt texture");
+		gl_label(GL_FRAMEBUFFER, postprocess_fbo, "postprocess fbo");
+		gl_label(GL_TEXTURE, postprocess_texture, "postprocess texture");
 	}
 
 	XS_DEBUG_ONLY(glBindFramebuffer(GL_FRAMEBUFFER, 0));
@@ -671,8 +671,8 @@ void xs::render::delete_frame_buffers()
 	glDeleteTextures(1, &msaa_texture);
 	glDeleteFramebuffers(1, &msaa_fbo);
 
-	glDeleteTextures(1, &crt_texture);
-	glDeleteFramebuffers(1, &crt_fbo);
+	glDeleteTextures(1, &postprocess_texture);
+	glDeleteFramebuffers(1, &postprocess_fbo);
 }
 
 int xs::render::create_sprite(int image_id, double x0, double y0, double x1, double y1)
@@ -1017,7 +1017,7 @@ bool xs::render::link_program(GLuint program)
 	return status != 0;
 }
 
-void xs::render::compile_crt_shader()
+void xs::render::compile_postprocess_shader()
 {
 	// Load and compile postprocess compute shader
 	auto preprocessor = render::shader_preprocessor();
@@ -1032,10 +1032,10 @@ void xs::render::compile_crt_shader()
 		return;
 	}
 	
-	crt_program = glCreateProgram();
-	glAttachShader(crt_program, compute_shader);
+	postprocess_program = glCreateProgram();
+	glAttachShader(postprocess_program, compute_shader);
 	
-	bool success = link_program(crt_program);
+	bool success = link_program(postprocess_program);
 	if (!success)
 		log::error("Failed to link postprocess compute shader program");
 	
@@ -1047,12 +1047,12 @@ void xs::render::reload_shaders()
 	// Delete the old shaders
 	glDeleteProgram(main_program);
 	glDeleteProgram(shader_program);
-	glDeleteProgram(crt_program);
+	glDeleteProgram(postprocess_program);
 
 	// Recompile the shaders
 	compile_draw_shader();
 	compile_sprite_shader();
-	compile_crt_shader();
+	compile_postprocess_shader();
 }
 
 using namespace std;
@@ -1147,7 +1147,7 @@ string xs::render::shader_preprocessor::get_parent_path(const string& path)
 void* xs::render::get_render_target_texture()
 {
 	if (data::get_bool("Render.Postprocess.Enabled", data::type::project))
-		return (void*)(intptr_t)crt_texture;
+		return (void*)(intptr_t)postprocess_texture;
 	return (void*)(intptr_t)render_texture;
 }
 
