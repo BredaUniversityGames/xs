@@ -160,7 +160,7 @@ class Character is Component {
 
     /// Update the character - just debug rendering for now
     update(dt) {
-        if(Data.getBool("Debug Draw", Data.debug)) {
+        if(Data.getBool("Debug Draw", Data.game)) {
             var pos = Level.calculatePos(_tile)
             Render.dbgColor(0xFFFFFFFF)
             Render.dbgText("%(owner.name)", pos.x - 7, pos.y + 7, 1)

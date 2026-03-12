@@ -458,7 +458,7 @@ class Entity {
 
     /// Gets a property value from a component using reflection
     static getPropertyValue_(component, propName) {
-        System.print("Getting property %(propName) from %(component.type.name)")
+        // System.print("Getting property %(propName) from %(component.type.name)")
         import "meta" for Meta
 
         // Use module-level temp variables for eval

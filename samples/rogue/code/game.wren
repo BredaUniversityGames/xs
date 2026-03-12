@@ -71,7 +71,7 @@ class Game {
     // It is used to generate the level in steps, so the player can see the progress
     // it uses a fiber and a coroutine to do that. It's advance(ish) stuff, can be ignored
     static genStep(dt) {
-        var visualize = Data.getBool("Visualize Generation", Data.debug)
+        var visualize = Data.getBool("Visualize Generation", Data.game)
         if(visualize) {
             if(__time == null) {
                 System.print("Error: __time is null, setting to 0")

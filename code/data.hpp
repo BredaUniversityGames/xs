@@ -8,9 +8,8 @@ namespace xs::data
 	{
 		none		= 1,
 		project		= 2,
-		debug		= 3,
 		game		= 4,
-		player		= 5,
+		save		= 5,
 		user		= 6,
 	};
 

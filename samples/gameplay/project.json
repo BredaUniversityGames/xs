@@ -19,16 +19,28 @@
         "type": "number",
         "value": 1280.0
     },
+    "Height": {
+        "type": "number",
+        "value": 0.0
+    },
     "Main": {
         "type": "string",
         "value": "game.wren"
     },
-    "Render.TextureFilter": {
+    "Render.Postprocess.Enabled": {
         "type": "bool",
         "value": false
+    },
+    "Render.TextureFilter": {
+        "type": "bool",
+        "value": true
     },
     "Render.TextureRepeat": {
         "type": "bool",
         "value": false
+    },
+    "Width": {
+        "type": "number",
+        "value": 0.0
     }
 }

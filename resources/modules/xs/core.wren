@@ -572,9 +572,8 @@ class Data {
     foreign static save(type: Num)
 
     static system -> Num { 2 }
-    static debug -> Num { 3 }
     static game -> Num { 4 }
-    static player -> Num { 5 }
+    static save -> Num { 5 }
 }
 
 /// Platform and device information
