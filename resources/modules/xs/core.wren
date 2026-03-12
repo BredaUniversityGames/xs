@@ -264,9 +264,7 @@ class Render {
         var r = (idx / columns).truncate
         var c = idx % columns
         var s = c * ds
-        var t = r * dt
-        System.print("imageId: %(imageId), columns:%(columns), rows:%(rows),  idx:%(idx)")
-        System.print("c: %(c), r:%(r), s:%(s),  t:%(t)")
+        var t = r * dt        
         return createSprite(imageId, s, t, s + ds, t + dt)
     }
 }
