@@ -113,8 +113,8 @@ void fileio::initialize(const std::string& game_path)
 	else log::error("Could not find the game project.json file.");
 
 	// Set the shared resources folder - this is where the engine resources are stored
-	if(xs::get_run_mode() != xs::run_mode::packaged)
-	{
+	// if(xs::get_run_mode() != xs::run_mode::packaged)
+
 		std::string local_resources = "resources";  // Relative to pwd (development)
 		
 		// Get executable directory for installed engine path
@@ -155,5 +155,5 @@ void fileio::initialize(const std::string& game_path)
 				fs::absolute(local_resources).string(), installed_resources);
 			add_wildcard("[shared]", local_resources);  // Set anyway as fallback
 		}
-	}
+	
 }

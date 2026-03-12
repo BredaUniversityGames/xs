@@ -207,13 +207,13 @@ void xs::inspector::initialize()
 	//config.OversampleH = 8;
 	//config.OversampleV = 8;
 	
-	auto selawk = fileio::get_path("[shared]/fonts/selawk.ttf");
-	if(!fileio::exists(selawk))
-	{
-		log::critical("Could not find the font file selawk.ttf at path:{}", selawk);
-		return;
-	}
-	auto selawk_data = fileio::read_binary_file(selawk);
+	//auto selawk = fileio::get_path("[shared]/fonts/selawk.ttf");
+	//if(!fileio::exists(selawk))
+	//{
+	//	log::critical("Could not find the font file selawk.ttf at path:{}", selawk);
+	//	return;
+	//}
+	auto selawk_data = fileio::read_binary_file("[shared]/fonts/selawk.ttf");
 	// Copy to a heap allocation to ensure it stays valid
 	char* selawk_buffer = new char[selawk_data.size()];
 	memcpy(selawk_buffer, selawk_data.data(), selawk_data.size());

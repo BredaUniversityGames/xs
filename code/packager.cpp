@@ -21,9 +21,7 @@ namespace fs = std::filesystem;
 
 namespace packager
 {
-	// ------------------------------------------------------------------------
 	// Decompress package entry if compressed, otherwise return data as-is
-	// ------------------------------------------------------------------------
 	std::vector<std::byte> decompress_entry(const package_entry& entry)
 	{
 		if (!entry.is_compressed)
@@ -50,10 +48,7 @@ namespace packager
 		return decompressed;
 	}
 
-	// ------------------------------------------------------------------------
 	// Version Encoding/Decoding
-	// ------------------------------------------------------------------------
-
 	uint32_t encode_version(uint32_t year, uint32_t build_number)
 	{
 		// Encode as: (year << 16) | build_number
@@ -70,10 +65,7 @@ namespace packager
 		return oss.str();
 	}
 
-	// ------------------------------------------------------------------------
 	// File Format Support
-	// ------------------------------------------------------------------------
-
 	namespace
 	{
 		const std::unordered_set<std::string>& supported_text_file_formats()
@@ -84,8 +76,9 @@ namespace packager
 				".frag",		// shaders
 				".vert",		// shaders
 				".glsl",		// shaders
+				".comp",		// shaders
 				".json",		// text
-				".txt"			// text
+				".txt"			// text		
 			};
 			return file_formats;
 		}
@@ -148,12 +141,8 @@ namespace packager
 		return root + "/" + make_package_name(sub_dirs) + ".xs";
 	}
 
-	// ------------------------------------------------------------------------
 	// Package Creation - Cross-platform packaging using cereal
-	// ------------------------------------------------------------------------
-
 #ifdef PLATFORM_DESKTOP
-
 	namespace
 	{
 		bool should_skip_entry(const fs::directory_entry& entry)
@@ -180,6 +169,12 @@ namespace packager
 				if (!comp_str.empty() && comp_str[0] == '.')
 					return true;
 			}
+
+			// Skip some paths from shared that we don't want to include in packages
+			// TODO: Not ideal to hardcode this, but for now we want to exclude the Fluent System Icons font and selawk from packages since they are large and not needed in most cases
+			if (path.string().find("FluentSystemIcons-Regular.ttf") != std::string::npos ||
+				path.string().find("selawk") != std::string::npos)
+				return true;
 			return false;
 		}
 	}
@@ -230,7 +225,7 @@ namespace packager
 				std::string extension = entry.path().extension().string();
 				if (!is_supported_file_format(extension))
 					continue;
-
+				
 				package_entry content;
 
 				// Store path with wildcard prefix: "[game]/images/sprite.png"
@@ -268,7 +263,7 @@ namespace packager
 					content.data.resize(compressed_size);
 					content.is_compressed = true;
 
-					log::info("Packed (compressed): {} ({} -> {} bytes)",
+					log::info("Packed: {} ({} -> {} bytes)",
 						content.relative_path, src_len, compressed_size);
 				}
 				else
