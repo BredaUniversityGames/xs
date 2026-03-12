@@ -165,8 +165,7 @@ void xs::data::initialize()
 	load_of_type(type::user);
 	load_of_type(type::game);
 	load_of_type(type::project);
-	load_of_type(type::player);
-	load_of_type(type::debug);
+	load_of_type(type::save);
 }
 
 void xs::data::shutdown()
@@ -184,8 +183,7 @@ void xs::data::inspect()
 	if (ImGui::BeginTabBar("DataTabsEmbedded", tab_bar_flags))
 	{
 		inspect_of_type("Game Data", string(ICON_FI_GAMEPAD) + " Game", type::game);
-		inspect_of_type("Player (Save) Data", string(ICON_FI_USER) + " Player", type::player);
-		inspect_of_type("Debug Only Data", string(ICON_FI_BUG) + " Debug", type::debug);
+		inspect_of_type("Save Data", string(ICON_FI_SAVE) + " Save", type::save);
 		inspect_of_type("Project Data", string(ICON_FI_COG) + " Project", type::project);
 		ImGui::EndTabBar();
 	}
@@ -193,7 +191,7 @@ void xs::data::inspect()
 
 bool xs::data::has_chages()
 {
-	return edited[type::debug] || edited[type::game] || edited[type::project];
+	return edited[type::game] || edited[type::project];
 }
 
 double xs::data::get_number(const std::string& name, type type, double default_value)
@@ -241,8 +239,7 @@ void xs::data::save()
 	save_of_type(type::user);
 	save_of_type(type::game);
 	save_of_type(type::project);
-	save_of_type(type::player);
-	save_of_type(type::debug);
+	save_of_type(type::save);
 	edited.clear();
 }
 
@@ -321,7 +318,7 @@ void xs::data::internal::inspect_of_type(
 
 		// Lambda that renders a single registry entry.
 		// display_name is the short label to show in the widget (without group prefix or enum options).
-		auto render_entry = [&](std::pair<const std::string, registry_value>& itr, const std::string& display_name) -> bool
+		auto render_entry = [&](std::pair<const std::string, registry_value>& itr, const std::string& display_name)
 		{
 			bool entry_edited = false;
 
@@ -426,7 +423,8 @@ void xs::data::internal::inspect_of_type(
 
 			ImGui::PopID();
 
-			return entry_edited;
+			if(entry_edited)
+				edited[type] = true;
 		};
 
 		// Build recursive tree from sorted keys and render it.
@@ -435,7 +433,7 @@ void xs::data::internal::inspect_of_type(
 		// Recursive renderer using a self-referencing lambda.
 		auto render_node = [&](auto& self, const tree_node& node) -> void {
 			for (const auto& s : node.entries)
-				ed = std::max(ed, render_entry(*reg.find(s), get_leaf_name(s)));
+				render_entry(*reg.find(s), get_leaf_name(s));
 			for (auto& [group_name, child] : node.children)
 			{
 				if (ImGui::TreeNodeEx(group_name.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
@@ -544,9 +542,8 @@ void xs::data::internal::load_of_type(type type)
 const string& xs::data::internal::get_file_path(type type)
 {
 	static std::string game_path = "[game]/game.json";
-	static std::string player_path = "[save]/player.json";
+	static std::string save_path = "[save]/savegame.json";
 	static std::string project_path = "[game]/project.json";
-	static std::string debug_path = "[game]/debug.json";
 	static std::string user_path = "[user]/settings.json";
 	static std::string no_path = "";
 
@@ -556,12 +553,10 @@ const string& xs::data::internal::get_file_path(type type)
 		return no_path;
 	case xs::data::type::project:
 		return project_path;
-	case xs::data::type::debug:
-		return debug_path;
 	case xs::data::type::game:
 		return game_path;
-	case xs::data::type::player:
-		return player_path;	
+	case xs::data::type::save:
+		return save_path;
 	case xs::data::type::user:
 		return user_path;
 	}

@@ -264,9 +264,7 @@ class Render {
         var r = (idx / columns).truncate
         var c = idx % columns
         var s = c * ds
-        var t = r * dt
-        System.print("imageId: %(imageId), columns:%(columns), rows:%(rows),  idx:%(idx)")
-        System.print("c: %(c), r:%(r), s:%(s),  t:%(t)")
+        var t = r * dt        
         return createSprite(imageId, s, t, s + ds, t + dt)
     }
 }
@@ -572,9 +570,8 @@ class Data {
     foreign static save(type: Num)
 
     static system -> Num { 2 }
-    static debug -> Num { 3 }
     static game -> Num { 4 }
-    static player -> Num { 5 }
+    static save -> Num { 5 }
 }
 
 /// Platform and device information

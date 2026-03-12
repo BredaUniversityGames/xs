@@ -566,7 +566,7 @@ class BSPer {
 
 
     static debugRender() {
-        var dbg = Data.getBool("Debug Draw", Data.debug)
+        var dbg = Data.getBool("Debug Draw", Data.game)
         if(!dbg) {
             return
         }
