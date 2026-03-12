@@ -62,42 +62,17 @@ void fileio::initialize(const std::string& game_path)
 	// 1. Use CLI-provided game path if available
 	if (!game_path.empty())
 	{
-		if (xs::get_run_mode() == xs::run_mode::development)
+		if (xs::get_run_mode() == xs::run_mode::development ||
+			xs::get_run_mode() == xs::run_mode::packaging)
 		{
 			string resolved_path = fileio::absolute(game_path);
 			add_wildcard("[game]", resolved_path);
 			log::info("Game folder (from CLI): {} ", resolved_path);
 			success = true;
 		}
-		else if (xs::get_run_mode() == xs::run_mode::packaged) {
-			success = fileio::load_package(game_path);			
-		}
-	}
-	// 2. Load from engine user settings json (if any)
-	else if (exists("[user]/settings.json"))
-	{
-		auto settings_str = read_text_file("[user]/settings.json");
-		if (!settings_str.empty())
+		else if (xs::get_run_mode() == xs::run_mode::packaged)
 		{
-			auto settings = nlohmann::json::parse(settings_str);
-			auto game_json = settings["game"];
-			auto type_json = game_json["type"];
-			auto value_json = game_json["value"];
-
-			if (type_json.is_string() && value_json.is_string())
-			{
-				string game_folder = value_json.get<string>();
-				if (!game_folder.empty())
-				{
-					add_wildcard("[game]", game_folder);
-					log::info("Game folder (from settings): {} ", game_folder);
-					success = true;
-				}
-			}
-		}
-		else
-		{
-			log::warn("Could not read the user settings.json file.");
+			success = fileio::load_package(game_path);
 		}
 	}
 

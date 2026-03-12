@@ -83,33 +83,6 @@ void xs::fileio::initialize(const std::string& game_path)
 			success = fileio::load_package(game_path);
 		}
 	}
-	// 2. Load from engine user settings json (if any)
-	else if (exists("[user]/settings.json"))
-	{
-		auto settings_str = read_text_file("[user]/settings.json");
-		if (!settings_str.empty())
-		{
-			auto settings = nlohmann::json::parse(settings_str);
-			auto game_json = settings["game"];
-			auto type_json = game_json["type"];
-			auto value_json = game_json["value"];
-
-			if (type_json.is_string() && value_json.is_string())
-			{
-				string game_folder = value_json.get<string>();
-				if (!game_folder.empty())
-				{
-					add_wildcard("[game]", game_folder);
-					log::info("Game folder (from settings): {} ", game_folder);
-					success = true;
-				}
-			}
-		}
-		else
-		{
-			log::warn("Could not read the user settings.json file.");
-		}
-	}
 
 	// 3. Fallback to default sample
 	if (!success)
