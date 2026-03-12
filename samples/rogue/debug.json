@@ -1,7 +1,7 @@
 {
     "Debug Draw": {
         "type": "bool",
-        "value": true
+        "value": false
     },
     "Visualize Generation": {
         "type": "bool",

@@ -69,5 +69,36 @@ typedef enum input_texture_index
 typedef struct
 {
     vec4 position;
-    vec4 color;    
+    vec4 color;
 } debug_vtx_format;
+
+// CRT postprocess compute kernel uniforms
+typedef struct
+{
+    vec2  input_size;           // Native game resolution
+    vec2  output_size;          // Output texture resolution
+    int   enable_warp;          // Barrel warp distortion
+    int   enable_vignette;      // Vignette darkening
+    int   enable_scanlines;     // Scanline effect
+    int   enable_phosphor;      // RGB phosphor mask
+    int   enable_chromatic;     // Chromatic aberration
+    float warp_x;
+    float warp_y;
+    float scanline_strength;
+    float scanline_thickness;
+    float phosphor_strength;
+    float chromatic_offset;
+    float brightness_boost;
+    float _pad[2];  // float2 alignment: MSL rounds struct to 8 bytes, so 68→72
+} postprocess_uniforms;
+
+typedef enum postprocess_buffer_index
+{
+    pp_index_uniforms = 0,
+} postprocess_buffer_index;
+
+typedef enum postprocess_texture_index
+{
+    pp_index_input  = 0,
+    pp_index_output = 1,
+} postprocess_texture_index;

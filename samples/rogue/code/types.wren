@@ -1,34 +1,36 @@
 class Type {
+    // Basic level elements
     static empty    { 0 << 0 }
     static floor    { 1 << 0 }
     static wall     { 1 << 1 }
+
+    // Characters
     static player   { 1 << 2 }
-    static door     { 1 << 4 }
-    static lever    { 1 << 5 }
-    static spikes   { 1 << 6 }
-    static chest    { 1 << 7 }
-    static crate    { 1 << 8 }
-    static pot      { 1 << 9 }
-    static stairs   { 1 << 10 }
-    static light    { 1 << 11 }
-    static bat      { 1 << 12 }
-    static spider   { 1 << 13 }
-    static ghost    { 1 << 14 }
-    static boss     { 1 << 15 }
-    static scorpion { 1 << 16 }
-    static snake    { 1 << 17 }
-    static helmet   { 1 << 18 }
-    static armor    { 1 << 19 }
-    static sword    { 1 << 20 }
-    static food     { 1 << 21 }
-    static floorAlt { 1 << 22 }
-        
+    static mage     { 1 << 3 }
+    static skeleton { 1 << 4 }
+    static ghost    { 1 << 5 }
+    static knight   { 1 << 6 }
+    static crusader { 1 << 7 } 
+    static dragon   { 1 << 8 }
+    static ogre     { 1 << 9 }
+    static dreadtome { 1 << 10 }
+
+    // Items
+    static door     { 1 << 11 }
+    static key      { 1 << 12 }
+    static chest    { 1 << 13 }
+    static pot      { 1 << 14 }
+    static helmet   { 1 << 15 }
+    static armor    { 1 << 16 }
+    static sword    { 1 << 17 }
+    static food     { 1 << 18 }
+    
     // Combine multiple types
-    static monster { (bat | spider | ghost | boss | scorpion | snake) }
+    static monster { mage | skeleton | ghost | knight | crusader | dragon | ogre | dreadtome  }
     static enemy   { monster }
-    static item    { (helmet | armor | sword | food) }
-    static block   { (wall | player | enemy | door) }
-    static attackable   { (enemy | item) }
-    static blocking     { (wall | enemy | door | player) }
-    static monsterBlock { (wall | light | pot | chest | item) }
+    static item    { door | key | chest | pot | helmet | armor | sword | food }
+    static block   { wall | player | enemy | door }
+    static attackable   { enemy | item }
+    static blocking     { wall | enemy | door | player }
+    static monsterBlock { wall | pot | chest | item }
 }

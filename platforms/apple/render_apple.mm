@@ -3,6 +3,7 @@
 #include "render_apple.h"
 #include "render_internal.hpp"
 #include "configuration.hpp"
+#include "data.hpp"
 #include "profiler.hpp"
 #include "device_apple.h"
 #include "device.hpp"
@@ -57,6 +58,9 @@ namespace xs::render
     id<MTLRenderPipelineState> _meshRenderPipeline;
 
     id<MTLRenderPipelineState> _debugRenderPipeline;
+
+    id<MTLComputePipelineState> _postprocessPipeline = nil;
+    id<MTLTexture> _postprocessTexture = nil;
 
     MTLRenderPipelineDescriptor* _pipelineStateDescriptor;
 
@@ -267,6 +271,30 @@ void xs::render::initialize()
         assert(_meshRenderPipeline);
     }
 
+    // Postprocess compute pipeline
+    {
+        id<MTLFunction> postprocessFn = [defaultLibrary newFunctionWithName:@"kernel_postprocess"];
+        if (postprocessFn) {
+            NSError* ppError = nil;
+            _postprocessPipeline = [_device newComputePipelineStateWithFunction:postprocessFn error:&ppError];
+            if (!_postprocessPipeline)
+                log::error("Failed to create postprocess pipeline: {}",
+                    ppError ? [[ppError localizedDescription] UTF8String] : "unknown");
+        } else {
+            log::warn("Postprocess kernel not found in Metal library");
+        }
+
+        // Postprocess output texture — same dimensions as the render target
+        MTLTextureDescriptor* ppDesc = [MTLTextureDescriptor new];
+        ppDesc.textureType = MTLTextureType2D;
+        ppDesc.pixelFormat = MTLPixelFormatRGBA8Unorm;
+        ppDesc.width  = _renderTargetTextures[0].width;
+        ppDesc.height = _renderTargetTextures[0].height;
+        ppDesc.usage  = MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
+        _postprocessTexture = [_device newTextureWithDescriptor:ppDesc];
+        assert(_postprocessTexture);
+    }
+
     // Render to view
     {
         id<MTLFunction> vertexFunction = [defaultLibrary newFunctionWithName:@"vertex_shader_screen"];
@@ -451,11 +479,49 @@ void xs::render::render()
     
     [render_encoder endEncoding];
 
+    // Postprocess compute pass (CRT effects)
+    bool postprocess_enabled = data::get_bool("Render.Postprocess.Enabled", data::type::project)
+        && _postprocessPipeline != nil;
+
+    if (postprocess_enabled) {
+        postprocess_uniforms uniforms = {};
+        uniforms.input_size         = vec2((float)configuration::width(), (float)configuration::height());
+        uniforms.output_size        = vec2((float)_postprocessTexture.width, (float)_postprocessTexture.height);
+        uniforms.enable_warp        = data::get_bool("Render.Postprocess.Warp",      data::type::project, true)  ? 1 : 0;
+        uniforms.enable_vignette    = data::get_bool("Render.Postprocess.Vignette",  data::type::project, true)  ? 1 : 0;
+        uniforms.enable_scanlines   = data::get_bool("Render.Postprocess.Scanlines", data::type::project, true)  ? 1 : 0;
+        uniforms.enable_phosphor    = data::get_bool("Render.Postprocess.Phosphor",  data::type::project, true)  ? 1 : 0;
+        uniforms.enable_chromatic   = data::get_bool("Render.Postprocess.Chromatic", data::type::project, true)  ? 1 : 0;
+        uniforms.warp_x             = (float)data::get_number("Render.Postprocess.WarpX",             data::type::project, 1.0 / 48.0);
+        uniforms.warp_y             = (float)data::get_number("Render.Postprocess.WarpY",             data::type::project, 1.0 / 24.0);
+        uniforms.scanline_strength  = (float)data::get_number("Render.Postprocess.ScanlineStrength",  data::type::project, 0.3);
+        uniforms.scanline_thickness = (float)data::get_number("Render.Postprocess.ScanlineThickness", data::type::project, 0.35);
+        uniforms.phosphor_strength  = (float)data::get_number("Render.Postprocess.PhosphorStrength",  data::type::project, 0.15);
+        uniforms.chromatic_offset   = (float)data::get_number("Render.Postprocess.ChromaticOffset",   data::type::project, 1.5);
+        uniforms.brightness_boost   = (float)data::get_number("Render.Postprocess.BrightnessBoost",   data::type::project, 1.3);
+
+        id<MTLComputeCommandEncoder> compute_encoder = [command_buffer computeCommandEncoder];
+        compute_encoder.label = @"xs postprocess pass";
+        [compute_encoder setComputePipelineState:_postprocessPipeline];
+        [compute_encoder setTexture:_currentRenderTarget atIndex:pp_index_input];
+        [compute_encoder setTexture:_postprocessTexture  atIndex:pp_index_output];
+        [compute_encoder setBytes:&uniforms length:sizeof(uniforms) atIndex:pp_index_uniforms];
+
+        MTLSize threadgroup = MTLSizeMake(8, 8, 1);
+        MTLSize grid = MTLSizeMake(
+            (_postprocessTexture.width  + 7) / 8,
+            (_postprocessTexture.height + 7) / 8,
+            1);
+        [compute_encoder dispatchThreadgroups:grid threadsPerThreadgroup:threadgroup];
+        [compute_encoder endEncoding];
+        render_stats.draw_calls++;
+    }
+
 #ifdef INSPECTOR
-    // When using inspector, add a blit encoder to ensure the render target is finished
-    // before ImGui tries to sample it
+    // Sync whichever texture ImGui will sample
+    id<MTLTexture> inspector_target = postprocess_enabled ? _postprocessTexture : _currentRenderTarget;
     id<MTLBlitCommandEncoder> blit_encoder = [command_buffer blitCommandEncoder];
-    [blit_encoder synchronizeResource:_currentRenderTarget];
+    [blit_encoder synchronizeResource:inspector_target];
     [blit_encoder endEncoding];
 #endif
 
@@ -514,8 +580,9 @@ void xs::render::render()
         vec2 resolution(dw, dh);
         [screen_encoder setVertexBytes:&resolution length:sizeof(vec2) atIndex:index_resolution];
 
-        // Set the offscreen texture as the source texture (from triple buffering pool)
-        [screen_encoder setFragmentTexture:_currentRenderTarget atIndex:index_sprite_texture];
+        // Source: postprocess output if enabled, otherwise raw render target
+        id<MTLTexture> source_texture = postprocess_enabled ? _postprocessTexture : _currentRenderTarget;
+        [screen_encoder setFragmentTexture:source_texture atIndex:index_sprite_texture];
 
         // Draw quad with rendered texture.
         [screen_encoder drawPrimitives:MTLPrimitiveTypeTriangle
@@ -747,5 +814,7 @@ xs::render::stats xs::render::get_stats()
 
 void* xs::render::get_render_target_texture()
 {
+	if (data::get_bool("Render.Postprocess.Enabled", data::type::project) && _postprocessTexture)
+		return (void*)(intptr_t)_postprocessTexture;
 	return (void*)(intptr_t)_currentRenderTarget;
 }

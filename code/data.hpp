@@ -19,10 +19,10 @@ namespace xs::data
 	void inspect();
 	bool has_chages();
 
-	double get_number(const std::string& name, type type);
-	uint32_t get_color(const std::string& name, type type);
-	bool get_bool(const std::string& name, type type);
-	std::string get_string(const std::string& name, type type);
+	double get_number(const std::string& name, type type, double default_value = 0.0);
+	uint32_t get_color(const std::string& name, type type, uint32_t default_value = 0);
+	bool get_bool(const std::string& name, type type, bool default_value = false);
+	std::string get_string(const std::string& name, type type, const std::string& default_value = "");
 
 	void set_number(const std::string& name, double value, type tp);
 	void set_color(const std::string& name, uint32_t value, type tp);

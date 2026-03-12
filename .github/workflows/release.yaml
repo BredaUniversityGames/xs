@@ -34,7 +34,7 @@ jobs:
 
       - name: Test Develop build
         run: |
-          $exe = "executable\x64\Develop\xs.exe"
+          $exe = "build\executable\x64\Develop\xs.exe"
           if (!(Test-Path $exe)) {
             Write-Error "Develop executable not found"
             exit 1
@@ -48,7 +48,7 @@ jobs:
 
       - name: Test Release build
         run: |
-          $exe = "executable\x64\Release\xs.exe"
+          $exe = "build\executable\x64\Release\xs.exe"
           if (!(Test-Path $exe)) {
             Write-Error "Release executable not found"
             exit 1
@@ -67,8 +67,8 @@ jobs:
           New-Item -ItemType Directory -Path $outputDir -Force
 
           # Copy executable and required DLLs
-          Copy-Item "executable\x64\Develop\xs.exe" $outputDir\
-          Copy-Item "executable\x64\Develop\*.dll" $outputDir\ -ErrorAction SilentlyContinue
+          Copy-Item "build\executable\x64\Develop\xs.exe" $outputDir\
+          Copy-Item "build\executable\x64\Develop\*.dll" $outputDir\ -ErrorAction SilentlyContinue
 
           # Create README
           @"
@@ -101,8 +101,8 @@ jobs:
           New-Item -ItemType Directory -Path $outputDir -Force
 
           # Copy executable and required DLLs
-          Copy-Item "executable\x64\Release\xs.exe" $outputDir\
-          Copy-Item "executable\x64\Release\*.dll" $outputDir\ -ErrorAction SilentlyContinue
+          Copy-Item "build\executable\x64\Release\xs.exe" $outputDir\
+          Copy-Item "build\executable\x64\Release\*.dll" $outputDir\ -ErrorAction SilentlyContinue
 
           # Create README
           @"

@@ -70,7 +70,7 @@ games/game
 /deploy
 /games
 .venv
-
+.claude
 
 # Claude Code local settings
 .claude/settings.local.json

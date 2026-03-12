@@ -204,3 +204,81 @@ fragment float4 fragment_shader_screen(
     const float4 sprite_sample = sprite_texture.sample(sprite_sampler, stf.texture);
     return sprite_sample;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+// CRT Postprocess - compute kernel
+////////////////////////////////////////////////////////////////////////////////////////////////////
+kernel void kernel_postprocess(
+    texture2d<float, access::sample> input_texture  [[texture(pp_index_input)]],
+    texture2d<float, access::write>  output_texture [[texture(pp_index_output)]],
+    constant postprocess_uniforms&   uniforms        [[buffer(pp_index_uniforms)]],
+    uint2 thread_pos [[thread_position_in_grid]])
+{
+    uint2 out_size = uint2((uint)uniforms.output_size.x, (uint)uniforms.output_size.y);
+    if (thread_pos.x >= out_size.x || thread_pos.y >= out_size.y)
+        return;
+
+    float2 uv = (float2(thread_pos) + 0.5) / uniforms.output_size;
+    float2 pos = uv * 2.0 - 1.0;
+    float vignette = 1.0;
+
+    // Barrel warp distortion
+    if (uniforms.enable_warp) {
+        pos *= float2(
+            1.0 + (pos.y * pos.y) * uniforms.warp_x,
+            1.0 + (pos.x * pos.x) * uniforms.warp_y);
+    }
+
+    // Vignette
+    if (uniforms.enable_vignette) {
+        vignette = 1.0 - (pos.x * pos.x + pos.y * pos.y) * 0.2;
+        vignette = clamp(vignette, 0.0, 1.0);
+    }
+
+    uv = pos * 0.5 + 0.5;
+
+    float3 color = float3(0.0);
+    if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
+        constexpr sampler tex_sampler(coord::normalized, address::clamp_to_edge, filter::linear);
+
+        // Chromatic aberration
+        if (uniforms.enable_chromatic) {
+            float2 offset = float2(uniforms.chromatic_offset) / uniforms.output_size;
+            float2 uv_r = clamp(uv - float2(offset.x, 0.0), 0.0, 1.0);
+            float2 uv_b = clamp(uv + float2(offset.x, 0.0), 0.0, 1.0);
+            float r = input_texture.sample(tex_sampler, uv_r).r;
+            float g = input_texture.sample(tex_sampler, uv).g;
+            float b = input_texture.sample(tex_sampler, uv_b).b;
+            color = float3(r, g, b);
+        } else {
+            color = input_texture.sample(tex_sampler, uv).rgb;
+        }
+
+        color *= vignette;
+
+        // Scanlines
+        if (uniforms.enable_scanlines) {
+            float scanline_y = uv.y * uniforms.input_size.y;
+            float scanline = sin(scanline_y * M_PI_F * uniforms.scanline_thickness) * 0.5 + 0.5;
+            scanline = 1.0 - (scanline * uniforms.scanline_strength);
+            color *= scanline;
+        }
+
+        // Phosphor mask (aperture grille)
+        if (uniforms.enable_phosphor) {
+            float3 mask = float3(1.0);
+            float x = fmod(uv.x * uniforms.input_size.x, 3.0);
+            if (x < 1.0)
+                mask.r = 1.0 - uniforms.phosphor_strength;
+            else if (x < 2.0)
+                mask.g = 1.0 - uniforms.phosphor_strength;
+            else
+                mask.b = 1.0 - uniforms.phosphor_strength;
+            color *= mask;
+        }
+
+        color *= uniforms.brightness_boost;
+    }
+
+    output_texture.write(float4(color, 1.0), thread_pos);
+}

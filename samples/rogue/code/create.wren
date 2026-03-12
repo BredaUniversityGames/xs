@@ -13,30 +13,34 @@ class Create {
 
     static initialize() {
         __random = Random.new()
-        __id = 0
+        // __id = 0
 
         // Create a list of all the types of monsters
         __monsterNames = {
-            Type.bat: "Bat",
-            Type.spider: "Spider",
+            Type.mage: "Mage",
+            Type.skeleton: "Skeleton",
             Type.ghost: "Ghost",
-            Type.boss: "Boss",
-            Type.scorpion: "Scorpion",
-            Type.snake: "Snake"
+            Type.knight: "Knight",
+            Type.crusader: "Crusader",
+            Type.dragon: "Dragon",
+            Type.ogre: "Ogre",
+            Type.dreadtome: "Dreadtome"
         }
         __monsterStats = {
-            Type.bat: Stats.new(1, 1, 0, 0.4),
-            Type.spider: Stats.new(1, 1, 0, 0.5),
+            Type.mage: Stats.new(1, 1, 0, 0.4),
+            Type.skeleton: Stats.new(1, 1, 0, 0.5),
             Type.ghost: Stats.new(2, 1, 0, 0.6),
-            Type.boss: Stats.new(4, 1, 0, 1),
-            Type.scorpion: Stats.new(1, 1, 1, 0.4),
-            Type.snake: Stats.new(1, 2, 0, 0.75)
+            Type.knight: Stats.new(4, 1, 0, 1),
+            Type.crusader: Stats.new(1, 1, 1, 0.4),
+            Type.dragon: Stats.new(5, 2, 0, 0.8),
+            Type.ogre: Stats.new(3, 1, 0, 0.7),
+            Type.dreadtome: Stats.new(2, 1, 2, 0.5)
         }
         __itemNames = {
             Type.helmet: "Helmet",
             Type.armor: "Armor",
             Type.sword: "Sword",
-            Type.food: "Food"
+            Type.food: "Food"                        
         }
         __itemStats = {
             Type.helmet: Stats.new(0, 0, 1, 0),
@@ -71,8 +75,8 @@ class Create {
         var m = Monster.new()
         entity.add(m)
         var type = Tools.pickOne([
-            Type.bat, Type.spider, Type.ghost,
-            Type.boss, Type.scorpion, Type.snake])
+            Type.mage, Type.skeleton, Type.ghost, Type.knight, 
+            Type.crusader, Type.dragon, Type.ogre, Type.dreadtome])
         var s = __monsterStats[type].clone()
         entity.add(s)
         entity.tag = type
@@ -94,11 +98,11 @@ class Create {
         entity.add(s)
         return entity
     }
-
-    static nextID {
-        __id = __id + 1
-        return __id
-    }
+    
+    // static nextID {
+    //     __id = __id + 1
+    //     return __id
+    // } 
 }
 
 import "gameplay" for Hero, Monster, Tile, Level, Stats

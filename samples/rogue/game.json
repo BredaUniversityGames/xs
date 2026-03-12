@@ -1,11 +1,11 @@
 {
-    "Algorithm|Single Room|Randy|RandomWalk|BSP": {
+    "Algorithm|Single Room|Randy|Random Walk|BSP": {
         "type": "number",
         "value": 3.0
     },
     "BSP Max Room Size": {
         "type": "number",
-        "value": 13.0
+        "value": 15.0
     },
     "Enemy Color": {
         "type": "color",
@@ -29,11 +29,11 @@
     },
     "Level Height": {
         "type": "number",
-        "value": 19.0
+        "value": 24.0
     },
     "Level Width": {
         "type": "number",
-        "value": 36.0
+        "value": 46.0
     },
     "Long Brake": {
         "type": "number",
@@ -73,7 +73,7 @@
     },
     "Tile Size": {
         "type": "number",
-        "value": 16.0
+        "value": 8.0
     },
     "To Color": {
         "type": "color",

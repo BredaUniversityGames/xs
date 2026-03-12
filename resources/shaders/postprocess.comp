@@ -1,0 +1,114 @@
+#version 450 core
+
+// Compute shader work group size
+layout(local_size_x = 8, local_size_y = 8) in;
+
+// Input game texture (read-only)
+layout(binding = 0) uniform sampler2D u_input_texture;
+
+// Output texture (write-only)
+layout(binding = 1, rgba8) uniform image2D u_output_texture;
+
+// Input game resolution
+layout(location = 0) uniform vec2 u_input_size;
+// Output screen resolution  
+layout(location = 1) uniform vec2 u_output_size;
+// Effect toggles
+layout(location = 2) uniform int u_enable_warp;
+layout(location = 3) uniform int u_enable_vignette;
+layout(location = 4) uniform int u_enable_scanlines;
+layout(location = 5) uniform int u_enable_phosphor;
+layout(location = 6) uniform int u_enable_chromatic;
+
+// Tweakable numeric parameters (set from data registry; defaults match old #define values)
+layout(location = 7)  uniform float u_warp_x;             // Horizontal warp strength
+layout(location = 8)  uniform float u_warp_y;             // Vertical warp strength
+layout(location = 9)  uniform float u_scanline_strength;  // Scanline darkness (0=off, 1=black)
+layout(location = 10) uniform float u_scanline_thickness; // Scanline spacing
+layout(location = 11) uniform float u_phosphor_strength;  // RGB mask darkness (0=off, 1=black)
+layout(location = 12) uniform float u_chromatic_offset;   // Pixel offset for R/B channels
+layout(location = 13) uniform float u_brightness_boost;   // Global brightness compensator
+
+void main() {
+    // Get the pixel coordinates we're computing
+    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);
+    
+    // Skip if outside output bounds
+    if (pixel_coords.x >= int(u_output_size.x) || pixel_coords.y >= int(u_output_size.y)) {
+        return;
+    }
+    
+    // Convert pixel coordinates to normalized UV [0,1]
+    vec2 uv = (vec2(pixel_coords) + 0.5) / u_output_size;
+    
+    // Convert to [-1, 1] range for effects
+    vec2 pos = uv * 2.0 - 1.0;
+    
+    // Initialize vignette factor (no darkening by default)
+    float vignette = 1.0;
+    
+    // Apply barrel warp distortion (if enabled)
+    if (u_enable_warp != 0) {
+        pos *= vec2(
+            1.0 + (pos.y * pos.y) * u_warp_x,
+            1.0 + (pos.x * pos.x) * u_warp_y);
+    }
+    
+    // Calculate vignette (if enabled)
+    if (u_enable_vignette != 0) {
+        vignette = 1.0 - (abs(pos.x) * abs(pos.x) + abs(pos.y) * abs(pos.y)) * 0.2;
+        vignette = clamp(vignette, 0.0, 1.0);
+    }
+    
+    // Convert back to [0, 1] UV space
+    uv = pos * 0.5 + 0.5;
+    
+    // Black out areas outside valid texture bounds (warped edges)
+    vec3 color = vec3(0.0);
+    if (uv.x >= 0.0 && uv.x <= 1.0 && uv.y >= 0.0 && uv.y <= 1.0) {
+        // Sample color with optional chromatic aberration
+        if (u_enable_chromatic != 0) {
+            // Offset each color channel slightly for chromatic aberration effect
+            vec2 offset = vec2(u_chromatic_offset) / u_output_size;
+            vec2 uv_r = clamp(uv - vec2(offset.x, 0.0), 0.0, 1.0);
+            vec2 uv_b = clamp(uv + vec2(offset.x, 0.0), 0.0, 1.0);
+            float r = texture(u_input_texture, uv_r).r;
+            float g = texture(u_input_texture, uv).g;
+            float b = texture(u_input_texture, uv_b).b;
+            color = vec3(r, g, b);
+        } else {
+            color = texture(u_input_texture, uv).rgb;
+        }
+        
+        // Apply vignette darkening
+        color *= vignette;
+        
+        // Apply scanlines (if enabled)
+        if (u_enable_scanlines != 0) {
+            float scanline_y = uv.y * u_input_size.y;
+            float scanline = sin(scanline_y * 3.14159265359 * u_scanline_thickness) * 0.5 + 0.5;
+            scanline = 1.0 - (scanline * u_scanline_strength);
+            color *= scanline;
+        }
+
+        // Apply phosphor mask (if enabled) - aperture grille pattern
+        if (u_enable_phosphor != 0) {
+            vec3 mask = vec3(1.0);
+            float x = mod(uv.x * u_input_size.x, 3.0);
+            if (x < 1.0) {
+                mask.r = 1.0 - u_phosphor_strength;
+            } else if (x < 2.0) {
+                mask.g = 1.0 - u_phosphor_strength;
+            } else {
+                mask.b = 1.0 - u_phosphor_strength;
+            }
+            color *= mask;
+        }
+        
+        // Apply brightness compensation to offset darkening from effects
+        color *= u_brightness_boost;
+    }
+    
+    // Write to output
+    imageStore(u_output_texture, pixel_coords, vec4(color, 1.0));
+}
