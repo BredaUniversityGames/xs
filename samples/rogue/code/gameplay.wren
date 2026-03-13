@@ -76,7 +76,7 @@ class Tile is Component {
     }
 
     /// Get the tile at a given position
-    static get(x : Num, y : Num) {
+    static get(x : Num, y : Num) -> Tile {
         if(__tiles.has(x, y)) return __tiles[x, y]
         return null
     }
@@ -387,9 +387,7 @@ class Gameplay {
             Type.floor: Render.createGridSprite(preview, r, c, 66),
             Type.wall: Render.createGridSprite(preview, r, c, 18),
             Type.player: Render.createGridSprite(preview, r, c, 128),
-
-
-
+        
             // Type.enemy: Render.createGridSprite(preview, r, c, 323),
             //Type.door: Render.createGridSprite(preview, r, c, 799),
             //Type.lever: Render.createGridSprite(preview, r, c, 259),
@@ -477,10 +475,10 @@ class Gameplay {
         for (x in 0...Level.width) {
             for (y in 0...Level.height) {
                 var px = sx + x * s
-                var py = sy + y * s
+                var py = sy + y * s                
+
                 var t = Level.gameplay[x, y]
                 var r = Level.rendering[x, y]
-
                 if(r != null) {
                     Render.sprite(r, px, py, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
                     continue

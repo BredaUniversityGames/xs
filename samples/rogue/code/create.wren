@@ -24,6 +24,7 @@ class Create {
             Type.crusader: "Crusader",
             Type.dragon: "Dragon",
             Type.ogre: "Ogre",
+            Type.slime: "Slime",
             Type.dreadtome: "Dreadtome"
         }
         __monsterStats = {
@@ -34,6 +35,7 @@ class Create {
             Type.crusader: Stats.new(1, 1, 1, 0.4),
             Type.dragon: Stats.new(5, 2, 0, 0.8),
             Type.ogre: Stats.new(3, 1, 0, 0.7),
+            Type.slime: Stats.new(1, 1, 0, 0.3),
             Type.dreadtome: Stats.new(2, 1, 2, 0.5)
         }
         __itemNames = {
@@ -65,6 +67,12 @@ class Create {
         entity.add(h)
         var s = Stats.new(10, 1, 0, 0)
         entity.add(s)
+        var spr = AnimatedSprite.new("[game]/assets/tileset.xsanim")
+        spr.playAnimation("hero")
+        spr.layer = 1.0
+        spr.mode = AnimatedSprite.loop
+        spr.flags = Render.spriteCenter
+        entity.add(spr)
         entity.tag = Type.player
         entity.name = "Hero"
         return entity
@@ -76,9 +84,15 @@ class Create {
         entity.add(m)
         var type = Tools.pickOne([
             Type.mage, Type.skeleton, Type.ghost, Type.knight, 
-            Type.crusader, Type.dragon, Type.ogre, Type.dreadtome])
+            Type.crusader, Type.slime])
         var s = __monsterStats[type].clone()
         entity.add(s)
+        var spr = AnimatedSprite.new("[game]/assets/tileset.xsanim")
+        spr.playAnimation(__monsterNames[type])
+        spr.layer = 1.0
+        spr.flags = Render.spriteCenter
+        spr.mode = AnimatedSprite.loop
+        entity.add(spr)
         entity.tag = type
         entity.name = __monsterNames[type] + " " + Create.nextID.toString
         return entity
@@ -105,7 +119,8 @@ class Create {
         entity.add(t)
         var s = GridSprite.new("[game]/assets/tileset.png", 16, 16)
         s.idx = 0
-        s.scale = 10
+        s.scale = 60
+        s.flags = Render.spriteCenter
         entity.add(s)
         return entity
     }

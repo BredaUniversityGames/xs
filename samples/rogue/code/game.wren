@@ -96,7 +96,8 @@ class Game {
     }
 
     // Render the game, which means rendering all the systems and entities
-    static render() {    
+    static render() {
+        Renderable.render()
         Gameplay.render()
     }
  }
