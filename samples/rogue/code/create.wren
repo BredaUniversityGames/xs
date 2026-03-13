@@ -13,7 +13,7 @@ class Create {
 
     static initialize() {
         __random = Random.new()
-        // __id = 0
+        __id = 0
 
         // Create a list of all the types of monsters
         __monsterNames = {
@@ -80,7 +80,7 @@ class Create {
         var s = __monsterStats[type].clone()
         entity.add(s)
         entity.tag = type
-        entity.name = __monsterNames[type]
+        entity.name = __monsterNames[type] + " " + Create.nextID.toString
         return entity
     }
 
@@ -93,16 +93,28 @@ class Create {
         var type = Tools.pickOne([
             Type.helmet, Type.armor, Type.sword, Type.food])
         entity.tag = type
-        entity.name = __itemNames[type]
+        entity.name = __itemNames[type] + " " + Create.nextID.toString
         var s = __itemStats[type].clone()
         entity.add(s)
         return entity
     }
-    
-    // static nextID {
-    //     __id = __id + 1
-    //     return __id
-    // } 
+
+    static background() {
+        var entity = Entity.new()
+        var t = Transform.new(Vec2.new(0, 0))
+        entity.add(t)
+        var s = GridSprite.new("[game]/assets/tileset.png", 16, 16)
+        s.idx = 0
+        s.scale = 10
+        entity.add(s)
+        return entity
+    }
+
+
+    static nextID {
+         __id = __id + 1
+         return __id
+    } 
 }
 
 import "gameplay" for Hero, Monster, Tile, Level, Stats

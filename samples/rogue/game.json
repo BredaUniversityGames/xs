@@ -7,13 +7,9 @@
         "type": "number",
         "value": 15.0
     },
-    "Enemy Color": {
-        "type": "color",
-        "value": 4278231807
-    },
-    "From Color": {
-        "type": "color",
-        "value": 184570111
+    "Debug Draw": {
+        "type": "bool",
+        "value": false
     },
     "Hero Damage": {
         "type": "number",
@@ -78,5 +74,9 @@
     "To Color": {
         "type": "color",
         "value": 117454847
+    },
+    "Visualize Generation": {
+        "type": "bool",
+        "value": false
     }
 }

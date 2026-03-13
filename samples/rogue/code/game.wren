@@ -50,6 +50,7 @@ class Game {
         }
         
         __genFiber =  Fiber.new {
+            var bg = Create.background()
             __alg.generate()
             Decorator.decorate()
         }
