@@ -8,6 +8,10 @@ import "random" for Random
 import "types" for Type
 import "directions" for Directions
 
+class MoveAnimation {
+
+}
+
 /// Contains the level data and the logic to manipulate it
 /// It's completely static and should be used as a singleton
 class Level {    
@@ -75,18 +79,29 @@ class Tile is Component {
         __tiles = SparseGrid.new()
     }
 
-    /// Get the tile at a given position
-    static get(x : Num, y : Num) -> Tile {
-        if(__tiles.has(x, y)) return __tiles[x, y]
-        return null
-    }
-
     /// Create a new tile at a given position
     construct new(x : Num, y : Num) {
+        super()
         _x = x
         _y = y
         System.print("Creating tile at position [%(x),%(y)]")
         __tiles[x, y] = this
+    }
+
+    // Cache the transform component of the tile for faster access
+    initialize() {
+        _transform = owner.get(Transform)
+    }
+
+    // Update the tile position in the level based on the transform component
+    update(dt : Num) {
+        _transform.position = Level.calculatePos(this)
+    }
+
+    /// Get the tile at a given position
+    static get(x : Num, y : Num) -> Tile {
+        if(__tiles.has(x, y)) return __tiles[x, y]
+        return null
     }
 
     /// Move the tile to a new position with a given offset
@@ -217,7 +232,6 @@ class Character is Component {
                 t.owner.delete()
                 moveTile(dir)  
             }
-
         }
     }
 

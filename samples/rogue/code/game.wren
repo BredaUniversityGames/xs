@@ -31,6 +31,9 @@ class Game {
         Tile.initialize()
         Create.initialize()
         Gameplay.initialize()
+
+        var offset : Num = Data.getNumber("Render.Camera Offset", Data.game)
+        Render.setOffset(offset, 0)
                 
         __time = 0.0
         __state = generating // Skip loading

@@ -9,7 +9,7 @@
     },
     "Debug.Draw": {
         "type": "bool",
-        "value": true
+        "value": false
     },
     "Debug.Long Brake": {
         "type": "number",
@@ -33,11 +33,11 @@
     },
     "Level Height": {
         "type": "number",
-        "value": 24.0
+        "value": 21.0
     },
     "Level Width": {
         "type": "number",
-        "value": 46.0
+        "value": 35.0
     },
     "Message Time": {
         "type": "number",

@@ -5,11 +5,11 @@
     },
     "Device.Height": {
         "type": "number",
-        "value": 240.0
+        "value": 180.0
     },
     "Device.Multiplier": {
         "type": "number",
-        "value": 3.0
+        "value": 4.0
     },
     "Device.Title": {
         "type": "string",
@@ -17,7 +17,7 @@
     },
     "Device.Width": {
         "type": "number",
-        "value": 426.0
+        "value": 320.0
     },
     "Device.WindowSizeInPoints": {
         "type": "bool",
