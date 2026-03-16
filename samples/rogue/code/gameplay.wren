@@ -8,8 +8,50 @@ import "random" for Random
 import "types" for Type
 import "directions" for Directions
 
-class MoveAnimation {
 
+class MoveAnimation is Component {
+    construct new() {
+        _duration = 0.2 // TODO: Make this configurable from the game data
+        _time = 0.0
+        _from = Vec2.new(0, 0)
+        _to = Vec2.new(0, 0)
+        _state = MoveAnimation.idle
+    }
+
+    initialize() {
+        _transform = owner.get(Transform)
+        _tile = owner.get(Tile)
+    }    
+
+    /// Update the animation and return the current position of the animation
+    update(dt : Num) {
+        if(_state == MoveAnimation.idle) {
+            _transform.position = Level.calculatePos(_tile)            
+        } else if(_state == MoveAnimation.moving) {
+            _time = _time + dt
+            var t = _time / _duration            
+            if(t > 1.0) t = 1.0
+            var pos = Vec2.lerp(_from, _to, t)
+            _transform.position = pos
+            if(t >= 1.0) _state = MoveAnimation.idle
+        
+        }
+        var t = _time / _duration
+    
+    }
+
+    move(direction : Num) {
+        var d = Directions[direction]
+        _from = Level.calculatePos(_tile)
+        _to = Level.calculatePos(_tile.x + d.x, _tile.y + d.y)
+        _time = 0.0
+    }
+
+    done { _time >= _duration }
+
+    static idle { 0 }
+    static moving { 1 }
+    static attacking { 2 }
 }
 
 /// Contains the level data and the logic to manipulate it
@@ -69,7 +111,7 @@ class Level {
     static rendering -> Grid { __rendering }
 }
 
-// A compenent that represents a tile in the level
+// A component that represents a tile in the level
 // It is used to store the position of the tile in the level
 // but also to store all the tiles in the level as a static variable
 class Tile is Component {
@@ -90,12 +132,13 @@ class Tile is Component {
 
     // Cache the transform component of the tile for faster access
     initialize() {
-        _transform = owner.get(Transform)
+        //_transform = owner.get(Transform)
+
     }
 
     // Update the tile position in the level based on the transform component
     update(dt : Num) {
-        _transform.position = Level.calculatePos(this)
+        // _transform.position = Level.calculatePos(this)
     }
 
     /// Get the tile at a given position
@@ -109,7 +152,7 @@ class Tile is Component {
         __tiles.remove(_x, _y)
         _x = _x + dx
         _y = _y + dy
-        __tiles[_x, _y] = this              
+        __tiles[_x, _y] = this
     }
 
     /// Remove the tile from the level (gets called when the entity is deleted)
@@ -212,7 +255,10 @@ class Character is Component {
         if(t != null) {
             if(Bits.checkBitFlag(_attackable, t.owner.tag)) {
                 var stats = t.owner.get(Stats)
-                var hitChance = 0.8 - stats.armor * 0.1 
+                // TODO: Calculate hit chance based on the target's armor (max 80% hit chance) 
+                // TODO: Don't calculate damage if the attack misses
+                // TODO: Expose the hit chance and the damage in the UI (maybe as a message)
+                var hitChance = 0.8 - stats.armor * 0.1                 
                 var hit = Tools.random.float(0.0, 1.0) < hitChance
                 if(hit) {
                     stats.health = stats.health - _stats.damage
@@ -384,6 +430,38 @@ class Monster is Character {
     }
  }
 
+ class UI {
+    construct new() {
+        _font = Render.loadFont("[game]/assets/FutilePro.ttf", 14)
+        var icons : Num = Render.loadImage("[game]/assets/monochrome.png")        
+        _heart = Render.createGridSprite(icons, 49, 22, 532)
+        _armor = Render.createGridSprite(icons, 49, 22, 236)
+        _sword = Render.createGridSprite(icons, 49, 22, 326)
+    }
+
+    render() {
+        var hero = Hero.hero
+        var stats = hero.owner.get(Stats)
+        // var message = "Health: %(stats.health)  Damage: %(stats.damage)  Armor: %(stats.armor)"
+
+        // Health
+        Render.sprite(_heart, -160, 70, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+        Render.text(_font, "%(stats.health)", -160, 50, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+
+        // Armor
+        Render.sprite(_armor, -160, 20, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+        Render.text(_font, "%(stats.armor)", -160, 0, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+
+        // Damage
+        Render.sprite(_sword, -160, -30, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+        Render.text(_font, "%(stats.damage)", -160, -50, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+
+
+        // Render.text(_font, message, 0, -0, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+        // Render.text(_font, __message, 0, 160, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)        
+    }
+ }
+
 /// Combines level and character logic to create the gameplay
 class Gameplay {
     static playerTurn   { 1 }
@@ -424,7 +502,8 @@ class Gameplay {
         }
 
         __message = "A hero is born"
-        __timer = Data.getNumber("Message Time", Data.game)
+        __timer = Data.getNumber("Message Time", Data.game)    
+        __ui = UI.new()    
     }    
 
     static update(dt) {
@@ -482,22 +561,14 @@ class Gameplay {
         }
 
         if(Hero.hero) {
-            renderUI()
+            __ui.render()
         }
     }  
 
     static message=(v) {
         __message = v
         __timer = Data.getNumber("Message Time", Data.game)
-    }
-
-    static renderUI() {
-        var hero = Hero.hero
-        var stats = hero.owner.get(Stats)
-        var message = "Health: %(stats.health)  Damage: %(stats.damage)  Armor: %(stats.armor)"
-        Render.text(__font, message, 0, -170, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
-        Render.text(__font, __message, 0, 160, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
-    }
+    }    
  }
 
 import "create" for Create 

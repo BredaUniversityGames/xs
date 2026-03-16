@@ -1,9 +1,4 @@
-/// The imports of files that are used in this file usually go at the top.
-/// If two files import each other (circular dependencies), then import go to the bottom of the file.
 import "xs/core" for Data, Input, Render
-//      ^       ^ class names that are imported
-//      | file name without extension, relative to the this file (except shared modules and system libs)
-
 import "xs/math"for Math, Bits, Vec2, Color
 import "xs/ec"for Entity, Component
 import "xs/components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite

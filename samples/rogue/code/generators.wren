@@ -337,7 +337,7 @@ class BSPer {
     static split(from, to) {
         var shortBrake = Data.getNumber("Debug.Short Brake")
         var longBrake = Data.getNumber("Debug.Long Brake")
-        var maxRoomSize = Data.getNumber("BSP Max Room Size")
+        var maxRoomSize = Data.getNumber("BSP.Max Room Size")
         var padd = 6 // Leave this much on both sides when cutting
         var dx = to.x - from.x
         var dy = to.y - from.y
