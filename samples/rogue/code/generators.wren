@@ -11,8 +11,8 @@ class SingleRoom {
 
     static generate(){
         //get some data that we will use later
-        var shortBrake = Data.getNumber("Short Brake")
-        var longBrake = Data.getNumber("Long Brake")
+        var shortBrake = Data.getNumber("Debug.Short Brake")
+        var longBrake = Data.getNumber("Debug.Long Brake")
         var width = Level.width
         var height = Level.height
 
@@ -58,8 +58,8 @@ class Randy {
     static generate() {
         var random = Random.new()
         var level = 9
-        var shortBrake = Data.getNumber("Short Brake")
-        var longBrake = Data.getNumber("Long Brake")
+        var shortBrake = Data.getNumber("Debug.Short Brake")
+        var longBrake = Data.getNumber("Debug.Long Brake")
         var width = Level.width
         var height = Level.height
 
@@ -205,7 +205,7 @@ class RandomWalk {
     }
     
     static postProcess() {
-        var brake = Data.getNumber("Short Brake")
+        var brake = Data.getNumber("Debug.Short Brake")
         var rem = []        
         for (x in 0...Level.width) {
             for (y in 0...Level.height) {
@@ -310,7 +310,7 @@ class BSPer {
             0x4d89f280, 0x2feff980, 0xed3bf980, 0x473bd380,
             0x72ffa180, 0x5c720180, 0xf25ca480, 0xe25dce80]
 
-        var brake = Data.getNumber("Long Brake")
+        var brake = Data.getNumber("Debug.Long Brake")
 
         // Start will walls everywhere
         for (x in 0...Level.width) {
@@ -335,8 +335,8 @@ class BSPer {
 
     // Recurively split the space until is small enough for a 
     static split(from, to) {
-        var shortBrake = Data.getNumber("Short Brake")
-        var longBrake = Data.getNumber("Long Brake")
+        var shortBrake = Data.getNumber("Debug.Short Brake")
+        var longBrake = Data.getNumber("Debug.Long Brake")
         var maxRoomSize = Data.getNumber("BSP Max Room Size")
         var padd = 6 // Leave this much on both sides when cutting
         var dx = to.x - from.x
@@ -363,7 +363,7 @@ class BSPer {
     }
 
     static makeRooms() {
-        var brake = Data.getNumber("Long Brake")
+        var brake = Data.getNumber("Debug.Long Brake")
         var min = 6 // Don't make small rooms smaller
         for(room in __rooms) {
             // Room size [dx, dy]
@@ -420,7 +420,7 @@ class BSPer {
     }
 
     static makeHalls() {
-        var brake = Data.getNumber("Long Brake")
+        var brake = Data.getNumber("Debug.Long Brake")
         var newHalls = []
         for(hall in __halls) {
             var dir = hall.to - hall.from
@@ -457,7 +457,7 @@ class BSPer {
     }
 
     static postProcess() {
-        var brake = Data.getNumber("Short Brake")
+        var brake = Data.getNumber("Debug.Short Brake")
         var rem = []
         for (x in 0...Level.width) {
             for (y in 0...Level.height) {
@@ -528,7 +528,7 @@ class BSPer {
         //
         //}
 
-        var brake = Data.getNumber("Short Brake")
+        var brake = Data.getNumber("Debug.Short Brake")
         for(room in __rooms) {
             var dx = room.to.x - room.from.x
             var dy = room.to.y - room.from.y
@@ -566,7 +566,7 @@ class BSPer {
 
 
     static debugRender() {
-        var dbg = Data.getBool("Debug Draw", Data.game)
+        var dbg = Data.getBool("Debug.Draw", Data.game)
         if(!dbg) {
             return
         }

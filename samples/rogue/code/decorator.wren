@@ -10,8 +10,8 @@ import "random" for Random
 class Decorator {   
     static decorate() {
         //get some data that we will use later
-        var shortBrake = Data.getNumber("Short Brake")
-        var longBrake = Data.getNumber("Long Brake")
+        var shortBrake = Data.getNumber("Debug.Short Brake")
+        var longBrake = Data.getNumber("Debug.Long Brake")
         var width = Level.width
         var height = Level.height
         var random = Random.new()

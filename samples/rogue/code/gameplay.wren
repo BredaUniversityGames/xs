@@ -160,7 +160,7 @@ class Character is Component {
 
     /// Update the character - just debug rendering for now
     update(dt) {
-        if(Data.getBool("Debug Draw", Data.game)) {
+        if(Data.getBool("Debug.Draw", Data.game)) {
             var pos = Level.calculatePos(_tile)
             Render.dbgColor(0xFFFFFFFF)
             Render.dbgText("%(owner.name)", pos.x - 7, pos.y + 7, 1)
@@ -407,31 +407,7 @@ class Gameplay {
             //Type.armor: Render.createGridSprite(preview, r, c, 82),
             //Type.sword: Render.createGridSprite(preview, r, c, 130),
             //Type.food: Render.createGridSprite(preview, r, c, 817)
-        }        
-
-        /*
-        var enemyColor = Data.getColor("Enemy Color", Data.game)
-        var playerColor = Data.getColor("Player Color", Data.game)
-        var itemColor = Data.getColor("Item Color", Data.game)
-        __colors = {
-            Type.empty: 0xFFFFFF20,
-            Type.floor: 0xFFFFFF20,
-            Type.floorAlt: 0xFFFFFF20,
-            Type.wall: 0xFFFFFFC0,
-            Type.player: playerColor,
-            Type.enemy: enemyColor,
-            Type.bat: enemyColor,
-            Type.spider: enemyColor,
-            Type.ghost: enemyColor,
-            Type.boss: enemyColor,
-            Type.scorpion: enemyColor,
-            Type.snake: enemyColor,
-            Type.helmet: itemColor,
-            Type.armor: itemColor,
-            Type.sword: itemColor,     
-            Type.food: itemColor       
         }
-        */
 
         __message = "A hero is born"
         __timer = Data.getNumber("Message Time", Data.game)
