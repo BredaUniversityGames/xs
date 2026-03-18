@@ -78,7 +78,10 @@ namespace packager
 				".glsl",		// shaders
 				".comp",		// shaders
 				".json",		// text
-				".txt"			// text		
+				".txt",			// text
+				".xsanim",		// animations
+				".xssprite",	// spritesheets
+				".xstiles",		// tilemaps
 			};
 			return file_formats;
 		}

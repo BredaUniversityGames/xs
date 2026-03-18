@@ -371,8 +371,6 @@ class AnimatedSprite is GridSprite {
     construct new(sheetPath) {
         // Read and parse the animation sheet file
         var data = Json.load(sheetPath)
-
-        System.print("Loaded animation sheet: " + data.toString)
         
         // Extract grid parameters
         var imagePath = data["image"]

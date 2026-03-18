@@ -217,8 +217,6 @@ bool xs::fileio::has_wildcard(const string& wildcard)
 	return internal::wildcards.find(wildcard) != internal::wildcards.end();
 }
 
-// --- Common initialization logic (shared by desktop platforms) ---
-
 void fileio::internal::load_project_settings()
 {
 	if (exists("[game]/project.json"))

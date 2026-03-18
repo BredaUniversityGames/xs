@@ -356,7 +356,7 @@ class BSPer {
             }
         } else { // Room is small enough
             var rect = Rect.new(from, to)
-            System.print("add room: %(rect)")
+            System.print("Add room: %(rect)")
             __rooms.add(rect) // Save room
             Fiber.yield(longBrake)
         }
