@@ -46,8 +46,8 @@ def find_xs_exe(repo_root: Path) -> Path | None:
         candidate = repo_root / "build" / "executable" / "x64" / "Develop" / "xs.exe"
         if candidate.exists():
             return candidate
-    else:
-        # Linux / macOS: CMake default output
+    elif sys.platform == "linux":
+        # Linux: CMake default output
         candidate = repo_root / "build" / "xs"
         if candidate.exists():
             return candidate
@@ -59,6 +59,16 @@ def find_xs_exe(repo_root: Path) -> Path | None:
         found = shutil.which("xs")
         if found:
             return Path(found)
+    elif sys.platform == "darwin":
+        derived = Path.home() / "Library" / "Developer" / "Xcode" / "DerivedData"
+        for pattern in ["*/Build/Products/*/xs", "*/Build/Products/*/xs.app/Contents/MacOS/xs"]:
+            for path in derived.glob(pattern):
+                return path
+
+        found = shutil.which("xs")
+        if found:
+            return Path(found)
+
     return None
 
 
