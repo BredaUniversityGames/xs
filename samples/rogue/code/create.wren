@@ -77,6 +77,7 @@ class Create {
         entity.add(spr)
         entity.tag = Type.player
         entity.name = "Hero"
+        entity.enabled = false
         return entity
     }
 
@@ -97,10 +98,12 @@ class Create {
         entity.add(spr)
         entity.tag = type
         entity.name = __monsterNames[type] + " " + Create.nextID.toString
+        entity.enabled = false
         return entity
     }
 
     static item(x, y) {
+        System.print("Creating item at " + x.toString + ", " + y.toString)
         var entity = Entity.new()
         var tl = Transform.new(Level.calculatePos(x, y))
         entity.add(tl)
@@ -114,6 +117,8 @@ class Create {
         entity.add(s)
         return entity
     }
+
+    static entrance(x, y) {
 
     static background() {
         var entity = Entity.new()

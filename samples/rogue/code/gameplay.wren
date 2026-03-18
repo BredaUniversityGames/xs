@@ -488,10 +488,6 @@ class Monster is Character {
         // Damage
         Render.sprite(_sword, -160, -30, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
         Render.text(_font, "%(stats.damage)", -160, -50, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
-
-
-        // Render.text(_font, message, 0, -0, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
-        // Render.text(_font, __message, 0, 160, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)        
     }
  }
 
@@ -512,26 +508,12 @@ class Gameplay {
             Type.floor: Render.createGridSprite(preview, r, c, 66),
             Type.wall: Render.createGridSprite(preview, r, c, 18),
             Type.player: Render.createGridSprite(preview, r, c, 128),
-        
-            // Type.enemy: Render.createGridSprite(preview, r, c, 323),
-            //Type.door: Render.createGridSprite(preview, r, c, 799),
-            //Type.lever: Render.createGridSprite(preview, r, c, 259),
-            //Type.spikes: Render.createGridSprite(preview, r, c, 259),
-            //Type.chest: Render.createGridSprite(preview, r, c, 259),
-            //Type.crate: Render.createGridSprite(preview, r, c, 259),
-            //Type.pot: Render.createGridSprite(preview, r, c, 259),
-            //Type.stairs: Render.createGridSprite(preview, r, c, 259),
-            //Type.light: Render.createGridSprite(preview, r, c, 259),
-            //Type.bat: Render.createGridSprite(preview, r, c, 418),
-            //Type.spider: Render.createGridSprite(preview, r, c, 273),
-            //Type.ghost: Render.createGridSprite(preview, r, c, 320),
-            //Type.boss: Render.createGridSprite(preview, r, c, 324),
-            //Type.scorpion: Render.createGridSprite(preview, r, c, 269),
-            //Type.snake: Render.createGridSprite(preview, r, c, 420),
-            //Type.helmet: Render.createGridSprite(preview, r, c, 33),
-            //Type.armor: Render.createGridSprite(preview, r, c, 82),
-            //Type.sword: Render.createGridSprite(preview, r, c, 130),
-            //Type.food: Render.createGridSprite(preview, r, c, 817)
+            Type.mage: Render.createGridSprite(preview, r, c, 164),
+            Type.skeleton: Render.createGridSprite(preview, r, c, 148),
+            Type.ghost: Render.createGridSprite(preview, r, c, 132),
+            Type.knight: Render.createGridSprite(preview, r, c, 180),
+            Type.crusader: Render.createGridSprite(preview, r, c, 196),
+            Type.slime: Render.createGridSprite(preview, r, c, 212)        
         }
 
         __message = "A hero is born"
@@ -578,24 +560,28 @@ class Gameplay {
         for (x in 0...Level.width) {
             for (y in 0...Level.height) {
                 var px = sx + x * s
-                var py = sy + y * s                
-
-                var t = Level.gameplay[x, y]
-                var r = Level.rendering[x, y]
-                if(r != null) {
-                    Render.sprite(r, px, py, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+                var py = sy + y * s
+                
+                var tl = Tile.get(x, y)
+                if(tl != null) {
+                    var tag = tl.owner.tag
+                    Render.sprite(__tiles[tag], px, py, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
                     continue
                 }
 
+                var t = Level.gameplay[x, y]                
                 if(t == Type.empty) continue
                 var color : Num = 0xFFFFFFFF
                 var sprite = __tiles[t]
-                Render.sprite(sprite, px, py, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)                
+                if(sprite != null) {
+                    Render.sprite(sprite, px, py, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)
+                }
             }
         }
     }  
 
     static render() {        
+        System.print("Rendering gameplay")
         if(Hero.hero) {
             var hero: Entity = Hero.hero.owner
             var tile: Tile = hero.get(Tile)

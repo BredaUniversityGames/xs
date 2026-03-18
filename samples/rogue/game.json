@@ -7,6 +7,10 @@
         "type": "number",
         "value": 15.0
     },
+    "BSP.Room Inset Chance": {
+        "type": "number",
+        "value": 1.0
+    },
     "Debug.Draw": {
         "type": "bool",
         "value": false
@@ -21,15 +25,7 @@
     },
     "Debug.Visualize Generation": {
         "type": "bool",
-        "value": false
-    },
-    "Hero Damage": {
-        "type": "number",
-        "value": 10.0
-    },
-    "Hero Health": {
-        "type": "number",
-        "value": 100.0
+        "value": true
     },
     "Level Height": {
         "type": "number",
@@ -43,17 +39,9 @@
         "type": "number",
         "value": 0.800000011920929
     },
-    "Monster Damage": {
-        "type": "number",
-        "value": 10.0
-    },
     "Monster Density": {
         "type": "number",
         "value": 0.029999999329447746
-    },
-    "Monster Health": {
-        "type": "number",
-        "value": 20.0
     },
     "Move Speed": {
         "type": "number",

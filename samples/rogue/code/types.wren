@@ -13,25 +13,27 @@ class Type {
     static crusader { 1 << 7 } 
     static dragon   { 1 << 8 }
     static ogre     { 1 << 9 }
-    static dreadtome { 1 << 10 }
-    static slime    { 1 << 19 }
+    static tome     { 1 << 10 }
+    static slime    { 1 << 11 }
 
     // Items
-    static door     { 1 << 11 }
-    static key      { 1 << 12 }
-    static chest    { 1 << 13 }
-    static pot      { 1 << 14 }
-    static helmet   { 1 << 15 }
-    static armor    { 1 << 16 }
-    static sword    { 1 << 17 }
-    static food     { 1 << 18 }
+    static door     { 1 << 12 }
+    static key      { 1 << 13 }
+    static chest    { 1 << 14 }
+    static pot      { 1 << 15 }
+    static helmet   { 1 << 16 }
+    static armor    { 1 << 17 }
+    static sword    { 1 << 18 }
+    static food     { 1 << 19 }
+    static entrance { 1 << 20 }
+    static exit     { 1 << 21 }
     
     // Combine multiple types
-    static monster { mage | skeleton | ghost | knight | crusader | dragon | ogre | dreadtome  }
+    static monster { mage | skeleton | ghost | knight | crusader | dragon | ogre | tome  }
     static enemy   { monster }
     static item    { door | key | chest | pot | helmet | armor | sword | food }
     static block   { wall | player | enemy | door }
     static attackable   { enemy | item }
-    static blocking     { wall | enemy | door | player }
+    static blocking     { wall | enemy | door | player | chest | entrance | exit }
     static monsterBlock { wall | pot | chest | item }
 }

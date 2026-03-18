@@ -329,16 +329,17 @@ class BSPer {
         postProcess()   // Remove extra wall tiles
         __graph = createGraph()
         addHero()       // Put our player on the map
-        fillRoms()      // Add stuff to the rooms        
+        fillRoms()      // Add stuff to the rooms
 
         return 0.0      // We done here
     }
 
     // Recurively split the space until is small enough for a 
-    static split(from, to) {
+    static split(from: Vec2, to: Vec2) {
         var shortBrake = Data.getNumber("Debug.Short Brake")
         var longBrake = Data.getNumber("Debug.Long Brake")
         var maxRoomSize = Data.getNumber("BSP.Max Room Size")
+        // var inset = Data.getNumber("BSP.Room Inset Chance")
         var padd = 6 // Leave this much on both sides when cutting
         var dx = to.x - from.x
         var dy = to.y - from.y
@@ -356,8 +357,7 @@ class BSPer {
                 split(Vec2.new(from.x, spl), to)                                    // Split top room (if needed)
             }
         } else { // Room is small enough
-            var rect = Rect.new(from, to)
-            System.print("Add room: %(rect)")
+            var rect: Rect = Rect.new(from, to)
             Level.rooms.add(rect) // Save room
             Fiber.yield(longBrake)
         }
@@ -365,17 +365,38 @@ class BSPer {
 
     static makeRooms() {
         var brake = Data.getNumber("Debug.Long Brake")
-        var min = 6 // Don't make small rooms smaller
+        var insetChance = Data.getNumber("BSP.Room Inset Chance")
+        var min = 7 // Don't make small rooms smaller           
         for(room in Level.rooms) {
             // Room size [dx, dy]
             var dx = room.to.x - room.from.x
             var dy = room.to.y - room.from.y
             // Calc from and to with an inset
-
             room.from.x = dx > min ? room.from.x + inset : room.from.x + 1
             room.to.x   = dx > min ? room.to.x   - inset : room.to.x   - 1
             room.from.y = dy > min ? room.from.y + inset : room.from.y + 1
             room.to.y   = dy > min ? room.to.y   - inset : room.to.y   - 1
+
+            /*
+            var center: Vec2 = (room.from + room.to) * 0.5
+            if(dy > min && __random.float() < insetChance) {
+                // Insect top room from below
+                if(center.y > 0.0) {
+                    room.from.y = room.from.y + inset
+                } else {
+                    room.to.y = room.to.y - inset
+                }
+            }
+
+            if(dx > min && __random.float() < insetChance) {
+                // Insect right room from left
+                if(center.x > 0.0) {
+                    room.from.x = room.from.x + inset
+                } else {
+                    room.to.x = room.to.x - inset
+                }
+            }
+            */
 
             // Carve out rooms
             for (x in room.from.x...room.to.x) {
@@ -504,8 +525,12 @@ class BSPer {
         // Spawn the hero in a random terminal room
         var heroRoom =  __random.sample(terminalRooms)
         var room = Level.rooms[heroRoom]
+        var center = room.from + (room.to - room.from) * 0.5
+        center.x = center.x.round
+        center.y = center.y.round
         var pos = findFree(room)
         Create.hero(pos.x, pos.y)
+        Crea
 
         // Get the distance from the hero to all other rooms
         __distances = {}

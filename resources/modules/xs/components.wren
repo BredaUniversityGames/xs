@@ -87,7 +87,7 @@ class Renderable is Component {
     static render() {
         for(e in Entity.entities) {
             var s = e.get(Renderable)
-            if(s != null) {
+            if(s != null && s.enabled) {
                 s.render()
             }
         }
