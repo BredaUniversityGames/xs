@@ -63,6 +63,10 @@
         "type": "number",
         "value": 0.003000000026077032
     },
+    "Render Radius": {
+        "type": "number",
+        "value": 6.0
+    },
     "Render.Camera Offset": {
         "type": "number",
         "value": 12.0

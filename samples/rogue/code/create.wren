@@ -56,8 +56,10 @@ class Create {
         var entity = Entity.new()
         var t = Transform.new(Level.calculatePos(x, y))
         var tl = Tile.new(x, y)
+        var m = MoveAnimation.new()        
         entity.add(t)
         entity.add(tl)
+        entity.add(m)
         return entity
     }
 
@@ -132,4 +134,4 @@ class Create {
     } 
 }
 
-import "gameplay" for Hero, Monster, Tile, Level, Stats
+import "gameplay" for Hero, Monster, Tile, Level, Stats, MoveAnimation

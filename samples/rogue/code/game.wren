@@ -96,7 +96,11 @@ class Game {
     // Render the game, which means rendering all the systems and entities
     static render() {
         Renderable.render()
-        Gameplay.render()
+        if(__state == Game.generating) {
+            Gameplay.renderGeneration()
+        } else if(__state == Game.playing || __state == Game.gameover) {
+            Gameplay.render()
+        }
     }
  }
 

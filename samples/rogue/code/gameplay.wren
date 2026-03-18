@@ -8,9 +8,9 @@ import "random" for Random
 import "types" for Type
 import "directions" for Directions
 
-
 class MoveAnimation is Component {
     construct new() {
+        super()
         _duration = 0.2 // TODO: Make this configurable from the game data
         _time = 0.0
         _from = Vec2.new(0, 0)
@@ -24,20 +24,36 @@ class MoveAnimation is Component {
     }    
 
     /// Update the animation and return the current position of the animation
-    update(dt : Num) {
-        if(_state == MoveAnimation.idle) {
-            _transform.position = Level.calculatePos(_tile)            
-        } else if(_state == MoveAnimation.moving) {
+    update(dt : Num) {        
+        if(_state == MoveAnimation.idle) return
+        // System.print("movin")        
+        if(_state == MoveAnimation.moving) {
             _time = _time + dt
-            var t = _time / _duration            
-            if(t > 1.0) t = 1.0
+            var t : Num = _time / _duration            
+            if(t > 1.0) {
+                t = 1.0
+                _state = MoveAnimation.idle
+            }
+            t = t.pow(6.0)
             var pos = Vec2.lerp(_from, _to, t)
-            _transform.position = pos
-            if(t >= 1.0) _state = MoveAnimation.idle
-        
+            _transform.position = pos        
+        } else if(_state == MoveAnimation.attacking) {
+            _time = _time + dt
+            var t: Num = _time / (_duration * 0.5)
+            t = t % 1.0
+            t = t.pow(6.0)
+            if(_time < _duration * 0.5) {
+                var pos = Vec2.lerp(_from, _to, t)
+                _transform.position = pos
+            } else if(_time < _duration) {
+                var pos = Vec2.lerp(_to, _from, t)
+                _transform.position = pos
+            } else {
+                _transform.position = _from
+                _state = MoveAnimation.idle
+                _time = 0.0
+            }
         }
-        var t = _time / _duration
-    
     }
 
     move(direction : Num) {
@@ -45,6 +61,16 @@ class MoveAnimation is Component {
         _from = Level.calculatePos(_tile)
         _to = Level.calculatePos(_tile.x + d.x, _tile.y + d.y)
         _time = 0.0
+        _state = MoveAnimation.moving
+    }
+
+    attack(direction : Num) {
+        var d = Directions[direction]
+        _from = Level.calculatePos(_tile)
+        var to: Vec2 = Level.calculatePos(_tile.x + d.x, _tile.y + d.y)
+        _to = Vec2.lerp(_from, to, 0.5)
+        _time = 0.0
+        _state = MoveAnimation.attacking
     }
 
     done { _time >= _duration }
@@ -67,6 +93,7 @@ class Level {
         
         __grid = Grid.new(__width, __height, Type.empty)
         __rendering = Grid.new(__width, __height, null)
+        __rooms = []
     }
 
     /// Calculate the position of a tile in the level
@@ -109,6 +136,9 @@ class Level {
 
     /// The grid that contains the rendering representation of the level (used for rendering)
     static rendering -> Grid { __rendering }
+
+    /// The list of rooms in the level (used for gameplay and rendering)
+    static rooms -> List { __rooms }
 }
 
 // A component that represents a tile in the level
@@ -214,6 +244,7 @@ class Character is Component {
     initialize() {
         _stats = owner.get(Stats)
         _tile = owner.get(Tile)
+        _mover = owner.get(MoveAnimation)
     }
 
     /// Update the character - just debug rendering for now
@@ -242,7 +273,8 @@ class Character is Component {
     /// Move the tile in the direction
     moveTile(dir) {
         var d = Directions[dir]
-        _tile.move(d.x, d.y)
+        _mover.move(dir)
+        _tile.move(d.x, d.y)        
     }
 
     /// Attack the tile in the direction
@@ -272,6 +304,7 @@ class Character is Component {
                     t.owner.delete()
                     if(Tools.random.float(0.0, 1.0) < stats.drop) Create.item(x, y)                    
                 }
+                _mover.attack(dir)
             } else if(Bits.checkBitFlag(Type.item, t.owner.tag)) {
                 Gameplay.message = "%(owner.name) picks up %(t.owner.name)"
                 _stats.add(t.owner.get(Stats))
@@ -503,7 +536,8 @@ class Gameplay {
 
         __message = "A hero is born"
         __timer = Data.getNumber("Message Time", Data.game)    
-        __ui = UI.new()    
+        __visibility = Grid.new(Level.width, Level.height, false)
+        __ui = UI.new()
     }    
 
     static update(dt) {
@@ -537,7 +571,7 @@ class Gameplay {
     }
 
     /// Render the level and the UI
-    static render() {
+    static renderGeneration() {
         var s = Level.tileSize  
         var sx = (Level.width - 1) * -s / 2
         var sy = (Level.height - 1)  * -s / 2        
@@ -559,11 +593,67 @@ class Gameplay {
                 Render.sprite(sprite, px, py, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)                
             }
         }
-
-        if(Hero.hero) {
-            __ui.render()
-        }
     }  
+
+    static render() {        
+        if(Hero.hero) {
+            var hero: Entity = Hero.hero.owner
+            var tile: Tile = hero.get(Tile)
+
+            var room: Rect = null
+            for(r: Rect in Level.rooms) {
+                if(r.contains(tile)) {
+                    room = r
+                    break
+                }
+            }
+
+            if(room != null) {
+                var from: Vec2 = Vec2.new(room.from.x - 1, room.from.y - 1)
+                var to: Vec2 = Vec2.new(room.to.x + 1, room.to.y + 1)
+                for(x in from.x...to.x) {
+                    for(y in from.y...to.y) {
+                        var px = Level.calculatePos(x, y).x
+                        var py = Level.calculatePos(x, y).y
+                        var r = Level.rendering[x, y]
+                        if(r != null) {
+                            __visibility[x, y] = true                            
+                        }
+                    }
+                }                
+            }
+
+            for(x in 0...Level.width) {
+                for(y in 0...Level.height) {
+                    var r = Level.rendering[x, y]
+                    if(r == null) continue
+                    var color : Num = __visibility[x, y] ? 0xFFFFFFFF : 0xFFFFFFAA
+                    var px = Level.calculatePos(x, y).x
+                    var py = Level.calculatePos(x, y).y
+                    var t = Level.gameplay[x, y]
+                    Render.sprite(r, px, py, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)                        
+                }
+            }
+
+            // Render the tiles around the hero
+            /* 
+            var radius = Data.getNumber("Render Radius", Data.game)
+            for (x in tile.x - radius...tile.x + radius) {
+                for (y in tile.y - radius...tile.y + radius) {
+                    if(!Level.gameplay.valid(x, y)) continue
+                    var px = Level.calculatePos(x, y).x
+                    var py = Level.calculatePos(x, y).y
+                    var r = Level.rendering[x, y]
+                    if(r != null) {
+                        Render.sprite(r, px, py, 0.0, 1.0, 0.0, 0xFFFFFF90, 0x0, Render.spriteCenter)
+                    }
+                }
+            }
+            */
+
+            __ui.render()
+        }        
+    }
 
     static message=(v) {
         __message = v
@@ -571,4 +661,5 @@ class Gameplay {
     }    
  }
 
-import "create" for Create 
+import "create" for Create
+import "generators" for Rect

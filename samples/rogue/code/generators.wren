@@ -284,14 +284,15 @@ class RandomWalk {
 
 
 class Rect {
-    construct new(from, to) {
+    construct new(from: Vec2, to: Vec2) {
         _from = from
         _to = to
     }
 
     toString { "[%(from.x),%(from.y)]-[%(to.x),%(to.y)]" }
 
-    contains(point) {
+    // Point or tile
+    contains(point) -> Bool {
         return point.x >= _from.x && point.x <= _to.x && point.y >= _from.y && point.y <= _to.y
     }
 
@@ -304,7 +305,7 @@ class Rect {
 class BSPer {
     static generate() {        
         __random = Random.new()
-        __rooms = []
+        // __rooms = []
         __halls = []
         __colors = [ // Debug colors
             0x4d89f280, 0x2feff980, 0xed3bf980, 0x473bd380,
@@ -357,7 +358,7 @@ class BSPer {
         } else { // Room is small enough
             var rect = Rect.new(from, to)
             System.print("Add room: %(rect)")
-            __rooms.add(rect) // Save room
+            Level.rooms.add(rect) // Save room
             Fiber.yield(longBrake)
         }
     }
@@ -365,7 +366,7 @@ class BSPer {
     static makeRooms() {
         var brake = Data.getNumber("Debug.Long Brake")
         var min = 6 // Don't make small rooms smaller
-        for(room in __rooms) {
+        for(room in Level.rooms) {
             // Room size [dx, dy]
             var dx = room.to.x - room.from.x
             var dy = room.to.y - room.from.y
@@ -385,19 +386,19 @@ class BSPer {
             Fiber.yield(brake)
         }
 
-        System.print("rooms: %(__rooms.count)")
+        System.print("rooms: %(Level.rooms.count)")        
     }
 
     static createGraph() {
         var graph = {}
-        for(i in 0...__rooms.count) {
+        for(i in 0...Level.rooms.count) {
             graph[i] = List.new()
         }
         for(hall in __halls) {
             var from = null
             var to = null
-            for(i in 0...__rooms.count) {
-                var room = __rooms[i]
+            for(i in 0...Level.rooms.count) {
+                var room = Level.rooms[i]
                 if(room.contains(hall.from)) {
                     from = i
                 }
@@ -494,15 +495,15 @@ class BSPer {
 
         // Find the terminal rooms
         var terminalRooms = []
-        for(i in 0...__rooms.count) {
-            var room = __rooms[i]
+        for(i in 0...Level.rooms.count) {
+            var room = Level.rooms[i]
             var count = __graph[i].count    // The graph is bidirectional
             if(count == 1) terminalRooms.add(i)
         }
 
         // Spawn the hero in a random terminal room
         var heroRoom =  __random.sample(terminalRooms)
-        var room = __rooms[heroRoom]
+        var room = Level.rooms[heroRoom]
         var pos = findFree(room)
         Create.hero(pos.x, pos.y)
 
@@ -523,13 +524,13 @@ class BSPer {
             }
         }
 
-        //for(i in 0...__rooms.count) {
+        //for(i in 0...Level.rooms.count) {
         //    
         //
         //}
 
         var brake = Data.getNumber("Debug.Short Brake")
-        for(room in __rooms) {
+        for(room in Level.rooms) {
             var dx = room.to.x - room.from.x
             var dy = room.to.y - room.from.y
             var area = dx * dy
@@ -571,7 +572,7 @@ class BSPer {
             return
         }
         var off = Vec2.new(Level.tileSize, Level.tileSize) * -0.5
-        for(room in __rooms) {         
+        for(room in Level.rooms) {         
             var color = __colors[(room.from.x + room.from.y + room.to.x + room.to.y) % __colors.count]
             Render.dbgColor(color)
 
@@ -601,7 +602,7 @@ class BSPer {
         // Render the graph
         Render.dbgColor(0xFFFFFFFF)
         for(node in __graph.keys) {
-            var from : Rect = __rooms[node]
+            var from : Rect = Level.rooms[node]
             var fromPos : Vec2 = Level.calculatePos(
             from.from.x + (from.to.x - from.from.x) / 2,
             from.from.y + (from.to.y - from.from.y) / 2)
@@ -611,7 +612,7 @@ class BSPer {
             Render.dbgText("%(node)-%(connections)-%(distance)", fromPos.x, fromPos.y, 1)
 
             for(to in __graph[node]) {
-                var to : Rect = __rooms[to]
+                var to : Rect = Level.rooms[to]
                 var toPos = Level.calculatePos(
                     to.from.x + (to.to.x - to.from.x) / 2,
                     to.from.y + (to.to.y - to.from.y) / 2)
