@@ -51,6 +51,10 @@ def find_xs_exe(repo_root: Path) -> Path | None:
         candidate = repo_root / "build" / "xs"
         if candidate.exists():
             return candidate
+        # CLion default
+        candidate = repo_root / "cmake-build-debug" / "xs"
+        if candidate.exists():
+            return candidate
         # Fallback: installed on PATH
         found = shutil.which("xs")
         if found:
