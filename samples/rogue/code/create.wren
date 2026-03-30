@@ -97,6 +97,7 @@ class Create {
         entity.add(spr)
         entity.tag = type
         entity.name = __monsterNames[type] + " " + Create.nextID.toString
+        entity.enabled=false
         return entity
     }
 

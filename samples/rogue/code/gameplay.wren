@@ -387,6 +387,8 @@ class Monster is Character {
 
     /// Single monster turn logic
     turn() {
+        if(!enabled) return
+
         var dir = getDirection()                                                         
         if(dir >= 0) {
             _direction = Directions[dir]
@@ -495,6 +497,12 @@ class Monster is Character {
     }
  }
 
+ class Visibility {
+    static hidden { 0 }
+    static visited { 1 }
+    static visible { 2 }
+ }
+
 /// Combines level and character logic to create the gameplay
 class Gameplay {
     static playerTurn   { 1 }
@@ -536,8 +544,9 @@ class Gameplay {
 
         __message = "A hero is born"
         __timer = Data.getNumber("Message Time", Data.game)    
-        __visibility = Grid.new(Level.width, Level.height, false)
+        __visibility = Grid.new(Level.width, Level.height, Visibility.hidden)
         __ui = UI.new()
+        __room = null
     }    
 
     static update(dt) {
@@ -555,6 +564,38 @@ class Gameplay {
                 if(Monster.turn()) {
                     __state = Gameplay.playerTurn
                 }            
+            }
+        }
+
+    
+        var room = getCurrentRoom()
+        if(room != null) __room = room 
+        enableEntitiesInCurrentRoom()
+    }
+
+    static getCurrentRoom() {
+        var hero: Entity = Hero.hero.owner
+        var tile: Tile = hero.get(Tile)
+
+        for(r: Rect in Level.rooms) {
+            if(r.contains(tile)) {
+                return r
+            }
+        }
+        return null
+    }
+
+    static enableEntitiesInCurrentRoom() {
+        var hero: Entity = Hero.hero.owner
+        var tile: Tile = hero.get(Tile)
+
+        if(__room != null) {
+            var entities = Entity.withTagOverlap(Type.enemy)
+            for(e in entities) {
+                var t = e.get(Tile)
+                if(t != null && __room.contains(t)) {
+                    e.enabled = true
+                }
             }
         }
     }
@@ -600,34 +641,56 @@ class Gameplay {
             var hero: Entity = Hero.hero.owner
             var tile: Tile = hero.get(Tile)
 
-            var room: Rect = null
-            for(r: Rect in Level.rooms) {
-                if(r.contains(tile)) {
-                    room = r
-                    break
+            // Reset visibility of all tiles to visited if they are currently visible
+            for(x in 0...Level.width) {
+                for(y in 0...Level.height) {
+                    if(__visibility[x, y] == Visibility.visible) {
+                        __visibility[x, y] = Visibility.visited
+                    }
                 }
-            }
-
-            if(room != null) {
-                var from: Vec2 = Vec2.new(room.from.x - 1, room.from.y - 1)
-                var to: Vec2 = Vec2.new(room.to.x + 1, room.to.y + 1)
-                for(x in from.x...to.x) {
-                    for(y in from.y...to.y) {
+            }            
+        
+            // Set visibility of the tiles in the current room to visible
+            if(__room != null) {
+                var level: Rect = Rect.new(0, 0, Level.width, Level.height)
+                var extended = Rect.new(__room.from - Vec2.new(2, 2), __room.to + Vec2.new(2, 2))
+                var room: Rect = extended.interection(level)
+                
+                for(x in room.from.x...room.to.x) {
+                    for(y in room.from.y...room.to.y) {
                         var px = Level.calculatePos(x, y).x
                         var py = Level.calculatePos(x, y).y
                         var r = Level.rendering[x, y]
                         if(r != null) {
-                            __visibility[x, y] = true                            
+                            __visibility[x, y] = Visibility.visible                            
                         }
                     }
                 }                
             }
 
+            // Make a small area around the hero visible even if they are not in a room
+            var radius = Data.getNumber("Render Radius", Data.game)
+            for (x in tile.x - radius...tile.x + radius) {
+                for (y in tile.y - radius...tile.y + radius) {
+                    if(Level.gameplay.valid(x, y)) {
+                        var px = Level.calculatePos(x, y).x
+                        var py = Level.calculatePos(x, y).y
+                        var r = Level.rendering[x, y]
+                        if(r != null) {
+                            __visibility[x, y] = Visibility.visible
+                        }
+                    }
+                }
+            }
+
+            // Render the level based on the visibility of the tiles
             for(x in 0...Level.width) {
                 for(y in 0...Level.height) {
                     var r = Level.rendering[x, y]
                     if(r == null) continue
-                    var color : Num = __visibility[x, y] ? 0xFFFFFFFF : 0xFFFFFFAA
+                    var color : Num = 0xFFFFFF00
+                    if(__visibility[x, y] == Visibility.visited) color = 0xFFFFFF50
+                    if(__visibility[x, y] == Visibility.visible) color = 0xFFFFFFFF
                     var px = Level.calculatePos(x, y).x
                     var py = Level.calculatePos(x, y).y
                     var t = Level.gameplay[x, y]
