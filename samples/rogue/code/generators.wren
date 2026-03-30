@@ -530,8 +530,7 @@ class BSPer {
         center.y = center.y.round
         var pos = findFree(room)
         Create.hero(pos.x, pos.y)
-        Crea
-
+        
         // Get the distance from the hero to all other rooms
         __distances = {}
         var visited = List.new()

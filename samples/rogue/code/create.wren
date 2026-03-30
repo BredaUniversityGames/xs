@@ -24,8 +24,7 @@ class Create {
             Type.crusader: "Crusader",
             Type.dragon: "Dragon",
             Type.ogre: "Ogre",
-            Type.slime: "Slime",
-            Type.dreadtome: "Dreadtome"
+            Type.slime: "Slime"
         }
         __monsterStats = {
             Type.mage: Stats.new(1, 1, 0, 0.4),
@@ -35,8 +34,7 @@ class Create {
             Type.crusader: Stats.new(1, 1, 1, 0.4),
             Type.dragon: Stats.new(5, 2, 0, 0.8),
             Type.ogre: Stats.new(3, 1, 0, 0.7),
-            Type.slime: Stats.new(1, 1, 0, 0.3),
-            Type.dreadtome: Stats.new(2, 1, 2, 0.5)
+            Type.slime: Stats.new(1, 1, 0, 0.3)
         }
         __itemNames = {
             Type.helmet: "Helmet",
@@ -117,8 +115,6 @@ class Create {
         entity.add(s)
         return entity
     }
-
-    static entrance(x, y) {
 
     static background() {
         var entity = Entity.new()
