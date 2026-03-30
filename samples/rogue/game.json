@@ -53,7 +53,7 @@
     },
     "Render Radius": {
         "type": "number",
-        "value": 6.0
+        "value": 2.0
     },
     "Render.Camera Offset": {
         "type": "number",

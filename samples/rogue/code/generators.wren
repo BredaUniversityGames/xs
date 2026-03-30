@@ -284,12 +284,34 @@ class RandomWalk {
 
 
 class Rect {
+    construct new(fromx: Num, fromy: Num, tox: Num, toy: Num) {
+        _from = Vec2.new(fromx, fromy)
+        _to = Vec2.new(tox, toy)
+    }
+
     construct new(from: Vec2, to: Vec2) {
         _from = from
         _to = to
     }
 
+    construct new(other: Rect) {
+        _from = other.from
+        _to = other.to
+     }
+
     toString { "[%(from.x),%(from.y)]-[%(to.x),%(to.y)]" }
+
+    interection(other) -> Rect {
+        var fromx = _from.x.max(other.from.x)
+        var fromy = _from.y.max(other.from.y)
+        var tox = _to.x.min(other.to.x)
+        var toy = _to.y.min(other.to.y)
+        if(fromx < tox && fromy < toy) {
+            return Rect.new(Vec2.new(fromx, fromy), Vec2.new(tox, toy))
+        } else {
+            return null
+        }
+    }
 
     // Point or tile
     contains(point) -> Bool {
