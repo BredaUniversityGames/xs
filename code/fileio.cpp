@@ -238,7 +238,7 @@ void fileio::internal::load_project_settings()
 	else log::error("Could not find the game project.json file.");
 }
 
-#if !defined(PLATFORM_NX)
+#if !defined(PLATFORM_SWITCH)
 
 // Default resolve_package_path: just return the path as-is
 // macOS overrides this in fileio_apple.mm to try bundle-relative paths
