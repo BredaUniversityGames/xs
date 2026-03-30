@@ -1,0 +1,30 @@
+{
+    "Device.Width": {
+        "type": "number",
+        "value": 256.0
+    },
+    "Device.Height": {
+        "type": "number",
+        "value": 256.0
+    },
+    "Device.Title": {
+        "type": "string",
+        "value": "Forest"
+    },
+    "Device.Multiplier": {
+        "type": "number",
+        "value": 1.0
+    },
+    "Render.TextureFilter": {
+        "type": "bool",
+        "value": false
+    },
+    "Render.SnapToPixels": {
+        "type": "bool",
+        "value": false
+    },
+    "Main": {
+        "type": "string",
+        "value": "code/game.wren"
+    }
+}
