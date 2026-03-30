@@ -3,17 +3,25 @@
         "type": "number",
         "value": 3.0
     },
-    "BSP Max Room Size": {
+    "BSP.Max Room Size": {
         "type": "number",
         "value": 15.0
     },
-    "Enemy Color": {
-        "type": "color",
-        "value": 4278231807
+    "Debug.Draw": {
+        "type": "bool",
+        "value": false
     },
-    "From Color": {
-        "type": "color",
-        "value": 184570111
+    "Debug.Long Brake": {
+        "type": "number",
+        "value": 0.019999999552965164
+    },
+    "Debug.Short Brake": {
+        "type": "number",
+        "value": 0.029999999329447746
+    },
+    "Debug.Visualize Generation": {
+        "type": "bool",
+        "value": false
     },
     "Hero Damage": {
         "type": "number",
@@ -23,21 +31,13 @@
         "type": "number",
         "value": 100.0
     },
-    "Item Color": {
-        "type": "color",
-        "value": 16721151
-    },
     "Level Height": {
         "type": "number",
-        "value": 24.0
+        "value": 21.0
     },
     "Level Width": {
         "type": "number",
-        "value": 46.0
-    },
-    "Long Brake": {
-        "type": "number",
-        "value": 0.019999999552965164
+        "value": 35.0
     },
     "Message Time": {
         "type": "number",
@@ -63,20 +63,16 @@
         "type": "number",
         "value": 0.003000000026077032
     },
-    "Player Color": {
-        "type": "color",
-        "value": 4294066175
-    },
-    "Short Brake": {
+    "Render Radius": {
         "type": "number",
-        "value": 0.029999999329447746
+        "value": 2.0
+    },
+    "Render.Camera Offset": {
+        "type": "number",
+        "value": 12.0
     },
     "Tile Size": {
         "type": "number",
         "value": 8.0
-    },
-    "To Color": {
-        "type": "color",
-        "value": 117454847
     }
 }

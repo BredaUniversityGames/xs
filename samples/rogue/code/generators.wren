@@ -11,8 +11,8 @@ class SingleRoom {
 
     static generate(){
         //get some data that we will use later
-        var shortBrake = Data.getNumber("Short Brake")
-        var longBrake = Data.getNumber("Long Brake")
+        var shortBrake = Data.getNumber("Debug.Short Brake")
+        var longBrake = Data.getNumber("Debug.Long Brake")
         var width = Level.width
         var height = Level.height
 
@@ -58,8 +58,8 @@ class Randy {
     static generate() {
         var random = Random.new()
         var level = 9
-        var shortBrake = Data.getNumber("Short Brake")
-        var longBrake = Data.getNumber("Long Brake")
+        var shortBrake = Data.getNumber("Debug.Short Brake")
+        var longBrake = Data.getNumber("Debug.Long Brake")
         var width = Level.width
         var height = Level.height
 
@@ -205,7 +205,7 @@ class RandomWalk {
     }
     
     static postProcess() {
-        var brake = Data.getNumber("Short Brake")
+        var brake = Data.getNumber("Debug.Short Brake")
         var rem = []        
         for (x in 0...Level.width) {
             for (y in 0...Level.height) {
@@ -284,14 +284,37 @@ class RandomWalk {
 
 
 class Rect {
-    construct new(from, to) {
+    construct new(fromx: Num, fromy: Num, tox: Num, toy: Num) {
+        _from = Vec2.new(fromx, fromy)
+        _to = Vec2.new(tox, toy)
+    }
+
+    construct new(from: Vec2, to: Vec2) {
         _from = from
         _to = to
     }
 
+    construct new(other: Rect) {
+        _from = other.from
+        _to = other.to
+     }
+
     toString { "[%(from.x),%(from.y)]-[%(to.x),%(to.y)]" }
 
-    contains(point) {
+    interection(other) -> Rect {
+        var fromx = _from.x.max(other.from.x)
+        var fromy = _from.y.max(other.from.y)
+        var tox = _to.x.min(other.to.x)
+        var toy = _to.y.min(other.to.y)
+        if(fromx < tox && fromy < toy) {
+            return Rect.new(Vec2.new(fromx, fromy), Vec2.new(tox, toy))
+        } else {
+            return null
+        }
+    }
+
+    // Point or tile
+    contains(point) -> Bool {
         return point.x >= _from.x && point.x <= _to.x && point.y >= _from.y && point.y <= _to.y
     }
 
@@ -304,13 +327,13 @@ class Rect {
 class BSPer {
     static generate() {        
         __random = Random.new()
-        __rooms = []
+        // __rooms = []
         __halls = []
         __colors = [ // Debug colors
             0x4d89f280, 0x2feff980, 0xed3bf980, 0x473bd380,
             0x72ffa180, 0x5c720180, 0xf25ca480, 0xe25dce80]
 
-        var brake = Data.getNumber("Long Brake")
+        var brake = Data.getNumber("Debug.Long Brake")
 
         // Start will walls everywhere
         for (x in 0...Level.width) {
@@ -335,9 +358,9 @@ class BSPer {
 
     // Recurively split the space until is small enough for a 
     static split(from, to) {
-        var shortBrake = Data.getNumber("Short Brake")
-        var longBrake = Data.getNumber("Long Brake")
-        var maxRoomSize = Data.getNumber("BSP Max Room Size")
+        var shortBrake = Data.getNumber("Debug.Short Brake")
+        var longBrake = Data.getNumber("Debug.Long Brake")
+        var maxRoomSize = Data.getNumber("BSP.Max Room Size")
         var padd = 6 // Leave this much on both sides when cutting
         var dx = to.x - from.x
         var dy = to.y - from.y
@@ -356,16 +379,16 @@ class BSPer {
             }
         } else { // Room is small enough
             var rect = Rect.new(from, to)
-            System.print("add room: %(rect)")
-            __rooms.add(rect) // Save room
+            System.print("Add room: %(rect)")
+            Level.rooms.add(rect) // Save room
             Fiber.yield(longBrake)
         }
     }
 
     static makeRooms() {
-        var brake = Data.getNumber("Long Brake")
+        var brake = Data.getNumber("Debug.Long Brake")
         var min = 6 // Don't make small rooms smaller
-        for(room in __rooms) {
+        for(room in Level.rooms) {
             // Room size [dx, dy]
             var dx = room.to.x - room.from.x
             var dy = room.to.y - room.from.y
@@ -385,19 +408,19 @@ class BSPer {
             Fiber.yield(brake)
         }
 
-        System.print("rooms: %(__rooms.count)")
+        System.print("rooms: %(Level.rooms.count)")        
     }
 
     static createGraph() {
         var graph = {}
-        for(i in 0...__rooms.count) {
+        for(i in 0...Level.rooms.count) {
             graph[i] = List.new()
         }
         for(hall in __halls) {
             var from = null
             var to = null
-            for(i in 0...__rooms.count) {
-                var room = __rooms[i]
+            for(i in 0...Level.rooms.count) {
+                var room = Level.rooms[i]
                 if(room.contains(hall.from)) {
                     from = i
                 }
@@ -420,7 +443,7 @@ class BSPer {
     }
 
     static makeHalls() {
-        var brake = Data.getNumber("Long Brake")
+        var brake = Data.getNumber("Debug.Long Brake")
         var newHalls = []
         for(hall in __halls) {
             var dir = hall.to - hall.from
@@ -457,7 +480,7 @@ class BSPer {
     }
 
     static postProcess() {
-        var brake = Data.getNumber("Short Brake")
+        var brake = Data.getNumber("Debug.Short Brake")
         var rem = []
         for (x in 0...Level.width) {
             for (y in 0...Level.height) {
@@ -494,15 +517,15 @@ class BSPer {
 
         // Find the terminal rooms
         var terminalRooms = []
-        for(i in 0...__rooms.count) {
-            var room = __rooms[i]
+        for(i in 0...Level.rooms.count) {
+            var room = Level.rooms[i]
             var count = __graph[i].count    // The graph is bidirectional
             if(count == 1) terminalRooms.add(i)
         }
 
         // Spawn the hero in a random terminal room
         var heroRoom =  __random.sample(terminalRooms)
-        var room = __rooms[heroRoom]
+        var room = Level.rooms[heroRoom]
         var pos = findFree(room)
         Create.hero(pos.x, pos.y)
 
@@ -523,13 +546,13 @@ class BSPer {
             }
         }
 
-        //for(i in 0...__rooms.count) {
+        //for(i in 0...Level.rooms.count) {
         //    
         //
         //}
 
-        var brake = Data.getNumber("Short Brake")
-        for(room in __rooms) {
+        var brake = Data.getNumber("Debug.Short Brake")
+        for(room in Level.rooms) {
             var dx = room.to.x - room.from.x
             var dy = room.to.y - room.from.y
             var area = dx * dy
@@ -566,12 +589,12 @@ class BSPer {
 
 
     static debugRender() {
-        var dbg = Data.getBool("Debug Draw", Data.game)
+        var dbg = Data.getBool("Debug.Draw", Data.game)
         if(!dbg) {
             return
         }
         var off = Vec2.new(Level.tileSize, Level.tileSize) * -0.5
-        for(room in __rooms) {         
+        for(room in Level.rooms) {         
             var color = __colors[(room.from.x + room.from.y + room.to.x + room.to.y) % __colors.count]
             Render.dbgColor(color)
 
@@ -601,7 +624,7 @@ class BSPer {
         // Render the graph
         Render.dbgColor(0xFFFFFFFF)
         for(node in __graph.keys) {
-            var from : Rect = __rooms[node]
+            var from : Rect = Level.rooms[node]
             var fromPos : Vec2 = Level.calculatePos(
             from.from.x + (from.to.x - from.from.x) / 2,
             from.from.y + (from.to.y - from.from.y) / 2)
@@ -611,7 +634,7 @@ class BSPer {
             Render.dbgText("%(node)-%(connections)-%(distance)", fromPos.x, fromPos.y, 1)
 
             for(to in __graph[node]) {
-                var to : Rect = __rooms[to]
+                var to : Rect = Level.rooms[to]
                 var toPos = Level.calculatePos(
                     to.from.x + (to.to.x - to.from.x) / 2,
                     to.from.y + (to.to.y - to.from.y) / 2)

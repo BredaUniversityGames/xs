@@ -52,6 +52,11 @@ def create_base_icon(size: int, with_rounding: bool = True):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
     ctx = cairo.Context(surface)
 
+    if with_rounding:
+        # Clip to a rounded rectangle so diagonal strokes do not exceed the icon bounds
+        round_rectangle(ctx, 0, 0, size, size, r)
+        ctx.clip()
+
     ctx.translate(size / 2, size / 2)
     ctx.rotate(math.radians(45))
     ctx.set_line_width(thickness + 2) # slight overlap to avoid gaps  
@@ -151,8 +156,14 @@ def save_generic_icons():
 
     # Save main icon with rounding for generic use
     surface = create_base_icon(256, with_rounding=True)
-    path = os.path.join(output_dir, "ios.png")
+    path = os.path.join(output_dir, "icon.png")
     surface.write_to_png(path)
+
+    surface = create_base_icon(128, with_rounding=True)
+    path = os.path.join(output_dir, "icon_small.png")
+    surface.write_to_png(path)
+
+
     print(f"Generated: {path}")
 
 
@@ -191,11 +202,9 @@ def save_nx_icon():
 
 # Parse command line arguments
 if len(sys.argv) < 2:
-    print("Usage: python logo.py <platform>")
-    print("Platforms: macos, ios, nx, generic")
-    sys.exit(1)
-
-platform = sys.argv[1].lower()
+    platform = "generic"
+else:
+    platform = sys.argv[1].lower()
 
 # Generate icons based on platform
 if platform == "macos":
@@ -207,13 +216,8 @@ elif platform == "ios":
 elif platform == "nx":
     print("Generating Nintendo Switch icon (1024x1024 BMP)...")
     save_nx_icon()
-elif platform == "generic":
+else:
     print("Generating all generic...")
     save_generic_icons()
-
-else:
-    print(f"Unknown platform: {platform}")
-    print("Valid platforms: macos, ios, nx, generic")
-    sys.exit(1)
 
 print("Done!")

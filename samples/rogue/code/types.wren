@@ -14,6 +14,7 @@ class Type {
     static dragon   { 1 << 8 }
     static ogre     { 1 << 9 }
     static dreadtome { 1 << 10 }
+    static slime    { 1 << 19 }
 
     // Items
     static door     { 1 << 11 }

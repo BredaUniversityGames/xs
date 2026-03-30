@@ -10,6 +10,7 @@
 #include "packager.hpp"
 #include "xs.hpp"
 #include "miniz.h"
+#include "json/json.hpp"
 
 #if defined(PLATFORM_PC) || defined(PLATFORM_MAC)
 #include <filesystem>
@@ -215,3 +216,82 @@ bool xs::fileio::has_wildcard(const string& wildcard)
 {
 	return internal::wildcards.find(wildcard) != internal::wildcards.end();
 }
+
+void fileio::internal::load_project_settings()
+{
+	if (exists("[game]/project.json"))
+	{
+		auto settings_str = read_text_file("[game]/project.json");
+		if (!settings_str.empty())
+		{
+			auto settings = nlohmann::json::parse(settings_str);
+			if (settings.find("Main") != settings.end())
+			{
+				auto main = settings["Main"]["value"];
+				if (main.is_string())
+					add_wildcard("[main]", main.get<string>());
+			}
+			else log::error("Could not find the 'main' in the game project.json file.");
+		}
+		else log::error("Could not read project.json file.");
+	}
+	else log::error("Could not find the game project.json file.");
+}
+
+#if !defined(PLATFORM_NX)
+
+// Default resolve_package_path: just return the path as-is
+// macOS overrides this in fileio_apple.mm to try bundle-relative paths
+#if !defined(PLATFORM_MAC)
+string fileio::internal::resolve_package_path(const string& game_path)
+{
+	return game_path;
+}
+#endif
+
+void fileio::initialize(const std::string& game_path)
+{
+	// [user]
+	auto user_path = internal::get_user_path();
+	if (!fs::exists(user_path))
+		fs::create_directories(user_path);
+	add_wildcard("[user]", user_path);
+
+	// [save]
+	auto save_path = (fs::path(user_path) / "save").string();
+	if (!fs::exists(save_path))
+		fs::create_directories(save_path);
+	add_wildcard("[save]", save_path);
+
+	// [game]
+	bool success = false;
+	if (!game_path.empty())
+	{
+		if (xs::get_run_mode() == xs::run_mode::development ||
+			xs::get_run_mode() == xs::run_mode::packaging)
+		{
+			string resolved_path = fileio::absolute(game_path);
+			add_wildcard("[game]", resolved_path);
+			log::info("Game folder (from CLI): {} ", resolved_path);
+			success = true;
+		}
+		else if (xs::get_run_mode() == xs::run_mode::packaged)
+		{
+			auto package_path = internal::resolve_package_path(game_path);
+			success = fileio::load_package(package_path);
+		}
+	}
+
+	if (!success)
+		log::warn("No game path resolved.");
+
+	// [main] from project.json
+	internal::load_project_settings();
+
+	// [shared]
+	auto shared = internal::get_shared_path();
+	if (!shared.empty())
+		add_wildcard("[shared]", shared);
+}
+
+#endif // !PLATFORM_NX
