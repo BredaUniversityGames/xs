@@ -122,6 +122,12 @@ class Vec2 {
         _y = y
     }
 
+    /// Creates a vector with the same components as another vector
+    construct new(other: Vec2) {
+        _x = other.x
+        _y = other.y
+    }
+
     /// Gets the x component
     x -> Num { _x }
     /// Gets the y component

@@ -1,5 +1,4 @@
 #include "render.hpp"
-#include "render.hpp"
 #include "render_apple.h"
 #include "render_internal.hpp"
 #include "configuration.hpp"
@@ -32,13 +31,8 @@ namespace xs::render
 {
     id<MTLDevice> _device;
 
-    //id<MTLRenderPipelineState> _pipelineStateDescriptor;
-
     // The render pipeline generated from the vertex and fragment shaders in the .metal shader file.
     id<MTLRenderPipelineState> _pipelineState;
-
-    // The command queue used to pass commands to the device.
-    // id<MTLCommandQueue> _commandQueue;
 
     // The current size of the view, used as an input to the vertex shader.
     vector_uint2 _viewportSize;
