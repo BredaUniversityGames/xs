@@ -128,7 +128,7 @@ class Game {
         Render.setOffset(-__camera.x.round, -__camera.y.round)
 
         for (tx in (camTileX - 9)..(camTileX + 8)) {
-            for (ty in (camTileY - 9)..(camTileY + 8)) {
+            for (ty in (camTileY - 5)..(camTileY + 4)) {
                 var wx = tx * tileSize
                 var wy = ty * tileSize
 
@@ -142,7 +142,7 @@ class Game {
                     Render.sprite(__largePropSprites[rng.int(__largePropSprites.count)], wx, wy, -wy + 0.1)
                 } else if (roll < 0.55) {
                     Render.sprite(__propSprites[rng.int(__propSprites.count)], wx, wy, -wy + 0.1)
-                }
+                }                
             }
         }
 
