@@ -25,7 +25,7 @@ class Decorator {
             var gs = Render.createGridSprite(tilest, rows, cols, i)
             tiles.add(gs)
         }
-
+        
         // Manual mapping: mask value -> sprite indices (can be multiple options)
         var bottom = [3, 7, 11, 34, 36, 38, 40, 42, 44]
         var middle = [18, 20, 22, 24, 26, 28]
@@ -90,7 +90,7 @@ class Decorator {
                     // System.print("Tile [%(x),%(y)] type=%(tileType) mask=%(mask) sprite=%(spriteIndex)")
                 } 
             }
-            Fiber.yield(0.0)
+            Fiber.yield(shortBrake)
         }
 
         return 0.0

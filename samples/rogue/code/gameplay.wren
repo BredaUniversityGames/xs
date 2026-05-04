@@ -294,13 +294,16 @@ class Character is Component {
                 var hit = Tools.random.float(0.0, 1.0) < hitChance
                 if(hit) {
                     stats.health = stats.health - _stats.damage
-                    Gameplay.message =  "%(owner.name) deals %(_stats.damage) damage to %(t.owner.name)"
+                    //Gameplay.message =  "%(owner.name) deals %(_stats.damage) damage to %(t.owner.name)"
+                    Gameplay.message = "-1"
                 } else {
-                    Gameplay.message = "%(owner.name) misses %(t.owner.name)"
+                    //Gameplay.message = "%(owner.name) misses %(t.owner.name)"
+                    Gameplay.message = "miss"
                 }
 
                 if(stats.health <= 0) {
-                    Gameplay.message = "%(owner.name) kills %(t.owner.name)"
+                    //Gameplay.message = "%(owner.name) kills %(t.owner.name)"
+                    Gameplay.message = "dead"
                     t.owner.delete()
                     if(Tools.random.float(0.0, 1.0) < stats.drop) Create.item(x, y)                    
                 }
@@ -471,25 +474,40 @@ class Monster is Character {
         var icons : Num = Render.loadImage("[game]/assets/monochrome.png")        
         _heart = Render.createGridSprite(icons, 49, 22, 532)
         _armor = Render.createGridSprite(icons, 49, 22, 236)
-        _sword = Render.createGridSprite(icons, 49, 22, 326)
+        _sword = Render.createGridSprite(icons, 49, 22, 326)        
+        _hs = 1.0
+        _as = 1.0
+        _ss = 1.0
     }
 
     render() {
+        if(_oldStats == null) _oldStats = Stats.new(0, 0, 0, 0)
         var hero = Hero.hero
         var stats = hero.owner.get(Stats)
-        // var message = "Health: %(stats.health)  Damage: %(stats.damage)  Armor: %(stats.armor)"
+        var color: Num = Data.getColor("UI.Color", Data.game)
+        var scaleUp: Num = Data.getNumber("UI.Scale Up", Data.game)
 
+        if(stats.health != _oldStats.health) _hs = scaleUp
+        if(stats.armor != _oldStats.armor) _as = scaleUp
+        if(stats.damage != _oldStats.damage) _ss = scaleUp
+        
         // Health
-        Render.sprite(_heart, -160, 70, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
-        Render.text(_font, "%(stats.health)", -160, 50, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+        Render.sprite(_heart, -160, 70, 0.0, _hs, 0.0, color, 0x0, Render.spriteCenter)
+        Render.text(_font, "%(stats.health)", -160, 50, 1.0, color, 0x0, Render.spriteCenter)
 
         // Armor
-        Render.sprite(_armor, -160, 20, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
-        Render.text(_font, "%(stats.armor)", -160, 0, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+        Render.sprite(_armor, -160, 20, 0.0, _as, 0.0, color, 0x0, Render.spriteCenter)
+        Render.text(_font, "%(stats.armor)", -160, 0, 1.0, color, 0x0, Render.spriteCenter)
 
         // Damage
-        Render.sprite(_sword, -160, -30, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
-        Render.text(_font, "%(stats.damage)", -160, -50, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+        Render.sprite(_sword, -160, -30, 0.0, _ss, 0.0, color, 0x0, Render.spriteCenter)
+        Render.text(_font, "%(stats.damage)", -160, -50, 1.0, color, 0x0, Render.spriteCenter)
+
+        // Copy current stats to old stats for the next frame
+        _hs = Math.damp(_hs, 1.0, 10.0, 0.016)
+        _as = Math.damp(_as, 1.0, 10.0, 0.016)
+        _ss = Math.damp(_ss, 1.0, 10.0, 0.016)
+        _oldStats = stats.clone()
     }
  }
 
@@ -506,7 +524,7 @@ class Gameplay {
 
     static initialize() {
         __state = playerTurn
-        __font = Render.loadFont("[game]/assets/FutilePro.ttf", 14)
+        __font = Render.loadFont("[game]/assets/FutilePro.ttf", 7)
 
         var preview = Render.loadImage("[game]/assets/tileset.png")
         var r = 16
@@ -572,11 +590,11 @@ class Gameplay {
         var tile: Tile = hero.get(Tile)
 
         if(__room != null) {
-            var entities = Entity.withTagOverlap(Type.enemy)
+            var entities = Entity.entities
             for(e in entities) {
                 var t = e.get(Tile)
-                if(t != null && __room.contains(t)) {
-                    e.enabled = true
+                if(t != null) {
+                    if(__room.contains(t)) e.enabled = true
                 }
             }
         }
@@ -621,9 +639,9 @@ class Gameplay {
         }
     }  
 
-    static render() {        
-        System.print("Rendering gameplay")
+    static render() {
         if(Hero.hero) {
+
             var hero: Entity = Hero.hero.owner
             var tile: Tile = hero.get(Tile)
 
@@ -662,7 +680,8 @@ class Gameplay {
                         var px = Level.calculatePos(x, y).x
                         var py = Level.calculatePos(x, y).y
                         var r = Level.rendering[x, y]
-                        if(r != null) {
+                        var d = (tile.x - x).abs + (tile.y - y).abs // Manhattan distance                            
+                        if(d <= radius && r != null) {
                             __visibility[x, y] = Visibility.visible
                         }
                     }
@@ -675,7 +694,7 @@ class Gameplay {
                     var r = Level.rendering[x, y]
                     if(r == null) continue
                     var color : Num = 0xFFFFFF00
-                    if(__visibility[x, y] == Visibility.visited) color = 0xFFFFFF50
+                    if(__visibility[x, y] == Visibility.visited) color = 0xFFFFFF40
                     if(__visibility[x, y] == Visibility.visible) color = 0xFFFFFFFF
                     var px = Level.calculatePos(x, y).x
                     var py = Level.calculatePos(x, y).y
@@ -684,6 +703,7 @@ class Gameplay {
                 }
             }
 
+        
             // Render the tiles around the hero
             /* 
             var radius = Data.getNumber("Render Radius", Data.game)
@@ -699,6 +719,12 @@ class Gameplay {
                 }
             }
             */
+
+            if(__message != "") {
+                var pos : Vec2 = Vec2.new(Hero.hero.owner.get(Transform).position)
+                pos.y = pos.y + 10
+                Render.text(__font, __message, pos.x, pos.y, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+            }
 
             __ui.render()
         }        

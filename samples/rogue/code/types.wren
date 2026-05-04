@@ -11,10 +11,10 @@ class Type {
     static ghost    { 1 << 5 }
     static knight   { 1 << 6 }
     static crusader { 1 << 7 } 
-    static dragon   { 1 << 8 }
-    static ogre     { 1 << 9 }
-    static tome     { 1 << 10 }
-    static slime    { 1 << 11 }
+    static slime    { 1 << 8 }
+    static dragon   { 1 << 9 }
+    static ogre     { 1 << 10 }
+    static tome     { 1 << 11 }    
 
     // Items
     static door     { 1 << 12 }

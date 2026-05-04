@@ -41,7 +41,7 @@
     },
     "Render.Postprocess.Enabled": {
         "type": "bool",
-        "value": false
+        "value": true
     },
     "Render.Postprocess.Phosphor": {
         "type": "bool",

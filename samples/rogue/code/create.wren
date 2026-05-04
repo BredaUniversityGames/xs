@@ -22,9 +22,9 @@ class Create {
             Type.ghost: "Ghost",
             Type.knight: "Knight",
             Type.crusader: "Crusader",
+            Type.slime: "Slime",
             Type.dragon: "Dragon",
-            Type.ogre: "Ogre",
-            Type.slime: "Slime"
+            Type.ogre: "Ogre"           
         }
         __monsterStats = {
             Type.mage: Stats.new(1, 1, 0, 0.4),
@@ -32,15 +32,15 @@ class Create {
             Type.ghost: Stats.new(2, 1, 0, 0.6),
             Type.knight: Stats.new(4, 1, 0, 1),
             Type.crusader: Stats.new(1, 1, 1, 0.4),
+            Type.slime: Stats.new(2, 1, 0, 0.8),
             Type.dragon: Stats.new(5, 2, 0, 0.8),
-            Type.ogre: Stats.new(3, 1, 0, 0.7),
-            Type.slime: Stats.new(1, 1, 0, 0.3)
+            Type.ogre: Stats.new(3, 1, 0, 0.7)            
         }
         __itemNames = {
             Type.helmet: "Helmet",
             Type.armor: "Armor",
             Type.sword: "Sword",
-            Type.food: "Food"                        
+            Type.food: "Food"
         }
         __itemStats = {
             Type.helmet: Stats.new(0, 0, 1, 0),
@@ -84,8 +84,8 @@ class Create {
         var m = Monster.new()
         entity.add(m)
         var type = Tools.pickOne([
-            Type.mage, Type.skeleton, Type.ghost, Type.knight, 
-            Type.crusader, Type.slime])
+            Type.mage, Type.skeleton, Type.ghost,
+            Type.knight, Type.crusader, Type.slime])
         var s = __monsterStats[type].clone()
         entity.add(s)
         var spr = AnimatedSprite.new("[game]/assets/tileset.xsanim")
@@ -111,6 +111,17 @@ class Create {
             Type.helmet, Type.armor, Type.sword, Type.food])
         entity.tag = type
         entity.name = __itemNames[type] + " " + Create.nextID.toString
+        var set = {
+            Type.helmet : 108,
+            Type.armor: 107,
+            Type.sword: 102,
+            Type.food: 100
+        }
+        var gs : GridSprite = GridSprite.new("[game]/assets/tileset.png", 16, 16)
+        gs.idx = set[type]
+        gs.layer = 100.0
+        gs.flags = Render.spriteCenter
+        entity.add(gs)
         var s = __itemStats[type].clone()
         entity.add(s)
         return entity

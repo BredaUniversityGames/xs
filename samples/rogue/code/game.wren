@@ -50,7 +50,7 @@ class Game {
         __genFiber =  Fiber.new {
             var bg = Create.background()
             __alg.generate()
-            // Decorator.decorate()
+            Decorator.decorate()
             return 0.0 // (time until next step) 0.0 not to crash
         }
     }   
@@ -78,7 +78,7 @@ class Game {
                 if(!__genFiber.isDone) {
                     __time = __genFiber.call()
                 } else {
-                    // __state = Game.playing
+                    __state = Game.playing
                 }
             }
         } else {
