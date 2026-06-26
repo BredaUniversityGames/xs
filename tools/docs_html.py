@@ -21,23 +21,44 @@ class config:
     path = "resources/modules"
     docs_root = "docs"
 
+def getHeaderContent(relative_path):
+    """Generate nav content with correct relative paths.
+    relative_path: '' for root-level pages, '../' for pages in subdirectories like docs/api/
+    """
+    api_link = f"{relative_path}api/index.html" if relative_path == "" else "index.html"
+    return f"""<!-- HEADER_START -->
+  <nav>
+    <a href="{relative_path}index.html" class="nav-logo">
+      <img src="{relative_path}img/xs_logo_animated.svg" alt="xs logo">
+    </a>
+    <ul class="nav-links">
+      <li><a href="{relative_path}index.html" class="logo"><img src="{relative_path}img/xs_icon.svg" alt="xs" class="icon-svg">game engine</a></li>
+      <li><a href="{relative_path}getting-started.html"><i class="fas fa-rocket"></i> getting started</a></li>
+      <li><a href="{api_link}"><i class="fas fa-book"></i> api reference</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs/releases" target="_blank"><i class="fas fa-download"></i> download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> github</a></li>
+    </ul>
+  </nav>
+<!-- HEADER_END -->"""
+
 def getFooterContent(relative_img_path):
     """Generate footer content with correct relative image path"""
-    return f"""  <!-- FOOTER_START -->
+    return f"""<!-- FOOTER_START -->
   <footer>
     <div class="footer-content">
       <a href="https://www.buas.nl/" target="_blank" class="footer-logo-left"><img src="{relative_img_path}buas.png" alt="Breda University of Applied Sciences" class="sponsor-logo"></a>
       <div class="footer-text">
         <p>Crafted at Breda University of Applied Sciences</p>
         <p>The development of xs is supported by an AMD hardware grant</p>
-        <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+        <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://github.com/BredaUniversityGames/xs/releases">Download</a></p>
       </div>
       <a href="https://www.amd.com/" target="_blank" class="footer-logo-right"><img src="{relative_img_path}amd.png" alt="AMD" class="sponsor-logo"></a>
     </div>
   </footer>
-  <!-- FOOTER_END -->"""
+<!-- FOOTER_END -->"""
 
-# Centralized footer content (for generated API docs in docs/api/)
+# Centralized header/footer content for generated API docs in docs/api/ (depth=1)
+HEADER_CONTENT = getHeaderContent("../")
 FOOTER_CONTENT = getFooterContent("../img/")
 
 import re
@@ -291,19 +312,7 @@ def makeHTMLFile(comments, file):
   <link rel="icon" type="image/png" href="../img/icon_tiny.webp">
 </head>
 <body>
-  <!-- Navigation -->
-  <nav>
-    <a href="../index.html" class="nav-logo">
-      <img src="../img/xs_logo_animated.svg" alt="xs logo">
-    </a>
-    <ul class="nav-links">
-      <li><a href="../index.html" class="logo"><img src="../img/xs_icon.svg" alt="xs" class="icon-svg">game engine</a></li>
-      <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> getting started</a></li>
-      <li><a href="index.html"><i class="fas fa-book"></i> api reference</a></li>
-      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> download</a></li>
-      <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> github</a></li>
-    </ul>
-  </nav>
+  {HEADER_CONTENT}
 
   <!-- Main Content -->
   <div class="container api-section">
@@ -427,6 +436,37 @@ def updateAllFooters():
     if updated_count > 0:
         print(f"Updated footer in {updated_count} existing HTML file(s)")
 
+def updateAllHeaders():
+    """Update nav in all HTML files in the docs directory"""
+    docs_path = Path(config.docs_root)
+    html_files = list(docs_path.glob('**/*.html'))
+
+    header_pattern = re.compile(r'<!-- HEADER_START -->.*?<!-- HEADER_END -->', re.DOTALL)
+    updated_count = 0
+
+    for html_file in html_files:
+        try:
+            with open(html_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            if '<!-- HEADER_START -->' in content and '<!-- HEADER_END -->' in content:
+                relative_to_docs = html_file.relative_to(docs_path)
+                depth = len(relative_to_docs.parts) - 1
+
+                relative_path = "../" if depth > 0 else ""
+                header_content = getHeaderContent(relative_path)
+                new_content = header_pattern.sub(header_content, content)
+
+                if new_content != content:
+                    with open(html_file, 'w', encoding='utf-8') as f:
+                        f.write(new_content)
+                    updated_count += 1
+        except Exception as e:
+            print(f"Warning: Could not update header in {html_file}: {e}")
+
+    if updated_count > 0:
+        print(f"Updated header in {updated_count} existing HTML file(s)")
+
 def main():
     files = getFiles(config.path)
     total = 0
@@ -437,7 +477,8 @@ def main():
             total += len(comments)
             makeHTMLFile(comments, file)
 
-    # Update footers in all HTML files
+    # Update headers and footers in all HTML files
+    updateAllHeaders()
     updateAllFooters()
 
     print(f"\\nJobs Done! Found {len(files)} files, parsed {total} comments.")
