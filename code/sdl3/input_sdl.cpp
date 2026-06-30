@@ -331,7 +331,7 @@ int xs::input::get_usb_scancode(int key)
 	//case KEY_RIGHTBRACKET: scanout = SDL_SCANCODE_RIGHTBRACKET; break;
 	//case KEY_GRAVE: scanout = SDL_SCANCODE_GRAVE; break;
 	case KEY_ESCAPE: scanout = SDL_SCANCODE_ESCAPE; break;
-	//case KEY_RETURN: scanout = SDL_SCANCODE_RETURN; break;
+	case KEY_ENTER: scanout = SDL_SCANCODE_RETURN; break;
 	case KEY_TAB: scanout = SDL_SCANCODE_TAB; break;
 	case KEY_BACKSPACE: scanout = SDL_SCANCODE_BACKSPACE; break;
 	case KEY_INSERT: scanout = SDL_SCANCODE_INSERT; break;
