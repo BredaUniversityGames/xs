@@ -16,7 +16,7 @@
   <link rel="icon" type="image/png" href="../img/icon_tiny.webp">
 </head>
 <body>
-  <!-- Navigation -->
+  <!-- HEADER_START -->
   <nav>
     <a href="../index.html" class="nav-logo">
       <img src="../img/xs_logo_animated.svg" alt="xs logo">
@@ -25,10 +25,11 @@
       <li><a href="../index.html" class="logo"><img src="../img/xs_icon.svg" alt="xs" class="icon-svg">game engine</a></li>
       <li><a href="../getting-started.html"><i class="fas fa-rocket"></i> getting started</a></li>
       <li><a href="index.html"><i class="fas fa-book"></i> api reference</a></li>
-      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs/releases" target="_blank"><i class="fas fa-download"></i> download</a></li>
       <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> github</a></li>
     </ul>
   </nav>
+<!-- HEADER_END -->
 
   <!-- Main Content -->
   <div class="container api-section">
@@ -64,40 +65,40 @@
 <p>This prevents memory leaks from circular references</p>
 </div>
 
-<h3><code>update(dt)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L37" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>update(dt: Num)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L37" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Called once per frame with delta time in seconds</p>
 <p>Put your game logic here - this is only called when the component is enabled</p>
 <p>dt is typically 1/60 (0.0166...) for 60 FPS</p>
 </div>
 
-<h3><code>owner</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L40" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>owner -&gt; Entity</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L40" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the Entity object that owns this component</p>
 </div>
 
-<h3><code>owner=(o)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L43" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>owner=(o: Entity)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L43" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the owner (used internally by Entity)</p>
 </div>
 
-<h3><code>enabled</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L47" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>enabled -&gt; Bool</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L47" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if the component is enabled</p>
 <p>If not enabled, the update() function will not be called</p>
 </div>
 
-<h3><code>enabled=(e)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L50" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>enabled=(e: Bool)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L50" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the enabled state of the component</p>
 </div>
 
-<h3><code>initialized_</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L53" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>initialized_ -&gt; Bool</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L53" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the initialized state (used internally by Entity)</p>
 </div>
 
-<h3><code>initialized_=(i)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L56" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>initialized_=(i: Bool)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L56" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the initialized state (used internally by Entity)</p>
 </div>
@@ -116,7 +117,7 @@
 <p>The entity won&#x27;t appear in Entity.entities until the next frame</p>
 </div>
 
-<h3><code>add(component)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L79" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>add(component: Component) -&gt; Component</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L79" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Adds a component to the entity</p>
 <p>The component must be a subclass of Component</p>
@@ -136,12 +137,12 @@
 <p>The component&#x27;s finalize() method will be called before removal</p>
 </div>
 
-<h3><code>components</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L128" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>components -&gt; Sequence</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L128" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets all components attached to this entity</p>
 </div>
 
-<h3><code>deleted</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L132" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>deleted -&gt; Bool</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L132" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Checks if the entity is marked for deletion</p>
 <p>If true, you should set any references to this entity to null to avoid accessing deleted entities</p>
@@ -153,27 +154,27 @@
 <p>All components will have their finalize() methods called before the entity is removed</p>
 </div>
 
-<h3><code>name</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L139" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>name -&gt; String</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L139" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the name of the entity (useful for debugging)</p>
 </div>
 
-<h3><code>name=(n)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L141" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>name=(n: String)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L141" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the name of the entity</p>
 </div>
 
-<h3><code>tag</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L144" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>tag -&gt; Num</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L144" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets the tag (used as a bitflag when filtering entities)</p>
 </div>
 
-<h3><code>tag=(t)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L146" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>tag=(t: Num)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L146" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the tag</p>
 </div>
 
-<h3><code>enabled=(e)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L149" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>enabled=(e: Bool)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L149" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the enabled state of all components</p>
 </div>
@@ -185,7 +186,7 @@
 <p>Example: Entity.initialize()</p>
 </div>
 
-<h3><code>static update(dt)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L167" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static update(dt: Num)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L167" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Updates all entities and their components - MUST be called every frame</p>
 <p>Call this from your game&#x27;s update(dt) method</p>
@@ -193,40 +194,40 @@
 <p>Example: Entity.update(dt)</p>
 </div>
 
-<h3><code>static withTag(tag)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L206" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static withTag(tag: Num) -&gt; List</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L206" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets all entities where the tag matches exactly with the given tag (using bitwise AND)</p>
 <p>Use this when you need entities with ALL specified tag bits set</p>
 </div>
 
-<h3><code>static withTagOverlap(tag)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L218" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static withTagOverlap(tag: Num) -&gt; List</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L218" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets all entities where the tag has ANY bit overlap with the given tag</p>
 <p>Use this when you need entities with at least one matching tag bit</p>
 </div>
 
-<h3><code>static withoutTagOverlap(tag)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L229" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static withoutTagOverlap(tag: Num) -&gt; List</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L229" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets all entities where the tag does not have bit overlap with the given tag</p>
 </div>
 
-<h3><code>static setEnabled(tag, enabled)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L240" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static setEnabled(tag: Num, enabled: Bool)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L240" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Sets the enabled state for all entities with matching tag overlap</p>
 </div>
 
-<h3><code>static entities</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L251" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static entities -&gt; List</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L251" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Gets all entities active in the system</p>
 </div>
 
-<h3><code>static inspect(filter)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L255" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>static inspect(filter: String)</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L255" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Displays entity inspector UI with filtering (called from C++ inspector)</p>
 <p>filter: string to filter entities by name or tag</p>
 </div>
 
-<h3><code>toString</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L322" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
+<h3><code>toString -&gt; String</code> <a href="https://github.com/BredaUniversityGames/xs/blob/main/resources/modules/xs/ec.wren#L322" style="font-size: 0.7em; opacity: 0.6;">↗</a></h3>
 <div class="api-method">
 <p>Returns a string representation of this entity</p>
 </div>
@@ -278,19 +279,19 @@
 
   </div>
 
-    <!-- FOOTER_START -->
+<!-- FOOTER_START -->
   <footer>
     <div class="footer-content">
       <a href="https://www.buas.nl/" target="_blank" class="footer-logo-left"><img src="../img/buas.png" alt="Breda University of Applied Sciences" class="sponsor-logo"></a>
       <div class="footer-text">
         <p>Crafted at Breda University of Applied Sciences</p>
         <p>The development of xs is supported by an AMD hardware grant</p>
-        <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+        <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://github.com/BredaUniversityGames/xs/releases">Download</a></p>
       </div>
       <a href="https://www.amd.com/" target="_blank" class="footer-logo-right"><img src="../img/amd.png" alt="AMD" class="sponsor-logo"></a>
     </div>
   </footer>
-  <!-- FOOTER_END -->
+<!-- FOOTER_END -->
 
   <!-- JavaScript -->
   <script src="../js/main.js"></script>

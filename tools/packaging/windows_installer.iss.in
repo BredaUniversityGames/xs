@@ -1,0 +1,113 @@
+; xs CLI - Inno Setup template
+; Rendered by build_installer.py: @TOKEN@ markers are replaced before ISCC runs.
+; @...@ is used (not {{...}}) because Inno itself uses {{ as an escaped brace,
+; e.g. the AppId line below. Single-brace { } inside [Code] are Pascal comments.
+
+#define AppName        "@APP_NAME@"
+#define AppVersion     "@APP_VERSION@"
+#define AppPublisher   "@PUBLISHER@"
+#define AppExeName     "@EXE_NAME@"
+#define BundleDir      "@BUNDLE_DIR@"
+
+[Setup]
+; AppId MUST stay constant across versions so upgrades replace in place.
+; {{ renders to a literal { ; the trailing } is literal -> value is {GUID}.
+AppId={{@APP_ID@}
+AppName={#AppName}
+AppVersion={#AppVersion}
+AppPublisher={#AppPublisher}
+VersionInfoVersion={#AppVersion}
+
+; Per-user install: no admin prompt, no UAC, no Program Files.
+PrivilegesRequired=lowest
+DefaultDirName={localappdata}\Programs\xs
+DisableProgramGroupPage=yes
+DisableDirPage=yes
+
+; 64-bit only (requires Inno Setup 6.3+ for x64compatible).
+ArchitecturesAllowed=x64compatible
+ArchitecturesInstallIn64BitMode=x64compatible
+
+; We edit PATH in [Code]; this flag makes Setup broadcast WM_SETTINGCHANGE
+; at the end of install AND uninstall so open shells/Explorer refresh PATH.
+ChangesEnvironment=yes
+
+OutputDir=@OUTPUT_DIR@
+OutputBaseFilename=@OUTPUT_BASENAME@
+UninstallDisplayName={#AppName} {#AppVersion}
+UninstallDisplayIcon={app}\bin\{#AppExeName}
+Compression=lzma2
+SolidCompression=yes
+WizardStyle=modern
+
+[Files]
+; Installs the relocatable bundle verbatim: bin\xs.exe + co-located DLLs,
+; lib\, share\xs\, etc. exactly as staged by the Python packaging tool.
+Source: "{#BundleDir}\*"; DestDir: "{app}"; \
+    Flags: recursesubdirs createallsubdirs ignoreversion
+
+[Code]
+const
+  EnvKey = 'Environment';
+
+function PathDir: string;
+begin
+  Result := ExpandConstant('{app}\bin');
+end;
+
+procedure EnvAddPath(Path: string);
+var
+  Existing: string;
+begin
+  if not RegQueryStringValue(HKEY_CURRENT_USER, EnvKey, 'Path', Existing) then
+    Existing := '';
+
+  { Already present? compare case-insensitively, bounded by semicolons. }
+  if Pos(';' + Uppercase(Path) + ';', ';' + Uppercase(Existing) + ';') > 0 then
+    exit;
+
+  if Existing = '' then
+    Existing := Path
+  else if Existing[Length(Existing)] = ';' then
+    Existing := Existing + Path
+  else
+    Existing := Existing + ';' + Path;
+
+  { Write as REG_EXPAND_SZ so other %VARS% already in the user PATH still expand. }
+  if RegWriteExpandStringValue(HKEY_CURRENT_USER, EnvKey, 'Path', Existing) then
+    Log('Added to user PATH: ' + Path)
+  else
+    Log('FAILED to add to user PATH: ' + Path);
+end;
+
+procedure EnvRemovePath(Path: string);
+var
+  Existing: string;
+  P: Integer;
+begin
+  if not RegQueryStringValue(HKEY_CURRENT_USER, EnvKey, 'Path', Existing) then
+    exit;
+
+  P := Pos(';' + Uppercase(Path) + ';', ';' + Uppercase(Existing) + ';');
+  if P = 0 then exit;
+
+  { P indexes into the ';'-padded copy; remove "Path;" or ";Path". }
+  Delete(Existing, P - 1, Length(Path) + 1);
+
+  if RegWriteExpandStringValue(HKEY_CURRENT_USER, EnvKey, 'Path', Existing) then
+    Log('Removed from user PATH: ' + Path)
+  else
+    Log('FAILED to remove from user PATH: ' + Path);
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+    EnvAddPath(PathDir);
+end;
+
+procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+begin
+  if CurUninstallStep = usPostUninstall then
+    EnvRemovePath(PathDir);
+end;

@@ -61,3 +61,7 @@ jobs:
           }
 
           Write-Host "✓ Version command successful with correct configuration tag: $expectedTag"
+
+      - name: Test packaging (rogue)
+        if: matrix.Configuration == 'Develop'
+        run: python samples/package/test.py

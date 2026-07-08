@@ -19,7 +19,7 @@
   <link rel="icon" type="image/png" href="img/icon_tiny.webp">
 </head>
 <body>
-  <!-- Navigation -->
+  <!-- HEADER_START -->
   <nav>
     <a href="index.html" class="nav-logo">
       <img src="img/xs_logo_animated.svg" alt="xs logo">
@@ -28,10 +28,11 @@
       <li><a href="index.html" class="logo"><img src="img/xs_icon.svg" alt="xs" class="icon-svg">game engine</a></li>
       <li><a href="getting-started.html"><i class="fas fa-rocket"></i> getting started</a></li>
       <li><a href="api/index.html"><i class="fas fa-book"></i> api reference</a></li>
-      <li><a href="https://xs-engine.itch.io/xs" target="_blank"><i class="fas fa-download"></i> download</a></li>
+      <li><a href="https://github.com/BredaUniversityGames/xs/releases" target="_blank"><i class="fas fa-download"></i> download</a></li>
       <li><a href="https://github.com/BredaUniversityGames/xs" target="_blank"><i class="fab fa-github"></i> github</a></li>
     </ul>
   </nav>
+<!-- HEADER_END -->
 
   <!-- Main Content -->
   <div class="container">
@@ -41,7 +42,7 @@
     <hr>
 
     <h2><i class="fas fa-download"></i> Installation</h2>
-    <p>First, grab the latest version of xs from the <a href="https://xs-engine.itch.io/xs">itch.io page</a> or  you can build it from source. There is not installer for xs yet, so just unzip the archive in your desired location.</p>
+    <p>Download the latest <strong>xs-setup-*.exe</strong> from the <a href="https://github.com/BredaUniversityGames/xs/releases">GitHub releases page</a> and run it. The installer is per-user (no admin required) and adds <code>xs</code> to your PATH automatically. Open a new terminal and run <code>xs version</code> to confirm it's working.</p>
 
     
     <h2><i class="fas fa-play-circle"></i> Running xs</h2>
@@ -58,11 +59,12 @@
     <hr>
 
     <h2><i class="fas fa-code"></i> Working with the xs Visual Studio Code Extension</h2>
-    <p>xs is a code-first game engine, so using a code editor with good Wren support helps a lot. The <a href="https://marketplace.visualstudio.com/items?itemName=BojanEndrovski.xs-vscode" target="_blank">xs Visual Studio Code extension</a> provides integrated development features such launch commands/buttons, an animation editor, a package inspector and launch templates to enhance your game development experience.</p>
-      
-      <!--
-      The xs Visual Studio Code extension provides integrated development features such as visual editors, launch commands/buttons, and debug templates to enhance your game development experience.-->
+    <p>xs is a code-first game engine, so using a code editor with good Wren support helps a lot. The <a href="https://marketplace.visualstudio.com/items?itemName=BojanEndrovski.xs-vscode" target="_blank">xs Visual Studio Code extension</a> provides integrated development features such launch commands/buttons, an animation editor, a package inspector and launch templates to enhance your game development experience. When you open an xs project folder, the extension will automatically detect it. In the right side status bar item, you should see the version of xs you have installed and on the left side there should be a run button.</p>
 
+    <div class="hero-visual hero-visual--embedded">
+      <img src="img/xs_vs_code.png" alt="xs Visual Studio Code extension">
+    </div>
+      
     <h2><i class="fas fa-folder-plus"></i> Creating a New Project</h2>
     <p>Creating a new project in xs is quite simple. An xs project is just a folder, with a <code>project.json</code> file in it that contains the project settings, most important one being the path to the game code in the <code>Main</code> field. Your main class file should be a Wren file located in the same folder or a subfolder.</p>
     <p>The <code>project.json</code> file inside every project folder now holds the runtime data (including window size, fullscreen, and whether xs floats above other windows).</p>
@@ -76,7 +78,7 @@
 
     <p>This is the a minimal example:</p>
 
-    <pre><code class="language-javascript">import "xs" for Render, Data
+    <pre><code class="language-javascript">import "xs/core" for Render, Data
 class Game {
     static initialize() { /* Initialize your game state here */ }
     static update(dt) { /* Update your game state here */ }
@@ -88,13 +90,13 @@ class Game {
     <hr>
 
     <h2><i class="fas fa-code"></i> Setting Up Your Environment</h2>
-    <p>Wren is a lovely modern scripting language and there are a handful of Visual Studio Code extensions to make working with it nicer.</p>
+    <p>xs uses its own fork of Wren that adds <strong>optional type annotations</strong> (e.g. <code>foo(x: Num) -> Bool</code>). The generic Wren extensions on the marketplace don't understand this syntax, so use the dedicated extension below.</p>
 
     <div class="note">
       <strong>Recommended VS Code Extensions:</strong>
       <ul>
-        <li><i class="fas fa-puzzle-piece"></i> <a href="https://marketplace.visualstudio.com/items?itemName=nelarius.vscode-wren">Wren</a> - Syntax highlighting</li>
-        <li><i class="fas fa-lightbulb"></i> <a href="https://marketplace.visualstudio.com/items?itemName=sponge.wren-language-provider">Wren Language Provider</a> - Code completion</li>
+        <li><i class="fas fa-puzzle-piece"></i> <a href="https://marketplace.visualstudio.com/items?itemName=BojanEndrovski.wren" target="_blank">Wren (xs fork)</a> - Syntax highlighting and language support with optional typing</li>
+        <li><i class="fas fa-gamepad"></i> <a href="https://marketplace.visualstudio.com/items?itemName=BojanEndrovski.xs-vscode" target="_blank">xs</a> - Engine integration: run buttons, animation editor, package inspector</li>
       </ul>
       <p>If you don't have Visual Studio Code, <a href="https://code.visualstudio.com/">download it here</a></p>
     </div>
@@ -105,16 +107,18 @@ class Game {
     <p>A module in Wren is usually another <code>.wren</code> file that you can <code>import</code> into your code. xs ships with a few modules that let you interact with the engine:</p>
 
     <ul>
-      <li><strong><code>xs/core</code></strong> - Core API for rendering, audio, input, and more</li>
+      <li><strong><code>xs/core</code></strong> - Core API for rendering, audio, input, file I/O, JSON, and more</li>
       <li><strong><code>xs/math</code></strong> - 2D vector math, colors, and bit operations</li>
       <li><strong><code>xs/ec</code></strong> - Simple Entity-Component framework</li>
       <li><strong><code>xs/components</code></strong> - Pre-built components for common game functionality</li>
+      <li><strong><code>xs/containers</code></strong> - Data structures like Grid, Queue, and RingBuffer</li>
+      <li><strong><code>xs/tools</code></strong> - Utility functions and ShapeBuilder</li>
     </ul>
 
     <p>The "hello" example starts with importing functionality:</p>
     <pre><code>import "xs/core" for Render, Data</code></pre>
 
-    <p>These modules are located in the <code>assets/modules/</code> folder, so feel free to explore their contents.</p>
+    <p>These modules are located in the <code>resources/modules/xs/</code> folder of the xs installation, so feel free to explore their contents.</p>
 
     <h3>Built-in Wren Modules</h3>
     <p>From the language itself (<a href="https://wren.io/modules/">learn more</a>):</p>
@@ -207,19 +211,19 @@ class Game {
     </div>
   </div>
 
-                <!-- FOOTER_START -->
+                  <!-- FOOTER_START -->
   <footer>
     <div class="footer-content">
       <a href="https://www.buas.nl/" target="_blank" class="footer-logo-left"><img src="img/buas.png" alt="Breda University of Applied Sciences" class="sponsor-logo"></a>
       <div class="footer-text">
         <p>Crafted at Breda University of Applied Sciences</p>
         <p>The development of xs is supported by an AMD hardware grant</p>
-        <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://xs-engine.itch.io/xs">Download</a></p>
+        <p><a href="https://github.com/BredaUniversityGames/xs">GitHub</a> | <a href="https://github.com/BredaUniversityGames/xs/releases">Download</a></p>
       </div>
       <a href="https://www.amd.com/" target="_blank" class="footer-logo-right"><img src="img/amd.png" alt="AMD" class="sponsor-logo"></a>
     </div>
   </footer>
-  <!-- FOOTER_END -->
+<!-- FOOTER_END -->
 
   <!-- JavaScript -->
   <script src="js/main.js"></script>

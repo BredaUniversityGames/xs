@@ -1,9 +1,4 @@
-/// The imports of files that are used in this file usually go at the top.
-/// If two files import each other (circular dependencies), then import go to the bottom of the file.
 import "xs/core" for Data, Input, Render
-//      ^       ^ class names that are imported
-//      | file name without extension, relative to the this file (except shared modules and system libs)
-
 import "xs/math"for Math, Bits, Vec2, Color
 import "xs/ec"for Entity, Component
 import "xs/components" for Transform, Body, Renderable, Sprite, GridSprite, AnimatedSprite
@@ -31,6 +26,9 @@ class Game {
         Tile.initialize()
         Create.initialize()
         Gameplay.initialize()
+
+        var offset : Num = Data.getNumber("Render.Camera Offset", Data.game)
+        Render.setOffset(offset, 0)
                 
         __time = 0.0
         __state = generating // Skip loading
@@ -50,8 +48,10 @@ class Game {
         }
         
         __genFiber =  Fiber.new {
+            var bg = Create.background()
             __alg.generate()
             Decorator.decorate()
+            return 0.0 // (time until next step) 0.0 not to crash
         }
     }   
     
@@ -71,13 +71,8 @@ class Game {
     // It is used to generate the level in steps, so the player can see the progress
     // it uses a fiber and a coroutine to do that. It's advance(ish) stuff, can be ignored
     static genStep(dt) {
-        var visualize = Data.getBool("Visualize Generation", Data.game)
-        if(visualize) {
-            if(__time == null) {
-                System.print("Error: __time is null, setting to 0")
-                __time = 0.0
-            }
-
+        var visualize = Data.getBool("Debug.Visualize Generation", Data.game)
+        if(visualize) {            
             __time = __time - dt
             if(__time <= 0.0) {
                 if(!__genFiber.isDone) {
@@ -95,8 +90,13 @@ class Game {
     }
 
     // Render the game, which means rendering all the systems and entities
-    static render() {    
-        Gameplay.render()
+    static render() {
+        Renderable.render()
+        if(__state == Game.generating) {
+            Gameplay.renderGeneration()
+        } else if(__state == Game.playing || __state == Game.gameover) {
+            Gameplay.render()
+        }
     }
  }
 

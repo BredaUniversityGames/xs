@@ -87,7 +87,7 @@ class Renderable is Component {
     static render() {
         for(e in Entity.entities) {
             var s = e.get(Renderable)
-            if(s != null) {
+            if(s != null && s.enabled) {
                 s.render()
             }
         }
@@ -364,6 +364,36 @@ class AnimatedSprite is GridSprite {
         _currentFrame = 0
         // _frame = 0
         _mode = AnimatedSprite.loop
+    }
+
+    /// Creates an AnimatedSprite from an animation sheet file (.xsanim)
+    /// The file contains image path, columns, rows, fps, and animation definitions
+    construct new(sheetPath) {
+        // Read and parse the animation sheet file
+        var data = Json.load(sheetPath)
+        
+        // Extract grid parameters
+        var imagePath = data["image"]
+        var columns = data["columns"]
+        var rows = data["rows"]
+        var fps = data["fps"]
+        
+        // Initialize as GridSprite with the specified parameters
+        super(imagePath, columns, rows)
+
+        _animations = {}
+        _time = 0.0
+        _flipFrames = 1.0 / (fps + 1)
+        _frameTime = 0.0
+        _currentName = ""
+        _currentFrame = 0
+        _mode = AnimatedSprite.loop
+        
+        // Load all animations from the file
+        var animations = data["animations"]
+        for(entry in animations) {
+            addAnimation(entry.key, entry.value)
+        }
     }
 
     /// Updates the animation frame based on delta time

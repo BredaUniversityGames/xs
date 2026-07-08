@@ -1,5 +1,5 @@
 {
-  "image": "[game]/assets/monochrome-transparent_packed.png",
+  "image": "[game]/assets/monochrome.png",
   "columns": 49,
   "rows": 22,
   "fps": 10,

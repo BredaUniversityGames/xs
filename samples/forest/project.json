@@ -1,0 +1,38 @@
+{
+    "Device.Height": {
+        "type": "number",
+        "value": 180.0
+    },
+    "Device.Multiplier": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Device.Title": {
+        "type": "string",
+        "value": "Forest"
+    },
+    "Device.Width": {
+        "type": "number",
+        "value": 320.0
+    },
+    "Device.WindowSizeInPoints": {
+        "type": "bool",
+        "value": false
+    },
+    "Main": {
+        "type": "string",
+        "value": "code/game.wren"
+    },
+    "Render.Postprocess.Enabled": {
+        "type": "bool",
+        "value": false
+    },
+    "Render.SnapToPixels": {
+        "type": "bool",
+        "value": false
+    },
+    "Render.TextureFilter": {
+        "type": "bool",
+        "value": false
+    }
+}

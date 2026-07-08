@@ -1,0 +1,138 @@
+name: Release
+
+# Builds and publishes the Windows xs installer when a version tag is pushed.
+#
+# Tag convention is CalVer  YY.BUILD  (e.g. 26.118) and MUST match code/version.hpp.
+# The tag is only the "publish" signal; the version baked into the exe comes from
+# version.hpp, and this workflow fails fast if the two disagree.
+#
+#   git tag 26.118 && git push origin 26.118
+#
+# For now we ship only the Develop configuration (console + debugging, aimed at
+# game developers). When the installer learns to carry both, add Release back as a
+# second matrix entry / staged config -- the staging + packaging steps already work
+# off ${{ env.CONFIGURATION }}.
+on:
+  push:
+    tags:
+      - "[0-9]*.[0-9]*"   # CalVer YY.BUILD, e.g. 26.118
+
+env:
+  SOLUTION_FILE: xs.sln
+  CONFIGURATION: Develop
+  APP_ID: 7c6de762-424d-46f4-8693-444a1b24e69d
+  PUBLISHER: "Bojan Endrovski"
+
+permissions:
+  contents: write          # required to create/attach the GitHub Release
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true          # resources/ (fonts, images) are tracked in Git LFS
+
+      # version.hpp is the single source of truth for the version compiled into the
+      # exe. Catch the common mistake of tagging without bumping version.hpp.
+      - name: Verify tag matches version.hpp
+        run: |
+          $hpp   = Get-Content code/version.hpp -Raw
+          $year  = [regex]::Match($hpp, 'XS_VERSION_YEAR\s*=\s*(\d+)').Groups[1].Value
+          $build = [regex]::Match($hpp, 'XS_VERSION_BUILD\s*=\s*(\d+)').Groups[1].Value
+          $expected = "$year.$build"
+          $tag = "${{ github.ref_name }}"
+          Write-Host "Tag: $tag    version.hpp: $expected"
+          if ($tag -ne $expected) {
+            Write-Error "Tag '$tag' does not match version.hpp ($expected). Bump code/version.hpp or retag."
+            exit 1
+          }
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
+
+      - name: Build xs (${{ env.CONFIGURATION }})
+        run: msbuild ${{ env.SOLUTION_FILE }} -t:rebuild /p:Configuration=${{ env.CONFIGURATION }} /p:Platform=PC
+
+      - name: Smoke-test the build
+        run: |
+          $exe = "build\executable\x64\${{ env.CONFIGURATION }}\xs.exe"
+          if (!(Test-Path $exe)) { Write-Error "Executable not found at $exe"; exit 1 }
+          $output = & $exe version
+          Write-Host "Version: $output"
+          # Develop builds carry the -dev tag; guards against shipping the wrong config.
+          if ($output -notmatch "-dev") {
+            Write-Error "Built exe is not a Develop build (missing -dev in '$output')"
+            exit 1
+          }
+
+      # Stage the relocatable bundle the installer consumes. The engine resolves the
+      # [shared] virtual path to a resources/ folder NEXT TO the exe (see
+      # platforms/pc/code/fileio_pc.cpp::get_shared_path), so xs.exe, its DLLs, and
+      # resources/ must all live together. We stage them under bin/, which the
+      # installer puts on the user's PATH -- xs.exe then finds bin/resources/.
+      - name: Stage bundle
+        run: |
+          $buildDir = "build\executable\x64\${{ env.CONFIGURATION }}"
+          $bin = "dist\bundle\bin"
+          New-Item -ItemType Directory -Path $bin -Force | Out-Null
+          Copy-Item "$buildDir\xs.exe" "$bin\"
+          Copy-Item "$buildDir\*.dll" "$bin\" -ErrorAction SilentlyContinue
+          Copy-Item "resources" "$bin\resources" -Recurse
+          Write-Host "Staged bundle contents:"
+          Get-ChildItem -Recurse $bin | ForEach-Object { Write-Host "  $($_.FullName)" }
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+
+      # build_installer.py renders tools/packaging/windows_installer.iss.in, compiles
+      # it with ISCC, and emits dist/xs-setup-<version>-x64.exe (per-user install, adds
+      # the install dir to the user PATH; AppId keeps in-place upgrades working).
+      - name: Build installer
+        run: >
+          python tools/packaging/build_installer.py
+          --bundle-dir dist/bundle
+          --output-dir dist
+          --version    ${{ github.ref_name }}
+          --app-id     ${{ env.APP_ID }}
+          --publisher  "${{ env.PUBLISHER }}"
+
+      - name: Publish to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/xs-setup-*.exe
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          body: |
+            # XS Game Engine ${{ github.ref_name }}
+
+            Windows installer (per-user, no admin required). It installs the engine and
+            adds `xs` to your PATH.
+
+            ## Install
+            1. Download **xs-setup-${{ github.ref_name }}-x64.exe** below and run it.
+            2. Open a new terminal and run `xs version`.
+
+            This is the **Develop** build: it includes the console, colored logging, and
+            debugging tools for creating and testing games.
+
+            ```
+            xs run <game-folder>     Run a game project
+            xs package <folder>      Package a game into a .xs file
+            xs version               Show version
+            ```

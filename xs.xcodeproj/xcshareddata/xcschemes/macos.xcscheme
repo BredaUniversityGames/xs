@@ -56,7 +56,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/bojanendrovski/Documents/Dev/xs/samples/hello"
+            argument = "/Users/bojanendrovski/Documents/Dev/xs/samples/rogue"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

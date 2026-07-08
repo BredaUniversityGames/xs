@@ -1,24 +1,23 @@
 import subprocess
 from datetime import datetime
 
-def get_last_commit_hash():
-    result = subprocess.run(['git', 'rev-parse', 'HEAD'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def run_git(args):
+    try:
+        result = subprocess.run(['git'] + args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except FileNotFoundError:
+        raise Exception("git not found in PATH; it is required to generate code/version.hpp")
     if result.returncode != 0:
-        raise Exception("Error getting the last commit hash: " + result.stderr.decode('utf-8'))
+        raise Exception(f"git {' '.join(args)} failed: " + result.stderr.decode('utf-8').strip())
     return result.stdout.decode('utf-8').strip()
+
+def get_last_commit_hash():
+    return run_git(['rev-parse', 'HEAD'])
 
 def get_commit_count_this_year():
     """Get the number of commits since January 1st of the current year"""
     current_year = datetime.now().year
     year_start = f"{current_year}-01-01"
-    result = subprocess.run(
-        ['git', 'rev-list', '--count', f'--since={year_start}', 'HEAD'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-    if result.returncode != 0:
-        raise Exception("Error counting commits: " + result.stderr.decode('utf-8'))
-    return int(result.stdout.decode('utf-8').strip())
+    return int(run_git(['rev-list', '--count', f'--since={year_start}', 'HEAD']))
 
 def generate_version_string():
     """Generate version string in format: YY.BuildNumber"""
@@ -68,15 +67,17 @@ namespace xs::version
 '''
 
     try:
-        with open(header_file_path, 'r') as file:
+        with open(header_file_path, 'r', encoding='utf-8', newline='') as file:
             current_content = file.read()
     except FileNotFoundError:
-        current_content = ""
+        current_content = None
 
     if current_content != new_content:
-        with open(header_file_path, 'w') as file:
+        with open(header_file_path, 'w', encoding='utf-8', newline='') as file:
             file.write(new_content)
-        print(f"Updated version.hpp")
+        print("Updated version.hpp")
+    else:
+        print("version.hpp unchanged, skipping write")
 
     print(f"Version: {version}")
     print(f"Full version: {version_with_hash}")

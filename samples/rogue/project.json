@@ -5,11 +5,11 @@
     },
     "Device.Height": {
         "type": "number",
-        "value": 240.0
+        "value": 180.0
     },
     "Device.Multiplier": {
         "type": "number",
-        "value": 3.0
+        "value": 4.0
     },
     "Device.Title": {
         "type": "string",
@@ -17,7 +17,7 @@
     },
     "Device.Width": {
         "type": "number",
-        "value": 426.0
+        "value": 320.0
     },
     "Device.WindowSizeInPoints": {
         "type": "bool",
@@ -27,9 +27,57 @@
         "type": "string",
         "value": "code/game.wren"
     },
+    "Render.Postprocess.BrightnessBoost": {
+        "type": "number",
+        "value": 1.2999999523162842
+    },
+    "Render.Postprocess.Chromatic": {
+        "type": "bool",
+        "value": true
+    },
+    "Render.Postprocess.ChromaticOffset": {
+        "type": "number",
+        "value": 3.0399999618530273
+    },
     "Render.Postprocess.Enabled": {
         "type": "bool",
-        "value": false
+        "value": true
+    },
+    "Render.Postprocess.Phosphor": {
+        "type": "bool",
+        "value": true
+    },
+    "Render.Postprocess.PhosphorStrength": {
+        "type": "number",
+        "value": 0.15000000596046448
+    },
+    "Render.Postprocess.ScanlineStrength": {
+        "type": "number",
+        "value": 0.30000001192092896
+    },
+    "Render.Postprocess.ScanlineThickness": {
+        "type": "number",
+        "value": 0.3499999940395355
+    },
+    "Render.Postprocess.Scanlines": {
+        "type": "bool",
+        "value": true
+    },
+    "Render.Postprocess.Vignette": {
+        "type": "bool",
+        "value": true
+    },
+    "Render.Postprocess.Warp": {
+        "type": "bool",
+        "value": true
+    },
+    "Render.Postprocess.WarpX": {
+        "type": "number",
+        "value": 0.02083333395421505
+    },
+    "Render.Postprocess.WarpY": {
+        "type": "number",
+        "value": 0.0416666679084301
     },
     "Render.SnapToPixels": {
         "type": "bool",

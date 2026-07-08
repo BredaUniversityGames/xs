@@ -84,6 +84,19 @@ class Entity {
             Tools.removeFromList(_compDeleteQueue, c.type)
         }
 
+        // A null enabled state means super() was never called in the component's
+        // constructor chain. Repair the Component-owned state so update() still runs,
+        // but warn: fields owned by intermediate classes (Sprite, Renderable, ...)
+        // cannot be repaired here and stay uninitialized.
+        if(component.enabled == null) {
+            component.enabled = true
+            if(!__warnedTypes.contains(component.type)) {
+                __warnedTypes.add(component.type)
+                System.print("[xs] Warning: %(component.type.name) constructor does not " +
+                    "call super(). Add super() as its first statement.")
+            }
+        }
+
         // Check if it already it has an owner
         if(component.owner != null) {
             owner.remove(component.type)
@@ -158,6 +171,7 @@ class Entity {
     static initialize() {
         __entities = []
         __addQueue = []
+        __warnedTypes = []
     }
 
     /// Updates all entities and their components - MUST be called every frame

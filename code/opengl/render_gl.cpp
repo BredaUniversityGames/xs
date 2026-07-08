@@ -581,13 +581,15 @@ void xs::render::create_texture_with_data(xs::render::image& img, uchar* data)
 
 void xs::render::create_frame_buffers()
 {
+	bool filter_flag = data::get_bool("Render.TextureFilter", data::type::project);
+	auto filter = filter_flag ? GL_LINEAR : GL_NEAREST;
 	glGenFramebuffers(1, &render_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, render_fbo);	
 	glGenTextures(1, &render_texture);
 	glBindTexture(GL_TEXTURE_2D, render_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, render_texture, 0);

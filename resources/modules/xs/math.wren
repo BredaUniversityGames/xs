@@ -122,6 +122,12 @@ class Vec2 {
         _y = y
     }
 
+    /// Creates a vector with the same components as another vector
+    construct new(other: Vec2) {
+        _x = other.x
+        _y = other.y
+    }
+
     /// Gets the x component
     x -> Num { _x }
     /// Gets the y component
@@ -262,8 +268,14 @@ class Vec2 {
         return Vec2.new(k * b.x, k * b.y)
     }
 
+    /// Creates a unit vector from an angle in radians
     static fromAngle(angle: Num) -> Vec2 {
         return Vec2.new(angle.cos, angle.sin)
+    }
+
+    /// Linear interpolation between two vectors
+    static lerp(a: Vec2, b: Vec2, t: Num) -> Vec2 {
+        return Vec2.new(Math.lerp(a.x, b.x, t), Math.lerp(a.y, b.y, t))
     }
 }
 

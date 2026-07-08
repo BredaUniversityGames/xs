@@ -8,6 +8,78 @@ import "random" for Random
 import "types" for Type
 import "directions" for Directions
 
+class MoveAnimation is Component {
+    construct new() {
+        super()
+        _duration = 0.2 // TODO: Make this configurable from the game data
+        _time = 0.0
+        _from = Vec2.new(0, 0)
+        _to = Vec2.new(0, 0)
+        _state = MoveAnimation.idle
+    }
+
+    initialize() {
+        _transform = owner.get(Transform)
+        _tile = owner.get(Tile)
+    }    
+
+    /// Update the animation and return the current position of the animation
+    update(dt : Num) {        
+        if(_state == MoveAnimation.idle) return
+        // System.print("movin")        
+        if(_state == MoveAnimation.moving) {
+            _time = _time + dt
+            var t : Num = _time / _duration            
+            if(t > 1.0) {
+                t = 1.0
+                _state = MoveAnimation.idle
+            }
+            t = t.pow(6.0)
+            var pos = Vec2.lerp(_from, _to, t)
+            _transform.position = pos        
+        } else if(_state == MoveAnimation.attacking) {
+            _time = _time + dt
+            var t: Num = _time / (_duration * 0.5)
+            t = t % 1.0
+            t = t.pow(6.0)
+            if(_time < _duration * 0.5) {
+                var pos = Vec2.lerp(_from, _to, t)
+                _transform.position = pos
+            } else if(_time < _duration) {
+                var pos = Vec2.lerp(_to, _from, t)
+                _transform.position = pos
+            } else {
+                _transform.position = _from
+                _state = MoveAnimation.idle
+                _time = 0.0
+            }
+        }
+    }
+
+    move(direction : Num) {
+        var d = Directions[direction]
+        _from = Level.calculatePos(_tile)
+        _to = Level.calculatePos(_tile.x + d.x, _tile.y + d.y)
+        _time = 0.0
+        _state = MoveAnimation.moving
+    }
+
+    attack(direction : Num) {
+        var d = Directions[direction]
+        _from = Level.calculatePos(_tile)
+        var to: Vec2 = Level.calculatePos(_tile.x + d.x, _tile.y + d.y)
+        _to = Vec2.lerp(_from, to, 0.5)
+        _time = 0.0
+        _state = MoveAnimation.attacking
+    }
+
+    done { _time >= _duration }
+
+    static idle { 0 }
+    static moving { 1 }
+    static attacking { 2 }
+}
+
 /// Contains the level data and the logic to manipulate it
 /// It's completely static and should be used as a singleton
 class Level {    
@@ -21,6 +93,7 @@ class Level {
         
         __grid = Grid.new(__width, __height, Type.empty)
         __rendering = Grid.new(__width, __height, null)
+        __rooms = []
     }
 
     /// Calculate the position of a tile in the level
@@ -63,9 +136,12 @@ class Level {
 
     /// The grid that contains the rendering representation of the level (used for rendering)
     static rendering -> Grid { __rendering }
+
+    /// The list of rooms in the level (used for gameplay and rendering)
+    static rooms -> List { __rooms }
 }
 
-// A compenent that represents a tile in the level
+// A component that represents a tile in the level
 // It is used to store the position of the tile in the level
 // but also to store all the tiles in the level as a static variable
 class Tile is Component {
@@ -75,18 +151,30 @@ class Tile is Component {
         __tiles = SparseGrid.new()
     }
 
-    /// Get the tile at a given position
-    static get(x : Num, y : Num) {
-        if(__tiles.has(x, y)) return __tiles[x, y]
-        return null
-    }
-
     /// Create a new tile at a given position
     construct new(x : Num, y : Num) {
+        super()
         _x = x
         _y = y
         System.print("Creating tile at position [%(x),%(y)]")
         __tiles[x, y] = this
+    }
+
+    // Cache the transform component of the tile for faster access
+    initialize() {
+        //_transform = owner.get(Transform)
+
+    }
+
+    // Update the tile position in the level based on the transform component
+    update(dt : Num) {
+        // _transform.position = Level.calculatePos(this)
+    }
+
+    /// Get the tile at a given position
+    static get(x : Num, y : Num) -> Tile {
+        if(__tiles.has(x, y)) return __tiles[x, y]
+        return null
     }
 
     /// Move the tile to a new position with a given offset
@@ -94,7 +182,7 @@ class Tile is Component {
         __tiles.remove(_x, _y)
         _x = _x + dx
         _y = _y + dy
-        __tiles[_x, _y] = this              
+        __tiles[_x, _y] = this
     }
 
     /// Remove the tile from the level (gets called when the entity is deleted)
@@ -156,11 +244,12 @@ class Character is Component {
     initialize() {
         _stats = owner.get(Stats)
         _tile = owner.get(Tile)
+        _mover = owner.get(MoveAnimation)
     }
 
     /// Update the character - just debug rendering for now
     update(dt) {
-        if(Data.getBool("Debug Draw", Data.game)) {
+        if(Data.getBool("Debug.Draw", Data.game)) {
             var pos = Level.calculatePos(_tile)
             Render.dbgColor(0xFFFFFFFF)
             Render.dbgText("%(owner.name)", pos.x - 7, pos.y + 7, 1)
@@ -184,7 +273,8 @@ class Character is Component {
     /// Move the tile in the direction
     moveTile(dir) {
         var d = Directions[dir]
-        _tile.move(d.x, d.y)
+        _mover.move(dir)
+        _tile.move(d.x, d.y)        
     }
 
     /// Attack the tile in the direction
@@ -197,27 +287,33 @@ class Character is Component {
         if(t != null) {
             if(Bits.checkBitFlag(_attackable, t.owner.tag)) {
                 var stats = t.owner.get(Stats)
-                var hitChance = 0.8 - stats.armor * 0.1 
+                // TODO: Calculate hit chance based on the target's armor (max 80% hit chance) 
+                // TODO: Don't calculate damage if the attack misses
+                // TODO: Expose the hit chance and the damage in the UI (maybe as a message)
+                var hitChance = 0.8 - stats.armor * 0.1                 
                 var hit = Tools.random.float(0.0, 1.0) < hitChance
                 if(hit) {
                     stats.health = stats.health - _stats.damage
-                    Gameplay.message =  "%(owner.name) deals %(_stats.damage) damage to %(t.owner.name)"
+                    //Gameplay.message =  "%(owner.name) deals %(_stats.damage) damage to %(t.owner.name)"
+                    Gameplay.message = "-1"
                 } else {
-                    Gameplay.message = "%(owner.name) misses %(t.owner.name)"
+                    //Gameplay.message = "%(owner.name) misses %(t.owner.name)"
+                    Gameplay.message = "miss"
                 }
 
                 if(stats.health <= 0) {
-                    Gameplay.message = "%(owner.name) kills %(t.owner.name)"
+                    //Gameplay.message = "%(owner.name) kills %(t.owner.name)"
+                    Gameplay.message = "dead"
                     t.owner.delete()
                     if(Tools.random.float(0.0, 1.0) < stats.drop) Create.item(x, y)                    
                 }
+                _mover.attack(dir)
             } else if(Bits.checkBitFlag(Type.item, t.owner.tag)) {
                 Gameplay.message = "%(owner.name) picks up %(t.owner.name)"
                 _stats.add(t.owner.get(Stats))
                 t.owner.delete()
                 moveTile(dir)  
             }
-
         }
     }
 
@@ -294,6 +390,8 @@ class Monster is Character {
 
     /// Single monster turn logic
     turn() {
+        if(!enabled) return
+
         var dir = getDirection()                                                         
         if(dir >= 0) {
             _direction = Directions[dir]
@@ -370,6 +468,55 @@ class Monster is Character {
     }
  }
 
+ class UI {
+    construct new() {
+        _font = Render.loadFont("[game]/assets/FutilePro.ttf", 14)
+        var icons : Num = Render.loadImage("[game]/assets/monochrome.png")        
+        _heart = Render.createGridSprite(icons, 49, 22, 532)
+        _armor = Render.createGridSprite(icons, 49, 22, 236)
+        _sword = Render.createGridSprite(icons, 49, 22, 326)        
+        _hs = 1.0
+        _as = 1.0
+        _ss = 1.0
+    }
+
+    render() {
+        if(_oldStats == null) _oldStats = Stats.new(0, 0, 0, 0)
+        var hero = Hero.hero
+        var stats = hero.owner.get(Stats)
+        var color: Num = Data.getColor("UI.Color", Data.game)
+        var scaleUp: Num = Data.getNumber("UI.Scale Up", Data.game)
+
+        if(stats.health != _oldStats.health) _hs = scaleUp
+        if(stats.armor != _oldStats.armor) _as = scaleUp
+        if(stats.damage != _oldStats.damage) _ss = scaleUp
+        
+        // Health
+        Render.sprite(_heart, -160, 70, 0.0, _hs, 0.0, color, 0x0, Render.spriteCenter)
+        Render.text(_font, "%(stats.health)", -160, 50, 1.0, color, 0x0, Render.spriteCenter)
+
+        // Armor
+        Render.sprite(_armor, -160, 20, 0.0, _as, 0.0, color, 0x0, Render.spriteCenter)
+        Render.text(_font, "%(stats.armor)", -160, 0, 1.0, color, 0x0, Render.spriteCenter)
+
+        // Damage
+        Render.sprite(_sword, -160, -30, 0.0, _ss, 0.0, color, 0x0, Render.spriteCenter)
+        Render.text(_font, "%(stats.damage)", -160, -50, 1.0, color, 0x0, Render.spriteCenter)
+
+        // Copy current stats to old stats for the next frame
+        _hs = Math.damp(_hs, 1.0, 10.0, 0.016)
+        _as = Math.damp(_as, 1.0, 10.0, 0.016)
+        _ss = Math.damp(_ss, 1.0, 10.0, 0.016)
+        _oldStats = stats.clone()
+    }
+ }
+
+ class Visibility {
+    static hidden { 0 }
+    static visited { 1 }
+    static visible { 2 }
+ }
+
 /// Combines level and character logic to create the gameplay
 class Gameplay {
     static playerTurn   { 1 }
@@ -377,7 +524,7 @@ class Gameplay {
 
     static initialize() {
         __state = playerTurn
-        __font = Render.loadFont("[game]/assets/FutilePro.ttf", 14)
+        __font = Render.loadFont("[game]/assets/FutilePro.ttf", 7)
 
         var preview = Render.loadImage("[game]/assets/tileset.png")
         var r = 16
@@ -387,56 +534,19 @@ class Gameplay {
             Type.floor: Render.createGridSprite(preview, r, c, 66),
             Type.wall: Render.createGridSprite(preview, r, c, 18),
             Type.player: Render.createGridSprite(preview, r, c, 128),
-
-
-
-            // Type.enemy: Render.createGridSprite(preview, r, c, 323),
-            //Type.door: Render.createGridSprite(preview, r, c, 799),
-            //Type.lever: Render.createGridSprite(preview, r, c, 259),
-            //Type.spikes: Render.createGridSprite(preview, r, c, 259),
-            //Type.chest: Render.createGridSprite(preview, r, c, 259),
-            //Type.crate: Render.createGridSprite(preview, r, c, 259),
-            //Type.pot: Render.createGridSprite(preview, r, c, 259),
-            //Type.stairs: Render.createGridSprite(preview, r, c, 259),
-            //Type.light: Render.createGridSprite(preview, r, c, 259),
-            //Type.bat: Render.createGridSprite(preview, r, c, 418),
-            //Type.spider: Render.createGridSprite(preview, r, c, 273),
-            //Type.ghost: Render.createGridSprite(preview, r, c, 320),
-            //Type.boss: Render.createGridSprite(preview, r, c, 324),
-            //Type.scorpion: Render.createGridSprite(preview, r, c, 269),
-            //Type.snake: Render.createGridSprite(preview, r, c, 420),
-            //Type.helmet: Render.createGridSprite(preview, r, c, 33),
-            //Type.armor: Render.createGridSprite(preview, r, c, 82),
-            //Type.sword: Render.createGridSprite(preview, r, c, 130),
-            //Type.food: Render.createGridSprite(preview, r, c, 817)
-        }        
-
-        /*
-        var enemyColor = Data.getColor("Enemy Color", Data.game)
-        var playerColor = Data.getColor("Player Color", Data.game)
-        var itemColor = Data.getColor("Item Color", Data.game)
-        __colors = {
-            Type.empty: 0xFFFFFF20,
-            Type.floor: 0xFFFFFF20,
-            Type.floorAlt: 0xFFFFFF20,
-            Type.wall: 0xFFFFFFC0,
-            Type.player: playerColor,
-            Type.enemy: enemyColor,
-            Type.bat: enemyColor,
-            Type.spider: enemyColor,
-            Type.ghost: enemyColor,
-            Type.boss: enemyColor,
-            Type.scorpion: enemyColor,
-            Type.snake: enemyColor,
-            Type.helmet: itemColor,
-            Type.armor: itemColor,
-            Type.sword: itemColor,     
-            Type.food: itemColor       
+            Type.mage: Render.createGridSprite(preview, r, c, 164),
+            Type.skeleton: Render.createGridSprite(preview, r, c, 148),
+            Type.ghost: Render.createGridSprite(preview, r, c, 132),
+            Type.knight: Render.createGridSprite(preview, r, c, 180),
+            Type.crusader: Render.createGridSprite(preview, r, c, 196),
+            Type.slime: Render.createGridSprite(preview, r, c, 212)        
         }
-        */
 
         __message = "A hero is born"
-        __timer = Data.getNumber("Message Time", Data.game)
+        __timer = Data.getNumber("Message Time", Data.game)    
+        __visibility = Grid.new(Level.width, Level.height, Visibility.hidden)
+        __ui = UI.new()
+        __room = null
     }    
 
     static update(dt) {
@@ -456,6 +566,38 @@ class Gameplay {
                 }            
             }
         }
+
+    
+        var room = getCurrentRoom()
+        if(room != null) __room = room 
+        enableEntitiesInCurrentRoom()
+    }
+
+    static getCurrentRoom() {
+        var hero: Entity = Hero.hero.owner
+        var tile: Tile = hero.get(Tile)
+
+        for(r: Rect in Level.rooms) {
+            if(r.contains(tile)) {
+                return r
+            }
+        }
+        return null
+    }
+
+    static enableEntitiesInCurrentRoom() {
+        var hero: Entity = Hero.hero.owner
+        var tile: Tile = hero.get(Tile)
+
+        if(__room != null) {
+            var entities = Entity.entities
+            for(e in entities) {
+                var t = e.get(Tile)
+                if(t != null) {
+                    if(__room.contains(t)) e.enabled = true
+                }
+            }
+        }
     }
 
     static getFlags(x, y) {
@@ -470,7 +612,7 @@ class Gameplay {
     }
 
     /// Render the level and the UI
-    static render() {
+    static renderGeneration() {
         var s = Level.tileSize  
         var sx = (Level.width - 1) * -s / 2
         var sy = (Level.height - 1)  * -s / 2        
@@ -478,38 +620,121 @@ class Gameplay {
             for (y in 0...Level.height) {
                 var px = sx + x * s
                 var py = sy + y * s
-                var t = Level.gameplay[x, y]
-                var r = Level.rendering[x, y]
-
-                if(r != null) {
-                    Render.sprite(r, px, py, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+                
+                var tl = Tile.get(x, y)
+                if(tl != null) {
+                    var tag = tl.owner.tag
+                    Render.sprite(__tiles[tag], px, py, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
                     continue
                 }
 
+                var t = Level.gameplay[x, y]                
                 if(t == Type.empty) continue
                 var color : Num = 0xFFFFFFFF
                 var sprite = __tiles[t]
-                Render.sprite(sprite, px, py, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)                
+                if(sprite != null) {
+                    Render.sprite(sprite, px, py, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)
+                }
             }
         }
-
-        if(Hero.hero) {
-            renderUI()
-        }
     }  
+
+    static render() {
+        if(Hero.hero) {
+
+            var hero: Entity = Hero.hero.owner
+            var tile: Tile = hero.get(Tile)
+
+            // Reset visibility of all tiles to visited if they are currently visible
+            for(x in 0...Level.width) {
+                for(y in 0...Level.height) {
+                    if(__visibility[x, y] == Visibility.visible) {
+                        __visibility[x, y] = Visibility.visited
+                    }
+                }
+            }            
+        
+            // Set visibility of the tiles in the current room to visible
+            if(__room != null) {
+                var level: Rect = Rect.new(0, 0, Level.width, Level.height)
+                var extended = Rect.new(__room.from - Vec2.new(2, 2), __room.to + Vec2.new(2, 2))
+                var room: Rect = extended.interection(level)
+                
+                for(x in room.from.x...room.to.x) {
+                    for(y in room.from.y...room.to.y) {
+                        var px = Level.calculatePos(x, y).x
+                        var py = Level.calculatePos(x, y).y
+                        var r = Level.rendering[x, y]
+                        if(r != null) {
+                            __visibility[x, y] = Visibility.visible                            
+                        }
+                    }
+                }                
+            }
+
+            // Make a small area around the hero visible even if they are not in a room
+            var radius = Data.getNumber("Render Radius", Data.game)
+            for (x in tile.x - radius...tile.x + radius) {
+                for (y in tile.y - radius...tile.y + radius) {
+                    if(Level.gameplay.valid(x, y)) {
+                        var px = Level.calculatePos(x, y).x
+                        var py = Level.calculatePos(x, y).y
+                        var r = Level.rendering[x, y]
+                        var d = (tile.x - x).abs + (tile.y - y).abs // Manhattan distance                            
+                        if(d <= radius && r != null) {
+                            __visibility[x, y] = Visibility.visible
+                        }
+                    }
+                }
+            }
+
+            // Render the level based on the visibility of the tiles
+            for(x in 0...Level.width) {
+                for(y in 0...Level.height) {
+                    var r = Level.rendering[x, y]
+                    if(r == null) continue
+                    var color : Num = 0xFFFFFF00
+                    if(__visibility[x, y] == Visibility.visited) color = 0xFFFFFF40
+                    if(__visibility[x, y] == Visibility.visible) color = 0xFFFFFFFF
+                    var px = Level.calculatePos(x, y).x
+                    var py = Level.calculatePos(x, y).y
+                    var t = Level.gameplay[x, y]
+                    Render.sprite(r, px, py, 0.0, 1.0, 0.0, color, 0x0, Render.spriteCenter)                        
+                }
+            }
+
+        
+            // Render the tiles around the hero
+            /* 
+            var radius = Data.getNumber("Render Radius", Data.game)
+            for (x in tile.x - radius...tile.x + radius) {
+                for (y in tile.y - radius...tile.y + radius) {
+                    if(!Level.gameplay.valid(x, y)) continue
+                    var px = Level.calculatePos(x, y).x
+                    var py = Level.calculatePos(x, y).y
+                    var r = Level.rendering[x, y]
+                    if(r != null) {
+                        Render.sprite(r, px, py, 0.0, 1.0, 0.0, 0xFFFFFF90, 0x0, Render.spriteCenter)
+                    }
+                }
+            }
+            */
+
+            if(__message != "") {
+                var pos : Vec2 = Vec2.new(Hero.hero.owner.get(Transform).position)
+                pos.y = pos.y + 10
+                Render.text(__font, __message, pos.x, pos.y, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+            }
+
+            __ui.render()
+        }        
+    }
 
     static message=(v) {
         __message = v
         __timer = Data.getNumber("Message Time", Data.game)
-    }
-
-    static renderUI() {
-        var hero = Hero.hero
-        var stats = hero.owner.get(Stats)
-        var message = "Health: %(stats.health)  Damage: %(stats.damage)  Armor: %(stats.armor)"
-        Render.text(__font, message, 0, -170, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
-        Render.text(__font, __message, 0, 160, 1.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
-    }
+    }    
  }
 
-import "create" for Create 
+import "create" for Create
+import "generators" for Rect
