@@ -432,7 +432,6 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="external\imgui\debuggers\imgui.natstepfilter" />
-    <None Include="sessions" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="xs.rc">

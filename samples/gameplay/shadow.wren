@@ -7,6 +7,7 @@ import "random" for Random
 
 class Shadow is  Component {    
     construct new() {
+        super()
         _offset = Vec2.new(10, -10)
     }
 

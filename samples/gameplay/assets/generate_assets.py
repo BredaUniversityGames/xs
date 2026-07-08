@@ -42,7 +42,7 @@ for radius in radii:
     create_circle(size, f"images/disc_{radius}.png")
 
 # Generate player triangle
-create_triangle(40, "images/player.png")
+# create_triangle(40, "images/player.png")
 
 # Generate bullet
 create_bullet("images/bullet.png")

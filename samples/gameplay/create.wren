@@ -16,11 +16,12 @@ class Create {
         var player = Entity.new()
         var t = Transform.new(Vec2.new(0,0))
         var p = Player.new()
-        var b = Body.new(Data.getNumber("Player Size"), Vec2.new(0,0))
-        var h = Health.new(Data.getNumber("Player HP"))
+        var b = Body.new(Data.getNumber("Player.Size"), Vec2.new(0,0))
+        var h = Health.new(Data.getNumber("Player.HP"))
         var s = GridSprite.new("[game]/assets/images/player.png", 4, 4)
         s.idx = 1
         var sh = Shadow.new()
+        var tr = Trail.new()
         s.layer = 2.0
         s.flags = Render.spriteCenter
         player.add(t)
@@ -29,6 +30,7 @@ class Create {
         player.add(h)
         player.add(s)
         player.add(sh)
+        player.add(tr)
         player.name = "Player"
         player.tag = (Tag.player)
         return player
@@ -95,6 +97,7 @@ class Create {
         return bullet
     }
 
+    /*
     static obstacle() {
         var radii = [50, 60, 70, 80, 90, 100, 110, 120]
         var radius = radii[Create.random.int(0, radii.count - 1)]
@@ -121,6 +124,7 @@ class Create {
         obstacle.tag = (Tag.obstacle)
         return obstacle
     }
+    */
 }
 
 import "player" for Player
@@ -130,3 +134,4 @@ import "health" for Health
 import "pickup" for Pickup
 import "tags" for Tag
 import "shadow" for Shadow
+import "trail" for Trail

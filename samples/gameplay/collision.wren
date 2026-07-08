@@ -1,170 +1,69 @@
-import "xs/core" for Data
 import "xs/ec" for Entity, Component
-import "xs/math" for Vec2, Bits
+import "xs/math" for Vec2
 import "xs/components" for Transform, Body
-import "tags" for Tag
-import "health" for Health
-import "bullet" for Bullet
-import "pickup" for Pickup
-import "game" for Game
 
-// Collision system - checks for collisions between entities
+// Generic collision detection system.
+//
+// Usage:
+//   cs.addPair(tagA, tagB)           -- detect overlaps between these two groups
+//   cs.addPair(tagA, tagB, true)     -- also push overlapping entities apart
+//   cs.on(tagA, tagB) { |a, b| ... } -- callback fired for each overlapping pair
+//
+// The system only does detection and resolution; all gameplay logic lives in
+// the callbacks registered by the caller.
 class CollisionSystem is Component {
     construct new() {
         super()
+        _pairs    = []  // List of [tagA, tagB, resolve]
+        _handlers = {}  // Map "tagA,tagB" -> Fn
+    }
+
+    // Register a tag pair to test for overlaps each frame
+    addPair(tagA, tagB) { addPair(tagA, tagB, false) }
+    addPair(tagA, tagB, resolve) {
+        _pairs.add([tagA, tagB, resolve])
+    }
+
+    // Register a callback invoked with (entityA, entityB) on each overlapping pair
+    on(tagA, tagB, fn) {
+        _handlers["%(tagA),%(tagB)"] = fn
     }
 
     update(dt) {
-        checkBulletEnemyCollisions()
-        checkBulletObstacleCollisions()
-        checkPlayerEnemyCollisions()
-        checkPlayerPickupCollisions()
-    }
-
-    checkBulletEnemyCollisions() {
-        var bullets = Entity.withTag(Tag.bullet)
-        var enemies = Entity.withTag(Tag.enemy)
-        
-        for (bullet in bullets) {
-            if (bullet.deleted) {
-                continue
-            }
-            
-            var bulletTransform = bullet.get(Transform)
-            var bulletBody = bullet.get(Body)
-            var bulletComp = bullet.get(Bullet)
-            
-            if (bulletTransform == null || bulletBody == null || bulletComp == null) {
-                continue
-            }
-            
-            for (enemy in enemies) {
-                if (enemy.deleted) {
-                    continue
-                }
-                
-                var enemyTransform = enemy.get(Transform)
-                var enemyBody = enemy.get(Body)
-                var enemyHealth = enemy.get(Health)
-                
-                if (enemyTransform == null || enemyBody == null || enemyHealth == null) {
-                    continue
-                }
-                
-                var distance = (bulletTransform.position - enemyTransform.position).magnitude
-                var collisionRadius = bulletBody.size * 0.5 + enemyBody.size * 0.5
-                
-                if (distance < collisionRadius) {
-                    enemyHealth.damage(bulletComp.damage)
-                    bullet.delete()
-                    break
-                }
-            }
+        for (pair in _pairs) {
+            checkPair(pair[0], pair[1], pair[2])
         }
     }
 
-    checkBulletObstacleCollisions() {
-        var bullets = Entity.withTag(Tag.bullet)
-        var obstacles = Entity.withTag(Tag.obstacle)
-        
-        for (bullet in bullets) {
-            if (bullet.deleted) {
-                continue
-            }
-            
-            var bulletTransform = bullet.get(Transform)
-            var bulletBody = bullet.get(Body)
-            
-            if (bulletTransform == null || bulletBody == null) {
-                continue
-            }
-            
-            for (obstacle in obstacles) {
-                var obstacleTransform = obstacle.get(Transform)
-                var obstacleBody = obstacle.get(Body)
-                
-                if (obstacleTransform == null || obstacleBody == null) {
-                    continue
-                }
-                
-                var distance = (bulletTransform.position - obstacleTransform.position).magnitude
-                var collisionRadius = bulletBody.size * 0.5 + obstacleBody.size * 0.5
-                
-                if (distance < collisionRadius) {
-                    bullet.delete()
-                    break
-                }
-            }
-        }
-    }
+    checkPair(tagA, tagB, resolve) {
+        var groupA  = Entity.withTag(tagA)
+        var groupB  = Entity.withTag(tagB)
+        var handler = _handlers["%(tagA),%(tagB)"]
 
-    checkPlayerEnemyCollisions() {
-        var players = Entity.withTag(Tag.player)
-        var enemies = Entity.withTag(Tag.enemy)
-        
-        if (players.count > 0) {
-            var player = players[0]
-            var playerTransform = player.get(Transform)
-            var playerBody = player.get(Body)
-            var playerHealth = player.get(Health)
-            
-            if (playerTransform != null && playerBody != null && playerHealth != null) {
-                for (enemy in enemies) {
-                    if (enemy.deleted) {
-                        continue
-                    }
-                    
-                    var enemyTransform = enemy.get(Transform)
-                    var enemyBody = enemy.get(Body)
-                    
-                    if (enemyTransform == null || enemyBody == null) {
-                        continue
-                    }
-                    
-                    var distance = (playerTransform.position - enemyTransform.position).magnitude
-                    var collisionRadius = playerBody.size * 0.5 + enemyBody.size * 0.5
-                    
-                    if (distance < collisionRadius) {
-                        var damage = Data.getNumber("Enemy Damage")
-                        playerHealth.damage(damage)
-                        enemy.delete()
-                    }
-                }
-            }
-        }
-    }
+        for (a in groupA) {
+            if (a.deleted) continue
+            var at = a.get(Transform)
+            var ab = a.get(Body)
+            if (at == null || ab == null) continue
 
-    checkPlayerPickupCollisions() {
-        var players = Entity.withTag(Tag.player)
-        var pickups = Entity.withTag(Tag.pickup)
-        
-        if (players.count > 0) {
-            var player = players[0]
-            var playerTransform = player.get(Transform)
-            var playerBody = player.get(Body)
-            
-            if (playerTransform != null && playerBody != null) {
-                for (pickup in pickups) {
-                    if (pickup.deleted) {
-                        continue
+            for (b in groupB) {
+                if (b.deleted) continue
+                var bt = b.get(Transform)
+                var bb = b.get(Body)
+                if (bt == null || bb == null) continue
+
+                var diff    = at.position - bt.position
+                var dist    = diff.magnitude
+                var minDist = (ab.size + bb.size) * 0.5
+
+                if (dist < minDist) {
+                    if (resolve) {
+                        var overlap = minDist - dist
+                        var normal  = dist > 0 ? diff.normal : Vec2.new(1, 0)
+                        at.position = at.position + normal * (overlap * 0.5)
+                        bt.position = bt.position - normal * (overlap * 0.5)
                     }
-                    
-                    var pickupTransform = pickup.get(Transform)
-                    var pickupBody = pickup.get(Body)
-                    var pickupComp = pickup.get(Pickup)
-                    
-                    if (pickupTransform == null || pickupBody == null || pickupComp == null) {
-                        continue
-                    }
-                    
-                    var distance = (playerTransform.position - pickupTransform.position).magnitude
-                    var collisionRadius = playerBody.size * 0.5 + pickupBody.size * 0.5
-                    
-                    if (distance < collisionRadius) {
-                        // Player collected pickup!
-                        Game.addScore(pickupComp.value)
-                        pickup.delete()
-                    }
+                    if (handler != null) handler.call(a, b)
                 }
             }
         }

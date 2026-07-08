@@ -14,14 +14,14 @@ class Player is Component {
     initialize() {
         _body = owner.get(Body)
         _transform = owner.get(Transform)
-        _shootInterval = Data.getNumber("Player Shoot Interval")
+        _shootInterval = Data.getNumber("Player.Shoot Interval")
         _sprite = owner.get(GridSprite)
         _facing = _body.velocity
     }
 
     update(dt) {
         move(dt)
-        shoot(dt)
+        // shoot(dt)
         keepInBounds()
         updateSprite()
     }
@@ -33,8 +33,8 @@ class Player is Component {
         // Gamepad input
         var gamepadX = Input.getAxis(0)
         var gamepadY = -Input.getAxis(1)
-        if (gamepadX.abs > Data.getNumber("Player Input Dead Zone") || 
-            gamepadY.abs > Data.getNumber("Player Input Dead Zone")) {
+        if (gamepadX.abs > Data.getNumber("Player.Input Dead Zone") || 
+            gamepadY.abs > Data.getNumber("Player.Input Dead Zone")) {
             vel = Vec2.new(gamepadX, gamepadY)
         } else {
             // Keyboard input (WASD)
@@ -52,11 +52,11 @@ class Player is Component {
             }
         }
         
-        var normalSpeed = Data.getNumber("Player Speed")
-        if (vel.magnitude > Data.getNumber("Player Input Dead Zone")) {            
+        var normalSpeed = Data.getNumber("Player.Speed")
+        if (vel.magnitude > Data.getNumber("Player.Input Dead Zone")) {            
             vel = vel.normal * normalSpeed
         }
-        var posEase = Data.getNumber("Player Position Easing")
+        var posEase = Data.getNumber("Player.Position Easing")
         _body.velocity = Math.damp(_body.velocity, vel, posEase, dt)
         
         var damp = Data.getNumber("Player.Rotation Damp")
@@ -65,7 +65,7 @@ class Player is Component {
     }
 
     shoot(dt) {
-        _shootInterval = Data.getNumber("Player Shoot Interval")
+        _shootInterval = Data.getNumber("Player.Shoot Interval")
         _shootCooldown = _shootCooldown - dt
         
         // Auto-shoot when cooldown is ready
@@ -95,7 +95,7 @@ class Player is Component {
     }
 
     updateSprite() {
-        var maxSpeed = Data.getNumber("Player Speed")
+        var maxSpeed = Data.getNumber("Player.Speed")
         var normalizedSpeed = _body.velocity.magnitude / maxSpeed
 
         _sprite.idx = (normalizedSpeed * 16).floor

@@ -5,13 +5,14 @@ import "xs/ec" for Entity, Component
 import "xs/components" for Transform, Body, Renderable, Sprite
 import "background" for Background
 import "shadow" for Shadow
+import "trail" for Trail
 
 class Game {
     static initialize() {
         Entity.initialize()        
         __time = 0
         __score = 0
-        __font = Render.loadFont("[shared]/fonts/selawk.ttf", 40)
+        __font = Render.loadFont("[game]/assets/fonts/Amalgama.ttf", 16)
         __background = Background.new()
 
         // Create player
@@ -27,13 +28,54 @@ class Game {
         // Create collision system entity
         var collisionEntity = Entity.new()
         var collisionComp = CollisionSystem.new()
+
+        // Register which tag pairs to test for overlaps
+        collisionComp.addPair(Tag.bullet, Tag.enemy)
+        collisionComp.addPair(Tag.bullet, Tag.obstacle)
+        collisionComp.addPair(Tag.player, Tag.enemy, true)  // true = resolve overlap
+        collisionComp.addPair(Tag.player, Tag.pickup)
+        collisionComp.addPair(Tag.enemy, Tag.enemy, true)   // push enemies apart, no callback
+
+        // Gameplay responses to each collision type
+        collisionComp.on(Tag.bullet, Tag.enemy) { |bullet, enemy|
+            if (bullet.deleted || enemy.deleted) return
+            var bulletComp  = bullet.get(Bullet)
+            var enemyHealth = enemy.get(Health)
+            if (bulletComp == null || enemyHealth == null) return
+            enemyHealth.damage(bulletComp.damage)
+            bullet.delete()
+        }
+
+        collisionComp.on(Tag.bullet, Tag.obstacle) { |bullet, obstacle|
+            if (bullet.deleted) return
+            bullet.delete()
+        }
+
+        collisionComp.on(Tag.player, Tag.enemy) { |player, enemy|
+            if (player.deleted || enemy.deleted) return
+            var playerHealth = player.get(Health)
+            if (playerHealth == null) return
+            playerHealth.damage(Data.getNumber("Enemy Damage"))
+            enemy.delete()
+        }
+
+        collisionComp.on(Tag.player, Tag.pickup) { |player, pickup|
+            if (player.deleted || pickup.deleted) return
+            var pickupComp = pickup.get(Pickup)
+            if (pickupComp == null) return
+            Game.addScore(pickupComp.value)
+            pickup.delete()
+        }
+
         collisionEntity.add(collisionComp)
         collisionEntity.name = "CollisionSystem"
         
+        /*
         // Create a few obstacles
         for(i in 0...6) {
             var obstacle = Create.obstacle()
         }
+        */
     }    
 
     static update(dt) {
@@ -55,6 +97,7 @@ class Game {
     static render() {
         __background.render()
         Renderable.render()
+        Trail.render()
         Shadow.render()
 
         // Draw small circle at mouse position for testing
@@ -89,4 +132,6 @@ import "create" for Create
 import "spawner" for EnemySpawner
 import "collision" for CollisionSystem
 import "health" for Health
+import "bullet" for Bullet
+import "pickup" for Pickup
 import "tags" for Tag
