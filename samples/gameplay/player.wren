@@ -8,20 +8,19 @@ class Player is Component {
     construct new() {
         super()
         _time = 0
-        _shootCooldown = 0
+        _attackCooldown = 0
     }
 
     initialize() {
         _body = owner.get(Body)
         _transform = owner.get(Transform)
-        _shootInterval = Data.getNumber("Player.Shoot Interval")
         _sprite = owner.get(GridSprite)
         _facing = _body.velocity
     }
 
     update(dt) {
         move(dt)
-        // shoot(dt)
+        attack(dt)
         keepInBounds()
         updateSprite()
     }
@@ -62,6 +61,24 @@ class Player is Component {
         var damp = Data.getNumber("Player.Rotation Damp")
         _facing = Math.damp(_facing, vel, damp, dt)
         _transform.rotation = _facing.atan2
+    }
+
+    attack(dt) {
+        _attackCooldown = _attackCooldown - dt
+        if (_attackCooldown > 0) return
+
+        var hackPressed  = Input.getButton(0) || Input.getKey(Input.keyZ)
+        var slashPressed = Input.getButton(2) || Input.getKey(Input.keyX)
+
+        if (hackPressed || slashPressed) {
+            _attackCooldown = Data.getNumber("Player.Attack Interval")
+            var facing = Vec2.new(_transform.rotation.cos, _transform.rotation.sin)
+            if (hackPressed) {
+                Create.hack(_transform.position + facing * Data.getNumber("Player.Hack Offset"), _transform.rotation)
+            } else {
+                Create.slash(_transform.position + facing * Data.getNumber("Player.Slash Offset"), _transform.rotation)
+            }
+        }
     }
 
     shoot(dt) {

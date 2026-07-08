@@ -1,3 +1,4 @@
+import "xs/core" for Render
 import "xs/ec" for Entity, Component
 import "xs/math" for Vec2
 import "xs/components" for Transform, Body
@@ -70,5 +71,21 @@ class CollisionSystem is Component {
     }
 
     toString { "[CollisionSystem]" }
+
+    // Set to true to draw every Body as a circle each frame
+    static debug=(v) { __debug = v }
+    static debug      { __debug }
+
+    static debugRender() {
+        if (!__debug) return
+        for (e in Entity.entities) {
+            if (e.deleted) continue
+            var t = e.get(Transform)
+            var b = e.get(Body)
+            if (t == null || b == null) continue
+            Render.dbgColor(0x6000ff00)  // semi-transparent green (ARGB)
+            Render.dbgDisk(t.position.x, t.position.y, b.size * 0.5, 16)
+        }
+    }
 }
 

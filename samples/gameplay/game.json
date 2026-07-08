@@ -19,6 +19,10 @@
         "type": "number",
         "value": 800.0
     },
+    "Debug.ShowPhysics": {
+        "type": "bool",
+        "value": true
+    },
     "Enemy Avoidance Radius": {
         "type": "number",
         "value": 80.0
@@ -79,9 +83,45 @@
         "type": "number",
         "value": 10.0
     },
+    "Player.Attack Damage": {
+        "type": "number",
+        "value": 25.0
+    },
+    "Player.Attack Interval": {
+        "type": "number",
+        "value": 0.4000000059604645
+    },
+    "Player.Attack Lifetime": {
+        "type": "number",
+        "value": 0.07999999821186066
+    },
+    "Player.Attack Offset": {
+        "type": "number",
+        "value": 35.0
+    },
+    "Player.Attack Size": {
+        "type": "number",
+        "value": 55.0
+    },
     "Player.HP": {
         "type": "number",
         "value": 100.0
+    },
+    "Player.Hack Damage": {
+        "type": "number",
+        "value": 20.0
+    },
+    "Player.Hack Lifetime": {
+        "type": "number",
+        "value": 0.05999999865889549
+    },
+    "Player.Hack Offset": {
+        "type": "number",
+        "value": 30.0
+    },
+    "Player.Hack Size": {
+        "type": "number",
+        "value": 45.0
     },
     "Player.Input Dead Zone": {
         "type": "number",
@@ -91,6 +131,10 @@
         "type": "number",
         "value": 8.0
     },
+    "Player.Rotation Damp": {
+        "type": "number",
+        "value": 25.0
+    },
     "Player.Shoot Interval": {
         "type": "number",
         "value": 0.25
@@ -99,6 +143,22 @@
         "type": "number",
         "value": 15.0
     },
+    "Player.Slash Damage": {
+        "type": "number",
+        "value": 40.0
+    },
+    "Player.Slash Lifetime": {
+        "type": "number",
+        "value": 0.6200000047683716
+    },
+    "Player.Slash Offset": {
+        "type": "number",
+        "value": 0.0
+    },
+    "Player.Slash Size": {
+        "type": "number",
+        "value": 80.0
+    },
     "Player.Speed": {
         "type": "number",
         "value": 400.0
@@ -106,10 +166,6 @@
     "Player.Speed Aim": {
         "type": "number",
         "value": 1.0
-    },
-    "Player.Rotation Damp": {
-        "type": "number",
-        "value": 25.0
     },
     "Shadow Color": {
         "type": "color",

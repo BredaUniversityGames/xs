@@ -5,4 +5,5 @@ class Tag {
     static obstacle { 8 }
     static spawner  { 16 }
     static pickup   { 32 }
+    static attack   { 64 }
 }

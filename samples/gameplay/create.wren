@@ -22,15 +22,17 @@ class Create {
         s.idx = 1
         var sh = Shadow.new()
         var tr = Trail.new()
+        var c = DebugColor.new(0x8BEC46FF)
         s.layer = 2.0
         s.flags = Render.spriteCenter
         player.add(t)
-        player.add(p)            
+        player.add(p)
         player.add(b)
         player.add(h)
         player.add(s)
         player.add(sh)
         player.add(tr)
+        player.add(c)
         player.name = "Player"
         player.tag = (Tag.player)
         return player
@@ -49,12 +51,14 @@ class Create {
         s.layer = 2.0
         s.flags = Render.spriteCenter
         s.mul = Data.getColor("Enemy Color")
+        var c = DebugColor.new(Data.getColor("Enemy Color"))
         enemy.add(t)
         enemy.add(e)
         enemy.add(b)
         enemy.add(h)
         enemy.add(s)
         enemy.add(sh)
+        enemy.add(c)
         enemy.name = "Enemy"
         enemy.tag = (Tag.enemy)
         return enemy
@@ -89,13 +93,66 @@ class Create {
         s.layer = 1.0
         s.flags = Render.spriteCenter
         s.mul = Data.getColor("Bullet Color")
+        var c = DebugColor.new(Data.getColor("Bullet Color"))
         bullet.add(t)
         bullet.add(bul)
         bullet.add(b)
         bullet.add(s)
+        bullet.add(c)
         bullet.name = "Bullet"
         bullet.tag = (Tag.bullet)
         return bullet
+    }
+
+    static meleeAttack(position) {
+        var attack = Entity.new()
+        var t = Transform.new(position)
+        var a = MeleeAttack.new(Data.getNumber("Player.Attack Damage"), Data.getNumber("Player.Attack Lifetime"))
+        var b = Body.new(Data.getNumber("Player.Attack Size"), Vec2.new(0, 0))
+        attack.add(t)
+        attack.add(a)
+        attack.add(b)
+        attack.name = "MeleeAttack"
+        attack.tag = Tag.attack
+        return attack
+    }
+
+    static hack(position, rotation) {
+        var attack = Entity.new()
+        var t = Transform.new(position)
+        t.rotation = rotation
+        var a = MeleeAttack.new(Data.getNumber("Player.Hack Damage"), Data.getNumber("Player.Hack Lifetime"))
+        var b = Body.new(Data.getNumber("Player.Hack Size"), Vec2.new(0, 0))
+        var s = AnimatedSprite.new("[game]/assets/images/slash.xsanim")
+        s.playAnimation("default")
+        s.layer = 3.0
+        s.flags = Render.spriteCenter
+        attack.add(t)
+        attack.add(a)
+        attack.add(b)
+        attack.add(s)
+        attack.name = "Hack"
+        attack.tag = Tag.attack
+        return attack
+    }
+
+    static slash(position, rotation) {
+        var attack = Entity.new()
+        var t = Transform.new(position)
+        t.rotation = rotation
+        var a = MeleeAttack.new(Data.getNumber("Player.Slash Damage"), Data.getNumber("Player.Slash Lifetime"))
+        var b = Body.new(Data.getNumber("Player.Slash Size"), Vec2.new(0, 0))
+        var s = AnimatedSprite.new("[game]/assets/images/slash.xsanim")
+        s.playAnimation("default")
+        s.layer = 3.0
+        s.flags = Render.spriteCenter
+        attack.add(t)
+        attack.add(a)
+        attack.add(b)
+        attack.add(s)
+        attack.name = "Slash"
+        attack.tag = Tag.attack
+        return attack
     }
 
     /*
@@ -136,3 +193,5 @@ import "pickup" for Pickup
 import "tags" for Tag
 import "shadow" for Shadow
 import "trail" for Trail
+import "attack" for MeleeAttack
+import "debug" for DebugColor

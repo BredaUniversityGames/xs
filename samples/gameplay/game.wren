@@ -6,6 +6,7 @@ import "xs/components" for Transform, Body, Renderable, Sprite
 import "background" for Background
 import "shadow" for Shadow
 import "trail" for Trail
+import "debug" for DebugColor
 
 class Game {
     static initialize() {
@@ -30,25 +31,20 @@ class Game {
         var collisionComp = CollisionSystem.new()
 
         // Register which tag pairs to test for overlaps
-        collisionComp.addPair(Tag.bullet, Tag.enemy)
-        collisionComp.addPair(Tag.bullet, Tag.obstacle)
+        collisionComp.addPair(Tag.attack, Tag.enemy)
         collisionComp.addPair(Tag.player, Tag.enemy, true)  // true = resolve overlap
         collisionComp.addPair(Tag.player, Tag.pickup)
         collisionComp.addPair(Tag.enemy, Tag.enemy, true)   // push enemies apart, no callback
 
         // Gameplay responses to each collision type
-        collisionComp.on(Tag.bullet, Tag.enemy) { |bullet, enemy|
-            if (bullet.deleted || enemy.deleted) return
-            var bulletComp  = bullet.get(Bullet)
+        collisionComp.on(Tag.attack, Tag.enemy) { |atk, enemy|
+            if (atk.deleted || enemy.deleted) return
+            var attackComp  = atk.get(MeleeAttack)
             var enemyHealth = enemy.get(Health)
-            if (bulletComp == null || enemyHealth == null) return
-            enemyHealth.damage(bulletComp.damage)
-            bullet.delete()
-        }
-
-        collisionComp.on(Tag.bullet, Tag.obstacle) { |bullet, obstacle|
-            if (bullet.deleted) return
-            bullet.delete()
+            if (attackComp == null || enemyHealth == null) return
+            if (!attackComp.canHit(enemy)) return
+            attackComp.registerHit(enemy)
+            enemyHealth.damage(attackComp.damage)
         }
 
         collisionComp.on(Tag.player, Tag.enemy) { |player, enemy|
@@ -69,6 +65,9 @@ class Game {
 
         collisionEntity.add(collisionComp)
         collisionEntity.name = "CollisionSystem"
+
+        // Set to true to draw collision bodies as circles
+        CollisionSystem.debug = true
         
         /*
         // Create a few obstacles
@@ -99,6 +98,7 @@ class Game {
         Renderable.render()
         Trail.render()
         Shadow.render()
+        CollisionSystem.debugRender()
 
         // Draw small circle at mouse position for testing
         var mouseX = Input.getMouseX()
@@ -117,14 +117,29 @@ class Game {
             var health = player.get(Health)
             if (health != null) {
                 var healthText = "HP: %(health.health.floor)"
-                Render.text(__font, healthText, -620, 280, 10, 0xffffffff, 0x00000000, 0)
+                Render.text(__font, healthText, -620, 200, 10, 0xffffffff, 0x00000000, 0)
             }
         }
 
         // Render enemy count
         var enemies = Entity.withTag(Tag.enemy)
         var enemyText = "Enemies: %(enemies.count)"
-        Render.text(__font, enemyText, -620, 240, 10, 0xffffffff, 0x00000000, 0)
+        Render.text(__font, enemyText, -620, 280, 10, 0xffffffff, 0x00000000, 0)
+
+        if(Data.getBool("Debug.ShowPhysics", Data.game)) {
+            for(e in Entity.entities) {
+                var b = e.get(Body)
+                if(b != null) {
+                    var t = e.get(Transform)
+                    var c = e.get(DebugColor)
+                    Render.dbgColor(0xFF00FFFF)
+                    if(c != null) {
+                        Render.dbgColor(c.color)
+                    }
+                    Render.dbgDisk(t.position.x, t.position.y, b.size * 0.5, 24)
+                }
+            }
+        }
     }
 }
 
@@ -132,6 +147,6 @@ import "create" for Create
 import "spawner" for EnemySpawner
 import "collision" for CollisionSystem
 import "health" for Health
-import "bullet" for Bullet
+import "attack" for MeleeAttack
 import "pickup" for Pickup
 import "tags" for Tag
