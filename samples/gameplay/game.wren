@@ -13,7 +13,7 @@ class Game {
         Entity.initialize()        
         __time = 0
         __score = 0
-        __font = Render.loadFont("[game]/assets/fonts/Amalgama.ttf", 16)
+        __font = Render.loadFont("[game]/assets/fonts/Amalgama.ttf", 20)
         __background = Background.new()
 
         // Create player
@@ -45,13 +45,15 @@ class Game {
             if (!attackComp.canHit(enemy)) return
             attackComp.registerHit(enemy)
             enemyHealth.damage(attackComp.damage)
+            var enemyComp = enemy.get(Enemy)
+            if (enemyComp != null) enemyComp.stun(Data.getNumber("Enemy.Stun Duration"))
         }
 
         collisionComp.on(Tag.player, Tag.enemy) { |player, enemy|
             if (player.deleted || enemy.deleted) return
             var playerHealth = player.get(Health)
             if (playerHealth == null) return
-            playerHealth.damage(Data.getNumber("Enemy Damage"))
+            playerHealth.damage(Data.getNumber("Enemy.Damage"))
             enemy.delete()
         }
 
@@ -108,7 +110,7 @@ class Game {
 
         // Render UI
         var scoreText = "Score: %(__score)"
-        Render.text(__font, scoreText, -620, 320, 10, 0xffffffff, 0x00000000, 0)
+        Render.text(__font, scoreText, -100, 320, 10, 0xffffffff, 0x00000000, Render.spriteCenterX)
 
         // Render health if player exists
         var players = Entity.withTag(Tag.player)
@@ -116,15 +118,10 @@ class Game {
             var player = players[0]
             var health = player.get(Health)
             if (health != null) {
-                var healthText = "HP: %(health.health.floor)"
-                Render.text(__font, healthText, -620, 200, 10, 0xffffffff, 0x00000000, 0)
+                var healthText = "Health: %(health.health.floor)"
+                Render.text(__font, healthText, 100, 320, 10, 0xffffffff, 0x00000000, Render.spriteCenterX)
             }
-        }
-
-        // Render enemy count
-        var enemies = Entity.withTag(Tag.enemy)
-        var enemyText = "Enemies: %(enemies.count)"
-        Render.text(__font, enemyText, -620, 280, 10, 0xffffffff, 0x00000000, 0)
+        }        
 
         if(Data.getBool("Debug.ShowPhysics", Data.game)) {
             for(e in Entity.entities) {
@@ -150,3 +147,4 @@ import "health" for Health
 import "attack" for MeleeAttack
 import "pickup" for Pickup
 import "tags" for Tag
+import "enemy" for Enemy

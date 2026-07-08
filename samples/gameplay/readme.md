@@ -31,7 +31,7 @@ The game follows an ECS architecture with the following components:
 - **Sprite**: Visual representation
 - **Health**: Hit points and damage system with optional pickup drops
 - **Player**: Player movement (gamepad/keyboard/mouse) and shooting logic
-- **Enemy**: Enemy AI that chases the player with obstacle avoidance
+- **Enemy**: Enemy.AI that chases the player with obstacle avoidance
 - **Bullet**: Projectile that damages enemies
 - **Pickup**: Collectible that increases score
 - **Shadow**: Renders shadows behind sprites
@@ -51,7 +51,7 @@ The game follows an ECS architecture with the following components:
 
 All game parameters can be adjusted in `game.json`:
 - Player speed, health, shoot rate, size
-- Enemy speed, health, damage, spawn rate, size, avoidance radius and strength
+- Enemy.speed, health, damage, spawn rate, size, avoidance radius and strength
 - Bullet speed, damage, lifetime, size
 - Pickup value, lifetime, size
 - World dimensions

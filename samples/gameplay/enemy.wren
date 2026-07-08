@@ -1,6 +1,6 @@
 import "xs/core" for Data
 import "xs/ec" for Entity, Component
-import "xs/math" for Vec2
+import "xs/math" for Vec2, Math
 import "xs/components" for Transform, Body
 import "tags" for Tag
 
@@ -9,9 +9,10 @@ class Enemy is Component {
     construct new(target) {
         super()
         _target = target
-        _speed = Data.getNumber("Enemy Speed")
-        _avoidanceRadius = Data.getNumber("Enemy Avoidance Radius")
-        _avoidanceStrength = Data.getNumber("Enemy Avoidance Strength")
+        _speed = Data.getNumber("Enemy.Speed")
+        _avoidanceRadius = Data.getNumber("Enemy.Avoidance Radius")
+        _avoidanceStrength = Data.getNumber("Enemy.Avoidance Strength")
+        _stunTime = 0
     }
 
     initialize() {
@@ -20,6 +21,12 @@ class Enemy is Component {
     }
 
     update(dt) {
+        if (_stunTime > 0) {
+            _stunTime = _stunTime - dt
+            _body.velocity = Math.damp(_body.velocity, Vec2.new(0, 0), 20, dt)
+            return
+        }
+
         if (_target == null || _target.deleted) {
             return
         }
@@ -45,6 +52,10 @@ class Enemy is Component {
             // Rotate to face movement direction
             _transform.rotation = direction.atan2
         }
+    }
+
+    stun(duration) {
+        _stunTime = duration
     }
 
     calculateObstacleAvoidance() {

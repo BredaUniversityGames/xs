@@ -1,59 +1,43 @@
 {
-    "Bullet Color": {
-        "type": "color",
-        "value": 4294967295
-    },
-    "Bullet Damage": {
-        "type": "number",
-        "value": 11.039999961853027
-    },
-    "Bullet Lifetime": {
-        "type": "number",
-        "value": 3.009999990463257
-    },
-    "Bullet Size": {
-        "type": "number",
-        "value": 8.0
-    },
-    "Bullet Speed": {
-        "type": "number",
-        "value": 800.0
-    },
     "Debug.ShowPhysics": {
         "type": "bool",
         "value": true
     },
-    "Enemy Avoidance Radius": {
+    "Enemy.Avoidance Radius": {
         "type": "number",
         "value": 80.0
     },
-    "Enemy Avoidance Strength": {
+    "Enemy.Avoidance Strength": {
         "type": "number",
         "value": 0.5
     },
-    "Enemy Color": {
+    "Enemy.Color": {
         "type": "color",
-        "value": 4278190335
+        "value": 4294967295
     },
-    "Enemy Damage": {
+    "Enemy.Damage": {
         "type": "number",
         "value": 5.0
     },
-    "Enemy HP": {
+    "Enemy.HP": {
         "type": "number",
         "value": 20.0
     },
-    "Enemy Size": {
+    "Enemy.Size": {
         "type": "number",
-        "value": 20.0
+        "value": 40.0
     },
-    "Enemy Spawn Interval": {
+    "Enemy.Spawn Interval": {
         "type": "number",
         "value": 2.0
     },
-    "Enemy Speed": {
+    "Enemy.Speed": {
         "type": "number",
         "value": 150.0
+    },
+    "Enemy.Stun Duration": {
+        "type": "number",
+        "value": 0.0
     },
     "From Color": {
         "type": "color",
@@ -83,45 +67,33 @@
         "type": "number",
         "value": 10.0
     },
-    "Player.Attack Damage": {
-        "type": "number",
-        "value": 25.0
-    },
     "Player.Attack Interval": {
         "type": "number",
         "value": 0.4000000059604645
-    },
-    "Player.Attack Lifetime": {
-        "type": "number",
-        "value": 0.07999999821186066
-    },
-    "Player.Attack Offset": {
-        "type": "number",
-        "value": 35.0
-    },
-    "Player.Attack Size": {
-        "type": "number",
-        "value": 55.0
     },
     "Player.HP": {
         "type": "number",
         "value": 100.0
     },
-    "Player.Hack Damage": {
+    "Player.Hack.Damage": {
         "type": "number",
         "value": 20.0
     },
-    "Player.Hack Lifetime": {
+    "Player.Hack.Lifetime": {
         "type": "number",
-        "value": 0.05999999865889549
+        "value": 0.25999999046325684
     },
-    "Player.Hack Offset": {
+    "Player.Hack.Offset": {
         "type": "number",
-        "value": 30.0
+        "value": 40.0
     },
-    "Player.Hack Size": {
+    "Player.Hack.Size": {
         "type": "number",
         "value": 45.0
+    },
+    "Player.HackOffset": {
+        "type": "number",
+        "value": 0.0
     },
     "Player.Input Dead Zone": {
         "type": "number",
@@ -129,43 +101,39 @@
     },
     "Player.Position Easing": {
         "type": "number",
-        "value": 8.0
+        "value": 24.0
     },
     "Player.Rotation Damp": {
         "type": "number",
         "value": 25.0
     },
-    "Player.Shoot Interval": {
-        "type": "number",
-        "value": 0.25
-    },
     "Player.Size": {
         "type": "number",
-        "value": 15.0
+        "value": 30.0
     },
-    "Player.Slash Damage": {
+    "Player.Slash.Damage": {
         "type": "number",
         "value": 40.0
     },
-    "Player.Slash Lifetime": {
+    "Player.Slash.Lifetime": {
         "type": "number",
-        "value": 0.6200000047683716
+        "value": 0.4000000059604645
     },
-    "Player.Slash Offset": {
+    "Player.Slash.Offset": {
+        "type": "number",
+        "value": 10.0
+    },
+    "Player.Slash.Size": {
+        "type": "number",
+        "value": 100.0
+    },
+    "Player.SlashOffset": {
         "type": "number",
         "value": 0.0
-    },
-    "Player.Slash Size": {
-        "type": "number",
-        "value": 80.0
     },
     "Player.Speed": {
         "type": "number",
         "value": 400.0
-    },
-    "Player.Speed Aim": {
-        "type": "number",
-        "value": 1.0
     },
     "Shadow Color": {
         "type": "color",

@@ -9,6 +9,7 @@ class Player is Component {
         super()
         _time = 0
         _attackCooldown = 0
+        _activeAttack = null
     }
 
     initialize() {
@@ -26,28 +27,32 @@ class Player is Component {
     }
 
     move(dt) {                
+        var attacking = _activeAttack != null && !_activeAttack.deleted
+
         // Translation - support both gamepad and keyboard (WASD)
         var vel = Vec2.new(0, 0)
         
-        // Gamepad input
-        var gamepadX = Input.getAxis(0)
-        var gamepadY = -Input.getAxis(1)
-        if (gamepadX.abs > Data.getNumber("Player.Input Dead Zone") || 
-            gamepadY.abs > Data.getNumber("Player.Input Dead Zone")) {
-            vel = Vec2.new(gamepadX, gamepadY)
-        } else {
-            // Keyboard input (WASD)
-            if (Input.getKey(Input.keyA)) {
-                vel = vel + Vec2.new(-1, 0)
-            }
-            if (Input.getKey(Input.keyD)) {
-                vel = vel + Vec2.new(1, 0)
-            }
-            if (Input.getKey(Input.keyW)) {
-                vel = vel + Vec2.new(0, 1)
-            }
-            if (Input.getKey(Input.keyS)) {
-                vel = vel + Vec2.new(0, -1)
+        if (!attacking) {
+            // Gamepad input
+            var gamepadX = Input.getAxis(0)
+            var gamepadY = -Input.getAxis(1)
+            if (gamepadX.abs > Data.getNumber("Player.Input Dead Zone") || 
+                gamepadY.abs > Data.getNumber("Player.Input Dead Zone")) {
+                vel = Vec2.new(gamepadX, gamepadY)
+            } else {
+                // Keyboard input (WASD)
+                if (Input.getKey(Input.keyA)) {
+                    vel = vel + Vec2.new(-1, 0)
+                }
+                if (Input.getKey(Input.keyD)) {
+                    vel = vel + Vec2.new(1, 0)
+                }
+                if (Input.getKey(Input.keyW)) {
+                    vel = vel + Vec2.new(0, 1)
+                }
+                if (Input.getKey(Input.keyS)) {
+                    vel = vel + Vec2.new(0, -1)
+                }
             }
         }
         
@@ -57,13 +62,18 @@ class Player is Component {
         }
         var posEase = Data.getNumber("Player.Position Easing")
         _body.velocity = Math.damp(_body.velocity, vel, posEase, dt)
-        
-        var damp = Data.getNumber("Player.Rotation Damp")
-        _facing = Math.damp(_facing, vel, damp, dt)
-        _transform.rotation = _facing.atan2
+
+        // Lock facing during a swing so the sprite doesn't spin as velocity drops to zero
+        if (!attacking) {
+            var damp = Data.getNumber("Player.Rotation Damp")
+            _facing = Math.damp(_facing, vel, damp, dt)
+            _transform.rotation = _facing.atan2
+        }
     }
 
     attack(dt) {
+        if (_activeAttack != null && !_activeAttack.deleted) return
+
         _attackCooldown = _attackCooldown - dt
         if (_attackCooldown > 0) return
 
@@ -74,9 +84,9 @@ class Player is Component {
             _attackCooldown = Data.getNumber("Player.Attack Interval")
             var facing = Vec2.new(_transform.rotation.cos, _transform.rotation.sin)
             if (hackPressed) {
-                Create.hack(_transform.position + facing * Data.getNumber("Player.Hack Offset"), _transform.rotation)
+                _activeAttack = Create.hack(_transform.position + facing * Data.getNumber("Player.Hack.Offset"), _transform.rotation)
             } else {
-                Create.slash(_transform.position + facing * Data.getNumber("Player.Slash Offset"), _transform.rotation)
+                _activeAttack = Create.slash(_transform.position + facing * Data.getNumber("Player.Slash.Offset"), _transform.rotation)
             }
         }
     }

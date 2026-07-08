@@ -42,16 +42,16 @@ class Create {
         var enemy = Entity.new()
         var t = Transform.new(position)
         var e = Enemy.new(target)
-        var b = Body.new(Data.getNumber("Enemy Size"), Vec2.new(0,0))
-        var h = Health.new(Data.getNumber("Enemy HP"))
+        var b = Body.new(Data.getNumber("Enemy.Size"), Vec2.new(0,0))
+        var h = Health.new(Data.getNumber("Enemy.HP"))
         h.enablePickupDrop(Data.getNumber("Pickup Value"))
         var s = AnimatedSprite.new("[game]/assets/images/enemy.xsanim")
         s.playAnimation("default")
         var sh = Shadow.new()
         s.layer = 2.0
         s.flags = Render.spriteCenter
-        s.mul = Data.getColor("Enemy Color")
-        var c = DebugColor.new(Data.getColor("Enemy Color"))
+        s.mul = Data.getColor("Enemy.Color")
+        var c = DebugColor.new(Data.getColor("Enemy.Color"))
         enemy.add(t)
         enemy.add(e)
         enemy.add(b)
@@ -104,25 +104,12 @@ class Create {
         return bullet
     }
 
-    static meleeAttack(position) {
-        var attack = Entity.new()
-        var t = Transform.new(position)
-        var a = MeleeAttack.new(Data.getNumber("Player.Attack Damage"), Data.getNumber("Player.Attack Lifetime"))
-        var b = Body.new(Data.getNumber("Player.Attack Size"), Vec2.new(0, 0))
-        attack.add(t)
-        attack.add(a)
-        attack.add(b)
-        attack.name = "MeleeAttack"
-        attack.tag = Tag.attack
-        return attack
-    }
-
     static hack(position, rotation) {
         var attack = Entity.new()
         var t = Transform.new(position)
         t.rotation = rotation
-        var a = MeleeAttack.new(Data.getNumber("Player.Hack Damage"), Data.getNumber("Player.Hack Lifetime"))
-        var b = Body.new(Data.getNumber("Player.Hack Size"), Vec2.new(0, 0))
+        var a = MeleeAttack.new(Data.getNumber("Player.Hack.Damage"), Data.getNumber("Player.Hack.Lifetime"))
+        var b = Body.new(Data.getNumber("Player.Hack.Size"), Vec2.new(0, 0))
         var s = AnimatedSprite.new("[game]/assets/images/slash.xsanim")
         s.playAnimation("default")
         s.layer = 3.0
@@ -140,8 +127,8 @@ class Create {
         var attack = Entity.new()
         var t = Transform.new(position)
         t.rotation = rotation
-        var a = MeleeAttack.new(Data.getNumber("Player.Slash Damage"), Data.getNumber("Player.Slash Lifetime"))
-        var b = Body.new(Data.getNumber("Player.Slash Size"), Vec2.new(0, 0))
+        var a = MeleeAttack.new(Data.getNumber("Player.Slash.Damage"), Data.getNumber("Player.Slash.Lifetime"))
+        var b = Body.new(Data.getNumber("Player.Slash.Size"), Vec2.new(0, 0))
         var s = AnimatedSprite.new("[game]/assets/images/slash.xsanim")
         s.playAnimation("default")
         s.layer = 3.0

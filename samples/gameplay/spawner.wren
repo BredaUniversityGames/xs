@@ -11,7 +11,7 @@ class EnemySpawner is Component {
     construct new(player) {
         super()
         _player = player
-        _spawnInterval = Data.getNumber("Enemy Spawn Interval")
+        _spawnInterval = Data.getNumber("Enemy.Spawn Interval")
         _spawnTimer = _spawnInterval
         _maxEnemies = Data.getNumber("Max Enemies")
         _random = Random.new()
