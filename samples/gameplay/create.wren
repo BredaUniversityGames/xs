@@ -18,7 +18,8 @@ class Create {
         var p = Player.new()
         var b = Body.new(Data.getNumber("Player Size"), Vec2.new(0,0))
         var h = Health.new(Data.getNumber("Player HP"))
-        var s = Sprite.new("[game]/assets/images/player.png")
+        var s = GridSprite.new("[game]/assets/images/player.png", 4, 4)
+        s.idx = 1
         var sh = Shadow.new()
         s.layer = 2.0
         s.flags = Render.spriteCenter

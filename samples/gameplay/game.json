@@ -107,9 +107,13 @@
         "type": "number",
         "value": 1.0
     },
+    "Player.Rotation Damp": {
+        "type": "number",
+        "value": 25.0
+    },
     "Shadow Color": {
         "type": "color",
-        "value": 128
+        "value": 15
     },
     "To Color": {
         "type": "color",

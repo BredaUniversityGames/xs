@@ -15,12 +15,15 @@ class Player is Component {
         _body = owner.get(Body)
         _transform = owner.get(Transform)
         _shootInterval = Data.getNumber("Player Shoot Interval")
+        _sprite = owner.get(GridSprite)
+        _facing = _body.velocity
     }
 
     update(dt) {
         move(dt)
         shoot(dt)
         keepInBounds()
+        updateSprite()
     }
 
     move(dt) {                
@@ -55,26 +58,10 @@ class Player is Component {
         }
         var posEase = Data.getNumber("Player Position Easing")
         _body.velocity = Math.damp(_body.velocity, vel, posEase, dt)
-
-        // Rotation - support both gamepad right stick and mouse
-        var face = Vec2.new(Input.getAxis(2), -Input.getAxis(3))
-        if (face.magnitude > Data.getNumber("Player Input Dead Zone")) {
-            // Gamepad aim
-            var a = face.atan2
-            _transform.rotation = a
-        } else {
-            // Mouse aim - point toward mouse cursor
-            var mousePos = Vec2.new(Input.getMouseX(), Input.getMouseY())
-            var screenCenter = Vec2.new(
-                Data.getNumber("Width", Data.system) * 0.5, 
-                Data.getNumber("Height", Data.system) * 0.5
-            )
-            var worldMouse = mousePos - screenCenter
-            var toMouse = worldMouse - _transform.position
-            if (toMouse.magnitude > 10) {
-                _transform.rotation = toMouse.atan2
-            }
-        }
+        
+        var damp = Data.getNumber("Player.Rotation Damp")
+        _facing = Math.damp(_facing, vel, damp, dt)
+        _transform.rotation = _facing.atan2
     }
 
     shoot(dt) {
@@ -105,6 +92,13 @@ class Player is Component {
         } else if (t.position.y > h) {
             t.position.y = h
         }
+    }
+
+    updateSprite() {
+        var maxSpeed = Data.getNumber("Player Speed")
+        var normalizedSpeed = _body.velocity.magnitude / maxSpeed
+
+        _sprite.idx = (normalizedSpeed * 16).floor
     }
 
     toString { "[Player]" }
