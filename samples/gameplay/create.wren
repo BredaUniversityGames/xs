@@ -43,7 +43,8 @@ class Create {
         var b = Body.new(Data.getNumber("Enemy Size"), Vec2.new(0,0))
         var h = Health.new(Data.getNumber("Enemy HP"))
         h.enablePickupDrop(Data.getNumber("Pickup Value"))
-        var s = Sprite.new("[game]/assets/images/enemy.png")
+        var s = AnimatedSprite.new("[game]/assets/images/enemy.xsanim")
+        s.playAnimation("default")
         var sh = Shadow.new()
         s.layer = 2.0
         s.flags = Render.spriteCenter
