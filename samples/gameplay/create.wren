@@ -130,6 +130,7 @@ class Create {
         var a = MeleeAttack.new(Data.getNumber("Player.Slash.Damage"), Data.getNumber("Player.Slash.Lifetime"))
         var b = Body.new(Data.getNumber("Player.Slash.Size"), Vec2.new(0, 0))
         var s = AnimatedSprite.new("[game]/assets/images/slash.xsanim")
+        s.scale = 0.4
         s.playAnimation("default")
         s.layer = 3.0
         s.flags = Render.spriteCenter

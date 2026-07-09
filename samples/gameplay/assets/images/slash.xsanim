@@ -1,8 +1,8 @@
 {
   "image": "[game]/assets/images/slash.png",
-  "columns": 4,
-  "rows": 4,
-  "fps": 64,
+  "columns": 5,
+  "rows": 5,
+  "fps": 32,
   "animations": {
     "default": [
       0,
@@ -20,7 +20,16 @@
       12,
       13,
       14,
-      15
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24
     ]
   }
 }

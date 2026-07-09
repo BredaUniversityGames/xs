@@ -125,7 +125,7 @@ class Player is Component {
         var maxSpeed = Data.getNumber("Player.Speed")
         var normalizedSpeed = _body.velocity.magnitude / maxSpeed
 
-        _sprite.idx = (normalizedSpeed * 16).floor
+        _sprite.idx = (normalizedSpeed * 16).clamp(0,15).floor
     }
 
     toString { "[Player]" }

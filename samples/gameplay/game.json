@@ -1,7 +1,7 @@
 {
     "Debug.ShowPhysics": {
         "type": "bool",
-        "value": true
+        "value": false
     },
     "Enemy.Avoidance Radius": {
         "type": "number",
@@ -13,7 +13,7 @@
     },
     "Enemy.Color": {
         "type": "color",
-        "value": 4294967295
+        "value": 2533370111
     },
     "Enemy.Damage": {
         "type": "number",
