@@ -8,6 +8,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Enable FetchContent for downloading dependencies
 include(FetchContent)
 
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
 # Platform definitions
 # PLATFORM_PC: Desktop platform (shared between Windows and Linux)
 # PLATFORM_LINUX: Linux-specific features
@@ -108,6 +110,14 @@ set(ALL_SOURCES
 
 # Create executable
 add_executable(xs ${ALL_SOURCES})
+
+add_custom_target(generate_version
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/version.py
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMENT "Generating version header"
+    VERBATIM
+)
+add_dependencies(xs generate_version)
 
 # Include directories
 target_include_directories(xs PRIVATE

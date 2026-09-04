@@ -29,7 +29,7 @@ class Type {
     static exit     { 1 << 21 }
     
     // Combine multiple types
-    static monster { mage | skeleton | ghost | knight | crusader | dragon | ogre | tome  }
+    static monster { mage | skeleton | ghost | knight | crusader | slime | dragon | ogre | tome }
     static enemy   { monster }
     static item    { door | key | chest | pot | helmet | armor | sword | food }
     static block   { wall | player | enemy | door }
