@@ -1,8 +1,9 @@
 <img src="../img/top_banner.png" alt="xs" width="100%">
 
+---
 # Architecture & Design
 
-xs is an extra small game engine, aimed at quick iterations on small games. The core is C++, games are Wren. It's built first for how its authors makes games: plenty of and some procedural generation. 
+xs is an e**X**tra **S**mall game engine, aimed at quick iterations on small games. The core is C++, games are Wren. It is mainly built around how its authors make games: plenty of code and some procedural generation. 
 
 *This document goes over key decisions and their impact, and it covers usage. It is not  a Technical Design Document, API reference or Tutorial.*
 
@@ -10,9 +11,9 @@ xs is an extra small game engine, aimed at quick iterations on small games. The 
 
 Everything follows from these key points.
 
-**Code-first.** Code is a creative expression and in xs code is the main way to create games. All game logic is written in a scripting language, The engine's UI is minimal and mostly used for debugging, tweaking and inspection. 
+**Code-first.** Code is a creative expression and in xs code is the main way to create games. All game logic is written in a scripting language. The engine's UI is minimal and mostly used for debugging, tweaking and inspection. 
 
-**Rapid ideation.** Scripts should be hot-reload without restarting and a new project should take minutes to get off the ground. The UI should exposes game parameters at runtime for live editing.
+**Rapid ideation.** Scripts should be hot-reload without restarting and new projects should take minutes to get off the ground. The UI should exposes game parameters at runtime for live editing.
 
 **No features, no bugs.** Every line of API is promise that needs to be kept for the lifetime of the project. xs actively tries to maintain minimal feature set, but one the works reliably at all times.
 
@@ -22,10 +23,10 @@ Everything follows from these key points.
 
 ## Architecture Decisions
 
-All decision stem from the key points above.
+All architectural decisions stem from the key points above.
 
 **Games are script.** *Why:* rebuilding C++ can kill flow, while a VM reload is immediate. Creating a new folder with a script file takes seconds, setting up a multi-platform C++ project not.
-*Costs:* A speed (~10x slower) ceiling on gameplay, and debugging that crosses a boundary.
+*Costs:* A speed (~10x slower) ceiling on gameplay, and debugging that crosses a language boundary.
 
 **C++ as implementation language.**
 All game-related platforms and APIs are C/C++ primarily. This does not imply we have to use all of C++.
@@ -33,13 +34,10 @@ All game-related platforms and APIs are C/C++ primarily. This does not imply we 
 ### C++ API
 
 **Namespaces with free functions**
-`xs::render`, `xs::fileio`, `xs::audio`, each with `initialize`, `shutdown`, `update` and a
-flat surface. *Instead of:* classes of systems and subsystems with singletons, injection, service
-locator and similar s**t. *Why:* minimal cognitive load, allows interfaces to be split across files. There is a single instance of xs anyhow. Modeled after libraries like ImGui. *Costs:* There is a single instance of xs. Implicit and non-deterministic static initialization.
+`xs::render`, `xs::fileio`, `xs::audio`, each with `initialize`, `shutdown`, `update` and a API flat surface. *Instead of:* classes of systems and subsystems with singletons, injection, service locator and similar s**t. *Why:* minimal cognitive load, allows interfaces to be split across files. There is a single instance of xs anyhow. Modeled after libraries like ImGui. *Costs:* There is a single instance of xs. Implicit and non-deterministic static initialization.
 
 **Parameters and return values are primitives and opaque handles.**
-Images, sprites, shapes, fonts are integer handles. Colors are numbers. Vectors are Wren types.
-*Instead of:* exposing engine objects rest of the engine and script. *Why:* hides the entire implementation, so the core can be implemented completely differently per platform. Wren is dynamically typed anyhow. Minimal headers included. *Costs:* Type errors show up as bad handles rather than at compile time.
+Images, sprites, shapes, fonts are integer handles. Colors are numbers. Vectors are Wren types. *Instead of:* exposing engine objects rest of the engine and script. *Why:* hides the entire implementation, so the core can be implemented completely differently per platform. Wren is dynamically typed anyhow. Minimal headers included. *Costs:* Type errors show up as bad handles rather than at compile time.
 
 **Lowercase throughout.** Following the C++ standard library coding style everything is lowercase. Files, folders, commit messages included.
 
@@ -270,37 +268,44 @@ class Game {
 `Data.getNumber`, `getColor`, `getBool`, variable synced per *type*. *Instead of:* prefabs, scriptable objects and scene files. *Why:* one mechanism, one UI. Anything read from `Data` is automatically live-editable. We can tweak a values from anywhere in the game. Cloud saves on supported where the platforms. *Limitations:* one file per *type*.
 
 ```wren
-// example
+// This will show us as a variable in the UI 
+// in the game tab, in the *Player* section 
+var playerHealth = Data.getNumber("Player.Health", Data.game)
+
+// This variable will be save and might be cloud uploaded
+// on supported platforms
+Data.setValue("Level", currentLevel)
 ```
 
-**Files with a wildcard path space.**
-`[game]`, `[shared]`, `[save]`, `[user]`, resolved centrally in `fileio`.
-*Instead of:* real paths, mode handled at each call site.
-*Why:* the same path has to resolve against a project folder in development and a packaged
-`.xs` when shipped. Central resolution means no loading code branches on run mode, and
-packaging needs no change to game code. `[debug]` lets development-only content exist
-without shipping.
-*Costs:* they aren't real paths, so they can't be handed to a library doing its own file
-I/O. FMOD is the friction.
+**Files with a wildcards.**
+`[game]`, `[shared]`, `[save]`, `[user]`, resolved centrally by `fileio`.
+*Instead of:* real paths, mode handled at each call site. *Why:* the same path has to resolve against a project folder in development and a packaged
+`.xs` when shipped. Game code can be oblivious of platform and running mode.
+*Costs:* they aren't real paths, so they can't be handed to a library doing its own file IO (like FMOD is the friction).
 
 ```wren
-/// example
+// Load an image on all platforms (resolves sandboxes and such)
+// Load a file segment if running a packaged game
+var tileSet = Render.loadImage("[game]/assets/tileset.png")
+
+// Will save a string in document and cloud sync it
+FileIO.save("[save]/progress.json", progress)
 ```
 
 ### File structure
 
-Dependencies point down. Nothing in the portable core names a platform.
+The file structure aims to be simple as well, with most of the code in `code` and hpp and cpp files side by side. Console platform specific code is in separate non-public repos. 
 
 ```
 code/              engine core — portable C++17
   ...              most code files go here (all common headers and implementation files)
   opengl/          OpenGL backend
   sdl3/            SDL3 device, input, audio
-platforms/         entry points and native code
-  pc/
-  linux/
-  apple/
-  null/
+platforms/         entry points for platform specific coded code
+  pc/              pc code
+  linux/           linux code
+  apple/           apple is macOS and iOS
+  null/            empty implementations when gradually adding support
   nx/              [private submodule] NX implementation files
   prospero/        [private submodule] Prospero implementation files
 external/          vendored dependencies
@@ -325,10 +330,11 @@ The API can change between versions. If there is a better way to achieve somethi
 
 ### Versioning
 
-**CalVer**, `YY.BUILD`, where build is the commit count for the year, generated into
-`code/version.hpp` at build time. Single source of version truth for the engine, the
-installer and the package format. **Not semver**, There's no version compatibility to promise. 
+**CalVer**, `YY.BUILD`, where build is the commit count for the year, generated into `code/version.hpp` at build time. Single source of version truth for the engine, the installer and the package format. **Not semver**, There's no version compatibility to promise. 
 
+### Running
+
+Running with options. FILL IN
 
 ### Risks and future work
 
@@ -343,9 +349,12 @@ installer and the package format. **Not semver**, There's no version compatibili
 
 ## Appendix
 
+### The .xs package format
+FILL IN
+
 ### Typed Wren
 
-We extend Wren with an external type checker, making sure we catch type mismatch at build time.
+We extend Wren with an external type checker, making sure we catch type mismatch error  at build time.
 
 ```wren
 class Vec2 {
@@ -374,4 +383,6 @@ class Wren {
 
 ### VS Code Extension
 
-
+As a code-first engine, we are binging the tools into the (VS) code IDE. Two extension are needed for smooth development.
+- An xs VS Code extension that takes care of running the current folder if contains an xs project. xs will use the built in debug console. Creation and inspection of the .xs packaged games can be done via the extension.
+- A Wren extension that does syntax highlighting and full IntelliSense with type checking.
