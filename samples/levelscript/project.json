@@ -1,0 +1,34 @@
+{
+    "Device.AlwaysOnTop": {
+        "type": "bool",
+        "value": false
+    },
+    "Device.Height": {
+        "type": "number",
+        "value": 400.0
+    },
+    "Device.Multiplier": {
+        "type": "number",
+        "value": 2.0
+    },
+    "Device.Title": {
+        "type": "string",
+        "value": "xs - levelscript"
+    },
+    "Device.Width": {
+        "type": "number",
+        "value": 640.0
+    },
+    "Main": {
+        "type": "string",
+        "value": "game.wren"
+    },
+    "Render.TextureFilter": {
+        "type": "bool",
+        "value": false
+    },
+    "Render.TextureRepeat": {
+        "type": "bool",
+        "value": false
+    }
+}

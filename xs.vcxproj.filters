@@ -82,6 +82,24 @@
     <ClCompile Include="external\miniz\src\miniz_zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="external\levelscript\src\lexer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\sema.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\machine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\ls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\inspect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="code\packager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -310,6 +328,33 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\miniz\include\miniz\miniz_zip.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\ls.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\lexer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\parser.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\sema.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\machine.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\ast.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\diagnostic.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\sequence.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\inspect.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\account.hpp">

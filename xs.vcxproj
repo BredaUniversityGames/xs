@@ -312,6 +312,12 @@
     <ClCompile Include="external\miniz\src\miniz_tdef.c" />
     <ClCompile Include="external\miniz\src\miniz_tinfl.c" />
     <ClCompile Include="external\miniz\src\miniz_zip.c" />
+    <ClCompile Include="external\levelscript\src\lexer.cpp" />
+    <ClCompile Include="external\levelscript\src\parser.cpp" />
+    <ClCompile Include="external\levelscript\src\sema.cpp" />
+    <ClCompile Include="external\levelscript\src\machine.cpp" />
+    <ClCompile Include="external\levelscript\src\ls.cpp" />
+    <ClCompile Include="external\levelscript\src\inspect.cpp" />
     <ClCompile Include="external\wren\optional\wren_opt_meta.c" />
     <ClCompile Include="external\wren\optional\wren_opt_random.c" />
     <ClCompile Include="external\wren\vm\wren_compiler.c" />
@@ -399,6 +405,15 @@
     <ClInclude Include="external\miniz\include\miniz\miniz_tdef.h" />
     <ClInclude Include="external\miniz\include\miniz\miniz_tinfl.h" />
     <ClInclude Include="external\miniz\include\miniz\miniz_zip.h" />
+    <ClInclude Include="external\levelscript\src\ls.hpp" />
+    <ClInclude Include="external\levelscript\src\lexer.hpp" />
+    <ClInclude Include="external\levelscript\src\parser.hpp" />
+    <ClInclude Include="external\levelscript\src\sema.hpp" />
+    <ClInclude Include="external\levelscript\src\machine.hpp" />
+    <ClInclude Include="external\levelscript\src\ast.hpp" />
+    <ClInclude Include="external\levelscript\src\diagnostic.hpp" />
+    <ClInclude Include="external\levelscript\src\sequence.hpp" />
+    <ClInclude Include="external\levelscript\src\inspect.hpp" />
     <ClInclude Include="external\wren\include\wren.h" />
     <ClInclude Include="external\wren\include\wren.hpp" />
     <ClInclude Include="external\wren\optional\wren_opt_meta.h" />
@@ -591,13 +606,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Develop|NX64'">
     <LinkIncremental>true</LinkIncremental>
-    <CppLanguageStandard>Gnu++17</CppLanguageStandard>
+    <CppLanguageStandard>Gnu++20</CppLanguageStandard>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|NX64'">
     <LinkIncremental>false</LinkIncremental>
-    <CppLanguageStandard>Gnu++17</CppLanguageStandard>
+    <CppLanguageStandard>Gnu++20</CppLanguageStandard>
     <CustomBuildAfterTargets>
     </CustomBuildAfterTargets>
   </PropertyGroup>
@@ -622,7 +637,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>INSPECTOR;EDITOR;PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;DEBUG;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -639,9 +654,9 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>PLATFORM_PS5;MINIZ_NO_TIME;MINIZ_NO_STDIO;DEBUG;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;$(ProjectDir)external\levelscript\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CppExceptions>true</CppExceptions>
-      <CppLanguageStd>Cpp17</CppLanguageStd>
+      <CppLanguageStd>Cpp20</CppLanguageStd>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <CLanguageStd>C99</CLanguageStd>
@@ -667,7 +682,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>INSPECTOR;EDITOR;PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;WIN64;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -685,11 +700,11 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>PLATFORM_PS5;MINIZ_NO_TIME;MINIZ_NO_STDIO;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;$(ProjectDir)external\levelscript\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <CppExceptions>true</CppExceptions>
-      <CppLanguageStd>Cpp17</CppLanguageStd>
+      <CppLanguageStd>Cpp20</CppLanguageStd>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <CLanguageStd>C99</CLanguageStd>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -715,7 +730,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;WIN64;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
@@ -738,11 +753,11 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>PLATFORM_PS5;MINIZ_NO_TIME;MINIZ_NO_STDIO;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;$(ProjectDir)external\levelscript\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <CppExceptions>true</CppExceptions>
-      <CppLanguageStd>Cpp17</CppLanguageStd>
+      <CppLanguageStd>Cpp20</CppLanguageStd>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
       <CLanguageStd>C99</CLanguageStd>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

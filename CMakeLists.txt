@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(xs C CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -94,6 +94,16 @@ set(MINIZ_SOURCES
     external/miniz/src/miniz_zip.c
 )
 
+# External: LevelScript
+set(LEVELSCRIPT_SOURCES
+    external/levelscript/src/lexer.cpp
+    external/levelscript/src/parser.cpp
+    external/levelscript/src/sema.cpp
+    external/levelscript/src/machine.cpp
+    external/levelscript/src/ls.cpp
+    external/levelscript/src/inspect.cpp
+)
+
 # Combine all sources
 set(ALL_SOURCES
     ${CORE_SOURCES}
@@ -106,6 +116,7 @@ set(ALL_SOURCES
     ${IMPLOT_SOURCES}
     ${WREN_SOURCES}
     ${MINIZ_SOURCES}
+    ${LEVELSCRIPT_SOURCES}
 )
 
 # Create executable
@@ -140,6 +151,7 @@ target_include_directories(xs PRIVATE
     ${CMAKE_SOURCE_DIR}/external/wren/optional
     ${CMAKE_SOURCE_DIR}/external/miniz
     ${CMAKE_SOURCE_DIR}/external/miniz/include/miniz
+    ${CMAKE_SOURCE_DIR}/external/levelscript/src
     ${CMAKE_SOURCE_DIR}/external/nanosvg/src
     ${CMAKE_SOURCE_DIR}/external/dialogs
     ${CMAKE_SOURCE_DIR}/external/cereal/include

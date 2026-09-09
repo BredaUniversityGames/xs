@@ -1,0 +1,26 @@
+{
+    "From Color": {
+        "type": "color",
+        "value": 1862307327
+    },
+    "Program|Dungeon|Cave|Walk": {
+        "type": "number",
+        "value": 0.0
+    },
+    "Seed": {
+        "type": "number",
+        "value": 42.0
+    },
+    "Step Brake": {
+        "type": "number",
+        "value": 0.03
+    },
+    "To Color": {
+        "type": "color",
+        "value": 570436607
+    },
+    "Visualize Generation": {
+        "type": "bool",
+        "value": true
+    }
+}
