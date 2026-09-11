@@ -1,5 +1,5 @@
 import "xs/core" for Data, Input, Render, File
-import "xs/levelscript" for LevelScript
+import "xs/levelscript" for LsGenerator, LsStepMode
 import "background" for Background
 
 // Demonstrates embedding LevelScript (.ls) programs in xs: compiles a few
@@ -22,9 +22,10 @@ class Game {
             0x4d89f2ff, 0x2feff9ff, 0xed3bf9ff, 0x72ffa1ff
         ]
 
-        // Generic tile bank, cycled by raw tag value id - these are the
-        // same known-good sprite sheet indices samples/grid uses (columns
-        // = 49, rows = 22), not tied to any one program's tag semantics.
+        // Generic tile bank, cycled by declaration-order value index (see
+        // bitIndex() below) - these are the same known-good sprite sheet
+        // indices samples/grid uses (columns = 49, rows = 22), not tied to
+        // any one program's tag semantics.
         var image = Render.loadImage("[game]/assets/monochrome-transparent_packed.png")
         var tileIndices = [624, 51, 52, 53, 5, 1, 6, 3]
         __tiles = []
@@ -36,11 +37,11 @@ class Game {
         __programs = []
         for (name in __names) {
             var source = File.read("[game]/levels/%(name).ls")
-            var program = LevelScript.compile(source, name)
-            if (!LevelScript.isValid(program)) {
-                System.print("LevelScript: failed to compile %(name).ls: %(LevelScript.error(program))")
+            var program = LsGenerator.compile(source, name)
+            if (!program.isValid) {
+                System.print("LevelScript: failed to compile %(name).ls: %(program.error)")
             } else {
-                var warnings = LevelScript.warnings(program)
+                var warnings = program.warnings
                 if (warnings != "") System.print("LevelScript: %(name).ls warnings: %(warnings)")
             }
             __programs.add(program)
@@ -68,23 +69,24 @@ class Game {
         System.print("startGeneration: program=%(__names[__programIndex]) seed=%(__seed)")
 
         var program = __programs[__programIndex]
-        if (!LevelScript.isValid(program)) {
+        if (!program.isValid) {
             __state = Game.done
             return
         }
 
         var brake = Data.getNumber("Step Brake")
         var seed = __seed
-        // applicationStep (not the default statementStep) so a single "some(max=200) rule"
-        // statement animates one rule application at a time, instead of jumping straight
-        // from its start state to its end state in a single step().
+        // LsStepMode.application (not the default statement) so a single
+        // "some(max=200) rule" statement animates one rule application at a
+        // time, instead of jumping straight from its start state to its end
+        // state in a single step().
         __genFiber = Fiber.new {
-            var run = LevelScript.begin(program, seed, LevelScript.applicationStep)
-            while (LevelScript.step(run)) {
-                __level = LevelScript.snapshot(run)
+            var run = program.run(seed, LsStepMode.application)
+            while (run.step()) {
+                __level = run.snapshot
                 Fiber.yield(brake)
             }
-            __level = LevelScript.finish(run)
+            __level = run.finish()
             return 0.0
         }
     }
@@ -94,18 +96,19 @@ class Game {
     // for empty) - same convention levelscript's own *.expected fixtures use,
     // so the output is directly comparable to those.
     static dump(level, layerIndex) {
-        var width = LevelScript.width(level)
-        var height = LevelScript.height(level)
-        var layer = LevelScript.layerName(level, layerIndex)
-        System.print("=== %(layer) (%(width)x%(height)) ===")
+        var width = level.width
+        var height = level.height
+        var layerName = level.layerName(layerIndex)
+        var grid = level.layer(layerIndex)
+        System.print("=== %(layerName) (%(width)x%(height)) ===")
         for (y in 0...height) {
             var row = ""
             for (x in 0...width) {
-                var value = LevelScript.at(level, layer, x, y)
+                var value = grid[x, y]
                 if (value < 0) {
                     row = row + ". "
                 } else {
-                    var name = LevelScript.valueName(level, layer, value)
+                    var name = grid.valueName(value)
                     row = row + (name == "" ? "%(value) " : name[0] + " ")
                 }
             }
@@ -147,9 +150,9 @@ class Game {
 
         if (__level == null) return
 
-        var width = LevelScript.width(__level)
-        var height = LevelScript.height(__level)
-        var layer = LevelScript.layerName(__level, 0)
+        var width = __level.width
+        var height = __level.height
+        var grid = __level.layer(0)
 
         var s = Game.tileSize
         var sx = (width - 1) * -s / 2
@@ -157,11 +160,15 @@ class Game {
 
         for (y in 0...height) {
             for (x in 0...width) {
-                var value = LevelScript.at(__level, layer, x, y)
+                var value = grid[x, y]
                 if (value < 0) continue
 
-                var tile = __tiles[value % __tiles.count]
-                var color = __palette[value % __palette.count]
+                // grid[x, y] is a value MASK for a tag layer (bit 1..30,
+                // spec §3), not a small sequential id - convert back to a
+                // 0-based index to cycle through the fixed tile/color banks.
+                var index = bitIndex(value)
+                var tile = __tiles[index % __tiles.count]
+                var color = __palette[index % __palette.count]
                 Render.sprite(
                     tile,
                     sx + x * s, sy + y * s,
@@ -170,5 +177,13 @@ class Game {
                     Render.spriteCenter)
             }
         }
+    }
+
+    // Lowest set value bit of a mask (bit 1..30) as a 0-based index:
+    // wall (1<<1) -> 0, floor (1<<2) -> 1, and so on.
+    static bitIndex(mask) {
+        var b = 1
+        while ((mask & (1 << b)) == 0) b = b + 1
+        return b - 1
     }
 }
