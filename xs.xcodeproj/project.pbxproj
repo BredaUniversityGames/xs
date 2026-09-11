@@ -1771,6 +1771,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 346EBFE32A49F33D00771230 /* Build configuration list for PBXNativeTarget "ios" */;
 			buildPhases = (
+				005F4DF1C00FB34B1FFFAA35 /* Generate Version Header */,
 				346EBF9D2A49F33D00771230 /* Sources */,
 				346EBF9F2A49F33D00771230 /* Resources */,
 				344B227B2B1D1742004B1EA2 /* Frameworks */,
@@ -1788,6 +1789,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 346EBFE92A49F33D00771230 /* Build configuration list for PBXNativeTarget "macos" */;
 			buildPhases = (
+				4C31199BAD2725CBFD7CDD8E /* Generate Version Header */,
 				346EBFC62A49F33D00771230 /* Sources */,
 				346EBFC72A49F33D00771230 /* Frameworks */,
 				346EBFC82A49F33D00771230 /* Resources */,
@@ -1858,6 +1860,45 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		005F4DF1C00FB34B1FFFAA35 /* Generate Version Header */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Generate Version Header";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python3 \"$SRCROOT/tools/version.py\"\n";
+		};
+		4C31199BAD2725CBFD7CDD8E /* Generate Version Header */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Generate Version Header";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "python3 \"$SRCROOT/tools/version.py\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		346EBF9D2A49F33D00771230 /* Sources */ = {

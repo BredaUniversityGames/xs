@@ -328,13 +328,18 @@ void xs::inspector::render(double dt)
 
 	// Set up default docking layout only on very first run ever
 	// Check if we've initialized the layout before (stored in user settings)
+	// Note: the layout itself lives in imgui.ini, a separate file from the
+	// "Editor.DockingInitialized" flag (settings.json), so the two can get
+	// out of sync (e.g. imgui.ini deleted/missing but settings.json kept) -
+	// re-init whenever the ini file isn't on disk, regardless of the flag.
 	static bool checked_init = false;
 	static bool should_init = false;
 
 	if (!checked_init)
 	{
 		checked_init = true;
-		should_init = !data::get_bool("Editor.DockingInitialized", data::type::user);
+		should_init = !data::get_bool("Editor.DockingInitialized", data::type::user) ||
+		              !fileio::exists("[user]/imgui.ini");
 	}
 
 	if (should_init)
