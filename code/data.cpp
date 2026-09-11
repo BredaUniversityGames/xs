@@ -14,7 +14,7 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 #include "imgui/imgui_stdlib.h"
-#include "fluent_glyph.hpp"
+#include "phosphor_glyph.hpp"
 
 using namespace xs;
 using namespace xs::tools;
@@ -182,9 +182,9 @@ void xs::data::inspect()
 	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None | ImGuiTabBarFlags_DrawSelectedOverline;
 	if (ImGui::BeginTabBar("DataTabsEmbedded", tab_bar_flags))
 	{
-		inspect_of_type("Game Data", string(ICON_FI_GAMEPAD) + " Game", type::game);
-		inspect_of_type("Save Data", string(ICON_FI_SAVE) + " Save", type::save);
-		inspect_of_type("Project Data", string(ICON_FI_COG) + " Project", type::project);
+		inspect_of_type("Game Data", string(ICON_PH_GAMEPAD) + " Game", type::game);
+		inspect_of_type("Save Data", string(ICON_PH_SAVE) + " Save", type::save);
+		inspect_of_type("Project Data", string(ICON_PH_COG) + " Project", type::project);
 		ImGui::EndTabBar();
 	}
 }
@@ -266,7 +266,7 @@ void xs::data::internal::inspect_of_type(
 		}
 
 		ImGui::BeginDisabled(!(internal::history_stack_pointer < history.size() - 1));
-		if (ImGui::Button(ICON_FI_UNDO))
+		if (ImGui::Button(ICON_PH_UNDO))
 		{
 			internal::undo();
 		}
@@ -275,7 +275,7 @@ void xs::data::internal::inspect_of_type(
 		ImGui::SameLine();
 
 		ImGui::BeginDisabled(internal::history_stack_pointer == 0);
-		if (ImGui::Button(ICON_FI_REDO))
+		if (ImGui::Button(ICON_PH_REDO))
 		{
 			internal::redo();
 		}
@@ -284,9 +284,9 @@ void xs::data::internal::inspect_of_type(
 		ImGui::SameLine();
 
 		static ImGuiTextFilter filter;
-		filter.Draw(ICON_FI_SEARCH);
+		filter.Draw(ICON_PH_SEARCH);
 		ImGui::SameLine();
-		if (ImGui::Button(ICON_FI_CLEAR_FILTER)) {
+		if (ImGui::Button(ICON_PH_CLEAR_FILTER)) {
 			filter.Clear();
 		}
 		tooltip("Clear filter");
@@ -298,7 +298,7 @@ void xs::data::internal::inspect_of_type(
 				auto c = inspector::get_color(inspector::color_id::Purple);
 				ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(c.r, c.g, c.b, c.a));
 			}
-			if (ImGui::Button(string(ICON_FI_SAVE).c_str()))
+			if (ImGui::Button(string(ICON_PH_SAVE).c_str()))
 				save_of_type(type);
 			if (ed)
 				ImGui::PopStyleColor();
@@ -410,7 +410,7 @@ void xs::data::internal::inspect_of_type(
 				color.w = 0.5f;
 				ImGui::PushStyleColor(ImGuiCol_Text, color);
 
-				if (ImGui::Button(ICON_FI_DELETE))
+				if (ImGui::Button(ICON_PH_DELETE))
 				{
 					reg.erase(itr.first);
 					entry_edited = true;

@@ -174,8 +174,8 @@ namespace packager
 			}
 
 			// Skip some paths from shared that we don't want to include in packages
-			// TODO: Not ideal to hardcode this, but for now we want to exclude the Fluent System Icons font and selawk from packages since they are large and not needed in most cases
-			if (path.string().find("FluentSystemIcons-Regular.ttf") != std::string::npos ||
+			// TODO: Not ideal to hardcode this, but for now we want to exclude the editor's icon font and selawk from packages since they are large and not needed in most cases
+			if (path.string().find("PhosphorBold.ttf") != std::string::npos ||
 				path.string().find("selawk") != std::string::npos)
 				return true;
 			return false;

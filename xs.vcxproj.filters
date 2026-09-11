@@ -450,7 +450,7 @@
     <ClInclude Include="external\imgui\imgui_stdlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\fluent_glyph.hpp">
+    <ClInclude Include="code\phosphor_glyph.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\opengl\opengl.hpp">

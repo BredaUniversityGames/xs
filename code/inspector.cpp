@@ -5,7 +5,7 @@
 #include "imgui_impl.h"
 #include <imgui_internal.h>
 #include <implot.h>
-#include "fluent_glyph.hpp"
+#include "phosphor_glyph.hpp"
 #include "fileio.hpp"
 #include "script.hpp"
 #include "data.hpp"
@@ -55,9 +55,9 @@ namespace
 		// Fonts
 		constexpr float c_font_size = 15.0f;
 		constexpr float c_small_font_size = 13.0f;
-		constexpr float c_icon_font_size = 18.0f;
-		constexpr float c_small_icon_font_size = 16.0f;
-		constexpr float c_icon_vertical_offset = 4.8f;	
+		constexpr float c_icon_font_size = 17.0f;
+		constexpr float c_small_icon_font_size = 14.0f;
+		constexpr float c_icon_vertical_offset = 2.0f;
 	#else
 		constexpr float c_frame_top_bar = 70.0f;
 		constexpr float c_frame_bottom_bar = 55.0f;
@@ -85,8 +85,8 @@ namespace
 	constexpr float c_tooltip_hover_time = 0.6f;
 	constexpr float c_notification_default_time = 3.0f;
 
-	// Fluent icon font filenames (tokens resolved via fileio::get_path)
-	constexpr const char* kFluentIconFont = "[shared]/fonts/FluentSystemIcons-Regular.ttf";
+	// Phosphor icon font filename (tokens resolved via fileio::get_path)
+	constexpr const char* kPhosphorIconFont = "[shared]/fonts/Phosphor.ttf";
 
 	// Status bar alpha settings (adjustable)
 	constexpr float c_status_button_base_alpha = 0.0f;
@@ -143,8 +143,8 @@ namespace xs::inspector
 	void push_side_panel_theme();
 	void pop_side_panel_theme();
 
-	// Helper function to merge Fluent icons into a font
-	ImFont* merge_fluent_icons(ImFont* base_font, float icon_size, float font_scale, const std::string& font_file = std::string());
+	// Helper function to merge Phosphor icons into a font
+	ImFont* merge_phosphor_icons(ImFont* base_font, float icon_size, float font_scale, const std::string& font_file = std::string());
 
 	double ok_timer = 0.0f;
 	bool next_frame;
@@ -220,8 +220,8 @@ void xs::inspector::initialize()
 	auto selawk_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), font_size * font_scale, nullptr);
 	assert(selawk_font);
 
-	// Merge Fluent icons into main font
-	merge_fluent_icons(selawk_font, icon_size, font_scale, kFluentIconFont);
+	// Merge Phosphor icons into main font
+	merge_phosphor_icons(selawk_font, icon_size, font_scale, kPhosphorIconFont);
 
 	// Copy to a heap allocation (again) to ensure it stays valid
 	selawk_buffer = new char[selawk_data.size()];
@@ -229,8 +229,8 @@ void xs::inspector::initialize()
 	small_font = io.Fonts->AddFontFromMemoryTTF(selawk_buffer, (int)selawk_data.size(), c_small_font_size * font_scale, nullptr);
 	assert(small_font);
 
-	// Merge Fluent icons into small font
-	merge_fluent_icons(small_font, c_small_icon_font_size, font_scale, kFluentIconFont);
+	// Merge Phosphor icons into small font
+	merge_phosphor_icons(small_font, c_small_icon_font_size, font_scale, kPhosphorIconFont);
 
 	const std::string iniPath = fileio::get_path("[user]/imgui.ini");
 	log::info("ImGui INI file path: {}", iniPath);
@@ -436,19 +436,19 @@ static void xs::inspector::render_top_bar()
 	// Playback controls: play/pause + next-frame (next-frame always visible, disabled when not paused)
         if (game_paused)
         {
-            if (colored_button(ICON_FI_PLAY, get_color(color_id::Green), "Play"))
+            if (colored_button(ICON_PH_PLAY, get_color(color_id::Green), "Play"))
                 game_paused = false;
         }
         else
         {
-            if (colored_button(ICON_FI_PAUSE, get_color(color_id::Green), "Pause"))
+            if (colored_button(ICON_PH_PAUSE, get_color(color_id::Green), "Pause"))
                 game_paused = true;
         }
 
         ImGui::SameLine();
         // "Next Frame" should always be visible but disabled when it can't be used
         ImGui::BeginDisabled(!game_paused);
-        if (colored_button(ICON_FI_FAST_FORWARD, get_color(color_id::Green), "Next Frame"))
+        if (colored_button(ICON_PH_FAST_FORWARD, get_color(color_id::Green), "Next Frame"))
             next_frame = true;
         ImGui::EndDisabled();
         
@@ -458,7 +458,7 @@ static void xs::inspector::render_top_bar()
         if (xs::get_run_mode() == run_mode::development)
         {
             ImGui::SameLine();
-            if (colored_button(ICON_FI_SYNC_ALT, get_color(color_id::Orange), "Reload game scripts (F5)") || xs::input::get_key_once(xs::input::KEY_F5))
+            if (colored_button(ICON_PH_SYNC_ALT, get_color(color_id::Orange), "Reload game scripts (F5)") || xs::input::get_key_once(xs::input::KEY_F5))
             {
                  script::shutdown();
                  script::configure();
@@ -468,7 +468,7 @@ static void xs::inspector::render_top_bar()
              }
 
             ImGui::SameLine();
-            if (colored_button(ICON_FI_IMAGE, get_color(color_id::Orange), "Reload art assets"))
+            if (colored_button(ICON_PH_IMAGE, get_color(color_id::Orange), "Reload art assets"))
             {
                  auto reloaded = render::reload_images();
                  next_frame = true;
@@ -481,21 +481,21 @@ static void xs::inspector::render_top_bar()
             vertical_separator();
 
             // Data Registry toggle button
-            if (toggle_button(ICON_FI_BARS, show_data_registry, "Data Registry"))
+            if (toggle_button(ICON_PH_BARS, show_data_registry, "Data Registry"))
                 show_data_registry = !show_data_registry;
 
             // Profiler toggle button
-            if (toggle_button(ICON_FI_PROFILER, show_profiler, "Profiler"))
+            if (toggle_button(ICON_PH_PROFILER, show_profiler, "Profiler"))
                 show_profiler = !show_profiler;
 
         	// Entities toggle button
         	if (script::is_module_loaded("xs/ec") &&
-        		toggle_button(ICON_FI_PUZZLE_CUBE, show_entities, "Entities"))
+        		toggle_button(ICON_PH_PUZZLE_CUBE, show_entities, "Entities"))
                 show_entities = !show_entities;
         }
 
         // Always on top toggle button
-        if (toggle_button(always_on_top ? ICON_FI_PIN_ON : ICON_FI_PIN_OFF, always_on_top, "Always on Top"))
+        if (toggle_button(always_on_top ? ICON_PH_PIN_ON : ICON_PH_PIN_OFF, always_on_top, "Always on Top"))
         {
             always_on_top = device::toggle_on_top();
             data::set_bool("Editor.AlwaysOnTop", always_on_top, data::type::user);
@@ -514,7 +514,7 @@ static void xs::inspector::render_top_bar()
         tooltip("Game viewport zoom");
 
 #if SHOW_IMGUI_DEMO
-        if (toggle_button(ICON_FI_WINDOW, show_demo, "Show ImGui demo window"))
+        if (toggle_button(ICON_PH_WINDOW, show_demo, "Show ImGui demo window"))
             show_demo = !show_demo;
 #endif
 
@@ -524,7 +524,7 @@ static void xs::inspector::render_top_bar()
         if (xs::script::has_error())
         {
             game_paused = true;
-            if (colored_button(ICON_FI_EXCLAMATION_CIRCLE, get_color(color_id::Red), "Script Error! Check output."))
+            if (colored_button(ICON_PH_EXCLAMATION_CIRCLE, get_color(color_id::Red), "Script Error! Check output."))
             {
                 xs::script::clear_error();
                 game_paused = false;
@@ -534,7 +534,7 @@ static void xs::inspector::render_top_bar()
 	ImGui::SameLine();
 	if (xs::data::has_chages())
 	{
-		if (colored_button(ICON_FI_EXCLAMATION_CIRCLE, get_color(color_id::Purple), "Data has unsaved changes")) {
+		if (colored_button(ICON_PH_EXCLAMATION_CIRCLE, get_color(color_id::Purple), "Data has unsaved changes")) {
 			show_data_registry = true;
 		}
 	}
@@ -584,7 +584,7 @@ static void xs::inspector::render_stats_bar()
 
         // Memory button (icon + text). Stable ID after '##' keeps identity while text changes.
         {
-            std::string label = std::string(ICON_FI_MEMORY) + " " + mem_str + "MB" + "##stat_mem";
+            std::string label = std::string(ICON_PH_MEMORY) + " " + mem_str + "MB" + "##stat_mem";
             if (ImGui::Button(label.c_str())) {
                  notify(notification_type::info, std::string("Memory: ") + mem_str + " MB", c_notification_default_time);
              }
@@ -595,7 +595,7 @@ static void xs::inspector::render_stats_bar()
 
         // Draw calls
         {
-            std::string label = std::string(ICON_FI_IMAGE_PEN) + " " + draw_calls + "##stat_dc";
+            std::string label = std::string(ICON_PH_IMAGE_PEN) + " " + draw_calls + "##stat_dc";
 			ImGui::Button(label.c_str());
             tooltip("Draw calls this frame");
         }
@@ -604,7 +604,7 @@ static void xs::inspector::render_stats_bar()
 
         // Sprites
         {
-            std::string label = std::string(ICON_FI_IMAGE_FRAME) + " " + sprites + "##stat_sprites";
+            std::string label = std::string(ICON_PH_IMAGE_FRAME) + " " + sprites + "##stat_sprites";
             ImGui::Button(label.c_str());
             tooltip("Sprites drawn this frame");
         }
@@ -613,7 +613,7 @@ static void xs::inspector::render_stats_bar()
 
         // Textures
         {
-            std::string label = std::string(ICON_FI_IMAGES) + " " + textures + "##stat_textures";
+            std::string label = std::string(ICON_PH_IMAGES) + " " + textures + "##stat_textures";
             ImGui::Button(label.c_str());
             tooltip("Number of textures loaded in GPU memory");
         }
@@ -623,7 +623,7 @@ static void xs::inspector::render_stats_bar()
         // Version
         {
             auto ver = version::get_version_string(false, true, true);
-            std::string label = std::string(ICON_FI_TAG) + " " + ver + "##stat_version";
+            std::string label = std::string(ICON_PH_TAG) + " " + ver + "##stat_version";
             if (ImGui::Button(label.c_str())) {
                 ImGui::SetClipboardText(ver.c_str());
                 notify(notification_type::info, "Version copied to clipboard", c_notification_default_time);
@@ -637,7 +637,7 @@ static void xs::inspector::render_stats_bar()
         {
             // ensure we're on the same line with the previous separator already placed
             std::string full_path = path;
-            std::string label = std::string(ICON_FI_FOLDER) + " " + full_path + "##stat_path";
+            std::string label = std::string(ICON_PH_FOLDER) + " " + full_path + "##stat_path";
 
             // Make selectable span the remaining width and appear unstyled
             ImGui::PushStyleColor(ImGuiCol_Header, {0,0,0,0});
@@ -829,19 +829,19 @@ static void xs::inspector::render_notifications(double dt)
 			{
 			case notification_type::info:
 				color = get_color(color_id::Blue);
-				icon = ICON_FI_INFO_CIRCLE;
+				icon = ICON_PH_INFO_CIRCLE;
 				break;
 			case notification_type::success:
 				color = get_color(color_id::Green);
-				icon = ICON_FI_CHECK_CIRCLE;
+				icon = ICON_PH_CHECK_CIRCLE;
 				break;
 			case notification_type::warning:
 				color = get_color(color_id::Orange);
-				icon = ICON_FI_EXCLAMATION_CIRCLE;
+				icon = ICON_PH_EXCLAMATION_CIRCLE;
 				break;
 			case notification_type::error:
 				color = get_color(color_id::Red);
-				icon = ICON_FI_EXCLAMATION_CIRCLE;
+				icon = ICON_PH_EXCLAMATION_CIRCLE;
 				break;
 			}
 			ImGui::PushStyleColor(ImGuiCol_Text, as_imvec4(color));
@@ -877,7 +877,7 @@ static void xs::inspector::render_data_registry()
 	ImGui::SetNextWindowClass(&window_class);
 	ImGui::PushStyleColor(ImGuiCol_ChildBg, {0,0,0, 0.0f});
 	if (ImGui::Begin(
-		(std::string(ICON_FI_BARS) + " Data Registry").c_str(),
+		(std::string(ICON_PH_BARS) + " Data Registry").c_str(),
 		nullptr, flags))
 	{
 		data::inspect();
@@ -900,7 +900,7 @@ static void xs::inspector::render_profiler()
 	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoWindowMenuButton;
 	ImGui::SetNextWindowClass(&window_class);
 
-	ImGui::Begin((std::string(ICON_FI_PROFILER) + " Profiler").c_str(), nullptr, flags);
+	ImGui::Begin((std::string(ICON_PH_PROFILER) + " Profiler").c_str(), nullptr, flags);
 	profiler::inspect();
 	ImGui::End();
 	pop_side_panel_theme();
@@ -921,15 +921,15 @@ static void xs::inspector::render_entities()
 	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoWindowMenuButton;
 	ImGui::SetNextWindowClass(&window_class);
 
-	if (ImGui::Begin((std::string(ICON_FI_PUZZLE_CUBE) + " Entities").c_str(),
+	if (ImGui::Begin((std::string(ICON_PH_PUZZLE_CUBE) + " Entities").c_str(),
 		nullptr, flags))
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2 * c_style_scale);
 
 		// Filter UI
-		entity_filter.Draw(ICON_FI_SEARCH);
+		entity_filter.Draw(ICON_PH_SEARCH);
 		ImGui::SameLine();
-		if (ImGui::Button(ICON_FI_CLEAR_FILTER)) {
+		if (ImGui::Button(ICON_PH_CLEAR_FILTER)) {
 			entity_filter.Clear();
 		}
 		tooltip("Clear filter");
@@ -1387,10 +1387,10 @@ void inspector::pop_side_panel_theme()
 }
 
 // Add missing helper implementations
-ImFont* xs::inspector::merge_fluent_icons(ImFont* base_font, float icon_size, float font_scale, const std::string& font_file)
+ImFont* xs::inspector::merge_phosphor_icons(ImFont* base_font, float icon_size, float font_scale, const std::string& font_file)
 {
     auto& io = ImGui::GetIO();
-    const ImWchar* fluent_icons_ranges = xs::tools::get_fluent_glyph_ranges();
+    const ImWchar* phosphor_icons_ranges = xs::tools::get_phosphor_glyph_ranges();
 
     ImFontConfig config;
     config.MergeMode = true;
@@ -1398,25 +1398,25 @@ ImFont* xs::inspector::merge_fluent_icons(ImFont* base_font, float icon_size, fl
     config.OversampleH = 8;
     config.OversampleV = 8;
 
-    std::string token = font_file.empty() ? std::string(kFluentIconFont) : font_file;
-    std::string fluent_font = fileio::get_path(token);
-    if(!fileio::exists(fluent_font))
+    std::string token = font_file.empty() ? std::string(kPhosphorIconFont) : font_file;
+    std::string phosphor_font = fileio::get_path(token);
+    if(!fileio::exists(phosphor_font))
     {
-        log::critical("Could not find the fluent icon font at path:{}", fluent_font);
+        log::critical("Could not find the phosphor icon font at path:{}", phosphor_font);
         return base_font;
     }
 
-    auto fluent_font_data = fileio::read_binary_file(fluent_font);
-    char* fluent_font_buffer = new char[fluent_font_data.size()];
-    memcpy(fluent_font_buffer, fluent_font_data.data(), fluent_font_data.size());
+    auto phosphor_font_data = fileio::read_binary_file(phosphor_font);
+    char* phosphor_font_buffer = new char[phosphor_font_data.size()];
+    memcpy(phosphor_font_buffer, phosphor_font_data.data(), phosphor_font_data.size());
 
-    auto fluent_icons_font = io.Fonts->AddFontFromMemoryTTF(
-        fluent_font_buffer,
-        (int)fluent_font_data.size(),
+    auto phosphor_icons_font = io.Fonts->AddFontFromMemoryTTF(
+        phosphor_font_buffer,
+        (int)phosphor_font_data.size(),
         icon_size * font_scale,
         &config,
-        fluent_icons_ranges);
-    assert(fluent_icons_font != nullptr);
+        phosphor_icons_ranges);
+    assert(phosphor_icons_font != nullptr);
 
     return base_font;
 }
