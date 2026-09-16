@@ -1394,7 +1394,7 @@ ImFont* xs::inspector::merge_phosphor_icons(ImFont* base_font, float icon_size, 
 
     ImFontConfig config;
     config.MergeMode = true;
-    config.GlyphOffset = ImVec2(0.0f, c_icon_vertical_offset * font_scale);
+    config.GlyphOffset = ImVec2(0.0f, c_icon_vertical_offset * font_scale * ui_scale);
     config.OversampleH = 8;
     config.OversampleV = 8;
 

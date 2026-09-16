@@ -5,7 +5,7 @@
     },
     "Device.Height": {
         "type": "number",
-        "value": 400.0
+        "value": 208.0
     },
     "Device.Multiplier": {
         "type": "number",
@@ -17,11 +17,23 @@
     },
     "Device.Width": {
         "type": "number",
-        "value": 640.0
+        "value": 304.0
+    },
+    "Device.WindowSizeInPoints": {
+        "type": "bool",
+        "value": false
     },
     "Main": {
         "type": "string",
         "value": "game.wren"
+    },
+    "Render.Postprocess.Enabled": {
+        "type": "bool",
+        "value": false
+    },
+    "Render.SnapToPixels": {
+        "type": "bool",
+        "value": false
     },
     "Render.TextureFilter": {
         "type": "bool",

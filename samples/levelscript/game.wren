@@ -1,6 +1,5 @@
 import "xs/core" for Data, Input, Render, File
 import "xs/levelscript" for LsGenerator, LsStepMode
-import "background" for Background
 
 // Demonstrates embedding LevelScript (.ls) programs in xs: compiles a few
 // bundled generators, runs one progressively (cell-by-cell, animated via
@@ -15,25 +14,19 @@ class Game {
     static tileSize     { 16 }
 
     static initialize() {
-        __background = Background.new()
-
-        __palette = [
-            0x2b2b2bff, 0x5c5c5cff, 0x8a8a8aff, 0xc0c0c0ff,
-            0x4d89f2ff, 0x2feff9ff, 0xed3bf9ff, 0x72ffa1ff
-        ]
 
         // Generic tile bank, cycled by declaration-order value index (see
         // bitIndex() below) - these are the same known-good sprite sheet
         // indices samples/grid uses (columns = 49, rows = 22), not tied to
         // any one program's tag semantics.
-        var image = Render.loadImage("[game]/assets/monochrome-transparent_packed.png")
+        var image = Render.loadImage("[game]/assets/colored_packed.png")
         var tileIndices = [624, 51, 52, 53, 5, 1, 6, 3]
         __tiles = []
         for (index in tileIndices) {
             __tiles.add(Render.createGridSprite(image, 49, 22, index))
         }
 
-        __names = ["dungeon", "cave", "walk"]
+        __names = ["dungeon", "cave", "walk", "nuclear"]
         __programs = []
         for (name in __names) {
             var source = File.read("[game]/levels/%(name).ls")
@@ -60,7 +53,7 @@ class Game {
     // currently select, driven progressively through a Fiber - each step
     // yields a brake duration, exactly like samples/rogue's __genFiber.
     static startGeneration() {
-        __programIndex = Data.getNumber("Program|Dungeon|Cave|Walk").truncate
+        __programIndex = Data.getNumber("Program|Dungeon|Cave|Walk|Nuclear").truncate
         __seed = Data.getNumber("Seed")
         __level = null
         __time = 0.0
@@ -117,9 +110,7 @@ class Game {
     }
 
     static update(dt) {
-        __background.update(dt)
-
-        var programIndex = Data.getNumber("Program|Dungeon|Cave|Walk").truncate
+        var programIndex = Data.getNumber("Program|Dungeon|Cave|Walk|Nuclear").truncate
         var seed = Data.getNumber("Seed")
         var regenerate = Input.getKeyOnce(Input.keySpace)
         if (programIndex != __programIndex || seed != __seed || regenerate) {
@@ -146,8 +137,6 @@ class Game {
     }
 
     static render() {
-        __background.render()
-
         if (__level == null) return
 
         var width = __level.width
@@ -168,12 +157,11 @@ class Game {
                 // 0-based index to cycle through the fixed tile/color banks.
                 var index = bitIndex(value)
                 var tile = __tiles[index % __tiles.count]
-                var color = __palette[index % __palette.count]
                 Render.sprite(
                     tile,
                     sx + x * s, sy + y * s,
                     0.0, 1.0, 0.0,
-                    color, 0x0,
+                    0xFFFFFFFF, 0x0,
                     Render.spriteCenter)
             }
         }
