@@ -1,0 +1,41 @@
+{
+  "cell_px": 16.0,
+  "grid_bg_color": "282828",
+  "layers": [
+    {
+      "mode": "color",
+      "name": "level",
+      "opacity": 1.0,
+      "visible": true
+    },
+    {
+      "mode": "tile",
+      "name": "tiles",
+      "opacity": 1.0,
+      "visible": true
+    },
+    {
+      "mode": "text",
+      "name": "entities",
+      "opacity": 1.0,
+      "visible": true
+    },
+    {
+      "mode": "text",
+      "name": "items",
+      "opacity": 1.0,
+      "visible": true
+    }
+  ],
+  "mini_px": 24.0,
+  "tag_colors": {
+    "entities": null,
+    "geometry": null,
+    "items": null
+  },
+  "tileset": {
+    "path": "../../../samples/levelscript/assets/colored_packed.png",
+    "tile_h": 16,
+    "tile_w": 16
+  }
+}
