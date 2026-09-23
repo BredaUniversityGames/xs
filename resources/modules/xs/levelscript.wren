@@ -128,14 +128,11 @@ foreign class LsGrid {
 
     /// Cell at (x, y): for a tag layer, the stored value mask (a single bit
     /// for a normal cell, multiple bits for a union write); for a number
-    /// layer, the stored number. -1 is out-of-band only - empty, out of
-    /// range, or an invalid grid - and for number layers is not a reliable
-    /// emptiness test on its own (a cell can legitimately store the number
-    /// -1). Use isEmpty() for a real emptiness test.
-    foreign [x: Num, y: Num] -> Num
-
-    /// True emptiness test for a cell (out of range also reads as empty).
-    foreign isEmpty(x: Num, y: Num) -> Bool
+    /// layer, the stored number. `null` for an empty cell, out of range, or
+    /// an invalid grid - for number layers, `null` is the only reliable
+    /// emptiness test (a cell can legitimately store the number 0 or a
+    /// negative number).
+    foreign [x: Num, y: Num] -> Num?
 
     /// True if the cell's stored mask overlaps `mask` at all - the one
     /// query that stays correct for a union cell (multiple value bits set).

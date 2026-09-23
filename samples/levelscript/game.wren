@@ -35,7 +35,17 @@ class Game {
         }
 
         __nameToSprite = {
-
+            "hero": __tiles[0],
+            "skeleton": __tiles[1],
+            "ghost": __tiles[2],
+            "scorpion": __tiles[3],
+            "spider": __tiles[4],
+            "bat": __tiles[5],
+            "snake": __tiles[6],
+            "bear": __tiles[7],
+            "rat": __tiles[8],
+            "ghul": __tiles[9],
+            "buffy": __tiles[10]
         }
 
         __names = ["dungeon", "cave", "walk", "nuclear"]
@@ -110,7 +120,7 @@ class Game {
             var row = ""
             for (x in 0...width) {
                 var value = grid[x, y]
-                if (value < 0) {
+                if (value == null) {
                     row = row + ". "
                 } else {
                     var name = grid.valueName(value)
@@ -165,22 +175,22 @@ class Game {
 
         for (y in 0...height) {
             for (x in 0...width) {
-                var l = !level.isEmpty(x, y) ? level[x, y] : null
-                var e = !entities.isEmpty(x, y) ? entities[x, y] : null
-                var i = !items.isEmpty(x, y) ? items[x, y] : null
-                var t = !tiles.isEmpty(x, y) ? tiles[x, y] : null
+                var l = level[x, y]
+                var e = entities[x, y]
+                var i = items[x, y]
+                var t = tiles[x, y]
                 var tile = null
                 var name : String = null
 
                 if(e) {
                     name = entities.valueName(e)
-                    tile = ___tiles[e]
+                    tile = __tiles[e]
                 } else if(i) {
-                    tile = ___tiles[i]
+                    tile = __tiles[i]
                 } else if(t) {
-                    tile = ___tiles[t]
+                    tile = __tiles[t]
                 } else if(l) {
-                    tile = ___tiles[l]
+                    tile = __tiles[l]
                 } else {
                     continue
                 }

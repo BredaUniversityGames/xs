@@ -1521,15 +1521,10 @@ void levelscript_grid_subscript(WrenVM* vm)
     auto grid = (ls::grid*)wrenGetSlotForeign(vm, 0);
     auto x = (int)wrenGetParameter<double>(vm, 1);
     auto y = (int)wrenGetParameter<double>(vm, 2);
-    wrenSetSlotDouble(vm, 0, (double)grid->at(x, y));
-}
-
-void levelscript_grid_is_empty(WrenVM* vm)
-{
-    auto grid = (ls::grid*)wrenGetSlotForeign(vm, 0);
-    auto x = (int)wrenGetParameter<double>(vm, 1);
-    auto y = (int)wrenGetParameter<double>(vm, 2);
-    wrenSetSlotBool(vm, 0, grid->is_empty(x, y));
+    if (grid->is_empty(x, y))
+        wrenSetSlotNull(vm, 0);
+    else
+        wrenSetSlotDouble(vm, 0, (double)grid->at(x, y));
 }
 
 void levelscript_grid_has(WrenVM* vm)
@@ -1891,7 +1886,6 @@ void xs::script::bind_api()
     bind("xs/levelscript", "LsGrid", false, "name", levelscript_grid_name);
     bind("xs/levelscript", "LsGrid", false, "isNumber", levelscript_grid_is_number);
     bind("xs/levelscript", "LsGrid", false, "[_,_]", levelscript_grid_subscript);
-    bind("xs/levelscript", "LsGrid", false, "isEmpty(_,_)", levelscript_grid_is_empty);
     bind("xs/levelscript", "LsGrid", false, "has(_,_,_)", levelscript_grid_has);
     bind("xs/levelscript", "LsGrid", false, "valueName(_)", levelscript_grid_value_name);
 

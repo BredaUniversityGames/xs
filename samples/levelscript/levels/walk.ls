@@ -31,10 +31,11 @@ tag entities  {
 }
 
 tag geometry {
-    W,  // Wall
+    B,  // Block
     F,  // Floor
     H,  // Head
     S   // Seed
+    W,  // Wall
 }
 
 layers {
@@ -55,16 +56,16 @@ rule init {
         * * * * * ]
     =>
     level[
-        W W W W W
-        W W W W W
-        W W S W W
-        W W W W W
-        W W W W W ]
+        B B B B B
+        B B B B B
+        B B S B B
+        B B B B B
+        B B B B B ]
 }
 
-// "Clears" empty tiles with Wall 
+// "Clears" empty tiles with Ball 
 rule clear {
-    level[.] => level[W]
+    level[.] => level[B]
 }
 
 // Place walk heads inside the solid mass.
@@ -72,21 +73,26 @@ rule start {
     level[S] => level[H]
 }
 
-// Random walk: a H eats an adjacent W cell, leaving F behind.
+// Random walk: a H eats an adjacent B cell, leaving F behind.
 // Same weight for all 4 directions - and, unlike dungeon.ls's walk2, free
 // to step back onto its own trail, so paths loop and cross like Nuclear
 // Throne's tangled tunnels instead of staying a clean orthogonal maze.
+//rule walk(rotation=all) {
+//    all
+//    level[H W]  => level[F H]
+//    level[H F] => level[F H]
+//}
+
 rule walk(rotation=all) {
     all
-    level[H W]  => level[F H]
-    level[H F] => level[F H]
+    level[H B]  => level[F H]
 }
 
-// Cave a W in next to an existing tunnel - fattens the 1-cell-wide
+// Cave a B in next to an existing tunnel - fattens the 1-cell-wide
 // walk into the irregular, rounded-room blobs the source game is known
 // for, instead of a thin corridor maze.
 rule widen(rotation=all) {
-    level[F W] => level[F F]
+    level[F B] => level[F F]
 }
 
 // Thin out dense 2x2 H clusters that form after upscale.
@@ -111,9 +117,16 @@ rule spawn_enemies {
     =>
     { any
       (weight=12) level[F]
-      (weight=2)  entities[skeleton_knife]
-      (weight=2)  entities[skeleton_axe]
-      (weight=1)  entities[skull]
+      (weight=3)  entities[skeleton]
+      (weight=2)  entities[ghost]
+      (weight=2)  entities[scorpion]
+      (weight=2)  entities[spider]
+      (weight=2)  entities[bat]
+      (weight=2)  entities[snake]
+      (weight=1)  entities[bear]
+      (weight=1)  entities[rat]
+      (weight=1)  entities[ghul]
+      (weight=1)  entities[buffy]      
     }
 }
 
@@ -135,23 +148,213 @@ rule reward {
 
 rule clean {
     all
-    level[.] => level[W]
+    level[.] => level[B]
     level[H] => level[F]
     level[S] => level[F]    
 }
 
-rule walls {
-    all
+rule walls(rotation=all) {
+    ordered // Do the cored wall patterns first
+    level[
+        * F
+        B * ]
+    => level[
+        * F
+        W *]
+
+    level[B F] => level[W F]
+}
+
+rule wall_tiles { ordered
+     level[
+         * F *
+         F W F
+         * F *]
+     => tiles[
+         * *   *
+         * 850 *
+         * *   *]
+
     level[
         * W *
-        W W *
+        F W F
+        * F *]
+    => tiles[
+        * *   *
+        * 891 *
+        * *   *]
+
+     level[
+        * F *
+        F W W
+        * F *]
+    => tiles[
+        * *   *
+        * 658 *
+        * *   *]
+
+    level[
+        * W *
+        B W W
+        * B *]
+    => tiles[
+        * *   *
+        * 898 *
+        * *   *]
+
+    level[
+        * F *
+        F W F
         * W *]
-    =>
-    tiles[
-        * 12 *
-        * 12 *
-        * *  *
-    ]
+    => tiles[
+        * *   *
+        * 793 *
+        * *   *]
+
+    level[
+        * W *
+        F W F
+        * W *]
+    => tiles[
+        * *   *
+        * 842 *
+        * *   *]
+
+    level[
+        * B *
+        B W W
+        * W *]        
+    => tiles[
+        * *   *
+        * 800 *
+        * *   *]
+
+    level[
+        * W *
+        W W B
+        * B *]
+    => tiles[
+        * *   *
+        * 900 *
+        * *   *]
+    
+    level[B W F] => tiles[* 849 *]
+
+    level[F W B] => tiles[* 851 *]
+    
+    level[
+        B
+        W
+        F ]
+    => tiles[
+        *
+        801
+        * ]
+    
+    level[
+        F
+        W
+        B ]
+    => tiles[
+        *
+        899
+        * ]
+    
+    level[
+        F
+        W
+        F ]
+    => tiles[
+        *
+        659
+        * ]
+    
+    level[F] => tiles[1]
+
+//     level[
+//         * W *
+//         F W W
+//         * W *]
+//     => tiles[
+//         * *   *
+//         * 857 *
+//         * *   *]
+
+//     level[
+//         * F *
+//         W W F
+//         * F *]
+//     => tiles[
+//         * *   *
+//         * 858 *
+//         * *   *]
+
+//     level[
+//         * W *
+//         W W F
+//         * F *]
+//     => tiles[
+//         * *   *
+//         * 859 *
+//         * *   *]
+
+//     level[
+//         * F *
+//         W W W
+//         * F *]
+//     => tiles[
+//         * *   *
+//         * 860 *
+//         * *   *]
+
+//     level[
+//         * W *
+//         W W W
+//         * F *]
+//     => tiles[
+//         * *   *
+//         * 861 *
+//         * *   *]
+
+//     level[
+//         * F *
+//         W W F
+//         * W *]
+//     => tiles[
+//         * *   *
+//         * 862 *
+//         * *   *]
+
+//     level[
+//         * W *
+//         W W F
+//         * W *]
+//     => tiles[
+//         * *   *
+//         * 863 *
+//         * *   *]
+
+//     level[
+//         * F *
+//         W W W
+//         * W *]
+//     => tiles[
+//         * *   *
+//         * 864 *
+//         * *   *]
+
+//     level[
+//         * W *
+//         W W W
+//         * W *]
+//     => tiles[
+//         * *   *
+//         * 865 *
+//         * *   *]
+}
+
+rule empty_tile {
+    tiles[.] => tiles[0]
 }
 
 //rule decorate {
@@ -165,20 +368,49 @@ rule walls {
 //     items[shield] => tiles[233]
 // }
 
+rule item_tiles {
+    all
+    items[chest] => tiles[292]
+    items[heart] => tiles[529]
+    items[potion] => tiles[578]
+    items[sword] => tiles[379]
+    items[shield] => tiles[233]
+}
+
+rule entity_tiles {
+    all
+    entities[hero] => tiles[28]
+    entities[skeleton] => tiles[232]
+    entities[ghost] => tiles[320]    
+    entities[scorpion] => tiles[321]
+    entities[spider] => tiles[322]
+    entities[bat] => tiles[323]
+    entities[snake] => tiles[324]
+    entities[bear] => tiles[325]
+    entities[rat] => tiles[326]
+    entities[ghul] => tiles[327]
+    entities[buffy] => tiles[328]
+}
+
+
 program {
     resize(5, 5)
     all init
     //all clear
     upscale(3, 2)
     some(max=8) start
-    some(max=100, policy=incremental) walk
+    some(max=80, policy=incremental) walk
     // some(percent=12) widen
     // some(percent=12) widen
     all reduce
-    one place_player
+    one place_hero
     all reward
     some(max=40) spawn_enemies
-    pad(1)
+    pad(2)
     all clean
-    all decorate
+    all(policy=stabilize) walls
+    all wall_tiles
+    all item_tiles
+    all entity_tiles
+    all empty_tile
 }
