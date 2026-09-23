@@ -166,110 +166,179 @@ rule walls(rotation=all) {
 }
 
 rule wall_tiles { ordered
-     level[
-         * F *
-         F W F
-         * F *]
+    // Bottom left corner
+    level[
+         W F
+         W W ]
      => tiles[
-         * *   *
-         * 850 *
-         * *   *]
-
-    level[
-        * W *
-        F W F
-        * F *]
-    => tiles[
-        * *   *
-        * 891 *
-        * *   *]
-
-     level[
-        * F *
-        F W W
-        * F *]
-    => tiles[
-        * *   *
-        * 658 *
-        * *   *]
-
-    level[
-        * W *
-        B W W
-        * B *]
-    => tiles[
-        * *   *
-        * 898 *
-        * *   *]
-
-    level[
-        * F *
-        F W F
-        * W *]
-    => tiles[
-        * *   *
-        * 793 *
-        * *   *]
-
-    level[
-        * W *
-        F W F
-        * W *]
-    => tiles[
-        * *   *
-        * 842 *
-        * *   *]
-
-    level[
-        * B *
-        B W W
-        * W *]        
-    => tiles[
-        * *   *
-        * 800 *
-        * *   *]
-
-    level[
-        * W *
-        W W B
-        * B *]
-    => tiles[
-        * *   *
-        * 900 *
-        * *   *]
+         *  * 
+         40 * ]
     
-    level[B W F] => tiles[* 849 *]
-
-    level[F W B] => tiles[* 851 *]
-    
+    // Bottom right corner
     level[
-        B
+         F W
+         W W ]
+     => tiles[
+         *  * 
+         * 45 ]
+    
+    // Left
+    level[B W] => { any
+        tiles[* 0]
+        tiles[* 10]
+        tiles[* 20]
+        tiles[* 30]
+    }    
+
+    // Right
+    level[W B] => { any
+        tiles[5 *]
+        tiles[15 *]
+        tiles[25 *]
+        tiles[35 *]
+    }
+    
+    // Top
+    level[  B
+            W] => { any
+        tiles[  *
+                1]
+        tiles[  *
+                2]
+        tiles[  *
+                3]
+        tiles[  *
+                4]
+    }
+    
+    // Bottom
+    level[
         W
-        F ]
-    => tiles[
-        *
-        801
-        * ]
+        B] => { any
+        tiles[  41
+                *]
+        tiles[  42
+                *]
+        tiles[  43
+                *]
+        tiles[  44
+                *]
+    }
+
+
+    // level[
+    //      * F *
+    //      F W F
+    //      * F *]
+    //  => tiles[
+    //      * *   *
+    //      * 79 *
+    //      * *   *]
+
+    //  level[
+    //      * F *
+    //      F W F
+    //      * F *]
+    //  => tiles[
+    //      * *   *
+    //      * 850 *
+    //      * *   *]
+
+    // level[
+    //     * W *
+    //     F W F
+    //     * F *]
+    // => tiles[
+    //     * *   *
+    //     * 891 *
+    //     * *   *]
+
+    //  level[
+    //     * F *
+    //     F W W
+    //     * F *]
+    // => tiles[
+    //     * *   *
+    //     * 658 *
+    //     * *   *]
+
+    // level[
+    //     * W *
+    //     B W W
+    //     * B *]
+    // => tiles[
+    //     * *   *
+    //     * 898 *
+    //     * *   *]
+
+    // level[
+    //     * F *
+    //     F W F
+    //     * W *]
+    // => tiles[
+    //     * *   *
+    //     * 793 *
+    //     * *   *]
+
+    // level[
+    //     * W *
+    //     F W F
+    //     * W *]
+    // => tiles[
+    //     * *   *
+    //     * 842 *
+    //     * *   *]
+
+    // level[
+    //     * B *
+    //     B W W
+    //     * W *]        
+    // => tiles[
+    //     * *   *
+    //     * 800 *
+    //     * *   *]
+
+    // level[
+    //     * W *
+    //     W W B
+    //     * B *]
+    // => tiles[
+    //     * *   *
+    //     * 900 *
+    //     * *   *]
     
-    level[
-        F
-        W
-        B ]
-    => tiles[
-        *
-        899
-        * ]
+    // level[B W F] => tiles[* 849 *]
+
+    // level[F W B] => tiles[* 851 *]
     
-    level[
-        F
-        W
-        F ]
-    => tiles[
-        *
-        659
-        * ]
+    // level[
+    //     B
+    //     W
+    //     F ]
+    // => tiles[
+    //     *
+    //     801
+    //     * ]
     
-    level[F] => tiles[1]
+    // level[
+    //     F
+    //     W
+    //     B ]
+    // => tiles[
+    //     *
+    //     899
+    //     * ]
+    
+    // level[
+    //     F
+    //     W
+    //     F ]
+    // => tiles[
+    //     *
+    //     659
+    //     * ]
+    
+    // level[F] => tiles[1]
 
 //     level[
 //         * W *
@@ -353,8 +422,13 @@ rule wall_tiles { ordered
 //         * *   *]
 }
 
+rule floor_tiles {
+    all
+    level[F] => tiles[22]
+}
+
 rule empty_tile {
-    tiles[.] => tiles[0]
+    tiles[.] => tiles[99]
 }
 
 //rule decorate {
@@ -410,7 +484,8 @@ program {
     all clean
     all(policy=stabilize) walls
     all wall_tiles
-    all item_tiles
-    all entity_tiles
+    all floor_tiles
+    //all item_tiles
+    //all entity_tiles
     all empty_tile
 }

@@ -1,29 +1,33 @@
 {
-  "cell_px": 16.0,
+  "cell_zoom": 1.649999976158142,
   "grid_bg_color": "282828",
   "layers": [
     {
       "mode": "color",
       "name": "level",
       "opacity": 1.0,
+      "tileset": "",
       "visible": true
     },
     {
       "mode": "tile",
       "name": "tiles",
       "opacity": 1.0,
+      "tileset": "tiles",
       "visible": true
     },
     {
       "mode": "text",
       "name": "entities",
       "opacity": 1.0,
+      "tileset": "",
       "visible": true
     },
     {
       "mode": "text",
       "name": "items",
       "opacity": 1.0,
+      "tileset": "",
       "visible": true
     }
   ],
@@ -33,9 +37,12 @@
     "geometry": null,
     "items": null
   },
-  "tileset": {
-    "path": "../../../samples/levelscript/assets/colored_packed.png",
-    "tile_h": 16,
-    "tile_w": 16
-  }
+  "tilesets": [
+    {
+      "name": "tiles",
+      "path": "../../../samples/levelscript/assets/Dungeon_Tileset_v2.png",
+      "tile_h": 16,
+      "tile_w": 16
+    }
+  ]
 }
