@@ -1,5 +1,5 @@
 import "xs/core" for Data, Input, Render, File
-import "xs/levelscript" for LsGenerator, LsStepMode
+import "xs/levelscript" for LsGenerator, LsStepMode, LsGrid
 
 // Demonstrates embedding LevelScript (.ls) programs in xs: compiles a few
 // bundled generators, runs one progressively (cell-by-cell, animated via
@@ -20,10 +20,22 @@ class Game {
         // indices samples/grid uses (columns = 49, rows = 22), not tied to
         // any one program's tag semantics.
         var image = Render.loadImage("[game]/assets/colored_packed.png")
-        var tileIndices = [624, 51, 52, 53, 5, 1, 6, 3]
+
+
+        var tileIndices = [
+            637,
+            51,
+            52,
+            53,
+ 5, 1, 6, 3]
         __tiles = []
+
         for (index in tileIndices) {
             __tiles.add(Render.createGridSprite(image, 49, 22, index))
+        }
+
+        __nameToSprite = {
+
         }
 
         __names = ["dungeon", "cave", "walk", "nuclear"]
@@ -141,7 +153,11 @@ class Game {
 
         var width = __level.width
         var height = __level.height
-        var grid = __level.layer(0)
+
+        var level : LsGrid = __level["level"]
+        var entities : LsGrid = __level["entities"]
+        var items : LsGrid = __level["items"]
+        var tiles : LsGrid = __level["tiles"]
 
         var s = Game.tileSize
         var sx = (width - 1) * -s / 2
@@ -149,19 +165,44 @@ class Game {
 
         for (y in 0...height) {
             for (x in 0...width) {
-                var value = grid[x, y]
-                if (value < 0) continue
+                var l = !level.isEmpty(x, y) ? level[x, y] : null
+                var e = !entities.isEmpty(x, y) ? entities[x, y] : null
+                var i = !items.isEmpty(x, y) ? items[x, y] : null
+                var t = !tiles.isEmpty(x, y) ? tiles[x, y] : null
+                var tile = null
+                var name : String = null
 
+                if(e) {
+                    name = entities.valueName(e)
+                    tile = ___tiles[e]
+                } else if(i) {
+                    tile = ___tiles[i]
+                } else if(t) {
+                    tile = ___tiles[t]
+                } else if(l) {
+                    tile = ___tiles[l]
+                } else {
+                    continue
+                }
+
+                if(name) {
+                    tile = __nameToString[name]
+                    color = __nameToColor[name]
+                }
+
+                var sprite = __sprites[tile]
+                
+                
                 // grid[x, y] is a value MASK for a tag layer (bit 1..30,
                 // spec §3), not a small sequential id - convert back to a
                 // 0-based index to cycle through the fixed tile/color banks.
-                var index = bitIndex(value)
-                var tile = __tiles[index % __tiles.count]
+                // var index = bitIndex(value)
+                // var tile = __tiles[index % __tiles.count]
                 Render.sprite(
-                    tile,
+                    sprite,
                     sx + x * s, sy + y * s,
                     0.0, 1.0, 0.0,
-                    0xFFFFFFFF, 0x0,
+                    color, 0x0,
                     Render.spriteCenter)
             }
         }

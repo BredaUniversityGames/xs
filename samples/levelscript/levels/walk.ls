@@ -1,5 +1,4 @@
-// @S 42
-// Nuclear Throne inspired generator. Starts from dungeon.ls's random-walk
+// Random Walk
 // skeleton (same tags/layers, same init/start/reduce/place_player/clean),
 // but pushes the result closer to the source game's look: the walk is
 // allowed to cross its own trail (tangled, looping tunnels rather than a
@@ -7,21 +6,42 @@
 // the rounded, irregular rooms Nuclear Throne is known for, and the result
 // is populated with low-tier mobs (skeleton_knife/skeleton_axe/skull)
 // instead of being loot-only.
-tag items     { chest, heart, potion, sword, shield }
-tag entities  {
-    player,
-    skeleton_knife,
-    skeleton_axe,
-    skull,
-    necromancer
+
+tag items     {
+    chest,
+    heart,
+    potion,
+    sword,
+    shield
 }
-tag geometry  { W, F, H, S } // wall, floor, head, seed
+
+// Hero, monsters and decoration
+tag entities  {
+    hero,
+    skeleton,
+    ghost,
+    scorpion,
+    spider,
+    bat,
+    snake,
+    bear,
+    rat,
+    ghul,
+    buffy
+}
+
+tag geometry {
+    W,  // Wall
+    F,  // Floor
+    H,  // Head
+    S   // Seed
+}
 
 layers {
-    level:    grid of geometry
-    tiles:    grid of number
-    entities: grid of entities
-    items:    grid of items
+    level:    grid of geometry  // The algorithm and the collision geometry
+    tiles:    grid of number    // The ground tiles
+    entities: grid of entities  // All the entities
+    items:    grid of items     // The items
 }
 
 // Initialize the level with a single S cell in the middle
@@ -42,6 +62,7 @@ rule init {
         W W W W W ]
 }
 
+// "Clears" empty tiles with Wall 
 rule clear {
     level[.] => level[W]
 }
@@ -79,8 +100,8 @@ rule reduce(rotation=all) {
         F F ]
 }
 
-rule place_player {
-    level[H] => entities[player]
+rule place_hero {
+    level[H] => entities[hero]
 }
 
 // Populate surviving F with the source game's low-tier mobs - most
@@ -119,16 +140,30 @@ rule clean {
     level[S] => level[F]    
 }
 
-rule decorate {
+rule walls {
     all
-    level[W] => tiles[637]
-    entities[player] => tiles[28]
-    items[chest] => tiles[292]
-    items[heart] => tiles[529]
-    items[potion] => tiles[578]
-    items[sword] => tiles[379]
-    items[shield] => tiles[233]
+    level[
+        * W *
+        W W *
+        * W *]
+    =>
+    tiles[
+        * 12 *
+        * 12 *
+        * *  *
+    ]
 }
+
+//rule decorate {
+//    all
+//    level[W] => tiles[637]
+//    entities[player] => tiles[28]
+//     items[chest] => tiles[292]
+//     items[heart] => tiles[529]
+//     items[potion] => tiles[578]
+//     items[sword] => tiles[379]
+//     items[shield] => tiles[233]
+// }
 
 program {
     resize(5, 5)
