@@ -132,7 +132,7 @@ foreign class LsGrid {
     /// an invalid grid - for number layers, `null` is the only reliable
     /// emptiness test (a cell can legitimately store the number 0 or a
     /// negative number).
-    foreign [x: Num, y: Num] -> Num?
+    foreign [x: Num, y: Num] -> Num
 
     /// True if the cell's stored mask overlaps `mask` at all - the one
     /// query that stays correct for a union cell (multiple value bits set).
