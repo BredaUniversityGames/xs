@@ -1,0 +1,39 @@
+{
+  "cell_zoom": 1.0,
+  "grid_bg_color": "282828",
+  "layers": [
+    {
+      "mode": "color",
+      "name": "level",
+      "opacity": 1.0,
+      "tileset": "",
+      "visible": true
+    },
+    {
+      "mode": "text",
+      "name": "tiles",
+      "opacity": 1.0,
+      "tileset": "",
+      "visible": true
+    },
+    {
+      "mode": "text",
+      "name": "rooms",
+      "opacity": 1.0,
+      "tileset": "",
+      "visible": false
+    }
+  ],
+  "mini_px": 24.0,
+  "tag_colors": {
+    "algo": null,
+    "room": {
+      "0": "000000",
+      "1": "000000",
+      "2": "000000",
+      "3": "000000",
+      "4": "000000"
+    }
+  },
+  "tilesets": []
+}
