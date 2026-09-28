@@ -9,7 +9,7 @@
     },
     "Device.Multiplier": {
         "type": "number",
-        "value": 4.0
+        "value": 2.0
     },
     "Device.Title": {
         "type": "string",

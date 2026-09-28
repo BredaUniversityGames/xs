@@ -1,27 +1,48 @@
 {
-  "cell_zoom": 1.0,
-  "grid_bg_color": "282828",
+  "cell_zoom": 1.25,
+  "grid_bg_color": "25131a",
   "layers": [
     {
       "mode": "color",
       "name": "level",
       "opacity": 1.0,
-      "tileset": "",
+      "tileset": "Items",
       "visible": true
     },
     {
-      "mode": "text",
+      "mode": "tile",
       "name": "tiles",
       "opacity": 1.0,
-      "tileset": "",
+      "tileset": "Tiles",
       "visible": true
     },
     {
       "mode": "text",
       "name": "rooms",
       "opacity": 1.0,
-      "tileset": "",
+      "tileset": "Items",
       "visible": false
+    },
+    {
+      "mode": "color",
+      "name": "entities",
+      "opacity": 1.0,
+      "tileset": "Items",
+      "visible": true
+    },
+    {
+      "mode": "tile",
+      "name": "enemies_viz",
+      "opacity": 1.0,
+      "tileset": "Enemies",
+      "visible": true
+    },
+    {
+      "mode": "tile",
+      "name": "items_viz",
+      "opacity": 1.0,
+      "tileset": "Items",
+      "visible": true
     }
   ],
   "mini_px": 24.0,
@@ -33,7 +54,27 @@
       "2": "000000",
       "3": "000000",
       "4": "000000"
-    }
+    },
+    "stuff": null
   },
-  "tilesets": []
+  "tilesets": [
+    {
+      "name": "Tiles",
+      "path": "../assets/Dungeon_Tileset_v2.png",
+      "tile_h": 16,
+      "tile_w": 16
+    },
+    {
+      "name": "Items",
+      "path": "../assets/Dungeon_item_props_v2.png",
+      "tile_h": 16,
+      "tile_w": 16
+    },
+    {
+      "name": "Enemies",
+      "path": "../assets/Dungeon_Enemy_v2.png",
+      "tile_h": 16,
+      "tile_w": 16
+    }
+  ]
 }

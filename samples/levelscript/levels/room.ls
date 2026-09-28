@@ -22,14 +22,13 @@ tag stuff {
     Necromancer,
     Skull,
     Potion,
-    Key,
+    Key, 
     Coin,
     Treasure,
     Fruit,
     Crystal,
     Obstacle
 }
-
 
 layers {
     level:    grid of algo      // The algorithm and the collision geometry
@@ -258,7 +257,7 @@ rule wall_tiles { ordered
     level[
         W F
         W W ]
-     => tiles[
+    => tiles[
         *  31 
         40 * ]
     
@@ -306,7 +305,7 @@ rule wall_tiles { ordered
         W
         F ]
     => tiles[
-        1
+        2
         * ]
     
     // Bottom
@@ -315,7 +314,7 @@ rule wall_tiles { ordered
         W ]
     => tiles[
         *
-        41]
+        42]
         
 
     // Left
@@ -361,22 +360,51 @@ rule floor_tiles { ordered
 }
 
 rule decorate { ordered
-    tiles[
-        22 22 
-        22 22 ] =>
+    // Large floor area
+    { all
+        level[
+            F F F F
+            F F F F
+            F F F F
+            F F F F]
+
+        tiles[
+            *  *  *  *
+            *  22 22 * 
+            *  22 22 *
+            *  *  *  * ]        
+    } => 
     { any
         tiles [
-            6  7
-            16 17 ]
-        tiles [
-            8  9
-            18 19 ]
+            *  *  *  *
+            *  6  7  *
+            *  16 17 *
+            *  *  *  *]
     }
     
+    // Left corner light
     tiles[
-        2 2 2
-        22 22 ] =>
+        2
+        11
+    ] =>    
+    tiles[
+        80
+        90
+    ]
     
+    // Right corner light
+    tiles[
+        2
+        14
+    ] =>    
+    tiles[
+        81
+        91
+    ]
+    
+
+
+
 
     tiles[2] => { any tiles[2] tiles[3] }
     tiles[0] => { any tiles[0] tiles[10] tiles[20] tiles[30] }
@@ -402,7 +430,6 @@ rule show_entities { any
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Program (main)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-
 program {
     resize(4, 4)
     one init
@@ -429,7 +456,6 @@ program {
     some(max=8) rewards
     some(max=12) enemies
 
-    
     all wall_tiles
     all floor_tiles
     all show_entities
