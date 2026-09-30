@@ -1,8 +1,9 @@
 {
-  "cell_zoom": 1.25,
+  "cell_zoom": 2.0,
   "grid_bg_color": "25131a",
   "layers": [
     {
+      "corner": "normal",
       "mode": "color",
       "name": "level",
       "opacity": 1.0,
@@ -10,27 +11,39 @@
       "visible": true
     },
     {
+      "corner": "normal",
       "mode": "tile",
       "name": "tiles",
       "opacity": 1.0,
       "tileset": "Tiles",
-      "visible": false
+      "visible": true
     },
     {
+      "corner": "normal",
       "mode": "text",
       "name": "rooms",
       "opacity": 1.0,
       "tileset": "Items",
-      "visible": false
+      "visible": true
     },
     {
-      "mode": "color",
+      "corner": "normal",
+      "mode": "shape",
       "name": "entities",
       "opacity": 1.0,
       "tileset": "Items",
       "visible": true
     },
     {
+      "corner": "small",
+      "mode": "corner",
+      "name": "colors",
+      "opacity": 1.0,
+      "tileset": "",
+      "visible": true
+    },
+    {
+      "corner": "normal",
       "mode": "tile",
       "name": "enemies_viz",
       "opacity": 1.0,
@@ -38,6 +51,7 @@
       "visible": true
     },
     {
+      "corner": "normal",
       "mode": "tile",
       "name": "items_viz",
       "opacity": 1.0,
@@ -48,6 +62,10 @@
   "mini_px": 24.0,
   "tag_colors": {
     "algo": null,
+    "colors": {
+      "0": "ff0000",
+      "1": "0002ff"
+    },
     "room": {
       "0": "000000",
       "1": "000000",
@@ -56,6 +74,23 @@
       "4": "000000"
     },
     "stuff": null
+  },
+  "tag_shapes": {
+    "stuff": {
+      "0": "square",
+      "1": "circle",
+      "10": "diamond",
+      "11": "triangle",
+      "12": "cross",
+      "2": "circle",
+      "3": "circle",
+      "4": "square",
+      "5": "diamond",
+      "6": "circle",
+      "7": "star",
+      "8": "hexagon",
+      "9": "triangle"
+    }
   },
   "tilesets": [
     {
