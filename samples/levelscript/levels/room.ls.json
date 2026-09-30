@@ -14,7 +14,7 @@
       "name": "tiles",
       "opacity": 1.0,
       "tileset": "Tiles",
-      "visible": true
+      "visible": false
     },
     {
       "mode": "text",

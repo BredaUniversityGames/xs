@@ -3,7 +3,6 @@ tag algo {
     R,  // Room
     H,  // Hall
     W   // Wall
-    D   // Door
     F = R | H   // Floor (room or hall)
 }
 
@@ -104,27 +103,27 @@ rule close(rotation = all) {
 
 rule expand_rooms(rotation = all) { any 
     level[
-        * * * * 
-        * R R * 
-        * R R * 
+        * * * *
+        * R R *
+        * R R *
         * * * * ]
     => level[
-        * * * * 
-        R R R * 
-        R R R * 
+        * * * *
+        R R R *
+        R R R *
         R R R * ]
 
     level[
-        * * * * 
-        * R R * 
-        * R R * 
+        * * * *
+        * R R *
+        * R R *
         * * * * ]
     => level[
-        R R R R 
-        R R R R 
-        R R R R 
+        R R R R
+        R R R R
+        R R R R
         R R R R ]
- 
+
     // level[
     //     * * * * *
     //     * * * * *
@@ -139,47 +138,14 @@ rule expand_rooms(rotation = all) { any
     //     R R R R R ]
 }
 
-
-rule grow_big(rotation = all, symmetry = all) {any
-    level[
-        * . . . 
-        * . . . 
-        H . . . 
-        * . . . 
-
-
-        * . . . 
-        H . . . 
-        * . . . 
-    ]
-    =>
-    level[
-        * W H W
-        H H R H
-        * W H W]
-
-    level[
-        * . . . . 
-        H . . . .  
-        * . . . . ]
-    => level[
-        * W H W W
-        H H R R H
-        * W H W W]
-}
-
-
-sequence build {
-    
-}
-
 rule merge(rotation = all) {
     level[
         W H H W
         W H H W ]
     => level[
         R R R R 
-        R R R R ]
+        R R R R
+    ]
 }
 
 rule clean(rotation = all) {
@@ -188,7 +154,8 @@ rule clean(rotation = all) {
         W W W W ]
     => level[
         W W W W
-        W W W W]
+        W W W W
+    ]
 }
 
 rule hallways(rotation = all, symmetry = all) {
@@ -200,7 +167,7 @@ rule hallways(rotation = all, symmetry = all) {
             W W H H 
             W W H H ]
         level[
-            H H W W 
+            H H W W
             H H W W ]
     }
 }
@@ -210,17 +177,17 @@ rule assign_start(rotation = all) {
         level[
             W W W
             H R W
-            W W W]
+            W W W ]
 
         rooms[
             . . .
             . . .
-            . . .]
+            . . . ]
     }
     => rooms[
         Start Start Start
         Start Start Start
-        Start Start Start]
+        Start Start Start ]
 }
 
 rule assign_end(rotation = all) {
@@ -237,7 +204,7 @@ rule assign_end(rotation = all) {
     => rooms[
         End End End
         End End End
-        End End End]
+        End End End ]
 }
 
 rule assign_rewards(rotation = all) {
@@ -426,17 +393,17 @@ rule decorate { ordered
             F F F F]
 
         tiles[
-            *  *  *  * 
+            *  *  *  *
             *  22 22 * 
-            *  22 22 * 
+            *  22 22 *
             *  *  *  * ]        
     } => 
     { any
         tiles [
-            *  *  *  * 
-            *  6  7  * 
-            *  16 17 * 
-            *  *  *  * ]
+            *  *  *  *
+            *  6  7  *
+            *  16 17 *
+            *  *  *  *]
     }
     
     // Left corner light
@@ -486,30 +453,29 @@ program {
     one init
     pad(2)
     upscale(3,3)
-    one start
+    one start  
     some(max=7, policy=incremental) grow
-
     //pad(1)
-    //all close        
-    //one assign_start
-    //one assign_end
-    //all assign_rewards
-    //all assign_rooms    
-    //upscale(2,2)
-    //all expand_rooms
+    all close        
+    one assign_start
+    one assign_end
+    all assign_rewards
+    all assign_rooms    
+    upscale(2,2)
+    all expand_rooms
     //some (max=3) merge
     //all clean
     //some (max=2) hallways
     trim()
     pad(1)
     
-    //one hero
-    //one steps
-    //some(max=8) rewards
-    //some(max=12) enemies
+    one hero
+    one steps
+    some(max=8) rewards
+    some(max=12) enemies
 
-    //all wall_tiles
-    //all floor_tiles
-    //all show_entities
-    //all decorate
+    all wall_tiles
+     all floor_tiles
+     all show_entities
+     all decorate
 }
