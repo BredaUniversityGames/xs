@@ -1,5 +1,5 @@
 {
-  "cell_zoom": 2.0,
+  "cell_zoom": 1.0,
   "grid_bg_color": "25131a",
   "layers": [
     {
@@ -32,7 +32,7 @@
       "name": "entities",
       "opacity": 1.0,
       "tileset": "Items",
-      "visible": true
+      "visible": false
     },
     {
       "corner": "small",
@@ -40,7 +40,7 @@
       "name": "colors",
       "opacity": 1.0,
       "tileset": "",
-      "visible": true
+      "visible": false
     },
     {
       "corner": "normal",
@@ -63,8 +63,8 @@
   "tag_colors": {
     "algo": null,
     "colors": {
-      "0": "ff0000",
-      "1": "0002ff"
+      "0": "ff6b6b",
+      "1": "6667ff"
     },
     "room": {
       "0": "000000",
