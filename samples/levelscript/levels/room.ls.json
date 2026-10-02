@@ -1,5 +1,5 @@
 {
-  "cell_zoom": 1.0,
+  "cell_zoom": 2.0,
   "grid_bg_color": "25131a",
   "layers": [
     {
@@ -32,7 +32,7 @@
       "name": "entities",
       "opacity": 1.0,
       "tileset": "Items",
-      "visible": false
+      "visible": true
     },
     {
       "corner": "small",
@@ -40,7 +40,7 @@
       "name": "colors",
       "opacity": 1.0,
       "tileset": "",
-      "visible": false
+      "visible": true
     },
     {
       "corner": "normal",
