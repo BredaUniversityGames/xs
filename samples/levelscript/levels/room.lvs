@@ -1,9 +1,9 @@
 
 // Import the room tags and layers
-use "room_schema.ls"
+use "room_schema.lvs"
 
 // Import the visual representation rules
-use "visual.ls" 
+use "visual.lvs" 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Dungeon creation
@@ -181,8 +181,8 @@ rule grow_room(rotation = all) {any
 }
 
 sequence build_dungeon {
-    one extend_door
-    one grow_room    
+    once extend_door
+    once grow_room    
 }
 
 rule connect_rooms(rotation = all) { any
@@ -266,24 +266,24 @@ rule recreate_walls(rotation=all, symmetry=all) { all
 }
 
 rule seed_color { any
-    { all colors[.] level[R] } => colors[Red]
-    { all colors[.] level[R] } => colors[Blue]
+    { colors[.] level[R] } => colors[Red]
+    { colors[.] level[R] } => colors[Blue]
 }
 
 rule expand_colors(rotation=all) { all
-    { all colors[Red . ] level[R R ] } => colors[Red Red ]
-    { all colors[Red . ] level[R W ] } => colors[Red Red ]    
-    { all colors[Blue . ] level[R R ] } => colors[Blue Blue ]
-    { all colors[Blue . ] level[R W ] } => colors[Blue Blue ]
+    { colors[Red . ] level[R R ] } => colors[Red Red ]
+    { colors[Red . ] level[R W ] } => colors[Red Red ]    
+    { colors[Blue . ] level[R R ] } => colors[Blue Blue ]
+    { colors[Blue . ] level[R W ] } => colors[Blue Blue ]
 }
 
 sequence colorize {
-    one seed_color
-    all(policy=stabilize) expand_colors
+    once seed_color
+    settle expand_colors
 }
 
 rule assign_start(rotation = all) {
-    { all
+    {
         level[
             W W W
             H R W
@@ -301,7 +301,7 @@ rule assign_start(rotation = all) {
 }
 
 rule assign_end(rotation = all) {
-    { all
+    {
         level[
             W W W
             H R W
@@ -318,7 +318,7 @@ rule assign_end(rotation = all) {
 }
 
 rule assign_rewards(rotation = all) {
-    { all
+    {
         level[
             W W W
             H R W
@@ -335,7 +335,7 @@ rule assign_rewards(rotation = all) {
 }
 
 rule assign_rooms(rotation = all) { any
-    { all   
+    {
         level[ 
             W * W 
             * R * 
@@ -352,15 +352,15 @@ rule assign_rooms(rotation = all) { any
 }
 
 rule hero {
-    { all level[R] entities[.] rooms[Start] } => entities[Hero]    
+    { level[R] entities[.] rooms[Start] } => entities[Hero]    
 }
 
 rule steps {
-    { all level[R] entities[.] rooms[End] } => entities[Steps]    
+    { level[R] entities[.] rooms[End] } => entities[Steps]    
 }
 
 rule rewards {
-    { all level[R] entities[.] } =>
+    { level[R] entities[.] } =>
     { any
         entities[Crystal] 
         entities[Potion]
@@ -373,8 +373,8 @@ rule rewards {
 }
 
 rule enemies {
-    //{ all level[R] rooms[Challenge] entities[.] } =>
-    { all level[R] entities[.] } =>
+    //{ level[R] rooms[Challenge] entities[.] } =>
+    { level[R] entities[.] } =>
     { any
         entities[SkeletonAxe] 
         entities[SkeletonSword]
@@ -384,7 +384,7 @@ rule enemies {
 }
 
 rule obstacles {
-    { all level[R] entities[.] } => entities[Obstacle]
+    { level[R] entities[.] } => entities[Obstacle]
 }
 
 rule doors { any
@@ -412,32 +412,32 @@ rule doors { any
 sequence main {
     // Create the initial seed room somewhere in the middle(ish) of the map
     resize(16, 7)
-    one seed_room
+    once seed_room
     pad(6)
 
-    //some(max=4) build_dungeon
-    all build_dungeon
-    some(percent=50) connect_rooms
-    all mark_hallways
-    all remove_walls_and_doors
-    all recreate_walls
-    all colorize
+    //settle(4) build_dungeon
+    settle build_dungeon
+    scatter(50%) connect_rooms
+    everywhere mark_hallways
+    everywhere remove_walls_and_doors
+    everywhere recreate_walls
+    settle colorize
     
-    one hero
-    //one steps
-    some(max=12) rewards
-    some(max=15) enemies
-    some(max=12) obstacles
-    some(percent=50) doors
+    once hero
+    //once steps
+    scatter(12) rewards
+    scatter(15) enemies
+    scatter(12) obstacles
+    scatter(50%) doors
     
-    all wall_tiles
-    all colored_corners
-    all colored_top_wall
-    some(percent=50) portals_light
-    all floor_tiles
-    all reflections
-    some(max=3) large_floor_area
-    all variations
+    everywhere wall_tiles
+    everywhere colored_corners
+    everywhere colored_top_wall
+    scatter(50%) portals_light
+    everywhere floor_tiles
+    everywhere reflections
+    scatter(3) large_floor_area
+    everywhere variations
 
-    all show_entities    
+    everywhere show_entities    
 }

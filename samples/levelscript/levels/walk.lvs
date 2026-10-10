@@ -74,7 +74,7 @@ rule start {
 }
 
 // Random walk: a H eats an adjacent B cell, leaving F behind.
-// Same weight for all 4 directions - and, unlike dungeon.ls's walk2, free
+// Same weight for all 4 directions - and, unlike dungeon.lvs's walk2, free
 // to step back onto its own trail, so paths loop and cross like Nuclear
 // Throne's tangled tunnels instead of staying a clean orthogonal maze.
 //rule walk(rotation=all) {
@@ -132,10 +132,8 @@ rule spawn_enemies {
 
 // Place a reward on every surviving H cell (walk-head / room centre).
 rule reward {
-    { all
-        level[H]
-        entities[.]
-    }
+    level[H]
+    entities[.]
     =>
     { any
       items[chest]
@@ -467,25 +465,25 @@ rule entity_tiles {
 }
 
 
-program {
+sequence main {
     resize(5, 5)
-    all init
-    //all clear
+    everywhere init
+    //everywhere clear
     upscale(3, 2)
-    some(max=8) start
-    some(max=80, policy=incremental) walk
-    // some(percent=12) widen
-    // some(percent=12) widen
-    all reduce
-    one place_hero
-    all reward
-    some(max=40) spawn_enemies
+    scatter(8) start
+    grow(80) walk
+    // scatter(12%) widen
+    // scatter(12%) widen
+    everywhere reduce
+    once place_hero
+    everywhere reward
+    scatter(40) spawn_enemies
     pad(2)
-    all clean
-    all(policy=stabilize) walls
-    all wall_tiles
-    all floor_tiles
-    //all item_tiles
-    //all entity_tiles
-    all empty_tile
+    everywhere clean
+    settle walls
+    everywhere wall_tiles
+    everywhere floor_tiles
+    //everywhere item_tiles
+    //everywhere entity_tiles
+    everywhere empty_tile
 }

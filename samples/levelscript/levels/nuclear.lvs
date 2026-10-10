@@ -1,5 +1,5 @@
 // @S 42
-// Nuclear Throne inspired generator. Starts from dungeon.ls's random-walk
+// Nuclear Throne inspired generator. Starts from dungeon.lvs's random-walk
 // skeleton (same tags/layers, same init/start/reduce/place_player/clean),
 // but pushes the result closer to the source game's look: the walk is
 // allowed to cross its own trail (tangled, looping tunnels rather than a
@@ -52,7 +52,7 @@ rule start {
 }
 
 // Random walk: a H eats an adjacent W cell, leaving F behind.
-// Same weight for all 4 directions - and, unlike dungeon.ls's walk2, free
+// Same weight for all 4 directions - and, unlike dungeon.lvs's walk2, free
 // to step back onto its own trail, so paths loop and cross like Nuclear
 // Throne's tangled tunnels instead of staying a clean orthogonal maze.
 rule walk(rotation=all) {
@@ -115,18 +115,18 @@ rule clean {
     level[S]     => level[F]
 }
 
-program {
+sequence main {
     resize(6, 6)
-    all init
-    //all clear
+    everywhere init
+    //everywhere clear
     upscale(3, 2)
-    some(max=8) start
-    some(max=200, policy=incremental) walk
-    some(percent=12) widen
-    some(percent=12) widen
-    all reduce
-    one place_player
-    all reward
-    some(max=40) spawn_enemies
-    all clean
+    scatter(8) start
+    grow(200) walk
+    scatter(12%) widen
+    scatter(12%) widen
+    everywhere reduce
+    once place_player
+    everywhere reward
+    scatter(40) spawn_enemies
+    everywhere clean
 }

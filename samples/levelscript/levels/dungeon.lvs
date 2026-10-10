@@ -84,15 +84,15 @@ rule hack {
 
 // Sized down from the upstream example (60x40 -> 30x20) for easier
 // inspection in the xs sample (console dump + on-screen tile size).
-program {
+sequence main {
     resize(5, 5)
-    all init
+    everywhere init
     upscale(3, 2)
-    some(max=8) start
-    some(max=200, policy=incremental) walk2
+    scatter(8) start
+    grow(200) walk2
     upscale(2, 2)
-    all reduce
-    one place_player
-    all reward
-    all clean
+    everywhere reduce
+    once place_player
+    everywhere reward
+    everywhere clean
 }

@@ -8,7 +8,7 @@
       "name": "level",
       "opacity": 1.0,
       "tileset": "Items",
-      "visible": true
+      "visible": false
     },
     {
       "corner": "normal",
@@ -32,7 +32,7 @@
       "name": "entities",
       "opacity": 1.0,
       "tileset": "Items",
-      "visible": true
+      "visible": false
     },
     {
       "corner": "small",
@@ -40,7 +40,7 @@
       "name": "colors",
       "opacity": 1.0,
       "tileset": "",
-      "visible": true
+      "visible": false
     },
     {
       "corner": "normal",

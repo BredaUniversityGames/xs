@@ -56,7 +56,7 @@ rule start {
         W H W ]
 }
 
-rule grow(rotation = all, symmetry = all) {
+rule grow_room(rotation = all, symmetry = all) {
     level[
         * . . .
         H . . .
@@ -173,17 +173,15 @@ rule hallways(rotation = all, symmetry = all) {
 }
 
 rule assign_start(rotation = all) {
-    { all
-        level[
-            W W W
-            H R W
-            W W W ]
+    level[
+        W W W
+        H R W
+        W W W ]
 
-        rooms[
-            . . .
-            . . .
-            . . . ]
-    }
+    rooms[
+        . . .
+        . . .
+        . . . ]
     => rooms[
         Start Start Start
         Start Start Start
@@ -191,16 +189,14 @@ rule assign_start(rotation = all) {
 }
 
 rule assign_end(rotation = all) {
-    { all
-        level[
-            W W W
-            H R W
-            W W W ]
-        rooms[
-            . . .
-            . . .
-            . . . ]
-    }
+    level[
+        W W W
+        H R W
+        W W W ]
+    rooms[
+        . . .
+        . . .
+        . . . ]
     => rooms[
         End End End
         End End End
@@ -208,16 +204,14 @@ rule assign_end(rotation = all) {
 }
 
 rule assign_rewards(rotation = all) {
-    { all
-        level[
-            W W W
-            H R W
-            W W W ]
-        rooms[
-            . . .
-            . . .
-            . . . ]
-    }
+    level[
+        W W W
+        H R W
+        W W W ]
+    rooms[
+        . . .
+        . . .
+        . . . ]
     => rooms[
         Reward Reward Reward
         Reward Reward Reward
@@ -225,16 +219,14 @@ rule assign_rewards(rotation = all) {
 }
 
 rule assign_rooms(rotation = all) { any
-    { all   
-        level[ 
-            W * W 
-            * R * 
-            W * W ]
-        rooms[
-            . . . 
-            . . . 
-            . . . ]
-    }
+    level[ 
+        W * W 
+        * R * 
+        W * W ]
+    rooms[
+        . . . 
+        . . . 
+        . . . ]
     => rooms[
         Challenge Challenge Challenge
         Challenge Challenge Challenge
@@ -242,15 +234,15 @@ rule assign_rooms(rotation = all) { any
 }
 
 rule hero {
-    { all level[R] entities[.] rooms[Start] } => entities[Hero]    
+    level[R] entities[.] rooms[Start] => entities[Hero]    
 }
 
 rule steps {
-    { all level[R] entities[.] rooms[End] } => entities[Steps]    
+    level[R] entities[.] rooms[End] => entities[Steps]    
 }
 
 rule rewards {
-    { all level[R] entities[.] } =>
+    level[R] entities[.] =>
     { any
         entities[Crystal] 
         entities[Potion]
@@ -263,7 +255,7 @@ rule rewards {
 }
 
 rule enemies {
-    { all level[R] rooms[Challenge] entities[.] } =>
+    level[R] rooms[Challenge] entities[.] =>
     { any
         entities[SkeletonAxe] 
         entities[SkeletonSword]
@@ -350,54 +342,50 @@ rule wall_tiles { ordered
 
 rule floor_tiles { ordered
     // Top
-    { all
     level[
         W
         F]
     tiles[
         *
         .]
-    } => tiles[
+    => tiles[
         *
         12]
-    
+
     // Bottom
-    { all
     level[
         F
         W ]
     tiles[
         *
         .]
-    }
     => tiles[
         32
         *]
         
     // Left
-    { all level[W F] tiles[* .] } => tiles[* 21]
+    level[W F] tiles[* .] => tiles[* 21]
          
     // Right
-    { all level[F W] tiles[. *] } => tiles[24 *]
+    level[F W] tiles[. *] => tiles[24 *]
     
-    { all level[F] tiles[.] } => tiles[22]    
+    level[F] tiles[.] => tiles[22]    
 }
 
 rule decorate { ordered
     // Large floor area
-    { all
-        level[
-            F F F F
-            F F F F
-            F F F F
-            F F F F]
+    level[
+        F F F F
+        F F F F
+        F F F F
+        F F F F]
 
-        tiles[
-            *  *  *  *
-            *  22 22 * 
-            *  22 22 *
-            *  *  *  * ]        
-    } => 
+    tiles[
+        *  *  *  *
+        *  22 22 * 
+        *  22 22 *
+        *  *  *  * ]        
+    => 
     { any
         tiles [
             *  *  *  *
@@ -448,34 +436,34 @@ rule show_entities { all
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Program (main)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-program {
+sequence main {
     resize(4, 3)
-    one init
+    once init
     pad(2)
     upscale(3,3)
-    one start  
-    some(max=7, policy=incremental) grow
+    once start  
+    grow(7) grow_room
     //pad(1)
-    all close        
-    one assign_start
-    one assign_end
-    all assign_rewards
-    all assign_rooms    
+    everywhere close        
+    once assign_start
+    once assign_end
+    everywhere assign_rewards
+    everywhere assign_rooms    
     upscale(2,2)
-    all expand_rooms
-    //some (max=3) merge
-    //all clean
-    //some (max=2) hallways
+    everywhere expand_rooms
+    //scatter(3) merge
+    //everywhere clean
+    //scatter(2) hallways
     trim()
     pad(1)
     
-    one hero
-    one steps
-    some(max=8) rewards
-    some(max=12) enemies
+    once hero
+    once steps
+    scatter(8) rewards
+    scatter(12) enemies
 
-    all wall_tiles
-     all floor_tiles
-     all show_entities
-     all decorate
+    everywhere wall_tiles
+     everywhere floor_tiles
+     everywhere show_entities
+     everywhere decorate
 }

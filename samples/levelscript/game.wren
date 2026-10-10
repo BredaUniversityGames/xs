@@ -1,7 +1,7 @@
 import "xs/core" for Data, Input, Render, File
 import "xs/levelscript" for LsGenerator, LsStepMode, LsGrid
 
-// Demonstrates embedding LevelScript (.ls) programs in xs: compiles a few
+// Demonstrates embedding LevelScript (.lvs) programs in xs: compiles a few
 // bundled generators, runs one progressively (cell-by-cell, animated via
 // Fiber.yield - same pattern samples/rogue's generators.wren uses for its
 // own hand-written Wren generators), and renders the result as tinted
@@ -51,13 +51,13 @@ class Game {
         __names = ["dungeon", "cave", "walk", "nuclear"]
         __programs = []
         for (name in __names) {
-            var source = File.read("[game]/levels/%(name).ls")
+            var source = File.read("[game]/levels/%(name).lvs")
             var program = LsGenerator.compile(source, name)
             if (!program.isValid) {
-                System.print("LevelScript: failed to compile %(name).ls: %(program.error)")
+                System.print("LevelScript: failed to compile %(name).lvs: %(program.error)")
             } else {
                 var warnings = program.warnings
-                if (warnings != "") System.print("LevelScript: %(name).ls warnings: %(warnings)")
+                if (warnings != "") System.print("LevelScript: %(name).lvs warnings: %(warnings)")
             }
             __programs.add(program)
         }

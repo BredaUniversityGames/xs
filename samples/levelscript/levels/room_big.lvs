@@ -36,7 +36,7 @@ rule start {
         W H W ]
 }
 
-rule grow(rotation = all, symmetry = all) {
+rule grow_room(rotation = all, symmetry = all) {
     level[
         * . . .
         H . . .
@@ -146,17 +146,15 @@ rule hallways(rotation = all) {
 }
 
 rule assign_start(rotation = all) {
-    { all
-        level[
-            W W W
-            H R W
-            W W W ]
+    level[
+        W W W
+        H R W
+        W W W ]
 
-        rooms[
-            . . .
-            . . .
-            . . . ]
-    }
+    rooms[
+        . . .
+        . . .
+        . . . ]
     => rooms[
         Start Start Start
         Start Start Start
@@ -164,16 +162,14 @@ rule assign_start(rotation = all) {
 }
 
 rule assign_end(rotation = all) {
-    { all
-        level[
-            W W W
-            H R W
-            W W W ]
-        rooms[
-            . . .
-            . . .
-            . . . ]
-    }
+    level[
+        W W W
+        H R W
+        W W W ]
+    rooms[
+        . . .
+        . . .
+        . . . ]
     => rooms[
         End End End
         End End End
@@ -181,31 +177,27 @@ rule assign_end(rotation = all) {
 }
 
 rule assign_rooms(rotation = all) { any
-    { all   
-        level[ // Closed room -> Reward
-            W W W
-            H R W
-            W W W ]
-        rooms[
-            . . .
-            . . .
-            . . . ]
-    }
+    level[ // Closed room -> Reward
+        W W W
+        H R W
+        W W W ]
+    rooms[
+        . . .
+        . . .
+        . . . ]
     => rooms[
         Reward Reward Reward
         Reward Reward Reward
         Reward Reward Reward ]
     
-    { all   
-        level[ 
-            W * W
-            * R *
-            W * W ]
-        rooms[
-            . . .
-            . . .
-            . . . ]
-    }
+    level[ 
+        W * W
+        * R *
+        W * W ]
+    rooms[
+        . . .
+        . . .
+        . . . ]
     => rooms[
         Challenge Challenge Challenge
         Challenge Challenge Challenge
@@ -214,26 +206,26 @@ rule assign_rooms(rotation = all) { any
 
 
 
-program {
+sequence main {
     resize(4, 4)
-    one init
+    once init
     pad(2)
     upscale(3,3)
-    one start  
-    some(max=8, policy=incremental) grow
+    once start  
+    grow(8) grow_room
     pad(1)
-    all close    
+    everywhere close    
     trim()
-    one assign_start
-    one assign_end
-    all assign_rooms
+    once assign_start
+    once assign_end
+    everywhere assign_rooms
     upscale(2,2)
-    //all roomfy
-    //all (policy=stabilize) corner
-    //all roomfy
-    //all (policy=stabilize) corner
-    //some (max=2) merge
-    //all clean
-    //all hallways
+    //everywhere roomfy
+    //settle corner
+    //everywhere roomfy
+    //settle corner
+    //scatter(2) merge
+    //everywhere clean
+    //everywhere hallways
     pad(1)
 }

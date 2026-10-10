@@ -2,7 +2,7 @@
 // Visual representation of wall tiles
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-use "room_schema.ls"
+use "room_schema.lvs"
 
 rule wall_tiles { ordered
     // Bottom left corner
@@ -78,7 +78,7 @@ rule wall_tiles { ordered
 
 rule floor_tiles { ordered
     // Top
-    { all
+    {
     level[
         W
         F]
@@ -90,7 +90,7 @@ rule floor_tiles { ordered
         12]
     
     // Bottom
-    { all
+    {
     level[
         F
         W ]
@@ -103,17 +103,17 @@ rule floor_tiles { ordered
         *]
         
     // Left
-    { all level[W F] tiles[* .] } => tiles[* 21]
+    { level[W F] tiles[* .] } => tiles[* 21]
          
     // Right
-    { all level[F W] tiles[. *] } => tiles[24 *]
+    { level[F W] tiles[. *] } => tiles[24 *]
     
-    { all level[F] tiles[.] } => tiles[22]    
+    { level[F] tiles[.] } => tiles[22]    
 }
 
 rule colored_corners { ordered
 // Red corner decorations (up-right)
-    { all
+    {
         level[
             F W 
             F F ] 
@@ -127,7 +127,7 @@ rule colored_corners { ordered
         * * ]
     
     // Red corner decorations (up-left)
-    { all
+    {
         level[
             W F 
             F F ] 
@@ -141,7 +141,7 @@ rule colored_corners { ordered
         *  * ]
 
     // Red corner decorations (down-right)    
-    { all
+    {
         level[
             F F 
             W F ] 
@@ -155,7 +155,7 @@ rule colored_corners { ordered
         62 * ]
 
     // Red corner decorations (down-left)
-    { all
+    {
         level[
             F F 
             F W ] 
@@ -168,7 +168,7 @@ rule colored_corners { ordered
         * * 
         * 63]
     
-    { all
+    {
         level[
             W F 
             F F ] 
@@ -182,7 +182,7 @@ rule colored_corners { ordered
         * * ]
 
     // Blue corner decorations (up-right)
-    { all
+    {
         level[
             F W 
             F F ] 
@@ -196,7 +196,7 @@ rule colored_corners { ordered
         * * ]
     
     // Blue corner decorations (up-left)
-    { all
+    {
         level[
             W F 
             F F ] 
@@ -210,7 +210,7 @@ rule colored_corners { ordered
         * * ]
 
     // Blue corner decorations (down-right)
-    { all
+    {
         level[
             F F 
             W F ] 
@@ -224,7 +224,7 @@ rule colored_corners { ordered
         61 * ]
 
     // Blue corner decorations (down-left)
-    { all
+    {
         level[
             F F 
             F W ] 
@@ -239,7 +239,7 @@ rule colored_corners { ordered
 }
 
 rule colored_top_wall { ordered
-    { all
+    {
         tiles[2 2 2 2 2]
         colors[Blue * * * Blue ]
     } =>
@@ -250,7 +250,7 @@ rule colored_top_wall { ordered
         
     }
 
-    { all
+    {
         tiles[2 2 2 2 ]
         colors[Blue Blue Blue Blue]
     } =>
@@ -259,7 +259,7 @@ rule colored_top_wall { ordered
         tiles[* *  *  * ]        
     }
 
-    { all
+    {
         tiles[2 2 2 ]
         colors[Blue Blue Blue]
     } =>
@@ -269,7 +269,7 @@ rule colored_top_wall { ordered
         tiles[*  *  *  ]
     }
 
-    { all
+    {
         tiles[2 2 2 2 2]
         colors[Red Red Red Red Red ]
     } =>
@@ -278,7 +278,7 @@ rule colored_top_wall { ordered
         tiles[83 2  2  2  83]        
     }
 
-    { all
+    {
         tiles[2 2 2 2]
         colors[Red Red Red Red ]
     } =>
@@ -287,7 +287,7 @@ rule colored_top_wall { ordered
         tiles[*  *  *  * ]
     }
 
-    { all
+    {
         tiles[2 2 2]
         colors[Red Red Red ]
     } =>
@@ -303,7 +303,7 @@ rule colored_top_wall { ordered
 }
 
 rule large_floor_area { all
-    { all
+    {
          level[
             F F F F
             F F F F
@@ -421,8 +421,8 @@ rule show_entities { ordered
     entities[Hero] => tiles[85]
     entities[Door Door] => items_viz[41 42]
     entities[Door] => { any items_viz[41] items_viz[42] }    
-    { all entities[Steps] colors[Red] } => tiles[84]
-    { all entities[Steps] colors[Blue] } => tiles[85]    
+    { entities[Steps] colors[Red] } => tiles[84]
+    { entities[Steps] colors[Blue] } => tiles[85]    
     entities[Obstacle] => { any
         items_viz[52]
         items_viz[55]

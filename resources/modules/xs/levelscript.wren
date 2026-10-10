@@ -9,7 +9,7 @@ foreign class LsGenerator {
     }
 
     /// Compiles LevelScript source text. `name` labels diagnostics
-    /// ("dungeon.ls:12:3: error: ...").
+    /// ("dungeon.lvs:12:3: error: ...").
     construct compile(source: String, name: String) {
         compile_(source, name)
     }
