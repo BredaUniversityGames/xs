@@ -620,7 +620,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>INSPECTOR;EDITOR;PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;DEBUG;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>INSPECTOR;EDITOR;WREN_DEBUGGER=1;PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;DEBUG;WIN64;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -665,7 +665,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>INSPECTOR;EDITOR;PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;WIN64;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>INSPECTOR;EDITOR;WREN_DEBUGGER=1;PLATFORM_PC;_CRT_SECURE_NO_WARNINGS;WIN64;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>

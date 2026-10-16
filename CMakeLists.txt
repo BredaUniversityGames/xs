@@ -13,7 +13,8 @@ find_package(Python3 COMPONENTS Interpreter REQUIRED)
 # Platform definitions
 # PLATFORM_PC: Desktop platform (shared between Windows and Linux)
 # PLATFORM_LINUX: Linux-specific features
-add_definitions(-DPLATFORM_PC -DPLATFORM_LINUX -DINSPECTOR -DEDITOR)
+# WREN_DEBUGGER compiles the debug hooks into the Wren VM, xs debugger uses them
+add_definitions(-DPLATFORM_PC -DPLATFORM_LINUX -DINSPECTOR -DEDITOR -DWREN_DEBUGGER=1)
 
 # Core source files
 set(CORE_SOURCES
