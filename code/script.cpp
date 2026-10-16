@@ -24,6 +24,7 @@
 #include "device.hpp"
 #include "inspector.hpp"
 #include "color.hpp"
+#include "debugger.hpp"
 #include "json/json.hpp"
 #include <imgui.h>
 
@@ -221,6 +222,7 @@ void xs::script::configure()
     config.bindForeignClassFn = &bindForeignClass;
     config.loadModuleFn = &loadModule;    
     vm = wrenNewVM(&config);
+    debugger::attach(vm);
 
     const string& script_file = fileio::read_text_file(main);
     modules["game"].path = main;
@@ -308,6 +310,7 @@ void xs::script::shutdown()
             wrenReleaseHandle(vm, render_method);
             render_method = nullptr;
         }
+        debugger::detach();
         wrenFreeVM(vm);
         vm = nullptr;
     }
@@ -373,6 +376,14 @@ void xs::script::ec_inspect(const std::string& filter)
     // Clean up handles
     wrenReleaseHandle(vm, inspect_method);
     wrenReleaseHandle(vm, entity_class);
+}
+
+string script::module_path(const string& module)
+{
+    const auto itr = modules.find(module);
+    if (itr == modules.end() || itr->second.path.empty())
+        return "";
+    return fileio::absolute(itr->second.path);
 }
 
 bool script::is_module_loaded(const std::string& module)

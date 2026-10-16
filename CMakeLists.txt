@@ -20,6 +20,7 @@ add_definitions(-DPLATFORM_PC -DPLATFORM_LINUX -DINSPECTOR -DEDITOR -DWREN_DEBUG
 set(CORE_SOURCES
     code/configuration.cpp
     code/data.cpp
+    code/debugger.cpp
     code/device.cpp
     code/packager.cpp
     code/fileio.cpp

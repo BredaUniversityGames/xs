@@ -103,6 +103,9 @@
     <ClCompile Include="code\configuration.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="code\debugger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="code\device.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -325,6 +328,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\configuration.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="code\debugger.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\packager.hpp">

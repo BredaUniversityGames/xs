@@ -118,6 +118,7 @@
     <ClCompile Include="code\audio.cpp" />
     <ClCompile Include="code\simple_audio.cpp" />
     <ClCompile Include="code\configuration.cpp" />
+    <ClCompile Include="code\debugger.cpp" />
     <ClCompile Include="code\device.cpp" />
     <ClCompile Include="code\sdl3\device_sdl.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">true</ExcludedFromBuild>
@@ -334,6 +335,7 @@
     <ClInclude Include="code\simple_audio.hpp" />
     <ClInclude Include="code\color.hpp" />
     <ClInclude Include="code\configuration.hpp" />
+    <ClInclude Include="code\debugger.hpp" />
     <ClInclude Include="code\packager.hpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NX64'">
       </ExcludedFromBuild>

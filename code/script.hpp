@@ -14,6 +14,8 @@ namespace xs::script
 	void render();
 	void ec_inspect(const std::string& filter);
 	bool is_module_loaded(const std::string& module);
+	/// Absolute path of the file a module was loaded from, empty if it has none.
+	std::string module_path(const std::string& module);
 	bool has_error();
 	void clear_error();
 	void bind_api();
