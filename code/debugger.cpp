@@ -292,6 +292,44 @@ namespace
 
 	// Stack ------------------------------------------------------------------
 
+	bool defines_method(const ObjClass* c, const ObjFn* fn)
+	{
+		for (int i = 0; i < c->methods.count; i++)
+		{
+			const Method& m = c->methods.data[i];
+			if (m.type == METHOD_BLOCK && m.as.closure->fn == fn)
+				return true;
+		}
+		return false;
+	}
+
+	// The name of the function of [frame], with the class that defines it when
+	// it is a method, like Counter.bump(_). Static methods live on the metaclass.
+	string frame_name(const CallFrame* frame)
+	{
+		const ObjFn* fn = frame->closure->fn;
+		const string name = fn->debug->name != nullptr ? fn->debug->name : "?";
+
+		// Functions and top level code have their closure as receiver
+		const Value receiver = frame->stackStart[0];
+		if (IS_CLOSURE(receiver))
+			return name;
+
+		if (IS_CLASS(receiver))
+		{
+			for (const ObjClass* c = AS_CLASS(receiver); c != nullptr; c = c->superclass)
+				if (defines_method(c->obj.classObj, fn))
+					return string(c->name->value) + "." + name;
+			return string(AS_CLASS(receiver)->name->value) + "." + name;
+		}
+
+		const ObjClass* receiver_class = wrenGetClassInline(vm, receiver);
+		for (const ObjClass* c = receiver_class; c != nullptr; c = c->superclass)
+			if (defines_method(c, fn))
+				return string(c->name->value) + "." + name;
+		return string(receiver_class->name->value) + "." + name;
+	}
+
 	// Collects the frames of the current fiber that have a source file,
 	// innermost first.
 	vector<frame_info> collect_frames()
@@ -322,7 +360,7 @@ namespace
 			info.frame = frame;
 			info.offset = offset;
 			info.line = fn->debug->sourceLines.data[offset];
-			info.name = fn->debug->name != nullptr ? fn->debug->name : "?";
+			info.name = frame_name(frame);
 			info.path = path;
 			frames.push_back(info);
 		}
