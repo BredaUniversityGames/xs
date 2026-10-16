@@ -267,10 +267,14 @@ void xs::inspector::shutdown()
 	data::set_number("Editor.ZoomLevel", static_cast<int>(current_zoom), data::type::user);
 	data::save_of_type(data::type::user);
 
-	// Explicitly save ImGui settings before shutdown
+	// Explicitly save ImGui settings before shutdown. Skip it if no frame was rendered,
+	// as the settings were never loaded and an empty layout would overwrite the saved one.
 	const char* ini_path = ImGui::GetIO().IniFilename;
-	log::info("Saving ImGui INI settings to: {}", ini_path ? ini_path : "NULL");
-	ImGui::SaveIniSettingsToDisk(ini_path);
+	if (ImGui::GetFrameCount() > 0)
+	{
+		log::info("Saving ImGui INI settings to: {}", ini_path ? ini_path : "NULL");
+		ImGui::SaveIniSettingsToDisk(ini_path);
+	}
 
 	ImGui_Impl_Shutdown();
 #if defined(PLATFORM_PC) || defined(PLATFORM_SWITCH) || defined(PLATFORM_APPLE)
@@ -335,6 +339,11 @@ void xs::inspector::render(double dt)
 	{
 		checked_init = true;
 		should_init = !data::get_bool("Editor.DockingInitialized", data::type::user);
+
+		// Rebuild the layout if the saved one is missing or broken (dockspace was never split)
+		ImGuiDockNode* root = ImGui::DockBuilderGetNode(dockspace_id);
+		if (!root || root->IsLeafNode())
+			should_init = true;
 	}
 
 	if (should_init)
