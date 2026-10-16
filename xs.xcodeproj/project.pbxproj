@@ -1110,7 +1110,7 @@
 				34EB6D222A4C6E6200DA6B15 /* optional */,
 				34EB6D2B2A4C6E6200DA6B15 /* vm */,
 			);
-			path = wren;
+			path = wren/src;
 			sourceTree = "<group>";
 		};
 		34EB6D1F2A4C6E6200DA6B15 /* include */ = {
@@ -1986,9 +1986,9 @@
 					"$(PROJECT_DIR)/code/include",
 					"$(PROJECT_DIR)/external/",
 					"$(PROJECT_DIR)/external/imgui",
-					"$(PROJECT_DIR)/external/wren/include",
-					"$(PROJECT_DIR)/external/wren/optional",
-					"$(PROJECT_DIR)/external/wren/vm",
+					"$(PROJECT_DIR)/external/wren/src/include",
+					"$(PROJECT_DIR)/external/wren/src/optional",
+					"$(PROJECT_DIR)/external/wren/src/vm",
 					"$(PROJECT_DIR)/external/implot",
 					"$(PROJECT_DIR)/external/miniz/include/miniz",
 					"$(PROJECT_DIR)/external/fmt/include",
@@ -2052,9 +2052,9 @@
 					"$(PROJECT_DIR)/code/include",
 					"$(PROJECT_DIR)/external/",
 					"$(PROJECT_DIR)/external/imgui",
-					"$(PROJECT_DIR)/external/wren/include",
-					"$(PROJECT_DIR)/external/wren/optional",
-					"$(PROJECT_DIR)/external/wren/vm",
+					"$(PROJECT_DIR)/external/wren/src/include",
+					"$(PROJECT_DIR)/external/wren/src/optional",
+					"$(PROJECT_DIR)/external/wren/src/vm",
 					"$(PROJECT_DIR)/external/implot",
 					"$(PROJECT_DIR)/external/miniz/include/miniz",
 					"$(PROJECT_DIR)/external/fmt/include",
@@ -2181,9 +2181,9 @@
 					"$(PROJECT_DIR)/code/include",
 					"$(PROJECT_DIR)/external/",
 					"$(PROJECT_DIR)/external/imgui",
-					"$(PROJECT_DIR)/external/wren/include",
-					"$(PROJECT_DIR)/external/wren/optional",
-					"$(PROJECT_DIR)/external/wren/vm",
+					"$(PROJECT_DIR)/external/wren/src/include",
+					"$(PROJECT_DIR)/external/wren/src/optional",
+					"$(PROJECT_DIR)/external/wren/src/vm",
 					"$(PROJECT_DIR)/external/implot",
 					"$(PROJECT_DIR)/external/miniz/include/miniz",
 					"$(PROJECT_DIR)/external/fmt/include",

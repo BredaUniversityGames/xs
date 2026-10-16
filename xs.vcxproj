@@ -312,15 +312,15 @@
     <ClCompile Include="external\miniz\src\miniz_tdef.c" />
     <ClCompile Include="external\miniz\src\miniz_tinfl.c" />
     <ClCompile Include="external\miniz\src\miniz_zip.c" />
-    <ClCompile Include="external\wren\optional\wren_opt_meta.c" />
-    <ClCompile Include="external\wren\optional\wren_opt_random.c" />
-    <ClCompile Include="external\wren\vm\wren_compiler.c" />
-    <ClCompile Include="external\wren\vm\wren_core.c" />
-    <ClCompile Include="external\wren\vm\wren_debug.c" />
-    <ClCompile Include="external\wren\vm\wren_primitive.c" />
-    <ClCompile Include="external\wren\vm\wren_utils.c" />
-    <ClCompile Include="external\wren\vm\wren_value.c" />
-    <ClCompile Include="external\wren\vm\wren_vm.c" />
+    <ClCompile Include="external\wren\src\optional\wren_opt_meta.c" />
+    <ClCompile Include="external\wren\src\optional\wren_opt_random.c" />
+    <ClCompile Include="external\wren\src\vm\wren_compiler.c" />
+    <ClCompile Include="external\wren\src\vm\wren_core.c" />
+    <ClCompile Include="external\wren\src\vm\wren_debug.c" />
+    <ClCompile Include="external\wren\src\vm\wren_primitive.c" />
+    <ClCompile Include="external\wren\src\vm\wren_utils.c" />
+    <ClCompile Include="external\wren\src\vm\wren_value.c" />
+    <ClCompile Include="external\wren\src\vm\wren_vm.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="code\account.hpp" />
@@ -399,30 +399,30 @@
     <ClInclude Include="external\miniz\include\miniz\miniz_tdef.h" />
     <ClInclude Include="external\miniz\include\miniz\miniz_tinfl.h" />
     <ClInclude Include="external\miniz\include\miniz\miniz_zip.h" />
-    <ClInclude Include="external\wren\include\wren.h" />
-    <ClInclude Include="external\wren\include\wren.hpp" />
-    <ClInclude Include="external\wren\optional\wren_opt_meta.h" />
-    <ClInclude Include="external\wren\optional\wren_opt_random.h" />
-    <ClInclude Include="external\wren\vm\wren_common.h" />
-    <ClInclude Include="external\wren\vm\wren_compiler.h" />
-    <ClInclude Include="external\wren\vm\wren_core.h" />
-    <ClInclude Include="external\wren\vm\wren_debug.h" />
-    <ClInclude Include="external\wren\vm\wren_math.h" />
-    <ClInclude Include="external\wren\vm\wren_opcodes.h" />
-    <ClInclude Include="external\wren\vm\wren_primitive.h" />
-    <ClInclude Include="external\wren\vm\wren_utils.h" />
-    <ClInclude Include="external\wren\vm\wren_value.h" />
-    <ClInclude Include="external\wren\vm\wren_vm.h" />
+    <ClInclude Include="external\wren\src\include\wren.h" />
+    <ClInclude Include="external\wren\src\include\wren.hpp" />
+    <ClInclude Include="external\wren\src\optional\wren_opt_meta.h" />
+    <ClInclude Include="external\wren\src\optional\wren_opt_random.h" />
+    <ClInclude Include="external\wren\src\vm\wren_common.h" />
+    <ClInclude Include="external\wren\src\vm\wren_compiler.h" />
+    <ClInclude Include="external\wren\src\vm\wren_core.h" />
+    <ClInclude Include="external\wren\src\vm\wren_debug.h" />
+    <ClInclude Include="external\wren\src\vm\wren_math.h" />
+    <ClInclude Include="external\wren\src\vm\wren_opcodes.h" />
+    <ClInclude Include="external\wren\src\vm\wren_primitive.h" />
+    <ClInclude Include="external\wren\src\vm\wren_utils.h" />
+    <ClInclude Include="external\wren\src\vm\wren_value.h" />
+    <ClInclude Include="external\wren\src\vm\wren_vm.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="external\imgui\debuggers\imgui.natstepfilter" />
-    <None Include="external\wren\optional\wren_opt_meta.wren" />
-    <None Include="external\wren\optional\wren_opt_meta.wren.inc" />
-    <None Include="external\wren\optional\wren_opt_random.wren" />
-    <None Include="external\wren\optional\wren_opt_random.wren.inc" />
-    <None Include="external\wren\vm\wren_core.wren" />
-    <None Include="external\wren\vm\wren_core.wren.inc" />
+    <None Include="external\wren\src\optional\wren_opt_meta.wren" />
+    <None Include="external\wren\src\optional\wren_opt_meta.wren.inc" />
+    <None Include="external\wren\src\optional\wren_opt_random.wren" />
+    <None Include="external\wren\src\optional\wren_opt_random.wren.inc" />
+    <None Include="external\wren\src\vm\wren_core.wren" />
+    <None Include="external\wren\src\vm\wren_core.wren.inc" />
   </ItemGroup>
   <ItemGroup>
     <WavePsslc Include="platforms\prospero\code\shaders\sprite_p.pssl">
@@ -639,7 +639,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>PLATFORM_PS5;MINIZ_NO_TIME;MINIZ_NO_STDIO;DEBUG;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/src/optional;$(ProjectDir)external/wren/src/vm;$(ProjectDir)external/wren/src/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CppExceptions>true</CppExceptions>
       <CppLanguageStd>Cpp17</CppLanguageStd>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -685,7 +685,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>PLATFORM_PS5;MINIZ_NO_TIME;MINIZ_NO_STDIO;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/src/optional;$(ProjectDir)external/wren/src/vm;$(ProjectDir)external/wren/src/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <CppExceptions>true</CppExceptions>
@@ -738,7 +738,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>PLATFORM_PS5;MINIZ_NO_TIME;MINIZ_NO_STDIO;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/optional;$(ProjectDir)external/wren/vm;$(ProjectDir)external/wren/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)code;$(ProjectDir)external;$(ProjectDir)external/imgui;$(ProjectDir)external/wren/src/optional;$(ProjectDir)external/wren/src/vm;$(ProjectDir)external/wren/src/include;$(ProjectDir)external/glad/include;$(ProjectDir)external/fmt/include;$(ProjectDir)external\miniz\include\miniz;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <CppExceptions>true</CppExceptions>

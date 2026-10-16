@@ -22,31 +22,31 @@
     <ClCompile Include="external\glad\src\glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\wren\vm\wren_compiler.c">
+    <ClCompile Include="external\wren\src\vm\wren_compiler.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\wren\vm\wren_core.c">
+    <ClCompile Include="external\wren\src\vm\wren_core.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\wren\vm\wren_debug.c">
+    <ClCompile Include="external\wren\src\vm\wren_debug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\wren\vm\wren_primitive.c">
+    <ClCompile Include="external\wren\src\vm\wren_primitive.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\wren\vm\wren_utils.c">
+    <ClCompile Include="external\wren\src\vm\wren_utils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\wren\vm\wren_value.c">
+    <ClCompile Include="external\wren\src\vm\wren_value.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\wren\vm\wren_vm.c">
+    <ClCompile Include="external\wren\src\vm\wren_vm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\wren\optional\wren_opt_meta.c">
+    <ClCompile Include="external\wren\src\optional\wren_opt_meta.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\wren\optional\wren_opt_random.c">
+    <ClCompile Include="external\wren\src\optional\wren_opt_random.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="external\imgui\imgui_demo.cpp">
@@ -210,46 +210,46 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="external\wren\optional\wren_opt_meta.h">
+    <ClInclude Include="external\wren\src\optional\wren_opt_meta.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\optional\wren_opt_random.h">
+    <ClInclude Include="external\wren\src\optional\wren_opt_random.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\vm\wren_common.h">
+    <ClInclude Include="external\wren\src\vm\wren_common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\vm\wren_compiler.h">
+    <ClInclude Include="external\wren\src\vm\wren_compiler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\vm\wren_core.h">
+    <ClInclude Include="external\wren\src\vm\wren_core.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\vm\wren_debug.h">
+    <ClInclude Include="external\wren\src\vm\wren_debug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\vm\wren_math.h">
+    <ClInclude Include="external\wren\src\vm\wren_math.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\vm\wren_opcodes.h">
+    <ClInclude Include="external\wren\src\vm\wren_opcodes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\vm\wren_primitive.h">
+    <ClInclude Include="external\wren\src\vm\wren_primitive.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\vm\wren_utils.h">
+    <ClInclude Include="external\wren\src\vm\wren_utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\vm\wren_value.h">
+    <ClInclude Include="external\wren\src\vm\wren_value.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\vm\wren_vm.h">
+    <ClInclude Include="external\wren\src\vm\wren_vm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\include\wren.h">
+    <ClInclude Include="external\wren\src\include\wren.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\wren\include\wren.hpp">
+    <ClInclude Include="external\wren\src\include\wren.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\imgui\imgui_impl_opengl3.h">
@@ -419,16 +419,16 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="external\wren\optional\wren_opt_meta.wren" />
-    <None Include="external\wren\optional\wren_opt_meta.wren.inc">
+    <None Include="external\wren\src\optional\wren_opt_meta.wren" />
+    <None Include="external\wren\src\optional\wren_opt_meta.wren.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="external\wren\optional\wren_opt_random.wren" />
-    <None Include="external\wren\optional\wren_opt_random.wren.inc">
+    <None Include="external\wren\src\optional\wren_opt_random.wren" />
+    <None Include="external\wren\src\optional\wren_opt_random.wren.inc">
       <Filter>Header Files</Filter>
     </None>
-    <None Include="external\wren\vm\wren_core.wren" />
-    <None Include="external\wren\vm\wren_core.wren.inc">
+    <None Include="external\wren\src\vm\wren_core.wren" />
+    <None Include="external\wren\src\vm\wren_core.wren.inc">
       <Filter>Header Files</Filter>
     </None>
     <None Include="external\imgui\debuggers\imgui.natstepfilter" />
