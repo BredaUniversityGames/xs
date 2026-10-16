@@ -129,6 +129,13 @@ namespace
 	enum class resume_mode { none, run };
 	resume_mode resume = resume_mode::none;
 
+	// How far the game runs before stopping again. Stepping compares the
+	// number of frames of the fiber with the number when the step started.
+	enum class step_mode { none, in, over, out };
+	step_mode step = step_mode::none;
+	const ObjFiber* step_fiber = nullptr;
+	int step_depth = 0;
+
 	// Breakpoint lines per normalized source path.
 	unordered_map<string, set<int>> breakpoints;
 
@@ -434,6 +441,16 @@ namespace
 		else if (command == "continue")
 		{
 			respond(req, true, { { "allThreadsContinued", true } });
+			step = step_mode::none;
+			resume = resume_mode::run;
+		}
+		else if (command == "next" || command == "stepIn" || command == "stepOut")
+		{
+			step = command == "next" ? step_mode::over :
+				   command == "stepIn" ? step_mode::in : step_mode::out;
+			step_fiber = vm->fiber;
+			step_depth = vm->fiber->numFrames;
+			respond(req, true);
 			resume = resume_mode::run;
 		}
 		else if (command == "pause")
@@ -537,6 +554,7 @@ namespace
 		{
 			if (break_on_error)
 			{
+				step = step_mode::none;
 				stop_error = message != nullptr ? message : "Runtime error";
 				stopped_on_instruction = false;
 				stop("exception", stop_error);
@@ -565,13 +583,35 @@ namespace
 
 		if (pause_requested)
 		{
+			step = step_mode::none;
 			stop("pause", "");
 			return;
 		}
 
 		const auto itr = breakpoints.find(path);
 		if (itr != breakpoints.end() && itr->second.count(line) > 0)
+		{
+			step = step_mode::none;
 			stop("breakpoint", "");
+			return;
+		}
+
+		if (step != step_mode::none)
+		{
+			// Another fiber means the step went through Fiber.call or yield,
+			// which is the place the user wants to see next.
+			const int depth = fiber->numFrames;
+			const bool done =
+				fiber != step_fiber ||
+				step == step_mode::in ||
+				(step == step_mode::over && depth <= step_depth) ||
+				(step == step_mode::out && depth < step_depth);
+			if (done)
+			{
+				step = step_mode::none;
+				stop("step", "");
+			}
+		}
 	}
 }
 
@@ -623,6 +663,7 @@ void debugger::attach(WrenVM* new_vm)
 
 	vm = new_vm;
 	module_paths.clear();
+	step = step_mode::none;
 	wrenSetDebugHook(vm, &hook);
 
 	// Only the first VM waits, after a reload the client is already set up.
