@@ -1,3 +1,10 @@
+#include "debugger.hpp"
+#include "log.hpp"
+
+// Only a debug build needs sockets and the rest, other builds (like consoles)
+// get empty functions at the end of this file.
+#if defined(WREN_DEBUGGER) && WREN_DEBUGGER
+
 // Windows headers have to come first, winsock2.h must precede windows.h
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -27,10 +34,8 @@ static const sock_t invalid_sock = -1;
 #include <unordered_map>
 #include <vector>
 
-#include "debugger.hpp"
 #include "device.hpp"
 #include "fileio.hpp"
-#include "log.hpp"
 #include "script.hpp"
 #include "json/json.hpp"
 
@@ -50,8 +55,6 @@ extern "C" {
 using namespace std;
 using namespace xs;
 using json = nlohmann::json;
-
-#if WREN_DEBUGGER
 
 namespace
 {
@@ -1090,12 +1093,15 @@ void debugger::shutdown()
 
 #else // WREN_DEBUGGER
 
-bool debugger::enable(int) { log::error("This build of xs has no debugger."); return false; }
-bool debugger::enabled() { return false; }
-void debugger::attach(WrenVM*) {}
-void debugger::detach() {}
-void debugger::update() {}
-void debugger::window_ready() {}
-void debugger::shutdown() {}
+namespace xs::debugger
+{
+	bool enable(int) { log::error("This build of xs has no debugger."); return false; }
+	bool enabled() { return false; }
+	void attach(WrenVM*) {}
+	void detach() {}
+	void update() {}
+	void window_ready() {}
+	void shutdown() {}
+}
 
 #endif
