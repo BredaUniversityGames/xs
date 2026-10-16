@@ -6,3 +6,6 @@
 	path = platforms/prospero
 	url = https://github.com/BredaUniversityGames/xs-prospero.git
 	branch = main
+[submodule "external/wren"]
+	path = external/wren
+	url = https://github.com/enci/wren.git

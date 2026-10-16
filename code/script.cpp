@@ -35,8 +35,8 @@
 
 #include <wren.hpp>
 extern "C" {
-#include "wren/optional/wren_opt_random.h"
-#include "wren/optional/wren_opt_meta.h"
+#include "wren_opt_random.h"
+#include "wren_opt_meta.h"
 #include "wren_vm.h"
 }
 
