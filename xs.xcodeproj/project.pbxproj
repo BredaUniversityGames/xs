@@ -28,6 +28,8 @@
 		346E73DF2A4A29D5006ECAD5 /* log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E737E2A4A29D5006ECAD5 /* log.cpp */; };
 		346E73E02A4A29D5006ECAD5 /* profiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E737F2A4A29D5006ECAD5 /* profiler.cpp */; };
 		346E73E22A4A29D5006ECAD5 /* profiler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E737F2A4A29D5006ECAD5 /* profiler.cpp */; };
+		D5B0A0032B1C000100A1B2C3 /* debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5B0A0012B1C000100A1B2C3 /* debugger.cpp */; };
+		D5B0A0042B1C000100A1B2C3 /* debugger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D5B0A0012B1C000100A1B2C3 /* debugger.cpp */; };
 		346E73E32A4A29D5006ECAD5 /* script.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73812A4A29D5006ECAD5 /* script.cpp */; };
 		346E73E52A4A29D5006ECAD5 /* script.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E73812A4A29D5006ECAD5 /* script.cpp */; };
 		346E74012A4A29D5006ECAD5 /* device.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E738F2A4A29D5006ECAD5 /* device.cpp */; };
@@ -170,6 +172,8 @@
 		346184262A7867A90014B43C /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
 		346E73412A4A29D5006ECAD5 /* input.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = input.hpp; sourceTree = "<group>"; };
 		346E73432A4A29D5006ECAD5 /* version.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = version.hpp; sourceTree = "<group>"; };
+		D5B0A0022B1C000100A1B2C3 /* debugger.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = debugger.hpp; sourceTree = "<group>"; };
+		D5B0A0012B1C000100A1B2C3 /* debugger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = debugger.cpp; sourceTree = "<group>"; };
 		346E73442A4A29D5006ECAD5 /* script.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = script.hpp; sourceTree = "<group>"; };
 		346E73452A4A29D5006ECAD5 /* device.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = device.hpp; sourceTree = "<group>"; };
 		346E73472A4A29D5006ECAD5 /* account.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = account.hpp; sourceTree = "<group>"; };
@@ -892,6 +896,8 @@
 				346E73522A4A29D5006ECAD5 /* render.hpp */,
 				346E737C2A4A29D5006ECAD5 /* render.cpp */,
 				346E73802A4A29D5006ECAD5 /* render_internal.hpp */,
+				D5B0A0022B1C000100A1B2C3 /* debugger.hpp */,
+				D5B0A0012B1C000100A1B2C3 /* debugger.cpp */,
 				346E73442A4A29D5006ECAD5 /* script.hpp */,
 				346E73812A4A29D5006ECAD5 /* script.cpp */,
 				5A7BCF752ECE29CE00A4A0C3 /* simple_audio.hpp */,
@@ -1824,6 +1830,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5B0A0032B1C000100A1B2C3 /* debugger.cpp in Sources */,
 				346E73E32A4A29D5006ECAD5 /* script.cpp in Sources */,
 				34EB6F692A4C6EE900DA6B15 /* wren_core.c in Sources */,
 				344B22792B1D15DD004B1EA2 /* inspector.cpp in Sources */,
@@ -1876,6 +1883,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5B0A0042B1C000100A1B2C3 /* debugger.cpp in Sources */,
 				346E73E52A4A29D5006ECAD5 /* script.cpp in Sources */,
 				348FE4262B275C1A000C1F11 /* audio.cpp in Sources */,
 				5A48B06B2ED125CD0003ACC5 /* device_apple.mm in Sources */,
@@ -2174,6 +2182,7 @@
 					"PROJECT_DIR=@\\\"\"$PROJECT_DIR\"\\\"",
 					INSPECTOR,
 					EDITOR,
+					"WREN_DEBUGGER=1",
 					IMGUI_ENABLE_FREETYPE,
 				);
 				GENERATE_INFOPLIST_FILE = YES;
