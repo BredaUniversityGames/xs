@@ -28,6 +28,9 @@ jobs:
           fetch-depth: 0
           lfs: true
 
+      - name: Wren submodule
+        run: git submodule update --init external/wren
+
       - name: Setup MSBuild path
         uses: microsoft/setup-msbuild@v2
         with:

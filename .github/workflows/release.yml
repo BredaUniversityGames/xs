@@ -40,6 +40,9 @@ jobs:
           fetch-depth: 0
           lfs: true          # resources/ (fonts, images) are tracked in Git LFS
 
+      - name: Wren submodule
+        run: git submodule update --init external/wren
+
       # version.hpp is the single source of truth for the version compiled into the
       # exe. Catch the common mistake of tagging without bumping version.hpp.
       - name: Verify tag matches version.hpp
