@@ -69,6 +69,7 @@ namespace
 		int index;			// Index in the frames of the fiber
 		ObjFn* fn;
 		CallFrame* frame;
+		int offset;			// Offset in the bytecode of fn the frame is at
 		int line;
 		string name;
 		string path;
@@ -319,6 +320,7 @@ namespace
 			info.index = i;
 			info.fn = fn;
 			info.frame = frame;
+			info.offset = offset;
 			info.line = fn->debug->sourceLines.data[offset];
 			info.name = fn->debug->name != nullptr ? fn->debug->name : "?";
 			info.path = path;
@@ -327,7 +329,347 @@ namespace
 		return frames;
 	}
 
+	// Variables --------------------------------------------------------------
+
+	struct named_value
+	{
+		string name;
+		Value value;
+	};
+
+	// What a variablesReference points to. The ids are only valid while the
+	// game is paused.
+	struct var_ref
+	{
+		enum class kind { locals, upvalues, module, value } what;
+		frame_info frame;	// For locals, upvalues and module
+		Value value;		// For value
+	};
+	vector<var_ref> refs;
+
+	int add_ref(var_ref::kind what, const frame_info& frame, Value value = NULL_VAL)
+	{
+		refs.push_back({ what, frame, value });
+		return (int)refs.size();	// 0 means no children, so ids start at 1
+	}
+
+	string class_name(Value value)
+	{
+		const ObjClass* c = wrenGetClassInline(vm, value);
+		return c->name->value;
+	}
+
+	string type_name(Value value)
+	{
+		if (IS_NULL(value)) return "Null";
+		if (IS_BOOL(value)) return "Bool";
+		if (IS_NUM(value)) return "Num";
+		if (IS_CLOSURE(value) || IS_FN(value)) return "Fn";
+		if (IS_CLASS(value)) return "Class";
+		if (IS_OBJ(value)) return class_name(value);
+		return "Undefined";
+	}
+
+	string describe(Value value)
+	{
+		if (IS_NULL(value)) return "null";
+		if (IS_BOOL(value)) return AS_BOOL(value) ? "true" : "false";
+		if (IS_NUM(value))
+		{
+			char buffer[32];
+			snprintf(buffer, sizeof(buffer), "%.14g", AS_NUM(value));
+			return buffer;
+		}
+		if (IS_STRING(value))
+		{
+			const ObjString* s = AS_STRING(value);
+			string res = "\"";
+			for (uint32_t i = 0; i < s->length && i < 200; i++)
+			{
+				switch (s->value[i])
+				{
+				case '\n': res += "\\n"; break;
+				case '\t': res += "\\t"; break;
+				case '"': res += "\\\""; break;
+				default: res += s->value[i];
+				}
+			}
+			return res + (s->length > 200 ? "...\"" : "\"");
+		}
+		if (IS_LIST(value)) return "List(" + to_string(AS_LIST(value)->elements.count) + ")";
+		if (IS_MAP(value)) return "Map(" + to_string(AS_MAP(value)->count) + ")";
+		if (IS_RANGE(value))
+		{
+			const ObjRange* r = AS_RANGE(value);
+			char buffer[64];
+			snprintf(buffer, sizeof(buffer), "%.14g%s%.14g", r->from, r->isInclusive ? ".." : "...", r->to);
+			return buffer;
+		}
+		if (IS_CLASS(value)) return string("class ") + AS_CLASS(value)->name->value;
+		if (IS_CLOSURE(value))
+			return string("Fn ") + AS_CLOSURE(value)->fn->debug->name;
+		if (IS_OBJ(value)) return class_name(value);
+		return "undefined";
+	}
+
+	// The names of the fields of an instance, from the class chain. The slots
+	// of inherited fields come first.
+	vector<named_value> instance_fields(Value value)
+	{
+		// Walk from the class up, then list the base class fields first
+		vector<vector<named_value>> per_class;
+		const ObjInstance* instance = AS_INSTANCE(value);
+		const ObjClass* c = instance->obj.classObj;
+		for (; c != nullptr; c = c->superclass)
+		{
+			per_class.emplace_back();
+			auto& own_fields = per_class.back();
+			const int base = c->superclass != nullptr ? c->superclass->numFields : 0;
+			const ObjList* names = nullptr;
+			if (c->module != nullptr && c->module->classFields != nullptr)
+			{
+				const Value found = wrenMapGet((ObjMap*)c->module->classFields, OBJ_VAL(c->name));
+				if (!IS_UNDEFINED(found))
+					names = AS_LIST(found);
+			}
+			const int own = c->numFields - base;
+			for (int i = 0; i < own; i++)
+			{
+				const string name = names != nullptr && i < names->elements.count
+					? AS_CSTRING(names->elements.data[i])
+					: "field " + to_string(base + i);
+				own_fields.push_back({ name, instance->fields[base + i] });
+			}
+		}
+
+		vector<named_value> res;
+		for (auto itr = per_class.rbegin(); itr != per_class.rend(); ++itr)
+			res.insert(res.end(), itr->begin(), itr->end());
+		return res;
+	}
+
+	// The variables that are inside [value], for lists, maps and instances.
+	vector<named_value> children_of(Value value)
+	{
+		vector<named_value> res;
+		constexpr int max_children = 1000;
+		if (IS_INSTANCE(value))
+		{
+			res = instance_fields(value);
+		}
+		else if (IS_LIST(value))
+		{
+			const ObjList* list = AS_LIST(value);
+			for (int i = 0; i < list->elements.count && i < max_children; i++)
+				res.push_back({ "[" + to_string(i) + "]", list->elements.data[i] });
+		}
+		else if (IS_MAP(value))
+		{
+			const ObjMap* map = AS_MAP(value);
+			for (uint32_t i = 0; i < map->capacity && (int)res.size() < max_children; i++)
+			{
+				const MapEntry& entry = map->entries[i];
+				if (!IS_UNDEFINED(entry.key))
+					res.push_back({ "[" + describe(entry.key) + "]", entry.value });
+			}
+		}
+		return res;
+	}
+
+	bool has_children(Value value)
+	{
+		return IS_INSTANCE(value) || IS_LIST(value) || IS_MAP(value);
+	}
+
+	// Locals that hold a value at the current position of [f], and "this".
+	vector<named_value> frame_locals(const frame_info& f)
+	{
+		vector<named_value> res;
+		const Value receiver = f.frame->stackStart[0];
+		if (!IS_CLOSURE(receiver))
+			res.push_back({ "this", receiver });
+
+		const DebugVariableBuffer& locals = f.fn->debug->locals;
+		for (int i = 0; i < locals.count; i++)
+		{
+			const DebugVariable& v = locals.data[i];
+			if (v.startIp <= f.offset && f.offset < v.endIp)
+				res.push_back({ v.name, f.frame->stackStart[v.slot] });
+		}
+		return res;
+	}
+
+	vector<named_value> frame_upvalues(const frame_info& f)
+	{
+		vector<named_value> res;
+		const DebugVariableBuffer& upvalues = f.fn->debug->upvalues;
+		for (int i = 0; i < upvalues.count; i++)
+		{
+			const ObjUpvalue* upvalue = f.frame->closure->upvalues[upvalues.data[i].slot];
+			if (upvalue != nullptr)
+				res.push_back({ upvalues.data[i].name, *upvalue->value });
+		}
+		return res;
+	}
+
+	// The variables of the module of [f], without the classes.
+	vector<named_value> module_variables(const frame_info& f)
+	{
+		vector<named_value> res;
+		const ObjModule* module = f.fn->module;
+		for (int i = 0; i < module->variables.count; i++)
+		{
+			const Value value = module->variables.data[i];
+			if (IS_UNDEFINED(value) || IS_CLASS(value))
+				continue;
+			res.push_back({ module->variableNames.data[i]->value, value });
+		}
+		return res;
+	}
+
+	json to_json(const named_value& v, const frame_info& frame)
+	{
+		return {
+			{ "name", v.name },
+			{ "value", describe(v.value) },
+			{ "type", type_name(v.value) },
+			{ "variablesReference", has_children(v.value) ? add_ref(var_ref::kind::value, frame, v.value) : 0 }
+		};
+	}
+
+	// Finds the value of an expression like `a`, `_field`, `a.b.c` or `list[1]`.
+	bool evaluate_path(const frame_info& f, const string& expression, Value& result)
+	{
+		size_t i = 0;
+		auto skip_space = [&]() { while (i < expression.size() && isspace((unsigned char)expression[i])) i++; };
+		auto identifier = [&]() {
+			const size_t start = i;
+			while (i < expression.size() && (isalnum((unsigned char)expression[i]) || expression[i] == '_')) i++;
+			return expression.substr(start, i - start);
+		};
+
+		skip_space();
+		const string first = identifier();
+		if (first.empty())
+			return false;
+
+		auto find = [&](const vector<named_value>& list, const string& name, Value& out) {
+			for (const auto& v : list)
+				if (v.name == name) { out = v.value; return true; }
+			return false;
+		};
+
+		Value current = NULL_VAL;
+		if (!find(frame_locals(f), first, current) &&
+			!find(frame_upvalues(f), first, current) &&
+			!find(module_variables(f), first, current))
+		{
+			// `_field` is short for a field of this
+			Value self = NULL_VAL;
+			if (first[0] != '_' || !find(frame_locals(f), "this", self) || !IS_INSTANCE(self) ||
+				!find(instance_fields(self), first, current))
+				return false;
+		}
+
+		for (skip_space(); i < expression.size(); skip_space())
+		{
+			if (expression[i] == '.')
+			{
+				i++;
+				skip_space();
+				const string name = identifier();
+				if (name.empty() || !IS_INSTANCE(current))
+					return false;
+				const auto fields = instance_fields(current);
+				if (!find(fields, name, current) && !find(fields, "_" + name, current))
+					return false;
+			}
+			else if (expression[i] == '[')
+			{
+				const size_t close = expression.find(']', i);
+				if (close == string::npos || !IS_LIST(current))
+					return false;
+				const int index = atoi(expression.substr(i + 1, close - i - 1).c_str());
+				const ObjList* list = AS_LIST(current);
+				if (index < 0 || index >= list->elements.count)
+					return false;
+				current = list->elements.data[index];
+				i = close + 1;
+			}
+			else
+				return false;
+		}
+
+		result = current;
+		return true;
+	}
+
 	// Requests ---------------------------------------------------------------
+
+	void handle_scopes(const json& req)
+	{
+		const auto frames = collect_frames();
+		const int id = req["arguments"]["frameId"].get<int>();
+		if (id < 0 || id >= (int)frames.size())
+		{
+			respond(req, false, json::object(), "Unknown frame");
+			return;
+		}
+
+		const frame_info& f = frames[id];
+		json scopes = json::array();
+		scopes.push_back({ { "name", "Locals" }, { "variablesReference", add_ref(var_ref::kind::locals, f) }, { "expensive", false } });
+		if (f.fn->debug->upvalues.count > 0)
+			scopes.push_back({ { "name", "Closure" }, { "variablesReference", add_ref(var_ref::kind::upvalues, f) }, { "expensive", false } });
+		scopes.push_back({ { "name", "Module" }, { "variablesReference", add_ref(var_ref::kind::module, f) }, { "expensive", true } });
+		respond(req, true, { { "scopes", scopes } });
+	}
+
+	void handle_variables(const json& req)
+	{
+		const int id = req["arguments"]["variablesReference"].get<int>();
+		if (id < 1 || id > (int)refs.size())
+		{
+			respond(req, true, { { "variables", json::array() } });
+			return;
+		}
+
+		const var_ref ref = refs[id - 1];
+		vector<named_value> values;
+		switch (ref.what)
+		{
+		case var_ref::kind::locals: values = frame_locals(ref.frame); break;
+		case var_ref::kind::upvalues: values = frame_upvalues(ref.frame); break;
+		case var_ref::kind::module: values = module_variables(ref.frame); break;
+		case var_ref::kind::value: values = children_of(ref.value); break;
+		}
+
+		json list = json::array();
+		for (const auto& v : values)
+			list.push_back(to_json(v, ref.frame));
+		respond(req, true, { { "variables", list } });
+	}
+
+	void handle_evaluate(const json& req)
+	{
+		const auto& args = req["arguments"];
+		const auto frames = collect_frames();
+		const int id = args.value("frameId", 0);
+		Value result = NULL_VAL;
+		if (id < 0 || id >= (int)frames.size() ||
+			!evaluate_path(frames[id], args.value("expression", ""), result))
+		{
+			respond(req, false, json::object(),
+				"Only variables can be evaluated, like a, _field, a.b.c or list[0]");
+			return;
+		}
+
+		respond(req, true, {
+			{ "result", describe(result) },
+			{ "type", type_name(result) },
+			{ "variablesReference", has_children(result) ? add_ref(var_ref::kind::value, frames[id], result) : 0 }
+		});
+	}
 
 	void handle_stack_trace(const json& req)
 	{
@@ -392,6 +734,7 @@ namespace
 			respond(req, true, {
 				{ "supportsConfigurationDoneRequest", true },
 				{ "supportsExceptionInfoRequest", true },
+				{ "supportsEvaluateForHovers", true },
 				{ "exceptionBreakpointFilters", json::array({
 					{ { "filter", "uncaught" }, { "label", "Uncaught Errors" }, { "default", true } } }) }
 			});
@@ -428,11 +771,15 @@ namespace
 		}
 		else if (command == "scopes")
 		{
-			respond(req, true, { { "scopes", json::array() } });
+			handle_scopes(req);
 		}
 		else if (command == "variables")
 		{
-			respond(req, true, { { "variables", json::array() } });
+			handle_variables(req);
+		}
+		else if (command == "evaluate")
+		{
+			handle_evaluate(req);
 		}
 		else if (command == "exceptionInfo")
 		{
@@ -541,6 +888,7 @@ namespace
 			}
 		}
 		paused = false;
+		refs.clear();
 	}
 
 	// Called by the VM -------------------------------------------------------
