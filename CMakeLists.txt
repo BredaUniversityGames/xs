@@ -97,8 +97,10 @@ set(MINIZ_SOURCES
 # External: LevelScript
 set(LEVELSCRIPT_SOURCES
     external/levelscript/src/lexer.cpp
+    external/levelscript/src/modules.cpp
     external/levelscript/src/parser.cpp
     external/levelscript/src/sema.cpp
+    external/levelscript/src/graph.cpp
     external/levelscript/src/machine.cpp
     external/levelscript/src/ls.cpp
     external/levelscript/src/inspect.cpp

@@ -72,12 +72,16 @@
 		D0FC912916899D7BF91C9563 /* machine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941EA86030B0AD96B540A07E /* machine.cpp */; };
 		DE8F268521DD51458BE18548 /* ls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EFF9965F75915F5EB0813DC /* ls.cpp */; };
 		C37D0283DB3DB93250005A68 /* inspect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFF0DEA378FB89DE441304EE /* inspect.cpp */; };
+		DA610F6122B2AC4834BF7C60 /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C63165D01A2B3FD0CB5A6F07 /* graph.cpp */; };
+		59DE5336B83A685193282CE3 /* modules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B4D79335A010587146F5C429 /* modules.cpp */; };
 		372600A4DD77E186584E0D56 /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD1B7A9BBC6AE60CAE5BBCC3 /* lexer.cpp */; };
 		6A356CA50EA5CDC8BBD10AE8 /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ED2EAA69FBCDD8062C0408B /* parser.cpp */; };
 		EC51B78B65ED001C6BE654E9 /* sema.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 66AE41CC4B5FBD55611A85CE /* sema.cpp */; };
 		74F536C894179516A2CB1C17 /* machine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 941EA86030B0AD96B540A07E /* machine.cpp */; };
 		A59DE3DA8EB196B335DD5F86 /* ls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8EFF9965F75915F5EB0813DC /* ls.cpp */; };
 		6572C8AD0C8B1DA6903D04A9 /* inspect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFF0DEA378FB89DE441304EE /* inspect.cpp */; };
+		73BED1EA9CE5ED9A621791CA /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C63165D01A2B3FD0CB5A6F07 /* graph.cpp */; };
+		E70F6A0870F5558DCD3B55D8 /* modules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B4D79335A010587146F5C429 /* modules.cpp */; };
 		348FE4262B275C1A000C1F11 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E738E2A4A29D5006ECAD5 /* audio.cpp */; };
 		348FE4282B275C1B000C1F11 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E738E2A4A29D5006ECAD5 /* audio.cpp */; };
 		34EB6F5F2A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D292A4C6E6200DA6B15 /* wren_opt_meta.c */; };
@@ -254,6 +258,8 @@
 		941EA86030B0AD96B540A07E /* machine.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = machine.cpp; sourceTree = "<group>"; };
 		8EFF9965F75915F5EB0813DC /* ls.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ls.cpp; sourceTree = "<group>"; };
 		AFF0DEA378FB89DE441304EE /* inspect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = inspect.cpp; sourceTree = "<group>"; };
+		C63165D01A2B3FD0CB5A6F07 /* graph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graph.cpp; sourceTree = "<group>"; };
+		B4D79335A010587146F5C429 /* modules.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = modules.cpp; sourceTree = "<group>"; };
 		34EB6C952A4C6E6100DA6B15 /* fmod_output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_output.h; sourceTree = "<group>"; };
 		34EB6C962A4C6E6100DA6B15 /* fmod_dsp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_dsp.h; sourceTree = "<group>"; };
 		34EB6C972A4C6E6100DA6B15 /* fmod_errors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_errors.h; sourceTree = "<group>"; };
@@ -1079,6 +1085,8 @@
 				941EA86030B0AD96B540A07E /* machine.cpp */,
 				8EFF9965F75915F5EB0813DC /* ls.cpp */,
 				AFF0DEA378FB89DE441304EE /* inspect.cpp */,
+				C63165D01A2B3FD0CB5A6F07 /* graph.cpp */,
+				B4D79335A010587146F5C429 /* modules.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -1956,6 +1964,8 @@
 				D0FC912916899D7BF91C9563 /* machine.cpp in Sources */,
 				DE8F268521DD51458BE18548 /* ls.cpp in Sources */,
 				C37D0283DB3DB93250005A68 /* inspect.cpp in Sources */,
+				DA610F6122B2AC4834BF7C60 /* graph.cpp in Sources */,
+				59DE5336B83A685193282CE3 /* modules.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2018,6 +2028,8 @@
 				74F536C894179516A2CB1C17 /* machine.cpp in Sources */,
 				A59DE3DA8EB196B335DD5F86 /* ls.cpp in Sources */,
 				6572C8AD0C8B1DA6903D04A9 /* inspect.cpp in Sources */,
+				73BED1EA9CE5ED9A621791CA /* graph.cpp in Sources */,
+				E70F6A0870F5558DCD3B55D8 /* modules.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

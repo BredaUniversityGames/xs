@@ -100,6 +100,12 @@
     <ClCompile Include="external\levelscript\src\inspect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="external\levelscript\src\modules.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\graph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="code\packager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

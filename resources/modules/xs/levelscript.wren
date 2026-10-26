@@ -102,7 +102,7 @@ foreign class LsLevel {
     /// Height, in cells, of the level.
     foreign height -> Num
 
-    /// Number of grid layers in the level.
+    /// Number of grid layers in the level (graph layers are not counted).
     foreign count -> Num
 
     /// Name of a layer, by declaration order (0-based).
@@ -113,6 +113,9 @@ foreign class LsLevel {
 
     /// The grid for a layer, by declaration order (0-based).
     foreign layer(index: Num) -> LsGrid
+
+    /// A graph layer by name, extracted from the level's final grids.
+    foreign graph(name: String) -> LsGraph
 }
 
 /// One layer of a generated level. Shares ownership of its data, so a grid
@@ -141,6 +144,25 @@ foreign class LsGrid {
     /// Name of a single-bit value mask ("" if `mask` isn't exactly one
     /// value bit, or is out of range / a number layer).
     foreign valueName(mask: Num) -> String
+}
+
+/// One graph layer of a generated level: nodes are regions of its source
+/// grid, numbered from 0 in row-major order of each region's first cell. A
+/// self-contained value. Not to be created directly - use LsLevel.graph(name).
+foreign class LsGraph {
+
+    /// Number of nodes (0 for an invalid graph).
+    foreign nodeCount -> Num
+
+    /// The node whose region covers (x, y); `null` when no node does, or
+    /// out of range.
+    foreign nodeAt(x: Num, y: Num) -> Num
+
+    /// Number of cells in the node's region (0 if out of range).
+    foreign nodeSize(node: Num) -> Num
+
+    /// Ids of the adjacent nodes, ascending (empty if out of range).
+    foreign neighbors(node: Num) -> List
 }
 
 /// One in-flight progressive generation run. Not to be created directly -

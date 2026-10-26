@@ -318,6 +318,8 @@
     <ClCompile Include="external\levelscript\src\machine.cpp" />
     <ClCompile Include="external\levelscript\src\ls.cpp" />
     <ClCompile Include="external\levelscript\src\inspect.cpp" />
+    <ClCompile Include="external\levelscript\src\modules.cpp" />
+    <ClCompile Include="external\levelscript\src\graph.cpp" />
     <ClCompile Include="external\wren\optional\wren_opt_meta.c" />
     <ClCompile Include="external\wren\optional\wren_opt_random.c" />
     <ClCompile Include="external\wren\vm\wren_compiler.c" />

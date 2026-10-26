@@ -1308,7 +1308,7 @@ void json_stringify(WrenVM* vm)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // LevelScript
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// LsGenerator/LsLevel/LsGrid/LsRun wrap ls::generator/level/grid/run
+// LsGenerator/LsLevel/LsGrid/LsGraph/LsRun wrap ls::generator/level/grid/graph/run
 // directly: the value lives in the Wren foreign slot (placement-new'd),
 // exactly like ShapeHandle wraps an int - except here the wrapped type
 // already owns its own resources (shared_ptr for generator/level/grid,
@@ -1353,6 +1353,17 @@ void levelscript_grid_allocate(WrenVM* vm)
 void levelscript_grid_finalize(void* data)
 {
     static_cast<ls::grid*>(data)->~grid();
+}
+
+void levelscript_graph_allocate(WrenVM* vm)
+{
+    void* data = wrenSetSlotNewForeign(vm, 0, 0, sizeof(ls::graph));
+    new (data) ls::graph();
+}
+
+void levelscript_graph_finalize(void* data)
+{
+    static_cast<ls::graph*>(data)->~graph();
 }
 
 void levelscript_run_allocate(WrenVM* vm)
@@ -1415,7 +1426,7 @@ void levelscript_generator_warnings(WrenVM* vm)
 void levelscript_generator_statement_count(WrenVM* vm)
 {
     auto program = (ls::generator*)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)program->statement_count());
+    wrenSetSlotDouble(vm, 0, (double)program->statement_count(program->sequence("main")));
 }
 
 void levelscript_generator_tag(WrenVM* vm)
@@ -1431,7 +1442,7 @@ void levelscript_generator_generate_(WrenVM* vm)
     auto seed = wrenGetParameter<double>(vm, 1);
     auto params = levelscript_read_params(vm, 2, 3);
 
-    auto generated = program->generate((uint64_t)seed, params);
+    auto generated = program->generate(program->sequence("main"), (uint64_t)seed, params);
 
     wrenGetVariable(vm, "xs/levelscript", "LsLevel", 0);
     auto slot = (ls::level*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(ls::level));
@@ -1446,7 +1457,7 @@ void levelscript_generator_run_(WrenVM* vm)
     auto params = levelscript_read_params(vm, 3, 4);
 
     auto mode = step_mode_num == 1 ? ls::step_mode::application : ls::step_mode::statement;
-    auto r = program->run((uint64_t)seed, mode, ls::observe::off, params);
+    auto r = program->run(program->sequence("main"), (uint64_t)seed, mode, ls::observe::off, params);
 
     wrenGetVariable(vm, "xs/levelscript", "LsRun", 0);
     auto slot = (ls::run*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(ls::run));
@@ -1502,6 +1513,17 @@ void levelscript_level_layer(WrenVM* vm)
     new (slot) ls::grid(std::move(grid));
 }
 
+void levelscript_level_graph(WrenVM* vm)
+{
+    auto level = (ls::level*)wrenGetSlotForeign(vm, 0);
+    auto name = wrenGetParameter<string>(vm, 1);
+    auto graph = level->graph(name);
+
+    wrenGetVariable(vm, "xs/levelscript", "LsGraph", 0);
+    auto slot = (ls::graph*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(ls::graph));
+    new (slot) ls::graph(std::move(graph));
+}
+
 // ── LsGrid ───────────────────────────────────────────────────────────────────
 
 void levelscript_grid_name(WrenVM* vm)
@@ -1541,6 +1563,46 @@ void levelscript_grid_value_name(WrenVM* vm)
     auto grid = (ls::grid*)wrenGetSlotForeign(vm, 0);
     auto mask = (int)wrenGetParameter<double>(vm, 1);
     wrenSetSlotString(vm, 0, grid->valueName(mask).c_str());
+}
+
+// ── LsGraph ──────────────────────────────────────────────────────────────────
+
+void levelscript_graph_node_count(WrenVM* vm)
+{
+    auto graph = (ls::graph*)wrenGetSlotForeign(vm, 0);
+    wrenSetSlotDouble(vm, 0, (double)graph->node_count());
+}
+
+void levelscript_graph_node_at(WrenVM* vm)
+{
+    auto graph = (ls::graph*)wrenGetSlotForeign(vm, 0);
+    auto x = (int)wrenGetParameter<double>(vm, 1);
+    auto y = (int)wrenGetParameter<double>(vm, 2);
+    auto node = graph->node_at(x, y);
+    if (node < 0)
+        wrenSetSlotNull(vm, 0);
+    else
+        wrenSetSlotDouble(vm, 0, (double)node);
+}
+
+void levelscript_graph_node_size(WrenVM* vm)
+{
+    auto graph = (ls::graph*)wrenGetSlotForeign(vm, 0);
+    auto node = (int)wrenGetParameter<double>(vm, 1);
+    wrenSetSlotDouble(vm, 0, (double)graph->node_size(node));
+}
+
+void levelscript_graph_neighbors(WrenVM* vm)
+{
+    auto graph = (ls::graph*)wrenGetSlotForeign(vm, 0);
+    auto node = (int)wrenGetParameter<double>(vm, 1);
+    auto ids = graph->neighbors(node);
+    wrenEnsureSlots(vm, 2);
+    wrenSetSlotNewList(vm, 0);
+    for (int id : ids) {
+        wrenSetSlotDouble(vm, 1, (double)id);
+        wrenInsertInList(vm, 0, -1, 1);
+    }
 }
 
 // ── LsRun ────────────────────────────────────────────────────────────────────
@@ -1877,6 +1939,7 @@ void xs::script::bind_api()
     bind("xs/levelscript", "LsLevel", false, "layerName(_)", levelscript_level_layer_name);
     bind("xs/levelscript", "LsLevel", false, "[_]", levelscript_level_subscript);
     bind("xs/levelscript", "LsLevel", false, "layer(_)", levelscript_level_layer);
+    bind("xs/levelscript", "LsLevel", false, "graph(_)", levelscript_level_graph);
 
     WrenForeignClassMethods levelscript_level_methods{};
     levelscript_level_methods.allocate = levelscript_level_allocate;
@@ -1893,6 +1956,16 @@ void xs::script::bind_api()
     levelscript_grid_methods.allocate = levelscript_grid_allocate;
     levelscript_grid_methods.finalize = levelscript_grid_finalize;
     bind_class("xs/levelscript", "LsGrid", levelscript_grid_methods);
+
+    bind("xs/levelscript", "LsGraph", false, "nodeCount", levelscript_graph_node_count);
+    bind("xs/levelscript", "LsGraph", false, "nodeAt(_,_)", levelscript_graph_node_at);
+    bind("xs/levelscript", "LsGraph", false, "nodeSize(_)", levelscript_graph_node_size);
+    bind("xs/levelscript", "LsGraph", false, "neighbors(_)", levelscript_graph_neighbors);
+
+    WrenForeignClassMethods levelscript_graph_methods{};
+    levelscript_graph_methods.allocate = levelscript_graph_allocate;
+    levelscript_graph_methods.finalize = levelscript_graph_finalize;
+    bind_class("xs/levelscript", "LsGraph", levelscript_graph_methods);
 
     bind("xs/levelscript", "LsRun", false, "step()", levelscript_run_step);
     bind("xs/levelscript", "LsRun", false, "snapshot", levelscript_run_snapshot);
