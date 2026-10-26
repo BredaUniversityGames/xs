@@ -104,6 +104,8 @@ set(LEVELSCRIPT_SOURCES
     external/levelscript/src/machine.cpp
     external/levelscript/src/ls.cpp
     external/levelscript/src/inspect.cpp
+    external/levelscript/src/directives.cpp
+    external/levelscript/src/ast_dump.cpp
 )
 
 # Combine all sources

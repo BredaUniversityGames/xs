@@ -320,6 +320,8 @@
     <ClCompile Include="external\levelscript\src\inspect.cpp" />
     <ClCompile Include="external\levelscript\src\modules.cpp" />
     <ClCompile Include="external\levelscript\src\graph.cpp" />
+    <ClCompile Include="external\levelscript\src\directives.cpp" />
+    <ClCompile Include="external\levelscript\src\ast_dump.cpp" />
     <ClCompile Include="external\wren\optional\wren_opt_meta.c" />
     <ClCompile Include="external\wren\optional\wren_opt_random.c" />
     <ClCompile Include="external\wren\vm\wren_compiler.c" />
@@ -416,6 +418,8 @@
     <ClInclude Include="external\levelscript\src\diagnostic.hpp" />
     <ClInclude Include="external\levelscript\src\sequence.hpp" />
     <ClInclude Include="external\levelscript\src\inspect.hpp" />
+    <ClInclude Include="external\levelscript\src\directives.hpp" />
+    <ClInclude Include="external\levelscript\src\ast_dump.hpp" />
     <ClInclude Include="external\wren\include\wren.h" />
     <ClInclude Include="external\wren\include\wren.hpp" />
     <ClInclude Include="external\wren\optional\wren_opt_meta.h" />

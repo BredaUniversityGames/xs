@@ -106,6 +106,12 @@
     <ClCompile Include="external\levelscript\src\graph.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="external\levelscript\src\directives.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\ast_dump.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="code\packager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -361,6 +367,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\levelscript\src\inspect.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\directives.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\ast_dump.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\account.hpp">

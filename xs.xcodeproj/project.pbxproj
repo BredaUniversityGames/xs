@@ -74,6 +74,8 @@
 		C37D0283DB3DB93250005A68 /* inspect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFF0DEA378FB89DE441304EE /* inspect.cpp */; };
 		DA610F6122B2AC4834BF7C60 /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C63165D01A2B3FD0CB5A6F07 /* graph.cpp */; };
 		59DE5336B83A685193282CE3 /* modules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B4D79335A010587146F5C429 /* modules.cpp */; };
+		D1A7C0DE00000000000000B1 /* directives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1A7C0DE00000000000000A1 /* directives.cpp */; };
+		D1A7C0DE00000000000000B3 /* ast_dump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1A7C0DE00000000000000A2 /* ast_dump.cpp */; };
 		372600A4DD77E186584E0D56 /* lexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD1B7A9BBC6AE60CAE5BBCC3 /* lexer.cpp */; };
 		6A356CA50EA5CDC8BBD10AE8 /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 7ED2EAA69FBCDD8062C0408B /* parser.cpp */; };
 		EC51B78B65ED001C6BE654E9 /* sema.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 66AE41CC4B5FBD55611A85CE /* sema.cpp */; };
@@ -82,6 +84,8 @@
 		6572C8AD0C8B1DA6903D04A9 /* inspect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AFF0DEA378FB89DE441304EE /* inspect.cpp */; };
 		73BED1EA9CE5ED9A621791CA /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C63165D01A2B3FD0CB5A6F07 /* graph.cpp */; };
 		E70F6A0870F5558DCD3B55D8 /* modules.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B4D79335A010587146F5C429 /* modules.cpp */; };
+		D1A7C0DE00000000000000B2 /* directives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1A7C0DE00000000000000A1 /* directives.cpp */; };
+		D1A7C0DE00000000000000B4 /* ast_dump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1A7C0DE00000000000000A2 /* ast_dump.cpp */; };
 		348FE4262B275C1A000C1F11 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E738E2A4A29D5006ECAD5 /* audio.cpp */; };
 		348FE4282B275C1B000C1F11 /* audio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 346E738E2A4A29D5006ECAD5 /* audio.cpp */; };
 		34EB6F5F2A4C6ED500DA6B15 /* wren_opt_meta.c in Sources */ = {isa = PBXBuildFile; fileRef = 34EB6D292A4C6E6200DA6B15 /* wren_opt_meta.c */; };
@@ -260,6 +264,8 @@
 		AFF0DEA378FB89DE441304EE /* inspect.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = inspect.cpp; sourceTree = "<group>"; };
 		C63165D01A2B3FD0CB5A6F07 /* graph.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = graph.cpp; sourceTree = "<group>"; };
 		B4D79335A010587146F5C429 /* modules.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = modules.cpp; sourceTree = "<group>"; };
+		D1A7C0DE00000000000000A1 /* directives.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = directives.cpp; sourceTree = "<group>"; };
+		D1A7C0DE00000000000000A2 /* ast_dump.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ast_dump.cpp; sourceTree = "<group>"; };
 		34EB6C952A4C6E6100DA6B15 /* fmod_output.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_output.h; sourceTree = "<group>"; };
 		34EB6C962A4C6E6100DA6B15 /* fmod_dsp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_dsp.h; sourceTree = "<group>"; };
 		34EB6C972A4C6E6100DA6B15 /* fmod_errors.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fmod_errors.h; sourceTree = "<group>"; };
@@ -1087,6 +1093,8 @@
 				AFF0DEA378FB89DE441304EE /* inspect.cpp */,
 				C63165D01A2B3FD0CB5A6F07 /* graph.cpp */,
 				B4D79335A010587146F5C429 /* modules.cpp */,
+				D1A7C0DE00000000000000A1 /* directives.cpp */,
+				D1A7C0DE00000000000000A2 /* ast_dump.cpp */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -1966,6 +1974,8 @@
 				C37D0283DB3DB93250005A68 /* inspect.cpp in Sources */,
 				DA610F6122B2AC4834BF7C60 /* graph.cpp in Sources */,
 				59DE5336B83A685193282CE3 /* modules.cpp in Sources */,
+				D1A7C0DE00000000000000B1 /* directives.cpp in Sources */,
+				D1A7C0DE00000000000000B3 /* ast_dump.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2030,6 +2040,8 @@
 				6572C8AD0C8B1DA6903D04A9 /* inspect.cpp in Sources */,
 				73BED1EA9CE5ED9A621791CA /* graph.cpp in Sources */,
 				E70F6A0870F5558DCD3B55D8 /* modules.cpp in Sources */,
+				D1A7C0DE00000000000000B2 /* directives.cpp in Sources */,
+				D1A7C0DE00000000000000B4 /* ast_dump.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
