@@ -41,6 +41,10 @@ void log_opengl_version_info()
 
 void device::initialize()
 {
+	// App ID must match the .desktop file name (xs.desktop) so Wayland compositors
+	// like GNOME can find the icon; they ignore SDL_SetWindowIcon
+	SDL_SetHint(SDL_HINT_APP_ID, "xs");
+
 	// Switch to SDL
 	if (SDL_Init(SDL_INIT_VIDEO) != true)
 	{
