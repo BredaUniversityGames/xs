@@ -79,10 +79,6 @@
         "type": "number",
         "value": 0.0416666679084301
     },
-    "Render.SnapToPixels": {
-        "type": "bool",
-        "value": false
-    },
     "Render.TextureFilter": {
         "type": "bool",
         "value": false

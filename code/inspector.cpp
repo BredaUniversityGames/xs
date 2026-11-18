@@ -746,22 +746,20 @@ static void xs::inspector::render_game_viewport()
 		game_viewport_max = screen_pos_max;
 		game_viewport_size = image_size;
 
-		// Draw image using DrawList
+		// Draw image using DrawList, respecting the project's texture filter setting
 		ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-		// Use alpha=254 to signal nearest-neighbor filtering for pixel art
-		// (alpha ~= 254/255 = 0.996, detected by shader to use nearest filtering)
-		const ImU32 NEAREST_FILTER_COLOR = IM_COL32(255, 255, 255, 254);
-
+		bool use_linear = data::get_bool("Render.TextureFilter", data::type::project);
+		auto& pio = ImGui::GetPlatformIO();
+		draw_list->AddCallback(use_linear ? pio.DrawCallback_SetSamplerLinear : pio.DrawCallback_SetSamplerNearest, nullptr);
 #if defined(PLATFORM_APPLE)
 		draw_list->AddImage((ImTextureID)texture, screen_pos, screen_pos_max,
-		                    ImVec2(0, 0), ImVec2(1, 1),
-		                    NEAREST_FILTER_COLOR);
+		                    ImVec2(0, 0), ImVec2(1, 1));
 #elif defined(PLATFORM_OPENGL)
 		draw_list->AddImage((ImTextureID)texture, screen_pos, screen_pos_max,
-		                    ImVec2(0, 1), ImVec2(1, 0),
-		                    NEAREST_FILTER_COLOR);
+		                    ImVec2(0, 1), ImVec2(1, 0));
 #endif
+		draw_list->AddCallback(pio.DrawCallback_SetSamplerLinear, nullptr);
 
 		// Draw corner masks on top to create rounded corners
 		float rounding = 8.0f;

@@ -23,11 +23,6 @@ int xs::configuration::multiplier()
 	return (int)data::get_number("Device.Multiplier", data::type::project, 1.0);
 }
 
-bool xs::configuration::snap_to_pixels()
-{
-    return data::get_bool("Render.SnapToPixels", data::type::project);
-}
-
 bool xs::configuration::window_size_in_points()
 {
     return data::get_bool("Device.WindowSizeInPoints", data::type::project);
