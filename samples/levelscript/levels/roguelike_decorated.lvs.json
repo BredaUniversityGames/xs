@@ -1,0 +1,18 @@
+{
+  "graphs": [
+    "map"
+  ],
+  "layers": {
+    "tiles": {
+      "tileset": "roguelike"
+    }
+  },
+  "tilesets": [
+    {
+      "name": "roguelike",
+      "path": "../assets/kenney_micro_roguelike.png",
+      "tile_h": 8,
+      "tile_w": 8
+    }
+  ]
+}

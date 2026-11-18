@@ -1,17 +1,13 @@
 {
-    "Program|Dungeon|Cave|Walk|Nuclear": {
-        "type": "number",
-        "value": 3.0
-    },
     "Seed": {
         "type": "number",
         "value": 42.0
     },
     "Step Brake": {
         "type": "number",
-        "value": 0.029999999329447746
+        "value": 0.0
     },
-    "Visualize Generation": {
+    "Step": {
         "type": "bool",
         "value": true
     }

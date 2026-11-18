@@ -1,0 +1,247 @@
+// A level generator based on  Binary Space Partitioning (BSP)
+
+tag level {
+    F // @name=floor
+    W // @name=wall
+    D // @name=door
+    O // @name=open
+    S = W|D
+    free = !S   // floor, open, or outside
+}
+
+tag entities {
+    S // @name=spawn
+    E // @name=exit
+    P // @name=player
+    N // @name=enemy
+    I // @name=item
+    D // @name=decoration
+    V // @name=vegetation
+    G // @name=grave
+}
+
+tag room { start, exit, boss, reward, hub, challenge }
+
+params {
+    min_room_size : number = 5
+    max_room_size : number = 5
+}
+
+layers {
+    level: grid of level        // @view=fill
+    zones: grid of number       // @view=border
+    map : graph of level(nodes=F, edges=D)
+    rooms: grid of room         // @view=corner
+    entities: grid of entities  // @view=shape
+}
+
+rule border(rotation=90) {
+    zones[?a ?b] when(b != a) => level[* W ]
+}
+
+rule create_door(rotation=all) {
+    level[
+        
+        F W . 
+        F W . 
+        F W . 
+    ] => level[
+        F W F 
+        F D F 
+        F W F 
+    ]
+}
+
+rule fill_room (rotation=all) { level[F . ] => level[F F] }
+
+sequence expand_room {
+    once create_door
+    settle fill_room
+}
+
+sequence connect_rooms {
+    once { level[.] => level[F] }
+    settle fill_room
+    settle expand_room
+}
+
+rule clear_walls (rotation=all) { level[. W|D . ] => level[. . . ] }
+
+sequence remove_edge_room {
+    once (rotation=all) { map[* ?n] level[. F ] when (n.degree == 1) => level[. O] }
+    settle (rotation=all) { level[O F ] => level[O O] }     // @speed=3
+    settle (rotation=all) { level[O ] => level[.] }         // @speed=3
+    settle clear_walls
+}
+
+sequence merge_rooms {
+    once (rotation=all) {
+        level[F D F ]                           // Find a door between rooms
+        map[?a * ?b]                            // map the tiles of the target rooms to variables ?a and ?b
+        when(a.size <= 36 && b.size <= 50)  // make sure both rooms are small enough to merge
+        =>
+        level[* O *]                            // O will create and "opening" in the next step
+    }
+    settle (rotation=all) {                     // Basic replacement rule applied using settle 
+        level[                                  // acting as cellular automaton for merging rooms
+            F O F 
+            F W F ]
+        => level[
+            F O F 
+            F O F ]
+    }
+    everywhere { level[O] => level[F] }         // Convert any remaining O (openings) to floor tiles
+}
+
+rule add_walls(rotation=all) { ordered
+    level[
+        F W 
+        W . ]
+    => level[
+        F W 
+        W W ]
+    level[F . ] => level[F W ]
+}
+
+rule add_start {
+    map {?n} when (n.degree == 1) => n.rooms = start
+}
+
+rule add_end {
+    map {?s ?e}
+    when (e.degree == 1 && e.rooms is . && farthest(s, e))
+    =>
+    e.rooms = exit
+}
+
+rule add_boss {
+    map {?e -- ?b}
+    when (e.rooms is exit)
+    => b.rooms = boss
+}
+
+rule add_reward {
+    map {?n}
+    when (n.degree == 1 && n.rooms is .)
+    => n.rooms = reward
+}
+
+rule add_hub {
+    map {?n}
+    when (n.degree >= 3 && n.rooms is .)
+    => n.rooms = hub
+}
+
+rule add_challenge {
+    map {?n}
+    when (n.rooms is .)
+    => n.rooms = challenge
+}
+
+rule place_player_and_entrance(rotation=all) {
+    rooms[start]
+    entities[.]
+    level[
+        F F F 
+        F F F 
+        F F F ]
+    => entities[
+        * * * 
+        S P * 
+        * * * ] 
+}
+
+rule place_exit(rotation=all) {
+    rooms[exit]
+    entities[.]
+    level[
+        F F F 
+        F F F 
+        F F F ]
+    => entities[
+        * * * 
+        * E * 
+        * * * ] 
+}
+
+rule place_pillars(rotation=all) { ordered
+    rooms[hub|challenge]
+    level[F]
+    => level[
+        * * * * * * * 
+        * W * W * W * 
+        * * * * * * * 
+        * W * W * W * 
+        * * * * * * * ]
+
+    rooms[hub|challenge]
+    level[F]
+    => level[
+        * * * * *  
+        * W * W * 
+        * * * * * 
+        * W * W * 
+        * * * * * ]
+
+
+    rooms[hub|challenge]
+    level[F]
+    => level[
+        * * * * * * * 
+        * W * W * W * 
+        * * * * * * * ]
+}
+
+rule place_items(rotation=all) { any
+    entities[.]
+    level[
+        W W 
+        W F ]
+    => entities[
+        * * 
+        * I ]
+
+    entities[. . ]
+    level[W F ]
+    => entities[* I ] 
+}
+
+rule place_enemies {
+    entities[.]
+    level[F]
+    => entities[N ] 
+}
+
+rule place_vegetation {    
+    entities[.] level[.] => entities[V ] 
+}
+
+sequence main {
+    resize(24, 16)
+    bsp(into=zones, min=min_room_size, max=max_room_size)
+
+    everywhere border       // @speed=2
+    settle connect_rooms    // @speed=5
+    
+    pad(1)
+    settle(2) remove_edge_room
+    settle(2) merge_rooms
+
+    pad(5)
+    settle add_walls            // @speed=3
+    everywhere (rotation=all) { level[. D ] => level[. W ] }
+
+    once add_start              // @hold=10
+    once add_hub                // @hold=10
+    once add_end                // @hold=10
+    once add_boss               // @hold=10
+    settle add_reward           // @hold=10    
+    everywhere add_challenge    // @hold=10
+
+    once place_player_and_entrance
+    once place_exit             // @hold=10
+    once place_pillars          // @hold=10
+    scatter(15%) place_items        
+    scatter(12%) place_enemies
+    scatter(20%) place_vegetation   // @speed=20
+}

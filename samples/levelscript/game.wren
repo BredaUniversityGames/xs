@@ -1,102 +1,113 @@
-import "xs/core" for Data, Input, Render, File
-import "xs/levelscript" for LsGenerator, LsStepMode, LsGrid
+import "xs/core" for Data, Input, Render
+import "xs/levelscript" for LsGenerator, LsStepMode
+import "xs/tools" for ImageBuilder
 
-// Demonstrates embedding LevelScript (.lvs) programs in xs: compiles a few
-// bundled generators, runs one progressively (cell-by-cell, animated via
-// Fiber.yield - same pattern samples/rogue's generators.wren uses for its
-// own hand-written Wren generators), and renders the result as tinted
-// tiles from samples/grid's sprite sheet (same Render.createGridSprite
-// pattern as samples/grid/game.wren).
 class Game {
-
     static generating { 0 }
-    static done        { 1 }
-    static tileSize     { 16 }
+    static done       { 1 }
+    static tileSize    { 8 }
+    static tileColumns { 16 }
+    static tileRows    { 11 }
+    static paletteSize { 16 }
+
+    static hsvColor(h) {
+        var s = 0.75
+        var v = 0.85
+        var i = (h * 6).truncate
+        var f = h * 6 - i
+        var p = v * (1 - s)
+        var q = v * (1 - f * s)
+        var t = v * (1 - (1 - f) * s)
+        var r = 0
+        var g = 0
+        var b = 0
+        var sec = i % 6
+        if (sec == 0) {
+            r = v
+            g = t
+            b = p
+        } else if (sec == 1) {
+            r = q
+            g = v
+            b = p
+        } else if (sec == 2) {
+            r = p
+            g = v
+            b = t
+        } else if (sec == 3) {
+            r = p
+            g = q
+            b = v
+        } else if (sec == 4) {
+            r = t
+            g = p
+            b = v
+        } else {
+            r = v
+            g = p
+            b = q
+        }
+        return ImageBuilder.pack((r*255).truncate, (g*255).truncate, (b*255).truncate, 255)
+    }
+
+    static buildPalette() {
+        var n = Game.paletteSize
+        var s = Game.tileSize
+        var builder = ImageBuilder.new(n * s, s)
+        for (i in 0...n) {
+            var color = Game.hsvColor(i / n)
+            for (py in 0...s) {
+                for (px in 0...s) {
+                    builder.setPixel(i * s + px, py, color)
+                }
+            }
+        }
+        return builder.build()
+    }
 
     static initialize() {
+        __image = Render.loadImage("[game]/assets/kenney_micro_roguelike.png")
+        __spriteCache = {}
 
-        // Generic tile bank, cycled by declaration-order value index (see
-        // bitIndex() below) - these are the same known-good sprite sheet
-        // indices samples/grid uses (columns = 49, rows = 22), not tied to
-        // any one program's tag semantics.
-        var image = Render.loadImage("[game]/assets/colored_packed.png")
+        // One palette texture, one sprite per hue slot, cached by value name
+        __paletteImage = Game.buildPalette()
+        __paletteSprites = {}   // value name → sprite id
+        __nextSlot = 0
 
-
-        var tileIndices = [
-            637,
-            51,
-            52,
-            53,
- 5, 1, 6, 3]
-        __tiles = []
-
-        for (index in tileIndices) {
-            __tiles.add(Render.createGridSprite(image, 49, 22, index))
+        __gen = LsGenerator.compileFile("[game]/levels/roguelike_decorated.lvs")
+        if (!__gen.isValid) {
+            System.print("compile error: %(__gen.error)")
+        } else {
+            var w = __gen.warnings
+            if (w != "") System.print("warnings: %(w)")
         }
 
-        __nameToSprite = {
-            "hero": __tiles[0],
-            "skeleton": __tiles[1],
-            "ghost": __tiles[2],
-            "scorpion": __tiles[3],
-            "spider": __tiles[4],
-            "bat": __tiles[5],
-            "snake": __tiles[6],
-            "bear": __tiles[7],
-            "rat": __tiles[8],
-            "ghul": __tiles[9],
-            "buffy": __tiles[10]
-        }
-
-        __names = ["dungeon", "cave", "walk", "nuclear"]
-        __programs = []
-        for (name in __names) {
-            var source = File.read("[game]/levels/%(name).lvs")
-            var program = LsGenerator.compile(source, name)
-            if (!program.isValid) {
-                System.print("LevelScript: failed to compile %(name).lvs: %(program.error)")
-            } else {
-                var warnings = program.warnings
-                if (warnings != "") System.print("LevelScript: %(name).lvs warnings: %(warnings)")
-            }
-            __programs.add(program)
-        }
-
-        __programIndex = -1
         __seed = -1
         __level = null
         __time = 0.0
         __state = Game.done
-
         startGeneration()
     }
 
-    // (Re)starts generation for whatever the Program/Seed data values
-    // currently select, driven progressively through a Fiber - each step
-    // yields a brake duration, exactly like samples/rogue's __genFiber.
+    static paletteSprite(name) {
+        if (!__paletteSprites.containsKey(name)) {
+            var slot = __nextSlot % Game.paletteSize
+            __nextSlot = __nextSlot + 1
+            __paletteSprites[name] = Render.createGridSprite(__paletteImage, Game.paletteSize, 1, slot)
+        }
+        return __paletteSprites[name]
+    }
+
     static startGeneration() {
-        __programIndex = Data.getNumber("Program|Dungeon|Cave|Walk|Nuclear").truncate
+        if (!__gen.isValid) return
         __seed = Data.getNumber("Seed")
         __level = null
         __time = 0.0
         __state = Game.generating
-
-        System.print("startGeneration: program=%(__names[__programIndex]) seed=%(__seed)")
-
-        var program = __programs[__programIndex]
-        if (!program.isValid) {
-            __state = Game.done
-            return
-        }
-
-        var brake = Data.getNumber("Step Brake")
         var seed = __seed
-        // LsStepMode.application (not the default statement) so a single
-        // "some(max=200) rule" statement animates one rule application at a
-        // time, instead of jumping straight from its start state to its end
-        // state in a single step().
-        __genFiber = Fiber.new {
-            var run = program.run(seed, LsStepMode.application)
+        var brake = Data.getNumber("Step Brake")
+        __fiber = Fiber.new {
+            var run = __gen.run(seed, LsStepMode.application, "main_decorated")
             while (run.step()) {
                 __level = run.snapshot
                 Fiber.yield(brake)
@@ -106,123 +117,127 @@ class Game {
         }
     }
 
-    // Dumps a layer to the console as ASCII, one character per cell (first
-    // letter of the tag's name, or the raw number for a number layer, "."
-    // for empty) - same convention levelscript's own *.expected fixtures use,
-    // so the output is directly comparable to those.
-    static dump(level, layerIndex) {
-        var width = level.width
-        var height = level.height
-        var layerName = level.layerName(layerIndex)
-        var grid = level.layer(layerIndex)
-        System.print("=== %(layerName) (%(width)x%(height)) ===")
-        for (y in 0...height) {
-            var row = ""
-            for (x in 0...width) {
-                var value = grid[x, y]
-                if (value == null) {
-                    row = row + ". "
-                } else {
-                    var name = grid.valueName(value)
-                    row = row + (name == "" ? "%(value) " : name[0] + " ")
-                }
-            }
-            System.print(row)
-        }
-    }
-
     static update(dt) {
-        var programIndex = Data.getNumber("Program|Dungeon|Cave|Walk|Nuclear").truncate
         var seed = Data.getNumber("Seed")
-        var regenerate = Input.getKeyOnce(Input.keySpace)
-        if (programIndex != __programIndex || seed != __seed || regenerate) {
+        if (seed != __seed || Input.getKeyOnce(Input.keySpace)) {
             startGeneration()
         }
 
         if (__state == Game.generating) {
-            if (Data.getBool("Visualize Generation")) {
+            if (Data.getBool("Step")) {
                 __time = __time - dt
                 if (__time <= 0.0) {
-                    if (!__genFiber.isDone) {
-                        __time = __genFiber.call()
+                    if (!__fiber.isDone) {
+                        __time = __fiber.call()
                     } else {
                         __state = Game.done
-                        dump(__level, 0)
                     }
                 }
             } else {
-                while (!__genFiber.isDone) __genFiber.call()
+                while (!__fiber.isDone) __fiber.call()
                 __state = Game.done
-                dump(__level, 0)
             }
+        }
+    }
+
+    static drawGraph(level, ox, oy, s) {
+        var graph = level.graph("map")
+        var n = graph.nodeCount
+        if (n == 0) return
+
+        var w = level.width
+        var h = level.height
+
+        // Find each node's centroid by scanning all cells once
+        var sumX = List.filled(n, 0)
+        var sumY = List.filled(n, 0)
+        var cnt  = List.filled(n, 0)
+        for (y in 0...h) {
+            for (x in 0...w) {
+                var node = graph.nodeAt(x, y)
+                if (node == null) continue
+                var ni = node.truncate
+                sumX[ni] = sumX[ni] + x
+                sumY[ni] = sumY[ni] + y
+                cnt[ni]  = cnt[ni]  + 1
+            }
+        }
+
+        // Edges first, then node dots on top
+        Render.dbgColor(0xFFFFFF55)
+        for (ni in 0...n) {
+            if (cnt[ni] == 0) continue
+            var cx = ox + (sumX[ni] / cnt[ni]) * s
+            var cy = oy + (sumY[ni] / cnt[ni]) * s
+            for (nj in graph.neighbors(ni)) {
+                var j = nj.truncate
+                if (j > ni && cnt[j] > 0) {
+                    Render.dbgLine(cx, cy, ox + (sumX[j] / cnt[j]) * s, oy + (sumY[j] / cnt[j]) * s)
+                }
+            }
+        }
+        Render.dbgColor(0xFF8080FF)
+        for (ni in 0...n) {
+            if (cnt[ni] == 0) continue
+            Render.dbgSquare(ox + (sumX[ni] / cnt[ni]) * s, oy + (sumY[ni] / cnt[ni]) * s, 3)
         }
     }
 
     static render() {
         if (__level == null) return
-
-        var width = __level.width
-        var height = __level.height
-
-        var level : LsGrid = __level["level"]
-        var entities : LsGrid = __level["entities"]
-        var items : LsGrid = __level["items"]
-        var tiles : LsGrid = __level["tiles"]
-
+        var w = __level.width
+        var h = __level.height
         var s = Game.tileSize
-        var sx = (width - 1) * -s / 2
-        var sy = (height - 1) * -s / 2
+        var ox = (w - 1) * -s / 2
+        var oy = (h - 1) * -s / 2
 
-        for (y in 0...height) {
-            for (x in 0...width) {
-                var l = level[x, y]
-                var e = entities[x, y]
-                var i = items[x, y]
-                var t = tiles[x, y]
-                var tile = null
-                var name : String = null
-
-                if(e) {
-                    name = entities.valueName(e)
-                    tile = __tiles[e]
-                } else if(i) {
-                    tile = __tiles[i]
-                } else if(t) {
-                    tile = __tiles[t]
-                } else if(l) {
-                    tile = __tiles[l]
-                } else {
-                    continue
+        if (__state == Game.generating) {
+            // Tag layers: colored palette blocks
+            for (i in 0...__level.count) {
+                var grid = __level.layer(i)
+                if (grid.isNumber) continue
+                for (y in 0...h) {
+                    for (x in 0...w) {
+                        var mask = grid[x, y]
+                        if (mask == null) continue
+                        var name = grid.valueName(mask)
+                        if (name == "") continue
+                        Render.sprite(Game.paletteSprite(name),
+                            ox + x * s, oy + y * s, 0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+                    }
                 }
-
-                if(name) {
-                    tile = __nameToString[name]
-                    color = __nameToColor[name]
+            }
+            // Tiles layer: real sprites on top wherever already filled
+            var tiles = __level["tiles"]
+            for (y in 0...h) {
+                for (x in 0...w) {
+                    var idx = tiles[x, y]
+                    if (idx == null) continue
+                    var key = idx.truncate
+                    if (!__spriteCache.containsKey(key)) {
+                        __spriteCache[key] = Render.createGridSprite(__image, Game.tileColumns, Game.tileRows, key)
+                    }
+                    Render.sprite(__spriteCache[key], ox + x * s, oy + y * s,
+                        0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
                 }
-
-                var sprite = __sprites[tile]
-                
-                
-                // grid[x, y] is a value MASK for a tag layer (bit 1..30,
-                // spec §3), not a small sequential id - convert back to a
-                // 0-based index to cycle through the fixed tile/color banks.
-                // var index = bitIndex(value)
-                // var tile = __tiles[index % __tiles.count]
-                Render.sprite(
-                    sprite,
-                    sx + x * s, sy + y * s,
-                    0.0, 1.0, 0.0,
-                    color, 0x0,
-                    Render.spriteCenter)
+            }
+        } else {
+            // Final render: tile sprites from the kenney tileset
+            var tiles = __level["tiles"]
+            for (y in 0...h) {
+                for (x in 0...w) {
+                    var idx = tiles[x, y]
+                    if (idx == null) continue
+                    var key = idx.truncate
+                    if (!__spriteCache.containsKey(key)) {
+                        __spriteCache[key] = Render.createGridSprite(__image, Game.tileColumns, Game.tileRows, key)
+                    }
+                    Render.sprite(__spriteCache[key], ox + x * s, oy + y * s,
+                        0.0, 1.0, 0.0, 0xFFFFFFFF, 0x0, Render.spriteCenter)
+                }
             }
         }
-    }
 
-    // Lowest set value bit of a mask (bit 1..30) as a 0-based index:
-    // wall (1<<1) -> 0, floor (1<<2) -> 1, and so on.
-    static bitIndex(mask) {
-        var b = 1
-        while ((mask & (1 << b)) == 0) b = b + 1
-        return b - 1
+        Game.drawGraph(__level, ox, oy, s)
     }
 }
