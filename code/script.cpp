@@ -1391,58 +1391,39 @@ std::vector<std::pair<string, int>> levelscript_read_params(WrenVM* vm, int name
     return params;
 }
 
-// ── LsGenerator ──────────────────────────────────────────────────────────────
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// LsGenerator
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Called from both construct compile(source) and construct compile(source,
-// name) bodies, after allocate() has already placement-new'd a default
-// ls::generator into this instance - reassigns it in place with the real
-// compile result.
 void levelscript_generator_compile_(WrenVM* vm)
 {
-    auto self = (ls::generator*)wrenGetSlotForeign(vm, 0);
-    auto source = wrenGetParameter<string>(vm, 1);
-    auto name = wrenGetParameter<string>(vm, 2);
-    *self = ls::generator::compile(source, name);
-}
+    auto self   = (ls::generator*)wrenGetSlotForeign(vm, 0);
+    auto path   = wrenGetParameter<string>(vm, 1);
+    auto source   = fileio::read_text_file(path);
+    auto resolved = fileio::get_path(path);
+    auto base_dir = fileio::parent_dir(resolved);
+    auto name     = fileio::filename(resolved);
 
-void levelscript_generator_is_valid(WrenVM* vm)
-{
-    auto program = (ls::generator*)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotBool(vm, 0, (bool)(*program));
-}
+    ls::resolver resolve = [base_dir](
+        const string& use_path, const string&) -> std::optional<ls::module_source>
+    {
+        auto full = base_dir + "/" + use_path;
+        auto text = fileio::read_text_file(full);
+        if (text.empty()) return std::nullopt;
+        return ls::module_source{ use_path, std::move(text) };
+    };
 
-void levelscript_generator_error(WrenVM* vm)
-{
-    auto program = (ls::generator*)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotString(vm, 0, program->error().c_str());
-}
-
-void levelscript_generator_warnings(WrenVM* vm)
-{
-    auto program = (ls::generator*)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotString(vm, 0, program->warnings().c_str());
-}
-
-void levelscript_generator_statement_count(WrenVM* vm)
-{
-    auto program = (ls::generator*)wrenGetSlotForeign(vm, 0);
-    wrenSetSlotDouble(vm, 0, (double)program->statement_count(program->sequence("main")));
-}
-
-void levelscript_generator_tag(WrenVM* vm)
-{
-    auto program = (ls::generator*)wrenGetSlotForeign(vm, 0);
-    auto name = wrenGetParameter<string>(vm, 1);
-    wrenSetSlotDouble(vm, 0, (double)program->tag(name));
+    *self = ls::generator::compile(source, name, std::move(resolve));
 }
 
 void levelscript_generator_generate_(WrenVM* vm)
 {
-    auto program = (ls::generator*)wrenGetSlotForeign(vm, 0);
-    auto seed = wrenGetParameter<double>(vm, 1);
-    auto params = levelscript_read_params(vm, 2, 3);
+    auto self     = (ls::generator*)wrenGetSlotForeign(vm, 0);
+    auto seed     = wrenGetParameter<double>(vm, 1);
+    auto sequence = wrenGetParameter<string>(vm, 2);
+    auto params   = levelscript_read_params(vm, 3, 4);
 
-    auto generated = program->generate(program->sequence("main"), (uint64_t)seed, params);
+    auto generated = self->generate(self->sequence(sequence), (uint64_t)seed, params);
 
     wrenGetVariable(vm, "xs/levelscript", "LsLevel", 0);
     auto slot = (ls::level*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(ls::level));
@@ -1451,20 +1432,54 @@ void levelscript_generator_generate_(WrenVM* vm)
 
 void levelscript_generator_run_(WrenVM* vm)
 {
-    auto program = (ls::generator*)wrenGetSlotForeign(vm, 0);
-    auto seed = wrenGetParameter<double>(vm, 1);
+    auto self          = (ls::generator*)wrenGetSlotForeign(vm, 0);
+    auto seed          = wrenGetParameter<double>(vm, 1);
     auto step_mode_num = (int)wrenGetParameter<double>(vm, 2);
-    auto params = levelscript_read_params(vm, 3, 4);
+    auto sequence      = wrenGetParameter<string>(vm, 3);
+    auto params        = levelscript_read_params(vm, 4, 5);
 
     auto mode = step_mode_num == 1 ? ls::step_mode::application : ls::step_mode::statement;
-    auto r = program->run(program->sequence("main"), (uint64_t)seed, mode, ls::observe::off, params);
+    auto r = self->run(self->sequence(sequence), (uint64_t)seed, mode, ls::observe::off, params);
 
     wrenGetVariable(vm, "xs/levelscript", "LsRun", 0);
     auto slot = (ls::run*)wrenSetSlotNewForeign(vm, 0, 0, sizeof(ls::run));
     new (slot) ls::run(std::move(r));
 }
 
-// ── LsLevel ──────────────────────────────────────────────────────────────────
+void levelscript_generator_is_valid(WrenVM* vm)
+{
+    auto self = (ls::generator*)wrenGetSlotForeign(vm, 0);
+    wrenSetSlotBool(vm, 0, (bool)(*self));
+}
+
+void levelscript_generator_error(WrenVM* vm)
+{
+    auto self = (ls::generator*)wrenGetSlotForeign(vm, 0);
+    wrenSetSlotString(vm, 0, self->error().c_str());
+}
+
+void levelscript_generator_warnings(WrenVM* vm)
+{
+    auto self = (ls::generator*)wrenGetSlotForeign(vm, 0);
+    wrenSetSlotString(vm, 0, self->warnings().c_str());
+}
+
+void levelscript_generator_statement_count(WrenVM* vm)
+{
+    auto self = (ls::generator*)wrenGetSlotForeign(vm, 0);
+    wrenSetSlotDouble(vm, 0, (double)self->statement_count(self->sequence("main")));
+}
+
+void levelscript_generator_tag(WrenVM* vm)
+{
+    auto self = (ls::generator*)wrenGetSlotForeign(vm, 0);
+    auto name = wrenGetParameter<string>(vm, 1);
+    wrenSetSlotDouble(vm, 0, (double)self->tag(name));
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// LsLevel
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void levelscript_level_width(WrenVM* vm)
 {
@@ -1524,7 +1539,9 @@ void levelscript_level_graph(WrenVM* vm)
     new (slot) ls::graph(std::move(graph));
 }
 
-// ── LsGrid ───────────────────────────────────────────────────────────────────
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// LsGrid
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void levelscript_grid_name(WrenVM* vm)
 {
@@ -1565,7 +1582,9 @@ void levelscript_grid_value_name(WrenVM* vm)
     wrenSetSlotString(vm, 0, grid->valueName(mask).c_str());
 }
 
-// ── LsGraph ──────────────────────────────────────────────────────────────────
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// LsGraph
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void levelscript_graph_node_count(WrenVM* vm)
 {
@@ -1605,7 +1624,9 @@ void levelscript_graph_neighbors(WrenVM* vm)
     }
 }
 
-// ── LsRun ────────────────────────────────────────────────────────────────────
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// LsRun
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 void levelscript_run_step(WrenVM* vm)
 {
@@ -1919,14 +1940,14 @@ void xs::script::bind_api()
     bind("xs/core", "Json", true, "stringify(_)", json_stringify);
 
     // LevelScript
-    bind("xs/levelscript", "LsGenerator", false, "compile_(_,_)", levelscript_generator_compile_);
+    bind("xs/levelscript", "LsGenerator", false, "compile_(_)", levelscript_generator_compile_);
     bind("xs/levelscript", "LsGenerator", false, "isValid", levelscript_generator_is_valid);
     bind("xs/levelscript", "LsGenerator", false, "error", levelscript_generator_error);
     bind("xs/levelscript", "LsGenerator", false, "warnings", levelscript_generator_warnings);
     bind("xs/levelscript", "LsGenerator", false, "statementCount", levelscript_generator_statement_count);
     bind("xs/levelscript", "LsGenerator", false, "tag(_)", levelscript_generator_tag);
-    bind("xs/levelscript", "LsGenerator", false, "generate_(_,_,_)", levelscript_generator_generate_);
-    bind("xs/levelscript", "LsGenerator", false, "run_(_,_,_,_)", levelscript_generator_run_);
+    bind("xs/levelscript", "LsGenerator", false, "generate_(_,_,_,_)", levelscript_generator_generate_);
+    bind("xs/levelscript", "LsGenerator", false, "run_(_,_,_,_,_)", levelscript_generator_run_);
 
     WrenForeignClassMethods levelscript_generator_methods{};
     levelscript_generator_methods.allocate = levelscript_generator_allocate;

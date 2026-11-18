@@ -3,43 +3,14 @@
 /// is a pure function of (seed, params).
 foreign class LsGenerator {
 
-    /// Compiles LevelScript source text, labeling diagnostics "generator".
-    construct compile(source: String) {
-        compile_(source, "generator")
-    }
-
-    /// Compiles LevelScript source text. `name` labels diagnostics
-    /// ("dungeon.lvs:12:3: error: ...").
-    construct compile(source: String, name: String) {
-        compile_(source, name)
-    }
-
-    /// Private: does the actual compile, in place, after allocate().
-    foreign compile_(source: String, name: String)
-
     /// Compiles a LevelScript file at `path`, resolving `use` directives
     /// relative to that file. xs handles all file I/O.
-    construct compileFile(path: String) {
-        compile_file_(path)
+    construct compile(path: String) {
+        compile_(path)
     }
 
     /// Private: compile from a file path with auto-resolver.
-    foreign compile_file_(path: String)
-
-    /// Compiles LevelScript source text that may `use` other modules.
-    /// `modules` maps each `use` path string to that module's source text.
-    construct compile(source: String, name: String, modules: Map) {
-        var paths = []
-        var texts = []
-        for (key in modules.keys) {
-            paths.add(key)
-            texts.add(modules[key])
-        }
-        compile_modules_(source, name, paths, texts)
-    }
-
-    /// Private: compile with an explicit module map.
-    foreign compile_modules_(source: String, name: String, paths: List, texts: List)
+    foreign compile_(path: String)
 
     /// True if compilation succeeded.
     foreign isValid -> Bool
@@ -59,53 +30,65 @@ foreign class LsGenerator {
     /// unknown tag ORed into a composite mask degrades correctly).
     foreign tag(qualified: String) -> Num
 
-    /// Private: generate entering a named sequence (seed, seq, paramNames, paramValues) -> level.
-    foreign generate_(seed: Num, seq: String, paramNames: List, paramValues: List) -> LsLevel
+    /// Private: generate entering at `sequence` with params lists.
+    foreign generate_(seed: Num, sequence: String, paramNames: List, paramValues: List) -> LsLevel
 
     /// Runs the whole program deterministically for a given seed.
-    generate(seed) {
+    generate(seed: Num) {
         return generate(seed, "main")
     }
 
-    /// Runs the whole program with parameter overrides (`params: Map`) or
-    /// entering at a named sequence (`sequenceName: String`).
-    generate(seed, arg) {
-        if (arg is String) return generate_(seed, arg, [], [])
-        var names = []
-        var values = []
-        for (key in arg.keys) {
-            names.add(key)
-            values.add(arg[key])
-        }
-        return generate_(seed, "main", names, values)
+    /// Runs the whole program entering at a named sequence.
+    generate(seed: Num, sequence: String) {
+        return generate_(seed, sequence, [], [])
     }
 
-    /// Private: starts a progressive run (seed, stepMode, seq, paramNames, paramValues) -> run.
-    foreign run_(seed: Num, stepMode: Num, seq: String, paramNames: List, paramValues: List) -> LsRun
+    /// Runs the whole program entering at a named sequence with parameter overrides.
+    generate(seed: Num, sequence: String, params: LsParams) {
+        return generate_(seed, sequence, params.names, params.values)
+    }
+
+    /// Private: starts a progressive run with params lists.
+    foreign run_(seed: Num, stepMode: Num, sequence: String, paramNames: List, paramValues: List) -> LsRun
 
     /// Starts a progressive run, advancing one statement per step().
-    run(seed) {
+    run(seed: Num) {
         return run(seed, LsStepMode.statement)
     }
 
     /// Starts a progressive run with an explicit step granularity
     /// (LsStepMode.statement or LsStepMode.application).
-    run(seed, stepMode) {
+    run(seed: Num, stepMode: Num) {
         return run(seed, stepMode, "main")
     }
 
-    /// Starts a progressive run with parameter overrides (`params: Map`) or
-    /// entering at a named sequence (`sequenceName: String`).
-    run(seed, stepMode, arg) {
-        if (arg is String) return run_(seed, stepMode, arg, [], [])
-        var names = []
-        var values = []
-        for (key in arg.keys) {
-            names.add(key)
-            values.add(arg[key])
-        }
-        return run_(seed, stepMode, "main", names, values)
+    /// Starts a progressive run entering at a named sequence.
+    run(seed: Num, stepMode: Num, sequence: String) {
+        return run_(seed, stepMode, sequence, [], [])
     }
+
+    /// Starts a progressive run entering at a named sequence with parameter overrides.
+    run(seed: Num, stepMode: Num, sequence: String, params: LsParams) {
+        return run_(seed, stepMode, sequence, params.names, params.values)
+    }
+}
+
+/// Type-safe parameter overrides for LsGenerator.generate/run.
+/// Only String keys and Num values are accepted.
+class LsParams {
+    construct new() {
+        _names  = []
+        _values = []
+    }
+
+    /// Adds or updates a named parameter.
+    set(name: String, value: Num) {
+        _names.add(name)
+        _values.add(value)
+    }
+
+    names  { _names  }
+    values { _values }
 }
 
 /// step() granularity for LsGenerator.run().

@@ -173,6 +173,18 @@ std::string xs::fileio::absolute(const std::string& path)
 #endif
 }
 
+string fileio::parent_dir(const string& path)
+{
+	auto sep = path.find_last_of("/\\");
+	return sep != string::npos ? path.substr(0, sep) : string(".");
+}
+
+string fileio::filename(const string& path)
+{
+	auto sep = path.find_last_of("/\\");
+	return sep != string::npos ? path.substr(sep + 1) : path;
+}
+
 bool fileio::exists(const string& filename)
 {
 	// Expand wildcards

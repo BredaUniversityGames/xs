@@ -1,5 +1,5 @@
 import "xs/core" for Data, Input, Render
-import "xs/levelscript" for LsGenerator, LsStepMode
+import "xs/levelscript" for LsGenerator, LsStepMode, LsParams
 import "xs/tools" for ImageBuilder
 
 class Game {
@@ -74,7 +74,7 @@ class Game {
         __paletteSprites = {}   // value name → sprite id
         __nextSlot = 0
 
-        __gen = LsGenerator.compileFile("[game]/levels/roguelike_decorated.lvs")
+        __gen = LsGenerator.compile("[game]/levels/roguelike_decorated.lvs")
         if (!__gen.isValid) {
             System.print("compile error: %(__gen.error)")
         } else {
@@ -82,7 +82,9 @@ class Game {
             if (w != "") System.print("warnings: %(w)")
         }
 
-        __seed = -1
+        __seed        = -1
+        __minRoomSize = -1
+        __maxRoomSize = -1
         __level = null
         __time = 0.0
         __state = Game.done
@@ -100,14 +102,21 @@ class Game {
 
     static startGeneration() {
         if (!__gen.isValid) return
-        __seed = Data.getNumber("Seed")
+        __seed        = Data.getNumber("Seed")
+        __minRoomSize = Data.getNumber("Min Room Size")
+        __maxRoomSize = Data.getNumber("Max Room Size")
         __level = null
         __time = 0.0
         __state = Game.generating
-        var seed = __seed
+        var seed        = __seed
+        var minRoomSize = __minRoomSize
+        var maxRoomSize = __maxRoomSize
         var brake = Data.getNumber("Step Brake")
         __fiber = Fiber.new {
-            var run = __gen.run(seed, LsStepMode.application, "main_decorated")
+            var params = LsParams.new()
+            params.set("min_room_size", minRoomSize)
+            params.set("max_room_size", maxRoomSize)
+            var run = __gen.run(seed, LsStepMode.application, "main_decorated", params)
             while (run.step()) {
                 __level = run.snapshot
                 Fiber.yield(brake)
@@ -118,8 +127,10 @@ class Game {
     }
 
     static update(dt) {
-        var seed = Data.getNumber("Seed")
-        if (seed != __seed || Input.getKeyOnce(Input.keySpace)) {
+        var seed        = Data.getNumber("Seed")
+        var minRoomSize = Data.getNumber("Min Room Size")
+        var maxRoomSize = Data.getNumber("Max Room Size")
+        if (seed != __seed || minRoomSize != __minRoomSize || maxRoomSize != __maxRoomSize || Input.getKeyOnce(Input.keySpace)) {
             startGeneration()
         }
 
