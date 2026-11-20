@@ -179,14 +179,30 @@ void xs::data::shutdown()
 // Render inspector at a fixed rectangle (no title bar)
 void xs::data::inspect()
 {
-	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None | ImGuiTabBarFlags_DrawSelectedOverline;
-	if (ImGui::BeginTabBar("DataTabsEmbedded", tab_bar_flags))
+	// Quieter than the panel's own tab right above them: no colored line, and the selected one is only shaded, like a
+	// button that is held down. The same whether the panel has focus or not.
+	const ImVec4 none = {0.0f, 0.0f, 0.0f, 0.0f};
+	const ImVec4 selected = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
+	const ImVec4 hovered = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
+	ImGui::PushStyleColor(ImGuiCol_Tab, none);
+	ImGui::PushStyleColor(ImGuiCol_TabDimmed, none);
+	ImGui::PushStyleColor(ImGuiCol_TabHovered, hovered);
+	ImGui::PushStyleColor(ImGuiCol_TabSelected, selected);
+	ImGui::PushStyleColor(ImGuiCol_TabDimmedSelected, selected);
+	ImGui::PushStyleColor(ImGuiCol_TabSelectedOverline, none);
+	ImGui::PushStyleColor(ImGuiCol_TabDimmedSelectedOverline, none);
+	ImGui::PushStyleVar(ImGuiStyleVar_TabRounding, ImGui::GetStyle().FrameRounding);
+
+	if (ImGui::BeginTabBar("DataTabsEmbedded", ImGuiTabBarFlags_None))
 	{
 		inspect_of_type("Game Data", string(ICON_PH_GAMEPAD) + " Game", type::game);
 		inspect_of_type("Save Data", string(ICON_PH_SAVE) + " Save", type::save);
 		inspect_of_type("Project Data", string(ICON_PH_COG) + " Project", type::project);
 		ImGui::EndTabBar();
 	}
+
+	ImGui::PopStyleVar();
+	ImGui::PopStyleColor(7);
 }
 
 bool xs::data::has_chages()

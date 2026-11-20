@@ -118,6 +118,7 @@ namespace xs::inspector
     bool always_on_top = false;
     bool reset_layout = false;
     ImGuiID layout_id = 0;  // The dockspace the panels are docked in
+    ImVec4 base_window_bg = {};  // The theme's window color, before any panel pushes its own
     char* ini_filename = nullptr;
 
     // Window names. The text after ### is the window's ID, so the icon in front can change without losing its place.
@@ -377,52 +378,53 @@ namespace
 		return clicked;
 	}
 
-	// An icon button that is shown held down while on
-	bool toggle_button(const char* icon, bool state, const char* tip)
-	{
-		const ImVec4 normal = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-		const ImVec4 active = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
-		ImGui::PushStyleColor(ImGuiCol_Button, state ? active : normal);
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, active);
-		const bool clicked = ImGui::Button(icon);
-		ImGui::PopStyleColor(2);
-		if (tip)
-			tooltip(tip);
-		return clicked;
-	}
+}
 
-	// The room around the buttons in one of the top bar's subpanels, inside the bar's own padding
-	ImVec2 subpanel_padding()
-	{
-		const float y = std::floor(ImGui::GetStyle().WindowPadding.y * 0.6f);
-		return {y + 1.0f, y};
-	}
+// An icon button that is shown held down while on
+static bool toggle_button(const char* icon, bool state, const char* tip)
+{
+	const ImVec4 normal = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+	const ImVec4 active = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
+	ImGui::PushStyleColor(ImGuiCol_Button, state ? active : normal);
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, active);
+	const bool clicked = ImGui::Button(icon);
+	ImGui::PopStyleColor(2);
+	if (tip)
+		tooltip(tip);
+	return clicked;
+}
 
-	// Starts one of the top bar's subpanels: a row of buttons on a rounded panel in the side panel's color. The
-	// panel is drawn behind the row at the end, once its size is known.
-	void begin_subpanel()
-	{
-		ImDrawList* draw = ImGui::GetWindowDrawList();
-		draw->ChannelsSplit(2);
-		draw->ChannelsSetCurrent(1);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + subpanel_padding().x);
-		ImGui::BeginGroup();
-	}
+// The room around the buttons in one of the top bar's subpanels, inside the bar's own padding
+static ImVec2 subpanel_padding()
+{
+	const float y = std::floor(ImGui::GetStyle().WindowPadding.y * 0.6f);
+	return {y + 1.0f, y};
+}
 
-	// Ends a subpanel, and leaves the cursor after it on the same line
-	void end_subpanel()
-	{
-		ImGui::EndGroup();
-		const ImVec2 padding = subpanel_padding();
-		const ImVec2 min = ImGui::GetItemRectMin();
-		const ImVec2 max = ImGui::GetItemRectMax();
-		ImDrawList* draw = ImGui::GetWindowDrawList();
-		draw->ChannelsSetCurrent(0);
-		draw->AddRectFilled({min.x - padding.x, min.y - padding.y}, {max.x + padding.x, max.y + padding.y},
-		                    ImGui::GetColorU32(side_panel_color()), ImGui::GetStyle().ChildRounding);
-		draw->ChannelsMerge();
-		ImGui::SameLine(0.0f, padding.x * 2.0f + ImGui::GetStyle().ItemSpacing.x);
-	}
+// Starts one of the top bar's subpanels: a row of buttons on a rounded panel in the side panel's color. The panel
+// is drawn behind the row at the end, once its size is known.
+static void begin_subpanel()
+{
+	ImDrawList* draw = ImGui::GetWindowDrawList();
+	draw->ChannelsSplit(2);
+	draw->ChannelsSetCurrent(1);
+	ImGui::SetCursorPosX(ImGui::GetCursorPosX() + subpanel_padding().x);
+	ImGui::BeginGroup();
+}
+
+// Ends a subpanel, and leaves the cursor after it on the same line
+static void end_subpanel()
+{
+	ImGui::EndGroup();
+	const ImVec2 padding = subpanel_padding();
+	const ImVec2 min = ImGui::GetItemRectMin();
+	const ImVec2 max = ImGui::GetItemRectMax();
+	ImDrawList* draw = ImGui::GetWindowDrawList();
+	draw->ChannelsSetCurrent(0);
+	draw->AddRectFilled({min.x - padding.x, min.y - padding.y}, {max.x + padding.x, max.y + padding.y},
+	                    ImGui::GetColorU32(side_panel_color()), ImGui::GetStyle().ChildRounding);
+	draw->ChannelsMerge();
+	ImGui::SameLine(0.0f, padding.x * 2.0f + ImGui::GetStyle().ItemSpacing.x);
 }
 
 void xs::inspector::search_box(ImGuiTextFilter& filter)
@@ -1138,6 +1140,7 @@ void xs::inspector::apply_theme(theme t)
         light_theme();
         break;
     }
+    base_window_bg = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
 
 #if defined(PLATFORM_PC)
     auto& style = ImGui::GetStyle();
@@ -1398,7 +1401,8 @@ void xs::inspector::light_theme()
 
 ImVec4 inspector::side_panel_color()
 {
-	ImVec4 bg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
+	// From the theme's own window color, not the current one, which is this color itself inside a side panel
+	ImVec4 bg = base_window_bg;
 	if (current_theme == theme::dark)
 		bg = {bg.x + 0.03f, bg.y + 0.03f, bg.z + 0.03f, bg.w};
 	else
