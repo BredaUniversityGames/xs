@@ -35,10 +35,15 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           lfs: true          # resources/ (fonts, images) are tracked in Git LFS
+
+      # Only init the public levelscript submodule; platforms/nx and platforms/prospero
+      # are private console repos the workflow token can't fetch.
+      - name: Checkout levelscript submodule
+        run: git submodule update --init --depth 1 external/levelscript
 
       # version.hpp is the single source of truth for the version compiled into the
       # exe. Catch the common mistake of tagging without bumping version.hpp.
@@ -56,7 +61,7 @@ jobs:
           }
 
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
         with:
           msbuild-architecture: x64
 
@@ -92,7 +97,7 @@ jobs:
           Get-ChildItem -Recurse $bin | ForEach-Object { Write-Host "  $($_.FullName)" }
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -112,7 +117,7 @@ jobs:
           --publisher  "${{ env.PUBLISHER }}"
 
       - name: Publish to GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: dist/xs-setup-*.exe
           draft: false

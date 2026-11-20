@@ -1,0 +1,12 @@
+{
+  "graphs": [
+    "map"
+  ],
+  "layers": {
+    "zones": {
+      "mode": "color",
+      "view": "border",
+      "visible": true
+    }
+  }
+}

@@ -82,6 +82,36 @@
     <ClCompile Include="external\miniz\src\miniz_zip.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="external\levelscript\src\lexer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\parser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\sema.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\machine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\ls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\inspect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\modules.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\graph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\directives.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\levelscript\src\ast_dump.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="code\packager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -312,6 +342,39 @@
     <ClInclude Include="external\miniz\include\miniz\miniz_zip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="external\levelscript\src\ls.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\lexer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\parser.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\sema.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\machine.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\ast.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\diagnostic.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\sequence.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\inspect.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\directives.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\levelscript\src\ast_dump.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="code\account.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -405,7 +468,7 @@
     <ClInclude Include="external\imgui\imgui_stdlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="code\fluent_glyph.hpp">
+    <ClInclude Include="code\phosphor_glyph.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="code\opengl\opengl.hpp">
@@ -432,7 +495,6 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="external\imgui\debuggers\imgui.natstepfilter" />
-    <None Include="sessions" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="xs.rc">

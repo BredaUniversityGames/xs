@@ -17,6 +17,8 @@ namespace xs::fileio
 	void add_wildcard(const std::string& wildcard, const std::string& value);
 	std::string get_path(const std::string& filename);
 	std::string absolute(const std::string& path);
+	std::string parent_dir(const std::string& path);
+	std::string filename(const std::string& path);
 	bool exists(const std::string& filename);
 	uint64_t last_write(const std::string& filename);
 	void commit();

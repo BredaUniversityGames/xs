@@ -9,7 +9,7 @@
     },
     "Device.Multiplier": {
         "type": "number",
-        "value": 4.0
+        "value": 2.0
     },
     "Device.Title": {
         "type": "string",
@@ -78,10 +78,6 @@
     "Render.Postprocess.WarpY": {
         "type": "number",
         "value": 0.0416666679084301
-    },
-    "Render.SnapToPixels": {
-        "type": "bool",
-        "value": false
     },
     "Render.TextureFilter": {
         "type": "bool",

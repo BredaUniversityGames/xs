@@ -1,0 +1,227 @@
+use "roguelike.lvs"
+
+layers {
+    // kenney_micro_roguelike.png, 16x10 tiles of 8x8
+    tiles : grid of number  // @view=tiles @tileset=Micro
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Purely decoration!
+//
+// Paint the tiles layer from the level (kenney_micro_roguelike.png, index =
+// row * 16 + column). Walls use the sheet's bottom row set, whose vertical
+// wall is a band down the middle of the cell, so a one-cell wall reads right.
+// A horizontal run is a cap with a stone face under it, a vertical run just
+// the band; corners turn the cap into the band. The set has no tees, so a
+// wall through a horizontal run keeps the run, and a horizontal branch off a
+// vertical run takes the corner its side turns into.
+///////////////////////////////////////////////////////////////////////////////
+
+// A wall's neighbour is either S (a wall or a door) or free: floor, open,
+// or the empty outside.
+rule paint_walls { all
+    // horizontal runs, now and then with a window
+    level[
+        *    free *
+        S    W    S
+        *    free *    ] => { any
+        (weight=12) tiles[* * *, * 145 *, * * *]
+        (weight=1)  tiles[* * *, * 151 *, * * *]
+    }
+    // tees and crosses
+    level[
+        *    S    *
+        S    W    S
+        *    *    *    ] => tiles[* * *, * 145 *, * * *]
+    level[
+        *    free *
+        S    W    S
+        *    S    *    ] => tiles[* * *, * 145 *, * * *]
+    // wall to the right only: corners, the left end of a run
+    level[
+        *    S    *
+        free W    S
+        *    *    *    ] => tiles[* * *, * 150 *, * * *]
+    level[
+        *    free *
+        free W    S
+        *    S    *    ] => tiles[* * *, * 144 *, * * *]
+    level[
+        *    free *
+        free W    S
+        *    free *    ] => tiles[* * *, * 145 *, * * *]
+    // wall to the left only
+    level[
+        *    S    *
+        S    W    free
+        *    *    *    ] => tiles[* * *, * 153 *, * * *]
+    level[
+        *    free *
+        S    W    free
+        *    S    *    ] => tiles[* * *, * 147 *, * * *]
+    level[
+        *    free *
+        S    W    free
+        *    free *    ] => tiles[* * *, * 145 *, * * *]
+    // vertical runs and their ends
+    level[
+        *    S    *
+        free W    free
+        *    *    *    ] => tiles[* * *, * 148 *, * * *]
+    level[
+        *    free *
+        free W    free
+        *    S    *    ] => tiles[* * *, * 148 *, * * *]
+    // lone block, the pillars in hubs and challenge rooms
+    level[
+        *    free *
+        free W    free
+        *    free *    ] => { any
+        tiles[* * *, * 29 *, * * *]
+        tiles[* * *, * 30 *, * * *]
+    }
+}
+
+// A door in a horizontal wall is an arch, a gated arch or a wooden door, and
+// the one into the boss room is locked. In a vertical wall it is a gap; the
+// set has only the one.
+rule paint_doors { ordered
+    level[
+        *    *    * 
+        S    D    S 
+        *    *    *    ]
+    rooms[
+        *    boss * 
+        *    *    * 
+        *    *    *    ] => tiles[* * *, * 36 *, * * *]
+    level[
+        *    *    * 
+        S    D    S 
+        *    *    *    ]
+    rooms[
+        *    *    * 
+        *    *    * 
+        *    boss *    ] => tiles[* * *, * 36 *, * * *]
+    level[
+        *    *    * 
+        S    D    S 
+        *    *    *    ] => { any
+        (weight=4) tiles[* * *, * 146 *, * * *]
+        (weight=4) tiles[* * *, * 34 * , * * *]
+        (weight=2) tiles[* * *, * 152 *, * * *]
+        (weight=1) tiles[* * *, * 37 * , * * *]
+    }
+    level[
+        *    S    * 
+        free D    free
+        *    S    *    ] => tiles[* * *, * 160 *, * * *]
+}
+
+// What the generator put down. Enemies in the boss room are the big ones,
+// items in reward rooms the loot and the rest crates and pots by the walls.
+rule paint_entities { ordered    
+    entities[S] => tiles[53]    // ladder in
+    entities[P] => tiles[4]     // hero
+    entities[E] => tiles[52]    // stairs down
+    entities[N] => { any
+        (weight=4) tiles[22]    // rat
+        (weight=2) tiles[23]    // spider
+        (weight=2) tiles[25]    // scorpion
+        (weight=2) tiles[21]    // dog
+        (weight=1) tiles[26]    // turtle
+        (weight=1) tiles[20]    // snake
+        (weight=1) tiles[12]    // beholder
+    }    
+    rooms[reward|challenge] entities[I] => { any
+        (weight=3) tiles[122]   // chest
+        (weight=2) tiles[88]    // coin
+        (weight=2) tiles[135]   // potion
+        (weight=1) tiles[89]    // ring
+        (weight=1) tiles[90]    // key
+    }
+    entities[I] => { any
+        (weight=3) tiles[40]    // barrel
+        (weight=3) tiles[41]    // pot
+        (weight=1) tiles[92]    // crate
+    }
+
+    zones[.] entities[V] => { any
+        (weight=3) tiles[84]    // pine
+        (weight=3) tiles[85]    // tree
+        (weight=2) tiles[86]    // saplings
+    }
+}
+
+rule paint_boss_room {
+    entities[N]
+    rooms[boss] => { any
+        (weight=1) tiles[13]    // beholder
+        (weight=1) tiles[11]    // horned brute
+        (weight=1) tiles[27]    // demon
+    }
+}
+
+// Bare floor, a little rubble and the odd grate
+rule paint_floor {
+    level[F] => { any
+        (weight=100) tiles[17]
+        (weight=15)   tiles[68]  // rubble
+    }
+}
+
+// Grass and pebbles outside, the trees are vegetation entities
+rule paint_outside {
+    level[.]
+    tiles[.]
+    => { any
+        (weight=24) tiles[17]
+        (weight=3)  tiles[69]   // grass
+        (weight=2)  tiles[68]   // pebbles
+    }
+}
+
+sequence add_graves {
+    once (rotation=all) {    
+        level[.]
+        tiles[.]
+        zones[!.]
+        => { any
+        tiles[
+            * *   * *   * *   * 
+            * 120 * 120 * 120 * 
+            * *   * *   * *   * 
+            * 120 * 120 * 120 * 
+            * *   * *   * *   * ]
+        }
+    }
+
+    once (rotation=all) {    
+        level[.]
+        tiles[.]
+        zones[!.]
+        => { any
+        tiles[
+            * *   * *   * 
+            * 120 * 120 * 
+            * *   * *   * 
+            * 120 * 120 * 
+            * *   * *   * ]
+        }
+    }
+
+    scatter(30%) { tiles[120] => tiles[121] }
+
+}   
+
+sequence main_decorated {
+    // main generation from the base BSP level
+    once main
+
+    once add_graves
+    everywhere paint_outside        // @speed=20
+    everywhere paint_floor          // @speed=15
+    everywhere paint_walls          // @speed=10
+    everywhere paint_doors          
+    everywhere paint_entities       
+    scatter(50%) paint_boss_room
+}

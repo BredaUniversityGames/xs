@@ -11,7 +11,11 @@
 // - GCC 13+ with -std=c++20
 // - Clang 14+ with -std=c++20
 // - Nintendo Switch SDK (has C++20 support)
-#if __has_include(<format>) && defined(__cpp_lib_format)
+#if __has_include(<format>)
+    #include <format>
+#endif
+
+#if defined(__cpp_lib_format)
     #define XS_HAS_STD_FORMAT 1
 #else
     #define XS_HAS_STD_FORMAT 0

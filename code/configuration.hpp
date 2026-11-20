@@ -10,9 +10,6 @@ namespace xs::configuration
 	/// Multiplier for the window from the game's native resolution
 	int multiplier();
 
-	/// Snap sprites to pixel positions
-	bool snap_to_pixels();
-
 	/// Points are used on screens with HDPI
 	bool window_size_in_points();
 

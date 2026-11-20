@@ -27,10 +27,6 @@
         "type": "bool",
         "value": false
     },
-    "Render.SnapToPixels": {
-        "type": "bool",
-        "value": false
-    },
     "Render.TextureFilter": {
         "type": "bool",
         "value": false

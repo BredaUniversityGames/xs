@@ -6,3 +6,6 @@
 	path = platforms/prospero
 	url = https://github.com/BredaUniversityGames/xs-prospero.git
 	branch = main
+[submodule "external/levelscript"]
+	path = external/levelscript
+	url = https://github.com/enci/levelscript.git
