@@ -9,3 +9,6 @@
 [submodule "external/wren"]
 	path = external/wren
 	url = https://github.com/enci/wren.git
+[submodule "external/levelscript"]
+	path = external/levelscript
+	url = https://github.com/enci/levelscript.git

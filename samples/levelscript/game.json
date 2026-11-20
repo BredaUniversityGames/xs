@@ -1,0 +1,22 @@
+{
+    "Seed": {
+        "type": "number",
+        "value": 42.0
+    },
+    "Min Room Size": {
+        "type": "number",
+        "value": 5.0
+    },
+    "Max Room Size": {
+        "type": "number",
+        "value": 5.0
+    },
+    "Step Brake": {
+        "type": "number",
+        "value": 0.0
+    },
+    "Step": {
+        "type": "bool",
+        "value": true
+    }
+}

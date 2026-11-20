@@ -387,12 +387,6 @@ class Color {
         var g = (x >> 16 & 0xFF) * (y >> 16 & 0xFF)
         var b = (x >> 8 & 0xFF) * (y >> 8 & 0xFF)
         var a = (x & 0xFF) * (y & 0xFF)
-        //a = 255
-        //r = r > 255 ? 255 : r
-        //g = g > 255 ? 255 : g
-        //b = b > 255 ? 255 : b
-        //a = a > 255 ? 255 : a
-        //return (r << 24) | (g << 16) | (b << 8) | a
         return a << 24 | b << 16 | g << 8 | r
     }
 

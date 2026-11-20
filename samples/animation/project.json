@@ -27,10 +27,6 @@
         "type": "string",
         "value": "game.wren"
     },
-    "Render.SnapToPixels": {
-        "type": "bool",
-        "value": false
-    },
     "Render.TextureFilter": {
         "type": "bool",
         "value": false

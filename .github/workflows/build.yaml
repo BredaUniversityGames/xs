@@ -23,7 +23,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           lfs: true
@@ -31,8 +31,13 @@ jobs:
       - name: Wren submodule
         run: git submodule update --init external/wren
 
+      # Only init the public levelscript submodule; platforms/nx and platforms/prospero
+      # are private console repos the workflow token can't fetch.
+      - name: Checkout levelscript submodule
+        run: git submodule update --init --depth 1 external/levelscript
+
       - name: Setup MSBuild path
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
         with:
           msbuild-architecture: x64
 
