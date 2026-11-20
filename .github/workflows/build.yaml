@@ -28,6 +28,11 @@ jobs:
           fetch-depth: 0
           lfs: true
 
+      # Only init the public levelscript submodule; platforms/nx and platforms/prospero
+      # are private console repos the workflow token can't fetch.
+      - name: Checkout levelscript submodule
+        run: git submodule update --init --depth 1 external/levelscript
+
       - name: Setup MSBuild path
         uses: microsoft/setup-msbuild@v3
         with:
