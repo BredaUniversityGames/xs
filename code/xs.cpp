@@ -13,6 +13,7 @@
 #include "inspector.hpp"
 #include "packager.hpp"
 #include "version.hpp"
+#include "debugger.hpp"
 #include <chrono>
 
 // CLI support for PC and Mac only
@@ -52,6 +53,9 @@ int xs::dispatch(int argc, char* argv[])
 	run_cmd.add_argument("path")
 		.help("Path to game project folder or .xs package file")
 		.default_value(std::string("."));
+	run_cmd.add_argument("--debug-port")
+		.help("Wait for a debugger (DAP) client on this local port before running the scripts")
+		.scan<'i', int>();
 
 	// Run subcommand - runs a project folder or .xs package
 	argparse::ArgumentParser version_cmd("version");
@@ -101,6 +105,15 @@ int xs::dispatch(int argc, char* argv[])
 			xs::set_run_mode(xs::run_mode::development);
 			game_path = path;
 		}
+
+		if (run_cmd.is_used("--debug-port"))
+		{
+			if (xs::get_run_mode() == xs::run_mode::packaged)
+				std::cerr << "Packaged games can not be debugged, ignoring --debug-port.\n";
+			else
+				debugger::enable(run_cmd.get<int>("--debug-port"));
+		}
+
 		return xs::main(game_path);
 	}
 	else if (program.is_subcommand_used("package")) {
@@ -166,6 +179,7 @@ void xs::initialize(const std::string& game_path)
 	data::initialize();
 	script::configure();
 	device::initialize();
+	debugger::window_ready();
 	render::initialize();
 	input::initialize();
 	audio::initialize();
@@ -176,6 +190,7 @@ void xs::initialize(const std::string& game_path)
 
 void xs::shutdown()
 {
+	debugger::shutdown();
 	inspector::shutdown();
 	simple_audio::shutdown();
 	audio::shutdown();
@@ -190,6 +205,7 @@ void xs::shutdown()
 void xs::update(double dt)
 {
 	device::poll_events();
+	debugger::update();
 	input::update(dt);
 
 	if (!inspector::paused())

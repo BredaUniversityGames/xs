@@ -13,12 +13,14 @@ find_package(Python3 COMPONENTS Interpreter REQUIRED)
 # Platform definitions
 # PLATFORM_PC: Desktop platform (shared between Windows and Linux)
 # PLATFORM_LINUX: Linux-specific features
-add_definitions(-DPLATFORM_PC -DPLATFORM_LINUX -DINSPECTOR -DEDITOR)
+# WREN_DEBUGGER compiles the debug hooks into the Wren VM, xs debugger uses them
+add_definitions(-DPLATFORM_PC -DPLATFORM_LINUX -DINSPECTOR -DEDITOR -DWREN_DEBUGGER=1)
 
 # Core source files
 set(CORE_SOURCES
     code/configuration.cpp
     code/data.cpp
+    code/debugger.cpp
     code/device.cpp
     code/packager.cpp
     code/fileio.cpp
@@ -84,7 +86,7 @@ set(IMPLOT_SOURCES
 )
 
 # External: Wren
-file(GLOB WREN_SOURCES "external/wren/vm/*.c" "external/wren/optional/*.c")
+file(GLOB WREN_SOURCES "external/wren/src/vm/*.c" "external/wren/src/optional/*.c")
 
 # External: miniz
 set(MINIZ_SOURCES
@@ -150,9 +152,9 @@ target_include_directories(xs PRIVATE
     ${CMAKE_SOURCE_DIR}/external/json/include
     ${CMAKE_SOURCE_DIR}/external/stb
     ${CMAKE_SOURCE_DIR}/external/wren
-    ${CMAKE_SOURCE_DIR}/external/wren/include
-    ${CMAKE_SOURCE_DIR}/external/wren/vm
-    ${CMAKE_SOURCE_DIR}/external/wren/optional
+    ${CMAKE_SOURCE_DIR}/external/wren/src/include
+    ${CMAKE_SOURCE_DIR}/external/wren/src/vm
+    ${CMAKE_SOURCE_DIR}/external/wren/src/optional
     ${CMAKE_SOURCE_DIR}/external/miniz
     ${CMAKE_SOURCE_DIR}/external/miniz/include/miniz
     ${CMAKE_SOURCE_DIR}/external/levelscript/src

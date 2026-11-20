@@ -40,6 +40,9 @@ jobs:
           fetch-depth: 0
           lfs: true          # resources/ (fonts, images) are tracked in Git LFS
 
+      - name: Wren submodule
+        run: git submodule update --init external/wren
+
       # Only init the public levelscript submodule; platforms/nx and platforms/prospero
       # are private console repos the workflow token can't fetch.
       - name: Checkout levelscript submodule
