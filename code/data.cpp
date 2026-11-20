@@ -284,12 +284,7 @@ void xs::data::internal::inspect_of_type(
 		ImGui::SameLine();
 
 		static ImGuiTextFilter filter;
-		filter.Draw(ICON_PH_SEARCH);
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_PH_CLEAR_FILTER)) {
-			filter.Clear();
-		}
-		tooltip("Clear filter");
+		inspector::search_box(filter);
 
 		bool ed = edited[type];
 		{

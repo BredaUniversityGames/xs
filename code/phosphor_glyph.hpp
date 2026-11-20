@@ -68,6 +68,12 @@ constexpr std::array<char, 5> utf8_from_code(unsigned int cp)
     X(WINDOW, 			    0xe5da) /* app-window */ \
     X(PUZZLE_CUBE,          0xe596) /* puzzle-piece */ \
     X(CLEAR_FILTER,         0xe26c) /* funnel-x */ \
+    X(SKIP_FORWARD,         0xe5a6) /* skip-forward */ \
+    X(CARET_DOWN,           0xe136) /* caret-down */ \
+    X(MONITOR,              0xe32e) /* monitor */ \
+    X(CLOCK,                0xe19a) /* clock */ \
+    X(LAYOUT,               0xe6d6) /* layout */ \
+    X(CLOSE,                0xe4f6) /* x */ \
 
     // Add more here
 

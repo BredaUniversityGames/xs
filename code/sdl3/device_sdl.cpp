@@ -19,6 +19,9 @@ namespace xs::device::internal
 	int	width = -1;
 	int	height = -1;
 	bool quit = false;
+
+	// Where the window is and how big when it is not maximized or fullscreen, to come back to next time
+	SDL_Rect restored = {};
 }
 
 using namespace xs;
@@ -38,6 +41,33 @@ void log_opengl_version_info()
 }
 
 
+
+#if defined(EDITOR)
+namespace
+{
+	// Whether a rectangle is all on one screen, in the part windows can use (not under the taskbar)
+	bool fits_on_a_screen(const SDL_Rect& rect)
+	{
+		const SDL_DisplayID display = SDL_GetDisplayForRect(&rect);
+		SDL_Rect usable = {};
+		if (display == 0 || !SDL_GetDisplayUsableBounds(display, &usable))
+			return false;
+		return rect.x >= usable.x && rect.y >= usable.y &&
+		       rect.x + rect.w <= usable.x + usable.w && rect.y + rect.h <= usable.y + usable.h;
+	}
+
+	// Keeps the window's place and size, unless it is maximized, fullscreen or minimized: then it keeps the ones it
+	// goes back to
+	void remember_window_placement()
+	{
+		const auto flags = SDL_GetWindowFlags(internal::window);
+		if (flags & (SDL_WINDOW_MAXIMIZED | SDL_WINDOW_FULLSCREEN | SDL_WINDOW_MINIMIZED))
+			return;
+		SDL_GetWindowPosition(internal::window, &internal::restored.x, &internal::restored.y);
+		SDL_GetWindowSize(internal::window, &internal::restored.w, &internal::restored.h);
+	}
+}
+#endif
 
 void device::initialize()
 {
@@ -84,12 +114,12 @@ void device::initialize()
 	internal::height = configuration::height() * configuration::multiplier();
 #endif
 
-	// Create window
+	// Create window, hidden until it is in its place
 	internal::window = SDL_CreateWindow(
 		configuration::title().c_str(),
 		internal::width,
 		internal::height,
-		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+		SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN);
 	
 	if (!internal::window)
 	{
@@ -115,7 +145,27 @@ void device::initialize()
 	log_opengl_version_info();
 	init_debug_messages();
 
+#if defined(EDITOR)
+	// Back where it was last time, if that is still all on one screen (one may have been unplugged since)
+	if (data::get_bool("Editor.WindowPlaced", data::type::user))
+	{
+		const SDL_Rect saved = {
+			(int)data::get_number("Editor.WindowX", data::type::user),
+			(int)data::get_number("Editor.WindowY", data::type::user),
+			internal::width,
+			internal::height };
+		if (fits_on_a_screen(saved))
+			SDL_SetWindowPosition(internal::window, saved.x, saved.y);
+	}
+#endif
+
 	SDL_ShowWindow(internal::window);
+
+#if defined(EDITOR)
+	remember_window_placement();
+	if (data::get_bool("Editor.WindowMaximized", data::type::user))
+		SDL_MaximizeWindow(internal::window);
+#endif
 
 	// Set application icon (load PNG via stb_image, then create SDL surface)
 	{
@@ -138,9 +188,18 @@ void device::initialize()
 void device::shutdown()
 {
 #if defined(EDITOR)
-	// Save window size to user settings before shutdown in editor builds
-	data::set_number("Editor.WindowWidth", internal::width, data::type::user);
-	data::set_number("Editor.WindowHeight", internal::height, data::type::user);
+	// Save where the window is to user settings before shutdown in editor builds: its place and size when not
+	// maximized, and whether it is
+	if (internal::restored.w > 0 && internal::restored.h > 0)
+	{
+		const bool maximized = (SDL_GetWindowFlags(internal::window) & SDL_WINDOW_MAXIMIZED) != 0;
+		data::set_number("Editor.WindowWidth", internal::restored.w, data::type::user);
+		data::set_number("Editor.WindowHeight", internal::restored.h, data::type::user);
+		data::set_number("Editor.WindowX", internal::restored.x, data::type::user);
+		data::set_number("Editor.WindowY", internal::restored.y, data::type::user);
+		data::set_bool("Editor.WindowPlaced", true, data::type::user);
+		data::set_bool("Editor.WindowMaximized", maximized, data::type::user);
+	}
 	data::save_of_type(data::type::user);
 #endif
 
@@ -177,7 +236,15 @@ void device::poll_events()
 				// Update OpenGL viewport to match new window size
 				glViewport(0, 0, internal::width, internal::height);
 			}
+#if defined(EDITOR)
+			remember_window_placement();
+#endif
 			break;
+#if defined(EDITOR)
+		case SDL_EVENT_WINDOW_MOVED:
+			remember_window_placement();
+			break;
+#endif
 			// Window focus event
 		}
 

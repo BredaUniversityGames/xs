@@ -1,8 +1,13 @@
 #pragma once
 #include <string>
 
+struct ImGuiTextFilter;
+
 namespace xs::inspector
 {
+	// A search field filling the rest of the row, with a button to clear it while searching
+	void search_box(ImGuiTextFilter& filter);
+
 	void initialize();
 	void shutdown();
 	void render(double dt);
