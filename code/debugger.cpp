@@ -1027,7 +1027,7 @@ bool debugger::enable(int port)
 	addr.sin_port = htons((unsigned short)port);
 	inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
 
-	if (bind(listener, (sockaddr*)&addr, sizeof(addr)) != 0 || listen(listener, 1) != 0)
+	if (::bind(listener, (sockaddr*)&addr, sizeof(addr)) != 0 || listen(listener, 1) != 0)
 	{
 		log::error("Debugger: can not listen on port {}.", port);
 		close_socket(listener);
