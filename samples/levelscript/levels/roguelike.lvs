@@ -41,7 +41,6 @@ rule border(rotation=90) {
 
 rule create_door(rotation=all) {
     level[
-        
         F W . 
         F W . 
         F W . 

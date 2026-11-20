@@ -1,7 +1,4 @@
 {
-  "graphs": [
-    "map"
-  ],
   "layers": {
     "tiles": {
       "tileset": "roguelike"
