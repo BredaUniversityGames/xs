@@ -117,6 +117,7 @@ namespace xs::inspector
     bool show_inspector = false;
     bool always_on_top = false;
     bool reset_layout = false;
+    ImGuiID layout_id = 0;  // The dockspace the panels are docked in
     char* ini_filename = nullptr;
 
     // Window names. The text after ### is the window's ID, so the icon in front can change without losing its place.
@@ -142,6 +143,7 @@ namespace xs::inspector
 	void pop_menu_theme(theme t);
 	void dark_theme();
 	void light_theme();
+	ImVec4 side_panel_color();
 	void push_side_panel_theme();
 	void pop_side_panel_theme();
 
@@ -296,24 +298,10 @@ static void tooltip(const char* tooltip)
 
 namespace
 {
-	// The colors of the play, pause and step buttons: the icon is tinted, and the button is filled with it while on.
-	// Pause is blue, not amber: next to green and red it read as a traffic light.
-	const ImVec4 c_play_color = {0.25f, 0.70f, 0.35f, 1.0f};
-	const ImVec4 c_pause_color = {0.22f, 0.47f, 0.82f, 1.0f};
-
-	// Text on a filled (selected or held) button
-	const ImVec4 c_on_accent = {1.0f, 1.0f, 1.0f, 1.0f};
-
 	// What a status bar item's text lights up to when hovered, set by the bar from the theme's text color
 	ImVec4 status_hover_text = {1.0f, 1.0f, 1.0f, 1.0f};
 
 	float em(float n) { return ImGui::GetFontSize() * n; }
-
-	// The gap between a group and the top and bottom of the bar, and between the buttons in a group
-	float group_inset() { return (std::max)(1.0f, std::round(em(0.15f))); }
-
-	// The gap between the groups in the top bar
-	float group_gap() { return std::round(em(0.8f)); }
 
 	// A fixed height window clips its content unless the height also covers its own padding. Whole pixels, as a
 	// fractional height leaves a partly covered row on non-HDPI screens.
@@ -335,93 +323,6 @@ namespace
 		             ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBringToFrontOnFocus |
 		             ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoScrollWithMouse);
 		ImGui::PopStyleVar();
-	}
-
-	// A button drawn by hand at a given place: flat until hovered, filled while held or selected (for toggles). The
-	// label is tinted when a tint is given (w > 0), and the fill is the accent unless one is given. A button that cannot
-	// be used now has a plain grey label, as a tinted one, even faded, still looks like it does something.
-	bool panel_button(const char* id, const char* label, const char* tip, ImVec2 pos, ImVec2 size,
-	                  bool enabled = true, bool selected = false, ImVec4 tint = {}, ImVec4 fill = {})
-	{
-		ImDrawList* draw = ImGui::GetWindowDrawList();
-		ImGui::SetCursorScreenPos(pos);
-		ImGui::BeginDisabled(!enabled);
-		const bool clicked = ImGui::InvisibleButton(id, size);
-		const ImVec2 min = ImGui::GetItemRectMin();
-		const ImVec2 max = ImGui::GetItemRectMax();
-		const bool filled = enabled && (selected || ImGui::IsItemActive());
-		if (fill.w <= 0.0f)
-			fill = as_imvec4(get_color(color_id::Blue));
-		const float rounding = ImGui::GetStyle().FrameRounding;
-		if (filled)
-			draw->AddRectFilled(min, max, ImGui::GetColorU32(fill), rounding);
-		else if (ImGui::IsItemHovered())
-			draw->AddRectFilled(min, max, ImGui::GetColorU32(ImGuiCol_ButtonHovered), rounding);
-
-		ImU32 color = ImGui::GetColorU32(ImGuiCol_Text);
-		if (!enabled)
-			color = ImGui::GetColorU32(ImGuiCol_TextDisabled);
-		else if (filled)
-			color = ImGui::GetColorU32(c_on_accent);
-		else if (tint.w > 0.0f)
-			color = ImGui::GetColorU32(tint);
-
-		// Centered and snapped to whole pixels, as text at a fractional position is blurry on non-HDPI screens
-		const char* label_end = ImGui::FindRenderedTextEnd(label);
-		const ImVec2 text = ImGui::CalcTextSize(label, label_end);
-		draw->AddText({std::round((min.x + max.x - text.x) * 0.5f), std::round((min.y + max.y - text.y) * 0.5f)},
-		              color, label, label_end);
-		ImGui::EndDisabled();
-		if (enabled && tip)
-			tooltip(tip);
-		return clicked;
-	}
-
-	// The height of the buttons in a group, which fill the bar but for the insets
-	float group_side() { return ImGui::GetWindowHeight() - 4.0f * group_inset(); }
-
-	// A group of buttons in the top bar, placed left to right. Groups have no background of their own, they are set
-	// apart by the soft lines between them (see group_separator).
-	struct bar_group
-	{
-		float left, top, bottom, side, x;
-
-		explicit bar_group(float group_left)
-			: left(group_left)
-		{
-			top = ImGui::GetWindowPos().y + group_inset();
-			bottom = ImGui::GetWindowPos().y + ImGui::GetWindowHeight() - group_inset();
-			side = group_side();
-			x = left + group_inset();
-		}
-
-		// The next button, square unless a width is given
-		bool button(const char* id, const char* label, const char* tip, bool enabled = true, bool selected = false,
-		            ImVec4 tint = {}, ImVec4 fill = {}, float width = 0.0f)
-		{
-			const ImVec2 pos(x, top + group_inset());
-			const ImVec2 size(width > 0.0f ? width : side, side);
-			x += size.x + group_inset();
-			return panel_button(id, label, tip, pos, size, enabled, selected, tint, fill);
-		}
-
-		// Space between buttons that do different kinds of things
-		void separate() { x += std::round(group_gap() * 0.5f); }
-
-		// Where the group ends
-		float end() const { return x; }
-	};
-
-	// A soft vertical line in the gap after a group, as tall as its buttons. Returns where the next group starts.
-	float group_separator(float x)
-	{
-		const float gap = group_gap();
-		const float line_x = std::round(x + gap * 0.5f) + 0.5f;  // On a pixel, so the line is crisp
-		const float top = ImGui::GetWindowPos().y + 2.0f * group_inset();
-		const ImVec4 text = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-		ImGui::GetWindowDrawList()->AddLine({line_x, top}, {line_x, top + group_side()},
-		                                    ImGui::GetColorU32({text.x, text.y, text.z, 0.15f}), 1.0f);
-		return x + gap;
 	}
 
 	// An item for the status bar: an icon and a value in a flat button that lights up under the mouse. It keeps its
@@ -465,124 +366,62 @@ namespace
 		return clicked;
 	}
 
-	// Play, pause and next frame
-	float transport_group(float left)
+	// An icon button with its icon in a color
+	bool colored_button(const char* icon, const xs::inspector::color& color, const char* tip)
 	{
-		bar_group group(left);
-		if (group.button("##play", ICON_PH_PLAY, "Play (P)", true, !game_paused, c_play_color, c_play_color))
-			game_paused = false;
-		if (group.button("##pause", ICON_PH_PAUSE, "Pause (P)", true, game_paused, c_pause_color, c_pause_color))
-			game_paused = true;
-		if (group.button("##step", ICON_PH_SKIP_FORWARD, "Next frame", game_paused, false, c_play_color, c_play_color))
-			next_frame = true;
-		return group.end();
+		ImGui::PushStyleColor(ImGuiCol_Text, as_imvec4(color));
+		const bool clicked = ImGui::Button(icon);
+		ImGui::PopStyleColor(1);
+		if (tip)
+			tooltip(tip);
+		return clicked;
 	}
 
-	// Reloading the game's scripts and art
-	float reload_group(float left)
+	// An icon button that is shown held down while on
+	bool toggle_button(const char* icon, bool state, const char* tip)
 	{
-		const ImVec4 orange = as_imvec4(get_color(color_id::Orange));
-		bar_group group(left);
-		bool reload_scripts = group.button("##reload_scripts", ICON_PH_SYNC_ALT, "Reload game scripts (F5)", true, false, orange, orange);
-		if (xs::input::get_key_once(xs::input::KEY_F5))
-			reload_scripts = true;
-		if (reload_scripts)
-		{
-			script::shutdown();
-			script::configure();
-			script::initialize();
-			if (!xs::script::has_error())
-				ok_timer = c_reload_ok_timer;
-		}
-
-		if (group.button("##reload_art", ICON_PH_IMAGE, "Reload art assets", true, false, orange, orange))
-		{
-			auto reloaded = render::reload_images();
-			next_frame = true;
-			if (reloaded == 0)
-				notify(notification_type::info, "No images reloaded", c_notification_default_time);
-			else
-				notify(notification_type::success, to_string(reloaded) + " images reloaded", c_notification_default_time);
-		}
-		return group.end();
+		const ImVec4 normal = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+		const ImVec4 active = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
+		ImGui::PushStyleColor(ImGuiCol_Button, state ? active : normal);
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, active);
+		const bool clicked = ImGui::Button(icon);
+		ImGui::PopStyleColor(2);
+		if (tip)
+			tooltip(tip);
+		return clicked;
 	}
 
-	// The panels that can be opened next to the game
-	float windows_group(float left)
+	// The room around the buttons in one of the top bar's subpanels, inside the bar's own padding
+	ImVec2 subpanel_padding()
 	{
-		bar_group group(left);
-		if (group.button("##data", ICON_PH_BARS, "Data Registry", true, show_data_registry))
-			show_data_registry = !show_data_registry;
-		if (group.button("##profiler", ICON_PH_PROFILER, "Profiler", true, show_profiler))
-			show_profiler = !show_profiler;
-		if (script::is_module_loaded("xs/ec") && group.button("##entities", ICON_PH_PUZZLE_CUBE, "Entities", true, show_entities))
-			show_entities = !show_entities;
-		return group.end();
+		const float y = std::floor(ImGui::GetStyle().WindowPadding.y * 0.6f);
+		return {y + 1.0f, y};
 	}
 
-	// The game view's zoom and the layout, then the window staying on top
-	float view_group(float left)
+	// Starts one of the top bar's subpanels: a row of buttons on a rounded panel in the side panel's color. The
+	// panel is drawn behind the row at the end, once its size is known.
+	void begin_subpanel()
 	{
-		const char* zoom_labels[] = { "Fit", "50%", "100%", "150%", "200%" };
-		bar_group group(left);
-
-		const std::string label = std::string(zoom_labels[(int)current_zoom]) + "  " + ICON_PH_CARET_DOWN + "###view";
-		const float width = ImGui::CalcTextSize(label.c_str(), nullptr, true).x + std::round(em(1.0f));
-		const float popup_x = group.x;
-		const bool open = ImGui::IsPopupOpen("##view_menu");
-		if (group.button("##view", label.c_str(), open ? nullptr : "Game viewport zoom and layout", true, open, {}, {}, width))
-		{
-			ImGui::SetNextWindowPos({popup_x, group.bottom + group_inset()});  // Below the button, not at the mouse
-			ImGui::OpenPopup("##view_menu");
-		}
-		if (ImGui::BeginPopup("##view_menu"))
-		{
-			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {std::round(em(0.5f)), std::round(em(0.4f))});
-			for (int i = 0; i < IM_ARRAYSIZE(zoom_labels); i++)
-				if (ImGui::MenuItem(zoom_labels[i], nullptr, (int)current_zoom == i))
-					current_zoom = (zoom_mode)i;
-			ImGui::Separator();
-			if (ImGui::MenuItem((std::string(ICON_PH_LAYOUT) + "  Reset Layout").c_str()))
-				reset_layout = true;
-			ImGui::PopStyleVar();
-			ImGui::EndPopup();
-		}
-
-		group.separate();
-		if (group.button("##on_top", always_on_top ? ICON_PH_PIN_ON : ICON_PH_PIN_OFF, "Always on Top", true, always_on_top))
-		{
-			always_on_top = device::toggle_on_top();
-			data::set_bool("Editor.AlwaysOnTop", always_on_top, data::type::user);
-			data::save_of_type(data::type::user);
-		}
-#if SHOW_IMGUI_DEMO
-		if (group.button("##demo", ICON_PH_WINDOW, "Show ImGui demo window", true, show_demo))
-			show_demo = !show_demo;
-#endif
-		return group.end();
+		ImDrawList* draw = ImGui::GetWindowDrawList();
+		draw->ChannelsSplit(2);
+		draw->ChannelsSetCurrent(1);
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() + subpanel_padding().x);
+		ImGui::BeginGroup();
 	}
 
-	// A script error and unsaved data, at the right end of the bar (but never over the other groups)
-	void alerts_group(float min_left, float right)
+	// Ends a subpanel, and leaves the cursor after it on the same line
+	void end_subpanel()
 	{
-		const bool error = xs::script::has_error();
-		const bool unsaved = xs::data::has_chages();
-		const int count = (error ? 1 : 0) + (unsaved ? 1 : 0);
-		if (count == 0)
-			return;
-
-		const float width = count * (group_side() + group_inset()) + group_inset();
-		bar_group group(std::round((std::max)(min_left, right - width)));
-		if (error && group.button("##error", ICON_PH_EXCLAMATION_CIRCLE, "Script Error! Check output. Click to clear.",
-		                          true, false, as_imvec4(get_color(color_id::Red)), as_imvec4(get_color(color_id::Red))))
-		{
-			xs::script::clear_error();
-			game_paused = false;
-		}
-		if (unsaved && group.button("##unsaved", ICON_PH_EXCLAMATION_CIRCLE, "Data has unsaved changes",
-		                            true, false, as_imvec4(get_color(color_id::Purple)), as_imvec4(get_color(color_id::Purple))))
-			show_data_registry = true;
-		group.end();
+		ImGui::EndGroup();
+		const ImVec2 padding = subpanel_padding();
+		const ImVec2 min = ImGui::GetItemRectMin();
+		const ImVec2 max = ImGui::GetItemRectMax();
+		ImDrawList* draw = ImGui::GetWindowDrawList();
+		draw->ChannelsSetCurrent(0);
+		draw->AddRectFilled({min.x - padding.x, min.y - padding.y}, {max.x + padding.x, max.y + padding.y},
+		                    ImGui::GetColorU32(side_panel_color()), ImGui::GetStyle().ChildRounding);
+		draw->ChannelsMerge();
+		ImGui::SameLine(0.0f, padding.x * 2.0f + ImGui::GetStyle().ItemSpacing.x);
 	}
 }
 
@@ -693,6 +532,7 @@ static void xs::inspector::render_dockspace()
 	// Laid out the first time (nothing in imgui.ini yet) and on Reset Layout. The layout itself is in imgui.ini, so a
 	// missing or deleted file gives the default layout again.
 	const ImGuiID dockspace_id = ImGui::GetID("Layout");
+	layout_id = dockspace_id;
 	if (reset_layout || ImGui::DockBuilderGetNode(dockspace_id) == nullptr)
 	{
 		build_layout(dockspace_id);
@@ -711,26 +551,117 @@ static void xs::inspector::render_top_bar()
 	ImGui::BeginChild("##TopBar", {0.0f, top_bar_height()}, ImGuiChildFlags_AlwaysUseWindowPadding,
 	                  ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoNav);
 
-	// A script error pauses the game until it is cleared
-	if (xs::script::has_error())
-		game_paused = true;
+	// Playback: play/pause and next frame (always there, disabled when it can't be used)
+	begin_subpanel();
+	if (game_paused)
+	{
+		if (colored_button(ICON_PH_PLAY, get_color(color_id::Green), "Play"))
+			game_paused = false;
+	}
+	else
+	{
+		if (colored_button(ICON_PH_PAUSE, get_color(color_id::Green), "Pause"))
+			game_paused = true;
+	}
+	ImGui::SameLine();
+	ImGui::BeginDisabled(!game_paused);
+	if (colored_button(ICON_PH_FAST_FORWARD, get_color(color_id::Green), "Next Frame"))
+		next_frame = true;
+	ImGui::EndDisabled();
+	end_subpanel();
 
-	// The groups from the left edge of the bar, with a soft line between them
-	const float bar_left = ImGui::GetWindowPos().x;
-	const float bar_right = bar_left + ImGui::GetWindowWidth();
-	const float edge = ImGui::GetStyle().WindowPadding.x;
-
-	float x = std::round(bar_left + edge - group_inset());  // The buttons, not their inset, line up with the edge
-	x = group_separator(transport_group(x));
 	if (xs::get_run_mode() == run_mode::development)
 	{
-		x = group_separator(reload_group(x));
-		x = group_separator(windows_group(x));
+		// Reloading the game's scripts and art
+		begin_subpanel();
+		if (colored_button(ICON_PH_SYNC_ALT, get_color(color_id::Orange), "Reload game scripts (F5)") || xs::input::get_key_once(xs::input::KEY_F5))
+		{
+			script::shutdown();
+			script::configure();
+			script::initialize();
+			if (!xs::script::has_error())
+				ok_timer = c_reload_ok_timer;
+		}
+		ImGui::SameLine();
+		if (colored_button(ICON_PH_IMAGE, get_color(color_id::Orange), "Reload art assets"))
+		{
+			auto reloaded = render::reload_images();
+			next_frame = true;
+			if (reloaded == 0)
+				notify(notification_type::info, "No images reloaded", c_notification_default_time);
+			else
+				notify(notification_type::success, to_string(reloaded) + " images reloaded", c_notification_default_time);
+		}
+		end_subpanel();
 	}
-	x = view_group(x);
 
-	// What needs attention, at the right end of the bar, so it doesn't move the groups when it comes and goes
-	alerts_group(x + group_gap(), bar_right - edge);
+	// The panels next to the game, then how the game is shown
+	begin_subpanel();
+	if (xs::get_run_mode() == run_mode::development)
+	{
+		if (toggle_button(ICON_PH_BARS, show_data_registry, "Data Registry"))
+			show_data_registry = !show_data_registry;
+		ImGui::SameLine();
+		if (toggle_button(ICON_PH_PROFILER, show_profiler, "Profiler"))
+			show_profiler = !show_profiler;
+		ImGui::SameLine();
+		if (script::is_module_loaded("xs/ec"))
+		{
+			if (toggle_button(ICON_PH_PUZZLE_CUBE, show_entities, "Entities"))
+				show_entities = !show_entities;
+			ImGui::SameLine();
+		}
+	}
+
+	if (toggle_button(always_on_top ? ICON_PH_PIN_ON : ICON_PH_PIN_OFF, always_on_top, "Always on Top"))
+	{
+		always_on_top = device::toggle_on_top();
+		data::set_bool("Editor.AlwaysOnTop", always_on_top, data::type::user);
+		data::save_of_type(data::type::user);
+	}
+
+	// Zoom, with Reset Layout at the end of its list
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(100.0f);
+	const char* zoom_labels[] = { "Fit", "50%", "100%", "150%", "200%" };
+	if (ImGui::BeginCombo("##zoom", zoom_labels[(int)current_zoom]))
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {6.0f, 4.0f});
+		for (int i = 0; i < IM_ARRAYSIZE(zoom_labels); i++)
+			if (ImGui::Selectable(zoom_labels[i], (int)current_zoom == i))
+				current_zoom = (zoom_mode)i;
+		ImGui::Separator();
+		if (ImGui::Selectable((std::string(ICON_PH_LAYOUT) + " Reset Layout").c_str()))
+			reset_layout = true;
+		ImGui::PopStyleVar();
+		ImGui::EndCombo();
+	}
+	tooltip("Game viewport zoom");
+
+#if SHOW_IMGUI_DEMO
+	ImGui::SameLine();
+	if (toggle_button(ICON_PH_WINDOW, show_demo, "Show ImGui demo window"))
+		show_demo = !show_demo;
+#endif
+	end_subpanel();
+
+	// What needs attention, after the subpanels
+	if (xs::script::has_error())
+	{
+		game_paused = true;
+		if (colored_button(ICON_PH_EXCLAMATION_CIRCLE, get_color(color_id::Red), "Script Error! Check output."))
+		{
+			xs::script::clear_error();
+			game_paused = false;
+		}
+		ImGui::SameLine();
+	}
+	if (xs::data::has_chages())
+	{
+		if (colored_button(ICON_PH_EXCLAMATION_CIRCLE, get_color(color_id::Purple), "Data has unsaved changes"))
+			show_data_registry = true;
+		ImGui::SameLine();
+	}
 
 	ImGui::EndChild();
 	ImGui::PopStyleColor();
@@ -822,6 +753,15 @@ static void xs::inspector::render_stats_bar(float height)
 
 static void xs::inspector::render_game_viewport()
 {
+	// The game always stays docked in the middle. It has no title bar, so dragging anywhere on it would otherwise drag
+	// it out of the dock. A layout saved while it was floating gets it back in its place.
+	ImGuiWindowClass game_class;
+	game_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoUndocking;
+	ImGui::SetNextWindowClass(&game_class);
+	if (ImGuiWindow* window = ImGui::FindWindowByName(c_game_window); window && !window->DockIsActive)
+		if (ImGuiDockNode* central = ImGui::DockBuilderGetCentralNode(layout_id))
+			ImGui::SetNextWindowDockID(central->ID);
+
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 		ImGui::Begin(c_game_window, nullptr,
 		             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
@@ -1252,9 +1192,6 @@ void apply_common_style()
 	style.GrabRounding = 3 * c_style_scale;
 	style.TabRounding = 0 * c_style_scale;
 
-	// What cannot be used now: clearly off, not just a little dim
-	style.DisabledAlpha = 0.35f;
-
 	// Other
 	style.LogSliderDeadzone = 4 * c_style_scale;
 }
@@ -1459,14 +1396,19 @@ void xs::inspector::light_theme()
     inspector_colors[(size_t)color_id::Red] = {0.85f, 0.15f, 0.15f, 1.0f};
 }
 
-void inspector::push_side_panel_theme()
+ImVec4 inspector::side_panel_color()
 {
 	ImVec4 bg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
 	if (current_theme == theme::dark)
 		bg = {bg.x + 0.03f, bg.y + 0.03f, bg.z + 0.03f, bg.w};
 	else
 		bg = {bg.x * 0.97f, bg.y * 0.97f, bg.z * 0.97f, bg.w};
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, bg);
+	return bg;
+}
+
+void inspector::push_side_panel_theme()
+{
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, side_panel_color());
 }
 
 void inspector::pop_side_panel_theme()
