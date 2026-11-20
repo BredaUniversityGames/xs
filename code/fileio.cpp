@@ -103,7 +103,10 @@ string fileio::read_text_file(const string& filename)
 
 	// Not in package, try reading from disk (expand wildcards)
 	const auto path = get_path(filename);
-	ifstream file(path);
+	// Binary mode: in text mode Windows turns CRLF into LF while reading, so
+	// fewer chars than tellg() reports get read and the buffer ends in '\0's
+	// (C-string consumers like Wren don't notice, but LevelScript's lexer does)
+	ifstream file(path, ios::binary);
 	if (!file.is_open())
 	{
 		log::error("File {} with full path {} was not found!", filename, path);
