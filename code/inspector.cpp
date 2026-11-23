@@ -19,6 +19,7 @@
 #include "input.hpp"
 #include "render_internal.hpp"
 #include "packager.hpp"
+#include "debugger.hpp"
 #include "xs.hpp"
 #include "defines.hpp"
 
@@ -328,9 +329,10 @@ namespace
 
 	// An item for the status bar: an icon and a value in a flat button that lights up under the mouse. It keeps its
 	// size as the value changes, so the items after it don't jump around: sample is the widest value, with 'd' for a
-	// digit ("ddd.d"). A given width is used as is, and a value too long for it ends in an ellipsis.
+	// digit ("ddd.d"). A given width is used as is, and a value too long for it ends in an ellipsis. The icon is tinted
+	// when a tint is given (w > 0).
 	bool status_item(const char* id, const char* icon, const char* value, const char* sample, const char* tip,
-	                 float fixed_width = 0.0f)
+	                 float fixed_width = 0.0f, ImVec4 icon_tint = {})
 	{
 		// The font's digits can be proportional, so the room is for the widest one
 		float digit = 0.0f;
@@ -356,7 +358,7 @@ namespace
 		if (hovered)
 			ImGui::PushStyleColor(ImGuiCol_Text, status_hover_text);
 		const float text_y = pos.y + style.FramePadding.y;
-		draw->AddText({pos.x + padding, text_y}, ImGui::GetColorU32(ImGuiCol_Text), icon);
+		draw->AddText({pos.x + padding, text_y}, ImGui::GetColorU32(icon_tint.w > 0.0f ? icon_tint : ImGui::GetStyleColorVec4(ImGuiCol_Text)), icon);
 		const ImVec2 value_min(pos.x + padding + icon_width, text_y);
 		const ImVec2 value_max(pos.x + width - padding, text_y + ImGui::GetFontSize());
 		ImGui::RenderTextEllipsis(draw, value_min, value_max, value_max.x, value, nullptr, nullptr);
@@ -704,6 +706,20 @@ static void xs::inspector::render_stats_bar(float height)
 	const float gap = std::round(ImGui::GetFontSize() * 0.15f);
 	auto stats = render::get_stats();
 	char value[64];
+
+	// The script debugger, first, only when the game was started with --debug-port. The bug is blue while a client
+	// is connected.
+	if (debugger::enabled())
+	{
+		const bool connected = debugger::connected();
+		snprintf(value, sizeof(value), "Debugger :%d", debugger::port());
+		const std::string tip = connected
+			? "A debugger is connected on port " + to_string(debugger::port())
+			: "Waiting for a debugger to connect on port " + to_string(debugger::port());
+		const ImVec4 tint = connected ? as_imvec4(get_color(color_id::Blue)) : ImVec4();
+		status_item("##stat_debugger", ICON_PH_BUG, value, value, tip.c_str(), 0.0f, tint);
+		ImGui::SameLine(0.0f, gap);
+	}
 
 	snprintf(value, sizeof(value), "%.1f", average_frame_time > 0.0f ? 1.0f / average_frame_time : 0.0f);
 	status_item("##stat_fps", ICON_PH_MONITOR, value, "ddd.d", "Frames per second (average, updated every second)");

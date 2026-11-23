@@ -262,6 +262,27 @@ void xs::data::save()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////									Internal Impl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// The end of a path that fits in a width: whole folders are left off the front, behind "...". At least the file name
+// is kept, even when it alone is too wide.
+static std::string path_end_that_fits(const std::string& path, float width)
+{
+	if (ImGui::CalcTextSize(path.c_str()).x <= width)
+		return path;
+
+	const std::string ellipsis = "...";
+	size_t separator = path.find_first_of("/\\");
+	size_t last = std::string::npos;
+	while (separator != std::string::npos)
+	{
+		last = separator;
+		const std::string end = ellipsis + path.substr(separator);
+		if (ImGui::CalcTextSize(end.c_str()).x <= width)
+			return end;
+		separator = path.find_first_of("/\\", separator + 1);
+	}
+	return last == std::string::npos ? path : ellipsis + path.substr(last);
+}
+
 void xs::data::internal::inspect_of_type(
 	const std::string& name,
 	const std::string& icon,
@@ -316,9 +337,14 @@ void xs::data::internal::inspect_of_type(
 			tooltip("Save to a file");
 			ImGui::SameLine();
 
+			// The file, as much of its path as fits, from the end. The whole path shows on hover.
+			const string path = fileio::get_path(get_file_path(type));
+			const string shown = path_end_that_fits(path, ImGui::GetContentRegionAvail().x);
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-			ImGui::Text("%s", fileio::get_path(get_file_path(type)).c_str());
-			ImGui::PopStyleColor();			
+			ImGui::TextUnformatted(shown.c_str());
+			ImGui::PopStyleColor();
+			if (shown != path)
+				tooltip(path.c_str());
 		}
 
 		vector<string> sorted;

@@ -121,6 +121,7 @@ namespace
 
 	WrenVM* vm = nullptr;
 	bool is_enabled = false;
+	int listen_port = 0;			// What enable() listens on
 	bool ready_for_window = false;	// Events can be pumped
 	bool configured = false;		// Client sent configurationDone
 	bool launched = false;			// Client used launch (not attach)
@@ -1036,6 +1037,7 @@ bool debugger::enable(int port)
 
 	set_non_blocking(listener);
 	is_enabled = true;
+	listen_port = port;
 	log::info("Debugger listening on port {}.", port);
 	return true;
 }
@@ -1043,6 +1045,16 @@ bool debugger::enable(int port)
 bool debugger::enabled()
 {
 	return is_enabled;
+}
+
+bool debugger::connected()
+{
+	return is_enabled && client != invalid_sock;
+}
+
+int debugger::port()
+{
+	return listen_port;
 }
 
 void debugger::attach(WrenVM* new_vm)
@@ -1097,6 +1109,8 @@ namespace xs::debugger
 {
 	bool enable(int) { log::error("This build of xs has no debugger."); return false; }
 	bool enabled() { return false; }
+	bool connected() { return false; }
+	int port() { return 0; }
 	void attach(WrenVM*) {}
 	void detach() {}
 	void update() {}

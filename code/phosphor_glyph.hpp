@@ -72,6 +72,7 @@ constexpr std::array<char, 5> utf8_from_code(unsigned int cp)
     X(CLOCK,                0xe19a) /* clock */ \
     X(LAYOUT,               0xe6d6) /* layout */ \
     X(CLOSE,                0xe4f6) /* x */ \
+    X(BUG,                  0xe5f4) /* bug */ \
 
     // Add more here
 
