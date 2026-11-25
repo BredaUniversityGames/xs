@@ -17,6 +17,12 @@ namespace xs::debugger
 	/// Returns true when a debugger was enabled with enable().
 	bool enabled();
 
+	/// Returns true while a client is connected.
+	bool connected();
+
+	/// The port enable() listens on, 0 if it was not enabled.
+	int port();
+
 	/// Hooks the debugger into a freshly created [vm]. The first time, it waits
 	/// until a client has connected and finished configuring its breakpoints.
 	void attach(WrenVM* vm);

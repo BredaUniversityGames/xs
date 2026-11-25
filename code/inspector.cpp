@@ -19,6 +19,7 @@
 #include "input.hpp"
 #include "render_internal.hpp"
 #include "packager.hpp"
+#include "debugger.hpp"
 #include "xs.hpp"
 #include "defines.hpp"
 
@@ -88,10 +89,7 @@ namespace
 	// Phosphor icon font filename (tokens resolved via fileio::get_path)
 	constexpr const char* kPhosphorIconFont = "[shared]/fonts/Phosphor.ttf";
 
-	// Status bar alpha settings (adjustable)
-	constexpr float c_status_button_base_alpha = 0.0f;
-	constexpr float c_status_button_hover_alpha = 0.08f;
-	constexpr float c_status_button_active_alpha = 0.12f;
+	// Status bar text alpha: quiet, as it is always there
 	constexpr float c_status_text_alpha = 0.7f;
 }
 
@@ -119,9 +117,16 @@ namespace xs::inspector
     bool show_modal = false;
     bool show_inspector = false;
     bool always_on_top = false;
+    bool reset_layout = false;
+    ImGuiID layout_id = 0;  // The dockspace the panels are docked in
+    ImVec4 base_window_bg = {};  // The theme's window color, before any panel pushes its own
     char* ini_filename = nullptr;
-    ImGuiID dock_id_top = {};
-    ImGuiID dock_id_bottom = {};
+
+    // Window names. The text after ### is the window's ID, so the icon in front can change without losing its place.
+    constexpr const char* c_game_window = "Game";
+    constexpr const char* c_data_registry_window = "###Data Registry";
+    constexpr const char* c_profiler_window = "###Profiler";
+    constexpr const char* c_entities_window = "###Entities";
 
     // Game viewport bounds (screen space)
     ImVec2 game_viewport_min = {};
@@ -140,6 +145,7 @@ namespace xs::inspector
 	void pop_menu_theme(theme t);
 	void dark_theme();
 	void light_theme();
+	ImVec4 side_panel_color();
 	void push_side_panel_theme();
 	void pop_side_panel_theme();
 
@@ -151,14 +157,10 @@ namespace xs::inspector
 	std::vector<notification> notifications;
 	ImFont* small_font = nullptr;
 
-	// Forward declarations for UI helpers
-    static bool toggle_button(const char* icon, bool state, const char* tip);
-    static bool colored_button(const char* icon, const xs::inspector::color& color, const char* tip);
-    static void vertical_separator(float alpha = 0.15f, float height = 0.0f);
-
     // Forward declarations for render sections
+    static void render_dockspace();
     static void render_top_bar();
-    static void render_stats_bar();
+    static void render_stats_bar(float height);
     static void render_game_viewport();
     static void render_notifications(double dt);
     static void render_data_registry();
@@ -294,6 +296,157 @@ static void tooltip(const char* tooltip)
 	}	
 }
 
+// UI helpers for the bars, sized in multiples of the font size so they follow the UI scale
+
+namespace
+{
+	// What a status bar item's text lights up to when hovered, set by the bar from the theme's text color
+	ImVec4 status_hover_text = {1.0f, 1.0f, 1.0f, 1.0f};
+
+	float em(float n) { return ImGui::GetFontSize() * n; }
+
+	// A fixed height window clips its content unless the height also covers its own padding. Whole pixels, as a
+	// fractional height leaves a partly covered row on non-HDPI screens.
+	float top_bar_height() { return IM_ROUND(ImGui::GetFrameHeight() + ImGui::GetStyle().WindowPadding.y * 2.0f); }
+
+	// Slimmer than the top bar, it only holds small items
+	float status_bar_height() { return IM_ROUND(ImGui::GetFrameHeight() + ImGui::GetStyle().WindowPadding.y); }
+
+	// Starts one of the bars pinned to the top and bottom of the window: full width, square, not dockable or movable
+	void begin_bar(const char* name, float y, float height)
+	{
+		const ImGuiViewport* viewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos({viewport->Pos.x, y});
+		ImGui::SetNextWindowSize({viewport->Size.x, height});
+		ImGui::SetNextWindowViewport(viewport->ID);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+		ImGui::Begin(name, nullptr,
+		             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoMove |
+		             ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBringToFrontOnFocus |
+		             ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoScrollWithMouse);
+		ImGui::PopStyleVar();
+	}
+
+	// An item for the status bar: an icon and a value in a flat button that lights up under the mouse. It keeps its
+	// size as the value changes, so the items after it don't jump around: sample is the widest value, with 'd' for a
+	// digit ("ddd.d"). A given width is used as is, and a value too long for it ends in an ellipsis. The icon is tinted
+	// when a tint is given (w > 0).
+	bool status_item(const char* id, const char* icon, const char* value, const char* sample, const char* tip,
+	                 float fixed_width = 0.0f, ImVec4 icon_tint = {})
+	{
+		// The font's digits can be proportional, so the room is for the widest one
+		float digit = 0.0f;
+		for (char c = '0'; c <= '9'; c++)
+			digit = (std::max)(digit, ImGui::CalcTextSize(&c, &c + 1).x);
+		float sample_width = 0.0f;
+		for (const char* c = sample; *c; c++)
+			sample_width += *c == 'd' ? digit : ImGui::CalcTextSize(c, c + 1).x;
+
+		const ImGuiStyle& style = ImGui::GetStyle();
+		const float padding = std::round(em(0.5f));
+		const float icon_width = ImGui::CalcTextSize(icon).x + style.ItemInnerSpacing.x;
+		const float width = fixed_width > 0.0f
+			? fixed_width
+			: padding * 2.0f + icon_width + (std::max)(sample_width, ImGui::CalcTextSize(value).x);
+		const ImVec2 pos = ImGui::GetCursorScreenPos();
+		const bool clicked = ImGui::InvisibleButton(id, {width, ImGui::GetFrameHeight()});
+		const bool hovered = ImGui::IsItemHovered();
+
+		ImDrawList* draw = ImGui::GetWindowDrawList();
+		if (hovered)
+			draw->AddRectFilled(pos, ImGui::GetItemRectMax(), ImGui::GetColorU32(ImGuiCol_ButtonHovered), style.FrameRounding);
+		if (hovered)
+			ImGui::PushStyleColor(ImGuiCol_Text, status_hover_text);
+		const float text_y = pos.y + style.FramePadding.y;
+		draw->AddText({pos.x + padding, text_y}, ImGui::GetColorU32(icon_tint.w > 0.0f ? icon_tint : ImGui::GetStyleColorVec4(ImGuiCol_Text)), icon);
+		const ImVec2 value_min(pos.x + padding + icon_width, text_y);
+		const ImVec2 value_max(pos.x + width - padding, text_y + ImGui::GetFontSize());
+		ImGui::RenderTextEllipsis(draw, value_min, value_max, value_max.x, value, nullptr, nullptr);
+		if (hovered)
+			ImGui::PopStyleColor();
+
+		tooltip(tip);
+		return clicked;
+	}
+
+	// An icon button with its icon in a color
+	bool colored_button(const char* icon, const xs::inspector::color& color, const char* tip)
+	{
+		ImGui::PushStyleColor(ImGuiCol_Text, as_imvec4(color));
+		const bool clicked = ImGui::Button(icon);
+		ImGui::PopStyleColor(1);
+		if (tip)
+			tooltip(tip);
+		return clicked;
+	}
+
+}
+
+// An icon button that is shown held down while on
+static bool toggle_button(const char* icon, bool state, const char* tip)
+{
+	const ImVec4 normal = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+	const ImVec4 active = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
+	ImGui::PushStyleColor(ImGuiCol_Button, state ? active : normal);
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, active);
+	const bool clicked = ImGui::Button(icon);
+	ImGui::PopStyleColor(2);
+	if (tip)
+		tooltip(tip);
+	return clicked;
+}
+
+// The room around the buttons in one of the top bar's subpanels, inside the bar's own padding
+static ImVec2 subpanel_padding()
+{
+	const float y = std::floor(ImGui::GetStyle().WindowPadding.y * 0.6f);
+	return {y + 1.0f, y};
+}
+
+// Starts one of the top bar's subpanels: a row of buttons on a rounded panel in the side panel's color. The panel
+// is drawn behind the row at the end, once its size is known.
+static void begin_subpanel()
+{
+	ImDrawList* draw = ImGui::GetWindowDrawList();
+	draw->ChannelsSplit(2);
+	draw->ChannelsSetCurrent(1);
+	ImGui::SetCursorPosX(ImGui::GetCursorPosX() + subpanel_padding().x);
+	ImGui::BeginGroup();
+}
+
+// Ends a subpanel, and leaves the cursor after it on the same line
+static void end_subpanel()
+{
+	ImGui::EndGroup();
+	const ImVec2 padding = subpanel_padding();
+	const ImVec2 min = ImGui::GetItemRectMin();
+	const ImVec2 max = ImGui::GetItemRectMax();
+	ImDrawList* draw = ImGui::GetWindowDrawList();
+	draw->ChannelsSetCurrent(0);
+	draw->AddRectFilled({min.x - padding.x, min.y - padding.y}, {max.x + padding.x, max.y + padding.y},
+	                    ImGui::GetColorU32(side_panel_color()), ImGui::GetStyle().ChildRounding);
+	draw->ChannelsMerge();
+	ImGui::SameLine(0.0f, padding.x * 2.0f + ImGui::GetStyle().ItemSpacing.x);
+}
+
+void xs::inspector::search_box(ImGuiTextFilter& filter)
+{
+	const ImGuiStyle& style = ImGui::GetStyle();
+	const bool searching = filter.IsActive();
+	const float clear_width = searching ? ImGui::GetFrameHeight() + style.ItemInnerSpacing.x : 0.0f;
+	ImGui::SetNextItemWidth((std::max)(1.0f, ImGui::GetContentRegionAvail().x - clear_width));
+	const std::string hint = std::string(ICON_PH_SEARCH) + " Search";
+	if (ImGui::InputTextWithHint("##search", hint.c_str(), filter.InputBuf, IM_ARRAYSIZE(filter.InputBuf)))
+		filter.Build();
+	if (searching)
+	{
+		ImGui::SameLine(0.0f, style.ItemInnerSpacing.x);
+		if (ImGui::Button(ICON_PH_CLOSE, {ImGui::GetFrameHeight(), 0.0f}))
+			filter.Clear();
+		tooltip("Clear search");
+	}
+}
+
 void xs::inspector::render(double dt)
 {
 // TODO: Un-hack
@@ -310,95 +463,18 @@ void xs::inspector::render(double dt)
 	ok_timer -= dt;
     auto current_theme = get_theme();
 	restart_flag = false;
-	push_menu_theme(current_theme);
+	// The status bar is pinned to the bottom of the window, and the docked windows fill what is left above it, so the
+	// panels next to the game go all the way to the top. The top bar is part of the Game panel (see
+	// render_game_viewport). Measured with the font it is drawn with.
+	ImGui::PushFont(small_font);
+	const float status_height = status_bar_height();
+	ImGui::PopFont();
 
-	// Create fullscreen dockspace
 	ImGuiViewport* viewport = ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(viewport->WorkPos);
-	ImGui::SetNextWindowSize(viewport->WorkSize);
-	ImGui::SetNextWindowViewport(viewport->ID);
+	viewport->WorkSize.y -= status_height;
 
-	ImGuiWindowFlags dockspace_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
-	                                   ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
-	                                   ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
-	                                   ImGuiWindowFlags_NoBackground;
-
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-	ImGui::Begin("DockSpace", nullptr, dockspace_flags);
-	ImGui::PopStyleVar();
-
-	ImGuiID dockspace_id = ImGui::GetID("MainDockSpace");
-	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-
-	// Set up default docking layout only on very first run ever
-	// Check if we've initialized the layout before (stored in user settings)
-	// Note: the layout itself lives in imgui.ini, a separate file from the
-	// "Editor.DockingInitialized" flag (settings.json), so the two can get
-	// out of sync (e.g. imgui.ini deleted/missing but settings.json kept) -
-	// re-init whenever the ini file isn't on disk, regardless of the flag.
-	static bool checked_init = false;
-	static bool should_init = false;
-
-	if (!checked_init)
-	{
-		checked_init = true;
-		should_init = !data::get_bool("Editor.DockingInitialized", data::type::user) ||
-		              !fileio::exists("[user]/imgui.ini");
-
-		// Rebuild the layout if the saved one is missing or broken (dockspace was never split)
-		ImGuiDockNode* root = ImGui::DockBuilderGetNode(dockspace_id);
-		if (!root || root->IsLeafNode())
-			should_init = true;
-	}
-
-	if (should_init)
-	{
-		should_init = false;
-
-		// Save that we've initialized the layout
-		data::set_bool("Editor.DockingInitialized", true, data::type::user);
-		data::save_of_type(data::type::user);
-
-		ImGui::DockBuilderRemoveNode(dockspace_id);
-		ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
-		ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->WorkSize);
-
-		// Split the dockspace into sections using calculated ratios
-        dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Up, 0.05f, nullptr, &dockspace_id);
-		dock_id_bottom = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Down, 0.01f, nullptr, &dockspace_id);
-
-		// Configure all docks: no tab bars for top/bottom, allow tabs for center
-		ImGuiDockNode* node_top = ImGui::DockBuilderGetNode(dock_id_top);
-		ImGuiDockNode* node_bottom = ImGui::DockBuilderGetNode(dock_id_bottom);
-		ImGuiDockNode* node_center = ImGui::DockBuilderGetNode(dockspace_id);
-		node_top->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
-		node_bottom->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
-		node_center->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-
-		// Dock windows into their positions
-		ImGui::DockBuilderDockWindow("Top Bar", dock_id_top);
-		ImGui::DockBuilderDockWindow("Stats", dock_id_bottom);
-		ImGui::DockBuilderDockWindow("Game", dockspace_id);  // Game viewport in center
-		ImGui::DockBuilderFinish(dockspace_id);
-	}
-
-	// Look up dock IDs for the top and bottom bars (needed for size adjustments later)
-	// We need to do this every frame when not initializing, as the IDs come from the saved layout
-	if (!should_init)
-	{
-		// Find dock nodes by window name
-		ImGuiWindow* top_window = ImGui::FindWindowByName("Top Bar");
-		ImGuiWindow* stats_window = ImGui::FindWindowByName("Stats");
-		if (top_window && top_window->DockNode)
-			dock_id_top = top_window->DockNode->ID;
-		if (stats_window && stats_window->DockNode)
-			dock_id_bottom = stats_window->DockNode->ID;
-	}
-
-	pop_menu_theme(current_theme);
-
-    render_top_bar();
-	render_stats_bar();
+	render_dockspace();
+	render_stats_bar(status_height);
 	render_game_viewport();
 	render_notifications(dt);
 	render_data_registry();
@@ -407,11 +483,8 @@ void xs::inspector::render(double dt)
 
 	if(show_demo)
 	{
-		ImGui::ShowDemoWindow();
+		ImGui::ShowDemoWindow(&show_demo);
 	}
-
-	// End dockspace
-	ImGui::End();
 
 	ImGui::Render();
 	ImGui_Impl_RenderDrawData(ImGui::GetDrawData());
@@ -419,271 +492,306 @@ void xs::inspector::render(double dt)
 
 // Render section implementations
 
+// The default layout: the game in the middle, and the panels that are open docked to its right
+static void build_layout(ImGuiID dockspace_id)
+{
+	ImGui::DockBuilderRemoveNode(dockspace_id);  // Undocks everything, rebuilt below
+	ImGui::DockBuilderAddNode(dockspace_id, ImGuiDockNodeFlags_DockSpace);
+	ImGui::DockBuilderSetNodeSize(dockspace_id, ImGui::GetMainViewport()->WorkSize);
+
+	std::vector<const char*> panels;
+	if (show_data_registry) panels.push_back(c_data_registry_window);
+	if (show_profiler) panels.push_back(c_profiler_window);
+	if (show_entities) panels.push_back(c_entities_window);
+
+	ImGuiID center = dockspace_id;
+	if (!panels.empty())
+	{
+		const ImGuiID right = ImGui::DockBuilderSplitNode(center, ImGuiDir_Right, 0.3f, nullptr, &center);
+		for (const char* panel : panels)
+			ImGui::DockBuilderDockWindow(panel, right);
+	}
+	ImGui::DockBuilderDockWindow(c_game_window, center);
+	if (ImGuiDockNode* node = ImGui::DockBuilderGetNode(center))
+		node->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+	ImGui::DockBuilderFinish(dockspace_id);
+}
+
+static void xs::inspector::render_dockspace()
+{
+	// Fills the area between the two bars. Its own window draws no background, the panels docked in it do.
+	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->WorkPos);
+	ImGui::SetNextWindowSize(viewport->WorkSize);
+	ImGui::SetNextWindowViewport(viewport->ID);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGui::Begin("##DockHost", nullptr,
+	             ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking |
+	             ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus |
+	             ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoSavedSettings);
+	ImGui::PopStyleVar(3);
+
+	// Laid out the first time (nothing in imgui.ini yet) and on Reset Layout. The layout itself is in imgui.ini, so a
+	// missing or deleted file gives the default layout again.
+	const ImGuiID dockspace_id = ImGui::GetID("Layout");
+	layout_id = dockspace_id;
+	if (reset_layout || ImGui::DockBuilderGetNode(dockspace_id) == nullptr)
+	{
+		build_layout(dockspace_id);
+		reset_layout = false;
+	}
+	ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+	ImGui::End();
+}
+
 static void xs::inspector::render_top_bar()
 {
+	// A strip across the top of the Game panel, on the panel's own color
 	auto current_theme = get_theme();
 	push_menu_theme(current_theme);
+	ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
+	ImGui::BeginChild("##TopBar", {0.0f, top_bar_height()}, ImGuiChildFlags_AlwaysUseWindowPadding,
+	                  ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoNav);
 
-	// Measure desired height (one row example)
-	float desired_h = ImGui::GetFrameHeightWithSpacing(); // convenience: button/input height + spacing
-	desired_h += ImGui::GetStyle().WindowPadding.y * 2.0f; // extra padding
-	ImGuiDockNode* n = ImGui::DockBuilderGetNode(dock_id_top);
-	if (n)
+	// Playback: play/pause and next frame (always there, disabled when it can't be used)
+	begin_subpanel();
+	if (game_paused)
 	{
-		n->SizeRef.y = desired_h;     // height you want (in pixels)
-		n->Size.y    = desired_h;     // optional, for immediate effect
+		if (colored_button(ICON_PH_PLAY, get_color(color_id::Green), "Play"))
+			game_paused = false;
+	}
+	else
+	{
+		if (colored_button(ICON_PH_PAUSE, get_color(color_id::Green), "Pause"))
+			game_paused = true;
+	}
+	ImGui::SameLine();
+	ImGui::BeginDisabled(!game_paused);
+	if (colored_button(ICON_PH_FAST_FORWARD, get_color(color_id::Green), "Next Frame"))
+		next_frame = true;
+	ImGui::EndDisabled();
+	end_subpanel();
+
+	if (xs::get_run_mode() == run_mode::development)
+	{
+		// Reloading the game's scripts and art
+		begin_subpanel();
+		if (colored_button(ICON_PH_SYNC_ALT, get_color(color_id::Orange), "Reload game scripts (F5)") || xs::input::get_key_once(xs::input::KEY_F5))
+		{
+			script::shutdown();
+			script::configure();
+			script::initialize();
+			if (!xs::script::has_error())
+				ok_timer = c_reload_ok_timer;
+		}
+		ImGui::SameLine();
+		if (colored_button(ICON_PH_IMAGE, get_color(color_id::Orange), "Reload art assets"))
+		{
+			auto reloaded = render::reload_images();
+			next_frame = true;
+			if (reloaded == 0)
+				notify(notification_type::info, "No images reloaded", c_notification_default_time);
+			else
+				notify(notification_type::success, to_string(reloaded) + " images reloaded", c_notification_default_time);
+		}
+		end_subpanel();
 	}
 
-	ImGui::Begin("Top Bar", nullptr,
-				 ImGuiWindowFlags_NoScrollbar |
-				 ImGuiWindowFlags_NoTitleBar |
-				 ImGuiWindowFlags_NoCollapse |
-				 ImGuiWindowFlags_NoScrollWithMouse |
-				 ImGuiWindowFlags_NoResize |
-				 ImGuiWindowFlags_NoMove);
-
-	// Playback controls: play/pause + next-frame (next-frame always visible, disabled when not paused)
-        if (game_paused)
-        {
-            if (colored_button(ICON_PH_PLAY, get_color(color_id::Green), "Play"))
-                game_paused = false;
-        }
-        else
-        {
-            if (colored_button(ICON_PH_PAUSE, get_color(color_id::Green), "Pause"))
-                game_paused = true;
-        }
-
-        ImGui::SameLine();
-        // "Next Frame" should always be visible but disabled when it can't be used
-        ImGui::BeginDisabled(!game_paused);
-        if (colored_button(ICON_PH_FAST_FORWARD, get_color(color_id::Green), "Next Frame"))
-            next_frame = true;
-        ImGui::EndDisabled();
-        
-        // Soft vertical separator
-        vertical_separator();
-
-        if (xs::get_run_mode() == run_mode::development)
-        {
-            ImGui::SameLine();
-            if (colored_button(ICON_PH_SYNC_ALT, get_color(color_id::Orange), "Reload game scripts (F5)") || xs::input::get_key_once(xs::input::KEY_F5))
-            {
-                 script::shutdown();
-                 script::configure();
-                 script::initialize();
-                 if(!xs::script::has_error())
-                     ok_timer = c_reload_ok_timer;
-             }
-
-            ImGui::SameLine();
-            if (colored_button(ICON_PH_IMAGE, get_color(color_id::Orange), "Reload art assets"))
-            {
-                 auto reloaded = render::reload_images();
-                 next_frame = true;
-                 if (reloaded == 0)
-                     notify(notification_type::info, "No images reloaded", c_notification_default_time);
-                 else
-                     notify(notification_type::success, to_string(reloaded) + " images reloaded", c_notification_default_time);
-            }
-        
-            vertical_separator();
-
-            // Data Registry toggle button
-            if (toggle_button(ICON_PH_BARS, show_data_registry, "Data Registry"))
-                show_data_registry = !show_data_registry;
-
-            // Profiler toggle button
-            if (toggle_button(ICON_PH_PROFILER, show_profiler, "Profiler"))
-                show_profiler = !show_profiler;
-
-        	// Entities toggle button
-        	if (script::is_module_loaded("xs/ec") &&
-        		toggle_button(ICON_PH_PUZZLE_CUBE, show_entities, "Entities"))
-                show_entities = !show_entities;
-        }
-
-        // Always on top toggle button
-        if (toggle_button(always_on_top ? ICON_PH_PIN_ON : ICON_PH_PIN_OFF, always_on_top, "Always on Top"))
-        {
-            always_on_top = device::toggle_on_top();
-            data::set_bool("Editor.AlwaysOnTop", always_on_top, data::type::user);
-            data::save_of_type(data::type::user);
-        }
-
-        // Zoom dropdown
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(100.0f);
-        const char* zoom_labels[] = { "Fit", "50%", "100%", "150%", "200%" };
-        int current_zoom_idx = (int)current_zoom;
-        if (ImGui::Combo("##zoom", &current_zoom_idx, zoom_labels, IM_ARRAYSIZE(zoom_labels)))
-        {
-            current_zoom = (zoom_mode)current_zoom_idx;
-        }
-        tooltip("Game viewport zoom");
-
-#if SHOW_IMGUI_DEMO
-        if (toggle_button(ICON_PH_WINDOW, show_demo, "Show ImGui demo window"))
-            show_demo = !show_demo;
-#endif
-
-        vertical_separator();
-
-		ImGui::SameLine();
-        if (xs::script::has_error())
-        {
-            game_paused = true;
-            if (colored_button(ICON_PH_EXCLAMATION_CIRCLE, get_color(color_id::Red), "Script Error! Check output."))
-            {
-                xs::script::clear_error();
-                game_paused = false;
-            }
-        }
-
-	ImGui::SameLine();
-	if (xs::data::has_chages())
+	// The panels next to the game, then how the game is shown
+	begin_subpanel();
+	if (xs::get_run_mode() == run_mode::development)
 	{
-		if (colored_button(ICON_PH_EXCLAMATION_CIRCLE, get_color(color_id::Purple), "Data has unsaved changes")) {
-			show_data_registry = true;
+		if (toggle_button(ICON_PH_BARS, show_data_registry, "Data Registry"))
+			show_data_registry = !show_data_registry;
+		ImGui::SameLine();
+		if (toggle_button(ICON_PH_PROFILER, show_profiler, "Profiler"))
+			show_profiler = !show_profiler;
+		ImGui::SameLine();
+		if (script::is_module_loaded("xs/ec"))
+		{
+			if (toggle_button(ICON_PH_PUZZLE_CUBE, show_entities, "Entities"))
+				show_entities = !show_entities;
+			ImGui::SameLine();
 		}
 	}
 
-	ImGui::End();
+	if (toggle_button(always_on_top ? ICON_PH_PIN_ON : ICON_PH_PIN_OFF, always_on_top, "Always on Top"))
+	{
+		always_on_top = device::toggle_on_top();
+		data::set_bool("Editor.AlwaysOnTop", always_on_top, data::type::user);
+		data::save_of_type(data::type::user);
+	}
+
+	// Zoom, with Reset Layout at the end of its list
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(100.0f);
+	const char* zoom_labels[] = { "Fit", "50%", "100%", "150%", "200%" };
+	if (ImGui::BeginCombo("##zoom", zoom_labels[(int)current_zoom]))
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {6.0f, 4.0f});
+		for (int i = 0; i < IM_ARRAYSIZE(zoom_labels); i++)
+			if (ImGui::Selectable(zoom_labels[i], (int)current_zoom == i))
+				current_zoom = (zoom_mode)i;
+		ImGui::Separator();
+		if (ImGui::Selectable((std::string(ICON_PH_LAYOUT) + " Reset Layout").c_str()))
+			reset_layout = true;
+		ImGui::PopStyleVar();
+		ImGui::EndCombo();
+	}
+	tooltip("Game viewport zoom");
+
+#if SHOW_IMGUI_DEMO
+	ImGui::SameLine();
+	if (toggle_button(ICON_PH_WINDOW, show_demo, "Show ImGui demo window"))
+		show_demo = !show_demo;
+#endif
+	end_subpanel();
+
+	// What needs attention, after the subpanels
+	if (xs::script::has_error())
+	{
+		game_paused = true;
+		if (colored_button(ICON_PH_EXCLAMATION_CIRCLE, get_color(color_id::Red), "Script Error! Check output."))
+		{
+			xs::script::clear_error();
+			game_paused = false;
+		}
+		ImGui::SameLine();
+	}
+	if (xs::data::has_chages())
+	{
+		if (colored_button(ICON_PH_EXCLAMATION_CIRCLE, get_color(color_id::Purple), "Data has unsaved changes"))
+			show_data_registry = true;
+		ImGui::SameLine();
+	}
+
+	ImGui::EndChild();
+	ImGui::PopStyleColor();
 	pop_menu_theme(current_theme);
 }
 
-static void xs::inspector::render_stats_bar()
+static void xs::inspector::render_stats_bar(float height)
 {
 	ImGui::PushFont(small_font);
 
-	// Measure the desired height (one row example)
-	float desired_h = ImGui::GetFrameHeightWithSpacing(); // convenience: button/input height + spacing
-	desired_h += ImGui::GetStyle().WindowPadding.y * 2.0f; // extra padding
-	ImGuiDockNode* n = ImGui::DockBuilderGetNode(dock_id_bottom);
-	if (n)
+	// Quiet text, as it is always there. An item lights up to the theme's own text color while hovered.
+	const ImVec4 base_text = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+	status_hover_text = base_text;
+	ImGui::PushStyleColor(ImGuiCol_Text, {base_text.x, base_text.y, base_text.z, c_status_text_alpha});
+	const float padding_y = std::round((height - ImGui::GetFrameHeight()) * 0.5f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {ImGui::GetStyle().WindowPadding.x, padding_y});
+	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+	begin_bar("##StatusBar", viewport->Pos.y + viewport->Size.y - height, height);
+
+	// Frames per second and frame time are the average of the last second, and they hold that value until the next
+	// second is over: even a sliding average flickers, as its last digit changes every frame. Until the first second
+	// is over, they show what there is.
+	static float accumulated_time = 0.0f;
+	static int accumulated_frames = 0;
+	static float average_frame_time = 0.0f;
+	accumulated_time += ImGui::GetIO().DeltaTime;
+	accumulated_frames++;
+	if (accumulated_time >= 1.0f || average_frame_time == 0.0f)
 	{
-		n->SizeRef.y = desired_h;     // height you want (in pixels)
-		n->Size.y    = desired_h;     // optional, for immediate effect
+		average_frame_time = accumulated_time / (float)accumulated_frames;
+		if (accumulated_time >= 1.0f)
+		{
+			accumulated_time = 0.0f;
+			accumulated_frames = 0;
+		}
 	}
 
-	ImGui::Begin("Stats", nullptr,
-                     ImGuiWindowFlags_NoScrollbar |
-                     ImGuiWindowFlags_NoTitleBar |
-                     ImGuiWindowFlags_NoCollapse |
-                     ImGuiWindowFlags_NoScrollWithMouse |
-                     ImGuiWindowFlags_AlwaysAutoResize |
-                     ImGuiWindowFlags_NoResize);
-        
+	const float gap = std::round(ImGui::GetFontSize() * 0.15f);
+	auto stats = render::get_stats();
+	char value[64];
 
-        auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
-        auto mem_str = xs::tools::float_to_str_with_precision(mb, 1);
-        auto stats = render::get_stats();
-        auto draw_calls = to_string(stats.draw_calls);
-        auto sprites = to_string(stats.sprites);
-        auto textures = to_string(stats.textures);
-        auto path = fileio::absolute("[game]");
+	// The script debugger, first, only when the game was started with --debug-port. The bug is blue while a client
+	// is connected.
+	if (debugger::enabled())
+	{
+		const bool connected = debugger::connected();
+		snprintf(value, sizeof(value), "Debugger :%d", debugger::port());
+		const std::string tip = connected
+			? "A debugger is connected on port " + to_string(debugger::port())
+			: "Waiting for a debugger to connect on port " + to_string(debugger::port());
+		const ImVec4 tint = connected ? as_imvec4(get_color(color_id::Blue)) : ImVec4();
+		status_item("##stat_debugger", ICON_PH_BUG, value, value, tip.c_str(), 0.0f, tint);
+		ImGui::SameLine(0.0f, gap);
+	}
 
-        // Use transparent button style so they look like status items. Alpha is configurable.
-        ImGui::PushStyleColor(ImGuiCol_Button, {0,0,0,c_status_button_base_alpha});
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, {0,0,0,c_status_button_hover_alpha});
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, {0,0,0,c_status_button_active_alpha});
-        // Push text color with adjustable alpha for labels in the status bar
-        ImVec4 base_text = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-        ImGui::PushStyleColor(ImGuiCol_Text, {base_text.x, base_text.y, base_text.z, c_status_text_alpha});
+	snprintf(value, sizeof(value), "%.1f", average_frame_time > 0.0f ? 1.0f / average_frame_time : 0.0f);
+	status_item("##stat_fps", ICON_PH_MONITOR, value, "ddd.d", "Frames per second (average, updated every second)");
+	ImGui::SameLine(0.0f, gap);
 
-        // Memory button (icon + text). Stable ID after '##' keeps identity while text changes.
-        {
-            std::string label = std::string(ICON_PH_MEMORY) + " " + mem_str + "MB" + "##stat_mem";
-            if (ImGui::Button(label.c_str())) {
-                 notify(notification_type::info, std::string("Memory: ") + mem_str + " MB", c_notification_default_time);
-             }
-             tooltip("Memory allocated by Wren VM (MB)");
-        }
+	snprintf(value, sizeof(value), "%.2f ms", average_frame_time * 1000.0f);
+	status_item("##stat_frame", ICON_PH_CLOCK, value, "dd.dd ms", "Frame time (average, updated every second)");
+	ImGui::SameLine(0.0f, gap);
 
-        ImGui::SameLine();
+	const auto mb = script::get_bytes_allocated() / (1024.0f * 1024.0f);
+	snprintf(value, sizeof(value), "%.1f MB", mb);
+	status_item("##stat_mem", ICON_PH_MEMORY, value, "ddd.d MB", "Memory allocated by Wren VM (MB)");
+	ImGui::SameLine(0.0f, gap);
 
-        // Draw calls
-        {
-            std::string label = std::string(ICON_PH_IMAGE_PEN) + " " + draw_calls + "##stat_dc";
-			ImGui::Button(label.c_str());
-            tooltip("Draw calls this frame");
-        }
+	snprintf(value, sizeof(value), "%d", (int)stats.draw_calls);
+	status_item("##stat_dc", ICON_PH_IMAGE_PEN, value, "dddd", "Draw calls this frame");
+	ImGui::SameLine(0.0f, gap);
 
-        ImGui::SameLine();
+	snprintf(value, sizeof(value), "%d", (int)stats.sprites);
+	status_item("##stat_sprites", ICON_PH_IMAGE_FRAME, value, "ddddd", "Sprites drawn this frame");
+	ImGui::SameLine(0.0f, gap);
 
-        // Sprites
-        {
-            std::string label = std::string(ICON_PH_IMAGE_FRAME) + " " + sprites + "##stat_sprites";
-            ImGui::Button(label.c_str());
-            tooltip("Sprites drawn this frame");
-        }
+	snprintf(value, sizeof(value), "%d", (int)stats.textures);
+	status_item("##stat_textures", ICON_PH_IMAGES, value, "ddd", "Number of textures loaded in GPU memory");
+	ImGui::SameLine(0.0f, gap);
 
-        ImGui::SameLine();
+	const auto ver = version::get_version_string(false, true, true);
+	if (status_item("##stat_version", ICON_PH_TAG, ver.c_str(), ver.c_str(), "xs version (click to copy)"))
+	{
+		ImGui::SetClipboardText(ver.c_str());
+		notify(notification_type::info, "Version copied to clipboard", c_notification_default_time);
+	}
+	ImGui::SameLine(0.0f, gap);
 
-        // Textures
-        {
-            std::string label = std::string(ICON_PH_IMAGES) + " " + textures + "##stat_textures";
-            ImGui::Button(label.c_str());
-            tooltip("Number of textures loaded in GPU memory");
-        }
+	// The game folder, in the rest of the bar
+	const std::string path = fileio::absolute("[game]");
+	const float path_width = (std::max)(1.0f, ImGui::GetContentRegionAvail().x);
+	if (status_item("##stat_path", ICON_PH_FOLDER, path.c_str(), "", "Click to copy the game folder path to clipboard", path_width))
+	{
+		ImGui::SetClipboardText(path.c_str());
+		notify(notification_type::info, "Path copied to clipboard", c_notification_default_time);
+	}
 
-        ImGui::SameLine();
-
-        // Version
-        {
-            auto ver = version::get_version_string(false, true, true);
-            std::string label = std::string(ICON_PH_TAG) + " " + ver + "##stat_version";
-            if (ImGui::Button(label.c_str())) {
-                ImGui::SetClipboardText(ver.c_str());
-                notify(notification_type::info, "Version copied to clipboard", c_notification_default_time);
-            }
-            tooltip("xs version (click to copy)");
-        }
-
-        ImGui::SameLine();
-
-        // Path (clickable) - use the remaining width so a full path is visible
-        {
-            // ensure we're on the same line with the previous separator already placed
-            std::string full_path = path;
-            std::string label = std::string(ICON_PH_FOLDER) + " " + full_path + "##stat_path";
-
-            // Make selectable span the remaining width and appear unstyled
-            ImGui::PushStyleColor(ImGuiCol_Header, {0,0,0,0});
-            ImGui::PushStyleColor(ImGuiCol_HeaderHovered, {0,0,0,0});
-            ImGui::PushStyleColor(ImGuiCol_HeaderActive, {0,0,0,0});
-
-            float avail = ImGui::GetContentRegionAvail().x;
-            if (avail < 1.0f) avail = 1.0f;
-            // Use the current frame height so the selectable isn't clipped vertically
-            float height = ImGui::GetFrameHeight();
-            if (ImGui::Selectable(label.c_str(), false, ImGuiSelectableFlags_SpanAvailWidth, ImVec2(avail, height))) {
-                ImGui::SetClipboardText(full_path.c_str());
-                notify(notification_type::info, "Path copied to clipboard", c_notification_default_time);
-            }
-            tooltip("Click to copy the game folder path to clipboard");
-
-            ImGui::PopStyleColor(3);
-        }
-
-	// Pop text color and button colors
-	ImGui::PopStyleColor(4);
 	ImGui::End();
+	ImGui::PopStyleVar();
+	ImGui::PopStyleColor();
 	ImGui::PopFont();
 }
 
 static void xs::inspector::render_game_viewport()
 {
+	// The game always stays docked in the middle. It has no title bar, so dragging anywhere on it would otherwise drag
+	// it out of the dock. A layout saved while it was floating gets it back in its place.
+	ImGuiWindowClass game_class;
+	game_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoUndocking;
+	ImGui::SetNextWindowClass(&game_class);
+	if (ImGuiWindow* window = ImGui::FindWindowByName(c_game_window); window && !window->DockIsActive)
+		if (ImGuiDockNode* central = ImGui::DockBuilderGetCentralNode(layout_id))
+			ImGui::SetNextWindowDockID(central->ID);
+
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-		// Enable scrollbars for fixed zoom modes
-		ImGuiWindowFlags game_window_flags = ImGuiWindowFlags_NoCollapse |
-		                                     ImGuiWindowFlags_NoTitleBar |
-		                                     ImGuiWindowFlags_NoMove;
+		ImGui::Begin(c_game_window, nullptr,
+		             ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove |
+		             ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+		// The top bar, then the game below it. Only the game scrolls (in the fixed zoom modes), the bar stays put.
+		render_top_bar();
+		ImGuiWindowFlags view_flags = ImGuiWindowFlags_None;
 		if (current_zoom != zoom_mode::fit)
-		{
-			game_window_flags |= ImGuiWindowFlags_HorizontalScrollbar;
-		}
-		ImGui::Begin("Game", nullptr, game_window_flags);
+			view_flags |= ImGuiWindowFlags_HorizontalScrollbar;
+		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::GetStyleColorVec4(ImGuiCol_WindowBg));
+		ImGui::BeginChild("##GameView", {0.0f, 0.0f}, ImGuiChildFlags_None, view_flags);
 
 		// Get the game render target texture
 		auto texture = xs::render::get_render_target_texture();
@@ -807,6 +915,8 @@ static void xs::inspector::render_game_viewport()
 
 	// Dummy to reserve space
 	ImGui::Dummy(image_size);
+	ImGui::EndChild();
+	ImGui::PopStyleColor();
 	ImGui::End();
 	ImGui::PopStyleVar();
 }
@@ -884,7 +994,7 @@ static void xs::inspector::render_data_registry()
 	ImGui::SetNextWindowClass(&window_class);
 	ImGui::PushStyleColor(ImGuiCol_ChildBg, {0,0,0, 0.0f});
 	if (ImGui::Begin(
-		(std::string(ICON_PH_BARS) + " Data Registry").c_str(),
+		(std::string(ICON_PH_BARS) + " Data Registry" + c_data_registry_window).c_str(),
 		nullptr, flags))
 	{
 		data::inspect();
@@ -907,7 +1017,7 @@ static void xs::inspector::render_profiler()
 	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoWindowMenuButton;
 	ImGui::SetNextWindowClass(&window_class);
 
-	ImGui::Begin((std::string(ICON_PH_PROFILER) + " Profiler").c_str(), nullptr, flags);
+	ImGui::Begin((std::string(ICON_PH_PROFILER) + " Profiler" + c_profiler_window).c_str(), nullptr, flags);
 	profiler::inspect();
 	ImGui::End();
 	pop_side_panel_theme();
@@ -928,18 +1038,12 @@ static void xs::inspector::render_entities()
 	window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoWindowMenuButton;
 	ImGui::SetNextWindowClass(&window_class);
 
-	if (ImGui::Begin((std::string(ICON_PH_PUZZLE_CUBE) + " Entities").c_str(),
+	if (ImGui::Begin((std::string(ICON_PH_PUZZLE_CUBE) + " Entities" + c_entities_window).c_str(),
 		nullptr, flags))
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_ChildBorderSize, 2 * c_style_scale);
 
-		// Filter UI
-		entity_filter.Draw(ICON_PH_SEARCH);
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_PH_CLEAR_FILTER)) {
-			entity_filter.Clear();
-		}
-		tooltip("Clear filter");
+		search_box(entity_filter);
 
 		// Pass filter to Wren - it handles entity list, filtering, selection, and components
 		script::ec_inspect(entity_filter.InputBuf);
@@ -1052,6 +1156,7 @@ void xs::inspector::apply_theme(theme t)
         light_theme();
         break;
     }
+    base_window_bg = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
 
 #if defined(PLATFORM_PC)
     auto& style = ImGui::GetStyle();
@@ -1070,74 +1175,6 @@ void xs::inspector::push_menu_theme(theme t)
 void xs::inspector::pop_menu_theme(theme t)
 {
     ImGui::PopStyleVar(3);
-}
-
-static bool xs::inspector::colored_button(const char* icon, const xs::inspector::color& color, const char* tip)
-{
-    ImGui::PushStyleColor(ImGuiCol_Text, as_imvec4(color));
-    bool clicked = ImGui::Button(icon);
-    ImGui::PopStyleColor(1);
-
-    if (tip)
-        tooltip(tip);
-
-    return clicked;
-}
-
-// Implement toggle_button
-static bool xs::inspector::toggle_button(const char* icon, bool state, const char* tip)
-{
-    ImGui::SameLine();
-
-    // base (off) colors from the current theme
-    ImVec4 normal       = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-    ImVec4 normalHover  = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
-    ImVec4 normalActive = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
-
-    // Use ButtonActive color for "on" state
-    ImVec4 accent       = normalActive;
-    ImVec4 accentActive = normalActive;
-
-    ImGui::PushStyleColor(ImGuiCol_Button,        state ? accent    : normal);
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive,  state ? accentActive: normalActive);
-
-    bool clicked = ImGui::Button(icon);
-
-    ImGui::PopStyleColor(2);
-
-    if (tip)
-        tooltip(tip);
-
-    return clicked;
-}
-
-static void xs::inspector::vertical_separator(float alpha, float height)
-{
-    ImGui::SameLine();
-
-    // If height is specified, use a custom dummy + line; otherwise use default separator
-    if (height > 0.0f)
-    {
-        ImVec4 text_color = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-        ImVec4 sep_color = {text_color.x, text_color.y, text_color.z, alpha};
-
-        float spacing = ImGui::GetStyle().ItemSpacing.x;
-        ImGui::Dummy(ImVec2(spacing * 0.5f, height));
-        ImGui::SameLine();
-
-        ImVec2 pos = ImGui::GetCursorScreenPos();
-        ImDrawList* draw_list = ImGui::GetWindowDrawList();
-        draw_list->AddLine(ImVec2(pos.x, pos.y), ImVec2(pos.x, pos.y + height), ImGui::ColorConvertFloat4ToU32(sep_color), 1.0f);
-
-        ImGui::Dummy(ImVec2(spacing * 0.5f, height));
-    }
-    else
-    {
-        ImVec4 text_color = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-        ImGui::PushStyleColor(ImGuiCol_Separator, {text_color.x, text_color.y, text_color.z, alpha});
-        ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-        ImGui::PopStyleColor();
-    }
 }
 
 void apply_common_style()
@@ -1378,14 +1415,20 @@ void xs::inspector::light_theme()
     inspector_colors[(size_t)color_id::Red] = {0.85f, 0.15f, 0.15f, 1.0f};
 }
 
-void inspector::push_side_panel_theme()
+ImVec4 inspector::side_panel_color()
 {
-	ImVec4 bg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
+	// From the theme's own window color, not the current one, which is this color itself inside a side panel
+	ImVec4 bg = base_window_bg;
 	if (current_theme == theme::dark)
 		bg = {bg.x + 0.03f, bg.y + 0.03f, bg.z + 0.03f, bg.w};
 	else
 		bg = {bg.x * 0.97f, bg.y * 0.97f, bg.z * 0.97f, bg.w};
-	ImGui::PushStyleColor(ImGuiCol_WindowBg, bg);
+	return bg;
+}
+
+void inspector::push_side_panel_theme()
+{
+	ImGui::PushStyleColor(ImGuiCol_WindowBg, side_panel_color());
 }
 
 void inspector::pop_side_panel_theme()
@@ -1438,6 +1481,7 @@ bool xs::inspector::paused() { return false;  }
 bool xs::inspector::should_restart() { return false; }
 int xs::inspector::notify(xs::inspector::notification_type, const std::string&, float) { return 0; }
 void xs::inspector::clear_notification(int id) {}
+void xs::inspector::search_box(ImGuiTextFilter&) {}
 float xs::inspector::get_game_mouse_x() { return  0.0f; }
 float xs::inspector::get_game_mouse_y() { return  0.0f; }
 xs::inspector::color xs::inspector::get_color(color_id) { return { 1.0f, 1.0f, 1.0f, 1.0f }; }

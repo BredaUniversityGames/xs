@@ -179,14 +179,30 @@ void xs::data::shutdown()
 // Render inspector at a fixed rectangle (no title bar)
 void xs::data::inspect()
 {
-	ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None | ImGuiTabBarFlags_DrawSelectedOverline;
-	if (ImGui::BeginTabBar("DataTabsEmbedded", tab_bar_flags))
+	// Quieter than the panel's own tab right above them: no colored line, and the selected one is only shaded, like a
+	// button that is held down. The same whether the panel has focus or not.
+	const ImVec4 none = {0.0f, 0.0f, 0.0f, 0.0f};
+	const ImVec4 selected = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
+	const ImVec4 hovered = ImGui::GetStyleColorVec4(ImGuiCol_ButtonHovered);
+	ImGui::PushStyleColor(ImGuiCol_Tab, none);
+	ImGui::PushStyleColor(ImGuiCol_TabDimmed, none);
+	ImGui::PushStyleColor(ImGuiCol_TabHovered, hovered);
+	ImGui::PushStyleColor(ImGuiCol_TabSelected, selected);
+	ImGui::PushStyleColor(ImGuiCol_TabDimmedSelected, selected);
+	ImGui::PushStyleColor(ImGuiCol_TabSelectedOverline, none);
+	ImGui::PushStyleColor(ImGuiCol_TabDimmedSelectedOverline, none);
+	ImGui::PushStyleVar(ImGuiStyleVar_TabRounding, ImGui::GetStyle().FrameRounding);
+
+	if (ImGui::BeginTabBar("DataTabsEmbedded", ImGuiTabBarFlags_None))
 	{
 		inspect_of_type("Game Data", string(ICON_PH_GAMEPAD) + " Game", type::game);
 		inspect_of_type("Save Data", string(ICON_PH_SAVE) + " Save", type::save);
 		inspect_of_type("Project Data", string(ICON_PH_COG) + " Project", type::project);
 		ImGui::EndTabBar();
 	}
+
+	ImGui::PopStyleVar();
+	ImGui::PopStyleColor(7);
 }
 
 bool xs::data::has_chages()
@@ -246,6 +262,27 @@ void xs::data::save()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 ////									Internal Impl
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+// The end of a path that fits in a width: whole folders are left off the front, behind "...". At least the file name
+// is kept, even when it alone is too wide.
+static std::string path_end_that_fits(const std::string& path, float width)
+{
+	if (ImGui::CalcTextSize(path.c_str()).x <= width)
+		return path;
+
+	const std::string ellipsis = "...";
+	size_t separator = path.find_first_of("/\\");
+	size_t last = std::string::npos;
+	while (separator != std::string::npos)
+	{
+		last = separator;
+		const std::string end = ellipsis + path.substr(separator);
+		if (ImGui::CalcTextSize(end.c_str()).x <= width)
+			return end;
+		separator = path.find_first_of("/\\", separator + 1);
+	}
+	return last == std::string::npos ? path : ellipsis + path.substr(last);
+}
+
 void xs::data::internal::inspect_of_type(
 	const std::string& name,
 	const std::string& icon,
@@ -284,12 +321,7 @@ void xs::data::internal::inspect_of_type(
 		ImGui::SameLine();
 
 		static ImGuiTextFilter filter;
-		filter.Draw(ICON_PH_SEARCH);
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_PH_CLEAR_FILTER)) {
-			filter.Clear();
-		}
-		tooltip("Clear filter");
+		inspector::search_box(filter);
 
 		bool ed = edited[type];
 		{
@@ -305,9 +337,14 @@ void xs::data::internal::inspect_of_type(
 			tooltip("Save to a file");
 			ImGui::SameLine();
 
+			// The file, as much of its path as fits, from the end. The whole path shows on hover.
+			const string path = fileio::get_path(get_file_path(type));
+			const string shown = path_end_that_fits(path, ImGui::GetContentRegionAvail().x);
 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-			ImGui::Text("%s", fileio::get_path(get_file_path(type)).c_str());
-			ImGui::PopStyleColor();			
+			ImGui::TextUnformatted(shown.c_str());
+			ImGui::PopStyleColor();
+			if (shown != path)
+				tooltip(path.c_str());
 		}
 
 		vector<string> sorted;
